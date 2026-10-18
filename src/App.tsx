@@ -419,6 +419,11 @@ export default function App() {
             <TabMatches
               currentGW={data.current_gw}
               availableGWs={data.available_gws}
+              lastSynced={data.sync_status?.last_synced}
+              isMatchLive={isMatchLive}
+              isAppVisible={activeTab === 'MATCHES'}
+              ownershipPlayers={data.ownership_players}
+              transfers={data.all_transfers}
               onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
             />
           </div>

@@ -50,6 +50,22 @@ let pulseSeasonFixturesCache: {
 // Cache for individual Pulse match details (lineups & events)
 const pulseMatchDetailsCache = new Map<number, { data: any; time: number; isFinished: boolean }>();
 
+/**
+ * Clear matches cache to force fresh live fetch on next request or after sync
+ */
+export function invalidateMatchesCache(gw?: number): void {
+  if (typeof gw === 'number') {
+    matchesGwCache.delete(gw);
+  } else {
+    matchesGwCache.clear();
+  }
+  for (const [id, item] of pulseMatchDetailsCache.entries()) {
+    if (!item.isFinished) {
+      pulseMatchDetailsCache.delete(id);
+    }
+  }
+}
+
 async function fetchJson(url: string, headers: Record<string, string>): Promise<any> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 12000);

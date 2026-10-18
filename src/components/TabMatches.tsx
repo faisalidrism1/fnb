@@ -1,11 +1,23 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
-import { MatchCardItem, MatchPlayerItem, MatchPlayerEvent, MatchStatMetric } from '../types.ts';
+import {
+  MatchCardItem,
+  MatchPlayerItem,
+  MatchPlayerEvent,
+  MatchStatMetric,
+  PlayerOwnershipItem,
+  TransferItem,
+} from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 
 interface TabMatchesProps {
   currentGW?: number;
   availableGWs?: number[];
+  lastSynced?: string;
+  isMatchLive?: boolean;
+  isAppVisible?: boolean;
+  ownershipPlayers?: Record<number, PlayerOwnershipItem[]>;
+  transfers?: TransferItem[];
   onSelectPlayer?: (playerId: number, gw?: number) => void;
 }
 
@@ -322,6 +334,11 @@ const sortPlayersByPosition = (players: MatchPlayerItem[]): MatchPlayerItem[] =>
 export const TabMatches: React.FC<TabMatchesProps> = ({
   currentGW = 1,
   availableGWs = [1],
+  lastSynced,
+  isMatchLive = false,
+  isAppVisible = true,
+  ownershipPlayers = {},
+  transfers = [],
   onSelectPlayer,
 }) => {
   const [activeGW, setActiveGW] = useState<number>(currentGW);
@@ -329,11 +346,49 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeMetric, setActiveMetric] = useState<MatchStatMetric>('pts');
 
+  // Memoized FNB League TSB (Ownership %) & Net Transfers for activeGW (identik dengan modal pemain)
+  const fnbMetricsMap = useMemo(() => {
+    const tsbMap = new Map<number, string>();
+    const ntMap = new Map<number, string>();
+
+    // 1. Teams Selected By (FNB League Ownership %) in activeGW
+    const currentOwnershipList = ownershipPlayers?.[activeGW] || [];
+    for (const p of currentOwnershipList) {
+      if (p && p.id) {
+        tsbMap.set(p.id, `${p.owned_percentage.toFixed(1)}%`);
+      }
+    }
+
+    // 2. Net Transfers in FNB League for activeGW
+    if (Array.isArray(transfers) && transfers.length > 0) {
+      const netCountMap = new Map<number, number>();
+      for (const t of transfers) {
+        if (t.event === activeGW) {
+          if (t.element_in?.id) {
+            const id = t.element_in.id;
+            netCountMap.set(id, (netCountMap.get(id) || 0) + 1);
+          }
+          if (t.element_out?.id) {
+            const id = t.element_out.id;
+            netCountMap.set(id, (netCountMap.get(id) || 0) - 1);
+          }
+        }
+      }
+      for (const [id, count] of netCountMap.entries()) {
+        ntMap.set(id, count > 0 ? `+${count}` : `${count}`);
+      }
+    }
+
+    return { tsbMap, ntMap };
+  }, [ownershipPlayers, transfers, activeGW]);
+
   // Expanded panel state: set of match IDs currently expanded (default: collapsed all)
   const [expandedMatchIds, setExpandedMatchIds] = useState<Set<number>>(new Set());
 
   // Active breakdown popover: playerId_matchId
   const [activeBreakdownKey, setActiveBreakdownKey] = useState<string | null>(null);
+
+  const isFetchingRef = useRef<boolean>(false);
 
   // Dynamic header offset measurement for sticky dropdown
   const [headerHeight, setHeaderHeight] = useState<number>(() => {
@@ -370,11 +425,18 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
     }
   }, [currentGW, availableGWs]);
 
-  // Fetch matches for activeGW
-  const fetchMatches = useCallback(async (gw: number) => {
-    setIsLoading(true);
+  // Fetch matches for activeGW with silent revalidation support (no UI flash, no state reset)
+  const fetchMatches = useCallback(async (gw: number, silent: boolean = false, force: boolean = false) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
+    if (!silent) {
+      setIsLoading(true);
+    }
+
     try {
-      const res = await fetch(`/api/fpl-matches/${gw}?_t=${Date.now()}`);
+      const forceQuery = force ? '&force=1' : '';
+      const res = await fetch(`/api/fpl-matches/${gw}?_t=${Date.now()}${forceQuery}`);
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
@@ -385,13 +447,64 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
       console.warn('Failed to fetch matches for GW', gw, e);
     } finally {
       setIsLoading(false);
+      isFetchingRef.current = false;
     }
   }, []);
 
+  // GW Change: Load matches with initial loader and reset breakdown
   useEffect(() => {
-    fetchMatches(activeGW);
+    fetchMatches(activeGW, false, false);
     setActiveBreakdownKey(null);
   }, [activeGW, fetchMatches]);
+
+  // Reactive Sync Trigger: When lastSynced changes (sync completed in background or manual sync),
+  // automatically re-fetch the matches silently and update all match elements without page reload
+  const isFirstMountRef = useRef<boolean>(true);
+  useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      return;
+    }
+    console.log('[TabMatches] lastSynced changed. Silently updating matchday elements with fresh sync data...');
+    fetchMatches(activeGW, true, true);
+  }, [lastSynced, activeGW, fetchMatches]);
+
+  // Detect if any match in currently viewed GW is in-play (started and not full time)
+  const hasLiveMatchInCurrentView = useMemo(() => {
+    return matches.some((m) => m.started && !m.finished && !m.finished_provisional);
+  }, [matches]);
+
+  const isCurrentGwLive = Boolean(isMatchLive || hasLiveMatchInCurrentView);
+
+  // Fast auto-update during live matches: 15 seconds cadence while tab is visible
+  useEffect(() => {
+    if (!isCurrentGwLive || isAppVisible === false) return;
+
+    console.log(`[TabMatches] Live Matchday auto-poll active (15s cadence for GW ${activeGW})...`);
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchMatches(activeGW, true, false);
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [isCurrentGwLive, isAppVisible, activeGW, fetchMatches]);
+
+  // Window Focus & Visibility Change catch-up: silent refresh when user returns to window/tab
+  useEffect(() => {
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible' && isCurrentGwLive) {
+        fetchMatches(activeGW, true, false);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+    };
+  }, [isCurrentGwLive, activeGW, fetchMatches]);
 
   // Click outside breakdown card to dismiss active breakdown
   useEffect(() => {
@@ -556,12 +669,10 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
       case 'ii':
         return (st.ict_index ?? 0).toFixed(1);
       case 'nt': {
-        const val = st.net_transfers ?? st.transfers_balance ?? 0;
-        return val > 0 ? `+${val}` : String(val);
+        return fnbMetricsMap.ntMap.get(player.id) ?? '0';
       }
       case 'tsb': {
-        const val = st.teams_selected_by ?? st.selected_by_percent ?? 0;
-        return `${val.toFixed(1)}%`;
+        return fnbMetricsMap.tsbMap.get(player.id) ?? '0.0%';
       }
       case 'cost': {
         const val = st.price ?? ((player.now_cost ?? 0) / 10);
@@ -968,8 +1079,9 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                 {isExpanded && (
                   <div className="bg-white dark:bg-[#1a0c2c] py-2 sm:py-2.5 px-1 sm:px-1.5 animate-in fade-in duration-100">
                     {!m.has_lineup ? (
-                      <div className="py-4 text-center text-xs text-slate-500 dark:text-purple-300/70 italic font-medium">
-                        Official line-up will be announced ~60 minutes before kickoff
+                      <div className="py-4 px-2 text-center text-xs sm:text-sm text-slate-500 dark:text-purple-300/80 font-medium leading-snug [text-wrap:balance] max-w-sm sm:max-w-md mx-auto">
+                        Official line-up will be announced
+                        <span className="block sm:inline"> ~60 minutes before kickoff</span>
                       </div>
                     ) : (
                       <div className="space-y-2">

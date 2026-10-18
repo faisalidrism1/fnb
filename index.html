@@ -18,6 +18,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <script>
       (function() {
+        // Suppress harmless Vite HMR WebSocket connection errors in iframe/Cloud Run environment
+        window.addEventListener('error', function(event) {
+          if (
+            (event.message && (event.message.includes('WebSocket') || event.message.includes('createWebSocketModuleRunnerTransport'))) ||
+            (event.filename && event.filename.includes('@vite/client'))
+          ) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+          }
+        }, true);
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event.reason ? String(event.reason) : '';
+          if (
+            reason.includes('WebSocket') ||
+            reason.includes('createWebSocketModuleRunnerTransport') ||
+            reason.includes('@vite/client')
+          ) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+          }
+        }, true);
+      })();
+    </script>
+    <script>
+      (function() {
         try {
           var matchMedia = window.matchMedia('(prefers-color-scheme: dark)');
           function applyTheme(isDark) {

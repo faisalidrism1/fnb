@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle } from './src/server/dataFetcher.ts';
-import { fetchMatchesForGw } from './src/server/matchesFetcher.ts';
+import { fetchMatchesForGw, invalidateMatchesCache } from './src/server/matchesFetcher.ts';
 import { TransformedLeagueData } from './src/types.ts';
 import {
   initDatabase,
@@ -119,6 +119,13 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
         executeSchemaSync(freshData);
       } catch (dbErr: any) {
         console.error('[Server] DB Schema Sync error:', dbErr.message);
+      }
+
+      // Invalidate matches cache so that matches data reflects the latest sync
+      try {
+        invalidateMatchesCache(targetGW);
+      } catch (mErr: any) {
+        console.warn('[Server] Error invalidating matches cache:', mErr.message);
       }
 
       console.log(`[Server] FPL API & DB schema sync (${action}) completed successfully at`, new Date().toISOString());
@@ -692,6 +699,9 @@ app.get('/api/fpl-manager-detail/:id', async (req, res) => {
 app.get('/api/fpl-matches/:gw', async (req, res) => {
   try {
     const gw = Number(req.params.gw) || (cachedData?.current_gw || 1);
+    if (req.query.force === '1' || req.query.sync === '1') {
+      invalidateMatchesCache(gw);
+    }
     const matches = await fetchMatchesForGw(gw);
     res.json({
       success: true,
@@ -958,7 +968,10 @@ app.get('/api/db/sync', handleDbSync);
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);

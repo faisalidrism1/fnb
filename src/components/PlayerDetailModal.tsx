@@ -477,8 +477,8 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     refreshPlayerStats();
   }, [playerId, currentGWPoints, lastSynced, refreshPlayerStats]);
   const owners: PlayerOwnerItem[] = useMemo(() => {
-    return currentGWPlayer?.owners || playerMeta?.owners || [];
-  }, [currentGWPlayer, playerMeta]);
+    return currentGWPlayer?.owners || [];
+  }, [currentGWPlayer]);
 
   // Check if a manager has Bench Boost active in activeGW
   const isManagerBenchBoost = useCallback(
@@ -1448,11 +1448,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     : summaryData?.player_info?.nowCost
     ? (summaryData.player_info.nowCost / 10).toFixed(1)
     : '-';
-  const ownershipPct =
-    currentGWPlayer?.owned_percentage ??
-    playerMeta?.owned_percentage ??
-    summaryData?.player_info?.selectedByPercent ??
-    0;
+  const ownershipPct = currentGWPlayer ? currentGWPlayer.owned_percentage : 0;
   const totalSeasonPoints = summaryData?.player_info?.totalPoints ?? playerMeta?.total_points ?? '-';
 
   return (
@@ -2315,8 +2311,8 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                   </table>
                 </div>
               ) : (
-                <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
-                  No managers found matching your search.
+                <div className="p-6 text-center text-xs text-slate-500 dark:text-purple-300/80 font-medium">
+                  {ownerSearch ? 'No managers found matching your search.' : `No managers in FNB League own this player in GW ${activeGW}.`}
                 </div>
               )}
             </div>
