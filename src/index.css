@@ -1,1 +1,255 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --app-font: 'Plus Jakarta Sans', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  color-scheme: light dark;
+}
+
+html, body, #root, #root * {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+table, th, td, tr, .tabular-nums, input, select {
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+}
+
+code, kbd, pre, .font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+@keyframes logoBreath {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 10px rgba(0, 255, 135, 0.2));
+  }
+  50% {
+    transform: scale(1.035);
+    filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 25px rgba(0, 255, 135, 0.45));
+  }
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-150%) rotate(25deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(150%) rotate(25deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(150%) rotate(25deg);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseGlowRing {
+  0%, 100% {
+    opacity: 0.5;
+    box-shadow: 0 0 20px rgba(0, 255, 135, 0.3), inset 0 0 15px rgba(0, 255, 135, 0.1);
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 35px rgba(0, 255, 135, 0.6), inset 0 0 20px rgba(0, 229, 255, 0.3);
+  }
+}
+
+.animate-logo-breath {
+  animation: logoBreath 3.6s ease-in-out infinite;
+}
+
+.animate-shimmer-sweep {
+  animation: shimmerSweep 3.2s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlowRing 3.6s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Comprehensive Dark Mode Palette (Auto adapts to user device preference)
+   Preserves Premier League Identity: Deep Obsidian Purple (#0d0517 / #130822)
+   with FPL Neon Green (#00ff87) and Electric Magenta (#ff2851)
+   ========================================================================== */
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Base Body & Container */
+.dark body {
+  background-color: #0d0517;
+  color: #f1f5f9;
+}
+
+/* Main Cards, Tables & Panels */
+.dark .bg-white {
+  background-color: #150926 !important;
+  color: #f1f5f9;
+}
+
+.dark .bg-slate-50 {
+  background-color: #1a0c30 !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #210f3d !important;
+}
+
+/* Borders & Separators */
+.dark .border-slate-200,
+.dark .border-slate-200\/90,
+.dark .border-slate-200\/80,
+.dark .border-slate-200\/70,
+.dark .border-slate-300 {
+  border-color: rgba(99, 44, 138, 0.45) !important;
+}
+
+.dark .border-slate-100 {
+  border-color: rgba(99, 44, 138, 0.25) !important;
+}
+
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(99, 44, 138, 0.25) !important;
+}
+
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(99, 44, 138, 0.4) !important;
+}
+
+/* Text Hierarchy */
+.dark .text-slate-900 {
+  color: #ffffff !important;
+}
+
+.dark .text-slate-800 {
+  color: #f3f4f6 !important;
+}
+
+.dark .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Interactive States & Hovers */
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-purple-50\/30:hover,
+.dark .hover\:bg-purple-50\/40:hover,
+.dark .hover\:bg-purple-50\/50:hover {
+  background-color: rgba(99, 44, 138, 0.35) !important;
+}
+
+.dark .group:hover .group-hover\:bg-purple-50\/50,
+.dark .group:hover .group-hover\:bg-purple-100\/70 {
+  background-color: rgba(99, 44, 138, 0.45) !important;
+}
+
+/* Sticky frozen table columns in Dark Mode */
+.dark td.sticky,
+.dark th.sticky {
+  background-color: #150926;
+}
+
+.dark tr:hover td.sticky {
+  background-color: #23103e !important;
+}
+
+/* Badges & Accents in Dark Mode */
+.dark .bg-purple-50,
+.dark .bg-purple-100,
+.dark .bg-purple-100\/70 {
+  background-color: rgba(55, 0, 60, 0.7) !important;
+  color: #00ff87 !important;
+  border-color: rgba(0, 255, 135, 0.3) !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-teal-50,
+.dark .bg-teal-100 {
+  background-color: rgba(6, 78, 59, 0.5) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(52, 211, 153, 0.4) !important;
+}
+
+.dark .bg-rose-50 {
+  background-color: rgba(136, 19, 55, 0.5) !important;
+  color: #fda4af !important;
+  border-color: rgba(251, 113, 133, 0.4) !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background-color: rgba(120, 53, 15, 0.4) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+.dark .text-amber-700,
+.dark .text-amber-800 {
+  color: #fbbf24 !important;
+}
+
+/* Inputs & Form Elements in Dark Mode */
+.dark input[type="text"] {
+  background-color: #1a0c30 !important;
+  color: #ffffff !important;
+  border-color: rgba(99, 44, 138, 0.5) !important;
+}
+
+.dark input[type="text"]::placeholder {
+  color: #64748b !important;
+}
+
+/* SVG Chart Grids in Dark Mode */
+.dark svg line[stroke="#f1f5f9"] {
+  stroke: rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark svg line[stroke="#f8fafc"] {
+  stroke: rgba(255, 255, 255, 0.06) !important;
+}
+
+.dark svg line[stroke="#e2e8f0"] {
+  stroke: rgba(99, 44, 138, 0.35) !important;
+}
+
+.dark svg line[stroke="#cbd5e1"] {
+  stroke: rgba(99, 44, 138, 0.5) !important;
+}
+
+.dark svg text[fill="#64748b"],
+.dark svg text[fill="#94a3b8"],
+.dark svg text[fill="#475569"] {
+  fill: #94a3b8 !important;
+}
+
+.dark svg text[fill="#37003c"] {
+  fill: #00ff87 !important;
+}
+
+/* Team name label in dark mode: dark obsidian outline matching canvas background instead of white */
+.dark .chart-team-label {
+  stroke: #150926 !important;
+}
+
