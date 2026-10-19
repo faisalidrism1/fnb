@@ -282,9 +282,133 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     const { fix } = fixturePulseIds[idx];
     const pulseMatchData = pulseMatchDetailsResults[idx];
 
-    const isFt = Boolean(fix.finished || fix.finished_provisional);
+    const kickoffMs = fix.kickoff_time ? new Date(fix.kickoff_time).getTime() : 0;
+    const elapsedMinutes = kickoffMs > 0 ? (now - kickoffMs) / (60 * 1000) : 0;
+
+    const pulseEvents: any[] = Array.isArray(pulseMatchData?.events) ? pulseMatchData.events : [];
+
+    // Precise event-based markers from Premier League Opta / Pulse feed:
+    // 'PS' = Period Start ('1' = 1st half kickoff, '2' = 2nd half kickoff)
+    // 'PE' = Period End   ('1' = 1st half whistle / Half Time, '2' = 2nd half whistle / Full Time)
+    const hasFirstHalfEnd = pulseEvents.some((e: any) =>
+      e.type === 'PE' && (e.phase === '1' || e.phase === '1H')
+    );
+    const hasSecondHalfStart = pulseEvents.some((e: any) =>
+      e.type === 'PS' && (e.phase === '2' || e.phase === '2H')
+    );
+    const hasSecondHalfEnd = pulseEvents.some((e: any) =>
+      e.type === 'PE' && (e.phase === '2' || e.phase === '2H')
+    );
+
+    // Accurate Full Time Detection:
+    // 1. FPL finished or finished_provisional
+    // 2. Pulse match event Period End for phase 2 (hasSecondHalfEnd: final whistle blown by referee)
+    // 3. Pulse status 'C' (Complete) or phase 'F' / 'FT' (Full Time)
+    // 4. Pulse outcome declared
+    // 5. Pulse clock label explicitly includes 'full' or 'ft'
+    // 6. Time-based fallback: match started, reached 90 mins (or Pulse clock >= 90 mins / 5400s), and elapsed >= 105 mins from kickoff
+    // 7. Hard timeout: match started and elapsed >= 120 mins from kickoff
+    const isPulseFinished = pulseMatchData ? Boolean(
+      hasSecondHalfEnd ||
+      pulseMatchData.status === 'C' ||
+      pulseMatchData.phase === 'F' ||
+      pulseMatchData.phase === 'FT' ||
+      (typeof pulseMatchData.outcome === 'string' && pulseMatchData.outcome.length > 0) ||
+      (typeof pulseMatchData.clock?.label === 'string' && (
+        pulseMatchData.clock.label.toLowerCase().includes('full') ||
+        pulseMatchData.clock.label.trim().toUpperCase() === 'FT'
+      ))
+    ) : false;
+
+    const isTimeFinished = Boolean(
+      fix.started && (
+        ((fix.minutes >= 90 || (pulseMatchData?.clock?.secs && pulseMatchData.clock.secs >= 5400)) && elapsedMinutes >= 105) ||
+        elapsedMinutes >= 120
+      )
+    );
+
+    const isFt = Boolean(fix.finished || fix.finished_provisional || isPulseFinished || isTimeFinished);
     const isLive = Boolean(fix.started && !isFt);
     if (!isFt) allMatchesFinished = false;
+
+    // Accurate Half Time Detection:
+    // 1. Event-based: First half ended (type: 'PE', phase: '1') AND second half has NOT started yet (!hasSecondHalfStart)
+    // 2. Pulse phase 'HT' / 'H' / 'HALFTIME' or status 'HT'
+    // 3. Pulse clock label explicitly contains 'HT' or 'HALF'
+    // 4. Pulse halfTimeScore is populated, match started, not FT, and 2nd half has not started (phase !== '2' && phase !== '2H' && !hasSecondHalfStart)
+    // 5. Pulse clock label is frozen in 1st half stoppage time (e.g. "45+", "45'", "45:00") and elapsedMinutes >= 48 and elapsedMinutes <= 75 and 2nd half not started
+    // 6. Fallback: started, not FT, fix.minutes === 45, elapsed >= 48 and <= 75 mins since kickoff, and 2nd half not started
+    const isPulseHalfTimeByEvent = Boolean(hasFirstHalfEnd && !hasSecondHalfStart);
+
+    const isPulseHalfTimeExplicit = pulseMatchData ? Boolean(
+      pulseMatchData.status === 'HT' ||
+      pulseMatchData.phase === 'HT' ||
+      pulseMatchData.phase === 'H' ||
+      pulseMatchData.phase === 'HALFTIME' ||
+      (typeof pulseMatchData.clock?.label === 'string' && (
+        pulseMatchData.clock.label.toUpperCase().includes('HT') ||
+        pulseMatchData.clock.label.toUpperCase().includes('HALF')
+      ))
+    ) : false;
+
+    const isPulseHalfTimeScore = pulseMatchData ? Boolean(
+      pulseMatchData.halfTimeScore &&
+      !hasSecondHalfStart &&
+      pulseMatchData.phase !== '2' &&
+      pulseMatchData.phase !== '2H'
+    ) : false;
+
+    const isClockFrozenAtHalf = pulseMatchData ? Boolean(
+      typeof pulseMatchData.clock?.label === 'string' &&
+      (pulseMatchData.clock.label.startsWith('45+') || pulseMatchData.clock.label.startsWith("45'") || pulseMatchData.clock.label.startsWith('45:')) &&
+      !hasSecondHalfStart &&
+      pulseMatchData.phase !== '2' &&
+      pulseMatchData.phase !== '2H' &&
+      elapsedMinutes >= 48 &&
+      elapsedMinutes <= 75
+    ) : false;
+
+    const isEstimatedHalfTime = Boolean(
+      fix.started &&
+      !isFt &&
+      !hasSecondHalfStart &&
+      (pulseMatchData ? (pulseMatchData.phase !== '2' && pulseMatchData.phase !== '2H') : true) &&
+      (fix.minutes === 45 || (pulseMatchData?.clock?.secs && pulseMatchData.clock.secs >= 2700 && pulseMatchData.clock.secs <= 3600)) &&
+      elapsedMinutes >= 48 &&
+      elapsedMinutes <= 75
+    );
+
+    const isHalfTime = !isFt && (
+      isPulseHalfTimeByEvent ||
+      isPulseHalfTimeExplicit ||
+      isPulseHalfTimeScore ||
+      isClockFrozenAtHalf ||
+      isEstimatedHalfTime
+    );
+
+    let clockLabel = '';
+    if (isFt) {
+      clockLabel = 'Full Time';
+    } else if (isHalfTime) {
+      clockLabel = 'Half Time';
+    } else if (pulseMatchData?.clock?.label) {
+      // Clean up clock label (e.g. "45+7'00" -> "45+7'")
+      clockLabel = pulseMatchData.clock.label.replace(/'00$/, "'").replace(/:00$/, "'");
+    } else if (fix.minutes >= 90) {
+      clockLabel = "90+'";
+    } else if (fix.minutes > 0) {
+      clockLabel = `${fix.minutes}'`;
+    } else if (fix.started) {
+      clockLabel = "1'";
+    }
+
+    const matchPhase = isFt
+      ? 'FT'
+      : isHalfTime
+      ? 'HT'
+      : (hasSecondHalfStart || fix.minutes > 45 || pulseMatchData?.phase === '2' || pulseMatchData?.phase === '2H')
+      ? '2H'
+      : (pulseMatchData?.phase || (fix.started ? '1H' : 'UPCOMING'));
 
     const homeTeam = teamMap.get(fix.team_h) || {
       id: fix.team_h,
@@ -659,12 +783,15 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       kickoff_time: fix.kickoff_time,
       started: Boolean(fix.started),
       finished: isFt,
-      finished_provisional: Boolean(fix.finished_provisional),
+      finished_provisional: Boolean(fix.finished_provisional || isPulseFinished),
       minutes: fix.minutes || 0,
+      clock_label: clockLabel,
+      phase: matchPhase,
+      is_half_time: isHalfTime,
       home_team: homeTeam,
       away_team: awayTeam,
-      team_h_score: fix.team_h_score,
-      team_a_score: fix.team_a_score,
+      team_h_score: fix.team_h_score ?? (pulseMatchData?.teams?.[0]?.score ?? null),
+      team_a_score: fix.team_a_score ?? (pulseMatchData?.teams?.[1]?.score ?? null),
       has_lineup: hasLineup,
       home_lineup: homeLineup,
       home_bench: homeBench,

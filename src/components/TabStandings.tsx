@@ -138,6 +138,11 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
 
     fetchStatus();
 
+    const handleGlobalSync = () => {
+      fetchStatus();
+    };
+    window.addEventListener('fpl:data-synced', handleGlobalSync);
+
     // Periodic live polling every 20s so live match audits & bonus updates reflect automatically
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') {
@@ -147,6 +152,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
 
     return () => {
       isMounted = false;
+      window.removeEventListener('fpl:data-synced', handleGlobalSync);
       clearInterval(interval);
     };
   }, [selectedGW, syncStatus]);

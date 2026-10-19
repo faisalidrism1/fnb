@@ -742,11 +742,30 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     };
   }, [entryId, refreshManagerDetail]);
 
-  // Immediate auto-refresh when parent data sync finishes
+  // Immediate auto-refresh when parent data sync finishes or global sync event fires
   useEffect(() => {
     if (!entryId) return;
-    refreshManagerDetail();
-  }, [entryId, lastSynced, refreshManagerDetail]);
+
+    const performSyncRefresh = () => {
+      playerSummaryMemoryCache.clear();
+      managerDetailClientCache.delete(entryId);
+      refreshManagerDetail();
+      if (activeBreakdownPlayerId !== null) {
+        fetchPlayerBreakdown(activeBreakdownPlayerId, activePlayerPos, true);
+      }
+    };
+
+    performSyncRefresh();
+
+    const handleGlobalSync = () => {
+      performSyncRefresh();
+    };
+
+    window.addEventListener('fpl:data-synced', handleGlobalSync);
+    return () => {
+      window.removeEventListener('fpl:data-synced', handleGlobalSync);
+    };
+  }, [entryId, lastSynced, activeBreakdownPlayerId, activePlayerPos, refreshManagerDetail, fetchPlayerBreakdown]);
 
   // Sorted list of available gameweeks
   const sortedGWs = useMemo(() => {

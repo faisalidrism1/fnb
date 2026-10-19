@@ -243,6 +243,17 @@ export default function App() {
           }
 
           saveToIndexedDB(cleanData).catch(() => {});
+
+          // Broadcast to entire application (all tabs, subtabs, modals, and popups)
+          window.dispatchEvent(
+            new CustomEvent('fpl:data-synced', {
+              detail: {
+                lastSynced: cleanData.sync_status?.last_synced,
+                currentGW: cleanData.current_gw,
+                data: cleanData,
+              },
+            })
+          );
         }
       }
     } catch (e: any) {
@@ -283,6 +294,67 @@ export default function App() {
       setIsSyncing(false);
       setIsInitializing(false);
     }
+  }, []);
+
+  // Real-Time Server-Sent Events (SSE) Stream:
+  // Instantaneous push from server as soon as sync & calculations finish (<50ms)
+  useEffect(() => {
+    let eventSource: EventSource | null = null;
+    let reconnectTimer: any = null;
+
+    const connectSSE = () => {
+      try {
+        eventSource = new EventSource('/api/events');
+
+        eventSource.addEventListener('sync_complete', (event: MessageEvent) => {
+          try {
+            const payload = JSON.parse(event.data);
+            if (payload && payload.data) {
+              console.log('[SSE Stream] Server sync finished. Instantly updating entire application state...');
+              const cleanData = deduplicateLeagueData(payload.data);
+              setData(cleanData);
+              dataRef.current = cleanData;
+              setLastCheckedTime(payload.checked_at || new Date().toISOString());
+              saveToIndexedDB(cleanData).catch(() => {});
+
+              // Simultaneously broadcast to all mounted components, active tabs, subtabs, modals, and popups
+              window.dispatchEvent(
+                new CustomEvent('fpl:data-synced', {
+                  detail: {
+                    lastSynced: cleanData.sync_status?.last_synced,
+                    currentGW: cleanData.current_gw,
+                    data: cleanData,
+                  },
+                })
+              );
+            }
+          } catch (err) {
+            console.warn('[SSE] Error processing sync_complete:', err);
+          }
+        });
+
+        eventSource.onerror = () => {
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+          clearTimeout(reconnectTimer);
+          reconnectTimer = setTimeout(connectSSE, 4000);
+        };
+      } catch {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(connectSSE, 4000);
+      }
+    };
+
+    connectSSE();
+
+    return () => {
+      clearTimeout(reconnectTimer);
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
   }, []);
 
   // Boot sequence: Trigger Action A on initial boot and catch up when returning to tab
@@ -337,6 +409,15 @@ export default function App() {
           setData(cleanData);
           dataRef.current = cleanData;
           saveToIndexedDB(cleanData).catch(() => {});
+          window.dispatchEvent(
+            new CustomEvent('fpl:data-synced', {
+              detail: {
+                lastSynced: cleanData.sync_status?.last_synced,
+                currentGW: cleanData.current_gw,
+                data: cleanData,
+              },
+            })
+          );
           showToast('✓ Successfully synced with Official FPL API!');
         } else {
           await fetchData(false);

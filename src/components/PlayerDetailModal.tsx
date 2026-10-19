@@ -57,6 +57,7 @@ export const prefetchPlayerSummary = (playerId: number, gw: number) => {
     .then((json) => {
       if (json.success && json.data) {
         playerSummaryClientCache.set(key, json.data);
+        playerSummaryClientCache.set(String(playerId), json.data);
       }
     })
     .catch(() => {});
@@ -291,16 +292,15 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
   // Synchronous cache lookup for instantaneous 0ms frame-0 render without 1-frame flash
   const initialCacheKey = playerId ? `${playerId}_${initialGW}` : '';
-  const initialCached = initialCacheKey ? playerSummaryClientCache.get(initialCacheKey) || null : null;
+  const initialCached = initialCacheKey ? (playerSummaryClientCache.get(initialCacheKey) || playerSummaryClientCache.get(String(playerId)) || null) : null;
   const [summaryData, setSummaryData] = useState<PlayerSummaryDetail | null>(initialCached);
   const [loadingSummary, setLoadingSummary] = useState<boolean>(!initialCached);
-  const [prevKey, setPrevKey] = useState<string>(initialCacheKey);
+  const [prevPlayerId, setPrevPlayerId] = useState<number | null>(playerId);
 
-  // Synchronously update summaryData & loadingSummary if playerId or activeGW change during render
-  const currentKey = playerId ? `${playerId}_${activeGW}` : '';
-  if (prevKey !== currentKey) {
-    setPrevKey(currentKey);
-    const cached = currentKey ? playerSummaryClientCache.get(currentKey) || null : null;
+  // Synchronously update summaryData & loadingSummary ONLY if playerId changes (never wipe out when only GW changes)
+  if (prevPlayerId !== playerId) {
+    setPrevPlayerId(playerId);
+    const cached = playerId ? (playerSummaryClientCache.get(`${playerId}_${activeGW}`) || playerSummaryClientCache.get(String(playerId)) || null) : null;
     setSummaryData(cached);
     setLoadingSummary(!cached);
   }
@@ -407,11 +407,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
     // 1. Check client-side memory cache first for 0ms instantaneous opening
     const cacheKey = `${playerId}_${activeGW}`;
-    if (playerSummaryClientCache.has(cacheKey)) {
-      setSummaryData(playerSummaryClientCache.get(cacheKey)!);
+    const cached = playerSummaryClientCache.get(cacheKey) || playerSummaryClientCache.get(String(playerId));
+    if (cached) {
+      setSummaryData(cached);
       setLoadingSummary(false);
     } else {
-      setLoadingSummary(true);
+      setLoadingSummary((prev) => (!summaryData ? true : prev));
     }
 
     // 2. Always fetch fresh in background with timestamp so live match changes appear seamlessly
@@ -421,8 +422,9 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
         return res.json();
       })
       .then((json) => {
-        if (!isCancelled && json.success) {
+        if (!isCancelled && json.success && json.data) {
           playerSummaryClientCache.set(cacheKey, json.data);
+          playerSummaryClientCache.set(String(playerId), json.data);
           setSummaryData(json.data);
         }
       })
@@ -470,11 +472,26 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     ? (ownershipPlayers[activeGW] || []).find((p) => p.id === playerId)
     : undefined;
 
-  // Immediate auto-refresh whenever this player's points change in parent ownershipPlayers or when parent sync finishes
+  // Immediate auto-refresh whenever this player's points change in parent ownershipPlayers, when parent sync finishes, or when global sync event fires
   const currentGWPoints = currentGWPlayer?.gw_points;
   useEffect(() => {
     if (!playerId) return;
-    refreshPlayerStats();
+
+    const performSyncRefresh = () => {
+      playerSummaryClientCache.clear();
+      refreshPlayerStats();
+    };
+
+    performSyncRefresh();
+
+    const handleGlobalSync = () => {
+      performSyncRefresh();
+    };
+
+    window.addEventListener('fpl:data-synced', handleGlobalSync);
+    return () => {
+      window.removeEventListener('fpl:data-synced', handleGlobalSync);
+    };
   }, [playerId, currentGWPoints, lastSynced, refreshPlayerStats]);
   const owners: PlayerOwnerItem[] = useMemo(() => {
     return currentGWPlayer?.owners || [];
@@ -1847,9 +1864,46 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                         started: Boolean((roundHistory as any).fixture_started),
                         finished: Boolean((roundHistory as any).fixture_finished),
                         finished_provisional: Boolean((roundHistory as any).fixture_finished_provisional),
-                        minutes: Number((roundHistory as any).fixture_minutes || 0)
+                        minutes: Number((roundHistory as any).fixture_minutes || 0),
+                        phase: (roundHistory as any).fixture_phase,
+                        clock_label: (roundHistory as any).fixture_clock_label,
+                        is_half_time: (roundHistory as any).fixture_is_half_time
                       }
                     : (summaryData?.gw_fixtures || gwFixtures || []).find((f: any) => f.id === roundHistory?.fixture);
+
+                  const rawMatchMinutes = fixObj?.minutes !== undefined
+                    ? Number(fixObj.minutes)
+                    : ((roundHistory as any)?.fixture_minutes !== undefined ? Number((roundHistory as any).fixture_minutes) : 0);
+                  const matchMinutes = rawMatchMinutes > 0 ? rawMatchMinutes : (minutesPlayed > 0 ? minutesPlayed : 0);
+
+                  const isFtMatch = Boolean(
+                    fixObj?.finished ||
+                    fixObj?.finished_provisional ||
+                    fixObj?.phase === 'FT' ||
+                    fixObj?.phase === 'F' ||
+                    fixObj?.clock_label === 'Full Time' ||
+                    (roundHistory as any)?.fixture_finished ||
+                    (roundHistory as any)?.fixture_finished_provisional ||
+                    (roundHistory as any)?.fixture_phase === 'FT' ||
+                    (roundHistory as any)?.fixture_phase === 'F' ||
+                    (roundHistory as any)?.fixture_clock_label === 'Full Time'
+                  );
+
+                  const isHalfTime = Boolean(
+                    !isFtMatch && (
+                      fixObj?.is_half_time ||
+                      fixObj?.phase === 'HT' ||
+                      fixObj?.clock_label === 'Half Time' ||
+                      (roundHistory as any)?.fixture_is_half_time ||
+                      (roundHistory as any)?.fixture_phase === 'HT' ||
+                      (roundHistory as any)?.fixture_clock_label === 'Half Time'
+                    )
+                  );
+
+                  let clockLabel = fixObj?.clock_label || (roundHistory as any)?.fixture_clock_label || '';
+                  if (!clockLabel && matchMinutes > 0) {
+                    clockLabel = matchMinutes >= 90 ? "90+'" : `${matchMinutes}'`;
+                  }
 
                   let isLive = false;
                   let isFt = false;
@@ -1862,7 +1916,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                   } else {
                     // activeGW === effectiveCurrentGW
                     if (fixObj) {
-                      if (fixObj.finished || fixObj.finished_provisional) {
+                      if (isFtMatch) {
                         isFt = true;
                         isLive = false;
                       } else if (fixObj.started) {
@@ -1893,11 +1947,6 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                       }
                     }
                   }
-
-                  const rawMatchMinutes = fixObj?.minutes !== undefined
-                    ? Number(fixObj.minutes)
-                    : ((roundHistory as any)?.fixture_minutes !== undefined ? Number((roundHistory as any).fixture_minutes) : 0);
-                  const matchMinutes = rawMatchMinutes > 0 ? rawMatchMinutes : (minutesPlayed > 0 ? minutesPlayed : 0);
 
                   return (
                     <>
@@ -1963,7 +2012,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                                   <span className="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 shadow-xs">
                                     <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse shadow-[0_0_6px_rgba(244,63,94,0.8)] shrink-0"></span>
                                     <span className="font-sans tracking-wide">
-                                      {matchMinutes >= 90 ? "90+'" : matchMinutes > 0 ? `${matchMinutes}'` : "1'"}
+                                      {isHalfTime ? 'Half Time' : (clockLabel || (matchMinutes >= 90 ? "90+'" : matchMinutes > 0 ? `${matchMinutes}'` : "1'"))}
                                     </span>
                                   </span>
                                 ) : isFt ? (

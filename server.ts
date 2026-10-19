@@ -128,7 +128,21 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
         console.warn('[Server] Error invalidating matches cache:', mErr.message);
       }
 
+      // Invalidate all live stats, fixtures, and event status bundle caches
+      try {
+        playerSummaryCache.clear();
+        eventLiveCache.clear();
+        fixturesCache.clear();
+        eventStatusBundleCache = null;
+      } catch (cErr: any) {
+        console.warn('[Server] Error clearing live caches:', cErr.message);
+      }
+
       console.log(`[Server] FPL API & DB schema sync (${action}) completed successfully at`, new Date().toISOString());
+
+      // Broadcast fresh data to all active clients immediately via Server-Sent Events (SSE)
+      broadcastSyncComplete(freshData, action);
+
       return freshData;
     } catch (error: any) {
       console.error(`[Server] Sync (${action}) failed:`, error.message);
@@ -145,6 +159,42 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
 
   return currentSyncPromise;
 }
+
+// Active Server-Sent Events (SSE) connections
+const sseClients = new Set<express.Response>();
+
+function broadcastSyncComplete(freshData: TransformedLeagueData, action: string) {
+  if (sseClients.size === 0) return;
+  const payload = JSON.stringify({
+    type: 'SYNC_COMPLETE',
+    action,
+    data: freshData,
+    last_synced: freshData.sync_status?.last_synced,
+    checked_at: new Date().toISOString()
+  });
+
+  const message = `event: sync_complete\ndata: ${payload}\n\n`;
+
+  for (const client of sseClients) {
+    try {
+      client.write(message);
+    } catch {
+      sseClients.delete(client);
+    }
+  }
+  console.log(`[Server SSE] Broadcasted SYNC_COMPLETE (${action}) to ${sseClients.size} active client(s).`);
+}
+
+// Keep-alive heartbeat every 15s to keep connections alive across proxies and firewalls
+setInterval(() => {
+  for (const client of sseClients) {
+    try {
+      client.write(': keep-alive\n\n');
+    } catch {
+      sseClients.delete(client);
+    }
+  }
+}, 15000);
 
 // API Endpoints
 app.get('/api/fpl-data', async (req, res) => {
@@ -438,8 +488,21 @@ app.get('/api/fpl-player-summary/:id', async (req, res) => {
 
     const allSeasonMap = await getAllSeasonFixturesMap();
 
+    let targetGwMatchesMap = new Map<number, any>();
+    try {
+      const matchCards = await fetchMatchesForGw(targetGW);
+      if (Array.isArray(matchCards)) {
+        for (const m of matchCards) {
+          targetGwMatchesMap.set(m.id, m);
+        }
+      }
+    } catch (e: any) {
+      console.warn(`Could not get matchCards for GW ${targetGW}:`, e.message);
+    }
+
     const enrichedHistory = (summaryData.history || []).map((h: any) => {
       const fix = (h.fixture ? fixturesMap.get(h.fixture) : null) || (h.fixture ? allSeasonMap.get(h.fixture) : null);
+      const matchCard = h.fixture ? targetGwMatchesMap.get(h.fixture) : null;
       
       let playerTeamId: number | undefined;
       let homeTeamId: number | undefined;
@@ -463,10 +526,26 @@ app.get('/api/fpl-player-summary/:id', async (req, res) => {
         home_short_name: homeTeamId ? FPL_TEAM_SHORT_NAMES[homeTeamId] : undefined,
         away_short_name: awayTeamId ? FPL_TEAM_SHORT_NAMES[awayTeamId] : undefined,
         opponent_short_name: FPL_TEAM_SHORT_NAMES[h.opponent_team] || `Team ${h.opponent_team}`,
-        fixture_started: fix ? fix.started : undefined,
-        fixture_finished: fix ? fix.finished : undefined,
-        fixture_finished_provisional: fix ? fix.finished_provisional : undefined,
-        fixture_minutes: fix ? fix.minutes : undefined
+        fixture_started: matchCard ? matchCard.started : (fix ? fix.started : undefined),
+        fixture_finished: matchCard ? matchCard.finished : (fix ? fix.finished : undefined),
+        fixture_finished_provisional: matchCard ? matchCard.finished_provisional : (fix ? fix.finished_provisional : undefined),
+        fixture_minutes: matchCard ? matchCard.minutes : (fix ? fix.minutes : undefined),
+        fixture_phase: matchCard?.phase,
+        fixture_clock_label: matchCard?.clock_label,
+        fixture_is_half_time: matchCard?.is_half_time
+      };
+    });
+
+    const enrichedGwFixtures = fixturesData.map((f: any) => {
+      const m = targetGwMatchesMap.get(f.id);
+      return {
+        ...f,
+        started: m ? m.started : f.started,
+        finished: m ? m.finished : f.finished,
+        finished_provisional: m ? m.finished_provisional : f.finished_provisional,
+        phase: m?.phase,
+        clock_label: m?.clock_label,
+        is_half_time: m?.is_half_time
       };
     });
 
@@ -479,7 +558,7 @@ app.get('/api/fpl-player-summary/:id', async (req, res) => {
         history: enrichedHistory,
         history_past: summaryData?.history_past || [],
         fixtures: summaryData?.fixtures || [],
-        gw_fixtures: fixturesData,
+        gw_fixtures: enrichedGwFixtures,
         live_stats: liveStats,
         live_explain: liveExplain
       }
@@ -747,6 +826,71 @@ app.get('/api/sync-status', (req, res) => {
   });
 });
 
+// Real-Time Server-Sent Events (SSE) Stream
+// Pushes fresh data immediately upon sync completion to all active browser sessions
+app.get('/api/events', (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache, no-transform',
+    'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+
+  // Send initial handshake
+  res.write(`event: connected\ndata: ${JSON.stringify({
+    type: 'CONNECTED',
+    sync_status: cachedData?.sync_status || null,
+    last_synced: cachedData?.sync_status?.last_synced || null,
+    checked_at: new Date().toISOString()
+  })}\n\n`);
+
+  sseClients.add(res);
+
+  req.on('close', () => {
+    sseClients.delete(res);
+  });
+});
+
+// Periodic background sync checker (runs autonomously on server)
+// Guarantees data remains fresh and automatically pushes updates via SSE without user clicks
+setInterval(async () => {
+  if (isSyncing) return;
+  if (!cachedData) return;
+
+  try {
+    const isLive = Boolean(cachedData.sync_status?.is_matchday_live || (cachedData.gw_status && cachedData.gw_status.status !== 'Confirmed'));
+    const lastSyncTime = cachedData.sync_status?.last_synced ? new Date(cachedData.sync_status.last_synced).getTime() : 0;
+    const elapsed = Date.now() - lastSyncTime;
+
+    // During live matches: auto-check and refresh every 30s
+    // Outside live matches: auto-check every 90s
+    const threshold = isLive ? 30000 : 90000;
+    if (elapsed >= threshold) {
+      const gwStatusInfo = await checkFplGwStatus();
+      const apiActiveGW = gwStatusInfo.currentGW;
+      const cachedActiveGW = cachedData.current_gw;
+
+      if (apiActiveGW !== cachedActiveGW) {
+        console.log(`[Autonomous Sync] GW changed (${cachedActiveGW} -> ${apiActiveGW}). Triggering Action A...`);
+        await triggerSync('A_FULL');
+      } else if (!gwStatusInfo.isFinal) {
+        console.log(`[Autonomous Sync] Live GW ${apiActiveGW} ongoing. Triggering Action B...`);
+        await triggerSync('B_PARTIAL', apiActiveGW);
+      } else {
+        const isContainerAlreadyFinal = cachedData.gw_status?.status === 'Confirmed' &&
+          Boolean(cachedData.gw_status?.data_checked) &&
+          cachedData.gw_status?.leagues_status === 'Updated';
+        if (!isContainerAlreadyFinal) {
+          console.log(`[Autonomous Sync] Transition seal for GW ${apiActiveGW}. Triggering Action B...`);
+          await triggerSync('B_PARTIAL', apiActiveGW);
+        }
+      }
+    }
+  } catch (err: any) {
+    // Graceful silent error in background scheduler
+  }
+}, 20000);
+
 // Optimal Pre-Aggregated / Indexed Database Endpoints (O(1) Instant Access < 1ms)
 app.get('/api/db/optimal', (req, res) => {
   try {
@@ -971,6 +1115,9 @@ async function startServer() {
       server: {
         middlewareMode: true,
         hmr: false,
+        watch: {
+          ignored: ['**/src/data/**', '**/data/**', '**/*.json', '**/.git/**', '**/node_modules/**'],
+        },
       },
       appType: 'spa',
     });

@@ -643,6 +643,9 @@ export interface MatchCardItem {
   finished: boolean;
   finished_provisional: boolean;
   minutes: number;
+  clock_label?: string;
+  phase?: string;
+  is_half_time?: boolean;
   home_team: {
     id: number;
     name: string;

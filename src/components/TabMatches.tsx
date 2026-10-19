@@ -425,12 +425,16 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
     }
   }, [currentGW, availableGWs]);
 
+  // Client-side cache for fetched matches to make GW transitions instantaneous (0ms) without flickering
+  const matchesCacheRef = useRef<Map<number, MatchCardItem[]>>(new Map());
+
   // Fetch matches for activeGW with silent revalidation support (no UI flash, no state reset)
   const fetchMatches = useCallback(async (gw: number, silent: boolean = false, force: boolean = false) => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
-    if (!silent) {
+    const hasCached = matchesCacheRef.current.has(gw);
+    if (!silent && !hasCached) {
       setIsLoading(true);
     }
 
@@ -440,6 +444,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
+          matchesCacheRef.current.set(gw, json.data);
           setMatches(json.data);
         }
       }
@@ -451,14 +456,20 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
     }
   }, []);
 
-  // GW Change: Load matches with initial loader and reset breakdown
+  // GW Change: Instantaneous cache render (0ms) without clearing match list or jumping in size
   useEffect(() => {
-    fetchMatches(activeGW, false, false);
     setActiveBreakdownKey(null);
+    if (matchesCacheRef.current.has(activeGW)) {
+      setMatches(matchesCacheRef.current.get(activeGW)!);
+      setIsLoading(false);
+      fetchMatches(activeGW, true, false); // Silent background revalidation
+    } else {
+      fetchMatches(activeGW, false, false);
+    }
   }, [activeGW, fetchMatches]);
 
-  // Reactive Sync Trigger: When lastSynced changes (sync completed in background or manual sync),
-  // automatically re-fetch the matches silently and update all match elements without page reload
+  // Reactive Sync Trigger: When lastSynced changes or global sync event fires,
+  // automatically re-fetch the matches silently and update all match elements and open breakdowns without page reload
   const isFirstMountRef = useRef<boolean>(true);
   useEffect(() => {
     if (isFirstMountRef.current) {
@@ -469,9 +480,27 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
     fetchMatches(activeGW, true, true);
   }, [lastSynced, activeGW, fetchMatches]);
 
-  // Detect if any match in currently viewed GW is in-play (started and not full time)
+  useEffect(() => {
+    const handleGlobalSync = () => {
+      console.log('[TabMatches] Global sync event received. Silently refreshing matchday elements...');
+      fetchMatches(activeGW, true, true);
+    };
+    window.addEventListener('fpl:data-synced', handleGlobalSync);
+    return () => {
+      window.removeEventListener('fpl:data-synced', handleGlobalSync);
+    };
+  }, [activeGW, fetchMatches]);
+
   const hasLiveMatchInCurrentView = useMemo(() => {
-    return matches.some((m) => m.started && !m.finished && !m.finished_provisional);
+    return matches.some(
+      (m) =>
+        m.started &&
+        !m.finished &&
+        !m.finished_provisional &&
+        m.phase !== 'FT' &&
+        m.phase !== 'F' &&
+        m.clock_label !== 'Full Time'
+    );
   }, [matches]);
 
   const isCurrentGwLive = Boolean(isMatchLive || hasLiveMatchInCurrentView);
@@ -699,7 +728,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
 
     const capsuleColor =
       matchStatusStyle === 'live'
-        ? 'bg-[#e90052] text-white border-rose-600 shadow-sm'
+        ? 'bg-[#e90052]/15 text-[#200024] border-[#00c968] font-black'
         : matchStatusStyle === 'ft'
         ? 'bg-[#00ff87] text-[#200024] border-[#00c968] font-black'
         : 'bg-slate-100 dark:bg-purple-950/70 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-purple-800/60 font-bold';
@@ -786,7 +815,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                 type="button"
                 onClick={() => onSelectPlayer && onSelectPlayer(player.id, activeGW)}
                 title={player.full_name}
-                className="font-bold text-slate-800 dark:text-slate-100 hover:text-purple-600 dark:hover:text-[#00ff87] text-[11px] sm:text-xs truncate max-w-[85px] sm:max-w-[130px] text-left transition-colors cursor-pointer leading-none"
+                className="font-bold text-slate-800 dark:text-slate-100 hover:text-purple-600 dark:hover:text-[#00ff87] text-[11px] sm:text-xs truncate max-w-[85px] sm:max-w-[130px] text-left transition-colors cursor-pointer py-0.5 leading-tight"
               >
                 {player.web_name}
               </button>
@@ -820,7 +849,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                 type="button"
                 onClick={() => onSelectPlayer && onSelectPlayer(player.id, activeGW)}
                 title={player.full_name}
-                className="font-bold text-slate-800 dark:text-slate-100 hover:text-purple-600 dark:hover:text-[#00ff87] text-[11px] sm:text-xs truncate max-w-[85px] sm:max-w-[130px] text-right transition-colors cursor-pointer leading-none"
+                className="font-bold text-slate-800 dark:text-slate-100 hover:text-purple-600 dark:hover:text-[#00ff87] text-[11px] sm:text-xs truncate max-w-[85px] sm:max-w-[130px] text-right transition-colors cursor-pointer py-0.5 leading-tight"
               >
                 {player.web_name}
               </button>
@@ -944,12 +973,28 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
       </div>
 
       {/* ================= MATCHES LIST CONTAINER ================= */}
-      {isLoading ? (
-        <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl p-8 flex flex-col items-center justify-center gap-2 shadow-2xs">
-          <Loader2 className="w-6 h-6 animate-spin text-purple-600 dark:text-[#00ff87]" />
-          <span className="text-xs font-bold text-slate-500 dark:text-purple-300/80">
-            Loading GW {activeGW} Matches...
-          </span>
+      {isLoading && matches.length === 0 ? (
+        <div className="space-y-5 sm:space-y-6">
+          {[1, 2, 3, 4, 5].map((idx) => (
+            <div
+              key={idx}
+              className="bg-white dark:bg-[#1a0c2c] border border-slate-200/90 dark:border-purple-900/60 rounded-xl p-2 sm:p-2.5 min-h-[70px] sm:min-h-[74px] flex flex-col justify-center animate-pulse"
+            >
+              <div className="h-2.5 w-32 bg-slate-200 dark:bg-purple-900/40 rounded mx-auto mb-2" />
+              <div className="flex items-center justify-center gap-2 sm:gap-2.5 w-full my-0.5">
+                <div className="flex-1 flex items-center justify-end gap-2">
+                  <div className="h-3 w-20 bg-slate-200 dark:bg-purple-900/40 rounded" />
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-200 dark:bg-purple-900/40" />
+                </div>
+                <div className="w-10 h-4 bg-slate-200 dark:bg-purple-900/40 rounded shrink-0" />
+                <div className="flex-1 flex items-center justify-start gap-2">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-slate-200 dark:bg-purple-900/40" />
+                  <div className="h-3 w-20 bg-slate-200 dark:bg-purple-900/40 rounded" />
+                </div>
+              </div>
+              <div className="h-2 w-16 bg-slate-200 dark:bg-purple-900/40 rounded mx-auto mt-1" />
+            </div>
+          ))}
         </div>
       ) : matches.length === 0 ? (
         <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl p-8 text-center text-xs text-slate-500 dark:text-slate-400 font-semibold">
@@ -959,7 +1004,20 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
         <div className="space-y-5 sm:space-y-6">
           {matches.map((m) => {
             const isExpanded = expandedMatchIds.has(m.id);
-            const isFt = Boolean(m.finished || m.finished_provisional);
+            const isFt = Boolean(
+              m.finished ||
+              m.finished_provisional ||
+              m.phase === 'FT' ||
+              m.phase === 'F' ||
+              m.clock_label === 'Full Time'
+            );
+            const isHalfTime = Boolean(
+              !isFt && (
+                m.is_half_time ||
+                m.phase === 'HT' ||
+                m.clock_label === 'Half Time'
+              )
+            );
             const isLive = Boolean(m.started && !isFt);
             const matchStatusStyle: 'upcoming' | 'live' | 'ft' = isFt ? 'ft' : isLive ? 'live' : 'upcoming';
 
@@ -1049,7 +1107,11 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                     {isLive ? (
                       <span className="text-[10px] sm:text-[11px] font-black text-rose-600 dark:text-rose-400 flex items-center gap-1 justify-center leading-none">
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                        <span>{m.minutes >= 90 ? "90+'" : m.minutes > 0 ? `${m.minutes}'` : "1'"}</span>
+                        <span>
+                          {isHalfTime
+                            ? 'Half Time'
+                            : (m.clock_label || (m.minutes >= 90 ? "90+'" : m.minutes > 0 ? `${m.minutes}'` : "1'"))}
+                        </span>
                       </span>
                     ) : isFt ? (
                       <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-300 leading-none">
