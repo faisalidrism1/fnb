@@ -253,3 +253,20 @@ code, kbd, pre, .font-mono {
   stroke: #150926 !important;
 }
 
+/* Continuous Marquee Ticker */
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 32s linear infinite;
+  will-change: transform;
+}
+

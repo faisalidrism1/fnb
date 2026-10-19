@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import { Settings } from 'lucide-react';
 import {
   MainTab,
   StandingsSubTab,
@@ -34,6 +35,7 @@ interface HeaderProps {
   onSelectTransferSubTab?: (sub: TransferSubTab) => void;
   captainSubTab?: CaptainSubTab;
   onSelectCaptainSubTab?: (sub: CaptainSubTab) => void;
+  onOpenSettings?: () => void;
 }
 
 const TABS: { id: MainTab; label: string }[] = [
@@ -61,6 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectTransferSubTab,
   captainSubTab = 'most-captained-player',
   onSelectCaptainSubTab,
+  onOpenSettings,
 }) => {
   const navRef = useRef<HTMLElement>(null);
   const subNavRef = useRef<HTMLElement>(null);
@@ -238,6 +241,20 @@ export const Header: React.FC<HeaderProps> = ({
                 2026/2027
               </span>
             </div>
+          </div>
+
+          {/* Right Action: Settings Button (Icon only without text) */}
+          <div className="flex items-center shrink-0">
+            <button
+              type="button"
+              id="header-settings-button"
+              onClick={onOpenSettings}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white/90 hover:text-[#00ff87] border border-white/10 hover:border-[#00ff87]/50 transition-all cursor-pointer shadow-sm active:scale-95 focus:outline-none flex items-center justify-center group"
+              title="Settings"
+              aria-label="Settings"
+            >
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:rotate-45" />
+            </button>
           </div>
         </div>
       </div>

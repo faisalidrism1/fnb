@@ -9,6 +9,7 @@ import { TabCaptain } from './components/TabCaptain.tsx';
 import { TabChips } from './components/TabChips.tsx';
 import { ManagerDetailModal } from './components/ManagerDetailModal.tsx';
 import { PlayerDetailModal } from './components/PlayerDetailModal.tsx';
+import { SettingsModal } from './components/SettingsModal.tsx';
 import { SmartLoadingScreen } from './components/SmartLoadingScreen.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import {
@@ -25,6 +26,7 @@ import {
   CaptainSubTab,
 } from './types.ts';
 import { getGameweekStatus } from './utils/gwStatus.ts';
+import { requestWakeLock, releaseWakeLock } from './utils/wakeLock.ts';
 
 function formatLastUpdated(isoString?: string): string {
   if (!isoString) return 'Just now';
@@ -153,6 +155,7 @@ export default function App() {
   const [selectedGW, setSelectedGW] = useState<number>(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [lastCheckedTime, setLastCheckedTime] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--app-font', "'Plus Jakarta Sans', sans-serif");
@@ -177,6 +180,52 @@ export default function App() {
       mediaQuery.addListener(updateTheme);
       return () => mediaQuery.removeListener(updateTheme);
     }
+  }, []);
+
+  // Keep Screen Awake Manager (Screen Wake Lock API lifecycle)
+  useEffect(() => {
+    const applyWakeLockIfEnabled = async () => {
+      const isEnabled = localStorage.getItem('fnb_setting_keep_awake') === 'true';
+      if (isEnabled && document.visibilityState === 'visible') {
+        await requestWakeLock();
+      } else {
+        await releaseWakeLock();
+      }
+    };
+
+    applyWakeLockIfEnabled();
+
+    // Re-acquire on visibility change (standard browser behavior: auto-released when tab is hidden)
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        const isEnabled = localStorage.getItem('fnb_setting_keep_awake') === 'true';
+        if (isEnabled) {
+          await requestWakeLock();
+        }
+      } else {
+        await releaseWakeLock();
+      }
+    };
+
+    // React immediately when setting is toggled from SettingsModal
+    const handleSettingChanged = (e: any) => {
+      if (e.detail?.key === 'keep_awake') {
+        if (e.detail.value && document.visibilityState === 'visible') {
+          requestWakeLock();
+        } else {
+          releaseWakeLock();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('fnb:setting-changed', handleSettingChanged);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('fnb:setting-changed', handleSettingChanged);
+      releaseWakeLock();
+    };
   }, []);
 
   // Modals
@@ -473,6 +522,7 @@ export default function App() {
         onSelectTransferSubTab={setTransferSubTab}
         captainSubTab={captainSubTab}
         onSelectCaptainSubTab={setCaptainSubTab}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       {/* Main Content Area - Preserves mounted tab instances and user filters */}
@@ -644,6 +694,14 @@ export default function App() {
           syncStatus={data.sync_status}
         />
       )}
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        standings={data?.standings}
+        transfers={data?.all_transfers}
+      />
     </div>
   );
 }
