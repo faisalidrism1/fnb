@@ -8,9 +8,11 @@ import {
   CaptainSubTab,
   GwEventStatus,
   SyncStatus,
+  TransformedLeagueData,
 } from '../types.ts';
 import { scrollTabIntoView } from '../utils.ts';
 import { getGameweekStatus } from '../utils/gwStatus.ts';
+import { NewsTicker } from './NewsTicker.tsx';
 
 const defaultLogoImage = '/logo.png';
 
@@ -36,6 +38,7 @@ interface HeaderProps {
   captainSubTab?: CaptainSubTab;
   onSelectCaptainSubTab?: (sub: CaptainSubTab) => void;
   onOpenSettings?: () => void;
+  leagueData?: TransformedLeagueData | null;
 }
 
 const TABS: { id: MainTab; label: string }[] = [
@@ -64,6 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
   captainSubTab = 'most-captained-player',
   onSelectCaptainSubTab,
   onOpenSettings,
+  leagueData,
 }) => {
   const navRef = useRef<HTMLElement>(null);
   const subNavRef = useRef<HTMLElement>(null);
@@ -217,7 +221,7 @@ export const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="bg-[#37003c] text-white sticky top-0 z-40 shadow-xl">
+    <header className="bg-[#37003c] text-white sticky top-0 z-40 shadow-xl relative">
       {/* Brand Bar: Logo & Application Name */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-[56px] sm:h-[62px] flex items-center">
         <div className="w-full flex items-center justify-between gap-2.5 sm:gap-3">
@@ -336,6 +340,9 @@ export const Header: React.FC<HeaderProps> = ({
               </nav>
             </div>
           )}
+
+          {/* Tier 3: News Ticker directly attached beneath subtab (or main tab when there are no subtabs) */}
+          <NewsTicker leagueData={leagueData} />
         </div>
       </div>
     </header>

@@ -523,6 +523,7 @@ export default function App() {
         captainSubTab={captainSubTab}
         onSelectCaptainSubTab={setCaptainSubTab}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        leagueData={data}
       />
 
       {/* Main Content Area - Preserves mounted tab instances and user filters */}

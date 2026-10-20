@@ -102,13 +102,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   });
 
-  // News Ticker state
+  // News Ticker state (default OFF when not yet determined by user)
   const [newsTicker, setNewsTicker] = useState<boolean>(() => {
     try {
-      const val = localStorage.getItem('fnb_setting_news_ticker');
-      return val === null ? true : val === 'true'; // default on
+      return localStorage.getItem('fnb_setting_news_ticker') === 'true';
     } catch {
-      return true;
+      return false;
     }
   });
 
@@ -152,11 +151,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setKeepScreenAwake(next);
     try {
       localStorage.setItem('fnb_setting_keep_awake', String(next));
-      window.dispatchEvent(
-        new CustomEvent('fnb:setting-changed', {
-          detail: { key: 'keep_awake', value: next },
-        })
-      );
+      setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent('fnb:setting-changed', {
+            detail: { key: 'keep_awake', value: next },
+          })
+        );
+      }, 0);
     } catch {}
 
     if (next) {
@@ -167,18 +168,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   const handleToggleNewsTicker = () => {
-    setNewsTicker((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('fnb_setting_news_ticker', String(next));
+    const next = !newsTicker;
+    setNewsTicker(next);
+    try {
+      localStorage.setItem('fnb_setting_news_ticker', String(next));
+      setTimeout(() => {
         window.dispatchEvent(
           new CustomEvent('fnb:setting-changed', {
             detail: { key: 'news_ticker', value: next },
           })
         );
-      } catch {}
-      return next;
-    });
+      }, 0);
+    } catch {}
   };
 
   const handleSelectLanguage = (lang: 'id' | 'en') => {

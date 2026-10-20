@@ -253,20 +253,30 @@ code, kbd, pre, .font-mono {
   stroke: #150926 !important;
 }
 
-/* Continuous Marquee Ticker */
+/* Continuous Marquee Ticker with 60fps/120fps Hardware Compositing */
 @keyframes marqueeScroll {
-  0% {
-    transform: translateX(0);
+  from {
+    transform: translate3d(0, 0, 0);
   }
-  100% {
-    transform: translateX(-50%);
+  to {
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
 .animate-marquee {
   display: flex;
   width: max-content;
-  animation: marqueeScroll 32s linear infinite;
+  animation: marqueeScroll 120s linear infinite;
   will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  contain: layout style;
+  isolation: isolate;
 }
 
