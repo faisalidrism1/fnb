@@ -27,6 +27,7 @@ import { scrollTabIntoView } from '../utils.ts';
 import { getGameweekStatus, GameweekLifecycleStatus } from '../utils/gwStatus.ts';
 import { StandingsChart } from './StandingsChart.tsx';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { useLanguage, formatDeadlineByLanguage } from '../utils/i18n.ts';
 
 interface TabStandingsProps {
   standings: Record<number, StandingsRow[]>;

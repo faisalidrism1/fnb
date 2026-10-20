@@ -17,6 +17,7 @@ import {
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { StandingsRow, TransferItem } from '../types.ts';
 import { isWakeLockSupported, requestWakeLock, releaseWakeLock } from '../utils/wakeLock.ts';
+import { useLanguage, Language } from '../utils/i18n.ts';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -111,15 +112,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   });
 
-  // Language state ('id' | 'en')
-  const [language, setLanguage] = useState<'id' | 'en'>(() => {
-    try {
-      const saved = localStorage.getItem('fnb_setting_language');
-      return saved === 'en' ? 'en' : 'id'; // default Indonesian
-    } catch {
-      return 'id';
-    }
-  });
+  // Language state & translation hook
+  const { language, setLanguage, t } = useLanguage();
 
   // Admin Area notification state
   const [adminNotice, setAdminNotice] = useState<string | null>(null);
@@ -182,11 +176,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     } catch {}
   };
 
-  const handleSelectLanguage = (lang: 'id' | 'en') => {
+  const handleSelectLanguage = (lang: Language) => {
     setLanguage(lang);
-    try {
-      localStorage.setItem('fnb_setting_language', lang);
-    } catch {}
   };
 
   // Close on Escape key
@@ -213,6 +204,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     sublabel: t.playerName,
   }));
 
+  const profileBadge = t('settings_profile_badge', { N: fnbTeams.length });
+  const profileDesc = t('settings_profile_desc');
+  const adminDesc = t('settings_admin_desc');
+  const adminNoticeText = t('settings_admin_notice');
+
   return (
     <div
       className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
@@ -231,10 +227,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black tracking-tight leading-none text-white">
-                Settings
+                {t('modal_settings_title')}
               </h2>
               <p className="text-[11px] sm:text-xs text-purple-200/80 font-medium mt-0.5">
-                Pengaturan Aplikasi & Preferensi
+                {t('modal_settings_subtitle')}
               </p>
             </div>
           </div>
@@ -243,8 +239,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             type="button"
             onClick={onClose}
             className="p-1.5 sm:p-2 text-purple-200 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
-            title="Tutup Pengaturan"
-            aria-label="Close Settings"
+            title={t('tooltip_close_settings')}
+            aria-label={t('tooltip_close_settings')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -264,18 +260,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   htmlFor="settings-profile-select"
                   className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white"
                 >
-                  Profile
+                  {t('settings_profile_label')}
                 </label>
               </div>
 
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-[#00ff87] border border-emerald-200 dark:border-emerald-800/40">
-                FNB League ({fnbTeams.length} Tim)
-              </span>
+              {profileBadge && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-[#00ff87] border border-emerald-200 dark:border-emerald-800/40">
+                  {profileBadge}
+                </span>
+              )}
             </div>
 
-            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-snug">
-              Pilih nama tim dan manajer FNB League Anda. Profil ini akan ditandai secara khusus saat melihat klasemen & transfer.
-            </p>
+            {profileDesc && (
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-snug">
+                {profileDesc}
+              </p>
+            )}
 
             {/* Dropdown nama tim dan manager FNB League tanpa 'All Teams' */}
             <div className="w-full">
@@ -284,7 +284,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 value={selectedEntryId}
                 onChange={handleProfileChange}
                 options={popoverOptions}
-                placeholder="Pilih Tim & Manajer FNB League..."
+                placeholder={t('settings_profile_placeholder')}
                 className="w-full bg-slate-50 dark:bg-purple-950/40 border border-slate-300 dark:border-purple-800/70 hover:border-[#37003c] dark:hover:border-[#00ff87] rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 py-2.5 px-3 shadow-2xs flex items-center justify-between gap-2 cursor-pointer focus:outline-none transition-all"
                 dropdownClassName="w-full min-w-[280px] sm:min-w-[340px] max-h-72"
                 searchable={true}
@@ -304,7 +304,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           </>
                         ) : (
                           <span className="text-slate-400 dark:text-slate-500 text-xs italic">
-                            Pilih Tim & Manajer...
+                            {t('settings_profile_placeholder')}
                           </span>
                         )}
                       </div>
@@ -323,7 +323,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="flex items-center gap-2 p-2 rounded-lg bg-purple-50 dark:bg-purple-950/50 border border-purple-200/80 dark:border-purple-800/40 text-[11px] text-purple-900 dark:text-purple-200">
                 <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-[#00ff87] shrink-0" />
                 <span className="truncate">
-                  Profil aktif: <strong className="font-bold">{currentProfile.entryName}</strong> ({currentProfile.playerName})
+                  {language === 'en' ? 'Active profile: ' : 'Profil aktif: '}
+                  <strong className="font-bold">{currentProfile.entryName}</strong> ({currentProfile.playerName})
                 </span>
               </div>
             )}
@@ -332,7 +333,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* ================= 2. TOGGLES: KEEP SCREEN AWAKE & NEWS TICKER ================= */}
           <div className="pt-4 space-y-3">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Display & Live View
+              {t('settings_display_heading')}
             </span>
 
             {/* Toggle 1: Keep Screen Awake */}
@@ -345,7 +346,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white leading-tight">
-                        Keep Screen Awake
+                        {t('settings_keep_awake_title')}
                       </span>
                       <span
                         className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded font-mono ${
@@ -358,7 +359,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                      Mencegah layar HP/laptop redup atau terkunci saat matchday live
+                      {t('settings_keep_awake_desc')}
                     </p>
                   </div>
                 </div>
@@ -388,14 +389,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {keepScreenAwake && isSupported && (
                 <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-200/60 dark:border-purple-900/40 text-[10.5px] text-emerald-600 dark:text-[#00ff87] font-medium animate-in fade-in duration-150">
                   <Check className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
-                  <span>Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.</span>
+                  <span>{t('settings_keep_awake_active')}</span>
                 </div>
               )}
 
               {!isSupported && (
                 <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-200/60 dark:border-purple-900/40 text-[10.5px] text-amber-600 dark:text-amber-400 font-medium">
                   <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>Browser ini belum mendukung Screen Wake Lock API.</span>
+                  <span>{t('settings_keep_awake_unsupported')}</span>
                 </div>
               )}
             </div>
@@ -409,7 +410,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white leading-tight">
-                      News Ticker
+                      {t('settings_news_ticker_title')}
                     </span>
                     <span
                       className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded font-mono ${
@@ -422,7 +423,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                    Tampilkan baris running text berita atau pemberitahuan penting liga
+                    {t('settings_news_ticker_desc')}
                   </p>
                 </div>
               </div>
@@ -450,78 +451,108 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* ================= 3. LANGUAGE SECTION (INDONESIA & INGGRIS) ================= */}
+          {/* ================= 3. LANGUAGE SECTION (FNB DEFAULT, ENGLISH, INDONESIA) ================= */}
           <div className="pt-4 space-y-2.5">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <Globe className="w-3.5 h-3.5 stroke-[2.5]" />
               </div>
               <span className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white">
-                Language
+                {t('settings_language_heading')}
               </span>
             </div>
 
             <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-snug">
-              Pilih bahasa pengantar antarmuka sistem
+              {t('settings_language_desc')}
             </p>
 
-            <div className="grid grid-cols-2 gap-2.5 pt-1">
-              {/* Option: Indonesian */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+              {/* Option 1: FNB Default */}
               <button
                 type="button"
-                onClick={() => handleSelectLanguage('id')}
-                className={`relative flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${
-                  language === 'id'
+                onClick={() => handleSelectLanguage('fnb')}
+                className={`relative flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all cursor-pointer select-none ${
+                  language === 'fnb'
                     ? 'bg-purple-50/70 dark:bg-purple-900/40 border-[#37003c] dark:border-[#00ff87] shadow-xs ring-1 ring-[#37003c] dark:ring-[#00ff87]'
                     : 'bg-slate-50 dark:bg-purple-950/20 border-slate-200 dark:border-purple-900/40 hover:border-slate-300 dark:hover:border-purple-800'
                 }`}
               >
-                <span className="text-2xl sm:text-3xl leading-none shrink-0" role="img" aria-label="Indonesia Flag">
-                  🇮🇩
-                </span>
+                <div className="w-8 h-8 rounded-lg bg-[#37003c] text-[#00ff87] flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+                  ⚡
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white truncate">
-                      Indonesia
+                    <span className="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-white truncate">
+                      FNB Default
                     </span>
-                    {language === 'id' && (
-                      <span className="w-4 h-4 rounded-full bg-[#00ff87] text-[#37003c] flex items-center justify-center">
-                        <Check className="w-3 h-3 stroke-[3]" />
+                    {language === 'fnb' && (
+                      <span className="w-3.5 h-3.5 rounded-full bg-[#00ff87] text-[#37003c] flex items-center justify-center shrink-0 ml-1">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </span>
                     )}
                   </div>
-                  <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-purple-300/80 block mt-0.5 truncate">
-                    Bahasa Indonesia
+                  <span className="text-[10px] text-slate-500 dark:text-purple-300/80 block mt-0.5 truncate">
+                    Tampilan Bawaan FNB
                   </span>
                 </div>
               </button>
 
-              {/* Option: English */}
+              {/* Option 2: English */}
               <button
                 type="button"
                 onClick={() => handleSelectLanguage('en')}
-                className={`relative flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl border text-left transition-all cursor-pointer select-none ${
+                className={`relative flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all cursor-pointer select-none ${
                   language === 'en'
                     ? 'bg-purple-50/70 dark:bg-purple-900/40 border-[#37003c] dark:border-[#00ff87] shadow-xs ring-1 ring-[#37003c] dark:ring-[#00ff87]'
                     : 'bg-slate-50 dark:bg-purple-950/20 border-slate-200 dark:border-purple-900/40 hover:border-slate-300 dark:hover:border-purple-800'
                 }`}
               >
-                <span className="text-2xl sm:text-3xl leading-none shrink-0" role="img" aria-label="United Kingdom Flag">
+                <span className="text-2xl leading-none shrink-0" role="img" aria-label="United Kingdom Flag">
                   🇬🇧
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white truncate">
+                    <span className="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-white truncate">
                       English
                     </span>
                     {language === 'en' && (
-                      <span className="w-4 h-4 rounded-full bg-[#00ff87] text-[#37003c] flex items-center justify-center">
-                        <Check className="w-3 h-3 stroke-[3]" />
+                      <span className="w-3.5 h-3.5 rounded-full bg-[#00ff87] text-[#37003c] flex items-center justify-center shrink-0 ml-1">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </span>
                     )}
                   </div>
-                  <span className="text-[10px] sm:text-[11px] text-slate-500 dark:text-purple-300/80 block mt-0.5 truncate">
+                  <span className="text-[10px] text-slate-500 dark:text-purple-300/80 block mt-0.5 truncate">
                     English (UK)
+                  </span>
+                </div>
+              </button>
+
+              {/* Option 3: Indonesian */}
+              <button
+                type="button"
+                onClick={() => handleSelectLanguage('id')}
+                className={`relative flex items-center gap-2.5 p-2.5 rounded-xl border text-left transition-all cursor-pointer select-none ${
+                  language === 'id'
+                    ? 'bg-purple-50/70 dark:bg-purple-900/40 border-[#37003c] dark:border-[#00ff87] shadow-xs ring-1 ring-[#37003c] dark:ring-[#00ff87]'
+                    : 'bg-slate-50 dark:bg-purple-950/20 border-slate-200 dark:border-purple-900/40 hover:border-slate-300 dark:hover:border-purple-800'
+                }`}
+              >
+                <span className="text-2xl leading-none shrink-0" role="img" aria-label="Indonesia Flag">
+                  🇮🇩
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs sm:text-[12.5px] font-bold text-slate-900 dark:text-white truncate">
+                      Indonesia
+                    </span>
+                    {language === 'id' && (
+                      <span className="w-3.5 h-3.5 rounded-full bg-[#00ff87] text-[#37003c] flex items-center justify-center shrink-0 ml-1">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-slate-500 dark:text-purple-300/80 block mt-0.5 truncate">
+                    Bahasa Indonesia
                   </span>
                 </div>
               </button>
@@ -531,14 +562,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* ================= 4. TOMBOL ADMIN AREA ================= */}
           <div className="pt-4 space-y-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              Administration
+              {t('settings_admin_heading')}
             </span>
 
             <button
               type="button"
               onClick={() => {
-                setAdminNotice('Admin Area akan segera hadir pada tahap pengembangan berikutnya.');
-                setTimeout(() => setAdminNotice(null), 4000);
+                if (adminNoticeText) {
+                  setAdminNotice(adminNoticeText);
+                  setTimeout(() => setAdminNotice(null), 4000);
+                }
               }}
               className="w-full flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gradient-to-r from-[#37003c] via-[#48004f] to-[#1e0024] hover:from-[#490050] hover:via-[#5c0065] hover:to-[#2c0035] text-white border border-purple-500/40 hover:border-[#00ff87]/60 shadow-md hover:shadow-lg transition-all cursor-pointer group active:scale-[0.99]"
             >
@@ -549,15 +582,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="text-left min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs sm:text-sm font-black tracking-tight text-white">
-                      Admin Area
+                      {t('settings_admin_title')}
                     </span>
                     <span className="text-[9.5px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                      Restricted
+                      {t('settings_admin_badge')}
                     </span>
                   </div>
-                  <p className="text-[10.5px] sm:text-[11px] text-purple-200/80 font-medium truncate mt-0.5">
-                    Akses kontrol sinkronisasi, data liga, dan pengelolaan sistem
-                  </p>
+                  {adminDesc && (
+                    <p className="text-[10.5px] sm:text-[11px] text-purple-200/80 font-medium truncate mt-0.5">
+                      {adminDesc}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -578,7 +613,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* ================= MODAL FOOTER ================= */}
         <div className="bg-slate-50 dark:bg-[#10061e] px-4 sm:px-5 py-3 border-t border-slate-200 dark:border-purple-900/50 flex items-center justify-between shrink-0">
           <span className="text-[10.5px] sm:text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-            FPL Nusantara 2026/2027
+            {t('settings_footer_brand')}
           </span>
 
           <button
@@ -586,7 +621,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             onClick={onClose}
             className="px-4 py-1.5 rounded-xl bg-[#37003c] hover:bg-[#48004f] text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer"
           >
-            Tutup
+            {t('btn_close')}
           </button>
         </div>
       </div>

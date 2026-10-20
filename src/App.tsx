@@ -27,27 +27,29 @@ import {
 } from './types.ts';
 import { getGameweekStatus } from './utils/gwStatus.ts';
 import { requestWakeLock, releaseWakeLock } from './utils/wakeLock.ts';
+import { useLanguage, Language } from './utils/i18n.ts';
 
-function formatLastUpdated(isoString?: string): string {
-  if (!isoString) return 'Just now';
+function formatLastUpdated(isoString: string | undefined, lang: Language): string {
+  if (!isoString) return lang === 'id' ? 'Baru saja' : 'Just now';
   try {
     const ms = parseSyncTimestamp(isoString);
     const d = ms > 0 ? new Date(ms) : new Date(isoString);
     if (isNaN(d.getTime())) return isoString;
-    const dateFormatted = d.toLocaleDateString('id-ID', {
+    const locale = lang === 'en' ? 'en-GB' : 'id-ID';
+    const dateFormatted = d.toLocaleDateString(locale, {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
       timeZone: 'Asia/Jakarta',
     });
-    const timeFormatted = d.toLocaleTimeString('id-ID', {
+    const timeFormatted = d.toLocaleTimeString(locale, {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
       timeZone: 'Asia/Jakarta',
       hour12: false,
     });
-    return `${dateFormatted}, ${timeFormatted} WIB`;
+    return `${dateFormatted}, ${timeFormatted}`;
   } catch {
     return isoString;
   }
@@ -136,6 +138,7 @@ function deduplicateLeagueData(d: TransformedLeagueData): TransformedLeagueData 
 }
 
 export default function App() {
+  const { language, t } = useLanguage();
   const [data, setData] = useState<TransformedLeagueData | null>(null);
   const dataRef = useRef<TransformedLeagueData | null>(null);
   useEffect(() => {
@@ -618,14 +621,14 @@ export default function App() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-4">
             <div className="flex items-center gap-1.5 sm:gap-2 leading-none">
               <span className="font-extrabold text-slate-900 dark:text-white">
-                FPL Nusantara BERHADIAH 2026/2027
+                {t('footer_league_name')}
               </span>
               <span>•</span>
-              <span>Mini League ID: 12356</span>
+              <span>{t('footer_league_id')}</span>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 text-slate-400 dark:text-slate-500 leading-none">
-              <span>Official Premier League FPL Data Integration</span>
+              <span>{t('footer_integration')}</span>
               <span>•</span>
               <a
                 href="https://fantasy.premierleague.com/leagues/12356/standings/c"
@@ -633,7 +636,7 @@ export default function App() {
                 rel="noopener noreferrer"
                 className="text-[#37003c] dark:text-[#00ff87] font-bold hover:underline flex items-center gap-1"
               >
-                <span>FPL Official</span>
+                <span>{t('footer_fpl_official')}</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
@@ -642,7 +645,7 @@ export default function App() {
           {/* Human-readable Last Updated timestamp di paling bawah footer */}
           <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 leading-none">
             <Clock className="w-3 h-3 text-slate-400 dark:text-slate-500 shrink-0" />
-            <span>Last Updated: {formatLastUpdated(data?.sync_status?.last_synced)}</span>
+            <span>{t('footer_last_updated', { datetime: formatLastUpdated(data?.sync_status?.last_synced, language) })}</span>
           </div>
         </div>
       </footer>

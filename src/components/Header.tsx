@@ -13,6 +13,7 @@ import {
 import { scrollTabIntoView } from '../utils.ts';
 import { getGameweekStatus } from '../utils/gwStatus.ts';
 import { NewsTicker } from './NewsTicker.tsx';
+import { useLanguage } from '../utils/i18n.ts';
 
 const defaultLogoImage = '/logo.png';
 
@@ -69,6 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   leagueData,
 }) => {
+  const { language, t } = useLanguage();
   const navRef = useRef<HTMLElement>(null);
   const subNavRef = useRef<HTMLElement>(null);
 
@@ -101,8 +103,18 @@ export const Header: React.FC<HeaderProps> = ({
   // If status is Live or Provisional -> "Live League Table" with pulsing red dot
   // If status is Confirmed or Not Started -> "League Table" without red dot
   const isTableLive = isLiveOrProvisional || Boolean(syncStatus?.is_matchday_live);
-  const leagueTableLabel = isTableLive ? 'Live League Table' : 'League Table';
+  const leagueTableLabel = isTableLive ? t('subtab_live_league_table') : t('subtab_league_table');
   const showLiveDot = isTableLive;
+
+  // Tabs list with translations
+  const tabsList: { id: MainTab; label: string }[] = [
+    { id: 'STANDINGS', label: t('tab_standings') },
+    { id: 'MATCHES', label: t('tab_matches') },
+    { id: 'OWNERSHIP', label: t('tab_ownership') },
+    { id: 'TRANSFER', label: t('tab_transfer') },
+    { id: 'CAPTAIN', label: t('tab_captain') },
+    { id: 'CHIPS', label: t('tab_chips') },
+  ];
 
   // Determine subtabs based on active main tab
   interface SubTabItem {
@@ -119,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
     subTabs = [
       {
         id: 'status',
-        label: 'Status',
+        label: t('subtab_status'),
         onClick: () => onSelectStandingsSubTab?.('status'),
         isActive: standingsSubTab === 'status',
       },
@@ -132,25 +144,25 @@ export const Header: React.FC<HeaderProps> = ({
       },
       {
         id: 'gw-champions',
-        label: 'GW Champions',
+        label: t('subtab_gw_champions'),
         onClick: () => onSelectStandingsSubTab?.('gw-champions'),
         isActive: standingsSubTab === 'gw-champions',
       },
       {
         id: 'most-gw-champions',
-        label: 'Most GW Champions',
+        label: t('subtab_most_gw_champions'),
         onClick: () => onSelectStandingsSubTab?.('most-gw-champions'),
         isActive: standingsSubTab === 'most-gw-champions',
       },
       {
         id: 'chart' as const,
-        label: 'Chart',
+        label: t('subtab_chart'),
         onClick: () => onSelectStandingsSubTab?.('chart'),
         isActive: standingsSubTab === 'chart',
       },
       {
         id: 'liga-minus',
-        label: 'Liga Minus',
+        label: t('subtab_liga_minus'),
         onClick: () => onSelectStandingsSubTab?.('liga-minus'),
         isActive: standingsSubTab === 'liga-minus',
       },
@@ -159,25 +171,25 @@ export const Header: React.FC<HeaderProps> = ({
     subTabs = [
       {
         id: 'most-owned-players',
-        label: 'Most Owned Player',
+        label: t('subtab_most_owned_player'),
         onClick: () => onSelectOwnershipSubTab?.('most-owned-players'),
         isActive: ownershipSubTab === 'most-owned-players',
       },
       {
         id: 'most-owned-clubs',
-        label: 'Most Owned by Club',
+        label: t('subtab_most_owned_by_club'),
         onClick: () => onSelectOwnershipSubTab?.('most-owned-clubs'),
         isActive: ownershipSubTab === 'most-owned-clubs',
       },
       {
         id: 'fans-club',
-        label: 'Fans Club',
+        label: t('subtab_fans_club'),
         onClick: () => onSelectOwnershipSubTab?.('fans-club'),
         isActive: ownershipSubTab === 'fans-club',
       },
       {
         id: 'template-squad',
-        label: 'Template Squad',
+        label: t('subtab_template_squad'),
         onClick: () => onSelectOwnershipSubTab?.('template-squad'),
         isActive: ownershipSubTab === 'template-squad',
       },
@@ -186,19 +198,19 @@ export const Header: React.FC<HeaderProps> = ({
     subTabs = [
       {
         id: 'all-transfers',
-        label: 'All Transfers',
+        label: t('subtab_all_transfers'),
         onClick: () => onSelectTransferSubTab?.('all-transfers'),
         isActive: transferSubTab === 'all-transfers',
       },
       {
         id: 'transferred-in',
-        label: 'Most Transferred In',
+        label: t('subtab_most_transferred_in'),
         onClick: () => onSelectTransferSubTab?.('transferred-in'),
         isActive: transferSubTab === 'transferred-in',
       },
       {
         id: 'transferred-out',
-        label: 'Most Transferred Out',
+        label: t('subtab_most_transferred_out'),
         onClick: () => onSelectTransferSubTab?.('transferred-out'),
         isActive: transferSubTab === 'transferred-out',
       },
@@ -207,13 +219,13 @@ export const Header: React.FC<HeaderProps> = ({
     subTabs = [
       {
         id: 'most-captained-player',
-        label: 'Most Captained Player',
+        label: t('subtab_most_captained_player'),
         onClick: () => onSelectCaptainSubTab?.('most-captained-player'),
         isActive: captainSubTab === 'most-captained-player',
       },
       {
         id: 'most-captained-club-players',
-        label: 'Most Captained by Club',
+        label: t('subtab_most_captained_by_club'),
         onClick: () => onSelectCaptainSubTab?.('most-captained-club-players'),
         isActive: captainSubTab === 'most-captained-club-players',
       },
@@ -254,8 +266,8 @@ export const Header: React.FC<HeaderProps> = ({
               id="header-settings-button"
               onClick={onOpenSettings}
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/25 text-white/90 hover:text-[#00ff87] border border-white/10 hover:border-[#00ff87]/50 transition-all cursor-pointer shadow-sm active:scale-95 focus:outline-none flex items-center justify-center group"
-              title="Settings"
-              aria-label="Settings"
+              title={t('tooltip_settings')}
+              aria-label={t('tooltip_settings')}
             >
               <Settings className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:rotate-45" />
             </button>
@@ -273,7 +285,7 @@ export const Header: React.FC<HeaderProps> = ({
                 ref={navRef}
                 className="flex items-center overflow-x-auto scrollbar-none px-2 sm:px-4 scroll-smooth"
               >
-                {TABS.map((tab) => {
+                {tabsList.map((tab) => {
                   const isActive = activeTab === tab.id;
                   return (
                     <button
