@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ArrowUpDown, Search } from 'lucide-react';
 import { ChipUsedRow } from '../types.ts';
+import { useLanguage } from '../utils/i18n.ts';
 
 interface TabChipsProps {
   chips: ChipUsedRow[];
@@ -11,6 +12,7 @@ interface TabChipsProps {
 type ChipColumnKey = 'entry_name' | 'wc1' | 'tc1' | 'bb1' | 'fh1' | 'wc2' | 'tc2' | 'bb2' | 'fh2';
 
 export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectManager }) => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<ChipColumnKey>('entry_name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -78,7 +80,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
           e.stopPropagation();
           onSelectManager(rowEntryId, chip.gw);
         }}
-        title={`Buka tim GW ${chip.gw}`}
+        title={t('tooltip_chip_cell', { gw: chip.gw })}
       >
         <span
           className={`font-black text-[10px] sm:text-[11px] px-1 sm:px-1.5 py-0.5 rounded shadow-2xs border whitespace-nowrap leading-none transition-transform group-hover/chip:scale-105 active:scale-95 ${badgeColor}`}
@@ -102,7 +104,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
           <input
             type="text"
             id="search-chips-input"
-            placeholder="Search manager or team..."
+            placeholder={t('search_manager_team')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37003c] text-slate-800 shadow-2xs"
@@ -122,7 +124,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
                   onClick={() => handleSort('entry_name')}
                 >
                   <div className="flex items-center gap-1 truncate">
-                    <span className="truncate">Team & Manager</span>
+                    <span className="truncate">{t('col_team_manager')}</span>
                     <ArrowUpDown className="w-3 h-3 text-purple-300 shrink-0" />
                   </div>
                 </th>
@@ -227,7 +229,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
                   <td
                     onClick={() => onSelectManager(row.entry_id, currentGW)}
                     className="sticky left-0 z-20 bg-white group-hover:bg-purple-50/50 py-2.5 px-2 sm:px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors w-[calc(100cqw-184px)] min-w-[calc(100cqw-184px)] max-w-[calc(100cqw-184px)] sm:w-auto sm:min-w-[160px] sm:max-w-none cursor-pointer"
-                    title={`Buka tim ${row.entry_name} (GW ${currentGW || 'terkini'})`}
+                    title={t('tooltip_chip_team', { entry_name: row.entry_name, gw: currentGW || 'terkini' })}
                   >
                     <div className="truncate">
                       <p className="font-extrabold text-slate-900 text-xs hover:text-[#37003c] leading-snug truncate">

@@ -22,6 +22,7 @@ import {
   SyncStatus,
 } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { useLanguage } from '../utils/i18n.ts';
 
 interface PlayerDetailModalProps {
   playerId: number | null;
@@ -189,6 +190,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   eventsStatus,
   syncStatus,
 }) => {
+  const { t, language } = useLanguage();
   const [activeGW, setActiveGW] = useState<number>(initialGW);
   const [isGWDropdownOpen, setIsGWDropdownOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<ModalTab>('overview');
@@ -1576,7 +1578,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
               <button
                 onClick={handleClose}
                 className="p-1 text-purple-300 hover:text-white rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
-                title="Close Modal"
+                title={t('tooltip_close_player_modal')}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1595,7 +1597,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                     : 'text-purple-300/80 hover:text-white font-medium'
                 }`}
               >
-                <span>GW Overview</span>
+                <span>{t('modal_plyr_tab_overview')}</span>
                 {activeTab === 'overview' && (
                   <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]" />
                 )}
@@ -1610,7 +1612,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                     : 'text-purple-300/80 hover:text-white font-medium'
                 }`}
               >
-                <span>Owners ({owners.length})</span>
+                <span>{t('modal_plyr_tab_owners', { N: owners.length })}</span>
                 {activeTab === 'owners' && (
                   <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]" />
                 )}
@@ -1625,7 +1627,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                     : 'text-purple-300/80 hover:text-white font-medium'
                 }`}
               >
-                <span>History</span>
+                <span>{t('modal_plyr_tab_history')}</span>
                 {activeTab === 'history' && (
                   <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]" />
                 )}
@@ -1707,7 +1709,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                               {effectiveGWPoints}
                             </span>
                             <span className="font-medium text-[11px] sm:text-xs text-slate-300 tracking-wider select-none leading-tight mt-0.5">
-                              Points
+                              {t('modal_plyr_match_points')}
                             </span>
                           </div>
 
@@ -1784,7 +1786,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                               {effectiveGWPoints}
                             </span>
                             <span className="font-medium text-[11px] sm:text-xs text-slate-300 tracking-wider select-none leading-tight mt-0.5">
-                              Points
+                              {t('modal_plyr_match_points')}
                             </span>
                           </div>
 
@@ -2012,16 +2014,16 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                                   <span className="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 shadow-xs">
                                     <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse shadow-[0_0_6px_rgba(244,63,94,0.8)] shrink-0"></span>
                                     <span className="font-sans tracking-wide">
-                                      {isHalfTime ? 'Half Time' : (clockLabel || (matchMinutes >= 90 ? "90+'" : matchMinutes > 0 ? `${matchMinutes}'` : "1'"))}
+                                      {isHalfTime ? (language === 'id' ? 'Paruh Waktu' : 'Half Time') : (clockLabel || (matchMinutes >= 90 ? "90+'" : matchMinutes > 0 ? `${matchMinutes}'` : "1'"))}
                                     </span>
                                   </span>
                                 ) : isFt ? (
                                   <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
-                                    Full Time
+                                    {language === 'id' ? 'Selesai' : 'Full Time'}
                                   </span>
                                 ) : (
                                   <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
-                                    Upcoming
+                                    {language === 'id' ? 'Belum Dimulai' : 'Upcoming'}
                                   </span>
                                 )}
                               </div>
@@ -2074,7 +2076,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             {effectiveGWPoints}
                           </span>
                           <span className="font-medium text-[11px] sm:text-xs text-slate-300 tracking-wider select-none leading-tight mt-0.5">
-                            Points
+                            {t('modal_plyr_match_points')}
                           </span>
                         </div>
 
@@ -2101,7 +2103,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             </div>
                           ) : (
                             <div className="bg-black/20 rounded-lg p-2.5 h-[68px] flex items-center justify-center text-center text-xs text-purple-300/70 italic border border-purple-500/20">
-                              {minutesPlayed === 0 ? 'Did not play in this Gameweek (0 pts).' : 'No points events registered.'}
+                              {minutesPlayed === 0 ? t('modal_plyr_did_not_play') : 'No points events registered.'}
                             </div>
                           )}
                         </div>
@@ -2199,7 +2201,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Search team or manager..."
+                    placeholder={t('search_team_manager')}
                     value={ownerSearch}
                     onChange={(e) => setOwnerSearch(e.target.value)}
                     className="text-xs bg-slate-50 dark:bg-[#1a0c2c] border border-slate-300 dark:border-purple-800/60 rounded-lg pl-8 pr-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-600 text-slate-800 dark:text-slate-100 w-full"
@@ -2218,7 +2220,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                         >
                           <div className="flex items-center gap-1">
                             <span className="group-hover:text-purple-900 dark:group-hover:text-white transition-colors">
-                              Team & Manager
+                              {t('col_team_manager')}
                             </span>
                             {ownerSortField === 'team' ? (
                               ownerSortDirection === 'asc' ? (
@@ -2237,7 +2239,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                         >
                           <div className="flex items-center justify-center gap-1">
                             <span className="whitespace-normal leading-tight text-center group-hover:text-purple-900 dark:group-hover:text-white transition-colors">
-                              Squad Status
+                              {t('modal_plyr_col_squad_status')}
                             </span>
                             {ownerSortField === 'squad' ? (
                               ownerSortDirection === 'asc' ? (
@@ -2256,7 +2258,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                         >
                           <div className="flex items-center justify-center gap-1">
                             <span className="group-hover:text-purple-900 dark:group-hover:text-white transition-colors">
-                              Captain
+                              {t('modal_plyr_col_captain')}
                             </span>
                             {ownerSortField === 'captain' ? (
                               ownerSortDirection === 'asc' ? (
@@ -2413,14 +2415,49 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                                     : 'text-center'
                                 }`}
                               >
-                                <span className="inline-block">{col.label}</span>
+                                <span className="inline-block">
+                                  {language === 'id' ? (
+                                    col.key === 'opp' ? 'Lawan' :
+                                    col.key === 'res' ? 'Hasil' :
+                                    col.key === 'pts' ? 'Poin' :
+                                    col.key === 'st' ? 'Starter' :
+                                    col.key === 'mp' ? 'Menit' :
+                                    col.key === 'gs' ? 'Gol' :
+                                    col.key === 'a' ? 'Assist' :
+                                    col.key === 'cs' ? 'CS' :
+                                    col.label
+                                  ) : col.label}
+                                </span>
                                 {isTooltipOpen && (
                                   <div
                                     onClick={(e) => e.stopPropagation()}
                                     className={`absolute z-50 bottom-full ${pos.box} mb-1.5 px-2.5 py-1 bg-slate-900/95 dark:bg-[#12001a]/95 text-white text-[11px] font-medium rounded-lg shadow-2xl border border-purple-500/40 whitespace-nowrap pointer-events-auto`}
                                   >
-                                    <span className="font-bold text-[#00ff87] mr-1">{col.label}:</span>
-                                    {col.title}
+                                    <span className="font-bold text-[#00ff87] mr-1">
+                                      {language === 'id' ? (
+                                        col.key === 'opp' ? 'Lawan' :
+                                        col.key === 'res' ? 'Hasil' :
+                                        col.key === 'pts' ? 'Poin' :
+                                        col.key === 'st' ? 'Starter' :
+                                        col.key === 'mp' ? 'Menit' :
+                                        col.key === 'gs' ? 'Gol' :
+                                        col.key === 'a' ? 'Assist' :
+                                        col.key === 'cs' ? 'CS' :
+                                        col.label
+                                      ) : col.label}:
+                                    </span>
+                                    {language === 'id' ? (
+                                      col.key === 'gw' ? 'Gameweek' :
+                                      col.key === 'opp' ? 'Tim Lawan (Kandang/Tandang)' :
+                                      col.key === 'res' ? 'Hasil Pertandingan (Menang / Seri / Kalah)' :
+                                      col.key === 'pts' ? 'Total Poin' :
+                                      col.key === 'st' ? 'Starter (Bermain Sejak Awal)' :
+                                      col.key === 'mp' ? 'Menit Bermain' :
+                                      col.key === 'gs' ? 'Gol Dicetak' :
+                                      col.key === 'a' ? 'Umpan Gol (Assist)' :
+                                      col.key === 'cs' ? 'Nirbobol (Clean Sheet)' :
+                                      col.title
+                                    ) : col.title}
                                     <div className={`absolute top-full ${pos.arrow} -mt-[1px] border-4 border-transparent border-t-slate-900/95 dark:border-t-[#12001a]/95`} />
                                   </div>
                                 )}

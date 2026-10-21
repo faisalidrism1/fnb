@@ -3,6 +3,7 @@ import { Crown, Shield } from 'lucide-react';
 import { CaptainPlayerItem, ClubCaptainItem } from '../types.ts';
 import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { useLanguage } from '../utils/i18n.ts';
 
 interface TabCaptainProps {
   captains: Record<number, CaptainPlayerItem[]>;
@@ -58,6 +59,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
   subTab: propSubTab,
   onSelectSubTab,
 }) => {
+  const { t, language } = useLanguage();
   const [internalSubTab, setInternalSubTab] = useState<CaptainSubTab>('most-captained-player');
   const subTab = propSubTab !== undefined ? propSubTab : internalSubTab;
   const setSubTab = (val: CaptainSubTab) => {
@@ -113,17 +115,17 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                   </th>
                   {/* Frozen Player Column */}
                   <th className="sticky left-[44px] z-30 bg-[#37003c] py-2 px-3 whitespace-nowrap border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
-                    Player
+                    {t('col_player')}
                   </th>
-                  <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">Club</th>
-                  <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">Pos</th>
-                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">Cost</th>
+                  <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">{t('col_club')}</th>
+                  <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
+                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
                   {/* GW Pts added to the left of Total Pts */}
-                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">GW Pts</th>
-                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">Total Pts</th>
+                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
+                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
                   {/* Swapped: (C) first, then (VC) */}
-                  <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">(C)</th>
-                  <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">(VC)</th>
+                  <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">{t('col_c')}</th>
+                  <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">{t('col_vc')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -299,7 +301,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                   </div>
 
                   <div className="flex items-center justify-between mt-1 text-xs">
-                    <span className="text-slate-500 font-medium">Captain Armbands:</span>
+                    <span className="text-slate-500 font-medium">{t('card_captain_armbands')}</span>
                     <span className="font-black text-purple-900">
                       {club.captain_count}{' '}
                       <span className="text-slate-400 text-[10px] sm:text-[11px]">

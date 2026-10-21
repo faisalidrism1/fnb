@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Search, ChevronDown } from 'lucide-react';
 import { StandingsRow } from '../types.ts';
+import { useLanguage } from '../utils/i18n.ts';
 
 export type ChartMetricType = 'last_rank' | 'gw_rank' | 'total_points' | 'event_points';
 export type RankPreset = 'all' | '1-20' | '21-40' | '41-60' | '61-80' | '81-100';
@@ -253,6 +254,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
     return filtered.length > 0 ? filtered : allAvailableGWs;
   }, [allAvailableGWs, startGW, endGW]);
 
+  const { t } = useLanguage();
   const latestGW = sortedGWs[sortedGWs.length - 1] || maxGW;
 
   // Chart Metric Selection (Default: Last Rank, or restored from session)
@@ -733,10 +735,10 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
           >
             {(
               [
-                { id: 'last_rank', label: 'Last Rank' },
-                { id: 'gw_rank', label: 'GW Rank' },
-                { id: 'total_points', label: 'Total Pts' },
-                { id: 'event_points', label: 'GW Pts' },
+                { id: 'last_rank', label: t('chart_last_rank') },
+                { id: 'gw_rank', label: t('chart_gw_rank') },
+                { id: 'total_points', label: t('chart_total_pts') },
+                { id: 'event_points', label: t('chart_gw_pts') },
               ] as const
             ).map((item) => {
               const active = metricType === item.id;
@@ -855,7 +857,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                Chips
+                {t('chart_chips')}
               </button>
 
               {/* Hits Toggle (Rose/Red) */}
@@ -867,7 +869,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                Hits
+                {t('chart_hits')}
               </button>
 
               {/* Captained Player Toggle (Teal/Cyan) */}
@@ -879,7 +881,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                Captains
+                {t('chart_captains')}
               </button>
             </div>
           </div>
@@ -914,7 +916,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                   {/* Section 1: Quick Rank Presets */}
                   <div className="pb-2 border-b border-slate-100">
                     <span className="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
-                      Filter by Rank
+                      {t('chart_filter_by_rank')}
                     </span>
                     <div className="grid grid-cols-3 gap-1">
                       {rankPresetOptions.map((opt) => {
@@ -943,21 +945,21 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                   <div className="pt-2">
                     <div className="flex items-center justify-between pb-1.5">
                       <span className="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">
-                        Select Individual Teams
+                        {t('chart_select_individual')}
                       </span>
                       <div className="flex items-center gap-1 text-[11px]">
                         <button
                           onClick={handleSelectAllTeams}
                           className="text-purple-700 hover:underline font-bold px-1.5 py-0.5 rounded hover:bg-purple-50 cursor-pointer"
                         >
-                          All
+                          {t('chart_all')}
                         </button>
                         <span className="text-slate-300">•</span>
                         <button
                           onClick={handleClearAllTeams}
                           className="text-slate-500 hover:underline font-bold px-1.5 py-0.5 rounded hover:bg-slate-50 cursor-pointer"
                         >
-                          Clear
+                          {t('chart_clear')}
                         </button>
                       </div>
                     </div>
@@ -967,7 +969,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                       <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
-                        placeholder="Search team..."
+                        placeholder={t('chart_search_team')}
                         value={teamSelectorSearch}
                         onChange={(e) => setTeamSelectorSearch(e.target.value)}
                         className="w-full text-xs pl-8 pr-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-600"
@@ -1014,13 +1016,13 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                     {/* Footer */}
                     <div className="pt-2 mt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
                       <span className="text-slate-500 font-medium">
-                        {visibleTeams.length} teams shown
+                        {t('chart_teams_shown', { N: visibleTeams.length })}
                       </span>
                       <button
                         onClick={() => setIsTeamSelectorOpen(false)}
                         className="bg-[#37003c] text-white px-3 py-1 rounded-md font-bold hover:bg-[#37003c]/90 cursor-pointer"
                       >
-                        Done
+                        {t('chart_done')}
                       </button>
                     </div>
                   </div>
@@ -1040,7 +1042,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
               title="Reset to All Teams"
               className="px-2 py-1 rounded-lg text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 flex items-center cursor-pointer transition-colors"
             >
-              <span>Reset</span>
+              <span>{t('chart_reset')}</span>
             </button>
           )}
         </div>

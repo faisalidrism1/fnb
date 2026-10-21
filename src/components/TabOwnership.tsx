@@ -10,6 +10,7 @@ import {
 import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import fnbLogo from '../assets/images/fnb_league_logo_transparent.png';
+import { useLanguage } from '../utils/i18n.ts';
 
 interface TabOwnershipProps {
   ownershipPlayers: Record<number, PlayerOwnershipItem[]>;
@@ -44,6 +45,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
   subTab: propSubTab,
   onSelectSubTab,
 }) => {
+  const { t, language } = useLanguage();
   const [internalSubTab, setInternalSubTab] = useState<OwnershipSubTab>('most-owned-players');
   const subTab = propSubTab !== undefined ? propSubTab : internalSubTab;
   const setSubTab = (val: OwnershipSubTab) => {
@@ -213,7 +215,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                   value={selectedClub}
                   onChange={(val) => setSelectedClub(String(val))}
                   options={[
-                    { value: 'all', label: 'All Clubs' },
+                    { value: 'all', label: t('filter_all_clubs') },
                     ...availableClubs.map((club) => ({ value: club, label: club })),
                   ]}
                   searchable={false}
@@ -224,7 +226,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                   value={selectedPos}
                   onChange={(val) => setSelectedPos(String(val))}
                   options={[
-                    { value: 'all', label: 'All Pos' },
+                    { value: 'all', label: t('filter_all_pos') },
                     { value: 'GKP', label: 'GKP' },
                     { value: 'DEF', label: 'DEF' },
                     { value: 'MID', label: 'MID' },
@@ -241,7 +243,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                 value={selectedClubPos}
                 onChange={(val) => setSelectedClubPos(String(val))}
                 options={[
-                  { value: 'all', label: 'All Pos' },
+                  { value: 'all', label: t('filter_all_pos') },
                   { value: 'GKP', label: 'GKP' },
                   { value: 'DEF', label: 'DEF' },
                   { value: 'MID', label: 'MID' },
@@ -257,7 +259,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
               value={effectiveFansClubFilter}
               onChange={(val) => setFansClubFilter(String(val))}
               options={[
-                ...(hasSeasonFans ? [{ value: 'all', label: 'Season' }] : []),
+                ...(hasSeasonFans ? [{ value: 'all', label: t('filter_season') }] : []),
                 ...availableGWs.map((gw) => ({
                   value: String(gw),
                   label: `GW ${gw}`,
@@ -272,7 +274,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             {/* Squad Cost Badge */}
             <div className="flex items-center gap-1.5 bg-[#37003c] text-white px-2.5 py-1.5 rounded-lg text-xs font-bold shadow-2xs">
-              <span className="text-[#00ff87]">Squad Cost:</span>
+              <span className="text-[#00ff87]">{language === 'id' ? 'Nilai Skuad:' : 'Squad Cost:'}</span>
               <span>£{(templateSquad.total_cost / 10).toFixed(1)}m</span>
             </div>
           </div>
@@ -292,33 +294,51 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                   </th>
                   {/* Frozen Player Column */}
                   <th className="sticky left-[40px] z-20 bg-[#37003c] py-2 px-2.5 whitespace-nowrap border-b border-purple-900 border-r border-purple-900/40 leading-tight">
-                    Player
+                    {t('col_player')}
                   </th>
                   <th className="py-2 px-2 text-center w-12 min-w-[48px] border-b border-purple-900 leading-tight">
-                    Club
+                    {t('col_club')}
                   </th>
                   <th className="py-2 px-1.5 text-center w-11 min-w-[44px] border-b border-purple-900 leading-tight">
-                    Pos
+                    {t('col_pos')}
                   </th>
                   <th className="py-2 px-1.5 text-right w-14 min-w-[54px] border-b border-purple-900 leading-tight">
-                    Cost
+                    {t('col_cost')}
                   </th>
                   {/* GW Pts - Wrapped Header */}
                   <th className="py-1.5 px-1.5 text-right w-11 min-w-[44px] border-b border-purple-900 leading-tight">
                     <div className="flex flex-col items-end leading-tight">
-                      <span>GW</span>
-                      <span>Pts</span>
+                      {language === 'id' ? (
+                        <>
+                          <span>Poin</span>
+                          <span>GW</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>GW</span>
+                          <span>Pts</span>
+                        </>
+                      )}
                     </div>
                   </th>
                   {/* Total Pts - Wrapped Header */}
                   <th className="py-1.5 px-1.5 text-right w-11 min-w-[44px] border-b border-purple-900 leading-tight">
                     <div className="flex flex-col items-end leading-tight">
-                      <span>Total</span>
-                      <span>Pts</span>
+                      {language === 'id' ? (
+                        <>
+                          <span>Total</span>
+                          <span>Poin</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Total</span>
+                          <span>Pts</span>
+                        </>
+                      )}
                     </div>
                   </th>
                   <th className="py-2 px-2.5 text-right w-24 min-w-[96px] border-b border-purple-900 leading-tight">
-                    Ownership
+                    {t('col_ownership')}
                   </th>
                 </tr>
               </thead>
@@ -326,7 +346,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                 {filteredPlayers.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="py-8 px-4 text-center text-slate-400 font-medium whitespace-nowrap border-b border-slate-100">
-                      No players match the selected Club / Pos filters.
+                      {t('ownership_empty_players')}
                     </td>
                   </tr>
                 ) : (
@@ -468,7 +488,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                       </div>
 
                       <div className="flex items-center justify-between mt-1 text-xs">
-                        <span className="text-slate-500 font-medium">Total Players Owned:</span>
+                        <span className="text-slate-500 font-medium">{t('total_players_owned')}</span>
                         <span className="font-black text-purple-900">
                           {club.owned_count} <span className="text-slate-400 text-[11px]">({club.owned_percentage}%)</span>
                         </span>
@@ -526,7 +546,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           {currentFansClubs.length === 0 ? (
             <div className="p-10 text-center text-slate-500 text-sm">
-              <p className="font-bold text-slate-700">No managers found for this Fans Club criteria.</p>
+              <p className="font-bold text-slate-700">{t('fans_club_empty')}</p>
               <p className="text-xs mt-1">Try selecting a different gameweek filter above.</p>
             </div>
           ) : (
@@ -555,10 +575,10 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                       />
                       <div>
                         <h3 className="font-black text-slate-900 text-sm">
-                          {clubGroup.club_name} Fans Club
+                          {t('card_fans_club', { Club: clubGroup.club_name })}
                         </h3>
                         <p className="text-[10px] text-slate-400 font-medium">
-                          {clubGroup.managers.length} {clubGroup.managers.length === 1 ? 'Manager' : 'Managers'} with 3+ players
+                          {t('fans_club_sub', { N: clubGroup.managers.length })}
                         </p>
                       </div>
                     </div>
@@ -587,8 +607,8 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                               <button
                                 key={pIdx}
                                 onClick={(e) => {
-                                  e.stopPropagation();
-                                  handlePlayerClickByName(pName);
+                                   e.stopPropagation();
+                                   handlePlayerClickByName(pName);
                                 }}
                                 className="bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-900 text-[10px] font-semibold px-1.5 py-0.5 rounded transition-colors cursor-pointer border border-transparent hover:border-purple-300"
                                 title={`Klik untuk melihat detail statistik ${pName}`}
@@ -601,7 +621,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
 
                         <div className="text-right shrink-0">
                           <span className="inline-flex items-center font-black text-xs text-purple-900 bg-purple-100 px-2 py-0.5 rounded">
-                            {mgr.player_count} Players
+                            {t('fans_club_badge_players', { N: mgr.player_count })}
                           </span>
                         </div>
                       </div>

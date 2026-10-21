@@ -98,6 +98,7 @@ export interface Translations {
   chart_select_individual: string;
   chart_all: string;
   chart_clear: string;
+  chart_all_clear: string;
   chart_search_team: string;
   chart_teams_shown: string;
   chart_done: string;
@@ -105,6 +106,7 @@ export interface Translations {
   chart_chips: string;
   chart_hits: string;
   chart_captains: string;
+  chart_toggle_controls: string;
 
   // Liga Minus
   minus_empty_1: string;
@@ -180,6 +182,12 @@ export interface Translations {
   settings_news_ticker_desc: string;
   settings_language_heading: string;
   settings_language_desc: string;
+  settings_lang_fnb_label: string;
+  settings_lang_fnb_sub: string;
+  settings_lang_en_label: string;
+  settings_lang_en_sub: string;
+  settings_lang_id_label: string;
+  settings_lang_id_sub: string;
   settings_admin_heading: string;
   settings_admin_title: string;
   settings_admin_badge: string;
@@ -208,12 +216,15 @@ export interface Translations {
   modal_plyr_tab_overview: string;
   modal_plyr_tab_owners: string;
   modal_plyr_tab_history: string;
+  tooltip_close_player_modal: string;
   modal_plyr_match_result: string;
   modal_plyr_match_points: string;
   modal_plyr_did_not_play: string;
   modal_plyr_col_team_manager: string;
   modal_plyr_col_squad_status: string;
   modal_plyr_col_captain: string;
+  modal_plyr_col_owners_header: string;
+  modal_plyr_col_history_header: string;
 
   // 11. Footer Aplikasi
   footer_league_name: string;
@@ -295,6 +306,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     chart_select_individual: 'Select Individual Teams',
     chart_all: 'All',
     chart_clear: 'Clear',
+    chart_all_clear: 'All • Clear',
     chart_search_team: 'Search team...',
     chart_teams_shown: '{N} teams shown',
     chart_done: 'Done',
@@ -302,6 +314,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     chart_chips: 'Chips',
     chart_hits: 'Hits',
     chart_captains: 'Captains',
+    chart_toggle_controls: 'Chips • Hits • Captains',
 
     // Liga Minus
     minus_empty_1: 'No managers have taken transfer hits so far this season!',
@@ -377,6 +390,12 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_news_ticker_desc: 'Tampilkan baris running text berita atau pemberitahuan penting liga',
     settings_language_heading: 'Language',
     settings_language_desc: 'Pilih bahasa pengantar antarmuka sistem',
+    settings_lang_fnb_label: 'FNB Default',
+    settings_lang_fnb_sub: 'Tampilan Bawaan FNB',
+    settings_lang_en_label: 'English',
+    settings_lang_en_sub: 'English (UK)',
+    settings_lang_id_label: 'Indonesia',
+    settings_lang_id_sub: 'Bahasa Indonesia',
     settings_admin_heading: 'Administration',
     settings_admin_title: 'Admin Area',
     settings_admin_badge: 'Restricted',
@@ -395,7 +414,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_mgr_bench: 'BENCH',
     modal_mgr_tooltip_breakdown: 'Klik kotak nama / angka poin untuk melihat breakdown poin pemain',
     modal_mgr_transfers_gw: 'Transfers in Gameweek {N}',
-    modal_mgr_transfer_time: 'Waktu: {time}',
+    modal_mgr_transfer_time: 'Waktu: {jam}',
     modal_mgr_transfer_empty: 'No Transfer.',
     modal_mgr_col_season: 'Season',
     modal_mgr_col_overall_rank: 'Overall Rank',
@@ -405,12 +424,15 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_plyr_tab_overview: 'GW Overview',
     modal_plyr_tab_owners: 'Owners ({N})',
     modal_plyr_tab_history: 'History',
-    modal_plyr_match_result: 'Result',
+    tooltip_close_player_modal: 'Close Modal',
+    modal_plyr_match_result: 'Result • Points',
     modal_plyr_match_points: 'Points',
     modal_plyr_did_not_play: 'Did not play in this Gameweek (0 pts).',
     modal_plyr_col_team_manager: 'Team & Manager',
     modal_plyr_col_squad_status: 'Squad Status',
     modal_plyr_col_captain: 'Captain',
+    modal_plyr_col_owners_header: 'Team & Manager • Squad Status • Captain',
+    modal_plyr_col_history_header: 'GW, Opponent, Result, Pts, ST, MP, GS, A, CS',
 
     // 11. Footer
     footer_league_name: 'FPL Nusantara BERHADIAH 2026/2027',
@@ -491,6 +513,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     chart_select_individual: 'Select Individual Teams',
     chart_all: 'All',
     chart_clear: 'Clear',
+    chart_all_clear: 'All • Clear',
     chart_search_team: 'Search Team...',
     chart_teams_shown: '{N} teams shown',
     chart_done: 'Done',
@@ -498,6 +521,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     chart_chips: 'Chips',
     chart_hits: 'Hits',
     chart_captains: 'Captains',
+    chart_toggle_controls: 'Chips • Hits • Captains',
 
     // Liga Minus
     minus_empty_1: 'No managers have taken transfer hits so far this season.',
@@ -573,6 +597,12 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_news_ticker_desc: 'Display running news ticker and important league updates',
     settings_language_heading: 'Language',
     settings_language_desc: 'Select the display language for the app.',
+    settings_lang_fnb_label: 'FNB Default',
+    settings_lang_fnb_sub: 'FNB Default View',
+    settings_lang_en_label: 'English',
+    settings_lang_en_sub: 'English UK',
+    settings_lang_id_label: 'Indonesian',
+    settings_lang_id_sub: 'Bahasa Indonesia',
     settings_admin_heading: 'Administration',
     settings_admin_title: 'Admin Area',
     settings_admin_badge: 'Restricted',
@@ -601,12 +631,15 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_plyr_tab_overview: 'GW Overview',
     modal_plyr_tab_owners: 'Owners ({N})',
     modal_plyr_tab_history: 'History',
-    modal_plyr_match_result: 'Result',
+    tooltip_close_player_modal: 'Close',
+    modal_plyr_match_result: 'Result • Points',
     modal_plyr_match_points: 'Points',
     modal_plyr_did_not_play: 'Did not play in this Gameweek (0 pts).',
     modal_plyr_col_team_manager: 'Team & Manager',
     modal_plyr_col_squad_status: 'Squad Status',
     modal_plyr_col_captain: 'Captain',
+    modal_plyr_col_owners_header: 'Team & Manager • Squad Status • Captain',
+    modal_plyr_col_history_header: 'GW, Opponent, Result, Pts, ST, MP, GS, A, CS',
 
     // 11. Footer
     footer_league_name: 'FPL Nusantara BERHADIAH 2026/2027',
@@ -687,6 +720,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     chart_select_individual: 'Pilih Tim Tertentu',
     chart_all: 'Semua',
     chart_clear: 'Kosongkan',
+    chart_all_clear: 'Semua • Kosongkan',
     chart_search_team: 'Cari Tim...',
     chart_teams_shown: '{N} tim ditampilkan',
     chart_done: 'Selesai',
@@ -694,6 +728,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     chart_chips: 'Chips',
     chart_hits: 'Hits',
     chart_captains: 'Kapten',
+    chart_toggle_controls: 'Chips • Hits • Kapten',
 
     // Liga Minus
     minus_empty_1: 'Belum ada manajer yang mengambil penalti transfer musim ini.',
@@ -769,6 +804,12 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_news_ticker_desc: 'Tampilkan baris running text berita atau pemberitahuan penting liga',
     settings_language_heading: 'Bahasa',
     settings_language_desc: 'Pilih bahasa yang digunakan untuk tampilan aplikasi.',
+    settings_lang_fnb_label: 'FNB Default',
+    settings_lang_fnb_sub: 'Tampilan Bawaan FNB',
+    settings_lang_en_label: 'Inggris',
+    settings_lang_en_sub: 'English UK',
+    settings_lang_id_label: 'Indonesia',
+    settings_lang_id_sub: 'Bahasa Indonesia',
     settings_admin_heading: 'Administrasi',
     settings_admin_title: 'Area Admin',
     settings_admin_badge: 'Terbatas',
@@ -787,7 +828,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_mgr_bench: 'CADANGAN',
     modal_mgr_tooltip_breakdown: 'Klik kotak nama / angka poin untuk melihat breakdown poin pemain',
     modal_mgr_transfers_gw: 'Transfer pada Gameweek {N}',
-    modal_mgr_transfer_time: 'Waktu: {time}',
+    modal_mgr_transfer_time: 'Waktu: {jam}',
     modal_mgr_transfer_empty: 'Tidak Ada Transfer.',
     modal_mgr_col_season: 'Musim',
     modal_mgr_col_overall_rank: 'Peringkat Dunia',
@@ -797,12 +838,15 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_plyr_tab_overview: 'Ringkasan GW',
     modal_plyr_tab_owners: 'Pemilik ({N})',
     modal_plyr_tab_history: 'Riwayat',
-    modal_plyr_match_result: 'Hasil',
+    tooltip_close_player_modal: 'Tutup',
+    modal_plyr_match_result: 'Hasil • Poin',
     modal_plyr_match_points: 'Poin',
     modal_plyr_did_not_play: 'Tidak bermain pada Gameweek ini (0 poin).',
     modal_plyr_col_team_manager: 'Tim & Manajer',
     modal_plyr_col_squad_status: 'Status Skuad',
     modal_plyr_col_captain: 'Kapten',
+    modal_plyr_col_owners_header: 'Tim & Manajer • Status Skuad • Kapten',
+    modal_plyr_col_history_header: 'GW, Lawan, Hasil, Poin, Starter, Menit, Gol, Assist, CS',
 
     // 11. Footer
     footer_league_name: 'FPL Nusantara BERHADIAH 2026/2027',
@@ -842,7 +886,10 @@ export function useLanguage() {
     const currentDict = TRANSLATIONS[language] || TRANSLATIONS.fnb;
     let text = (currentDict[key] as string) || (TRANSLATIONS.fnb[key] as string) || '';
     if (params) {
-      Object.entries(params).forEach(([paramKey, paramVal]) => {
+      const p = { ...params };
+      if (p.time !== undefined && p.jam === undefined) p.jam = p.time;
+      if (p.jam !== undefined && p.time === undefined) p.time = p.jam;
+      Object.entries(p).forEach(([paramKey, paramVal]) => {
         text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramVal));
       });
     }
@@ -867,7 +914,10 @@ export function t(
   const currentDict = TRANSLATIONS[lang] || TRANSLATIONS.fnb;
   let text = (currentDict[key] as string) || (TRANSLATIONS.fnb[key] as string) || '';
   if (params) {
-    Object.entries(params).forEach(([paramKey, paramVal]) => {
+    const p = { ...params };
+    if (p.time !== undefined && p.jam === undefined) p.jam = p.time;
+    if (p.jam !== undefined && p.time === undefined) p.time = p.jam;
+    Object.entries(p).forEach(([paramKey, paramVal]) => {
       text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramVal));
     });
   }
@@ -959,6 +1009,9 @@ export function formatKickoffByLanguage(
 
 /**
  * Format GW date range for TabMatches
+ * FNB Default: Sab, 17 Agu - Min, 18 Agu
+ * English: Saturday, 17 Aug - Sunday, 18 Aug
+ * Indonesia: Sabtu, 17 Agu - Minggu, 18 Agu
  */
 export function formatGwDateRangeByLanguage(
   minTime: number,
@@ -968,9 +1021,13 @@ export function formatGwDateRangeByLanguage(
   const d1 = new Date(minTime);
   const d2 = new Date(maxTime);
 
-  const locale = lang === 'en' ? 'en-GB' : 'id-ID';
+  const isEn = lang === 'en';
+  const isId = lang === 'id';
+  const locale = isEn ? 'en-GB' : 'id-ID';
+  const weekdayStyle: 'long' | 'short' = (isEn || isId) ? 'long' : 'short';
+
   const formatPart = (d: Date) => {
-    const dayName = d.toLocaleDateString(locale, { weekday: 'short', timeZone: 'Asia/Jakarta' });
+    const dayName = d.toLocaleDateString(locale, { weekday: weekdayStyle, timeZone: 'Asia/Jakarta' });
     const dayNum = d.toLocaleDateString(locale, { day: 'numeric', timeZone: 'Asia/Jakarta' });
     const mon = d.toLocaleDateString(locale, { month: 'short', timeZone: 'Asia/Jakarta' });
     return `${dayName}, ${dayNum} ${mon}`;
@@ -980,3 +1037,39 @@ export function formatGwDateRangeByLanguage(
   const s2 = formatPart(d2);
   return s1 === s2 ? s1 : `${s1} - ${s2}`;
 }
+
+/**
+ * Indonesian translations for 30 FPL match metrics in TabMatches
+ */
+export const MATCH_METRIC_LABELS_ID: Record<string, string> = {
+  pts: 'Total Poin',
+  st: 'Starter',
+  mp: 'Menit Bermain',
+  gs: 'Gol',
+  a: 'Umpan Gol (Assist)',
+  xg: 'Peluang Gol (xG)',
+  xa: 'Peluang Assist (xA)',
+  xgi: 'Kontribusi Gol (xGI)',
+  cs: 'Nirbobol (Clean Sheet)',
+  gc: 'Kebobolan',
+  xgc: 'Peluang Kebobolan (xGC)',
+  t: 'Tekel',
+  cbi: 'Sapuan, Blok & Intersep (CBI)',
+  r: 'Pemulihan Bola (Recoveries)',
+  dc: 'Kontribusi Bertahan (DefCon)',
+  og: 'Gol Bunuh Diri',
+  ps: 'Penalti Ditepis',
+  pm: 'Gagal Penalti',
+  yc: 'Kartu Kuning',
+  rc: 'Kartu Merah',
+  s: 'Penyelamatan (Saves)',
+  bp: 'Poin Bonus',
+  bps: 'Sistem Poin Bonus (BPS)',
+  inf: 'Pengaruh (Influence)',
+  cre: 'Kreativitas (Creativity)',
+  thr: 'Ancaman (Threat)',
+  ii: 'Indeks ICT',
+  nt: 'Transfer Bersih (FNB League)',
+  tsb: 'Dipilih Tim (FNB League)',
+  cost: 'Harga Pemain',
+};

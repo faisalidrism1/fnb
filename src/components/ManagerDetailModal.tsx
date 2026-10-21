@@ -12,6 +12,7 @@ import {
   Clock
 } from 'lucide-react';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { useLanguage } from '../utils/i18n.ts';
 import {
   StandingsRow,
   PlayerOwnershipItem,
@@ -314,6 +315,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
   playerStats = [],
   gwFixtures = [],
 }) => {
+  const { t, language } = useLanguage();
   const [activeGW, setActiveGW] = useState<number>(selectedGW);
   const [activeTab, setActiveTab] = useState<ModalTab>('overview');
   const [managerDetail, setManagerDetail] = useState<ManagerDetailData | null>(null);
@@ -1248,7 +1250,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                   letterSpacing={HERO_BADGE_CONFIG.bottom.letterSpacing}
                   style={{ fontFamily: "var(--app-font), 'Plus Jakarta Sans', sans-serif" }}
                 >
-                  {activeChip ? fullChipName : 'Points'}
+                  {activeChip ? fullChipName : t('modal_mgr_box_points')}
                 </text>
               </svg>
             </button>
@@ -1265,7 +1267,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                 {standing.event_transfers_cost ? `-${standing.event_transfers_cost}` : '0'}
               </span>
               <span className="text-[8.5px] sm:text-[9.5px] font-bold text-slate-500 dark:text-purple-300/70 leading-none mt-1 truncate">
-                Hits
+                {t('modal_mgr_box_hits')}
               </span>
             </div>
 
@@ -1275,7 +1277,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                 {standing.total_points}
               </span>
               <span className="text-[8.5px] sm:text-[9.5px] font-bold text-slate-500 dark:text-purple-300/70 leading-none mt-1 truncate">
-                Total Points
+                {t('modal_mgr_box_total')}
               </span>
             </div>
           </div>
@@ -1554,7 +1556,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
         <div className="py-1">
           <div className="flex items-center justify-between mb-1 px-1">
             <h4 className="font-bold text-slate-700 dark:text-slate-200 text-xs">
-              GW Transfers
+              {t('modal_mgr_transfers_gw', { N: activeGW })}
             </h4>
             {gwTransfers.length > 0 && standing.event_transfers_cost > 0 && (
               <span className="text-[10.5px] font-bold text-rose-600 dark:text-rose-400">
@@ -1626,13 +1628,13 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
               {gwTransfers[0]?.formatted_time_wib && (
                 <p className="text-[9.5px] text-slate-400 dark:text-slate-500 text-right flex items-center justify-end gap-1 pt-1">
                   <Clock className="w-2.5 h-2.5" />
-                  <span>Waktu: {gwTransfers[0].formatted_time_wib.replace(/(\d{1,2})\.(\d{2})/, '$1:$2')}</span>
+                  <span>{t('modal_mgr_transfer_time', { time: gwTransfers[0].formatted_time_wib.replace(/(\d{1,2})\.(\d{2})/, '$1:$2'), jam: gwTransfers[0].formatted_time_wib.replace(/(\d{1,2})\.(\d{2})/, '$1:$2') })}</span>
                 </p>
               )}
             </div>
           ) : (
             <p className="text-xs text-slate-400 dark:text-slate-500 px-1 py-1">
-              No Transfer.
+              {t('modal_mgr_transfer_empty')}
             </p>
           )}
         </div>
@@ -1707,7 +1709,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
               <button
                 onClick={onClose}
                 className="p-1 text-purple-300 hover:text-white rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
-                title="Tutup Modal"
+                title={t('tooltip_close_modal')}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1725,7 +1727,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                     : 'text-purple-300/80 hover:text-white font-medium'
                 }`}
               >
-                <span>GW Overview</span>
+                <span>{t('modal_mgr_tab_squad')}</span>
                 {activeTab === 'overview' && (
                   <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]" />
                 )}
@@ -1739,7 +1741,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                     : 'text-purple-300/80 hover:text-white font-medium'
                 }`}
               >
-                <span>History</span>
+                <span>{t('modal_mgr_tab_history')}</span>
                 {activeTab === 'history' && (
                   <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]" />
                 )}
@@ -1840,7 +1842,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
               <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl overflow-hidden shadow-2xs">
                 <div className="bg-slate-50 dark:bg-purple-950/40 px-3 py-2 border-b border-slate-200 dark:border-purple-900/60 flex items-center justify-between">
                   <span className="font-bold text-slate-900 dark:text-white text-xs">
-                    Season History
+                    {t('modal_mgr_tab_history')}
                   </span>
                 </div>
 
@@ -1849,10 +1851,10 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                     <table className="w-full text-left text-xs table-fixed">
                       <thead className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[10px] font-extrabold tracking-wider leading-tight">
                         <tr>
-                          <th className="py-2 px-1 sm:px-2 text-left w-[22%]">Season</th>
-                          <th className="py-2 px-1 sm:px-2 text-right w-[17%]">Total<br />Pts</th>
+                          <th className="py-2 px-1 sm:px-2 text-left w-[22%]">{t('modal_mgr_col_season')}</th>
+                          <th className="py-2 px-1 sm:px-2 text-right w-[17%]">{language === 'id' ? <>Total<br />Poin</> : <>Total<br />Pts</>}</th>
                           <th className="py-2 px-1 sm:px-2 text-right w-[15%]">FNB<br />Rank</th>
-                          <th className="py-2 px-1 sm:px-2 text-right w-[29%]">Global<br />Rank</th>
+                          <th className="py-2 px-1 sm:px-2 text-right w-[29%]">{language === 'id' ? <>Peringkat<br />Dunia</> : <>Global<br />Rank</>}</th>
                           <th className="py-2 px-1 sm:px-2 text-right w-[17%]">%</th>
                         </tr>
                       </thead>
@@ -1947,6 +1949,7 @@ const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
   opponentLabel,
   matchStatus = 'ft',
 }) => {
+  const { t } = useLanguage();
   const isGk = player.position === 'GKP' || player.element_type === 1;
   const multiplier = ownerInfo.multiplier || 1;
   const displayPoints = (player.gw_points || 0) * multiplier;
@@ -2049,7 +2052,7 @@ const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
           onToggleBreakdown && onToggleBreakdown(player.id, player.position);
         }}
         className="relative z-10 -mt-[23px] sm:-mt-[28px] md:-mt-[34px] w-full text-center cursor-pointer group/name"
-        title="Klik kotak nama / angka poin untuk melihat breakdown poin pemain"
+        title={t('modal_mgr_tooltip_breakdown')}
       >
         {/* QUICK POINT BREAKDOWN POPUP (MENEMPEL TEPAT DI ATAS BOX NAMA, LEBAR SAMA PERSIS, BORDER TIPIS 3 SISI) */}
         {isBreakdownOpen && (

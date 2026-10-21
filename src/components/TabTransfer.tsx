@@ -13,6 +13,7 @@ import {
 } from '../types.ts';
 import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { useLanguage } from '../utils/i18n.ts';
 
 interface TabTransferProps {
   transfers: TransferItem[];
@@ -43,6 +44,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
   subTab: propSubTab,
   onSelectSubTab,
 }) => {
+  const { t, language } = useLanguage();
   const [internalSubTab, setInternalSubTab] = useState<TransferSubTab>('all-transfers');
   const subTab = propSubTab !== undefined ? propSubTab : internalSubTab;
   const setSubTab = (val: TransferSubTab) => {
@@ -181,7 +183,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                 value={transferGWFilter}
                 onChange={(val) => setTransferGWFilter(String(val))}
                 options={[
-                  { value: 'all', label: 'Season' },
+                  { value: 'all', label: t('filter_season') },
                   ...availableGWs.map((gw) => ({
                     value: String(gw),
                     label: `GW ${gw}`,
@@ -199,7 +201,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                 dropdownClassName="w-64"
                 searchable={false}
                 options={[
-                  { value: 'all', label: 'All Teams' },
+                  { value: 'all', label: t('filter_all_teams') },
                   ...uniqueTeams.map(([id, name]) => ({
                     value: String(id),
                     label: name,
@@ -214,7 +216,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
               <input
                 type="text"
                 id="search-transfers-input"
-                placeholder="Search player or club..."
+                placeholder={t('search_player_team')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37003c] text-slate-800 shadow-2xs"
@@ -231,23 +233,23 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                   <tr>
                     {/* 1. Frozen Team & Manager */}
                     <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-3 border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
-                      Team & Manager
+                      {t('col_team_manager')}
                     </th>
                     {/* 2. Player In */}
                     <th className="py-2 px-2.5 border-b border-purple-900 leading-tight">
-                      Player In
+                      {t('col_player_in')}
                     </th>
                     {/* 3. Player Out */}
                     <th className="py-2 px-2.5 border-b border-purple-900 leading-tight">
-                      Player Out
+                      {t('col_player_out')}
                     </th>
                     {/* 4. In Pts */}
                     <th className="py-2 px-2 text-center border-b border-purple-900 w-16 min-w-[56px] whitespace-nowrap leading-tight">
-                      In Pts
+                      {language === 'id' ? 'Poin In' : 'In Pts'}
                     </th>
                     {/* 5. Out Pts */}
                     <th className="py-2 px-2 text-center border-b border-purple-900 w-16 min-w-[56px] whitespace-nowrap leading-tight">
-                      Out Pts
+                      {language === 'id' ? 'Poin Out' : 'Out Pts'}
                     </th>
                     {/* 6. Gap */}
                     <th className="py-2 px-2 text-center border-b border-purple-900 w-14 min-w-[52px] leading-tight">
@@ -255,11 +257,11 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                     </th>
                     {/* 7. GW */}
                     <th className="py-2 px-2 text-center border-b border-purple-900 w-14 min-w-[56px] leading-tight">
-                      GW
+                      {t('col_gw')}
                     </th>
                     {/* 8. Time (WIB) */}
                     <th className="py-2 px-2.5 border-b border-purple-900 w-32 min-w-[120px] leading-tight">
-                      Time (WIB)
+                      {t('col_time_wib')}
                     </th>
                   </tr>
                 </thead>
@@ -267,7 +269,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                   {filteredTransfers.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="py-8 text-center text-slate-500 font-medium">
-                        No transfers matching the selected filters.
+                        {t('transfers_empty')}
                       </td>
                     </tr>
                   ) : (
@@ -431,7 +433,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
               value={statGWFilter}
               onChange={(val) => setStatGWFilter(String(val))}
               options={[
-                { value: 'all', label: 'Season' },
+                { value: 'all', label: t('filter_season') },
                 ...availableGWs.map((gw) => ({
                   value: String(gw),
                   label: `GW ${gw}`,
@@ -446,7 +448,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
               value={statClubFilter}
               onChange={(val) => setStatClubFilter(String(val))}
               options={[
-                { value: 'all', label: 'All Clubs' },
+                { value: 'all', label: t('filter_all_clubs') },
                 ...availableClubs.map((club) => ({
                   value: club,
                   label: club,
@@ -461,7 +463,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
               value={statPosFilter}
               onChange={(val) => setStatPosFilter(String(val))}
               options={[
-                { value: 'all', label: 'All Pos' },
+                { value: 'all', label: t('filter_all_pos') },
                 { value: 'GKP', label: 'GKP' },
                 { value: 'DEF', label: 'DEF' },
                 { value: 'MID', label: 'MID' },
@@ -481,21 +483,21 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                     </th>
                     {/* Frozen Player Column */}
                     <th className="sticky left-[40px] z-30 bg-[#37003c] py-2 px-3 border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
-                      Player
+                      {t('col_player')}
                     </th>
-                    <th className="py-2 px-2.5 border-b border-purple-900 text-center leading-tight">Club</th>
-                    <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">Pos</th>
-                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">Cost</th>
-                    <th className="py-2 px-2 text-right border-b border-purple-900 leading-tight">GW Pts</th>
-                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">Total Pts</th>
-                    <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">In</th>
+                    <th className="py-2 px-2.5 border-b border-purple-900 text-center leading-tight">{t('col_club')}</th>
+                    <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
+                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
+                    <th className="py-2 px-2 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
+                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
+                    <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">{language === 'id' ? 'Masuk' : 'In'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {currentTransferredIn.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="py-8 text-center text-slate-500 font-medium">
-                        No players found matching the filters.
+                        {t('transfers_empty')}
                       </td>
                     </tr>
                   ) : (
@@ -594,7 +596,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
               value={statClubFilter}
               onChange={(val) => setStatClubFilter(String(val))}
               options={[
-                { value: 'all', label: 'All Clubs' },
+                { value: 'all', label: t('filter_all_clubs') },
                 ...availableClubs.map((club) => ({
                   value: club,
                   label: club,
@@ -609,7 +611,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
               value={statPosFilter}
               onChange={(val) => setStatPosFilter(String(val))}
               options={[
-                { value: 'all', label: 'All Pos' },
+                { value: 'all', label: t('filter_all_pos') },
                 { value: 'GKP', label: 'GKP' },
                 { value: 'DEF', label: 'DEF' },
                 { value: 'MID', label: 'MID' },
@@ -629,21 +631,21 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                     </th>
                     {/* Frozen Player Column */}
                     <th className="sticky left-[40px] z-30 bg-[#37003c] py-2 px-3 border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
-                      Player
+                      {t('col_player')}
                     </th>
-                    <th className="py-2 px-2.5 border-b border-purple-900 text-center leading-tight">Club</th>
-                    <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">Pos</th>
-                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">Cost</th>
-                    <th className="py-2 px-2 text-right border-b border-purple-900 leading-tight">GW Pts</th>
-                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">Total Pts</th>
-                    <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">Out</th>
+                    <th className="py-2 px-2.5 border-b border-purple-900 text-center leading-tight">{t('col_club')}</th>
+                    <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
+                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
+                    <th className="py-2 px-2 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
+                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
+                    <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">{language === 'id' ? 'Keluar' : 'Out'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {currentTransferredOut.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="py-8 text-center text-slate-500 font-medium">
-                        No players found matching the filters.
+                        {t('transfers_empty')}
                       </td>
                     </tr>
                   ) : (

@@ -9,6 +9,12 @@ import {
   TransferItem,
 } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import {
+  useLanguage,
+  formatGwDateRangeByLanguage,
+  formatKickoffByLanguage,
+  MATCH_METRIC_LABELS_ID,
+} from '../utils/i18n.ts';
 
 interface TabMatchesProps {
   currentGW?: number;
@@ -345,6 +351,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
   const [matches, setMatches] = useState<MatchCardItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeMetric, setActiveMetric] = useState<MatchStatMetric>('pts');
+  const { t, language } = useLanguage();
 
   // Memoized FNB League TSB (Ownership %) & Net Transfers for activeGW (identik dengan modal pemain)
   const fnbMetricsMap = useMemo(() => {
@@ -579,21 +586,8 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
 
     const minTime = Math.min(...validTimes);
     const maxTime = Math.max(...validTimes);
-    const d1 = new Date(minTime);
-    const d2 = new Date(maxTime);
-
-    const formatPart = (d: Date) => {
-      const dayName = d.toLocaleDateString('id-ID', { weekday: 'short', timeZone: 'Asia/Jakarta' });
-      const dayNum = d.toLocaleDateString('id-ID', { day: 'numeric', timeZone: 'Asia/Jakarta' });
-      const mon = d.toLocaleDateString('id-ID', { month: 'short', timeZone: 'Asia/Jakarta' });
-      return `${dayName}, ${dayNum} ${mon}`;
-    };
-
-    const s1 = formatPart(d1);
-    const s2 = formatPart(d2);
-
-    return s1 === s2 ? s1 : `${s1} - ${s2}`;
-  }, [matches]);
+    return formatGwDateRangeByLanguage(minTime, maxTime, language);
+  }, [matches, language]);
 
   const toggleExpand = (matchId: number) => {
     setExpandedMatchIds((prev) => {
@@ -944,7 +938,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
             className="h-8 bg-white dark:bg-[#1a0c2c] border border-slate-300 dark:border-purple-800/80 hover:border-purple-600 dark:hover:border-[#00ff87] rounded-lg text-xs font-bold text-slate-900 dark:text-white px-2.5 shadow-md hover:shadow-lg flex items-center justify-between gap-1.5 cursor-pointer focus:outline-none transition-all max-w-[200px] sm:max-w-[260px]"
             options={MATCH_METRIC_OPTIONS.map((m) => ({
               value: m.value,
-              label: m.label
+              label: language === 'id' ? (MATCH_METRIC_LABELS_ID[m.value] || m.label) : m.label,
             }))}
           />
         </div>
@@ -956,16 +950,16 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
           type="button"
           onClick={handleToggleExpandAll}
           className="h-8 flex items-center gap-1.5 px-2.5 rounded-lg bg-white dark:bg-[#1a0c2c] hover:bg-slate-100 dark:hover:bg-purple-950/70 border border-slate-300 dark:border-purple-800/60 text-xs font-bold text-slate-800 dark:text-purple-200 transition-all cursor-pointer shadow-2xs select-none active:scale-95 ml-auto"
-          title={isAllExpanded ? "Tutup semua pertandingan" : "Buka semua pertandingan"}
+          title={isAllExpanded ? t('matches_toggle_all_close') : t('matches_toggle_all_open')}
         >
           {isAllExpanded ? (
             <>
-              <span>Collapse All</span>
+              <span>{t('matches_toggle_all_close')}</span>
               <ChevronUp className="w-3.5 h-3.5 stroke-[2.5] text-purple-600 dark:text-[#00ff87]" />
             </>
           ) : (
             <>
-              <span>Expand All</span>
+              <span>{t('matches_toggle_all_open')}</span>
               <ChevronDown className="w-3.5 h-3.5 stroke-[2.5] text-purple-600 dark:text-[#00ff87]" />
             </>
           )}
@@ -1021,7 +1015,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
             const isLive = Boolean(m.started && !isFt);
             const matchStatusStyle: 'upcoming' | 'live' | 'ft' = isFt ? 'ft' : isLive ? 'live' : 'upcoming';
 
-            const kickoffIndo1Line = formatMatchKickoffWIB(m.kickoff_time);
+            const kickoffIndo1Line = formatKickoffByLanguage(m.kickoff_time, language);
 
             const scoreText = (m.team_h_score !== null && m.team_a_score !== null)
               ? `${m.team_h_score} - ${m.team_a_score}`
@@ -1109,17 +1103,17 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                         <span>
                           {isHalfTime
-                            ? 'Half Time'
+                            ? t('match_status_halftime')
                             : (m.clock_label || (m.minutes >= 90 ? "90+'" : m.minutes > 0 ? `${m.minutes}'` : "1'"))}
                         </span>
                       </span>
                     ) : isFt ? (
                       <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-300 leading-none">
-                        Full Time
+                        {t('match_status_fulltime')}
                       </span>
                     ) : (
                       <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 dark:text-slate-400 leading-none">
-                        Upcoming
+                        {t('match_status_upcoming')}
                       </span>
                     )}
                   </div>

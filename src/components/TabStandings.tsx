@@ -69,6 +69,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
   subTab: propSubTab,
   onSelectSubTab,
 }) => {
+  const { language, t } = useLanguage();
   const [internalSubTab, setInternalSubTab] = useState<StandingsSubTab>(() => {
     const gw = currentGW || 1;
     const gwStatusObj = eventsStatus?.[gw] || gwStatus;
@@ -405,20 +406,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
 
         const padZero = (n: number) => String(n).padStart(2, '0');
 
-        // Hari, tanggal, dan waktu WIB format deterministik
-        const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-        const monthNames = [
-          'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-        ];
-        const wibDate = new Date(targetDeadlineMs + 7 * 60 * 60 * 1000);
-        const wibDay = dayNames[wibDate.getUTCDay()];
-        const wibDateNum = wibDate.getUTCDate();
-        const wibMonth = monthNames[wibDate.getUTCMonth()];
-        const wibYear = wibDate.getUTCFullYear();
-        const wibHour = String(wibDate.getUTCHours()).padStart(2, '0');
-        const wibMinute = String(wibDate.getUTCMinutes()).padStart(2, '0');
-        const deadlineWibStr = `${wibDay}, ${wibDateNum} ${wibMonth} ${wibYear}, ${wibHour}.${wibMinute} WIB`;
+        const deadlineWibStr = formatDeadlineByLanguage(targetDeadlineMs, language);
 
         // Gameweek [N] Status text & color
         // Sesuai konvensi RULE[AGENTS_md] & warna khas FPL:
@@ -434,14 +422,22 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
           syncStatus
         );
 
-        let statusBadgeText: GameweekLifecycleStatus = calculatedStatus;
+        const translatedStatusBadge =
+          calculatedStatus === 'Not Started'
+            ? t('status_not_started')
+            : calculatedStatus === 'Live'
+            ? t('status_live')
+            : calculatedStatus === 'Provisional'
+            ? t('status_provisional')
+            : t('status_confirmed');
+
         let statusBadgeClasses = 'bg-[#00ff87]/20 border border-[#00c968] text-[#006e36]';
 
-        if (statusBadgeText === 'Not Started') {
+        if (calculatedStatus === 'Not Started') {
           statusBadgeClasses = 'bg-slate-100 border border-slate-300 text-slate-600';
-        } else if (statusBadgeText === 'Live') {
+        } else if (calculatedStatus === 'Live') {
           statusBadgeClasses = 'bg-[#e90052]/15 border border-[#e90052] text-[#e90052]';
-        } else if (statusBadgeText === 'Provisional') {
+        } else if (calculatedStatus === 'Provisional') {
           statusBadgeClasses = 'bg-amber-400/20 border border-amber-500 text-amber-800';
         } else {
           statusBadgeClasses = 'bg-[#00ff87]/20 border border-[#00c968] text-[#006e36]';
@@ -490,16 +486,16 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
           <div className="space-y-4 max-w-4xl mx-auto py-2">
             {/* Gameweek [N+1] Deadline & Countdown - Tanpa Panel & Tanpa Icon Jam */}
             <div className="flex flex-col items-center justify-center text-center py-2 space-y-1">
-              <h3 className="text-xs sm:text-sm font-black tracking-wide text-slate-800">
-                Gameweek {nextGW} Deadline
+              <h3 className="text-xs sm:text-sm font-black tracking-wide text-slate-800 dark:text-slate-100">
+                {t('deadline_title', { N: nextGW })}
               </h3>
-              <p className="text-xs sm:text-sm font-semibold text-slate-600">
+              <p className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
                 {deadlineWibStr}
               </p>
 
               {/* 4 Countdown items: Days box putih dengan border ungu tua, boxes waktu ungu tua */}
               <div className="flex items-center justify-center gap-2 sm:gap-3 pt-2">
-                {/* Days Box: Putih dengan border ungu tua (#37003c) di light mode, dark mode adaptif */}
+                {/* Days Box */}
                 <div className="flex flex-col items-center">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white dark:bg-[#1f0d38] text-[#37003c] dark:text-[#00ff87] rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c] dark:border-[#00ff87]/60">
                     <span className="text-xl sm:text-2xl font-black font-mono tracking-tight text-[#37003c] dark:text-[#00ff87]">
@@ -507,11 +503,11 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    Days
+                    {t('countdown_days')}
                   </span>
                 </div>
 
-                {/* Hours Box: Ungu tua */}
+                {/* Hours Box */}
                 <div className="flex flex-col items-center">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
                     <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
@@ -519,11 +515,11 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    Hours
+                    {t('countdown_hours')}
                   </span>
                 </div>
 
-                {/* Minutes Box: Ungu tua */}
+                {/* Minutes Box */}
                 <div className="flex flex-col items-center">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
                     <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
@@ -531,11 +527,11 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    Minutes
+                    {t('countdown_minutes')}
                   </span>
                 </div>
 
-                {/* Seconds Box: Ungu tua */}
+                {/* Seconds Box */}
                 <div className="flex flex-col items-center">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
                     <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
@@ -543,21 +539,21 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    Seconds
+                    {t('countdown_seconds')}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Gameweek [N] Status - Disejajarkan dengan nama manajer juara */}
+            {/* Gameweek [N] Status */}
             <div className="flex items-center gap-3 py-1">
               <div className="flex items-center gap-1.5 w-36 sm:w-40 shrink-0">
-                <span className="text-xs sm:text-sm font-black tracking-wide text-slate-800">
-                  Gameweek {activeGW} Status
+                <span className="text-xs sm:text-sm font-black tracking-wide text-slate-800 dark:text-slate-100">
+                  {t('gw_status_label', { N: activeGW })}
                 </span>
               </div>
               <span className={`px-3 py-1 rounded-md text-xs sm:text-sm font-bold ${statusBadgeClasses}`}>
-                {statusBadgeText}
+                {translatedStatusBadge}
               </span>
             </div>
 
@@ -571,7 +567,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                 <div className="flex items-center gap-1.5 w-36 sm:w-40 shrink-0">
                   <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
                   <span className="text-xs sm:text-sm font-bold text-slate-700">
-                    Peringkat 1
+                    {t('highlight_rank_1')}
                   </span>
                 </div>
                 {rank1 ? (
@@ -584,7 +580,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-400 font-medium">Belum ada data</span>
+                  <span className="text-xs text-slate-400 font-medium">{t('no_data_available')}</span>
                 )}
               </div>
 
@@ -596,7 +592,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                 <div className="flex items-center gap-1.5 w-36 sm:w-40 shrink-0">
                   <Trophy className="w-4 h-4 text-slate-400 shrink-0" />
                   <span className="text-xs sm:text-sm font-bold text-slate-700">
-                    Peringkat 2
+                    {t('highlight_rank_2')}
                   </span>
                 </div>
                 {rank2 ? (
@@ -609,7 +605,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-400 font-medium">Belum ada data</span>
+                  <span className="text-xs text-slate-400 font-medium">{t('no_data_available')}</span>
                 )}
               </div>
 
@@ -624,7 +620,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                 <div className="flex items-center gap-1.5 w-36 sm:w-40 shrink-0">
                   <Award className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span className="text-xs sm:text-sm font-bold text-slate-700">
-                    Juara Terbanyak
+                    {t('highlight_most_wins')}
                   </span>
                 </div>
                 {eligibleMostGwWinner ? (
@@ -637,7 +633,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-400 font-medium">Belum ada data</span>
+                  <span className="text-xs text-slate-400 font-medium">{t('no_data_available')}</span>
                 )}
               </div>
 
@@ -649,7 +645,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                 <div className="flex items-center gap-1.5 w-36 sm:w-40 shrink-0">
                   <Medal className="w-4 h-4 text-purple-600 shrink-0" />
                   <span className="text-xs sm:text-sm font-bold text-slate-700">
-                    Juara Gameweek {activeGW}
+                    {t('highlight_gw_champ', { N: activeGW })}
                   </span>
                 </div>
                 {topGwNChampion ? (
@@ -662,7 +658,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-400 font-medium">Belum ada data</span>
+                  <span className="text-xs text-slate-400 font-medium">{t('no_data_available')}</span>
                 )}
               </div>
             </div>
@@ -672,7 +668,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               {/* Highest Points: Hijau Emerald */}
               <div className="px-2 sm:px-4">
                 <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 block mb-1">
-                  Highest
+                  {t('points_highest')}
                 </span>
                 <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-600 dark:text-[#00ff87]">
                   {highestPoints}
@@ -682,7 +678,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               {/* Average Points: Ungu Tua Khas FPL */}
               <div className="px-2 sm:px-4">
                 <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 block mb-1">
-                  Average
+                  {t('points_average')}
                 </span>
                 <span className="text-xl sm:text-2xl md:text-3xl font-black text-[#37003c] dark:text-purple-300">
                   {avgPoints}
@@ -692,7 +688,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               {/* Lowest Points: Red Rose */}
               <div className="px-2 sm:px-4">
                 <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 block mb-1">
-                  Lowest
+                  {t('points_lowest')}
                 </span>
                 <span className="text-xl sm:text-2xl md:text-3xl font-black text-rose-600 dark:text-rose-400">
                   {lowestPoints}
@@ -735,7 +731,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               <input
                 type="text"
                 id="search-standings-input"
-                placeholder="Search team or manager..."
+                placeholder={t('search_team_manager')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-6 pr-1.5 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#37003c] text-slate-800 shadow-2xs"
@@ -755,7 +751,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     onClick={() => handleSort('rank')}
                   >
                     <div className="flex items-center justify-center gap-0.5">
-                      <span>#</span>
+                      <span>{t('col_rank')}</span>
                       <ArrowUpDown className="w-2.5 h-2.5 text-purple-300" />
                     </div>
                   </th>
@@ -766,7 +762,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     onClick={() => handleSort('entry_name')}
                   >
                     <div className="flex items-center gap-1">
-                      <span>Team & Manager</span>
+                      <span>{t('col_team_manager')}</span>
                       <ArrowUpDown className="w-3 h-3 text-purple-300" />
                     </div>
                   </th>
@@ -778,8 +774,17 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                   >
                     <div className="flex items-center justify-end gap-0.5">
                       <div className="flex flex-col leading-tight text-right">
-                        <span>Total</span>
-                        <span>Pts</span>
+                        {language === 'id' ? (
+                          <>
+                            <span>Total</span>
+                            <span>Poin</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Total</span>
+                            <span>Pts</span>
+                          </>
+                        )}
                       </div>
                       <ArrowUpDown className="w-2.5 h-2.5 text-purple-300 shrink-0" />
                     </div>
@@ -792,8 +797,17 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                   >
                     <div className="flex items-center justify-end gap-0.5">
                       <div className="flex flex-col leading-tight text-right">
-                        <span>GW</span>
-                        <span>Pts</span>
+                        {language === 'id' ? (
+                          <>
+                            <span>Poin</span>
+                            <span>GW</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>GW</span>
+                            <span>Pts</span>
+                          </>
+                        )}
                       </div>
                       <ArrowUpDown className="w-2.5 h-2.5 text-purple-300 shrink-0" />
                     </div>
@@ -805,19 +819,19 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     onClick={() => handleSort('event_transfers_cost')}
                   >
                     <div className="flex items-center justify-end gap-0.5">
-                      <span>Hits</span>
+                      <span>{t('col_hits')}</span>
                       <ArrowUpDown className="w-2.5 h-2.5 text-purple-300" />
                     </div>
                   </th>
 
                   {/* Chip */}
                   <th className="py-2 px-0.5 text-center border-b border-purple-900 w-[40px] min-w-[40px] leading-tight">
-                    Chip
+                    {t('col_chip')}
                   </th>
 
                   {/* Captain & Vice */}
                   <th className="py-2 px-1 border-b border-purple-900 leading-tight">
-                    Captain & Vice
+                    {t('col_captain_vice')}
                   </th>
                 </tr>
               </thead>
@@ -1008,26 +1022,26 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                   <th
                     className="py-2.5 px-2 text-center w-[68px] sm:w-[84px] shrink-0 border-b border-purple-900 cursor-pointer hover:bg-purple-950 transition-colors leading-tight"
                     onClick={() => handleGwChampSort('event')}
-                    title="Sort berdasarkan Gameweek"
+                    title={t('tooltip_sort_gw')}
                   >
                     <div className="flex items-center justify-center gap-0.5">
-                      <span>GW</span>
+                      <span>{t('col_gw')}</span>
                       <ArrowUpDown className="w-2.5 h-2.5 text-purple-300 shrink-0" />
                     </div>
                   </th>
                   <th className="py-2.5 px-2 text-left border-b border-purple-900 leading-tight">
-                    Team & Manager
+                    {t('col_team_manager')}
                   </th>
                   <th className="py-2.5 px-1.5 text-center w-[52px] sm:w-[64px] shrink-0 border-b border-purple-900 leading-tight">
-                    Rank
+                    {t('col_rank')}
                   </th>
                   <th
                     className="py-2.5 px-2 text-right w-[66px] sm:w-[80px] shrink-0 border-b border-purple-900 cursor-pointer hover:bg-purple-950 transition-colors leading-tight"
                     onClick={() => handleGwChampSort('points')}
-                    title="Sort berdasarkan GW Poin"
+                    title={t('tooltip_sort_pts')}
                   >
                     <div className="flex items-center justify-end gap-1">
-                      <span>Pts</span>
+                      <span>{t('col_pts')}</span>
                       <ArrowUpDown className="w-2.5 h-2.5 text-purple-300 shrink-0" />
                     </div>
                   </th>
@@ -1124,16 +1138,16 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
                   <th className="py-2.5 px-1.5 text-center w-[46px] sm:w-[54px] shrink-0 border-b border-purple-900 leading-tight">
-                    #
+                    {t('col_rank')}
                   </th>
                   <th className="py-2.5 px-2 border-b border-purple-900 text-left leading-tight">
-                    Team & Manager
+                    {t('col_team_manager')}
                   </th>
                   <th className="py-2.5 px-1.5 text-center w-[54px] sm:w-[64px] shrink-0 border-b border-purple-900 leading-tight">
-                    Wins
+                    {t('col_wins')}
                   </th>
                   <th className="py-2.5 px-2 text-right w-[86px] sm:w-[110px] shrink-0 border-b border-purple-900 leading-tight">
-                    GW
+                    {t('col_gw')}
                   </th>
                 </tr>
               </thead>
@@ -1205,7 +1219,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                                     if (entryId) onSelectManager(entryId, Number(gw));
                                   }}
                                   className="inline-flex flex-col items-center justify-center shrink-0 cursor-pointer hover:scale-105 active:scale-95 transition-transform"
-                                  title={`Buka tim di GW ${gw}`}
+                                  title={t('tooltip_open_team_gw', { gw })}
                                 >
                                   <span className="bg-[#37003c] text-[#00ff87] hover:bg-purple-950 text-[9.5px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 whitespace-nowrap leading-none border border-purple-800/40">
                                     GW{gw}
@@ -1247,8 +1261,8 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
         <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
           {ligaMinus.length === 0 ? (
             <div className="p-10 text-center text-slate-500 text-sm">
-              <p className="font-bold text-slate-700">No managers have taken transfer hits so far this season!</p>
-              <p className="text-xs mt-1">Check back after the next gameweek deadline.</p>
+              <p className="font-bold text-slate-700">{t('minus_empty_1')}</p>
+              <p className="text-xs mt-1">{t('minus_empty_2')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto w-full">
@@ -1260,15 +1274,15 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </th>
                     {/* Team & Manager */}
                     <th className="py-2.5 px-2 border-b border-purple-900 text-left leading-tight">
-                      Team & Manager
+                      {t('col_team_manager')}
                     </th>
                     {/* Hits */}
                     <th className="py-2.5 px-1.5 text-right w-[60px] sm:w-[72px] shrink-0 border-b border-purple-900 leading-tight">
-                      Hits
+                      {t('col_hits')}
                     </th>
                     {/* Last Rank */}
                     <th className="py-2.5 px-2 text-right w-[54px] sm:w-[66px] shrink-0 border-b border-purple-900 leading-tight">
-                      Rank
+                      {t('col_rank')}
                     </th>
                   </tr>
                 </thead>
