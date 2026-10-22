@@ -1,12 +1,16 @@
 import React from 'react';
+import { getSavedLanguage } from '../utils/i18n.ts';
 
 interface SmartLoadingScreenProps {
   message?: string;
 }
 
 export const SmartLoadingScreen: React.FC<SmartLoadingScreenProps> = ({
-  message = 'Connecting to Premier League API...'
+  message,
 }) => {
+  const lang = getSavedLanguage();
+  const defaultMsg = lang === 'id' ? 'Menghubungkan ke API Premier League...' : 'Connecting to Premier League API...';
+  const displayMsg = message || defaultMsg;
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#37003c] text-white px-4 select-none overflow-hidden">
       {/* Soft Ambient Radial Background */}
@@ -32,7 +36,7 @@ export const SmartLoadingScreen: React.FC<SmartLoadingScreenProps> = ({
           </div>
           <p className="text-xs font-semibold text-slate-300 tracking-wider uppercase flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00ff87] animate-pulse" />
-            <span>{message}</span>
+            <span>{displayMsg}</span>
           </p>
         </div>
       </div>

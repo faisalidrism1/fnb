@@ -1,0 +1,2021 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Center"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="Header">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#37003c"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#37003c"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#37003c"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#37003c"/>
+   </Borders>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#FFFFFF" ss:Bold="1"/>
+   <Interior ss:Color="#37003c" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="DataRow">
+   <Alignment ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="DataRowAlt">
+   <Alignment ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+   <Interior ss:Color="#F8FAFC" ss:Pattern="Solid"/>
+  </Style>
+  <Style ss:ID="Center">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+  </Style>
+  <Style ss:ID="KeyStyle">
+   <Alignment ss:Vertical="Center"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E2E8F0"/>
+   </Borders>
+   <Font ss:FontName="Consolas" x:Family="Modern" ss:Size="10" ss:Color="#0F172A"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="FPL_i18n_Translations">
+  <Table ss:DefaultColumnWidth="120" ss:DefaultRowHeight="22">
+   <Column ss:Width="40"/>
+   <Column ss:Width="160"/>
+   <Column ss:Width="200"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="250"/>
+   <Column ss:Width="250"/>
+   <Row ss:Height="26">
+    <Cell ss:StyleID="Header"><Data ss:Type="String">No</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Kategori</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Key (Kunci i18n)</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">FNB Default (fnb)</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">English (en)</Data></Cell>
+    <Cell ss:StyleID="Header"><Data ss:Type="String">Bahasa Indonesia (id)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">brand_title</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FPL Nusantara BERHADIAH</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FPL Nusantara BERHADIAH</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FPL Nusantara BERHADIAH</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">2</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">brand_subtitle</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2026/2027</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2026/2027</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2026/2027</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">3</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_settings</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Settings</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Settings</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pengaturan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">4</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tab_standings</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">STANDINGS</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">STANDINGS</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">KLASEMEN</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">5</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tab_matches</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">MATCHES</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">MATCHES</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">PERTANDINGAN</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">6</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tab_ownership</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">OWNERSHIP</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">OWNERSHIP</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">KEPEMILIKAN</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">7</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tab_transfer</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">TRANSFER</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">TRANSFER</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">TRANSFER</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">8</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tab_captain</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">CAPTAIN</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">CAPTAIN</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">KAPTEN</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">9</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">1. Header &amp; Navigasi Utama</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tab_chips</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">CHIPS</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">CHIPS</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">CHIPS</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">10</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_status</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Status</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Status</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Status</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">11</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_league_table</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">League Table</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">League Table</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Klasemen Liga</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">12</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_live_league_table</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Live League Table</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Live League Table</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Klasemen Liga Live</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">13</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">4. Standings - GW Champions</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_gw_champions</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW Champions</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW Champions</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Juara Gameweek</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">14</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">5. Standings - Most GW Champions</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_most_gw_champions</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Most GW Champions</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Most GW Champions</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Juara Terbanyak</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">15</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_chart</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Chart</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Chart</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Grafik</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">16</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">7. Standings - Liga Minus</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_liga_minus</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Liga Minus</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Minus League</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Liga Minus</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">17</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">deadline_title</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Gameweek {N} Deadline</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Gameweek {N} Deadline</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Batas Waktu Gameweek {N}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">18</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">countdown_days</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Days</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Days</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Hari</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">19</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">countdown_hours</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Hours</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Hours</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Jam</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">20</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">countdown_minutes</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Minutes</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Minutes</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Menit</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">21</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">countdown_seconds</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Seconds</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Seconds</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Detik</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">22</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">gw_status_label</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gameweek {N} Status</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gameweek {N} Status</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Status Gameweek {N}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">23</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">status_not_started</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Not Started</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Not Started</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Belum Dimulai</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">24</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">status_live</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Live</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Live</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Live</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">25</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">status_provisional</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Provisional</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Provisional</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Sementara</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">26</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">status_confirmed</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Confirmed</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Confirmed</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Terkonfirmasi</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">27</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">highlight_rank_1</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Peringkat 1</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">1st Place</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Peringkat 1</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">28</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">highlight_rank_2</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Peringkat 2</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2nd Place</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Peringkat 2</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">29</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">highlight_most_wins</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Juara Terbanyak</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Most GW Champions</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Juara Terbanyak</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">30</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">highlight_gw_champ</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Juara Gameweek {N}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gameweek {N} Champion</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Juara Gameweek {N}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">31</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">no_data_available</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Belum ada data</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No data available</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Belum ada data</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">32</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">points_highest</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Highest</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Highest</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tertinggi</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">33</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">points_average</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Average</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Average</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Rata-Rata</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">34</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">2. Standings - Status</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">points_lowest</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Lowest</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Lowest</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Terendah</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">35</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">search_team_manager</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Search team or manager...</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Search team or manager...</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Cari tim atau manajer...</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">36</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">#</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">#</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">#</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">37</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_team_manager</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Team &amp; Manager</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Team &amp; Manager</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tim &amp; Manajer</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">38</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_total_pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Total Pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Total Pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Total Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">39</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_gw_pts</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW Pts</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW Pts</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Poin GW</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">40</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_hits</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Hits</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Hits</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Hits</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">41</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_chip</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Chip</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Chip</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Chip</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">42</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">3. Standings - League Table</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_captain_vice</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Captain &amp; Vice</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Captain &amp; Vice</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kapten &amp; Wakil</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">43</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">4. Standings - GW Champions</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_gw</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">44</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">4. Standings - GW Champions</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">45</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">4. Standings - GW Champions</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_sort_gw</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Sort berdasarkan Gameweek</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Sort by Gameweek</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Urutkan berdasarkan Gameweek</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">46</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">4. Standings - GW Champions</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_sort_pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Sort berdasarkan GW Poin</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Sort by GW Points</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Urutkan berdasarkan Poin GW</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">47</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">5. Standings - Most GW Champions</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_wins</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Wins</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Wins</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Juara</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">48</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">5. Standings - Most GW Champions</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_open_team_gw</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Buka tim di GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Open Team in GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Buka Tim di GW {gw}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">49</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_last_rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Last Rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Last Rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Peringkat Akhir</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">50</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_gw_rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">GW Rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">GW Rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Peringkat GW</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">51</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_total_pts</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Pts</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Pts</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">52</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_gw_pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">GW Pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">GW Pts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Poin GW</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">53</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_filter_by_rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Filter by Rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Filter by Rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Filter berdasarkan Peringkat</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">54</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_select_individual</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Select Individual Teams</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Select Individual Teams</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pilih Tim Tertentu</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">55</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_all</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">All</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">All</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Semua</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">56</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_clear</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Clear</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Clear</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kosongkan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">57</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_all_clear</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">All • Clear</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">All • Clear</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Semua • Kosongkan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">58</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_search_team</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Search team...</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Search Team...</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Cari Tim...</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">59</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_teams_shown</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">{N} teams shown</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">{N} teams shown</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">{N} tim ditampilkan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">60</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_done</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Done</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Done</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Selesai</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">61</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_reset</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Reset</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Reset</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Reset</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">62</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_chips</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Chips</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Chips</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Chips</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">63</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_hits</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Hits</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Hits</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Hits</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">64</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_captains</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Captains</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Captains</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kapten</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">65</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">6. Standings - Chart</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">chart_toggle_controls</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Chips • Hits • Captains</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Chips • Hits • Captains</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Chips • Hits • Kapten</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">66</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">7. Standings - Liga Minus</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">minus_empty_1</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No managers have taken transfer hits so far this season!</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No managers have taken transfer hits so far this season.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Belum ada manajer yang mengambil penalti transfer musim ini.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">67</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">7. Standings - Liga Minus</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">minus_empty_2</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Check back after the next gameweek deadline.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Check back after the next gameweek deadline.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Periksa kembali setelah batas waktu Gameweek berikutnya.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">68</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">8. Matches</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">matches_toggle_all_open</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Buka semua pertandingan</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Expand all</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Buka semua</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">69</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">8. Matches</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">matches_toggle_all_close</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tutup semua pertandingan</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Collapse all</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tutup semua</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">70</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">8. Matches</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_status_upcoming</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Upcoming</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Upcoming</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Belum Dimulai</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">71</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">8. Matches</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_status_halftime</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Half Time</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Half Time</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Paruh Waktu</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">72</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">8. Matches</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_status_fulltime</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Full Time</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Full Time</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Selesai</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">73</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_most_owned_player</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Most Owned Player</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Most Owned Player</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Terbanyak Dimiliki</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">74</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_most_owned_by_club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Most Owned by Club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Most Owned by Club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Terbanyak per Klub</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">75</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_fans_club</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Fans Club</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Fans Club</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Fans Club</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">76</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_template_squad</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Template Squad</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Template Squad</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tim Template</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">77</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">filter_all_clubs</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">All Clubs</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">All Clubs</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Semua Klub</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">78</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">filter_all_pos</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">All Pos</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">All Pos</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Semua Posisi</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">79</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">18. Lainnya</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">filter_season</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Season</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Season / GW {N}</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Musim / GW {N}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">80</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">squad_cost_label</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Squad Cost: £{N}m</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Squad Cost: £{N}m</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Nilai Skuad: £{N}m</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">81</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_player</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Player</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Player</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pemain</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">82</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Klub</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">83</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_pos</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pos</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pos</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Posisi</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">84</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_cost</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Cost</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Cost</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Harga</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">85</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_ownership</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Ownership</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Ownership</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Kepemilikan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">86</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">ownership_empty_players</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No players match the selected Club / Pos filters.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No players match the selected criteria.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tidak ada pemain yang cocok dengan kriteria yang dipilih.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">87</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">total_players_owned</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Players Owned:</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Players Owned:</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Pemain Dimiliki:</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">88</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">card_fans_club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">{Club} Fans Club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">{Club} Fans Club</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Fans Club {Club}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">89</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">fans_club_sub</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">{N} Managers with 3+ players</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">{N} Managers with 3+ players</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">{N} Manajer dengan 3+ pemain</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">90</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">fans_club_badge_players</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">{N} Players</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">{N} Players</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">{N} Pemain</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">91</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">fans_club_empty</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No managers found for this Fans Club criteria.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No managers found for this Fans Club criteria.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tidak ada manajer yang memenuhi kriteria Fans Club ini.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">92</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_all_transfers</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">All Transfers</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">All Transfers</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Semua Transfer</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">93</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_most_transferred_in</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Most Transferred In</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Most Transferred In</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Terbanyak Dibeli</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">94</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_most_transferred_out</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Most Transferred Out</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Most Transferred Out</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Terbanyak Dijual</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">95</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">filter_all_teams</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">All Teams</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">All Teams</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Semua Tim</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">96</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">search_player_team</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Search player or team...</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Search player or team...</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Cari pemain atau tim...</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">97</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_player_in</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Player In</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Player In</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pemain Masuk</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">98</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_player_out</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Player Out</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Player Out</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pemain Keluar</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">99</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_time_wib</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Time (WIB)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Time (WIB)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Waktu (WIB)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">100</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_transfers</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Transfers</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Transfers</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Transfer</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">101</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">10. Transfer</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">transfers_empty</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No transfers found matching your filters.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No transfers found matching your filters.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tidak ada riwayat transfer yang sesuai dengan filter.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">102</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">11. Captain</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_most_captained_player</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Most Captained Player</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Most Captained Player</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Terbanyak Dikaptenkan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">103</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">11. Captain</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">subtab_most_captained_by_club</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Most Captained by Club</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Most Captained by Club</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Terbanyak per Klub</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">104</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">11. Captain</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_c</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">(C)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">(C)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">(C)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">105</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">11. Captain</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">col_vc</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">(VC)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">(VC)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">(VC)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">106</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">11. Captain</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">card_captain_armbands</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Captain Armbands:</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Captain Armbands:</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Dikaptenkan:</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">107</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">12. Chips</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">search_manager_team</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Search manager or team...</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Search manager or team...</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Cari manajer atau tim...</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">108</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">12. Chips</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_chip_cell</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Buka tim GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Open Team in GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Buka Tim di GW {gw}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">109</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">12. Chips</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_chip_team</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Buka tim {entry_name} (GW {gw})</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Open Team {entry_name} (GW {gw})</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Buka Tim {entry_name} (GW {gw})</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">110</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_settings_title</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Settings</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Settings</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pengaturan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">111</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_settings_subtitle</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pengaturan Aplikasi &amp; Preferensi</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">App Settings &amp; Preferences</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pengaturan Aplikasi &amp; Preferensi</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">112</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_close_settings</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tutup Pengaturan</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Close</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tutup</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">113</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_profile_label</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Profile</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Profile</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Profil</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">114</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_profile_badge</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">FNB League ({N} Tim)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">115</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_profile_desc</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pilih nama tim dan manajer FNB League Anda. Profil ini akan ditandai secara khusus saat melihat klasemen &amp; transfer.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">116</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_profile_placeholder</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pilih Tim &amp; Manajer FNB League...</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Select Team &amp; Manager...</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pilih Tim &amp; Manajer...</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">117</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_profile_active</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Profil aktif: {team} ({manager})</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Active profile: {team} ({manager})</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Profil aktif: {team} ({manager})</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">118</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_display_heading</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Display &amp; Live View</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Display</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tampilan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">119</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_keep_awake_title</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Keep Screen Awake</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Keep Screen Awake</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Layar Tetap Menyala</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">120</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_keep_awake_desc</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Mencegah layar HP/laptop redup atau terkunci saat matchday live</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Prevent screen from dimming or locking during live matchday</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Mencegah layar HP/laptop redup atau terkunci saat matchday live</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">121</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_keep_awake_active</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Screen lock active — Display will stay awake while this tab is open.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">122</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_keep_awake_unsupported</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Browser ini belum mendukung Screen Wake Lock API.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">This browser does not support Screen Wake Lock API.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Browser ini belum mendukung Screen Wake Lock API.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">123</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_news_ticker_title</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">News Ticker</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">News Ticker</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Berita</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">124</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_news_ticker_desc</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tampilkan baris running text berita atau pemberitahuan penting liga</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Display running news ticker and important league updates</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tampilkan baris running text berita atau pemberitahuan penting liga</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">125</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_language_heading</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Language</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Language</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Bahasa</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">126</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_language_desc</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pilih bahasa pengantar antarmuka sistem</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Select the display language for the app.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pilih bahasa yang digunakan untuk tampilan aplikasi.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">127</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_lang_fnb_label</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FNB Default</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FNB Default</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FNB Default</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">128</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_lang_fnb_sub</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tampilan Bawaan FNB</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">FNB Default View</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tampilan Bawaan FNB</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">129</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_lang_en_label</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">English</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">English</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Inggris</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">130</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_lang_en_sub</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">English (UK)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">English UK</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">English UK</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">131</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_lang_id_label</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Indonesia</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Indonesian</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Indonesia</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">132</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_lang_id_sub</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Bahasa Indonesia</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Bahasa Indonesia</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Bahasa Indonesia</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">133</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_admin_heading</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Administration</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Administration</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Administrasi</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">134</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_admin_title</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Admin Area</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Admin Area</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Area Admin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">135</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_admin_badge</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Restricted</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Restricted</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Terbatas</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">136</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_admin_desc</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Akses kontrol sinkronisasi, data liga, dan pengelolaan sistem</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">137</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_admin_notice</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Admin Area akan segera hadir pada tahap pengembangan berikutnya.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">138</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">settings_footer_brand</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">FPL Nusantara 2026/2027</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">FPL Nusantara BERHADIAH 2026/2027</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">FPL Nusantara BERHADIAH 2026/2027</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">139</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">13. Settings Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">btn_close</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tutup</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Close</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tutup</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">140</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_tab_squad</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gameweek Squad</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gameweek Squad</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Susunan Skuad GW</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">141</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_tab_history</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Season History</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Season History</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Riwayat Musim</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">142</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_close_modal</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tutup Modal</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Close</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tutup</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">143</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_box_points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">144</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_box_hits</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Hits</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Hits</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Hits</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">145</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_box_total</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">146</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_bench</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">BENCH</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">BENCH</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">CADANGAN</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">147</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_tooltip_breakdown</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Klik kotak nama / angka poin untuk melihat breakdown poin pemain</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Click player name or points box to view points breakdown</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Klik kotak nama / angka poin untuk melihat breakdown poin pemain</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">148</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_transfers_gw</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Transfers in Gameweek {N}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gameweek {N} Transfers</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Transfer pada Gameweek {N}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">149</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_transfer_time</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Waktu: {jam}</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Time: {time}</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Waktu: {jam}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">150</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_transfer_empty</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No Transfer.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No Transfer.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tidak Ada Transfer.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">151</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_col_season</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Season</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Season</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Musim</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">152</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_col_overall_rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Overall Rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Overall Rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Peringkat Dunia</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">153</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_col_total_points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">154</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_tab_overview</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">GW Overview</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">GW Overview</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Ringkasan GW</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">155</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_tab_owners</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Owners ({N})</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Owners ({N})</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pemilik ({N})</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">156</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_tab_history</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">History</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">History</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Riwayat</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">157</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_close_player_modal</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Close Modal</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Close</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tutup</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">158</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_match_result</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Result • Points</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Result • Points</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Hasil • Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">159</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_match_points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">160</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_did_not_play</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Did not play in this Gameweek (0 pts).</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Did not play in this Gameweek (0 pts).</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tidak bermain pada Gameweek ini (0 poin).</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">161</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_col_team_manager</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Team &amp; Manager</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Team &amp; Manager</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tim &amp; Manajer</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">162</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_col_squad_status</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Squad Status</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Squad Status</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Status Skuad</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">163</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_col_captain</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Captain</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Captain</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Kapten</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">164</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_col_owners_header</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Team &amp; Manager • Squad Status • Captain</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Team &amp; Manager • Squad Status • Captain</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tim &amp; Manajer • Status Skuad • Kapten</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">165</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_col_history_header</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW, Opponent, Result, Pts, ST, MP, GS, A, CS</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW, Opponent, Result, Pts, ST, MP, GS, A, CS</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">GW, Lawan, Hasil, Poin, Starter, Menit, Gol, Assist, CS</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">166</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">16. Footer Aplikasi</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">footer_league_name</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">FPL Nusantara BERHADIAH 2026/2027</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">FPL Nusantara BERHADIAH 2026/2027</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">FPL Nusantara BERHADIAH 2026/2027</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">167</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">16. Footer Aplikasi</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">footer_league_id</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Mini League ID: 12356</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Mini League ID: 12356</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">ID Mini League: 12356</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">168</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">16. Footer Aplikasi</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">footer_integration</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Official Premier League FPL Data Integration</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Official Premier League Data Integration</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Integrasi Data Resmi Premier League</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">169</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">16. Footer Aplikasi</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">footer_fpl_official</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FPL Official</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FPL Official</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Situs Resmi FPL</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">170</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">16. Footer Aplikasi</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">footer_last_updated</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Last Updated: {datetime} WIB</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Last Updated: {datetime} WIB</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Terakhir Diperbarui: {datetime} WIB</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">171</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_open_fpl_site</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Buka di Website Resmi FPL</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Open Official FPL Site</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Buka di Situs Resmi FPL</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">172</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_jersey_modal</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Klik jersey untuk membuka modal {name}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Click jersey to open {name} modal</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Klik jersey untuk membuka modal {name}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">173</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_view_player_detail</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Klik untuk melihat detail {name}</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Click to view {name} details</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Klik untuk melihat detail {name}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">174</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">tooltip_view_player_stats</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Lihat detail statistik {name}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">View statistics for {name}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Lihat detail statistik {name}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">175</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">badge_current</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Current</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Current</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Terkini</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">176</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">badge_in</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">In</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">In</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Masuk</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">177</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">badge_out</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Out</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Out</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Keluar</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">178</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_career_avg</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Career Average</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Career Average</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Rata-rata Karir</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">179</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_no_history</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No History.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No History.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Belum Ada Riwayat.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">180</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_click_gw</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Klik untuk melihat detail GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Click to view GW {gw} details</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Klik untuk melihat detail GW {gw}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">181</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_col_fnb_rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FNB Rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">FNB Rank</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Peringkat FNB</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">182</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">14. Manager Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_mgr_col_global_rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Global Rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Global Rank</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Peringkat Dunia</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">183</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_prev_gw</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Lompat ke GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Jump to GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Lompat ke GW {gw}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">184</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_next_gw</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Lompat ke GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Jump to GW {gw}</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Lompat ke GW {gw}</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">185</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_select_gw</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pilih Gameweek</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Select Gameweek</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pilih Gameweek</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">186</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_gw_history</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">GW History</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">GW History</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Riwayat GW</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">187</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_prev_seasons</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Previous Seasons</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Previous Seasons</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Musim Sebelumnya</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">188</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_season_label</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Season</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Season</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Musim</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">189</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_history_loading</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Loading match history...</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Loading match history...</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Memuat riwayat pertandingan...</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">190</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_history_empty</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No history data available.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No history data available.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Belum ada data riwayat.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">191</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_owners_empty_search</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No managers found matching your search.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No managers found matching your search.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Tidak ada manajer yang cocok dengan pencarian Anda.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">192</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">15. Player Detail Modal</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">modal_plyr_owners_empty_gw</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No managers in FNB League own this player in GW {gw}.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">No managers in FNB League own this player in GW {gw}.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tidak ada manajer di FNB League yang memiliki pemain ini pada GW {gw}.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">193</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">9. Ownership</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">fans_club_help</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Try selecting a different gameweek filter above.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Try selecting a different gameweek filter above.</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Coba pilih filter gameweek yang berbeda di atas.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">194</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">toast_offline</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Offline Mode: Menampilkan data cache lokal.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Offline Mode: Displaying local cached data.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Mode Offline: Menampilkan data cache lokal.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">195</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">toast_sync_success</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">✓ Successfully synced with Official FPL API!</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">✓ Successfully synced with Official FPL API!</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">✓ Berhasil disinkronkan dengan API Resmi FPL!</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">196</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">toast_sync_failed</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">⚠️ Sync failed or rate-limited. Retaining current data.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">⚠️ Sync failed or rate-limited. Retaining current data.</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">⚠️ Sinkronisasi gagal atau dibatasi. Mempertahankan data saat ini.</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">197</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">loading_connecting</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Connecting to Premier League API...</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Connecting to Premier League API...</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Menghubungkan ke API Premier League...</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">198</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">popover_search_placeholder</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Search...</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Search...</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Cari...</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">199</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">17. Tooltips, Popover &amp; Toast</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">popover_no_options</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No options found</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">No options found</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Pilihan tidak ditemukan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">200</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_minutes</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Minutes Played</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Minutes Played</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Menit Bermain</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">201</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_goals_scored</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Goals Scored</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Goals Scored</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Gol</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">202</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_assists</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Assists</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Assists</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Umpan Gol (Assist)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">203</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_clean_sheets</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Clean Sheets</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Clean Sheets</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Nirbobol (Clean Sheet)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">204</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_goals_conceded</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Goals Conceded</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Goals Conceded</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kebobolan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">205</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_own_goals</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Own Goals</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Own Goals</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Gol Bunuh Diri</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">206</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_penalties_saved</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Penalties Saved</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Penalties Saved</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Penalti Ditepis</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">207</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_penalties_missed</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Penalties Missed</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Penalties Missed</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Gagal Penalti</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">208</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_yellow_cards</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Yellow Cards</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Yellow Cards</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kartu Kuning</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">209</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_red_cards</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Red Cards</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Red Cards</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Kartu Merah</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">210</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_saves</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Saves</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Saves</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Penyelamatan (Saves)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">211</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_bonus</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Bonus Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Bonus Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Poin Bonus</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">212</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">19. Rincian Statistik Pemain (Breakdown)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">stat_breakdown_defensive_contribution</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Defensive Contribution (DefCon)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Defensive Contribution (DefCon)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kontribusi Bertahan (DefCon)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">213</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_pts</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Points</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Total Poin</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">214</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_st</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Starts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Starts</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Starter</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">215</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_mp</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Minutes Played</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Minutes Played</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Menit Bermain</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">216</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_gs</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Goals Scored</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Goals Scored</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gol</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">217</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_a</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Assists</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Assists</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Umpan Gol (Assist)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">218</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_xg</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Expected Goals (xG)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Expected Goals (xG)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Peluang Gol (xG)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">219</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_xa</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Expected Assists (xA)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Expected Assists (xA)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Peluang Assist (xA)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">220</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_xgi</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Expected Goal Involvement (xGI)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Expected Goal Involvement (xGI)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kontribusi Gol (xGI)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">221</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_cs</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Clean Sheets</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Clean Sheets</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Nirbobol (Clean Sheet)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">222</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_gc</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Goals Conceded</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Goals Conceded</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kebobolan</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">223</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_xgc</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Expected Goals Conceded (xGC)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Expected Goals Conceded (xGC)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Peluang Kebobolan (xGC)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">224</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_t</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tackles</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tackles</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Tekel</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">225</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_cbi</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Clearances, Blocks &amp; Interceptions (CBI)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Clearances, Blocks &amp; Interceptions (CBI)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Sapuan, Blok &amp; Intersep (CBI)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">226</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_r</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Recoveries</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Recoveries</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pemulihan Bola (Recoveries)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">227</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_dc</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Defensive Contribution (DefCon)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Defensive Contribution (DefCon)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Kontribusi Bertahan (DefCon)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">228</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_og</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Own Goals</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Own Goals</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gol Bunuh Diri</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">229</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_ps</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Penalties Saved</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Penalties Saved</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Penalti Ditepis</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">230</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_pm</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Penalties Missed</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Penalties Missed</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Gagal Penalti</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">231</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_yc</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Yellow Cards</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Yellow Cards</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Kartu Kuning</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">232</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_rc</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Red Cards</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Red Cards</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Kartu Merah</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">233</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_s</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Saves</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Saves</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Penyelamatan (Saves)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">234</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_bp</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Bonus Points</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Bonus Points</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Poin Bonus</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">235</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_bps</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Bonus Points System (BPS)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Bonus Points System (BPS)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Sistem Poin Bonus (BPS)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">236</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_inf</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Influence</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Influence</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Pengaruh (Influence)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">237</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_cre</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Creativity</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Creativity</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Kreativitas (Creativity)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">238</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_thr</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Threat</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Threat</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Ancaman (Threat)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">239</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_ii</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">ICT Index</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">ICT Index</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Indeks ICT</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">240</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_nt</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Net Transfers (FNB League)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Net Transfers (FNB League)</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Transfer Bersih (FNB League)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">241</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_tsb</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Teams Selected By (FNB League)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Teams Selected By (FNB League)</Data></Cell>
+    <Cell ss:StyleID="DataRow"><Data ss:Type="String">Dipilih Tim (FNB League)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="Center"><Data ss:Type="Number">242</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">20. Metrik Laga (30 Match Metrics)</Data></Cell>
+    <Cell ss:StyleID="KeyStyle"><Data ss:Type="String">match_metric_cost</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Player Price</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Player Price</Data></Cell>
+    <Cell ss:StyleID="DataRowAlt"><Data ss:Type="String">Harga Pemain</Data></Cell>
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>

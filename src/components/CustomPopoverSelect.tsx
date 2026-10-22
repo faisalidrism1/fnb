@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
+import { useLanguage } from '../utils/i18n';
 
 export interface PopoverOption<T extends string | number = string | number> {
   value: T;
@@ -38,6 +39,7 @@ export function CustomPopoverSelect<T extends string | number>({
   hideChevron = false,
   customTrigger,
 }: CustomPopoverSelectProps<T>) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -127,7 +129,7 @@ export function CustomPopoverSelect<T extends string | number>({
                   <Search className="w-3 h-3 text-slate-400 dark:text-slate-500 absolute left-2 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder={placeholder || t('popover_search_placeholder')}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className={`w-full text-xs pl-6 pr-2 py-1 rounded-md border focus:outline-none ${
@@ -143,7 +145,7 @@ export function CustomPopoverSelect<T extends string | number>({
 
             {filteredOptions.length === 0 ? (
               <div className="p-2 text-center text-xs text-slate-400 dark:text-slate-500">
-                No options found
+                {t('popover_no_options')}
               </div>
             ) : (
               filteredOptions.map((opt) => {

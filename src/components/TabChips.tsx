@@ -12,7 +12,7 @@ interface TabChipsProps {
 type ChipColumnKey = 'entry_name' | 'wc1' | 'tc1' | 'bb1' | 'fh1' | 'wc2' | 'tc2' | 'bb2' | 'fh2';
 
 export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectManager }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<ChipColumnKey>('entry_name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -88,7 +88,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
           GW{chip.gw}
         </span>
         <span className="text-[9px] sm:text-[10px] font-extrabold text-slate-700 mt-0.5 whitespace-nowrap leading-none">
-          {chip.points} pts
+          {chip.points} {language === 'id' ? 'poin' : 'pts'}
         </span>
       </div>
     );
@@ -229,7 +229,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
                   <td
                     onClick={() => onSelectManager(row.entry_id, currentGW)}
                     className="sticky left-0 z-20 bg-white group-hover:bg-purple-50/50 py-2.5 px-2 sm:px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors w-[calc(100cqw-184px)] min-w-[calc(100cqw-184px)] max-w-[calc(100cqw-184px)] sm:w-auto sm:min-w-[160px] sm:max-w-none cursor-pointer"
-                    title={t('tooltip_chip_team', { entry_name: row.entry_name, gw: currentGW || 'terkini' })}
+                    title={t('tooltip_chip_team', { entry_name: row.entry_name, gw: currentGW || (language === 'id' ? 'terkini' : 'current') })}
                   >
                     <div className="truncate">
                       <p className="font-extrabold text-slate-900 text-xs hover:text-[#37003c] leading-snug truncate">

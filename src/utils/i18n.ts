@@ -232,6 +232,37 @@ export interface Translations {
   footer_integration: string;
   footer_fpl_official: string;
   footer_last_updated: string;
+
+  // Additional tooltips, badges, and feedback
+  tooltip_open_fpl_site: string;
+  tooltip_jersey_modal: string;
+  tooltip_view_player_detail: string;
+  tooltip_view_player_stats: string;
+  badge_current: string;
+  badge_in: string;
+  badge_out: string;
+  modal_mgr_career_avg: string;
+  modal_mgr_no_history: string;
+  modal_mgr_click_gw: string;
+  modal_mgr_col_fnb_rank: string;
+  modal_mgr_col_global_rank: string;
+  modal_plyr_prev_gw: string;
+  modal_plyr_next_gw: string;
+  modal_plyr_select_gw: string;
+  modal_plyr_gw_history: string;
+  modal_plyr_prev_seasons: string;
+  modal_plyr_season_label: string;
+  modal_plyr_history_loading: string;
+  modal_plyr_history_empty: string;
+  modal_plyr_owners_empty_search: string;
+  modal_plyr_owners_empty_gw: string;
+  fans_club_help: string;
+  toast_offline: string;
+  toast_sync_success: string;
+  toast_sync_failed: string;
+  loading_connecting: string;
+  popover_search_placeholder: string;
+  popover_no_options: string;
 }
 
 export const TRANSLATIONS: Record<Language, Translations> = {
@@ -440,6 +471,37 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     footer_integration: 'Official Premier League FPL Data Integration',
     footer_fpl_official: 'FPL Official',
     footer_last_updated: 'Last Updated: {datetime} WIB',
+
+    // Extra keys (matches original application defaults)
+    tooltip_open_fpl_site: 'Buka di Website Resmi FPL',
+    tooltip_jersey_modal: 'Klik jersey untuk membuka modal {name}',
+    tooltip_view_player_detail: 'Klik untuk melihat detail {name}',
+    tooltip_view_player_stats: 'Lihat detail statistik {name}',
+    badge_current: 'Current',
+    badge_in: 'In',
+    badge_out: 'Out',
+    modal_mgr_career_avg: 'Career Average',
+    modal_mgr_no_history: 'No History.',
+    modal_mgr_click_gw: 'Klik untuk melihat detail GW {gw}',
+    modal_mgr_col_fnb_rank: 'FNB Rank',
+    modal_mgr_col_global_rank: 'Global Rank',
+    modal_plyr_prev_gw: 'Lompat ke GW {gw}',
+    modal_plyr_next_gw: 'Lompat ke GW {gw}',
+    modal_plyr_select_gw: 'Pilih Gameweek',
+    modal_plyr_gw_history: 'GW History',
+    modal_plyr_prev_seasons: 'Previous Seasons',
+    modal_plyr_season_label: 'Season',
+    modal_plyr_history_loading: 'Loading match history...',
+    modal_plyr_history_empty: 'No history data available.',
+    modal_plyr_owners_empty_search: 'No managers found matching your search.',
+    modal_plyr_owners_empty_gw: 'No managers in FNB League own this player in GW {gw}.',
+    fans_club_help: 'Try selecting a different gameweek filter above.',
+    toast_offline: 'Offline Mode: Menampilkan data cache lokal.',
+    toast_sync_success: '✓ Successfully synced with Official FPL API!',
+    toast_sync_failed: '⚠️ Sync failed or rate-limited. Retaining current data.',
+    loading_connecting: 'Connecting to Premier League API...',
+    popover_search_placeholder: 'Search...',
+    popover_no_options: 'No options found',
   },
 
   // ================= 2. BAHASA INGGRIS (ENGLISH) =================
@@ -647,6 +709,37 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     footer_integration: 'Official Premier League Data Integration',
     footer_fpl_official: 'FPL Official',
     footer_last_updated: 'Last Updated: {datetime} WIB',
+
+    // Extra keys (English)
+    tooltip_open_fpl_site: 'Open Official FPL Site',
+    tooltip_jersey_modal: 'Click jersey to open {name} modal',
+    tooltip_view_player_detail: 'Click to view {name} details',
+    tooltip_view_player_stats: 'View statistics for {name}',
+    badge_current: 'Current',
+    badge_in: 'In',
+    badge_out: 'Out',
+    modal_mgr_career_avg: 'Career Average',
+    modal_mgr_no_history: 'No History.',
+    modal_mgr_click_gw: 'Click to view GW {gw} details',
+    modal_mgr_col_fnb_rank: 'FNB Rank',
+    modal_mgr_col_global_rank: 'Global Rank',
+    modal_plyr_prev_gw: 'Jump to GW {gw}',
+    modal_plyr_next_gw: 'Jump to GW {gw}',
+    modal_plyr_select_gw: 'Select Gameweek',
+    modal_plyr_gw_history: 'GW History',
+    modal_plyr_prev_seasons: 'Previous Seasons',
+    modal_plyr_season_label: 'Season',
+    modal_plyr_history_loading: 'Loading match history...',
+    modal_plyr_history_empty: 'No history data available.',
+    modal_plyr_owners_empty_search: 'No managers found matching your search.',
+    modal_plyr_owners_empty_gw: 'No managers in FNB League own this player in GW {gw}.',
+    fans_club_help: 'Try selecting a different gameweek filter above.',
+    toast_offline: 'Offline Mode: Displaying local cached data.',
+    toast_sync_success: '✓ Successfully synced with Official FPL API!',
+    toast_sync_failed: '⚠️ Sync failed or rate-limited. Retaining current data.',
+    loading_connecting: 'Connecting to Premier League API...',
+    popover_search_placeholder: 'Search...',
+    popover_no_options: 'No options found',
   },
 
   // ================= 3. BAHASA INDONESIA =================
@@ -854,6 +947,37 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     footer_integration: 'Integrasi Data Resmi Premier League',
     footer_fpl_official: 'Situs Resmi FPL',
     footer_last_updated: 'Terakhir Diperbarui: {datetime} WIB',
+
+    // Extra keys (Bahasa Indonesia)
+    tooltip_open_fpl_site: 'Buka di Situs Resmi FPL',
+    tooltip_jersey_modal: 'Klik jersey untuk membuka modal {name}',
+    tooltip_view_player_detail: 'Klik untuk melihat detail {name}',
+    tooltip_view_player_stats: 'Lihat detail statistik {name}',
+    badge_current: 'Terkini',
+    badge_in: 'Masuk',
+    badge_out: 'Keluar',
+    modal_mgr_career_avg: 'Rata-rata Karir',
+    modal_mgr_no_history: 'Belum Ada Riwayat.',
+    modal_mgr_click_gw: 'Klik untuk melihat detail GW {gw}',
+    modal_mgr_col_fnb_rank: 'Peringkat FNB',
+    modal_mgr_col_global_rank: 'Peringkat Dunia',
+    modal_plyr_prev_gw: 'Lompat ke GW {gw}',
+    modal_plyr_next_gw: 'Lompat ke GW {gw}',
+    modal_plyr_select_gw: 'Pilih Gameweek',
+    modal_plyr_gw_history: 'Riwayat GW',
+    modal_plyr_prev_seasons: 'Musim Sebelumnya',
+    modal_plyr_season_label: 'Musim',
+    modal_plyr_history_loading: 'Memuat riwayat pertandingan...',
+    modal_plyr_history_empty: 'Belum ada data riwayat.',
+    modal_plyr_owners_empty_search: 'Tidak ada manajer yang cocok dengan pencarian Anda.',
+    modal_plyr_owners_empty_gw: 'Tidak ada manajer di FNB League yang memiliki pemain ini pada GW {gw}.',
+    fans_club_help: 'Coba pilih filter gameweek yang berbeda di atas.',
+    toast_offline: 'Mode Offline: Menampilkan data cache lokal.',
+    toast_sync_success: '✓ Berhasil disinkronkan dengan API Resmi FPL!',
+    toast_sync_failed: '⚠️ Sinkronisasi gagal atau dibatasi. Mempertahankan data saat ini.',
+    loading_connecting: 'Menghubungkan ke API Premier League...',
+    popover_search_placeholder: 'Cari...',
+    popover_no_options: 'Pilihan tidak ditemukan',
   },
 };
 
@@ -1039,6 +1163,42 @@ export function formatGwDateRangeByLanguage(
 }
 
 /**
+ * Official English labels for 30 FPL match metrics in TabMatches
+ */
+export const MATCH_METRIC_LABELS_EN: Record<string, string> = {
+  pts: 'Total Points',
+  st: 'Starts',
+  mp: 'Minutes Played',
+  gs: 'Goals Scored',
+  a: 'Assists',
+  xg: 'Expected Goals (xG)',
+  xa: 'Expected Assists (xA)',
+  xgi: 'Expected Goal Involvement (xGI)',
+  cs: 'Clean Sheets',
+  gc: 'Goals Conceded',
+  xgc: 'Expected Goals Conceded (xGC)',
+  t: 'Tackles',
+  cbi: 'Clearances, Blocks & Interceptions (CBI)',
+  r: 'Recoveries',
+  dc: 'Defensive Contribution (DefCon)',
+  og: 'Own Goals',
+  ps: 'Penalties Saved',
+  pm: 'Penalties Missed',
+  yc: 'Yellow Cards',
+  rc: 'Red Cards',
+  s: 'Saves',
+  bp: 'Bonus Points',
+  bps: 'Bonus Points System (BPS)',
+  inf: 'Influence',
+  cre: 'Creativity',
+  thr: 'Threat',
+  ii: 'ICT Index',
+  nt: 'Net Transfers (FNB League)',
+  tsb: 'Teams Selected By (FNB League)',
+  cost: 'Player Price',
+};
+
+/**
  * Indonesian translations for 30 FPL match metrics in TabMatches
  */
 export const MATCH_METRIC_LABELS_ID: Record<string, string> = {
@@ -1072,4 +1232,95 @@ export const MATCH_METRIC_LABELS_ID: Record<string, string> = {
   nt: 'Transfer Bersih (FNB League)',
   tsb: 'Dipilih Tim (FNB League)',
   cost: 'Harga Pemain',
+};
+
+/**
+ * Detailed Stat identifiers used in PlayerDetailModal breakdown
+ */
+export const STAT_IDENTIFIER_LABELS_BY_LANG: Record<Language, Record<string, string>> = {
+  fnb: {
+    minutes: 'Minutes Played',
+    goals_scored: 'Goals Scored',
+    assists: 'Assists',
+    clean_sheets: 'Clean Sheets',
+    goals_conceded: 'Goals Conceded',
+    own_goals: 'Own Goals',
+    penalties_saved: 'Penalties Saved',
+    penalties_missed: 'Penalties Missed',
+    yellow_cards: 'Yellow Cards',
+    red_cards: 'Red Cards',
+    saves: 'Saves',
+    bonus: 'Bonus Points',
+    defensive_contribution: 'Defensive Contribution (DefCon)',
+  },
+  en: {
+    minutes: 'Minutes Played',
+    goals_scored: 'Goals Scored',
+    assists: 'Assists',
+    clean_sheets: 'Clean Sheets',
+    goals_conceded: 'Goals Conceded',
+    own_goals: 'Own Goals',
+    penalties_saved: 'Penalties Saved',
+    penalties_missed: 'Penalties Missed',
+    yellow_cards: 'Yellow Cards',
+    red_cards: 'Red Cards',
+    saves: 'Saves',
+    bonus: 'Bonus Points',
+    defensive_contribution: 'Defensive Contribution (DefCon)',
+  },
+  id: {
+    minutes: 'Menit Bermain',
+    goals_scored: 'Gol',
+    assists: 'Umpan Gol (Assist)',
+    clean_sheets: 'Nirbobol (Clean Sheet)',
+    goals_conceded: 'Kebobolan',
+    own_goals: 'Gol Bunuh Diri',
+    penalties_saved: 'Penalti Ditepis',
+    penalties_missed: 'Gagal Penalti',
+    yellow_cards: 'Kartu Kuning',
+    red_cards: 'Kartu Merah',
+    saves: 'Penyelamatan (Saves)',
+    bonus: 'Poin Bonus',
+    defensive_contribution: 'Kontribusi Bertahan (DefCon)',
+  },
+};
+
+/**
+ * Indonesian tooltips for Player History Table column headers
+ */
+export const FPL_STAT_TOOLTIP_TITLES_ID: Record<string, string> = {
+  gw: 'Gameweek',
+  opp: 'Tim Lawan (Kandang/Tandang)',
+  res: 'Hasil Pertandingan (Menang / Seri / Kalah)',
+  pts: 'Total Poin',
+  st: 'Starter (Bermain Sejak Awal)',
+  mp: 'Menit Bermain',
+  gs: 'Gol Dicetak',
+  a: 'Umpan Gol (Assist)',
+  xg: 'Peluang Gol (Expected Goals)',
+  xa: 'Peluang Assist (Expected Assists)',
+  xgi: 'Keterlibatan Gol (Expected Goal Involvement)',
+  cs: 'Nirbobol (Clean Sheet)',
+  gc: 'Kebobolan',
+  xgc: 'Peluang Kebobolan (Expected Goals Conceded)',
+  t: 'Tekel',
+  cbi: 'Sapuan, Blok & Intersep (CBI)',
+  r: 'Pemulihan Bola (Recoveries)',
+  dc: 'Kontribusi Bertahan (DefCon)',
+  og: 'Gol Bunuh Diri',
+  ps: 'Penalti Ditepis',
+  pm: 'Gagal Penalti',
+  yc: 'Kartu Kuning',
+  rc: 'Kartu Merah',
+  s: 'Penyelamatan (Saves)',
+  bp: 'Poin Bonus',
+  bps: 'Sistem Poin Bonus (BPS)',
+  inf: 'Pengaruh (Indeks ICT)',
+  cre: 'Kreativitas (Indeks ICT)',
+  thr: 'Ancaman (Indeks ICT)',
+  ii: 'Indeks ICT (Pengaruh, Kreativitas, Ancaman)',
+  nt: 'Transfer Bersih (FNB League)',
+  tsb: 'Dipilih Tim (Kepemilikan FNB League %)',
+  cost: 'Harga Pemain (£m)',
+  season: 'Musim Premier League',
 };

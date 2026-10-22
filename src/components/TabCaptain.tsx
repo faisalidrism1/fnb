@@ -97,7 +97,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
           options={availableGWs.map((gw) => ({
             value: gw,
             label: `GW ${gw}`,
-            sublabel: gw === currentGW ? 'Current' : undefined,
+            sublabel: gw === currentGW ? (language === 'id' ? 'Terkini' : 'Current') : undefined,
           }))}
         />
       </div>
@@ -152,7 +152,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                         className={`sticky left-[44px] z-20 bg-white group-hover:bg-purple-100/70 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                           onSelectPlayer ? 'cursor-pointer' : ''
                         }`}
-                        title={onSelectPlayer ? `Klik untuk melihat detail ${p.web_name}` : undefined}
+                        title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${p.web_name}` : `Click to view details for ${p.web_name}`) : undefined}
                       >
                         <div className="flex items-center gap-2 whitespace-nowrap">
                           <img

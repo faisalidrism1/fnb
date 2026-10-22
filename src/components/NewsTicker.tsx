@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { TransformedLeagueData } from '../types.ts';
+import { useLanguage, Language } from '../utils/i18n.ts';
 
 export interface NewsItem {
   tag: string;
@@ -12,26 +13,49 @@ interface NewsTickerProps {
   className?: string;
 }
 
-const DEFAULT_ENGLISH_NEWS: NewsItem[] = [
-  { tag: '⚡ FPL NUSANTARA', text: 'Official Mini League 12356 • Season 2026/2027 with Weekly & Season Cash Prizes' },
-  { tag: '📊 LIVE TRACKING', text: 'Real-time standings, provisional bonus points (BPS), and autosubs calculated automatically' },
-  { tag: '🏆 CHAMPION RACE', text: 'Track the race for the league championship and Gameweek Champion crowns' },
-  { tag: '👑 SQUAD TRENDS', text: 'Explore most captained picks, template squads, and top transfer movements' },
-  { tag: '⚽ MATCHDAY PULSE', text: 'Good luck to all FNB managers in this Gameweek!' },
-];
+const DEFAULT_NEWS_BY_LANG: Record<Language, NewsItem[]> = {
+  fnb: [
+    { tag: '⚡ FPL NUSANTARA', text: 'Official Mini League 12356 • Season 2026/2027 with Weekly & Season Cash Prizes' },
+    { tag: '📊 LIVE TRACKING', text: 'Real-time standings, provisional bonus points (BPS), and autosubs calculated automatically' },
+    { tag: '🏆 CHAMPION RACE', text: 'Track the race for the league championship and Gameweek Champion crowns' },
+    { tag: '👑 SQUAD TRENDS', text: 'Explore most captained picks, template squads, and top transfer movements' },
+    { tag: '⚽ MATCHDAY PULSE', text: 'Good luck to all FNB managers in this Gameweek!' },
+  ],
+  en: [
+    { tag: '⚡ FPL NUSANTARA', text: 'Official Mini League 12356 • Season 2026/2027 with Weekly & Season Cash Prizes' },
+    { tag: '📊 LIVE TRACKING', text: 'Real-time standings, provisional bonus points (BPS), and autosubs calculated automatically' },
+    { tag: '🏆 CHAMPION RACE', text: 'Track the race for the league championship and Gameweek Champion crowns' },
+    { tag: '👑 SQUAD TRENDS', text: 'Explore most captained picks, template squads, and top transfer movements' },
+    { tag: '⚽ MATCHDAY PULSE', text: 'Good luck to all FNB managers in this Gameweek!' },
+  ],
+  id: [
+    { tag: '⚡ FPL NUSANTARA', text: 'Mini League Resmi 12356 • Musim 2026/2027 Berhadiah Uang Tunai Mingguan & Akhir Musim' },
+    { tag: '📊 PANTAUAN LIVE', text: 'Klasemen real-time, poin bonus sementara (BPS), dan pergantian otomatis dihitung langsung' },
+    { tag: '🏆 PEREBUTAN JUARA', text: 'Pantau persaingan gelar juara liga dan mahkota Juara Gameweek mingguan' },
+    { tag: '👑 TREN SKUAD', text: 'Eksplorasi pilihan kapten terpopuler, tim template, dan pergerakan transfer pemain' },
+    { tag: '⚽ SELAMAT BERTANDING', text: 'Semoga sukses untuk seluruh manajer FNB di Gameweek ini!' },
+  ],
+};
 
 /**
- * Generates dynamic English news items extracting all available values from the official league data
+ * Generates dynamic news items extracting all available values from official league data based on language
  */
-export function generateLeagueNewsItems(data?: TransformedLeagueData | null): NewsItem[] {
-  if (!data) return DEFAULT_ENGLISH_NEWS;
+export function generateLeagueNewsItems(
+  data?: TransformedLeagueData | null,
+  lang: Language = 'fnb'
+): NewsItem[] {
+  const isId = lang === 'id';
+  const defaultItems = DEFAULT_NEWS_BY_LANG[lang] || DEFAULT_NEWS_BY_LANG.fnb;
+  if (!data) return defaultItems;
   const items: NewsItem[] = [];
   const currentGW = data.current_gw || 1;
 
   // 1. League Welcome / Identity Banner
   items.push({
     tag: '⚡ FPL NUSANTARA',
-    text: `Official Mini League 12356 • Season 2026/2027 with Weekly & Season Cash Prizes`,
+    text: isId
+      ? 'Mini League Resmi 12356 • Musim 2026/2027 Berhadiah Uang Tunai Mingguan & Akhir Musim'
+      : 'Official Mini League 12356 • Season 2026/2027 with Weekly & Season Cash Prizes',
   });
 
   // 2. Matchday & Gameweek Lifecycle Status
@@ -44,18 +68,24 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
     const finishedCount = fixtures.filter(f => f.finished || Boolean((f as any).finished_provisional)).length;
     const totalCount = fixtures.length || 10;
     items.push({
-      tag: `🔴 GW ${currentGW} LIVE`,
-      text: `${finishedCount} of ${totalCount} matches played • Live bonus points (BPS) and autosubs calculating in real-time`,
+      tag: isId ? `🔴 GW ${currentGW} LANGSUNG` : `🔴 GW ${currentGW} LIVE`,
+      text: isId
+        ? `${finishedCount} dari ${totalCount} laga selesai • Poin bonus BPS live dan autosub dihitung real-time`
+        : `${finishedCount} of ${totalCount} matches played • Live bonus points (BPS) and autosubs calculating in real-time`,
     });
   } else if (isProvisional) {
     items.push({
-      tag: `⏳ GW ${currentGW} PROVISIONAL`,
-      text: `All matches concluded • Awaiting final Opta bonus point audit and autosub verification`,
+      tag: isId ? `⏳ GW ${currentGW} SEMENTARA` : `⏳ GW ${currentGW} PROVISIONAL`,
+      text: isId
+        ? 'Semua laga selesai • Menunggu audit final BPS Opta dan verifikasi autosub'
+        : 'All matches concluded • Awaiting final Opta bonus point audit and autosub verification',
     });
   } else if (isConfirmed) {
     items.push({
-      tag: `🔒 GW ${currentGW} CONFIRMED`,
-      text: `All points, bonus points, and league standings are 100% verified and locked by FPL`,
+      tag: isId ? `🔒 GW ${currentGW} TERKONFIRMASI` : `🔒 GW ${currentGW} CONFIRMED`,
+      text: isId
+        ? 'Seluruh poin, bonus points, dan klasemen liga 100% sah dan dikunci oleh FPL'
+        : 'All points, bonus points, and league standings are 100% verified and locked by FPL',
     });
   }
 
@@ -64,8 +94,10 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
   if (gwStandings.length > 0 && gwStandings[0]) {
     const leader = gwStandings[0];
     items.push({
-      tag: '🏆 LEAGUE LEADER',
-      text: `${leader.entry_name} (${leader.player_name}) sits atop the table with ${leader.total_points} pts`,
+      tag: isId ? '🏆 PIMPINAN KLASEMEN' : '🏆 LEAGUE LEADER',
+      text: isId
+        ? `${leader.entry_name} (${leader.player_name}) memimpin klasemen dengan ${leader.total_points} poin`
+        : `${leader.entry_name} (${leader.player_name}) sits atop the table with ${leader.total_points} pts`,
     });
   }
 
@@ -75,8 +107,10 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
   if (currentGwChampRow && Array.isArray(currentGwChampRow.champions) && currentGwChampRow.champions.length > 0) {
     const champNames = currentGwChampRow.champions.map(c => `${c.entry_name} (${c.player_name})`).join(', ');
     items.push({
-      tag: `🎖️ GW ${currentGwChampRow.event} CHAMPION`,
-      text: `${champNames} claimed the Gameweek title with an outstanding ${currentGwChampRow.points} pts!`,
+      tag: isId ? `🎖️ JUARA GW ${currentGwChampRow.event}` : `🎖️ GW ${currentGwChampRow.event} CHAMPION`,
+      text: isId
+        ? `${champNames} meraih gelar juara Gameweek dengan torehan ${currentGwChampRow.points} poin!`
+        : `${champNames} claimed the Gameweek title with an outstanding ${currentGwChampRow.points} pts!`,
     });
   }
 
@@ -85,8 +119,10 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
     const topLeader = data.most_gameweek_champions[0];
     if (topLeader.win_count > 0) {
       items.push({
-        tag: '👑 MOST GW TITLES',
-        text: `${topLeader.entry_name} (${topLeader.player_name}) leads with ${topLeader.win_count} Gameweek Champion crown${topLeader.win_count > 1 ? 's' : ''}`,
+        tag: isId ? '👑 JUARA GW TERBANYAK' : '👑 MOST GW TITLES',
+        text: isId
+          ? `${topLeader.entry_name} (${topLeader.player_name}) memimpin dengan ${topLeader.win_count} gelar Juara Gameweek`
+          : `${topLeader.entry_name} (${topLeader.player_name}) leads with ${topLeader.win_count} Gameweek Champion crown${topLeader.win_count > 1 ? 's' : ''}`,
       });
     }
   }
@@ -98,8 +134,10 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
   if (climbers.length > 0 && climbers[0].rank_change > 0) {
     const topClimber = climbers[0];
     items.push({
-      tag: '🚀 TOP CLIMBER',
-      text: `${topClimber.entry_name} surged +${topClimber.rank_change} spot${topClimber.rank_change > 1 ? 's' : ''} to Rank #${topClimber.rank} (${topClimber.event_points} pts this GW)`,
+      tag: isId ? '🚀 LONJAKAN TERBESAR' : '🚀 TOP CLIMBER',
+      text: isId
+        ? `${topClimber.entry_name} melesat naik +${topClimber.rank_change} posisi ke Peringkat #${topClimber.rank} (${topClimber.event_points} poin GW ini)`
+        : `${topClimber.entry_name} surged +${topClimber.rank_change} spot${topClimber.rank_change > 1 ? 's' : ''} to Rank #${topClimber.rank} (${topClimber.event_points} pts this GW)`,
     });
   }
 
@@ -108,10 +146,17 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
   if (gwCaptains.length > 0 && gwCaptains[0]) {
     const cap1 = gwCaptains[0];
     const cap2 = gwCaptains[1];
-    const cap2Snippet = cap2 ? `, followed by ${cap2.web_name} (${cap2.captain_count} teams, ${cap2.captain_percentage.toFixed(0)}%)` : '';
+    let cap2Snippet = '';
+    if (cap2) {
+      cap2Snippet = isId
+        ? `, disusul ${cap2.web_name} (${cap2.captain_count} tim, ${cap2.captain_percentage.toFixed(0)}%)`
+        : `, followed by ${cap2.web_name} (${cap2.captain_count} teams, ${cap2.captain_percentage.toFixed(0)}%)`;
+    }
     items.push({
-      tag: '👑 CAPTAINCY BATTLE',
-      text: `${cap1.web_name} is the #1 captain pick with ${cap1.captain_count} teams (${cap1.captain_percentage.toFixed(0)}%)${cap2Snippet}`,
+      tag: isId ? '👑 PILIHAN KAPTEN' : '👑 CAPTAINCY BATTLE',
+      text: isId
+        ? `${cap1.web_name} menjadi kapten terpopuler (#1) dipilih ${cap1.captain_count} tim (${cap1.captain_percentage.toFixed(0)}%)${cap2Snippet}`
+        : `${cap1.web_name} is the #1 captain pick with ${cap1.captain_count} teams (${cap1.captain_percentage.toFixed(0)}%)${cap2Snippet}`,
     });
   }
 
@@ -120,8 +165,10 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
   if (gwOwnership.length > 0 && gwOwnership[0]) {
     const topOwned = gwOwnership[0];
     items.push({
-      tag: '💎 HIGHEST OWNERSHIP',
-      text: `${topOwned.web_name} (${topOwned.team_short_name}) is selected by ${topOwned.owned_percentage.toFixed(0)}% of FNB managers (${topOwned.owned_count} squads)`,
+      tag: isId ? '💎 KEPEMILIKAN TERTINGGI' : '💎 HIGHEST OWNERSHIP',
+      text: isId
+        ? `${topOwned.web_name} (${topOwned.team_short_name}) dimiliki oleh ${topOwned.owned_percentage.toFixed(0)}% manajer FNB (${topOwned.owned_count} skuad)`
+        : `${topOwned.web_name} (${topOwned.team_short_name}) is selected by ${topOwned.owned_percentage.toFixed(0)}% of FNB managers (${topOwned.owned_count} squads)`,
     });
   }
 
@@ -131,12 +178,18 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
   if (transfersInList.length > 0 || transfersOutList.length > 0) {
     const topIn = transfersInList[0];
     const topOut = transfersOutList[0];
-    const inPart = topIn ? `Most bought: ${topIn.web_name} (+${topIn.transfer_count})` : '';
-    const outPart = topOut ? `Most sold: ${topOut.web_name} (-${topOut.transfer_count})` : '';
+    let inPart = '';
+    let outPart = '';
+    if (topIn) {
+      inPart = isId ? `Paling banyak dibeli: ${topIn.web_name} (+${topIn.transfer_count})` : `Most bought: ${topIn.web_name} (+${topIn.transfer_count})`;
+    }
+    if (topOut) {
+      outPart = isId ? `Paling banyak dijual: ${topOut.web_name} (-${topOut.transfer_count})` : `Most sold: ${topOut.web_name} (-${topOut.transfer_count})`;
+    }
     const combined = [inPart, outPart].filter(Boolean).join(' • ');
     if (combined) {
       items.push({
-        tag: '🔄 TRANSFER TRENDS',
+        tag: isId ? '🔄 TREN TRANSFER' : '🔄 TRANSFER TRENDS',
         text: combined,
       });
     }
@@ -153,8 +206,10 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
   const chipParts = Object.entries(chipCounts).map(([chip, count]) => `${count} ${chip}`);
   if (chipParts.length > 0) {
     items.push({
-      tag: '🃏 CHIPS IN PLAY',
-      text: `${chipParts.join(', ')} activated by FNB managers in GW ${currentGW}`,
+      tag: isId ? '🃏 CHIP DIAKTIFKAN' : '🃏 CHIPS IN PLAY',
+      text: isId
+        ? `${chipParts.join(', ')} diaktifkan oleh manajer FNB pada GW ${currentGW}`
+        : `${chipParts.join(', ')} activated by FNB managers in GW ${currentGW}`,
     });
   }
 
@@ -166,8 +221,10 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
     const topHit = hitTakers[0];
     const totalHitTakers = hitTakers.length;
     items.push({
-      tag: '💀 TRANSFER HITS',
-      text: `${topHit.entry_name} took a -${topHit.event_transfers_cost} pts hit • Total ${totalHitTakers} manager${totalHitTakers > 1 ? 's' : ''} took points penalties this GW`,
+      tag: isId ? '💀 PENALTI TRANSFER' : '💀 TRANSFER HITS',
+      text: isId
+        ? `${topHit.entry_name} mengambil penalti transfer -${topHit.event_transfers_cost} poin • Total ${totalHitTakers} manajer terkena penalti poin GW ini`
+        : `${topHit.entry_name} took a -${topHit.event_transfers_cost} pts hit • Total ${totalHitTakers} manager${totalHitTakers > 1 ? 's' : ''} took points penalties this GW`,
     });
   }
 
@@ -176,8 +233,10 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
     const topScorer = [...gwOwnership].sort((a, b) => (b.gw_points || 0) - (a.gw_points || 0))[0];
     if (topScorer && typeof topScorer.gw_points === 'number' && topScorer.gw_points > 0) {
       items.push({
-        tag: '🔥 GW TOP PERFORMER',
-        text: `${topScorer.web_name} (${topScorer.team_short_name}) delivered ${topScorer.gw_points} pts in Gameweek ${currentGW}`,
+        tag: isId ? '🔥 PEMAIN TERBAIK GW' : '🔥 GW TOP PERFORMER',
+        text: isId
+          ? `${topScorer.web_name} (${topScorer.team_short_name}) mencetak ${topScorer.gw_points} poin di Gameweek ${currentGW}`
+          : `${topScorer.web_name} (${topScorer.team_short_name}) delivered ${topScorer.gw_points} pts in Gameweek ${currentGW}`,
       });
     }
   }
@@ -187,13 +246,14 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
     try {
       const deadlineDate = new Date(data.sync_status.next_deadline_time);
       if (!isNaN(deadlineDate.getTime())) {
-        const formattedDate = deadlineDate.toLocaleDateString('en-GB', {
+        const locale = isId ? 'id-ID' : 'en-GB';
+        const formattedDate = deadlineDate.toLocaleDateString(locale, {
           weekday: 'short',
           day: 'numeric',
           month: 'short',
           timeZone: 'Asia/Jakarta',
         });
-        const formattedTime = deadlineDate.toLocaleTimeString('en-GB', {
+        const formattedTime = deadlineDate.toLocaleTimeString(locale, {
           hour: '2-digit',
           minute: '2-digit',
           timeZone: 'Asia/Jakarta',
@@ -201,14 +261,16 @@ export function generateLeagueNewsItems(data?: TransformedLeagueData | null): Ne
         });
         const nextGw = currentGW < 38 ? currentGW + 1 : 38;
         items.push({
-          tag: '⏳ NEXT DEADLINE',
-          text: `Gameweek ${nextGw} deadline: ${formattedDate} at ${formattedTime} WIB • Lock in squad & captain before cutoff`,
+          tag: isId ? '⏳ BATAS WAKTU' : '⏳ NEXT DEADLINE',
+          text: isId
+            ? `Batas waktu Gameweek ${nextGw}: ${formattedDate} pukul ${formattedTime} WIB • Pastikan susunan tim & kapten terkunci`
+            : `Gameweek ${nextGw} deadline: ${formattedDate} at ${formattedTime} WIB • Lock in squad & captain before cutoff`,
         });
       }
     } catch {}
   }
 
-  return items.length > 0 ? items : DEFAULT_ENGLISH_NEWS;
+  return items.length > 0 ? items : defaultItems;
 }
 
 export const NewsTicker: React.FC<NewsTickerProps> = ({
@@ -216,6 +278,7 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
   customText,
   className = '',
 }) => {
+  const { language } = useLanguage();
   const [isVisible, setIsVisible] = useState<boolean>(() => {
     try {
       return localStorage.getItem('fnb_setting_news_ticker') === 'true'; // Default OFF when not yet set
@@ -255,8 +318,8 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         return item;
       });
     }
-    return generateLeagueNewsItems(leagueData);
-  }, [leagueData, customText]);
+    return generateLeagueNewsItems(leagueData, language);
+  }, [leagueData, customText, language]);
 
   // Calculate calm, easily readable duration based on total character volume (~7-8 chars per second)
   const durationSeconds = useMemo(() => {

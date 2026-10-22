@@ -797,7 +797,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                 e.stopPropagation();
                 setActiveBreakdownKey((prev) => (prev === breakdownKey ? null : breakdownKey));
               }}
-              title="Click for points breakdown"
+              title={language === 'id' ? 'Klik untuk rincian poin' : 'Click for points breakdown'}
               className={`shrink-0 min-w-[30px] sm:min-w-[34px] px-0.5 h-5 rounded-[3px] border flex items-center justify-center font-mono text-[10px] sm:text-[10.5px] leading-none transition-transform active:scale-95 cursor-pointer ${capsuleColor}`}
             >
               {capsuleVal}
@@ -856,7 +856,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                 e.stopPropagation();
                 setActiveBreakdownKey((prev) => (prev === breakdownKey ? null : breakdownKey));
               }}
-              title="Click for points breakdown"
+              title={language === 'id' ? 'Klik untuk rincian poin' : 'Click for points breakdown'}
               className={`shrink-0 min-w-[30px] sm:min-w-[34px] px-0.5 h-5 rounded-[3px] border flex items-center justify-center font-mono text-[10px] sm:text-[10.5px] leading-none transition-transform active:scale-95 cursor-pointer ${capsuleColor}`}
             >
               {capsuleVal}
@@ -878,7 +878,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
           onClick={handlePrevGW}
           disabled={!canGoPrev}
           className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-          title={canGoPrev ? `Lompat ke GW ${sortedGWs[activeIndex - 1]}` : undefined}
+          title={canGoPrev ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeIndex - 1]}` : `Jump to GW ${sortedGWs[activeIndex - 1]}`) : undefined}
           aria-label="Previous Gameweek"
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -896,7 +896,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
             options={sortedGWs.map((gw) => ({
               value: gw,
               label: `GW ${gw}`,
-              sublabel: gw === currentGW ? 'Current' : undefined
+              sublabel: gw === currentGW ? (language === 'id' ? 'Terkini' : 'Current') : undefined
             }))}
             customTrigger={() => (
               <div className="flex flex-col items-center justify-center text-center cursor-pointer select-none group">
@@ -904,7 +904,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                   Gameweek {activeGW}
                 </span>
                 <span className="text-[10.5px] sm:text-xs font-semibold text-slate-500 dark:text-purple-300/80 leading-tight mt-0.5 group-hover:text-purple-600 dark:group-hover:text-purple-200 transition-colors">
-                  {gwDateRange || (isLoading ? 'Memuat tanggal...' : `GW ${activeGW}`)}
+                  {gwDateRange || (isLoading ? (language === 'id' ? 'Memuat tanggal...' : 'Loading dates...') : `GW ${activeGW}`)}
                 </span>
               </div>
             )}
@@ -917,7 +917,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
           onClick={handleNextGW}
           disabled={!canGoNext}
           className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-          title={canGoNext ? `Lompat ke GW ${sortedGWs[activeIndex + 1]}` : undefined}
+          title={canGoNext ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeIndex + 1]}` : `Jump to GW ${sortedGWs[activeIndex + 1]}`) : undefined}
           aria-label="Next Gameweek"
         >
           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -1121,7 +1121,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                   {/* EXPAND/COLLAPSE CHEVRON INDICATOR (at bottom-right corner of card) */}
                   <div
                     className="absolute bottom-1 right-1.5 p-1 text-slate-400 dark:text-purple-300/70 select-none pointer-events-none"
-                    title={isExpanded ? 'Collapse match lineup' : 'Expand match lineup'}
+                    title={isExpanded ? (language === 'id' ? 'Tutup susunan pemain' : 'Collapse match lineup') : (language === 'id' ? 'Buka susunan pemain' : 'Expand match lineup')}
                   >
                     {isExpanded ? (
                       <ChevronUp className="w-4 h-4 stroke-[2.5]" />

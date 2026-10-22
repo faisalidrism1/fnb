@@ -203,7 +203,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
               options={availableGWs.map((gw) => ({
                 value: gw,
                 label: `GW ${gw}`,
-                sublabel: gw === currentGW ? 'Current' : undefined,
+                sublabel: gw === currentGW ? (language === 'id' ? 'Terkini' : 'Current') : undefined,
               }))}
             />
 
@@ -263,7 +263,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                 ...availableGWs.map((gw) => ({
                   value: String(gw),
                   label: `GW ${gw}`,
-                  sublabel: gw === currentGW ? 'Current' : undefined,
+                  sublabel: gw === currentGW ? (language === 'id' ? 'Terkini' : 'Current') : undefined,
                 })),
               ]}
             />
@@ -360,7 +360,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                       <td
                         onClick={() => handlePlayerClick(player.id)}
                         className="sticky left-[40px] z-10 bg-white group-hover:bg-purple-100/70 py-2 px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors cursor-pointer"
-                        title={`Klik untuk melihat detail ${player.web_name}`}
+                        title={language === 'id' ? `Klik untuk melihat detail ${player.web_name}` : `Click to view details for ${player.web_name}`}
                       >
                         <div className="flex items-center gap-2 whitespace-nowrap">
                           <img
@@ -512,7 +512,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                           key={cp.id}
                           onClick={() => handlePlayerClick(cp.id)}
                           className="inline-flex items-center gap-1 bg-slate-50 hover:bg-purple-100 hover:text-purple-950 text-slate-800 text-[10.5px] font-bold px-2 py-0.5 rounded-md transition-colors cursor-pointer border border-slate-200 hover:border-purple-400"
-                          title={`Klik untuk melihat detail statistik ${cp.web_name}`}
+                          title={language === 'id' ? `Klik untuk melihat detail statistik ${cp.web_name}` : `Click to view stats for ${cp.web_name}`}
                         >
                           <span>{cp.web_name}</span>
                           <span className="text-purple-700 text-[9.5px]">({cp.owned_count})</span>
@@ -611,7 +611,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                                    handlePlayerClickByName(pName);
                                 }}
                                 className="bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-900 text-[10px] font-semibold px-1.5 py-0.5 rounded transition-colors cursor-pointer border border-transparent hover:border-purple-300"
-                                title={`Klik untuk melihat detail statistik ${pName}`}
+                                title={language === 'id' ? `Klik untuk melihat detail statistik ${pName}` : `Click to view stats for ${pName}`}
                               >
                                 {pName}
                               </button>
@@ -828,6 +828,7 @@ interface TemplatePlayerCardProps {
 }
 
 const TemplatePlayerCard: React.FC<TemplatePlayerCardProps> = ({ player, onClick }) => {
+  const { language } = useLanguage();
   // Ultra HD 220px jersey proxied locally for blazing fast load without CORS/ISP blocks
   const teamCode = player.team_code || 1;
   const proxyShirtUrl = `/api/fpl-shirt/${teamCode}${player.is_gk ? '_1' : ''}`;
@@ -839,7 +840,7 @@ const TemplatePlayerCard: React.FC<TemplatePlayerCardProps> = ({ player, onClick
     <div
       onClick={onClick}
       className="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105 select-none w-[66px] sm:w-[82px] md:w-[96px]"
-      title={`Klik untuk melihat detail ${player.web_name}`}
+      title={language === 'id' ? `Klik untuk melihat detail ${player.web_name}` : `Click to view details for ${player.web_name}`}
     >
       {/* Club Jersey Image directly from official FPL CDN - HD 220px Resolution & 125% Enlarged */}
       <div className="relative z-0 w-[60px] h-[69px] sm:w-[78px] sm:h-[85px] md:w-[94px] md:h-[102px] flex items-center justify-center">

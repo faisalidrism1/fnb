@@ -254,7 +254,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
     return filtered.length > 0 ? filtered : allAvailableGWs;
   }, [allAvailableGWs, startGW, endGW]);
 
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const latestGW = sortedGWs[sortedGWs.length - 1] || maxGW;
 
   // Chart Metric Selection (Default: Last Rank, or restored from session)
@@ -550,30 +550,38 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
 
   // Preset options configuration for unified team selector
   const rankPresetOptions: Array<{ id: RankPreset; label: string }> = useMemo(
-    () => [
-      { id: 'all', label: 'All Teams' },
-      { id: '1-20', label: 'Ranks 1–20' },
-      { id: '21-40', label: 'Ranks 21–40' },
-      { id: '41-60', label: 'Ranks 41–60' },
-      { id: '61-80', label: 'Ranks 61–80' },
-      { id: '81-100', label: `Ranks 81–${totalTeamsCount}` },
-    ],
-    [totalTeamsCount]
+    () => {
+      const isId = language === 'id';
+      const rankWord = isId ? 'Peringkat' : 'Ranks';
+      const allWord = isId ? 'Semua Tim' : 'All Teams';
+      return [
+        { id: 'all', label: allWord },
+        { id: '1-20', label: `${rankWord} 1–20` },
+        { id: '21-40', label: `${rankWord} 21–40` },
+        { id: '41-60', label: `${rankWord} 41–60` },
+        { id: '61-80', label: `${rankWord} 61–80` },
+        { id: '81-100', label: `${rankWord} 81–${totalTeamsCount}` },
+      ];
+    },
+    [totalTeamsCount, language]
   );
 
   const currentTeamSelectorLabel = useMemo(() => {
+    const isId = language === 'id';
+    const allWord = isId ? 'Semua Tim' : 'All Teams';
+    const teamsWord = isId ? 'Tim' : 'Teams';
     if (selectedEntryIds !== null) {
       if (selectedEntryIds.size === allTeams.length) {
-        return `All Teams (${allTeams.length})`;
+        return `${allWord} (${allTeams.length})`;
       }
-      return `${selectedEntryIds.size} Teams`;
+      return `${selectedEntryIds.size} ${teamsWord}`;
     }
     if (rankPreset === 'all') {
-      return `All Teams (${allTeams.length})`;
+      return `${allWord} (${allTeams.length})`;
     }
     const found = rankPresetOptions.find((o) => o.id === rankPreset);
-    return found ? `${found.label} (${visibleTeams.length})` : `All Teams (${allTeams.length})`;
-  }, [selectedEntryIds, allTeams.length, rankPreset, rankPresetOptions, visibleTeams.length]);
+    return found ? `${found.label} (${visibleTeams.length})` : `${allWord} (${allTeams.length})`;
+  }, [selectedEntryIds, allTeams.length, rankPreset, rankPresetOptions, visibleTeams.length, language]);
 
   const { yMin, yMax, yTicks } = useMemo(() => {
     if (isRankMetric) {
@@ -1039,7 +1047,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                 setSelectedEntryIds(null);
                 setIsTeamSelectorOpen(false);
               }}
-              title="Reset to All Teams"
+              title={language === 'id' ? 'Reset ke Semua Tim' : 'Reset to All Teams'}
               className="px-2 py-1 rounded-lg text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 flex items-center cursor-pointer transition-colors"
             >
               <span>{t('chart_reset')}</span>
@@ -1556,17 +1564,17 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                 <div>
                   <span className="text-slate-400 block text-[9.5px]">
                     {metricType === 'last_rank'
-                      ? 'Last Rank'
+                      ? t('chart_last_rank')
                       : metricType === 'gw_rank'
-                      ? 'GW Rank'
+                      ? t('chart_gw_rank')
                       : metricType === 'total_points'
-                      ? 'Total Pts'
-                      : 'GW Pts'}
+                      ? t('chart_total_pts')
+                      : t('chart_gw_pts')}
                   </span>
                   <span className="font-extrabold text-[#00ff87]">
                     {isRankMetric ? '#' : ''}
                     {getValue(activeTooltip.team.dataPoints[activeTooltip.gw])}
-                    {!isRankMetric ? ' pts' : ''}
+                    {!isRankMetric ? (language === 'id' ? ' poin' : ' pts') : ''}
                   </span>
                 </div>
               </div>
@@ -1576,7 +1584,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                 <div className="space-y-0.5 text-[10px] text-slate-300 pt-1 border-t border-white/5">
                   {activeTooltip.team.dataPoints[activeTooltip.gw].captain && (
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Captain:</span>
+                      <span className="text-slate-400">{language === 'id' ? 'Kapten:' : 'Captain:'}</span>
                       <span className="font-bold text-amber-300">
                         {activeTooltip.team.dataPoints[activeTooltip.gw].captain?.name} (
                         {activeTooltip.team.dataPoints[activeTooltip.gw].captain?.points}p)
@@ -1593,9 +1601,9 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                   )}
                   {activeTooltip.team.dataPoints[activeTooltip.gw].hits > 0 && (
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Transfer Hits:</span>
+                      <span className="text-slate-400">{language === 'id' ? 'Penalti Hit:' : 'Transfer Hits:'}</span>
                       <span className="font-bold text-rose-300">
-                        -{activeTooltip.team.dataPoints[activeTooltip.gw].hits} pts
+                        -{activeTooltip.team.dataPoints[activeTooltip.gw].hits} {language === 'id' ? 'poin' : 'pts'}
                       </span>
                     </div>
                   )}

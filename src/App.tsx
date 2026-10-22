@@ -147,7 +147,7 @@ export default function App() {
 
   // Loading state when container is empty on initial publish/boot
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
-  const [smartLoadingMessage, setSmartLoadingMessage] = useState<string>('Connecting to Premier League API...');
+  const [smartLoadingMessage, setSmartLoadingMessage] = useState<string>(() => t('loading_connecting'));
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<MainTab>('STANDINGS');
   const [standingsSubTab, setStandingsSubTab] = useState<StandingsSubTab>('live-table');
@@ -330,7 +330,7 @@ export default function App() {
                 setStandingsSubTab('live-table');
               }
             }
-            showToast('Offline Mode: Menampilkan data cache lokal.');
+            showToast(t('toast_offline'));
           } else {
             setTimeout(() => {
               fetchData(true, false);
@@ -470,17 +470,17 @@ export default function App() {
               },
             })
           );
-          showToast('✓ Successfully synced with Official FPL API!');
+          showToast(t('toast_sync_success'));
         } else {
           await fetchData(false);
-          showToast('✓ Successfully synced with Official FPL API!');
+          showToast(t('toast_sync_success'));
         }
       } else {
         throw new Error('Sync endpoint returned error');
       }
     } catch (err: any) {
       console.error(err);
-      showToast('⚠️ Sync failed or rate-limited. Retaining current data.');
+      showToast(t('toast_sync_failed'));
     } finally {
       setIsSyncing(false);
     }

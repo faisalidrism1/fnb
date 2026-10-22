@@ -22,7 +22,12 @@ import {
   SyncStatus,
 } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
-import { useLanguage } from '../utils/i18n.ts';
+import {
+  useLanguage,
+  STAT_IDENTIFIER_LABELS_BY_LANG,
+  FPL_STAT_TOOLTIP_TITLES_ID,
+  MATCH_METRIC_LABELS_ID,
+} from '../utils/i18n.ts';
 
 interface PlayerDetailModalProps {
   playerId: number | null;
@@ -281,7 +286,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                 <span>GW {gw}</span>
                 {gw === maxGW && (
                   <span className="text-[10px] font-bold text-emerald-600 dark:text-[#00ff87] font-mono">
-                    Current
+                    {language === 'id' ? 'Terkini' : 'Current'}
                   </span>
                 )}
               </button>
@@ -647,15 +652,16 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
       return `${pct}%`;
     };
 
+    const isId = language === 'id';
     const rows = [
-      { label: 'Owned by', count: ownedCount },
-      { label: 'Started by', count: startedCount },
-      { label: 'Benched by', count: benchedCount },
-      { label: 'Bench Boosted by', count: benchBoostedCount },
-      { label: 'Captained by', count: captainedCount },
-      { label: 'Vice Captained by', count: viceCaptainedCount },
-      { label: 'Triple Captained by', count: tripleCaptainedCount },
-      { label: 'Triple (Vice) Captained by', count: tripleViceCaptainedCount },
+      { label: isId ? 'Dimiliki oleh' : 'Owned by', count: ownedCount },
+      { label: isId ? 'Dimainkan (Starter) oleh' : 'Started by', count: startedCount },
+      { label: isId ? 'Dicadangkan oleh' : 'Benched by', count: benchedCount },
+      { label: isId ? 'Bench Boost aktif oleh' : 'Bench Boosted by', count: benchBoostedCount },
+      { label: isId ? 'Dikaptenkan oleh' : 'Captained by', count: captainedCount },
+      { label: isId ? 'Wakil Kapten oleh' : 'Vice Captained by', count: viceCaptainedCount },
+      { label: isId ? 'Triple Captain oleh' : 'Triple Captained by', count: tripleCaptainedCount },
+      { label: isId ? 'Triple Wakil Kapten oleh' : 'Triple (Vice) Captained by', count: tripleViceCaptainedCount },
     ];
 
     return rows
@@ -664,7 +670,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
         ...r,
         pct: formatPct(r.count),
       }));
-  }, [owners, totalLeagueManagers, isManagerTripleCaptain, isManagerBenchBoost]);
+  }, [owners, totalLeagueManagers, isManagerTripleCaptain, isManagerBenchBoost, language]);
 
   // Calculate FNB League Net Transfers and Ownership % for a given GW
   const getFnbMetrics = useCallback(
@@ -1556,7 +1562,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                     £{playerCostFormatted}m
                   </span>
                   <span className="text-[10px] text-purple-300/80 font-medium hidden xs:inline">
-                    • {ownershipPct}% owned
+                    • {ownershipPct}% {language === 'id' ? 'dimiliki' : 'owned'}
                   </span>
                 </div>
               </div>
@@ -1569,7 +1575,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1 text-purple-200 hover:text-white rounded-lg hover:bg-white/10 transition-colors hidden sm:flex items-center gap-1 text-[11px] font-semibold"
-                title="Open Official FPL Statistics"
+                title={language === 'id' ? 'Buka Statistik Resmi FPL' : 'Open Official FPL Statistics'}
               >
                 <span>FPL</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -1741,7 +1747,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             onClick={handlePrevGW}
                             disabled={!canGoPrev}
                             className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-                            title={canGoPrev ? `Lompat ke GW ${sortedGWs[activeGWIndex - 1]}` : undefined}
+                            title={canGoPrev ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex - 1]}` : `Jump to GW ${sortedGWs[activeGWIndex - 1]}`) : undefined}
                             aria-label="Previous Gameweek"
                           >
                             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -1752,7 +1758,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                               type="button"
                               onClick={() => setIsGWDropdownOpen((prev) => !prev)}
                               className="flex flex-col items-center justify-center cursor-pointer group focus:outline-none select-none py-0.5 px-1.5 sm:px-2 rounded-lg hover:bg-white/5 transition-colors text-center gap-1.5"
-                              title="Pilih Gameweek"
+                              title={language === 'id' ? 'Pilih Gameweek' : 'Select Gameweek'}
                             >
                               <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
                                 GW {activeGW}
@@ -1761,7 +1767,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                                 Blank GW
                               </span>
                               <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
-                                No Fixture
+                                {language === 'id' ? 'Tidak Ada Pertandingan' : 'No Fixture'}
                               </span>
                             </button>
                             {renderGWDropdown()}
@@ -1773,7 +1779,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             onClick={handleNextGW}
                             disabled={!canGoNext}
                             className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-                            title={canGoNext ? `Lompat ke GW ${sortedGWs[activeGWIndex + 1]}` : undefined}
+                            title={canGoNext ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex + 1]}` : `Jump to GW ${sortedGWs[activeGWIndex + 1]}`) : undefined}
                             aria-label="Next Gameweek"
                           >
                             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -1792,7 +1798,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
                           <div className="flex-1 min-w-0">
                             <div className="bg-black/20 rounded-lg p-2.5 h-[68px] flex items-center justify-center text-center text-xs text-purple-300/70 italic border border-purple-500/20">
-                              Blank Gameweek (0 pts)
+                              Blank Gameweek ({effectiveGWPoints} {language === 'id' ? 'poin' : 'pts'})
                             </div>
                           </div>
                         </div>
@@ -1959,7 +1965,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                           onClick={handlePrevGW}
                           disabled={!canGoPrev}
                           className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-                          title={canGoPrev ? `Lompat ke GW ${sortedGWs[activeGWIndex - 1]}` : undefined}
+                          title={canGoPrev ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex - 1]}` : `Jump to GW ${sortedGWs[activeGWIndex - 1]}`) : undefined}
                           aria-label="Previous Gameweek"
                         >
                           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -1994,7 +2000,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                               type="button"
                               onClick={() => setIsGWDropdownOpen((prev) => !prev)}
                               className="flex flex-col items-center justify-center cursor-pointer group focus:outline-none select-none py-0.5 px-1.5 sm:px-2 rounded-lg hover:bg-white/5 transition-colors gap-1.5"
-                              title="Pilih Gameweek"
+                              title={language === 'id' ? 'Pilih Gameweek' : 'Select Gameweek'}
                             >
                               {/* 1. Text GW di atas skor pertandingan: font, ukuran, format sama persis dengan GW Status */}
                               <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
@@ -2061,7 +2067,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                           onClick={handleNextGW}
                           disabled={!canGoNext}
                           className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-                          title={canGoNext ? `Lompat ke GW ${sortedGWs[activeGWIndex + 1]}` : undefined}
+                          title={canGoNext ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex + 1]}` : `Jump to GW ${sortedGWs[activeGWIndex + 1]}`) : undefined}
                           aria-label="Next Gameweek"
                         >
                           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -2085,7 +2091,8 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                           {effectiveExplainList.length > 0 ? (
                             <div className="bg-black/30 rounded-lg border border-purple-500/20 divide-y divide-purple-500/15 max-h-[170px] overflow-y-auto">
                               {effectiveExplainList.map((stat, idx) => {
-                                const label = STAT_IDENTIFIER_LABELS[stat.identifier] || stat.identifier;
+                                const dict = STAT_IDENTIFIER_LABELS_BY_LANG[language] || STAT_IDENTIFIER_LABELS;
+                                const label = dict[stat.identifier] || stat.identifier;
                                 return (
                                   <div key={idx} className="flex items-center justify-between py-1.5 px-2.5 text-xs h-[34px] box-border">
                                     <span className="text-slate-200 font-medium truncate mr-2">{label}</span>
@@ -2094,7 +2101,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                                       <span className={`font-black text-right min-w-[50px] ${
                                         stat.points > 0 ? 'text-[#00ff87]' : stat.points < 0 ? 'text-rose-400' : 'text-slate-400'
                                       }`}>
-                                        {stat.points > 0 ? `+${stat.points}` : stat.points} pts
+                                        {stat.points > 0 ? `+${stat.points}` : stat.points} {language === 'id' ? 'poin' : 'pts'}
                                       </span>
                                     </div>
                                   </div>
@@ -2103,7 +2110,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             </div>
                           ) : (
                             <div className="bg-black/20 rounded-lg p-2.5 h-[68px] flex items-center justify-center text-center text-xs text-purple-300/70 italic border border-purple-500/20">
-                              {minutesPlayed === 0 ? t('modal_plyr_did_not_play') : 'No points events registered.'}
+                              {minutesPlayed === 0 ? t('modal_plyr_did_not_play') : (language === 'id' ? 'Tidak ada peristiwa poin tercatat.' : 'No points events registered.')}
                             </div>
                           )}
                         </div>
@@ -2119,19 +2126,20 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[11px] font-extrabold tracking-wider border-b border-slate-200 dark:border-purple-900/40 select-none">
-                        <th className="py-2.5 px-3 text-left w-[43%] sm:w-[46%]">Statistic</th>
+                        <th className="py-2.5 px-3 text-left w-[43%] sm:w-[46%]">{language === 'id' ? 'Statistik' : 'Statistic'}</th>
                         <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">GW {activeGW}</th>
-                        <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">Form</th>
-                        <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">Season</th>
+                        <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">{language === 'id' ? 'Performa' : 'Form'}</th>
+                        <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">{language === 'id' ? 'Musim' : 'Season'}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-purple-900/30">
                       {combinedStatsData.rows.map((row) => {
                         const styles = getStatComparisonStyles(row.gw, row.form, row.season, row.isInverted);
+                        const displayMetricLabel = language === 'id' ? (MATCH_METRIC_LABELS_ID[row.key] || row.label) : row.label;
                         return (
                           <tr key={row.key} className="hover:bg-purple-50/20 dark:hover:bg-purple-950/20 transition-colors">
                             <td className="py-2 px-3 font-semibold text-slate-800 dark:text-slate-200 text-xs sm:text-[12.5px]">
-                              {row.label}
+                              {displayMetricLabel}
                             </td>
                             <td className={`py-2 px-2.5 text-right font-mono font-semibold text-xs sm:text-[13px] ${styles.gw}`}>
                               {row.gw}
@@ -2166,7 +2174,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                   options={sortedGWs.map((gw) => ({
                     value: gw,
                     label: `GW ${gw}`,
-                    sublabel: gw === effectiveCurrentGW ? 'Current' : undefined,
+                    sublabel: gw === effectiveCurrentGW ? (language === 'id' ? 'Terkini' : 'Current') : undefined,
                   }))}
                 />
               </div>
@@ -2282,7 +2290,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             key={owner.entry_id}
                             onClick={() => onSelectManager && onSelectManager(owner.entry_id, activeGW)}
                             className="hover:bg-purple-50/40 dark:hover:bg-purple-950/30 transition-colors cursor-pointer"
-                            title={onSelectManager ? `Click to view ${owner.entry_name}` : undefined}
+                            title={onSelectManager ? (language === 'id' ? `Klik untuk melihat ${owner.entry_name}` : `Click to view ${owner.entry_name}`) : undefined}
                           >
                             <td className="py-2 px-2.5 sm:px-3 min-w-0">
                               <div className="font-black text-slate-900 dark:text-white leading-tight truncate text-xs sm:text-[13px]">
@@ -2363,7 +2371,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                 </div>
               ) : (
                 <div className="p-6 text-center text-xs text-slate-500 dark:text-purple-300/80 font-medium">
-                  {ownerSearch ? 'No managers found matching your search.' : `No managers in FNB League own this player in GW ${activeGW}.`}
+                  {ownerSearch ? t('modal_plyr_owners_empty_search') : t('modal_plyr_owners_empty_gw', { gw: activeGW })}
                 </div>
               )}
             </div>
@@ -2378,7 +2386,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
               <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl overflow-hidden shadow-2xs">
                 <div className="bg-slate-50 dark:bg-purple-950/40 px-3 py-2 border-b border-slate-200 dark:border-purple-900/60 flex items-center justify-between">
                   <span className="font-bold text-slate-900 dark:text-white text-xs">
-                    GW History
+                    {language === 'id' ? 'Riwayat GW' : 'GW History'}
                   </span>
                 </div>
 
@@ -2446,18 +2454,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                                         col.label
                                       ) : col.label}:
                                     </span>
-                                    {language === 'id' ? (
-                                      col.key === 'gw' ? 'Gameweek' :
-                                      col.key === 'opp' ? 'Tim Lawan (Kandang/Tandang)' :
-                                      col.key === 'res' ? 'Hasil Pertandingan (Menang / Seri / Kalah)' :
-                                      col.key === 'pts' ? 'Total Poin' :
-                                      col.key === 'st' ? 'Starter (Bermain Sejak Awal)' :
-                                      col.key === 'mp' ? 'Menit Bermain' :
-                                      col.key === 'gs' ? 'Gol Dicetak' :
-                                      col.key === 'a' ? 'Umpan Gol (Assist)' :
-                                      col.key === 'cs' ? 'Nirbobol (Clean Sheet)' :
-                                      col.title
-                                    ) : col.title}
+                                    {language === 'id' ? (FPL_STAT_TOOLTIP_TITLES_ID[col.key] || col.title) : col.title}
                                     <div className={`absolute top-full ${pos.arrow} -mt-[1px] border-4 border-transparent border-t-slate-900/95 dark:border-t-[#12001a]/95`} />
                                   </div>
                                 )}
@@ -2641,7 +2638,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                         <tfoot>
                           <tr className="bg-slate-100 dark:bg-purple-950/80 font-black border-t-2 border-slate-300 dark:border-purple-800 text-slate-900 dark:text-white">
                             <td className="py-2 px-2.5 font-bold text-xs text-purple-900 dark:text-[#00ff87]">
-                              Season
+                              {language === 'id' ? 'Musim' : 'Season'}
                             </td>
                             <td className="py-2 px-2.5 text-slate-400">
                               -
@@ -2746,7 +2743,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                   </div>
                 ) : (
                   <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
-                    {loadingSummary ? 'Loading match history...' : 'No history data available.'}
+                    {loadingSummary ? t('modal_plyr_history_loading') : t('modal_plyr_history_empty')}
                   </div>
                 )}
               </div>
@@ -2755,7 +2752,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
               <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl overflow-hidden shadow-2xs">
                 <div className="bg-slate-50 dark:bg-purple-950/40 px-3 py-2 border-b border-slate-200 dark:border-purple-900/60 flex items-center justify-between">
                   <span className="font-bold text-slate-900 dark:text-white text-xs">
-                    Previous Seasons
+                    {t('modal_plyr_prev_seasons')}
                   </span>
                 </div>
 
@@ -2767,6 +2764,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                           {PAST_SEASON_COLUMNS.map((col) => {
                             const isTooltipOpen = activeHeaderTooltip === `past_${col.key}`;
                             const pos = getHeaderTooltipClasses(col.key);
+                            const displayColLabel = (col.key === 'season' && language === 'id') ? 'Musim' : (language === 'id' && col.key === 'pts' ? 'Poin' : col.label);
                             return (
                               <th
                                 key={col.key}
@@ -2793,14 +2791,14 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                                     : 'text-center'
                                 }`}
                               >
-                                <span className="inline-block">{col.label}</span>
+                                <span className="inline-block">{displayColLabel}</span>
                                 {isTooltipOpen && (
                                   <div
                                     onClick={(e) => e.stopPropagation()}
                                     className={`absolute z-50 bottom-full ${pos.box} mb-1.5 px-2.5 py-1 bg-slate-900/95 dark:bg-[#12001a]/95 text-white text-[11px] font-medium rounded-lg shadow-2xl border border-purple-500/40 whitespace-nowrap pointer-events-auto`}
                                   >
-                                    <span className="font-bold text-[#00ff87] mr-1">{col.label}:</span>
-                                    {col.title}
+                                    <span className="font-bold text-[#00ff87] mr-1">{displayColLabel}:</span>
+                                    {language === 'id' ? (FPL_STAT_TOOLTIP_TITLES_ID[col.key] || col.title) : col.title}
                                     <div className={`absolute top-full ${pos.arrow} -mt-[1px] border-4 border-transparent border-t-slate-900/95 dark:border-t-[#12001a]/95`} />
                                   </div>
                                 )}

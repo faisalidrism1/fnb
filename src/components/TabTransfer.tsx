@@ -187,7 +187,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                   ...availableGWs.map((gw) => ({
                     value: String(gw),
                     label: `GW ${gw}`,
-                    sublabel: gw === currentGW ? 'Current' : undefined,
+                    sublabel: gw === currentGW ? (language === 'id' ? 'Terkini' : 'Current') : undefined,
                   })),
                 ]}
               />
@@ -309,7 +309,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                             }`}
                             title={
                               onSelectPlayer && t.element_in?.id
-                                ? `Klik untuk melihat detail ${t.element_in.name}`
+                                ? (language === 'id' ? `Klik untuk melihat detail ${t.element_in.name}` : `Click to view details for ${t.element_in.name}`)
                                 : undefined
                             }
                           >
@@ -337,7 +337,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                             }`}
                             title={
                               onSelectPlayer && t.element_out?.id
-                                ? `Klik untuk melihat detail ${t.element_out.name}`
+                                ? (language === 'id' ? `Klik untuk melihat detail ${t.element_out.name}` : `Click to view details for ${t.element_out.name}`)
                                 : undefined
                             }
                           >
@@ -437,7 +437,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                 ...availableGWs.map((gw) => ({
                   value: String(gw),
                   label: `GW ${gw}`,
-                  sublabel: gw === currentGW ? 'Current' : undefined,
+                  sublabel: gw === currentGW ? (language === 'id' ? 'Terkini' : 'Current') : undefined,
                 })),
               ]}
             />
@@ -518,7 +518,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                           className={`sticky left-[40px] z-20 bg-white group-hover:bg-purple-100/70 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                             onSelectPlayer ? 'cursor-pointer' : ''
                           }`}
-                          title={onSelectPlayer ? `Klik untuk melihat detail ${item.web_name}` : undefined}
+                          title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${item.web_name}` : `Click to view details for ${item.web_name}`) : undefined}
                         >
                           <p className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs whitespace-nowrap">
                             {item.web_name}
@@ -581,11 +581,11 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
               value={statGWFilter}
               onChange={(val) => setStatGWFilter(String(val))}
               options={[
-                { value: 'all', label: 'Season' },
+                { value: 'all', label: t('filter_season') },
                 ...availableGWs.map((gw) => ({
                   value: String(gw),
                   label: `GW ${gw}`,
-                  sublabel: gw === currentGW ? 'Current' : undefined,
+                  sublabel: gw === currentGW ? (language === 'id' ? 'Terkini' : 'Current') : undefined,
                 })),
               ]}
             />
@@ -666,7 +666,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                           className={`sticky left-[40px] z-20 bg-white group-hover:bg-purple-100/70 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                             onSelectPlayer ? 'cursor-pointer' : ''
                           }`}
-                          title={onSelectPlayer ? `Klik untuk melihat detail ${item.web_name}` : undefined}
+                          title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${item.web_name}` : `Click to view details for ${item.web_name}`) : undefined}
                         >
                           <p className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs whitespace-nowrap">
                             {item.web_name}

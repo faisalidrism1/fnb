@@ -200,9 +200,11 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
     return getGameweekStatus(currentGW, currentGW, activeObj, syncStatus);
   }, [currentGW, liveEventStatus, eventsStatus, gwStatus, syncStatus]);
 
-  // When active GW is Confirmed or Not Started -> "Current"
+  // When active GW is Confirmed or Not Started -> "Current" (or "Terkini" in id)
   // When active GW is Live or Provisional -> "Live"
-  const currentGwBadgeText = currentGwLifecycleStatus.isLiveOrProvisional ? 'Live' : 'Current';
+  const currentGwBadgeText = currentGwLifecycleStatus.isLiveOrProvisional
+    ? 'Live'
+    : (language === 'id' ? 'Terkini' : 'Current');
   
   // Sort state for live table: default rank ASCENDING
   const [sortField, setSortField] = useState<SortField>('rank');
@@ -948,7 +950,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                               }`}
                               title={
                                 onSelectPlayer && row.captain?.id
-                                  ? `Lihat detail statistik ${row.captain.name}`
+                                  ? (language === 'id' ? `Lihat detail statistik ${row.captain.name}` : `View stats for ${row.captain.name}`)
                                   : undefined
                               }
                             >
@@ -962,7 +964,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                                 ({row.captain.club})
                               </span>
                               <span className="font-black text-purple-900 text-xs ml-auto pl-1">
-                                {row.captain.points} pts
+                                {row.captain.points} {language === 'id' ? 'poin' : 'pts'}
                               </span>
                             </div>
                           ) : (
@@ -984,7 +986,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                               }`}
                               title={
                                 onSelectPlayer && row.vice_captain?.id
-                                  ? `Lihat detail statistik ${row.vice_captain.name}`
+                                  ? (language === 'id' ? `Lihat detail statistik ${row.vice_captain.name}` : `View stats for ${row.vice_captain.name}`)
                                   : undefined
                               }
                             >
@@ -996,7 +998,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                               </span>
                               <span className="text-[10px]">({row.vice_captain.club})</span>
                               <span className="font-semibold text-slate-600 text-[11px] ml-auto pl-1">
-                                {row.vice_captain.points} pts
+                                {row.vice_captain.points} {language === 'id' ? 'poin' : 'pts'}
                               </span>
                             </div>
                           )}
