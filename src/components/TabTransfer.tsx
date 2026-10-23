@@ -14,6 +14,7 @@ import {
 import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 
 interface TabTransferProps {
   transfers: TransferItem[];
@@ -45,6 +46,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
   onSelectSubTab,
 }) => {
   const { t, language } = useLanguage();
+  const userProfileId = useUserProfileId();
   const [internalSubTab, setInternalSubTab] = useState<TransferSubTab>('all-transfers');
   const subTab = propSubTab !== undefined ? propSubTab : internalSubTab;
   const setSubTab = (val: TransferSubTab) => {
@@ -277,11 +279,23 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                       const inPts = getPlayerGWPoints(t.element_in?.id, t.event, t.element_in?.gw_points);
                       const outPts = getPlayerGWPoints(t.element_out?.id, t.event, t.element_out?.gw_points);
                       const gap = inPts - outPts;
+                      const isUser = userProfileId !== null && t.entry_id === userProfileId;
 
                       return (
-                        <tr key={idx} className="hover:bg-purple-50/30 transition-colors group">
+                        <tr
+                          key={idx}
+                          className={`transition-colors group ${
+                            isUser
+                              ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                              : 'hover:bg-purple-50/30'
+                          }`}
+                        >
                           {/* 1. Frozen Team & Manager - Without text wrap */}
-                          <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50/50 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)]">
+                          <td className={`sticky left-0 z-20 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
+                            isUser
+                              ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
+                              : 'bg-white group-hover:bg-purple-50/50'
+                          }`}>
                             <div
                               className="cursor-pointer hover:text-[#37003c] whitespace-nowrap"
                               onClick={() => onSelectManager(t.entry_id, t.event)}

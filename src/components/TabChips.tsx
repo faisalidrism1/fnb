@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ArrowUpDown, Search } from 'lucide-react';
 import { ChipUsedRow } from '../types.ts';
 import { useLanguage } from '../utils/i18n.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 
 interface TabChipsProps {
   chips: ChipUsedRow[];
@@ -13,6 +14,7 @@ type ChipColumnKey = 'entry_name' | 'wc1' | 'tc1' | 'bb1' | 'fh1' | 'wc2' | 'tc2
 
 export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectManager }) => {
   const { t, language } = useLanguage();
+  const userProfileId = useUserProfileId();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<ChipColumnKey>('entry_name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -219,18 +221,28 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {sortedChips.map((row, idx) => (
-                <tr
-                  key={`${row.entry_id}-${idx}`}
-                  onClick={() => onSelectManager(row.entry_id, currentGW)}
-                  className="hover:bg-purple-50/30 transition-colors cursor-pointer group"
-                >
-                  {/* Frozen Team & Manager Column - Dynamically sized to fill remaining screen space */}
-                  <td
+              {sortedChips.map((row, idx) => {
+                const isUser = userProfileId !== null && row.entry_id === userProfileId;
+                return (
+                  <tr
+                    key={`${row.entry_id}-${idx}`}
                     onClick={() => onSelectManager(row.entry_id, currentGW)}
-                    className="sticky left-0 z-20 bg-white group-hover:bg-purple-50/50 py-2.5 px-2 sm:px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors w-[calc(100cqw-184px)] min-w-[calc(100cqw-184px)] max-w-[calc(100cqw-184px)] sm:w-auto sm:min-w-[160px] sm:max-w-none cursor-pointer"
-                    title={t('tooltip_chip_team', { entry_name: row.entry_name, gw: currentGW || (language === 'id' ? 'terkini' : 'current') })}
+                    className={`transition-colors cursor-pointer group ${
+                      isUser
+                        ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                        : 'hover:bg-purple-50/30'
+                    }`}
                   >
+                    {/* Frozen Team & Manager Column - Dynamically sized to fill remaining screen space */}
+                    <td
+                      onClick={() => onSelectManager(row.entry_id, currentGW)}
+                      className={`sticky left-0 z-20 py-2.5 px-2 sm:px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors w-[calc(100cqw-184px)] min-w-[calc(100cqw-184px)] max-w-[calc(100cqw-184px)] sm:w-auto sm:min-w-[160px] sm:max-w-none cursor-pointer ${
+                        isUser
+                          ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
+                          : 'bg-white group-hover:bg-purple-50/50'
+                      }`}
+                      title={t('tooltip_chip_team', { entry_name: row.entry_name, gw: currentGW || (language === 'id' ? 'terkini' : 'current') })}
+                    >
                     <div className="truncate">
                       <p className="font-extrabold text-slate-900 text-xs hover:text-[#37003c] leading-snug truncate">
                         {row.entry_name}
@@ -280,8 +292,9 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
                   <td className="py-2.5 px-1.5 sm:px-2.5 text-center whitespace-nowrap border-b border-slate-100 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none">
                     {renderChipCell(row.entry_id, row.fh2, 'bg-teal-50 text-teal-900 border-teal-200')}
                   </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

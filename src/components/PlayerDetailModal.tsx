@@ -28,6 +28,7 @@ import {
   FPL_STAT_TOOLTIP_TITLES_ID,
   MATCH_METRIC_LABELS_ID,
 } from '../utils/i18n.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 
 interface PlayerDetailModalProps {
   playerId: number | null;
@@ -196,6 +197,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   syncStatus,
 }) => {
   const { t, language } = useLanguage();
+  const userProfileId = useUserProfileId();
   const [activeGW, setActiveGW] = useState<number>(initialGW);
   const [isGWDropdownOpen, setIsGWDropdownOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<ModalTab>('overview');
@@ -2293,11 +2295,16 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                       {filteredOwners.map((owner) => {
                         const isTc = isManagerTripleCaptain(owner);
                         const isBb = isManagerBenchBoost(owner);
+                        const isUser = userProfileId !== null && owner.entry_id === userProfileId;
                         return (
                           <tr
                             key={owner.entry_id}
                             onClick={() => onSelectManager && onSelectManager(owner.entry_id, activeGW)}
-                            className="hover:bg-purple-50/40 dark:hover:bg-purple-950/30 transition-colors cursor-pointer"
+                            className={`transition-colors cursor-pointer ${
+                              isUser
+                                ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                                : 'hover:bg-purple-50/40 dark:hover:bg-purple-950/30'
+                            }`}
                             title={onSelectManager ? (language === 'id' ? `Klik untuk melihat ${owner.entry_name}` : `Click to view ${owner.entry_name}`) : undefined}
                           >
                             <td className="py-2 px-2.5 sm:px-3 min-w-0">

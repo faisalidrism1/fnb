@@ -597,6 +597,7 @@ export default function App() {
             <TabCaptain
               captains={data.captain_players}
               clubCaptains={data.captain_clubs}
+              standings={data.standings}
               currentGW={data.current_gw}
               availableGWs={data.available_gws}
               subTab={captainSubTab}

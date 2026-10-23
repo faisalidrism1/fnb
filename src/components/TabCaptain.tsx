@@ -1,13 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Crown, Shield } from 'lucide-react';
-import { CaptainPlayerItem, ClubCaptainItem } from '../types.ts';
+import { CaptainPlayerItem, ClubCaptainItem, StandingsRow } from '../types.ts';
 import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 
 interface TabCaptainProps {
   captains: Record<number, CaptainPlayerItem[]>;
   clubCaptains: Record<number, ClubCaptainItem[]>;
+  standings?: Record<number, StandingsRow[]>;
   currentGW: number;
   availableGWs: number[];
   selectedGW?: number;
@@ -51,6 +53,7 @@ const TEAM_CODE_MAP: Record<string, number> = {
 export const TabCaptain: React.FC<TabCaptainProps> = ({
   captains,
   clubCaptains,
+  standings,
   currentGW,
   availableGWs,
   selectedGW: propSelectedGW,
@@ -60,6 +63,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
   onSelectSubTab,
 }) => {
   const { t, language } = useLanguage();
+  const userProfileId = useUserProfileId();
   const [internalSubTab, setInternalSubTab] = useState<CaptainSubTab>('most-captained-player');
   const subTab = propSubTab !== undefined ? propSubTab : internalSubTab;
   const setSubTab = (val: CaptainSubTab) => {
@@ -77,6 +81,13 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
   const selectedGW = availableGWs.includes(activeGW)
     ? activeGW
     : (availableGWs.length > 0 ? Math.max(...availableGWs) : currentGW);
+
+  // Selected profile's captain player ID in selectedGW
+  const userCaptainPlayerId = React.useMemo(() => {
+    if (!userProfileId || !standings) return null;
+    const row = standings[selectedGW]?.find((r) => r.entry_id === userProfileId);
+    return row?.captain?.id || null;
+  }, [userProfileId, standings, selectedGW]);
 
   const handleSelectGW = (gw: number) => {
     setInternalGW(gw);
@@ -134,11 +145,23 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                   const isGk = p.position === 'GKP';
                   const proxyJerseyUrl = `/api/fpl-shirt/${teamCode}${isGk ? '_1' : ''}`;
                   const fallbackJerseyUrl = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}-220.webp`;
+                  const isUserCaptain = userCaptainPlayerId !== null && p.id === userCaptainPlayerId;
 
                   return (
-                    <tr key={p.id} className="hover:bg-purple-50/30 transition-colors group">
+                    <tr
+                      key={p.id}
+                      className={`transition-colors group ${
+                        isUserCaptain
+                          ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                          : 'hover:bg-purple-50/30'
+                      }`}
+                    >
                       {/* Frozen # Column */}
-                      <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50/50 py-2 px-1 text-center whitespace-nowrap border-r border-slate-100 w-11 min-w-[44px] max-w-[44px]">
+                      <td className={`sticky left-0 z-20 py-2 px-1 text-center whitespace-nowrap border-r border-slate-100 w-11 min-w-[44px] max-w-[44px] transition-colors ${
+                        isUserCaptain
+                          ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
+                          : 'bg-white group-hover:bg-purple-50/50'
+                      }`}>
                         <span className="font-bold text-slate-500">{idx + 1}</span>
                       </td>
 
@@ -149,9 +172,11 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                             onSelectPlayer(p.id, selectedGW);
                           }
                         }}
-                        className={`sticky left-[44px] z-20 bg-white group-hover:bg-purple-100/70 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
-                          onSelectPlayer ? 'cursor-pointer' : ''
-                        }`}
+                        className={`sticky left-[44px] z-20 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
+                          isUserCaptain
+                            ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
+                            : 'bg-white group-hover:bg-purple-100/70'
+                        } ${onSelectPlayer ? 'cursor-pointer' : ''}`}
                         title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${p.web_name}` : `Click to view details for ${p.web_name}`) : undefined}
                       >
                         <div className="flex items-center gap-2 whitespace-nowrap">

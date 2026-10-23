@@ -15,6 +15,7 @@ import {
   formatKickoffByLanguage,
   MATCH_METRIC_LABELS_ID,
 } from '../utils/i18n.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 
 interface TabMatchesProps {
   currentGW?: number;
@@ -359,6 +360,22 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeMetric, setActiveMetric] = useState<MatchStatMetric>('pts');
   const { t, language } = useLanguage();
+  const userProfileId = useUserProfileId();
+
+  // Set of player IDs owned by the selected user profile in activeGW
+  const userOwnedPlayerIds = useMemo(() => {
+    if (!userProfileId) return new Set<number>();
+    const set = new Set<number>();
+    const currentOwnershipList = ownershipPlayers?.[activeGW] || [];
+    for (const p of currentOwnershipList) {
+      if (p && p.id && Array.isArray(p.owners)) {
+        if (p.owners.some((o) => o.entry_id === userProfileId)) {
+          set.add(p.id);
+        }
+      }
+    }
+    return set;
+  }, [userProfileId, ownershipPlayers, activeGW]);
 
   // Memoized FNB League TSB (Ownership %) & Net Transfers for activeGW (identik dengan modal pemain)
   const fnbMetricsMap = useMemo(() => {
@@ -432,12 +449,12 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
     };
   }, []);
 
-  // Sync activeGW when currentGW prop updates
+  // Ensure activeGW stays within the valid Gameweek range (1 - 38)
   useEffect(() => {
-    if (currentGW && !availableGWs.includes(activeGW)) {
-      setActiveGW(currentGW);
+    if (activeGW < 1 || activeGW > 38) {
+      setActiveGW(currentGW || 1);
     }
-  }, [currentGW, availableGWs]);
+  }, [activeGW, currentGW]);
 
   // Client-side cache for fetched matches to make GW transitions instantaneous (0ms) without flickering
   const matchesCacheRef = useRef<Map<number, MatchCardItem[]>>(new Map());
@@ -481,6 +498,45 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
       fetchMatches(activeGW, false, false);
     }
   }, [activeGW, fetchMatches]);
+
+  // Intelligent Background Pre-fetching of adjacent GWs (+1, -1, +2, -2)
+  // Ensures that when user clicks "<" or ">" or selects an adjacent GW, data is ALREADY in memory -> 0ms instant transition!
+  useEffect(() => {
+    const candidates = [
+      activeGW + 1,
+      activeGW - 1,
+      activeGW + 2,
+      activeGW - 2,
+    ].filter((gw) => gw >= 1 && gw <= 38 && !matchesCacheRef.current.has(gw));
+
+    if (candidates.length === 0) return;
+
+    let isCancelled = false;
+    const prefetchAdjacent = async () => {
+      for (const targetGw of candidates) {
+        if (isCancelled || matchesCacheRef.current.has(targetGw)) continue;
+        try {
+          const res = await fetch(`/api/fpl-matches/${targetGw}?_t=${Date.now()}`);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success && Array.isArray(json.data) && !isCancelled) {
+              matchesCacheRef.current.set(targetGw, json.data);
+            }
+          }
+        } catch {
+          // Silent ignore background prefetch error
+        }
+        // Small 120ms idle gap so network doesn't compete with any other active user actions
+        await new Promise((resolve) => setTimeout(resolve, 120));
+      }
+    };
+
+    const timer = setTimeout(prefetchAdjacent, 250);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [activeGW]);
 
   // Reactive Sync Trigger: When lastSynced changes or global sync event fires,
   // automatically re-fetch the matches silently and update all match elements and open breakdowns without page reload
@@ -741,11 +797,17 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
       return ordA - ordB;
     });
 
+    const isUserOwned = userOwnedPlayerIds.has(player.id);
+
     return (
       <div
         key={player.id}
         data-breakdown-card={breakdownKey}
-        className="relative flex items-center justify-between py-0.5 px-[3px] hover:bg-slate-100/60 dark:hover:bg-purple-900/20 rounded transition-colors text-xs"
+        className={`relative flex items-center justify-between py-0.5 px-[3px] rounded transition-colors text-xs ${
+          isUserOwned
+            ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+            : 'hover:bg-slate-100/60 dark:hover:bg-purple-900/20'
+        }`}
       >
         {/* Breakdown Popover */}
         {isBreakdownOpen && (

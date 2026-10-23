@@ -28,6 +28,7 @@ import { getGameweekStatus, GameweekLifecycleStatus } from '../utils/gwStatus.ts
 import { StandingsChart } from './StandingsChart.tsx';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage, formatDeadlineByLanguage } from '../utils/i18n.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 
 interface TabStandingsProps {
   standings: Record<number, StandingsRow[]>;
@@ -70,6 +71,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
   onSelectSubTab,
 }) => {
   const { language, t } = useLanguage();
+  const userProfileId = useUserProfileId();
   const [internalSubTab, setInternalSubTab] = useState<StandingsSubTab>(() => {
     const gw = currentGW || 1;
     const gwStatusObj = eventsStatus?.[gw] || gwStatus;
@@ -844,14 +846,23 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               </thead>
               <tbody>
                 {filteredAndSortedRows.map((row, idx) => {
+                  const isUser = userProfileId !== null && row.entry_id === userProfileId;
                   return (
                     <tr
                       key={`${row.entry_id}-${idx}`}
-                      className="group hover:bg-purple-50/50 transition-colors cursor-pointer"
+                      className={`group transition-colors cursor-pointer ${
+                        isUser
+                          ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                          : 'hover:bg-purple-50/50'
+                      }`}
                       onClick={() => onSelectManager(row.entry_id, selectedGW)}
                     >
                       {/* Frozen Rank Column - Last rank in parentheses & movement below */}
-                      <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50/50 py-2 px-0.5 text-center whitespace-nowrap w-12 min-w-[48px] max-w-[48px] border-b border-slate-100 transition-colors">
+                      <td className={`sticky left-0 z-20 py-2 px-0.5 text-center whitespace-nowrap w-12 min-w-[48px] max-w-[48px] border-b border-slate-100 transition-colors ${
+                        isUser
+                          ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
+                          : 'bg-white group-hover:bg-purple-50/50'
+                      }`}>
                         <div className="flex flex-col items-center justify-center leading-none">
                           <div className="flex items-baseline justify-center gap-0.5 leading-none">
                             <span
@@ -890,7 +901,11 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                       </td>
 
                       {/* Frozen Team & Manager Column - Seamless border and matching hover */}
-                      <td className="sticky left-[48px] z-20 bg-white group-hover:bg-purple-50/50 py-2 px-1 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors">
+                      <td className={`sticky left-[48px] z-20 py-2 px-1 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors ${
+                        isUser
+                          ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
+                          : 'bg-white group-hover:bg-purple-50/50'
+                      }`}>
                         <div className="whitespace-nowrap">
                           <p className="font-extrabold text-slate-900 text-xs hover:text-[#37003c] leading-snug whitespace-nowrap">
                             {row.entry_name}
@@ -1055,8 +1070,17 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {sortedGameweekChampions.map((item) => (
-                  <tr key={item.event} className="hover:bg-purple-50/40 transition-colors border-b border-slate-200">
+                {sortedGameweekChampions.map((item) => {
+                  const isUser = userProfileId !== null && item.champions.some((c) => c.entry_id === userProfileId);
+                  return (
+                    <tr
+                      key={item.event}
+                      className={`transition-colors border-b border-slate-200 ${
+                        isUser
+                          ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                          : 'hover:bg-purple-50/40'
+                      }`}
+                    >
                     <td className="py-2 px-1 sm:px-2 text-center whitespace-nowrap border-b border-slate-200 align-middle">
                       <div className="flex flex-col items-center justify-center gap-0.5">
                         <span className="inline-flex items-center justify-center font-black text-[11px] sm:text-xs bg-purple-100 text-[#37003c] px-1.5 py-0.5 rounded border border-purple-200/80 leading-none">
@@ -1130,7 +1154,8 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                       </span>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -1171,13 +1196,16 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                         s.player_name === lead.player_name
                     );
                     const entryId = lead.entry_id || standing?.entry_id;
+                    const isUser = userProfileId !== null && Boolean(entryId && entryId === userProfileId);
 
                     return (
                       <tr
                         key={idx}
                         onClick={() => entryId && onSelectManager(entryId, currentGW)}
                         className={`transition-colors border-b border-slate-100 ${
-                          entryId ? 'cursor-pointer hover:bg-purple-50/50' : 'hover:bg-slate-50/50'
+                          isUser
+                            ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG} cursor-pointer`
+                            : entryId ? 'cursor-pointer hover:bg-purple-50/50' : 'hover:bg-slate-50/50'
                         }`}
                       >
                         {/* Current Rank di Kolom Paling Kiri */}
@@ -1294,12 +1322,18 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {ligaMinus.map((entry, idx) => (
-                    <tr
-                      key={`${entry.entry_id}-${idx}`}
-                      onClick={() => onSelectManager(entry.entry_id, currentGW)}
-                      className="hover:bg-purple-50/30 transition-colors cursor-pointer border-b border-slate-100 last:border-b-0"
-                    >
+                  {ligaMinus.map((entry, idx) => {
+                    const isUser = userProfileId !== null && entry.entry_id === userProfileId;
+                    return (
+                      <tr
+                        key={`${entry.entry_id}-${idx}`}
+                        onClick={() => onSelectManager(entry.entry_id, currentGW)}
+                        className={`transition-colors cursor-pointer border-b border-slate-100 last:border-b-0 ${
+                          isUser
+                            ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                            : 'hover:bg-purple-50/30'
+                        }`}
+                      >
                       <td className="py-2 px-1 text-center whitespace-nowrap align-middle border-b border-slate-100">
                         <span className="font-bold text-xs text-slate-600 inline-flex items-center justify-center">
                           {idx + 1}
@@ -1325,8 +1359,9 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                           {entry.current_rank}
                         </span>
                       </td>
-                    </tr>
-                  ))}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

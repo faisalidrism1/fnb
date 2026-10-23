@@ -11,6 +11,7 @@ import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import fnbLogo from '../assets/images/fnb_league_logo_transparent.png';
 import { useLanguage } from '../utils/i18n.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 
 interface TabOwnershipProps {
   ownershipPlayers: Record<number, PlayerOwnershipItem[]>;
@@ -92,6 +93,23 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
   const selectedGW = availableGWs.includes(activeGW)
     ? activeGW
     : (availableGWs.length > 0 ? Math.max(...availableGWs) : currentGW);
+
+  const userProfileId = useUserProfileId();
+
+  // Set of player IDs owned by the selected user profile in selectedGW
+  const userOwnedPlayerIds = React.useMemo(() => {
+    if (!userProfileId) return new Set<number>();
+    const set = new Set<number>();
+    const list = ownershipPlayers?.[selectedGW] || [];
+    for (const p of list) {
+      if (p && p.id && Array.isArray(p.owners)) {
+        if (p.owners.some((o) => o.entry_id === userProfileId)) {
+          set.add(p.id);
+        }
+      }
+    }
+    return set;
+  }, [userProfileId, ownershipPlayers, selectedGW]);
 
   const handleSelectGW = (gw: number) => {
     setInternalGW(gw);
@@ -350,85 +368,103 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                     </td>
                   </tr>
                 ) : (
-                  filteredPlayers.slice(0, 50).map((player, idx) => (
-                    <tr key={player.id} className="group hover:bg-purple-50/40 transition-colors">
-                      {/* Frozen # Column */}
-                      <td className="sticky left-0 z-10 bg-white group-hover:bg-purple-50/60 py-2 px-1 text-center whitespace-nowrap w-10 min-w-[40px] max-w-[40px] border-b border-slate-100 transition-colors">
-                        <span className="font-bold text-slate-500 text-xs">{idx + 1}</span>
-                      </td>
-                      {/* Frozen Player Column */}
-                      <td
-                        onClick={() => handlePlayerClick(player.id)}
-                        className="sticky left-[40px] z-10 bg-white group-hover:bg-purple-100/70 py-2 px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors cursor-pointer"
-                        title={language === 'id' ? `Klik untuk melihat detail ${player.web_name}` : `Click to view details for ${player.web_name}`}
+                  filteredPlayers.slice(0, 50).map((player, idx) => {
+                    const isUserOwned = userOwnedPlayerIds.has(player.id);
+                    return (
+                      <tr
+                        key={player.id}
+                        className={`group transition-colors ${
+                          isUserOwned
+                            ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                            : 'hover:bg-purple-50/40'
+                        }`}
                       >
-                        <div className="flex items-center gap-2 whitespace-nowrap">
-                          <img
-                            src={
-                              player.element_type === 1
-                                ? `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.team_code}_1-220.webp`
-                                : `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.team_code}-220.webp`
-                            }
-                            alt={player.team_short_name}
-                            className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                          <span className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs sm:text-sm whitespace-nowrap">
-                            {player.web_name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-2 text-center whitespace-nowrap border-b border-slate-100">
-                        <span className="font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[11px] whitespace-nowrap">
-                          {player.team_short_name}
-                        </span>
-                      </td>
-                      <td className="py-2 px-1.5 text-center whitespace-nowrap border-b border-slate-100">
-                        <span
-                          className={`font-black text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap ${
-                            player.position === 'FWD'
-                              ? 'bg-rose-100 text-rose-800'
-                              : player.position === 'MID'
-                              ? 'bg-amber-100 text-amber-800'
-                              : player.position === 'DEF'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-emerald-100 text-emerald-800'
+                        {/* Frozen # Column */}
+                        <td className={`sticky left-0 z-10 py-2 px-1 text-center whitespace-nowrap w-10 min-w-[40px] max-w-[40px] border-b border-slate-100 transition-colors ${
+                          isUserOwned
+                            ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
+                            : 'bg-white group-hover:bg-purple-50/60'
+                        }`}>
+                          <span className="font-bold text-slate-500 text-xs">{idx + 1}</span>
+                        </td>
+                        {/* Frozen Player Column */}
+                        <td
+                          onClick={() => handlePlayerClick(player.id)}
+                          className={`sticky left-[40px] z-10 py-2 px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors cursor-pointer ${
+                            isUserOwned
+                              ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
+                              : 'bg-white group-hover:bg-purple-100/70'
                           }`}
+                          title={language === 'id' ? `Klik untuk melihat detail ${player.web_name}` : `Click to view details for ${player.web_name}`}
                         >
-                          {player.position}
-                        </span>
-                      </td>
-                      <td className="py-2 px-1.5 text-right whitespace-nowrap font-mono text-slate-800 font-semibold text-xs border-b border-slate-100">
-                        £{(player.now_cost / 10).toFixed(1)}m
-                      </td>
-                      {/* GW Pts Cell */}
-                      <td className="py-2 px-1.5 text-right whitespace-nowrap font-bold text-slate-700 text-xs sm:text-sm border-b border-slate-100">
-                        {player.gw_points !== undefined ? player.gw_points : '-'}
-                      </td>
-                      {/* Total Pts Cell */}
-                      <td className="py-2 px-1.5 text-right whitespace-nowrap font-black text-slate-900 text-xs sm:text-sm border-b border-slate-100">
-                        {player.total_points}
-                      </td>
-                      <td className="py-2 px-2.5 text-right whitespace-nowrap border-b border-slate-100">
-                        <div className="flex flex-col items-end">
-                          <span className="font-black text-purple-900 text-xs sm:text-sm whitespace-nowrap">
-                            {player.owned_count}{' '}
-                            <span className="text-slate-400 font-medium text-[11px]">
-                              ({player.owned_percentage}%)
-                            </span>
-                          </span>
-                          <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden mt-0.5">
-                            <div
-                              className="bg-[#00ff87] h-full rounded-full"
-                              style={{ width: `${Math.min(player.owned_percentage, 100)}%` }}
+                          <div className="flex items-center gap-2 whitespace-nowrap">
+                            <img
+                              src={
+                                player.element_type === 1
+                                  ? `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.team_code}_1-220.webp`
+                                  : `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${player.team_code}-220.webp`
+                              }
+                              alt={player.team_short_name}
+                              className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
                             />
+                            <span className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs sm:text-sm whitespace-nowrap">
+                              {player.web_name}
+                            </span>
                           </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="py-2 px-2 text-center whitespace-nowrap border-b border-slate-100">
+                          <span className="font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[11px] whitespace-nowrap">
+                            {player.team_short_name}
+                          </span>
+                        </td>
+                        <td className="py-2 px-1.5 text-center whitespace-nowrap border-b border-slate-100">
+                          <span
+                            className={`font-black text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap ${
+                              player.position === 'FWD'
+                                ? 'bg-rose-100 text-rose-800'
+                                : player.position === 'MID'
+                                ? 'bg-amber-100 text-amber-800'
+                                : player.position === 'DEF'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-emerald-100 text-emerald-800'
+                            }`}
+                          >
+                            {player.position}
+                          </span>
+                        </td>
+                        <td className="py-2 px-1.5 text-right whitespace-nowrap font-mono text-slate-800 font-semibold text-xs border-b border-slate-100">
+                          £{(player.now_cost / 10).toFixed(1)}m
+                        </td>
+                        {/* GW Pts Cell */}
+                        <td className="py-2 px-1.5 text-right whitespace-nowrap font-bold text-slate-700 text-xs sm:text-sm border-b border-slate-100">
+                          {player.gw_points !== undefined ? player.gw_points : '-'}
+                        </td>
+                        {/* Total Pts Cell */}
+                        <td className="py-2 px-1.5 text-right whitespace-nowrap font-black text-slate-900 text-xs sm:text-sm border-b border-slate-100">
+                          {player.total_points}
+                        </td>
+                        <td className="py-2 px-2.5 text-right whitespace-nowrap border-b border-slate-100">
+                          <div className="flex flex-col items-end">
+                            <span className="font-black text-purple-900 text-xs sm:text-sm whitespace-nowrap">
+                              {player.owned_count}{' '}
+                              <span className="text-slate-400 font-medium text-[11px]">
+                                ({player.owned_percentage}%)
+                              </span>
+                            </span>
+                            <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden mt-0.5">
+                              <div
+                                className="bg-[#00ff87] h-full rounded-full"
+                                style={{ width: `${Math.min(player.owned_percentage, 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
@@ -589,43 +625,50 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
 
                   {/* List of Managers */}
                   <div className="divide-y divide-slate-100 p-2 max-h-72 overflow-y-auto">
-                    {clubGroup.managers.map((mgr, mIdx) => (
-                      <div
-                        key={`${mgr.entry_id}-${mIdx}`}
-                        onClick={() => onSelectManager(mgr.entry_id, Number(effectiveFansClubFilter) || selectedGW)}
-                        className="p-2.5 hover:bg-purple-50/40 rounded-lg cursor-pointer transition-colors flex items-center justify-between gap-3"
-                      >
-                        <div>
-                          <p className="font-extrabold text-slate-900 text-xs">
-                            {mgr.entry_name}
-                          </p>
-                          <p className="text-[11px] text-slate-500 font-medium">
-                            {mgr.player_name}
-                          </p>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {mgr.players.map((pName, pIdx) => (
-                              <button
-                                key={pIdx}
-                                onClick={(e) => {
-                                   e.stopPropagation();
-                                   handlePlayerClickByName(pName);
-                                }}
-                                className="bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-900 text-[10px] font-semibold px-1.5 py-0.5 rounded transition-colors cursor-pointer border border-transparent hover:border-purple-300"
-                                title={language === 'id' ? `Klik untuk melihat detail statistik ${pName}` : `Click to view stats for ${pName}`}
-                              >
-                                {pName}
-                              </button>
-                            ))}
+                    {clubGroup.managers.map((mgr, mIdx) => {
+                      const isUser = userProfileId !== null && mgr.entry_id === userProfileId;
+                      return (
+                        <div
+                          key={`${mgr.entry_id}-${mIdx}`}
+                          onClick={() => onSelectManager(mgr.entry_id, Number(effectiveFansClubFilter) || selectedGW)}
+                          className={`p-2.5 rounded-lg cursor-pointer transition-colors flex items-center justify-between gap-3 ${
+                            isUser
+                              ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                              : 'hover:bg-purple-50/40'
+                          }`}
+                        >
+                          <div>
+                            <p className="font-extrabold text-slate-900 text-xs">
+                              {mgr.entry_name}
+                            </p>
+                            <p className="text-[11px] text-slate-500 font-medium">
+                              {mgr.player_name}
+                            </p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {mgr.players.map((pName, pIdx) => (
+                                <button
+                                  key={pIdx}
+                                  onClick={(e) => {
+                                     e.stopPropagation();
+                                     handlePlayerClickByName(pName);
+                                  }}
+                                  className="bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-900 text-[10px] font-semibold px-1.5 py-0.5 rounded transition-colors cursor-pointer border border-transparent hover:border-purple-300"
+                                  title={language === 'id' ? `Klik untuk melihat detail statistik ${pName}` : `Click to view stats for ${pName}`}
+                                >
+                                  {pName}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <span className="inline-flex items-center font-black text-xs text-purple-900 bg-purple-100 px-2 py-0.5 rounded">
+                              {t('fans_club_badge_players', { N: mgr.player_count })}
+                            </span>
                           </div>
                         </div>
-
-                        <div className="text-right shrink-0">
-                          <span className="inline-flex items-center font-black text-xs text-purple-900 bg-purple-100 px-2 py-0.5 rounded">
-                            {t('fans_club_badge_players', { N: mgr.player_count })}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}
