@@ -402,6 +402,8 @@ export interface GwFixtureItem {
   kickoff_time: string;
   started?: boolean;
   finished?: boolean;
+  finished_provisional?: boolean;
+  minutes?: number;
 }
 
 export interface EventDayStatusItem {

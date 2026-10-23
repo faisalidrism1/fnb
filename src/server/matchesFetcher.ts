@@ -378,12 +378,15 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       elapsedMinutes <= 75
     );
 
-    const isHalfTime = !isFt && (
-      isPulseHalfTimeByEvent ||
-      isPulseHalfTimeExplicit ||
-      isPulseHalfTimeScore ||
-      isClockFrozenAtHalf ||
-      isEstimatedHalfTime
+    const isHalfTime = Boolean(
+      fix.started &&
+      !isFt && (
+        isPulseHalfTimeByEvent ||
+        isPulseHalfTimeExplicit ||
+        isPulseHalfTimeScore ||
+        isClockFrozenAtHalf ||
+        isEstimatedHalfTime
+      )
     );
 
     let clockLabel = '';
@@ -391,12 +394,12 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       clockLabel = 'Full Time';
     } else if (isHalfTime) {
       clockLabel = 'Half Time';
-    } else if (pulseMatchData?.clock?.label) {
+    } else if (fix.started && pulseMatchData?.clock?.label) {
       // Clean up clock label (e.g. "45+7'00" -> "45+7'")
       clockLabel = pulseMatchData.clock.label.replace(/'00$/, "'").replace(/:00$/, "'");
-    } else if (fix.minutes >= 90) {
+    } else if (fix.started && fix.minutes >= 90) {
       clockLabel = "90+'";
-    } else if (fix.minutes > 0) {
+    } else if (fix.started && fix.minutes > 0) {
       clockLabel = `${fix.minutes}'`;
     } else if (fix.started) {
       clockLabel = "1'";
@@ -406,9 +409,11 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       ? 'FT'
       : isHalfTime
       ? 'HT'
+      : !fix.started
+      ? 'UPCOMING'
       : (hasSecondHalfStart || fix.minutes > 45 || pulseMatchData?.phase === '2' || pulseMatchData?.phase === '2H')
       ? '2H'
-      : (pulseMatchData?.phase || (fix.started ? '1H' : 'UPCOMING'));
+      : (pulseMatchData?.phase || '1H');
 
     const homeTeam = teamMap.get(fix.team_h) || {
       id: fix.team_h,

@@ -164,7 +164,7 @@ export function buildEventsStatusMap(bootstrapEvents: any[], eventStatusRaw: any
     });
 
     let overallStatus: 'Not started' | 'Live' | 'Provisional' | 'Confirmed' = 'Not started';
-    if (ev.finished && ev.data_checked && (leaguesStatus === 'Updated' || !leaguesStatus)) {
+    if (ev.finished && ev.data_checked && leaguesStatus === 'Updated') {
       overallStatus = 'Confirmed';
     } else if (daysList.length > 0) {
       const hasLive = daysList.some(d => d.status === 'Live' || d.points === 'l');
@@ -176,15 +176,23 @@ export function buildEventsStatusMap(bootstrapEvents: any[], eventStatusRaw: any
         overallStatus = 'Live';
       } else if (hasProvisional) {
         overallStatus = 'Provisional';
-      } else if (allConfirmed && (leaguesStatus === 'Updated' || !leaguesStatus)) {
+      } else if (allConfirmed && leaguesStatus === 'Updated') {
         overallStatus = 'Confirmed';
+      } else if (allConfirmed && leaguesStatus !== 'Updated') {
+        overallStatus = 'Provisional';
       } else if (allNotStarted) {
         overallStatus = 'Not started';
       } else {
-        overallStatus = 'Live';
+        overallStatus = 'Provisional';
       }
     } else if (ev.is_current) {
-      overallStatus = 'Live';
+      if (ev.finished && ev.data_checked && leaguesStatus === 'Updated') {
+        overallStatus = 'Confirmed';
+      } else if (ev.finished) {
+        overallStatus = 'Provisional';
+      } else {
+        overallStatus = 'Not started';
+      }
     }
 
     eventsStatus[gwId] = {
@@ -404,10 +412,10 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
             minutes: fix.minutes || 0
           });
 
-          const kickOff = new Date(fix.kickoff_time).getTime();
-          const startWindow = kickOff - 30 * 60 * 1000; // 30 mins before kickoff
-          const endWindow = kickOff + 150 * 60 * 1000;  // 2.5 hours after kickoff
-          if ((fix.started || (now >= startWindow && now <= endWindow)) && !fix.finished) {
+          const isFt = Boolean(fix.finished || fix.finished_provisional);
+          const isStarted = Boolean(fix.started);
+
+          if (ev === currentGW && isStarted && !isFt) {
             isMatchdayLive = true;
             activeFixtures.push(`${home} vs ${away}`);
           }
@@ -418,8 +426,27 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
     }
   }
 
-  if (currentGwStatus.status === 'Live' || currentGwStatus.days?.some(d => d.status === 'Live' || d.points === 'l')) {
+  if (currentGwStatus.days?.some(d => d.status === 'Live' || d.points === 'l')) {
     isMatchdayLive = true;
+  }
+
+  // Refine currentGwStatus based on actual fixtures status
+  if (currentGwStatus.status !== 'Confirmed') {
+    if (isMatchdayLive) {
+      currentGwStatus.status = 'Live';
+    } else {
+      const currentGwHasPlayedMatches = gwFixtures.some(
+        (f: any) => f.event === currentGW && (f.started || f.finished || f.finished_provisional)
+      );
+      const currentGwHasProvisionalDay = Boolean(
+        currentGwStatus.days?.some(d => d.status === 'Provisional' || d.points === 'p')
+      );
+      if (currentGwHasPlayedMatches || currentGwHasProvisionalDay) {
+        currentGwStatus.status = 'Provisional';
+      } else {
+        currentGwStatus.status = 'Not started';
+      }
+    }
   }
 
   // Pause briefly to let any connection pooling / rate limits reset

@@ -263,6 +263,53 @@ export interface Translations {
   loading_connecting: string;
   popover_search_placeholder: string;
   popover_no_options: string;
+
+  // 18. Rincian Statistik Pemain (Breakdown)
+  stat_breakdown_minutes: string;
+  stat_breakdown_goals_scored: string;
+  stat_breakdown_assists: string;
+  stat_breakdown_clean_sheets: string;
+  stat_breakdown_goals_conceded: string;
+  stat_breakdown_own_goals: string;
+  stat_breakdown_penalties_saved: string;
+  stat_breakdown_penalties_missed: string;
+  stat_breakdown_yellow_cards: string;
+  stat_breakdown_red_cards: string;
+  stat_breakdown_saves: string;
+  stat_breakdown_bonus: string;
+  stat_breakdown_defensive_contribution: string;
+
+  // 19. Metrik Laga (30 Match Metrics)
+  match_metric_pts: string;
+  match_metric_st: string;
+  match_metric_mp: string;
+  match_metric_gs: string;
+  match_metric_a: string;
+  match_metric_xg: string;
+  match_metric_xa: string;
+  match_metric_xgi: string;
+  match_metric_cs: string;
+  match_metric_gc: string;
+  match_metric_xgc: string;
+  match_metric_t: string;
+  match_metric_cbi: string;
+  match_metric_r: string;
+  match_metric_dc: string;
+  match_metric_og: string;
+  match_metric_ps: string;
+  match_metric_pm: string;
+  match_metric_yc: string;
+  match_metric_rc: string;
+  match_metric_s: string;
+  match_metric_bp: string;
+  match_metric_bps: string;
+  match_metric_inf: string;
+  match_metric_cre: string;
+  match_metric_thr: string;
+  match_metric_ii: string;
+  match_metric_nt: string;
+  match_metric_tsb: string;
+  match_metric_cost: string;
 }
 
 export const TRANSLATIONS: Record<Language, Translations> = {
@@ -303,7 +350,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     highlight_rank_2: 'Peringkat 2',
     highlight_most_wins: 'Juara Terbanyak',
     highlight_gw_champ: 'Juara Gameweek {N}',
-    no_data_available: 'Belum ada data',
+    no_data_available: 'No data available',
     points_highest: 'Highest',
     points_average: 'Average',
     points_lowest: 'Lowest',
@@ -321,12 +368,12 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     // GW Champions
     col_gw: 'GW',
     col_pts: 'Pts',
-    tooltip_sort_gw: 'Sort berdasarkan Gameweek',
-    tooltip_sort_pts: 'Sort berdasarkan GW Poin',
+    tooltip_sort_gw: 'Sort by Gameweek',
+    tooltip_sort_pts: 'Sort by GW Points',
 
     // Most GW Champions
     col_wins: 'Wins',
-    tooltip_open_team_gw: 'Buka tim di GW {gw}',
+    tooltip_open_team_gw: 'Open Team in GW {gw}',
 
     // Chart
     chart_last_rank: 'Last Rank',
@@ -348,12 +395,12 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     chart_toggle_controls: 'Chips • Hits • Captains',
 
     // Liga Minus
-    minus_empty_1: 'No managers have taken transfer hits so far this season!',
+    minus_empty_1: 'No managers have taken transfer hits so far this season.',
     minus_empty_2: 'Check back after the next gameweek deadline.',
 
     // 3. Tab Matches
-    matches_toggle_all_open: 'Buka semua pertandingan',
-    matches_toggle_all_close: 'Tutup semua pertandingan',
+    matches_toggle_all_open: 'Expand all',
+    matches_toggle_all_close: 'Collapse all',
     match_status_upcoming: 'Upcoming',
     match_status_halftime: 'Half Time',
     match_status_fulltime: 'Full Time',
@@ -372,7 +419,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     col_pos: 'Pos',
     col_cost: 'Cost',
     col_ownership: 'Ownership',
-    ownership_empty_players: 'No players match the selected Club / Pos filters.',
+    ownership_empty_players: 'No players match the selected criteria.',
     total_players_owned: 'Total Players Owned:',
     card_fans_club: '{Club} Fans Club',
     fans_club_sub: '{N} Managers with 3+ players',
@@ -400,52 +447,52 @@ export const TRANSLATIONS: Record<Language, Translations> = {
 
     // 7. Tab Chips
     search_manager_team: 'Search manager or team...',
-    tooltip_chip_cell: 'Buka tim GW {gw}',
-    tooltip_chip_team: 'Buka tim {entry_name} (GW {gw})',
+    tooltip_chip_cell: 'Open Team in GW {gw}',
+    tooltip_chip_team: 'Open Team {entry_name} (GW {gw})',
 
     // 8. Settings Modal
     modal_settings_title: 'Settings',
-    modal_settings_subtitle: 'Pengaturan Aplikasi & Preferensi',
-    tooltip_close_settings: 'Tutup Pengaturan',
+    modal_settings_subtitle: 'App Settings & Preferences',
+    tooltip_close_settings: 'Close',
     settings_profile_label: 'Profile',
-    settings_profile_badge: 'FNB League ({N} Tim)',
-    settings_profile_desc: 'Pilih nama tim dan manajer FNB League Anda. Profil ini akan ditandai secara khusus saat melihat klasemen & transfer.',
-    settings_profile_placeholder: 'Pilih Tim & Manajer FNB League...',
-    settings_profile_active: 'Profil aktif: {team} ({manager})',
-    settings_display_heading: 'Display & Live View',
+    settings_profile_badge: null, // [Dihapus] per user table
+    settings_profile_desc: 'Select your team and manager profile for the app.',
+    settings_profile_placeholder: 'Select Team & Manager...',
+    settings_profile_active: 'Active profile: {team} ({manager})',
+    settings_display_heading: 'Display',
     settings_keep_awake_title: 'Keep Screen Awake',
-    settings_keep_awake_desc: 'Mencegah layar HP/laptop redup atau terkunci saat matchday live',
-    settings_keep_awake_active: 'Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.',
-    settings_keep_awake_unsupported: 'Browser ini belum mendukung Screen Wake Lock API.',
+    settings_keep_awake_desc: 'Prevent screen from dimming or locking during live matchday',
+    settings_keep_awake_active: 'Screen lock active — Display will stay awake while this tab is open.',
+    settings_keep_awake_unsupported: 'This browser does not support Screen Wake Lock API.',
     settings_news_ticker_title: 'News Ticker',
-    settings_news_ticker_desc: 'Tampilkan baris running text berita atau pemberitahuan penting liga',
+    settings_news_ticker_desc: 'Display running news ticker and important league updates',
     settings_language_heading: 'Language',
-    settings_language_desc: 'Pilih bahasa pengantar antarmuka sistem',
+    settings_language_desc: 'Select the display language for the app.',
     settings_lang_fnb_label: 'FNB Default',
-    settings_lang_fnb_sub: 'Tampilan Bawaan FNB',
+    settings_lang_fnb_sub: 'FNB Default',
     settings_lang_en_label: 'English',
     settings_lang_en_sub: 'English (UK)',
-    settings_lang_id_label: 'Indonesia',
+    settings_lang_id_label: 'Indonesian',
     settings_lang_id_sub: 'Bahasa Indonesia',
     settings_admin_heading: 'Administration',
     settings_admin_title: 'Admin Area',
     settings_admin_badge: 'Restricted',
-    settings_admin_desc: 'Akses kontrol sinkronisasi, data liga, dan pengelolaan sistem',
-    settings_admin_notice: 'Admin Area akan segera hadir pada tahap pengembangan berikutnya.',
-    settings_footer_brand: 'FPL Nusantara 2026/2027',
-    btn_close: 'Tutup',
+    settings_admin_desc: null, // [Dihapus] per user table
+    settings_admin_notice: null, // [Dihapus] per user table
+    settings_footer_brand: 'FPL Nusantara BERHADIAH 2026/2027',
+    btn_close: 'Close',
 
     // 9. Manager Detail Modal
     modal_mgr_tab_squad: 'Gameweek Squad',
     modal_mgr_tab_history: 'Season History',
-    tooltip_close_modal: 'Tutup Modal',
+    tooltip_close_modal: 'Close',
     modal_mgr_box_points: 'Points',
     modal_mgr_box_hits: 'Hits',
     modal_mgr_box_total: 'Total Points',
-    modal_mgr_bench: 'BENCH',
-    modal_mgr_tooltip_breakdown: 'Klik kotak nama / angka poin untuk melihat breakdown poin pemain',
-    modal_mgr_transfers_gw: 'Transfers in Gameweek {N}',
-    modal_mgr_transfer_time: 'Waktu: {jam}',
+    modal_mgr_bench: 'Bench',
+    modal_mgr_tooltip_breakdown: 'Click player name or points box to view points breakdown',
+    modal_mgr_transfers_gw: 'Gameweek {N} Transfers',
+    modal_mgr_transfer_time: 'Time: {time}',
     modal_mgr_transfer_empty: 'No Transfer.',
     modal_mgr_col_season: 'Season',
     modal_mgr_col_overall_rank: 'Overall Rank',
@@ -455,7 +502,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_plyr_tab_overview: 'GW Overview',
     modal_plyr_tab_owners: 'Owners ({N})',
     modal_plyr_tab_history: 'History',
-    tooltip_close_player_modal: 'Close Modal',
+    tooltip_close_player_modal: 'Close',
     modal_plyr_match_result: 'Result • Points',
     modal_plyr_match_points: 'Points',
     modal_plyr_did_not_play: 'Did not play in this Gameweek (0 pts).',
@@ -473,21 +520,21 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     footer_last_updated: 'Last Updated: {datetime} WIB',
 
     // Extra keys (matches original application defaults)
-    tooltip_open_fpl_site: 'Buka di Website Resmi FPL',
-    tooltip_jersey_modal: 'Klik jersey untuk membuka modal {name}',
-    tooltip_view_player_detail: 'Klik untuk melihat detail {name}',
-    tooltip_view_player_stats: 'Lihat detail statistik {name}',
+    tooltip_open_fpl_site: 'Open Official FPL Site',
+    tooltip_jersey_modal: 'Click jersey to open {name} modal',
+    tooltip_view_player_detail: 'Click to view {name} details',
+    tooltip_view_player_stats: 'View statistics for {name}',
     badge_current: 'Current',
     badge_in: 'In',
     badge_out: 'Out',
     modal_mgr_career_avg: 'Career Average',
     modal_mgr_no_history: 'No History.',
-    modal_mgr_click_gw: 'Klik untuk melihat detail GW {gw}',
+    modal_mgr_click_gw: 'Click to view GW {gw} details',
     modal_mgr_col_fnb_rank: 'FNB Rank',
     modal_mgr_col_global_rank: 'Global Rank',
-    modal_plyr_prev_gw: 'Lompat ke GW {gw}',
-    modal_plyr_next_gw: 'Lompat ke GW {gw}',
-    modal_plyr_select_gw: 'Pilih Gameweek',
+    modal_plyr_prev_gw: 'Jump to GW {gw}',
+    modal_plyr_next_gw: 'Jump to GW {gw}',
+    modal_plyr_select_gw: 'Select Gameweek',
     modal_plyr_gw_history: 'GW History',
     modal_plyr_prev_seasons: 'Previous Seasons',
     modal_plyr_season_label: 'Season',
@@ -502,6 +549,53 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     loading_connecting: 'Connecting to Premier League API...',
     popover_search_placeholder: 'Search...',
     popover_no_options: 'No options found',
+
+    // 18. Rincian Statistik Pemain (Breakdown)
+    stat_breakdown_minutes: 'Minutes Played',
+    stat_breakdown_goals_scored: 'Goals Scored',
+    stat_breakdown_assists: 'Assists',
+    stat_breakdown_clean_sheets: 'Clean Sheets',
+    stat_breakdown_goals_conceded: 'Goals Conceded',
+    stat_breakdown_own_goals: 'Own Goals',
+    stat_breakdown_penalties_saved: 'Penalties Saved',
+    stat_breakdown_penalties_missed: 'Penalties Missed',
+    stat_breakdown_yellow_cards: 'Yellow Cards',
+    stat_breakdown_red_cards: 'Red Cards',
+    stat_breakdown_saves: 'Saves',
+    stat_breakdown_bonus: 'Bonus Points',
+    stat_breakdown_defensive_contribution: 'Defensive Contribution (DefCon)',
+
+    // 19. Metrik Laga (30 Match Metrics)
+    match_metric_pts: 'Total Points',
+    match_metric_st: 'Starts',
+    match_metric_mp: 'Minutes Played',
+    match_metric_gs: 'Goals Scored',
+    match_metric_a: 'Assists',
+    match_metric_xg: 'Expected Goals (xG)',
+    match_metric_xa: 'Expected Assists (xA)',
+    match_metric_xgi: 'Expected Goal Involvement (xGI)',
+    match_metric_cs: 'Clean Sheets',
+    match_metric_gc: 'Goals Conceded',
+    match_metric_xgc: 'Expected Goals Conceded (xGC)',
+    match_metric_t: 'Tackles',
+    match_metric_cbi: 'Clearances, Blocks & Interceptions (CBI)',
+    match_metric_r: 'Recoveries',
+    match_metric_dc: 'Defensive Contribution (DefCon)',
+    match_metric_og: 'Own Goals',
+    match_metric_ps: 'Penalties Saved',
+    match_metric_pm: 'Penalties Missed',
+    match_metric_yc: 'Yellow Cards',
+    match_metric_rc: 'Red Cards',
+    match_metric_s: 'Saves',
+    match_metric_bp: 'Bonus Points',
+    match_metric_bps: 'Bonus Points System (BPS)',
+    match_metric_inf: 'Influence',
+    match_metric_cre: 'Creativity',
+    match_metric_thr: 'Threat',
+    match_metric_ii: 'ICT Index',
+    match_metric_nt: 'Net Transfers (FNB League)',
+    match_metric_tsb: 'Teams Selected By (FNB League)',
+    match_metric_cost: 'Player Price',
   },
 
   // ================= 2. BAHASA INGGRIS (ENGLISH) =================
@@ -647,7 +741,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     tooltip_close_settings: 'Close',
     settings_profile_label: 'Profile',
     settings_profile_badge: null, // [Dihapus] per user table
-    settings_profile_desc: null, // [Dihapus] per user table
+    settings_profile_desc: 'Select your team and manager profile for the app.',
     settings_profile_placeholder: 'Select Team & Manager...',
     settings_profile_active: 'Active profile: {team} ({manager})',
     settings_display_heading: 'Display',
@@ -660,7 +754,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_language_heading: 'Language',
     settings_language_desc: 'Select the display language for the app.',
     settings_lang_fnb_label: 'FNB Default',
-    settings_lang_fnb_sub: 'FNB Default View',
+    settings_lang_fnb_sub: 'FNB Default',
     settings_lang_en_label: 'English',
     settings_lang_en_sub: 'English UK',
     settings_lang_id_label: 'Indonesian',
@@ -680,7 +774,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_mgr_box_points: 'Points',
     modal_mgr_box_hits: 'Hits',
     modal_mgr_box_total: 'Total Points',
-    modal_mgr_bench: 'BENCH',
+    modal_mgr_bench: 'Bench',
     modal_mgr_tooltip_breakdown: 'Click player name or points box to view points breakdown',
     modal_mgr_transfers_gw: 'Gameweek {N} Transfers',
     modal_mgr_transfer_time: 'Time: {time}',
@@ -740,6 +834,53 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     loading_connecting: 'Connecting to Premier League API...',
     popover_search_placeholder: 'Search...',
     popover_no_options: 'No options found',
+
+    // 18. Rincian Statistik Pemain (Breakdown)
+    stat_breakdown_minutes: 'Minutes Played',
+    stat_breakdown_goals_scored: 'Goals Scored',
+    stat_breakdown_assists: 'Assists',
+    stat_breakdown_clean_sheets: 'Clean Sheets',
+    stat_breakdown_goals_conceded: 'Goals Conceded',
+    stat_breakdown_own_goals: 'Own Goals',
+    stat_breakdown_penalties_saved: 'Penalties Saved',
+    stat_breakdown_penalties_missed: 'Penalties Missed',
+    stat_breakdown_yellow_cards: 'Yellow Cards',
+    stat_breakdown_red_cards: 'Red Cards',
+    stat_breakdown_saves: 'Saves',
+    stat_breakdown_bonus: 'Bonus Points',
+    stat_breakdown_defensive_contribution: 'Defensive Contribution (DefCon)',
+
+    // 19. Metrik Laga (30 Match Metrics)
+    match_metric_pts: 'Total Points',
+    match_metric_st: 'Starts',
+    match_metric_mp: 'Minutes Played',
+    match_metric_gs: 'Goals Scored',
+    match_metric_a: 'Assists',
+    match_metric_xg: 'Expected Goals (xG)',
+    match_metric_xa: 'Expected Assists (xA)',
+    match_metric_xgi: 'Expected Goal Involvement (xGI)',
+    match_metric_cs: 'Clean Sheets',
+    match_metric_gc: 'Goals Conceded',
+    match_metric_xgc: 'Expected Goals Conceded (xGC)',
+    match_metric_t: 'Tackles',
+    match_metric_cbi: 'Clearances, Blocks & Interceptions (CBI)',
+    match_metric_r: 'Recoveries',
+    match_metric_dc: 'Defensive Contribution (DefCon)',
+    match_metric_og: 'Own Goals',
+    match_metric_ps: 'Penalties Saved',
+    match_metric_pm: 'Penalties Missed',
+    match_metric_yc: 'Yellow Cards',
+    match_metric_rc: 'Red Cards',
+    match_metric_s: 'Saves',
+    match_metric_bp: 'Bonus Points',
+    match_metric_bps: 'Bonus Points System (BPS)',
+    match_metric_inf: 'Influence',
+    match_metric_cre: 'Creativity',
+    match_metric_thr: 'Threat',
+    match_metric_ii: 'ICT Index',
+    match_metric_nt: 'Net Transfers (FNB League)',
+    match_metric_tsb: 'Teams Selected By (FNB League)',
+    match_metric_cost: 'Player Price',
   },
 
   // ================= 3. BAHASA INDONESIA =================
@@ -845,7 +986,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     squad_cost_label: 'Nilai Skuad: £{N}m',
     col_player: 'Pemain',
     col_club: 'Klub',
-    col_pos: 'Posisi',
+    col_pos: 'Pos',
     col_cost: 'Harga',
     col_ownership: 'Kepemilikan',
     ownership_empty_players: 'Tidak ada pemain yang cocok dengan kriteria yang dipilih.',
@@ -885,7 +1026,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     tooltip_close_settings: 'Tutup',
     settings_profile_label: 'Profil',
     settings_profile_badge: null, // [Dihapus] per user table
-    settings_profile_desc: null, // [Dihapus] per user table
+    settings_profile_desc: 'Pilih profil tim dan manajer Anda untuk tampilan aplikasi.',
     settings_profile_placeholder: 'Pilih Tim & Manajer...',
     settings_profile_active: 'Profil aktif: {team} ({manager})',
     settings_display_heading: 'Tampilan',
@@ -898,7 +1039,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_language_heading: 'Bahasa',
     settings_language_desc: 'Pilih bahasa yang digunakan untuk tampilan aplikasi.',
     settings_lang_fnb_label: 'FNB Default',
-    settings_lang_fnb_sub: 'Tampilan Bawaan FNB',
+    settings_lang_fnb_sub: 'Bawaan FNB',
     settings_lang_en_label: 'Inggris',
     settings_lang_en_sub: 'English UK',
     settings_lang_id_label: 'Indonesia',
@@ -918,7 +1059,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_mgr_box_points: 'Poin',
     modal_mgr_box_hits: 'Hits',
     modal_mgr_box_total: 'Total Poin',
-    modal_mgr_bench: 'CADANGAN',
+    modal_mgr_bench: 'Cadangan',
     modal_mgr_tooltip_breakdown: 'Klik kotak nama / angka poin untuk melihat breakdown poin pemain',
     modal_mgr_transfers_gw: 'Transfer pada Gameweek {N}',
     modal_mgr_transfer_time: 'Waktu: {jam}',
@@ -978,6 +1119,53 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     loading_connecting: 'Menghubungkan ke API Premier League...',
     popover_search_placeholder: 'Cari...',
     popover_no_options: 'Pilihan tidak ditemukan',
+
+    // 18. Rincian Statistik Pemain (Breakdown)
+    stat_breakdown_minutes: 'Menit Bermain',
+    stat_breakdown_goals_scored: 'Gol',
+    stat_breakdown_assists: 'Umpan Gol (Assist)',
+    stat_breakdown_clean_sheets: 'Nirbobol (Clean Sheet)',
+    stat_breakdown_goals_conceded: 'Kebobolan',
+    stat_breakdown_own_goals: 'Gol Bunuh Diri',
+    stat_breakdown_penalties_saved: 'Penalti Ditepis',
+    stat_breakdown_penalties_missed: 'Gagal Penalti',
+    stat_breakdown_yellow_cards: 'Kartu Kuning',
+    stat_breakdown_red_cards: 'Kartu Merah',
+    stat_breakdown_saves: 'Penyelamatan (Saves)',
+    stat_breakdown_bonus: 'Poin Bonus',
+    stat_breakdown_defensive_contribution: 'Kontribusi Bertahan (DefCon)',
+
+    // 19. Metrik Laga (30 Match Metrics)
+    match_metric_pts: 'Total Poin',
+    match_metric_st: 'Starter',
+    match_metric_mp: 'Menit Bermain',
+    match_metric_gs: 'Gol',
+    match_metric_a: 'Umpan Gol (Assist)',
+    match_metric_xg: 'Peluang Gol (xG)',
+    match_metric_xa: 'Peluang Assist (xA)',
+    match_metric_xgi: 'Kontribusi Gol (xGI)',
+    match_metric_cs: 'Nirbobol (Clean Sheet)',
+    match_metric_gc: 'Kebobolan',
+    match_metric_xgc: 'Peluang Kebobolan (xGC)',
+    match_metric_t: 'Tekel',
+    match_metric_cbi: 'Sapuan, Blok & Intersep (CBI)',
+    match_metric_r: 'Pemulihan Bola (Recoveries)',
+    match_metric_dc: 'Kontribusi Bertahan (DefCon)',
+    match_metric_og: 'Gol Bunuh Diri',
+    match_metric_ps: 'Penalti Ditepis',
+    match_metric_pm: 'Gagal Penalti',
+    match_metric_yc: 'Kartu Kuning',
+    match_metric_rc: 'Kartu Merah',
+    match_metric_s: 'Penyelamatan (Saves)',
+    match_metric_bp: 'Poin Bonus',
+    match_metric_bps: 'Sistem Poin Bonus (BPS)',
+    match_metric_inf: 'Pengaruh (Influence)',
+    match_metric_cre: 'Kreativitas (Creativity)',
+    match_metric_thr: 'Ancaman (Threat)',
+    match_metric_ii: 'Indeks ICT',
+    match_metric_nt: 'Transfer Bersih (FNB League)',
+    match_metric_tsb: 'Dipilih Tim (FNB League)',
+    match_metric_cost: 'Harga Pemain',
   },
 };
 

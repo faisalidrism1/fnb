@@ -2016,16 +2016,24 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
                               {/* 3. Status match */}
                               <div className="flex items-center justify-center">
-                                {isLive ? (
+                                {isFt ? (
+                                  <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
+                                    {language === 'id' ? 'Selesai' : 'Full Time'}
+                                  </span>
+                                ) : isHalfTime ? (
+                                  <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 shadow-xs">
+                                    <span className="font-sans tracking-wide">
+                                      {language === 'id' ? 'Paruh Waktu' : 'Half Time'}
+                                    </span>
+                                  </span>
+                                ) : isLive ? (
                                   <span className="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 shadow-xs">
                                     <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse shadow-[0_0_6px_rgba(244,63,94,0.8)] shrink-0"></span>
                                     <span className="font-sans tracking-wide">
-                                      {isHalfTime ? (language === 'id' ? 'Paruh Waktu' : 'Half Time') : (clockLabel || (matchMinutes >= 90 ? "90+'" : matchMinutes > 0 ? `${matchMinutes}'` : "1'"))}
+                                      {clockLabel && clockLabel !== 'Full Time' && clockLabel !== 'Half Time'
+                                        ? clockLabel
+                                        : (matchMinutes >= 90 ? "90+'" : matchMinutes > 0 ? `${matchMinutes}'` : "1'")}
                                     </span>
-                                  </span>
-                                ) : isFt ? (
-                                  <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
-                                    {language === 'id' ? 'Selesai' : 'Full Time'}
                                   </span>
                                 ) : (
                                   <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">

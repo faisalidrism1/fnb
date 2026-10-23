@@ -25,54 +25,52 @@ export function getGameweekStatus(
     return { status: 'Confirmed', isLiveOrProvisional: false };
   }
 
-  if (gwStatusObj) {
-    const isDataChecked = Boolean(gwStatusObj.data_checked);
-    const leaguesStatus = gwStatusObj.leagues_status || (gwStatusObj.status === 'Confirmed' ? 'Updated' : '');
+  const isDataChecked = Boolean(gwStatusObj?.data_checked);
+  const leaguesStatus = gwStatusObj?.leagues_status || (gwStatusObj?.status === 'Confirmed' ? 'Updated' : '');
 
-    // 1. Confirmed (Rule 2.A: data_checked === true AND leagues === "Updated")
-    if (
-      (isDataChecked && leaguesStatus === 'Updated') ||
-      (gwStatusObj.status === 'Confirmed' && leaguesStatus === 'Updated')
-    ) {
-      return { status: 'Confirmed', isLiveOrProvisional: false };
-    }
-
-    // 2. Explicit Live (status is Live, syncStatus matchday is live, or days have Live / 'l' points)
-    if (
-      gwStatusObj.status === 'Live' ||
-      syncStatus?.is_matchday_live ||
-      gwStatusObj.days?.some(d => d.status === 'Live' || (d as any).points === 'l')
-    ) {
-      return { status: 'Live', isLiveOrProvisional: true };
-    }
-
-    // 3. Not Started: Only if status is 'Not started' AND no live/provisional points exist AND not matchday live
-    if (gwStatusObj.status === 'Not started') {
-      const hasAnyPointsOrProvisional = gwStatusObj.days?.some(
-        d => d.status === 'Provisional' || d.status === 'Live' || (d as any).points === 'l' || (d as any).points === 'p' || (d as any).points === 'r'
-      );
-      if (!hasAnyPointsOrProvisional && !syncStatus?.is_matchday_live) {
-        return { status: 'Not Started', isLiveOrProvisional: false };
-      }
-    }
-
-    // 4. Live if provisional days with unchecked data
-    if (gwStatusObj.days?.some(d => d.status === 'Provisional' && !isDataChecked)) {
-      return { status: 'Live', isLiveOrProvisional: true };
-    }
-
-    // 5. Provisional (Audit ongoing, bonus not locked, or leagues not yet updated)
-    return { status: 'Provisional', isLiveOrProvisional: true };
+  // 1. Confirmed (Rule 2.A: data_checked === true AND leagues === "Updated")
+  if (
+    (isDataChecked && leaguesStatus === 'Updated') ||
+    (gwStatusObj?.status === 'Confirmed' && leaguesStatus === 'Updated')
+  ) {
+    return { status: 'Confirmed', isLiveOrProvisional: false };
   }
 
-  // Fallback if no detailed status object is available
-  if (syncStatus?.is_matchday_live) {
+  // 2. Live: At least one match is currently in progress on the pitch
+  const gwFixtures = syncStatus?.gw_fixtures;
+  const hasActiveFixtureOnPitch = Array.isArray(gwFixtures) && gwFixtures.some(
+    (f: any) => f.event === gw && f.started && !f.finished && !f.finished_provisional
+  );
+  const hasLiveDay = Boolean(
+    gwStatusObj?.days?.some(d => d.status === 'Live' || (d as any).points === 'l')
+  );
+  const hasActiveFixturesInSync = Boolean(
+    syncStatus?.is_matchday_live &&
+    Array.isArray(syncStatus.active_fixtures) &&
+    syncStatus.active_fixtures.length > 0
+  );
+
+  if (hasActiveFixtureOnPitch || hasLiveDay || hasActiveFixturesInSync || gwStatusObj?.status === 'Live') {
     return { status: 'Live', isLiveOrProvisional: true };
   }
 
-  if (gw === currentGW) {
-    return { status: 'Live', isLiveOrProvisional: true };
+  // 3. Not Started: No fixtures in this GW have started, and no live or provisional points exist
+  const hasStartedFixture = Array.isArray(gwFixtures) && gwFixtures.some(
+    (f: any) => f.event === gw && (f.started || f.finished || f.finished_provisional)
+  );
+  const hasAnyPointsOrProvisional = Boolean(
+    gwStatusObj?.days?.some(
+      d => d.status === 'Provisional' || d.status === 'Live' || (d as any).points === 'l' || (d as any).points === 'p' || (d as any).points === 'r'
+    )
+  );
+
+  if (gwStatusObj?.status === 'Not started' && !hasStartedFixture && !hasAnyPointsOrProvisional) {
+    return { status: 'Not Started', isLiveOrProvisional: false };
+  }
+  if (!hasStartedFixture && !hasAnyPointsOrProvisional && !syncStatus?.is_matchday_live) {
+    return { status: 'Not Started', isLiveOrProvisional: false };
   }
 
-  return { status: 'Confirmed', isLiveOrProvisional: false };
+  // 4. Provisional: Matches have been played / ended on pitch, or provisional audit ongoing, but leagues not yet Confirmed
+  return { status: 'Provisional', isLiveOrProvisional: true };
 }

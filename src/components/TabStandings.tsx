@@ -200,10 +200,13 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
     return getGameweekStatus(currentGW, currentGW, activeObj, syncStatus);
   }, [currentGW, liveEventStatus, eventsStatus, gwStatus, syncStatus]);
 
+  // When active GW is Live -> "Live"
+  // When active GW is Provisional -> "Provisional" (or "Sementara" in id)
   // When active GW is Confirmed or Not Started -> "Current" (or "Terkini" in id)
-  // When active GW is Live or Provisional -> "Live"
-  const currentGwBadgeText = currentGwLifecycleStatus.isLiveOrProvisional
+  const currentGwBadgeText = currentGwLifecycleStatus.status === 'Live'
     ? 'Live'
+    : currentGwLifecycleStatus.status === 'Provisional'
+    ? (language === 'id' ? 'Sementara' : 'Provisional')
     : (language === 'id' ? 'Terkini' : 'Current');
   
   // Sort state for live table: default rank ASCENDING
@@ -718,9 +721,11 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               }))}
             />
             {selectedGW === currentGW && (
-              <span className={`border text-[10px] font-extrabold px-1 py-0.5 rounded-full uppercase tracking-wider shrink-0 hidden xs:inline-block ${
-                currentGwBadgeText === 'Live'
+              <span className={`border text-[10px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 hidden xs:inline-block ${
+                currentGwLifecycleStatus.status === 'Live'
                   ? 'bg-[#ff2851]/15 border-[#ff2851] text-[#ff2851]'
+                  : currentGwLifecycleStatus.status === 'Provisional'
+                  ? 'bg-amber-400/20 border-amber-500 text-amber-700 dark:text-amber-400'
                   : 'bg-[#00ff87]/30 text-[#0f5132] border-[#00ff87]'
               }`}>
                 {currentGwBadgeText}

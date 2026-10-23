@@ -347,7 +347,14 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
   transfers = [],
   onSelectPlayer,
 }) => {
-  const [activeGW, setActiveGW] = useState<number>(currentGW);
+  const [activeGW, setActiveGW] = useState<number>(currentGW || 1);
+  const hasInitializedGwRef = useRef<boolean>(false);
+  useEffect(() => {
+    if (!hasInitializedGwRef.current && currentGW) {
+      hasInitializedGwRef.current = true;
+      setActiveGW(currentGW);
+    }
+  }, [currentGW]);
   const [matches, setMatches] = useState<MatchCardItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeMetric, setActiveMetric] = useState<MatchStatMetric>('pts');
@@ -557,23 +564,20 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
     };
   }, [activeBreakdownKey]);
 
-  // GW Navigation helpers
+  // GW Navigation helpers: All 38 Gameweeks supported
   const sortedGWs = useMemo(() => {
-    const list = [...availableGWs];
-    if (!list.includes(activeGW)) list.push(activeGW);
-    return Array.from(new Set(list)).sort((a, b) => a - b);
-  }, [availableGWs, activeGW]);
+    return Array.from({ length: 38 }, (_, i) => i + 1);
+  }, []);
 
-  const activeIndex = sortedGWs.indexOf(activeGW);
-  const canGoPrev = activeIndex > 0;
-  const canGoNext = activeIndex < sortedGWs.length - 1;
+  const canGoPrev = activeGW > 1;
+  const canGoNext = activeGW < 38;
 
   const handlePrevGW = () => {
-    if (canGoPrev) setActiveGW(sortedGWs[activeIndex - 1]);
+    if (canGoPrev) setActiveGW((prev) => Math.max(1, prev - 1));
   };
 
   const handleNextGW = () => {
-    if (canGoNext) setActiveGW(sortedGWs[activeIndex + 1]);
+    if (canGoNext) setActiveGW((prev) => Math.min(38, prev + 1));
   };
 
   // Compute Gameweek Date Range: hari tanggal dan singkatan bulan pertandingan awal - akhir
@@ -878,7 +882,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
           onClick={handlePrevGW}
           disabled={!canGoPrev}
           className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-          title={canGoPrev ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeIndex - 1]}` : `Jump to GW ${sortedGWs[activeIndex - 1]}`) : undefined}
+          title={canGoPrev ? (language === 'id' ? `Lompat ke GW ${activeGW - 1}` : `Jump to GW ${activeGW - 1}`) : undefined}
           aria-label="Previous Gameweek"
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -892,6 +896,8 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
             onChange={(val) => setActiveGW(Number(val))}
             align="center"
             hideChevron={true}
+            searchable={false}
+            dropdownClassName="max-h-[320px] overflow-y-auto"
             className="cursor-pointer group focus:outline-none transition-colors border-0 bg-transparent shadow-none p-0"
             options={sortedGWs.map((gw) => ({
               value: gw,
@@ -917,7 +923,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
           onClick={handleNextGW}
           disabled={!canGoNext}
           className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-          title={canGoNext ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeIndex + 1]}` : `Jump to GW ${sortedGWs[activeIndex + 1]}`) : undefined}
+          title={canGoNext ? (language === 'id' ? `Lompat ke GW ${activeGW + 1}` : `Jump to GW ${activeGW + 1}`) : undefined}
           aria-label="Next Gameweek"
         >
           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -1096,20 +1102,24 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
 
                   </div>
 
-                  {/* Bottom Line: Match Status Proper Text: "Upcoming" / [menit pertandingan] / "Full Time" */}
+                  {/* Bottom Line: Match Status Proper Text: "Upcoming" / [menit pertandingan] / "Half Time" / "Full Time" */}
                   <div className="text-center mt-1 flex items-center justify-center leading-none">
-                    {isLive ? (
-                      <span className="text-[10px] sm:text-[11px] font-black text-rose-600 dark:text-rose-400 flex items-center gap-1 justify-center leading-none">
-                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-                        <span>
-                          {isHalfTime
-                            ? t('match_status_halftime')
-                            : (m.clock_label || (m.minutes >= 90 ? "90+'" : m.minutes > 0 ? `${m.minutes}'` : "1'"))}
-                        </span>
-                      </span>
-                    ) : isFt ? (
+                    {isFt ? (
                       <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 dark:text-slate-300 leading-none">
                         {t('match_status_fulltime')}
+                      </span>
+                    ) : isHalfTime ? (
+                      <span className="text-[10px] sm:text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 justify-center leading-none">
+                        <span>{t('match_status_halftime')}</span>
+                      </span>
+                    ) : isLive ? (
+                      <span className="text-[10px] sm:text-[11px] font-black text-rose-600 dark:text-rose-400 flex items-center gap-1 justify-center leading-none">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                        <span>
+                          {m.clock_label && m.clock_label !== 'Full Time' && m.clock_label !== 'Half Time'
+                            ? m.clock_label
+                            : (m.minutes >= 90 ? "90+'" : m.minutes > 0 ? `${m.minutes}'` : "1'")}
+                        </span>
                       </span>
                     ) : (
                       <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 dark:text-slate-400 leading-none">

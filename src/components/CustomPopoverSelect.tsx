@@ -19,6 +19,7 @@ interface CustomPopoverSelectProps<T extends string | number> {
   align?: 'left' | 'right' | 'center';
   variant?: 'light' | 'dark';
   searchable?: boolean;
+  autoFocusSearch?: boolean;
   disabled?: boolean;
   hideChevron?: boolean;
   customTrigger?: (options: { isOpen: boolean; displayLabel: string; value: T }) => React.ReactNode;
@@ -35,6 +36,7 @@ export function CustomPopoverSelect<T extends string | number>({
   align = 'left',
   variant = 'light',
   searchable,
+  autoFocusSearch = false,
   disabled = false,
   hideChevron = false,
   customTrigger,
@@ -137,7 +139,7 @@ export function CustomPopoverSelect<T extends string | number>({
                         ? 'bg-purple-950/70 border-purple-800 text-white placeholder-purple-400 focus:ring-1 focus:ring-[#00ff87]'
                         : 'bg-slate-50 dark:bg-purple-950/40 border-slate-200 dark:border-purple-800/60 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-1 focus:ring-purple-600 dark:focus:ring-[#00ff87]'
                     }`}
-                    autoFocus
+                    autoFocus={autoFocusSearch}
                   />
                 </div>
               </div>
