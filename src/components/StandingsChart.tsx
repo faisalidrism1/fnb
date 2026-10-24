@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { Search, ChevronDown } from 'lucide-react';
 import { StandingsRow } from '../types.ts';
 import { useLanguage } from '../utils/i18n.ts';
+import { useUserProfileId, USER_ROW_BG } from '../utils/userProfile.ts';
 
 export type ChartMetricType = 'last_rank' | 'gw_rank' | 'total_points' | 'event_points';
 export type RankPreset = 'all' | '1-20' | '21-40' | '41-60' | '61-80' | '81-100';
@@ -12,6 +13,7 @@ interface ChartSessionState {
   metricType?: ChartMetricType;
   rankPreset?: RankPreset;
   selectedEntryIds?: Set<number> | null;
+  lastAppliedProfileId?: number | null;
   showChips?: boolean;
   showHits?: boolean;
   showCaptains?: boolean;
@@ -267,13 +269,37 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
     return chartSessionState?.rankPreset || 'all';
   });
 
-  // Multiple Picker State (Initial: 4 status champion teams on fresh load, or restored from session)
+  const userProfileId = useUserProfileId();
+  const prevUserProfileIdRef = useRef<number | null>(userProfileId);
+
+  // Multiple Picker State (Initial: 4 status champion teams + user profile team on fresh load, or restored from session)
   const [selectedEntryIds, setSelectedEntryIds] = useState<Set<number> | null>(() => {
     if (chartSessionState?.selectedEntryIds !== undefined) {
-      return chartSessionState.selectedEntryIds ? new Set(chartSessionState.selectedEntryIds) : null;
+      if (!chartSessionState.selectedEntryIds) return null;
+      const ids = new Set(chartSessionState.selectedEntryIds);
+      // Reconcile if user changed profile while on another tab
+      const lastId = chartSessionState.lastAppliedProfileId ?? null;
+      if (lastId !== userProfileId) {
+        if (lastId !== null && (!initialChampionEntryIds || !initialChampionEntryIds.includes(lastId))) {
+          ids.delete(lastId);
+        }
+        if (userProfileId !== null) {
+          ids.add(userProfileId);
+        }
+        if (initialChampionEntryIds) {
+          for (const dId of initialChampionEntryIds) {
+            ids.add(dId);
+          }
+        }
+      }
+      return ids;
     }
     if (initialChampionEntryIds && initialChampionEntryIds.length > 0) {
-      return new Set(initialChampionEntryIds);
+      const ids = new Set(initialChampionEntryIds);
+      if (userProfileId !== null) {
+        ids.add(userProfileId);
+      }
+      return ids;
     }
     return null;
   });
@@ -286,10 +312,56 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
     if (chartSessionState !== null) return;
     if (hasInitializedFromChampionsRef.current) return;
     if (initialChampionEntryIds && initialChampionEntryIds.length > 0) {
-      setSelectedEntryIds(new Set(initialChampionEntryIds));
+      const set = new Set(initialChampionEntryIds);
+      if (userProfileId !== null) {
+        set.add(userProfileId);
+      }
+      setSelectedEntryIds(set);
       hasInitializedFromChampionsRef.current = true;
     }
-  }, [initialChampionEntryIds]);
+  }, [initialChampionEntryIds, userProfileId]);
+
+  // When user profile is selected or changed, dynamically update selectedEntryIds:
+  // - Add the selected team to the default teams
+  // - When changed, remove the previously selected team and add the newly selected one
+  // - The 4 default teams are never removed or disrupted, strictly maintaining their criteria
+  useEffect(() => {
+    const oldId = prevUserProfileIdRef.current;
+    if (oldId === userProfileId) return;
+    prevUserProfileIdRef.current = userProfileId;
+
+    setSelectedEntryIds((prev) => {
+      let baseSet: Set<number>;
+      if (prev === null) {
+        if (initialChampionEntryIds && initialChampionEntryIds.length > 0) {
+          baseSet = new Set(initialChampionEntryIds);
+        } else {
+          return null;
+        }
+      } else {
+        baseSet = new Set(prev);
+      }
+
+      // 1. Remove previous profile team, UNLESS it is one of the default 4 teams
+      if (oldId !== null && (!initialChampionEntryIds || !initialChampionEntryIds.includes(oldId))) {
+        baseSet.delete(oldId);
+      }
+
+      // 2. Add newly selected profile team
+      if (userProfileId !== null) {
+        baseSet.add(userProfileId);
+      }
+
+      // 3. Guarantee that the 4 default teams remain intact according to their criteria
+      if (initialChampionEntryIds) {
+        for (const defaultId of initialChampionEntryIds) {
+          baseSet.add(defaultId);
+        }
+      }
+
+      return baseSet;
+    });
+  }, [userProfileId, initialChampionEntryIds]);
 
   // Toggles (Default: all false, or restored from session)
   const [showChips, setShowChips] = useState<boolean>(() => {
@@ -310,11 +382,12 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
       metricType,
       rankPreset,
       selectedEntryIds: selectedEntryIds ? new Set(selectedEntryIds) : null,
+      lastAppliedProfileId: userProfileId,
       showChips,
       showHits,
       showCaptains,
     };
-  }, [startGW, endGW, metricType, rankPreset, selectedEntryIds, showChips, showHits, showCaptains]);
+  }, [startGW, endGW, metricType, rankPreset, selectedEntryIds, userProfileId, showChips, showHits, showCaptains]);
 
   // Hovered / highlighted team
   const [hoveredEntryId, setHoveredEntryId] = useState<number | null>(null);
@@ -993,10 +1066,13 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                         .map((team) => {
                           const isChecked =
                             selectedEntryIds === null || selectedEntryIds.has(team.entryId);
+                          const isUser = userProfileId !== null && team.entryId === userProfileId;
                           return (
                             <label
                               key={team.entryId}
-                              className="flex items-center justify-between p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs group"
+                              className={`flex items-center justify-between p-1.5 rounded-lg cursor-pointer text-xs group transition-colors ${
+                                isUser ? `${USER_ROW_BG} hover:bg-emerald-500/25` : 'hover:bg-slate-50'
+                              }`}
                             >
                               <div className="flex items-center gap-2 overflow-hidden">
                                 <input

@@ -218,6 +218,18 @@ function normalizeDiacritics(str: string): string {
 }
 
 /**
+ * Normalizes Premier League Pulse clock labels into clean user-facing labels
+ * e.g. "06'00" -> "6'", "45+2'00" -> "45+2'", "HT" -> "Half Time"
+ */
+function formatPulseClock(label?: string): string {
+  if (!label) return '';
+  let str = label.trim();
+  str = str.replace(/'00$/, "'").replace(/:00$/, "'");
+  str = str.replace(/^0([1-9]')/, '$1');
+  return str;
+}
+
+/**
  * Main export: fetches matches for a given Gameweek with official lineups from Premier League Pulse API
  * and official FPL scoring/stats/points.
  */
@@ -410,13 +422,13 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     if (!isFt) allMatchesFinished = false;
 
     // Accurate Half Time Detection:
-    // 1. Event-based: First half ended (type: 'PE', phase: '1') AND second half has NOT started yet (!hasSecondHalfStart)
-    // 2. Pulse phase 'HT' / 'H' / 'HALFTIME' or status 'HT'
-    // 3. Pulse clock label explicitly contains 'HT' or 'HALF'
-    // 4. Pulse halfTimeScore is populated, match started, not FT, and 2nd half has not started (phase !== '2' && phase !== '2H' && !hasSecondHalfStart)
-    // 5. Pulse clock label is frozen in 1st half stoppage time (e.g. "45+", "45'", "45:00") and elapsedMinutes >= 48 and elapsedMinutes <= 75 and 2nd half not started
-    // 6. Fallback: started, not FT, fix.minutes === 45, elapsed >= 48 and <= 75 mins since kickoff, and 2nd half not started
-    const isPulseHalfTimeByEvent = Boolean(hasFirstHalfEnd && !hasSecondHalfStart);
+    // A match is ONLY in Half Time if:
+    // 1. It has started and is NOT finished.
+    // 2. Second half has NOT started yet (!hasSecondHalfStart && pulseMatchData?.phase !== '2' && pulseMatchData?.phase !== '2H').
+    // 3. Match has played at least ~40 minutes OR is explicitly declared HT by Pulse API status/clock.
+    // CRITICAL NOTE: In Pulse API, `halfTimeScore` is an object (e.g. { homeScore: 0, awayScore: 0 } or running score)
+    // returned on EVERY match from kickoff. It MUST NOT be used alone as a condition for Half Time!
+    const isFirstHalfActive = pulseMatchData ? (pulseMatchData.phase === '1' || pulseMatchData.phase === '1H') : false;
 
     const isPulseHalfTimeExplicit = pulseMatchData ? Boolean(
       pulseMatchData.status === 'HT' ||
@@ -429,12 +441,15 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       ))
     ) : false;
 
-    const isPulseHalfTimeScore = pulseMatchData ? Boolean(
-      pulseMatchData.halfTimeScore &&
+    // Minimum duration required before a match can physically reach half-time (at least ~40 minutes)
+    const hasEnoughTimeForHalfTime = elapsedMinutes >= 40 || fix.minutes >= 40 || Boolean(pulseMatchData?.clock?.secs && pulseMatchData.clock.secs >= 2400);
+
+    const isPulseHalfTimeByEvent = Boolean(
+      hasFirstHalfEnd &&
       !hasSecondHalfStart &&
-      pulseMatchData.phase !== '2' &&
-      pulseMatchData.phase !== '2H'
-    ) : false;
+      hasEnoughTimeForHalfTime &&
+      !isFirstHalfActive
+    );
 
     const isClockFrozenAtHalf = pulseMatchData ? Boolean(
       typeof pulseMatchData.clock?.label === 'string' &&
@@ -450,6 +465,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       fix.started &&
       !isFt &&
       !hasSecondHalfStart &&
+      !isFirstHalfActive &&
       (pulseMatchData ? (pulseMatchData.phase !== '2' && pulseMatchData.phase !== '2H') : true) &&
       (fix.minutes === 45 || (pulseMatchData?.clock?.secs && pulseMatchData.clock.secs >= 2700 && pulseMatchData.clock.secs <= 3600)) &&
       elapsedMinutes >= 48 &&
@@ -458,12 +474,15 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
 
     const isHalfTime = Boolean(
       fix.started &&
-      !isFt && (
-        isPulseHalfTimeByEvent ||
+      !isFt &&
+      !hasSecondHalfStart &&
+      (
         isPulseHalfTimeExplicit ||
-        isPulseHalfTimeScore ||
-        isClockFrozenAtHalf ||
-        isEstimatedHalfTime
+        (hasEnoughTimeForHalfTime && (
+          isPulseHalfTimeByEvent ||
+          isClockFrozenAtHalf ||
+          isEstimatedHalfTime
+        ))
       )
     );
 
@@ -473,8 +492,14 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     } else if (isHalfTime) {
       clockLabel = 'Half Time';
     } else if (fix.started && pulseMatchData?.clock?.label) {
-      // Clean up clock label (e.g. "45+7'00" -> "45+7'")
-      clockLabel = pulseMatchData.clock.label.replace(/'00$/, "'").replace(/:00$/, "'");
+      const formatted = formatPulseClock(pulseMatchData.clock.label);
+      if (formatted.toUpperCase().includes('HT') || formatted.toUpperCase().includes('HALF')) {
+        clockLabel = 'Half Time';
+      } else if (formatted.toUpperCase().includes('FT') || formatted.toUpperCase().includes('FULL')) {
+        clockLabel = 'Full Time';
+      } else {
+        clockLabel = formatted;
+      }
     } else if (fix.started && fix.minutes >= 90) {
       clockLabel = "90+'";
     } else if (fix.started && fix.minutes > 0) {
@@ -491,7 +516,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       ? 'UPCOMING'
       : (hasSecondHalfStart || fix.minutes > 45 || pulseMatchData?.phase === '2' || pulseMatchData?.phase === '2H')
       ? '2H'
-      : (pulseMatchData?.phase || '1H');
+      : '1H';
 
     const homeTeam = teamMap.get(fix.team_h) || {
       id: fix.team_h,

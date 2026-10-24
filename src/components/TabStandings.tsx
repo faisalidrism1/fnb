@@ -191,7 +191,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
     }
     return {
       event: selectedGW,
-      status: 'Provisional',
+      status: 'Live',
       days: []
     };
   }, [liveEventStatus, eventsStatus, gwStatus, selectedGW, currentGW]);

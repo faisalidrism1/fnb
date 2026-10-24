@@ -163,33 +163,24 @@ export function buildEventsStatusMap(bootstrapEvents: any[], eventStatusRaw: any
       };
     });
 
-    let overallStatus: 'Not started' | 'Live' | 'Provisional' | 'Confirmed' = 'Not started';
-    if (ev.finished && ev.data_checked && leaguesStatus === 'Updated') {
-      overallStatus = 'Confirmed';
-    } else if (daysList.length > 0) {
-      const hasLive = daysList.some(d => d.status === 'Live' || d.points === 'l');
-      const hasProvisional = daysList.some(d => d.status === 'Provisional' || d.points === 'p');
-      const allConfirmed = daysList.every(d => d.status === 'Confirmed' || d.points === 'r');
-      const allNotStarted = daysList.every(d => d.status === 'Not started' && !d.points);
+    const isDataChecked = Boolean(ev.data_checked);
+    const isFinished = Boolean(ev.finished);
+    const isConfirmed = isDataChecked && leaguesStatus === 'Updated';
 
-      if (hasLive) {
+    let overallStatus: 'Not started' | 'Live' | 'Provisional' | 'Confirmed' = 'Not started';
+    if (isConfirmed || (gwId < currentGW && isFinished && isDataChecked)) {
+      overallStatus = 'Confirmed';
+    } else if (isFinished) {
+      // All matches in this Gameweek have finished, but official audit or leagues not yet Updated
+      overallStatus = 'Provisional';
+    } else {
+      // Gameweek is not finished yet (matches still remain to be played)
+      const hasAnyActivity = daysList.some(
+        d => d.points === 'l' || d.points === 'p' || d.points === 'r' ||
+             d.status === 'Live' || d.status === 'Provisional' || d.status === 'Confirmed'
+      );
+      if (hasAnyActivity) {
         overallStatus = 'Live';
-      } else if (hasProvisional) {
-        overallStatus = 'Provisional';
-      } else if (allConfirmed && leaguesStatus === 'Updated') {
-        overallStatus = 'Confirmed';
-      } else if (allConfirmed && leaguesStatus !== 'Updated') {
-        overallStatus = 'Provisional';
-      } else if (allNotStarted) {
-        overallStatus = 'Not started';
-      } else {
-        overallStatus = 'Provisional';
-      }
-    } else if (ev.is_current) {
-      if (ev.finished && ev.data_checked && leaguesStatus === 'Updated') {
-        overallStatus = 'Confirmed';
-      } else if (ev.finished) {
-        overallStatus = 'Provisional';
       } else {
         overallStatus = 'Not started';
       }
@@ -267,7 +258,7 @@ export async function fetchCompleteEventStatusBundle(): Promise<CompleteEventSta
   const eventsStatus = buildEventsStatusMap(bootstrap.events, eventStatusRaw, currentGW);
   const currentGwStatus = eventsStatus[currentGW] || {
     event: currentGW,
-    status: isFinal ? 'Confirmed' : 'Provisional',
+    status: isFinal ? 'Confirmed' : (currentEventObj?.finished ? 'Provisional' : 'Live'),
     days: [],
     data_checked: dataChecked,
     finished: Boolean(currentEventObj?.finished),
@@ -312,10 +303,11 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
 
   // Build unified GW status mapping for all events from both endpoints
   const eventsStatus = buildEventsStatusMap(bootstrap.events, eventStatusRaw, currentGW);
-  const currentGwStatus = eventsStatus[currentGW] || {
+  const currentGwStatus: GwEventStatus = eventsStatus[currentGW] || {
     event: currentGW,
-    status: 'Provisional',
-    days: []
+    status: 'Live',
+    days: [],
+    leagues_status: ''
   };
 
   // Map elements (players) and teams
@@ -432,20 +424,35 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
 
   // Refine currentGwStatus based on actual fixtures status
   if (currentGwStatus.status !== 'Confirmed') {
-    if (isMatchdayLive) {
+    const currentGwFixtures = gwFixtures.filter((f: any) => f.event === currentGW);
+    const hasAnyFixtures = currentGwFixtures.length > 0;
+    const hasStartedAny = hasAnyFixtures && currentGwFixtures.some(
+      (f: any) => f.started || f.finished || f.finished_provisional
+    );
+    const allFinished = hasAnyFixtures && currentGwFixtures.every(
+      (f: any) => f.finished || f.finished_provisional
+    );
+    const hasActiveOnPitch = hasAnyFixtures && currentGwFixtures.some(
+      (f: any) => f.started && !f.finished && !f.finished_provisional
+    );
+    const hasDayActivity = Boolean(
+      currentGwStatus.days?.some(d => d.points === 'l' || d.points === 'p' || d.points === 'r' || d.status === 'Live' || d.status === 'Provisional')
+    );
+
+    const isAllMatchesFinished = allFinished || (Boolean(currentEventObj?.finished) && (!hasAnyFixtures || allFinished));
+
+    const leaguesStatus = String(eventStatusRaw?.leagues || currentGwStatus.leagues_status || '');
+    if (isAllMatchesFinished) {
+      if (Boolean(currentEventObj?.data_checked) && leaguesStatus === 'Updated') {
+        currentGwStatus.status = 'Confirmed';
+      } else {
+        currentGwStatus.status = 'Provisional';
+      }
+    } else if (hasStartedAny || hasActiveOnPitch || isMatchdayLive || hasDayActivity) {
+      // Gameweek has started, but NOT ALL matches have finished -> LIVE
       currentGwStatus.status = 'Live';
     } else {
-      const currentGwHasPlayedMatches = gwFixtures.some(
-        (f: any) => f.event === currentGW && (f.started || f.finished || f.finished_provisional)
-      );
-      const currentGwHasProvisionalDay = Boolean(
-        currentGwStatus.days?.some(d => d.status === 'Provisional' || d.points === 'p')
-      );
-      if (currentGwHasPlayedMatches || currentGwHasProvisionalDay) {
-        currentGwStatus.status = 'Provisional';
-      } else {
-        currentGwStatus.status = 'Not started';
-      }
+      currentGwStatus.status = 'Not started';
     }
   }
 

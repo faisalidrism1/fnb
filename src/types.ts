@@ -404,6 +404,8 @@ export interface GwFixtureItem {
   finished?: boolean;
   finished_provisional?: boolean;
   minutes?: number;
+  team_h_score?: number | null;
+  team_a_score?: number | null;
 }
 
 export interface EventDayStatusItem {

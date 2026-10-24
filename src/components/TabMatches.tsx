@@ -1075,10 +1075,10 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
             );
             const isHalfTime = Boolean(
               !isFt && (
-                m.is_half_time ||
                 m.phase === 'HT' ||
-                m.clock_label === 'Half Time'
-              )
+                m.clock_label === 'Half Time' ||
+                (m.is_half_time && (!m.clock_label || m.clock_label.toUpperCase().includes('HT') || m.clock_label.toUpperCase().includes('HALF')))
+              ) && !(m.clock_label && /^\d+('|\+)/.test(m.clock_label))
             );
             const isLive = Boolean(m.started && !isFt);
             const matchStatusStyle: 'upcoming' | 'live' | 'ft' = isFt ? 'ft' : isLive ? 'live' : 'upcoming';
