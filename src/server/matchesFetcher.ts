@@ -380,40 +380,71 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     // Precise event-based markers from Premier League Opta / Pulse feed:
     // 'PS' = Period Start ('1' = 1st half kickoff, '2' = 2nd half kickoff)
     // 'PE' = Period End   ('1' = 1st half whistle / Half Time, '2' = 2nd half whistle / Full Time)
+    // CRITICAL: At the start of the 2nd half, Pulse API injects an empty skeleton placeholder PE event:
+    // { phase: '2', type: 'PE', score: { ... } } with NO clock and NO time!
+    // A genuine Period End event from referee final whistle ALWAYS has valid clock (secs >= 5400 for FT) or valid time millis.
     const hasFirstHalfEnd = pulseEvents.some((e: any) =>
-      e.type === 'PE' && (e.phase === '1' || e.phase === '1H')
+      e.type === 'PE' &&
+      (e.phase === '1' || e.phase === '1H') &&
+      (Boolean(e.clock?.secs && e.clock.secs >= 2400) || Boolean(e.time?.millis && elapsedMinutes >= 40))
     );
     const hasSecondHalfStart = pulseEvents.some((e: any) =>
       e.type === 'PS' && (e.phase === '2' || e.phase === '2H')
-    );
+    ) || Boolean(pulseMatchData && (pulseMatchData.phase === '2' || pulseMatchData.phase === '2H'));
+
     const hasSecondHalfEnd = pulseEvents.some((e: any) =>
-      e.type === 'PE' && (e.phase === '2' || e.phase === '2H')
+      e.type === 'PE' &&
+      (e.phase === '2' || e.phase === '2H') &&
+      (
+        Boolean(e.clock?.secs && e.clock.secs >= 5400) ||
+        Boolean(e.time?.millis && elapsedMinutes >= 85)
+      )
+    );
+
+    // Active Live Match Guard:
+    // Pulse status 'L' means LIVE in-play match. Phase '1' or '2' indicates actively playing 1st or 2nd half.
+    const isPulseLive = Boolean(
+      pulseMatchData && (
+        pulseMatchData.status === 'L' ||
+        pulseMatchData.phase === '1' ||
+        pulseMatchData.phase === '1H' ||
+        pulseMatchData.phase === '2' ||
+        pulseMatchData.phase === '2H'
+      )
     );
 
     // Accurate Full Time Detection:
     // 1. FPL finished or finished_provisional
-    // 2. Pulse match event Period End for phase 2 (hasSecondHalfEnd: final whistle blown by referee)
+    // 2. Pulse match event Period End for phase 2 (hasSecondHalfEnd: final whistle blown by referee with clock >= 5400s)
     // 3. Pulse status 'C' (Complete) or phase 'F' / 'FT' (Full Time)
     // 4. Pulse outcome declared
     // 5. Pulse clock label explicitly includes 'full' or 'ft'
-    // 6. Time-based fallback: match started, reached 90 mins (or Pulse clock >= 90 mins / 5400s), and elapsed >= 105 mins from kickoff
-    // 7. Hard timeout: match started and elapsed >= 120 mins from kickoff
+    // Live Guard: If Pulse actively reports match as live (status === 'L') and clock is under 90 mins (5400s),
+    // it MUST NOT be considered finished.
     const isPulseFinished = pulseMatchData ? Boolean(
-      hasSecondHalfEnd ||
-      pulseMatchData.status === 'C' ||
-      pulseMatchData.phase === 'F' ||
-      pulseMatchData.phase === 'FT' ||
-      (typeof pulseMatchData.outcome === 'string' && pulseMatchData.outcome.length > 0) ||
-      (typeof pulseMatchData.clock?.label === 'string' && (
-        pulseMatchData.clock.label.toLowerCase().includes('full') ||
-        pulseMatchData.clock.label.trim().toUpperCase() === 'FT'
-      ))
+      (
+        hasSecondHalfEnd ||
+        pulseMatchData.status === 'C' ||
+        pulseMatchData.phase === 'F' ||
+        pulseMatchData.phase === 'FT' ||
+        (typeof pulseMatchData.outcome === 'string' && pulseMatchData.outcome.length > 0) ||
+        (typeof pulseMatchData.clock?.label === 'string' && (
+          pulseMatchData.clock.label.toLowerCase().includes('full') ||
+          pulseMatchData.clock.label.trim().toUpperCase() === 'FT'
+        ))
+      ) &&
+      // Strict guard against false positives during live play:
+      !(pulseMatchData.status === 'L' && (pulseMatchData.clock?.secs ?? 0) < 5400)
     ) : false;
 
+    // Time-based fallback: match started, reached 90 mins, and elapsed >= 105 mins from kickoff
+    // Guarded: Never override if Pulse is actively reporting the match as Live
     const isTimeFinished = Boolean(
-      fix.started && (
+      fix.started &&
+      !isPulseLive &&
+      (
         ((fix.minutes >= 90 || (pulseMatchData?.clock?.secs && pulseMatchData.clock.secs >= 5400)) && elapsedMinutes >= 105) ||
-        elapsedMinutes >= 120
+        elapsedMinutes >= 125
       )
     );
 
