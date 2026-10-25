@@ -219,13 +219,14 @@ function normalizeDiacritics(str: string): string {
 
 /**
  * Normalizes Premier League Pulse clock labels into clean user-facing labels
- * e.g. "06'00" -> "6'", "45+2'00" -> "45+2'", "HT" -> "Half Time"
+ * e.g. "00'00" -> "0'", "06'00" -> "6'", "45+2'00" -> "45+2'", "HT" -> "Half Time"
  */
 function formatPulseClock(label?: string): string {
   if (!label) return '';
   let str = label.trim();
-  str = str.replace(/'00$/, "'").replace(/:00$/, "'");
-  str = str.replace(/^0([1-9]')/, '$1');
+  str = str.replace(/'[0-9]{2}$/, "'").replace(/:[0-9]{2}$/, "'");
+  str = str.replace(/^0([0-9]')/, '$1');
+  if (str === "00'") return "0'";
   return str;
 }
 
@@ -536,7 +537,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     } else if (fix.started && fix.minutes > 0) {
       clockLabel = `${fix.minutes}'`;
     } else if (fix.started) {
-      clockLabel = "1'";
+      clockLabel = "0'";
     }
 
     const matchPhase = isFt

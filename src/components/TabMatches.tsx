@@ -1179,8 +1179,8 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                         <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shrink-0" />
                         <span>
                           {m.clock_label && m.clock_label !== 'Full Time' && m.clock_label !== 'Half Time'
-                            ? m.clock_label
-                            : (m.minutes >= 90 ? "90+'" : m.minutes > 0 ? `${m.minutes}'` : "1'")}
+                            ? (m.clock_label === "00'" ? "0'" : m.clock_label.replace(/^0([0-9]')/, '$1'))
+                            : (m.minutes >= 90 ? "90+'" : m.minutes > 0 ? `${m.minutes}'` : "0'")}
                         </span>
                       </span>
                     ) : (

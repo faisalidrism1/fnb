@@ -1911,8 +1911,15 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                   );
 
                   let clockLabel = fixObj?.clock_label || (roundHistory as any)?.fixture_clock_label || '';
+                  if (clockLabel === "00'") {
+                    clockLabel = "0'";
+                  } else if (clockLabel) {
+                    clockLabel = clockLabel.replace(/^0([0-9]')/, '$1');
+                  }
                   if (!clockLabel && matchMinutes > 0) {
                     clockLabel = matchMinutes >= 90 ? "90+'" : `${matchMinutes}'`;
+                  } else if (!clockLabel && fixObj?.started) {
+                    clockLabel = "0'";
                   }
 
                   let isLive = false;
