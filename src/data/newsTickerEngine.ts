@@ -1,5 +1,5 @@
 import { TransformedLeagueData, MatchCardItem, TransferItem } from '../types.ts';
-import { Language } from '../utils/i18n.ts';
+import type { Language } from '../utils/i18n.ts';
 
 /**
  * Tipe entitas untuk syntax highlighting di running text:
@@ -217,9 +217,8 @@ export function generateDynamicNewsStories(
 
       const tokens: NewsToken[] = isId
         ? [
-            { text: 'Penguasa Klasemen: ', type: 'plain' as EntityType },
             { text: `Tim ${leader.entry_name}`, type: 'team' as EntityType },
-            { text: ' resmi memimpin tahta FNB League dengan koleksi ', type: 'plain' as EntityType },
+            { text: ' bertengger kokoh di puncak tahta FNB League dengan koleksi ', type: 'plain' as EntityType },
             { text: `${leader.total_points} poin`, type: 'stat' as EntityType },
             ...(runnerUp
               ? [
@@ -232,9 +231,8 @@ export function generateDynamicNewsStories(
               : []),
           ]
         : [
-            { text: 'League Leader: ', type: 'plain' as EntityType },
             { text: `Tim ${leader.entry_name}`, type: 'team' as EntityType },
-            { text: ' officially commands the top spot with ', type: 'plain' as EntityType },
+            { text: ' commands the top spot with ', type: 'plain' as EntityType },
             { text: `${leader.total_points} cumulative points`, type: 'stat' as EntityType },
             ...(runnerUp
               ? [
@@ -266,13 +264,11 @@ export function generateDynamicNewsStories(
 
       const tokens: NewsToken[] = isId
         ? [
-            { text: 'Dominasi Rekor: ', type: 'plain' as EntityType },
             ...teamTokens,
-            { text: ' memimpin perolehan gelar terbanyak musim ini dengan ', type: 'plain' as EntityType },
-            { text: `${topWins} trofi mingguan`, type: 'stat' as EntityType },
+            { text: ' memimpin perolehan gelar juara mingguan terbanyak musim ini dengan ', type: 'plain' as EntityType },
+            { text: `${topWins} trofi`, type: 'stat' as EntityType },
           ]
         : [
-            { text: 'Trophy Record: ', type: 'plain' as EntityType },
             ...teamTokens,
             { text: ' leads the season campaign with ', type: 'plain' as EntityType },
             { text: `${topWins} Gameweek Champion titles`, type: 'stat' as EntityType },
@@ -486,7 +482,7 @@ export function generateDynamicNewsStories(
 
           const tokens: NewsToken[] = isId
             ? [
-                { text: 'Penyesalan Terbesar: ', type: 'plain' as EntityType },
+                { text: 'Karma transfer langsung terbukti! ', type: 'plain' as EntityType },
                 { text: p.web_name, type: 'player' as EntityType },
                 { text: ` (${p.team_short_name || (m.home_lineup?.includes(p) ? homeName : awayName)}) meledak dengan `, type: 'plain' as EntityType },
                 { text: `${pPts} poin`, type: 'stat' as EntityType },
@@ -498,7 +494,7 @@ export function generateDynamicNewsStories(
                   : [{ text: ' menjelang batas waktu!', type: 'plain' as EntityType }]),
               ]
             : [
-                { text: 'Transfer Regret: ', type: 'plain' as EntityType },
+                { text: 'Instant transfer regret as ', type: 'plain' as EntityType },
                 { text: p.web_name, type: 'player' as EntityType },
                 { text: ' hauls ', type: 'plain' as EntityType },
                 { text: `${pPts} points`, type: 'stat' as EntityType },
@@ -538,18 +534,18 @@ export function generateDynamicNewsStories(
 
             const tokens: NewsToken[] = isId
               ? [
-                  { text: 'Mimpi Buruk Non-Owner: Gol & aksi gemilang ', type: 'plain' as EntityType },
+                  { text: 'Aksi gemilang ', type: 'plain' as EntityType },
                   { text: p.web_name, type: 'player' as EntityType },
-                  { text: ` (${pPts} poin) bawa pesta massal di liga, memaksa `, type: 'plain' as EntityType },
+                  { text: ` (${pPts} poin) menghadirkan kepanikan bagi `, type: 'plain' as EntityType },
                   ...nonOwnerTokens,
-                  { text: ' gigit jari menyaksikan peringkat mereka terancam anjlok!', type: 'plain' as EntityType },
+                  { text: ' yang tidak memilikinya dalam skuad pekan ini!', type: 'plain' as EntityType },
                 ]
               : [
-                  { text: 'Non-Owner Nightmare: Masterclass from ', type: 'plain' as EntityType },
+                  { text: 'Masterclass performance from ', type: 'plain' as EntityType },
                   { text: p.web_name, type: 'player' as EntityType },
-                  { text: ` (${pPts} pts) delivers a mass haul, leaving `, type: 'plain' as EntityType },
+                  { text: ` (${pPts} pts) piles massive pressure on non-owners `, type: 'plain' as EntityType },
                   ...nonOwnerTokens,
-                  { text: ' in agony as their ranks come under severe pressure!', type: 'plain' as EntityType },
+                  { text: '!', type: 'plain' as EntityType },
                 ];
 
             stories.push({
@@ -575,24 +571,24 @@ export function generateDynamicNewsStories(
 
           const tokens: NewsToken[] = isId
             ? [
-                { text: 'Pembeda Sakti: Pemain pembeda ', type: 'plain' as EntityType },
+                { text: 'Pertaruhan pembeda berhasil manis! ', type: 'plain' as EntityType },
                 { text: p.web_name, type: 'player' as EntityType },
-                { text: ' raih ', type: 'plain' as EntityType },
+                { text: ' meraup ', type: 'plain' as EntityType },
                 { text: `${pPts} poin`, type: 'stat' as EntityType },
                 { text: ' di laga ', type: 'plain' as EntityType },
                 { text: matchLabel, type: 'club' as EntityType },
-                { text: ' — keuntungan masif yang dipanen sendirian oleh ', type: 'plain' as EntityType },
+                { text: ' — jackpot eksklusif yang dipanen ', type: 'plain' as EntityType },
                 ...ownerTokens,
                 { text: ' di FNB League!', type: 'plain' as EntityType },
               ]
             : [
-                { text: 'Differential Triumph: Low-owned gem ', type: 'plain' as EntityType },
+                { text: 'Brilliant differential dividend as ', type: 'plain' as EntityType },
                 { text: p.web_name, type: 'player' as EntityType },
                 { text: ' delivers ', type: 'plain' as EntityType },
                 { text: `${pPts} points`, type: 'stat' as EntityType },
                 { text: ' in ', type: 'plain' as EntityType },
                 { text: matchLabel, type: 'club' as EntityType },
-                { text: ' — solitary jackpot enjoyed exclusively by ', type: 'plain' as EntityType },
+                { text: ' — exclusive jackpot enjoyed by ', type: 'plain' as EntityType },
                 ...ownerTokens,
                 { text: ' in FNB League!', type: 'plain' as EntityType },
               ];
@@ -620,20 +616,20 @@ export function generateDynamicNewsStories(
 
           const tokens: NewsToken[] = isId
             ? [
-                { text: 'Petaka Kartu Merah: ', type: 'plain' as EntityType },
+                { text: 'Hukuman kartu merah langsung untuk ', type: 'plain' as EntityType },
                 { text: p.web_name, type: 'player' as EntityType },
-                { text: ' diusir wasit keluar lapangan (', type: 'plain' as EntityType },
+                { text: ' (', type: 'plain' as EntityType },
                 { text: '-3 poin', type: 'stat' as EntityType },
-                { text: ') • Pukulan telak yang merugikan skuad ', type: 'plain' as EntityType },
+                { text: ') menjadi pukulan telak yang merugikan skuad ', type: 'plain' as EntityType },
                 ...ownerTokens,
                 { text: '!', type: 'plain' as EntityType },
               ]
             : [
-                { text: 'Red Card Disaster: ', type: 'plain' as EntityType },
+                { text: 'Costly dismissal as ', type: 'plain' as EntityType },
                 { text: p.web_name, type: 'player' as EntityType },
                 { text: ' is sent off (', type: 'plain' as EntityType },
                 { text: '-3 pts', type: 'stat' as EntityType },
-                { text: ') • Severe setback penalizing squads of ', type: 'plain' as EntityType },
+                { text: '), penalizing squads of ', type: 'plain' as EntityType },
                 ...ownerTokens,
                 { text: '!', type: 'plain' as EntityType },
               ];
@@ -654,20 +650,20 @@ export function generateDynamicNewsStories(
 
           const tokens: NewsToken[] = isId
             ? [
-                { text: 'Gol Bunuh Diri Fatal: Sentuhan nahas ', type: 'plain' as EntityType },
+                { text: 'Sentuhan nahas ', type: 'plain' as EntityType },
                 { text: p.web_name, type: 'player' as EntityType },
-                { text: ' berujung gol ke gawang sendiri (', type: 'plain' as EntityType },
+                { text: ' berujung gol bunuh diri (', type: 'plain' as EntityType },
                 { text: '-2 poin', type: 'stat' as EntityType },
-                { text: ') • Pangkas pundi poin milik ', type: 'plain' as EntityType },
+                { text: '), memangkas pundi poin milik ', type: 'plain' as EntityType },
                 ...ownerTokens,
                 { text: '!', type: 'plain' as EntityType },
               ]
             : [
-                { text: 'Own Goal Heartbreak: Fatal touch by ', type: 'plain' as EntityType },
+                { text: 'Unfortunate own goal by ', type: 'plain' as EntityType },
                 { text: p.web_name, type: 'player' as EntityType },
-                { text: ' results in an own goal (', type: 'plain' as EntityType },
+                { text: ' (', type: 'plain' as EntityType },
                 { text: '-2 pts', type: 'stat' as EntityType },
-                { text: ') • Denting tallies for ', type: 'plain' as EntityType },
+                { text: ') dents the matchday tally of ', type: 'plain' as EntityType },
                 ...ownerTokens,
                 { text: '!', type: 'plain' as EntityType },
               ];
@@ -698,20 +694,20 @@ export function generateDynamicNewsStories(
 
             const tokens: NewsToken[] = isId
               ? [
-                  { text: 'Pupus Nirbobol: Kebobolan vs ', type: 'plain' as EntityType },
+                  { text: 'Kebobolan vs ', type: 'plain' as EntityType },
                   { text: awayName, type: 'club' as EntityType },
-                  { text: ` (${clock}) melenyapkan bonus Clean Sheet `, type: 'plain' as EntityType },
+                  { text: ` (${clock}) melenyapkan poin Clean Sheet milik `, type: 'plain' as EntityType },
                   { text: popularDef.web_name, type: 'player' as EntityType },
-                  { text: ' — buyarkan potensi poin milik ', type: 'plain' as EntityType },
+                  { text: ', membuyarkan potensi poin bagi ', type: 'plain' as EntityType },
                   ...ownerTokens,
                   { text: '!', type: 'plain' as EntityType },
                 ]
               : [
-                  { text: 'Clean Sheet Wipeout: Goal conceded vs ', type: 'plain' as EntityType },
+                  { text: 'Conceding against ', type: 'plain' as EntityType },
                   { text: awayName, type: 'club' as EntityType },
-                  { text: ` (${clock}) denies Clean Sheet bonus for `, type: 'plain' as EntityType },
+                  { text: ` (${clock}) wipes out Clean Sheet points for `, type: 'plain' as EntityType },
                   { text: popularDef.web_name, type: 'player' as EntityType },
-                  { text: ' — heartbreak for ', type: 'plain' as EntityType },
+                  { text: ', frustrating ', type: 'plain' as EntityType },
                   ...ownerTokens,
                   { text: '!', type: 'plain' as EntityType },
                 ];
@@ -742,16 +738,14 @@ export function generateDynamicNewsStories(
 
           const tokens: NewsToken[] = isId
             ? [
-                { text: 'Kebuntuan Peluang: ', type: 'plain' as EntityType },
                 { text: topThreat.web_name, type: 'player' as EntityType },
-                { text: ' bukukan kualitas peluang tinggi (', type: 'plain' as EntityType },
+                { text: ' membukukan ancaman serangan tinggi (', type: 'plain' as EntityType },
                 { text: `${xGVal} xG`, type: 'stat' as EntityType },
                 { text: `) di laga ${matchLabel} (${clock}), membuat `, type: 'plain' as EntityType },
                 ...(ownerTokens.length > 0 ? ownerTokens : [{ text: 'manajer liga', type: 'plain' as EntityType }]),
                 { text: ' berdebar menanti gol pemecah kebuntuan!', type: 'plain' as EntityType },
               ]
             : [
-                { text: 'Frustrating Deadlock: ', type: 'plain' as EntityType },
                 { text: topThreat.web_name, type: 'player' as EntityType },
                 { text: ' registers high attacking threat (', type: 'plain' as EntityType },
                 { text: `${xGVal} xG`, type: 'stat' as EntityType },
@@ -779,19 +773,17 @@ export function generateDynamicNewsStories(
 
           const tokens: NewsToken[] = isId
             ? [
-                { text: 'Tembok Kokoh di Bawah Mistar: ', type: 'plain' as EntityType },
                 { text: gkp.web_name, type: 'player' as EntityType },
-                { text: ' jatuh bangun amankan ', type: 'plain' as EntityType },
+                { text: ' tampil bak tembok kokoh dengan mengamankan ', type: 'plain' as EntityType },
                 { text: `${saves} penyelamatan krusial`, type: 'stat' as EntityType },
-                { text: ' demi selamatkan gawang dan poin pertahanan milik ', type: 'plain' as EntityType },
+                { text: ' demi menyelamatkan poin pertahanan milik ', type: 'plain' as EntityType },
                 ...(ownerTokens.length > 0 ? ownerTokens : [{ text: 'skuad liga', type: 'plain' as EntityType }]),
               ]
             : [
-                { text: 'Under Siege: ', type: 'plain' as EntityType },
                 { text: gkp.web_name, type: 'player' as EntityType },
-                { text: ' pulls off ', type: 'plain' as EntityType },
+                { text: ' stands tall with ', type: 'plain' as EntityType },
                 { text: `${saves} vital saves`, type: 'stat' as EntityType },
-                { text: ' to rescue defensive points for ', type: 'plain' as EntityType },
+                { text: ' to preserve defensive points for ', type: 'plain' as EntityType },
                 ...(ownerTokens.length > 0 ? ownerTokens : [{ text: 'league squads', type: 'plain' as EntityType }]),
               ];
 
@@ -815,14 +807,14 @@ export function generateDynamicNewsStories(
         const tokens: NewsToken[] = isId
           ? [
               { text: `${homeName} `, type: 'club' as EntityType },
-              { text: `${scoreH}–${scoreA}`, type: 'stat' as EntityType },
-              { text: ` ${awayName} (${clock}) • Gol: `, type: 'plain' as EntityType },
+              { text: `${scoreH}–${scoreA} `, type: 'stat' as EntityType },
+              { text: `${awayName} (${clock}) • Gol: `, type: 'plain' as EntityType },
               { text: scorers.join(', '), type: 'player' as EntityType },
             ]
           : [
               { text: `${homeName} `, type: 'club' as EntityType },
-              { text: `${scoreH}–${scoreA}`, type: 'stat' as EntityType },
-              { text: ` ${awayName} (${clock}) • Goals: `, type: 'plain' as EntityType },
+              { text: `${scoreH}–${scoreA} `, type: 'stat' as EntityType },
+              { text: `${awayName} (${clock}) • Goals: `, type: 'plain' as EntityType },
               { text: scorers.join(', '), type: 'player' as EntityType },
             ];
 
@@ -862,29 +854,29 @@ export function generateDynamicNewsStories(
 
       const tokens: NewsToken[] = isId
         ? [
-            { text: 'Hasil Akhir: ', type: 'plain' as EntityType },
+            { text: `Peluit panjang berbunyi, `, type: 'plain' as EntityType },
             { text: `${home} `, type: 'club' as EntityType },
-            { text: `${scoreH}–${scoreA}`, type: 'stat' as EntityType },
-            { text: ` ${away}`, type: 'club' as EntityType },
+            { text: `${scoreH}–${scoreA} `, type: 'stat' as EntityType },
+            { text: `${away}`, type: 'club' as EntityType },
             ...(starPlayer && starPts >= 6
               ? [
-                  { text: ' • Bintang Laga: ', type: 'plain' as EntityType },
+                  { text: ' • Penampil terbaik ', type: 'plain' as EntityType },
                   { text: starPlayer.web_name, type: 'player' as EntityType },
                   { text: ` (${starPts} poin)`, type: 'stat' as EntityType },
                   ...(ownerTokens.length > 0
-                    ? [{ text: ' persembahkan poin krusial bagi ', type: 'plain' as EntityType }, ...ownerTokens]
+                    ? [{ text: ' sumbang poin penting bagi ', type: 'plain' as EntityType }, ...ownerTokens]
                     : []),
                 ]
               : []),
           ]
         : [
-            { text: 'Full Time: ', type: 'plain' as EntityType },
+            { text: `Full-time whistle: `, type: 'plain' as EntityType },
             { text: `${home} `, type: 'club' as EntityType },
-            { text: `${scoreH}–${scoreA}`, type: 'stat' as EntityType },
-            { text: ` ${away}`, type: 'club' as EntityType },
+            { text: `${scoreH}–${scoreA} `, type: 'stat' as EntityType },
+            { text: `${away}`, type: 'club' as EntityType },
             ...(starPlayer && starPts >= 6
               ? [
-                  { text: ' • Star Performer: ', type: 'plain' as EntityType },
+                  { text: ' • Key standout ', type: 'plain' as EntityType },
                   { text: starPlayer.web_name, type: 'player' as EntityType },
                   { text: ` (${starPts} pts)`, type: 'stat' as EntityType },
                   ...(ownerTokens.length > 0
@@ -991,9 +983,8 @@ export function generateDynamicNewsStories(
 
       const tokens: NewsToken[] = isId
         ? [
-            { text: 'Lonjakan Tertinggi: ', type: 'plain' as EntityType },
             { text: `Tim ${c1.entry_name}`, type: 'team' as EntityType },
-            { text: ' melesat naik paling jauh dengan ', type: 'plain' as EntityType },
+            { text: ' mencatat lompatan terbesar dengan melesat naik ', type: 'plain' as EntityType },
             { text: `+${c1.rank_change} peringkat`, type: 'stat' as EntityType },
             { text: ` ke posisi #${c1.rank} (${c1.event_points} poin GW ini)`, type: 'plain' as EntityType },
             ...(c2 && c2.rank_change >= 2 && c2.rank_change < c1.rank_change
@@ -1005,16 +996,15 @@ export function generateDynamicNewsStories(
               : []),
           ]
         : [
-            { text: 'Top Climber: ', type: 'plain' as EntityType },
             { text: `Tim ${c1.entry_name}`, type: 'team' as EntityType },
-            { text: ' surges the highest with ', type: 'plain' as EntityType },
-            { text: `+${c1.rank_change} positions`, type: 'stat' as EntityType },
+            { text: ' records the biggest leap, climbing ', type: 'plain' as EntityType },
+            { text: `+${c1.rank_change} spots`, type: 'stat' as EntityType },
             { text: ` to Rank #${c1.rank} (${c1.event_points} pts this round)`, type: 'plain' as EntityType },
             ...(c2 && c2.rank_change >= 2 && c2.rank_change < c1.rank_change
               ? [
                   { text: ', followed by ', type: 'plain' as EntityType },
                   { text: `Tim ${c2.entry_name}`, type: 'team' as EntityType },
-                  { text: ` (+${c2.rank_change} positions to #${c2.rank})`, type: 'stat' as EntityType },
+                  { text: ` (+${c2.rank_change} spots to #${c2.rank})`, type: 'stat' as EntityType },
                 ]
               : []),
           ];
@@ -1059,16 +1049,14 @@ export function generateDynamicNewsStories(
 
       const tokens: NewsToken[] = isId
         ? [
-            { text: 'Calon Juara Gameweek: ', type: 'plain' as EntityType },
             ...teamTokens,
-            { text: ' memimpin perolehan poin pekan ini dengan ', type: 'plain' as EntityType },
+            { text: ' berada di ambang juara Gameweek pekan ini dengan torehan impresif ', type: 'plain' as EntityType },
             { text: `${topPts} poin`, type: 'stat' as EntityType },
-            { text: ' menjelang pengesahan audit final!', type: 'plain' as EntityType },
+            { text: ' sembari menanti audit final poin bonus!', type: 'plain' as EntityType },
           ]
         : [
-            { text: 'Provisional GW Champion: ', type: 'plain' as EntityType },
             ...teamTokens,
-            { text: ' leads this round with ', type: 'plain' as EntityType },
+            { text: ' is on track to seal the Gameweek title with an impressive ', type: 'plain' as EntityType },
             { text: `${topPts} points`, type: 'stat' as EntityType },
             { text: ' ahead of final audit lock!', type: 'plain' as EntityType },
           ];
@@ -1087,15 +1075,13 @@ export function generateDynamicNewsStories(
       const leader = standings[0];
       const tokens: NewsToken[] = isId
         ? [
-            { text: 'Calon Penguasa Tahta: ', type: 'plain' as EntityType },
             { text: `Tim ${leader.entry_name}`, type: 'team' as EntityType },
-            { text: ' memimpin klasemen liga sementara dengan ', type: 'plain' as EntityType },
+            { text: ' kokoh mengawal singgasana klasemen sementara FNB League dengan akumulasi ', type: 'plain' as EntityType },
             { text: `${leader.total_points} poin`, type: 'stat' as EntityType },
           ]
         : [
-            { text: 'Provisional Leader: ', type: 'plain' as EntityType },
             { text: `Tim ${leader.entry_name}`, type: 'team' as EntityType },
-            { text: ' holds the league top spot with ', type: 'plain' as EntityType },
+            { text: ' commands the league top spot with ', type: 'plain' as EntityType },
             { text: `${leader.total_points} points`, type: 'stat' as EntityType },
           ];
 

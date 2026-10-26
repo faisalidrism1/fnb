@@ -88,10 +88,49 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
 
   const activeMatches = propMatches || internalMatches;
 
-  // Hasilkan daftar berita dramatis melalui Heuristic Story Engine
+  // State berita dari Server-Side AI Newsroom (Gemini Flash zero-template)
+  const [aiStories, setAiStories] = useState<NewsStory[] | null>(null);
+
+  // Ambil berita langsung dari Server AI Newsroom
+  useEffect(() => {
+    let isMounted = true;
+    const fetchAiNews = async () => {
+      try {
+        const res = await fetch(`/api/news-ticker/stories?lang=${language}&_t=${Date.now()}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0 && isMounted) {
+            setAiStories(json.data);
+          }
+        }
+      } catch (e) {
+        console.warn('[News Ticker] Server AI newsroom fetch error:', e);
+      }
+    };
+
+    fetchAiNews();
+
+    const isMatchLive = Boolean(
+      leagueData?.sync_status?.is_matchday_live || 
+      leagueData?.gw_status?.status === 'Live' ||
+      (leagueData?.sync_status?.gw_fixtures || []).some(f => f.started && !f.finished)
+    );
+    const intervalTime = isMatchLive ? 45000 : 120000;
+    const intervalId = setInterval(fetchAiNews, intervalTime);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, [language, leagueData?.current_gw, leagueData?.gw_status?.status, leagueData?.sync_status?.is_matchday_live]);
+
+  // Hasilkan daftar berita: Prioritaskan AI Stories (Zero-Template), fallback ke Heuristic jika AI offline
   const storiesList = useMemo<NewsStory[]>(() => {
+    if (aiStories && aiStories.length > 0) {
+      return aiStories;
+    }
     return generateDynamicNewsStories(leagueData, language, activeMatches);
-  }, [leagueData, language, activeMatches]);
+  }, [aiStories, leagueData, language, activeMatches]);
 
   // DOM Container & Track
   const containerRef = useRef<HTMLDivElement>(null);
@@ -113,7 +152,7 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
   // Helper untuk membuat elemen DOM cerita berita dengan Entity Syntax Highlighting
   const createStoryElement = useCallback((story: NewsStory, uid: number): HTMLElement => {
     const span = document.createElement('span');
-    span.className = 'inline-flex items-center text-[11px] sm:text-[12px] whitespace-nowrap pr-8 leading-[1.25] shrink-0';
+    span.className = 'inline-block text-[11px] sm:text-[12px] whitespace-pre pr-8 leading-[1.25] shrink-0 align-middle';
     span.dataset.uid = String(uid);
 
     // Render setiap token entitas dengan warna khususnya
@@ -143,11 +182,9 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
       span.appendChild(tokenEl);
     });
 
-    // Dot pemisah bercahaya hijau di sisi kanan setiap berita
+    // Dot pemisah tenang (statis, tidak berkedip, tidak mengganggu jalannya news)
     const dot = document.createElement('span');
-    dot.className = story.isFresh
-      ? 'inline-block w-1.5 h-1.5 rounded-full ml-4 shrink-0 bg-[#00ff87] shadow-[0_0_8px_rgba(0,255,135,1)] animate-ping'
-      : 'inline-block w-1.5 h-1.5 rounded-full ml-4 shrink-0 bg-[#00ff87] shadow-[0_0_6px_rgba(0,255,135,0.7)]';
+    dot.className = 'inline-block w-1.5 h-1.5 rounded-full ml-4 shrink-0 bg-[#00ff87]/60 align-middle';
     span.appendChild(dot);
 
     return span;
@@ -174,26 +211,6 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
     return story;
   }, []);
 
-  // Sinkronisasi pool berita dan deteksi kejadian live baru ke antrean FIFO
-  useEffect(() => {
-    poolRef.current = storiesList;
-    if (storiesList.length === 0) return;
-
-    if (isInitialRunRef.current) {
-      storiesList.forEach(s => seenStoryIdsRef.current.add(s.id));
-      isInitialRunRef.current = false;
-      return;
-    }
-
-    // Kejadian live baru yang terdeteksi masuk ke antrean FIFO
-    storiesList.forEach(s => {
-      if (!seenStoryIdsRef.current.has(s.id)) {
-        seenStoryIdsRef.current.add(s.id);
-        priorityQueueRef.current.push({ ...s, isFresh: true });
-      }
-    });
-  }, [storiesList]);
-
   // Inisialisasi track padat tanpa jeda kosong
   const fillTrackInitial = useCallback(() => {
     const track = trackRef.current;
@@ -216,6 +233,42 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
       safetyCounter++;
     }
   }, [getNextStory, createStoryElement]);
+
+  const hasAiLoadedRef = useRef<boolean>(false);
+
+  // Sinkronisasi pool berita dan deteksi kejadian live baru ke antrean FIFO
+  useEffect(() => {
+    poolRef.current = storiesList;
+    if (storiesList.length === 0) return;
+
+    if (isInitialRunRef.current) {
+      storiesList.forEach(s => seenStoryIdsRef.current.add(s.id));
+      isInitialRunRef.current = false;
+      return;
+    }
+
+    // Kejadian live baru yang terdeteksi masuk ke antrean FIFO
+    storiesList.forEach(s => {
+      if (!seenStoryIdsRef.current.has(s.id)) {
+        seenStoryIdsRef.current.add(s.id);
+        priorityQueueRef.current.push({ ...s, isFresh: true });
+      }
+    });
+  }, [storiesList]);
+
+  // Ketika berita AI pertama kali datang dari server, langsung refresh track agar pengguna tidak melihat template lama
+  useEffect(() => {
+    if (aiStories && aiStories.length > 0) {
+      poolRef.current = aiStories;
+      poolIdxRef.current = 0;
+      priorityQueueRef.current = [];
+      seenStoryIdsRef.current = new Set(aiStories.map(s => s.id));
+      if (!hasAiLoadedRef.current) {
+        hasAiLoadedRef.current = true;
+        fillTrackInitial();
+      }
+    }
+  }, [aiStories, fillTrackInitial]);
 
   // Main 60 FPS Continuous Conveyor Loop (Atomic DOM recycling, zero visual reset, zero void)
   useEffect(() => {

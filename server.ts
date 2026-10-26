@@ -27,6 +27,7 @@ import {
   getDbSyncMeta,
   getDatabaseStats
 } from './src/server/db.ts';
+import { generateAiNewsTicker } from './src/server/aiNewsroom.ts';
 
 const app = express();
 const PORT = 3000;
@@ -1107,6 +1108,25 @@ const handleDbSync = async (req: express.Request, res: express.Response) => {
 
 app.post('/api/db/sync', handleDbSync);
 app.get('/api/db/sync', handleDbSync);
+
+// Endpoint Berita Berjalan AI (Server-Side AI Newsroom)
+app.get('/api/news-ticker/stories', async (req, res) => {
+  try {
+    const lang = req.query.lang === 'en' ? 'en' : 'id';
+    const currentGw = cachedData?.current_gw || 1;
+    let matches: any[] = [];
+    try {
+      matches = await fetchMatchesForGw(currentGw);
+    } catch (e: any) {
+      console.warn('[Server] Could not fetch matches for news ticker:', e.message);
+    }
+
+    const stories = await generateAiNewsTicker(cachedData, matches, lang);
+    res.json({ success: true, count: stories.length, data: stories });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // Vite / static file serving
 async function startServer() {
