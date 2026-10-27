@@ -81,12 +81,12 @@ Di atas latar gelap (`#161a22`), setiap entitas memiliki identitas warna khusus:
 
 ## 5. Logika Penentuan Nama Tim & Dwi-Bahasa
 
-### A. Algoritma Kuantitas Tim:
-* 1 Tim: `Tim {A}`
-* 2 Tim: `Tim {A} & Tim {B}`
-* 3 Tim: `Tim {A}, Tim {B} & Tim {C}`
-* 4–5 Tim: `Tim {A}, Tim {B} dan {Sisa} tim lainnya`
-* $\ge 6$ Tim: `14 tim FNB League (dipimpin Tim {Kapten})` atau dibalik ke daftar nama minoritas *non-owners*.
+### A. Algoritma Kuantitas Tim (Nama Asli Tanpa Awalan Kata "Tim"):
+* 1 Tim: `{A}`
+* 2 Tim: `{A} & {B}`
+* 3 Tim: `{A}, {B} & {C}`
+* 4–5 Tim: `{A}, {B} dan {Sisa} tim lainnya`
+* $\ge 6$ Tim: `14 tim FNB League (dipimpin {Kapten})` atau dibalik ke daftar nama minoritas *non-owners*.
 
 ### B. Dwi-Bahasa (Bilingual):
 * Mendukung penuh bahasa Indonesia (`id`) dan bahasa Inggris (`fnb` / `en`).

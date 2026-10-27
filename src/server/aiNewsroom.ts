@@ -1,6 +1,8 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import fs from 'fs';
+import path from 'path';
 import { TransformedLeagueData, MatchCardItem, StandingsRow } from '../types.ts';
-import { generateDynamicNewsStories, determineMatchdayPhase, NewsStory, NewsToken } from '../data/newsTickerEngine.ts';
+import { determineMatchdayPhase, NewsStory, NewsToken } from '../data/newsTickerEngine.ts';
 
 // Inisialisasi Google GenAI SDK (Server-Side)
 const apiKey = process.env.GEMINI_API_KEY || '';
@@ -21,7 +23,74 @@ interface CacheEntry {
   stories: NewsStory[];
 }
 
+const PERSISTENT_CACHE_PATH = path.join(process.cwd(), 'src/data/ai_news_cache.json');
 const memoryCache = new Map<string, CacheEntry>();
+
+// Pre-load persistent cache dari disk saat server boot
+try {
+  if (fs.existsSync(PERSISTENT_CACHE_PATH)) {
+    const raw = fs.readFileSync(PERSISTENT_CACHE_PATH, 'utf-8');
+    const diskStories: NewsStory[] = JSON.parse(raw);
+    if (Array.isArray(diskStories) && diskStories.length > 0) {
+      memoryCache.set('id_confirmed', { timestamp: Date.now(), hash: 'disk_preseed', stories: diskStories });
+      memoryCache.set('en_confirmed', { timestamp: Date.now(), hash: 'disk_preseed', stories: diskStories });
+      console.log(`[AI Newsroom] Pre-seeded ${diskStories.length} high-fidelity AI stories from persistent cache`);
+    }
+  }
+} catch (e: any) {
+  console.warn('[AI Newsroom] Could not read persistent cache:', e.message);
+}
+
+function persistAiStories(stories: NewsStory[]) {
+  try {
+    fs.writeFileSync(PERSISTENT_CACHE_PATH, JSON.stringify(stories, null, 2), 'utf-8');
+  } catch (err: any) {
+    console.warn('[AI Newsroom] Failed to write persistent cache:', err.message);
+  }
+}
+
+function cleanTeamToken(text: string): string {
+  if (/^\s*Tim\s+/i.test(text) && !text.trim().toLowerCase().startsWith('tim holland')) {
+    return text.replace(/^(\s*)Tim\s+/i, '$1');
+  }
+  return text;
+}
+
+function sanitizeStories(stories: NewsStory[]): NewsStory[] {
+  return stories.map(s => {
+    const tokens = (s.tokens || []).map(t => {
+      if (t.type === 'team') {
+        return { ...t, text: cleanTeamToken(t.text) };
+      }
+      return t;
+    });
+    const plainText = tokens.map(t => t.text).join('').trim() || (s.plainText || '').replace(/\bTim\s+(?!Holland\b)/gi, '');
+    return {
+      ...s,
+      tokens,
+      plainText
+    };
+  });
+}
+
+function getFallbackPersistentStories(phase: string): NewsStory[] {
+  try {
+    if (fs.existsSync(PERSISTENT_CACHE_PATH)) {
+      const raw = fs.readFileSync(PERSISTENT_CACHE_PATH, 'utf-8');
+      const diskStories: NewsStory[] = JSON.parse(raw);
+      if (Array.isArray(diskStories) && diskStories.length > 0) {
+        return sanitizeStories(diskStories);
+      }
+    }
+  } catch {}
+
+  const cached = memoryCache.get('id_confirmed') || memoryCache.get('id_live') || memoryCache.get('en_confirmed');
+  if (cached && cached.stories.length > 0) {
+    return sanitizeStories(cached.stories);
+  }
+
+  return [];
+}
 
 function createMatchStateHash(
   data: TransformedLeagueData | null,
@@ -40,10 +109,11 @@ function createMatchStateHash(
 
 /**
  * Kompilasi Fakta Mentah Lengkap FNB League dengan Pemahaman Konteks Penuh:
- * 1. Status Gameweek (GW Final vs GW Live/Provisional) sesuai RULE[AGENTS_md]
- * 2. Seluruh Tampilan & Fitur Aplikasi (Klasemen, 4 Tipe Juara, Modal Pemain, Transfer, Kapten, Chips)
- * 3. Histori dari GW ke GW (Lonjakan peringkat, penurunan drastis, dinamika perebutan juara)
- * 4. Statistik Lengkap Modal Pemain (BPS, DefCon, Saves, Kartu, Penalti, Clean Sheet)
+ * 1. FPL & FNB League rules, scoring table (RULE[AGENTS_md]), 4 tipe juara
+ * 2. Seluruh Tampilan & Fitur Aplikasi (Klasemen, Subtab Status, Modal Pemain, Transfer, Kapten, Chips)
+ * 3. Status Gameweek Mutlak (GW Final vs GW Provisional/Live)
+ * 4. Histori dari GW ke GW (Perubahan posisi, lonjakan, coup pucuk)
+ * 5. Statistik Mikro Modal Pemain (BPS, DefCon, Saves, Kartu, Penalti, Clean Sheet)
  */
 function compileLeagueFacts(
   data: TransformedLeagueData | null,
@@ -60,7 +130,37 @@ function compileLeagueFacts(
   const lines: string[] = [];
 
   // ==========================================================================
-  // A. STATUS GAMEWEEK & POSTUR REDAKSI (SESUAI RULE[AGENTS_md])
+  // A. DASAR ATURAN FPL & KONTEKS FNB LEAGUE
+  // ==========================================================================
+  lines.push(`=== PANDUAN DASAR FPL & FNB LEAGUE ===`);
+  lines.push(`- FPL (Fantasy Premier League): Permainan simulasi manajer sepak bola berdasar laga Premier League nyata.`);
+  lines.push(`- TUJUAN UTAMA: Meraih akumulasi poin setinggi-tingginya sepanjang musim.`);
+  lines.push(`- MANAJER & STRATEGI:`);
+  lines.push(`  * Manajer memiliki 1 Free Transfer gratis tiap GW. Tiap transfer tambahan dikenakan penalti potongan -4 poin (Transfer Hit / Liga Minus).`);
+  lines.push(`  * Starting Lineup (11 pemain) vs Bangku Cadangan (Bench Order 1, 2, 3): Poin di bench hangus kecuali autosub resmi terjadi.`);
+  lines.push(`  * Kapten (C): Poin dikali 2 (x2). Wakil Kapten (VC): Menggantikan kapten hanya jika kapten bermain 0 menit.`);
+  lines.push(`  * Chips Spesial: Triple Captain (poin kapten x3), Bench Boost (poin bangku cadangan ikut dihitung), Free Hit (perombakan bebas 1 GW), Wildcard.`);
+  lines.push(`- ATURAN SKOR RESMI (FPL SCORING TABLE):`);
+  lines.push(`  * Menit Main: 1-59 mnt (+1 pt), >= 60 mnt (+2 pts).`);
+  lines.push(`  * Gol: GKP/DEF (+6 pts), MID (+5 pts), FWD (+4 pts).`);
+  lines.push(`  * Assist: +3 pts untuk semua posisi.`);
+  lines.push(`  * Clean Sheet: DEF/GKP (+4 pts), MID (+1 pt) - Syarat mutlak: bermain minimal 60 menit saat timnya tidak kebobolan.`);
+  lines.push(`  * Saves Kiper: Tiap 3 saves = +1 pt.`);
+  lines.push(`  * Tepis Penalti: +5 pts (GKP).`);
+  lines.push(`  * Kontribusi Bertahan (DefCon): Cap +2 pts jika DEF CBIT >= 10, atau MID/FWD CBIRT >= 12.`);
+  lines.push(`  * Kebobolan: Tiap 2 gol kebobolan = -1 pt (khusus DEF/GKP).`);
+  lines.push(`  * Penalti Gagal: -2 pts. Gol Bunuh Diri: -2 pts.`);
+  lines.push(`  * Kartu Kuning: -1 pt. Kartu Merah: -3 pts (pemain kartu merah tetap terkena penalti kebobolan lanjutan).`);
+  lines.push(`  * Bonus Points (BPS Opta): 3, 2, 1 poin bagi 3 pemain dengan performa statistik Opta terbaik di pertandingan.`);
+  lines.push(`- FNB LEAGUE (FPL Nusantara BERHADIAH): Mini liga kompetitif bergengsi berhadiah dengan total 97 manajer.`);
+  lines.push(`  * 4 TIPE JUARA FNB LEAGUE:`);
+  lines.push(`    1. Overall Leader (Peringkat 1): Penguasa tahta akumulasi total poin tertinggi sepanjang musim.`);
+  lines.push(`    2. Top Challenger (Peringkat 2): Runner-up yang terus membayangi dan menekan puncak klasemen.`);
+  lines.push(`    3. Most GW Wins (Juara Terbanyak): Manajer peraih trofi mingguan terbanyak (jika bertengger di Posisi 1/2, dialihkan ke manajer eligible peringkat terbaik berikutnya).`);
+  lines.push(`    4. Juara Gameweek: Manajer dengan perolehan skor GW tertinggi di pekan aktif, berhak atas hadiah mingguan.`);
+
+  // ==========================================================================
+  // B. IDENTIFIKASI STATUS GAMEWEEK (SESUAI KONVENSI RULE[AGENTS_md])
   // ==========================================================================
   const isDataChecked = Boolean(data.gw_status?.data_checked);
   const isLeaguesUpdated = data.gw_status?.leagues_status === 'Updated';
@@ -71,43 +171,73 @@ function compileLeagueFacts(
   const finishedMatches = activeMatches.filter(m => m.finished || m.finished_provisional);
   const allMatchesFinished = activeMatches.length > 0 && finishedMatches.length === activeMatches.length;
 
-  lines.push(`=== FPL NUSANTARA BERHADIAH (FNB LEAGUE) ===`);
-  lines.push(`GAMEWEEK: GW ${currentGw}`);
-  lines.push(`TOTAL MANAJER TERDAFTAR: ${standingsGw.length} Tim`);
+  // Deadline & Jadwal Gameweek Berikutnya
+  const nextGw = currentGw + 1;
+  const nextDeadlineIso = data.sync_status?.next_deadline_time;
+  let deadlineFact = '';
+  if (nextDeadlineIso) {
+    try {
+      const d = new Date(nextDeadlineIso);
+      const dateStr = d.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: 'Asia/Jakarta'
+      });
+      const timeStr = d.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Jakarta'
+      });
+      deadlineFact = `Deadline Gameweek ${nextGw}: ${dateStr} pukul ${timeStr} WIB`;
+    } catch {
+      deadlineFact = `Deadline Gameweek ${nextGw}: ${nextDeadlineIso}`;
+    }
+  }
+
+  lines.push(`\n=== STATUS GAMEWEEK SAAT INI (RULE[AGENTS_md]) ===`);
+  lines.push(`GW AKTIF: GW ${currentGw}`);
 
   if (isGwFinal) {
-    lines.push(`STATUS GAMEWEEK: [GW FINAL / 100% RESMI TERKUNCI]`);
-    lines.push(`PANDUAN REDAKSI STATUS: Seluruh pertandingan telah selesai, audit Opta rampung, BPS 3-2-1 bonus poin permanen, autosub tuntas, hit transfer sudah dipotong, dan klasemen liga RESMI TERKUNCI. JANGAN gunakan frasa penantian atau spekulasi seperti "kita tunggu apakah...", "masih berpeluang bergeser", atau "menanti hasil akhir". Seluruh poin dan pemenang pekan ini dinyatakan sebagai fakta mutlak dan resmi.`);
+    lines.push(`STATUS KATEGORI: [GW FINAL / CONFIRMED]`);
+    lines.push(`ATURAN REDAKSI STATUS: Seluruh pertandingan telah tuntas 100%, audit Opta BPS selesai, poin bonus terkunci, proses autosub selesai, penalti hit transfer terpotong, dan klasemen liga RESMI TERKUNCI PERMANEN.`);
+    lines.push(`LARANGAN KERAS: DILARANG menggunakan kata-kata penantian atau spekulasi seperti "kita tunggu apakah...", "masih berpeluang bergeser", atau "menanti hasil akhir", karena semua laga sudah selesai dan klasemen telah dikunci mutlak. Sajikan semua nama juara dan poin sebagai fakta sah definitif.`);
+    if (deadlineFact) {
+      lines.push(`FAKTA DEADLINE RESMI: ${deadlineFact}.`);
+      lines.push(`KEWAJIBAN STATUS CONFIRMED: WAJIB TERBITKAN 1 HEADLINE PENGINGAT DEADLINE (DEADLINE REMINDER) untuk GW ${nextGw}! Beritahukan tenggat waktu transfer dan susunan pemain (${deadlineFact}) agar para manajer bersiap mengatur skuad dan transfer gratis.`);
+    }
   } else if (allMatchesFinished) {
-    lines.push(`STATUS GAMEWEEK: [GW PROVISIONAL / SELURUH LAGA LAPANGAN SUDAH SELESAI]`);
-    lines.push(`PANDUAN REDAKSI STATUS: Seluruh 10 pertandingan di lapangan SUDAH SELESAI 100%. TIDAK ADA pertandingan tersisa di lapangan, jadi DILARANG berkata "kita tunggu laga berikutnya" atau "masih ada pertandingan tersisa". Namun, poin bonus BPS dan klasemen masih berstatus PROVISIONAL menunggu audit akhir dan pengesahan FPL (autosub & bonus finalisasi). Jangan sebut sah terkunci permanen.`);
+    lines.push(`STATUS KATEGORI: [GW PROVISIONAL / SELURUH LAGA LAPANGAN RAMPUNG]`);
+    lines.push(`ATURAN REDAKSI STATUS: Seluruh 10 laga di lapangan SUDAH SELESAI 100%. TIDAK ADA laga tersisa di lapangan.`);
+    lines.push(`LARANGAN KERAS: JANGAN katakan "kita tunggu laga tersisa" atau "menanti pertandingan besok" karena lapangan sudah kosong. Namun BPS Opta dan proses autosub masih berstatus provisional menunggu audit pengesahan final FPL.`);
   } else if (liveMatches.length > 0) {
-    lines.push(`STATUS GAMEWEEK: [GW LIVE MATCHDAY / SEDANG BERTANDING DI LAPANGAN]`);
-    lines.push(`PANDUAN REDAKSI STATUS: Pertandingan EPL sedang berlangsung secara langsung di lapangan! Poin, BPS, dan posisi klasemen bergerak dinamis secara real-time. Sorot drama menit per menit di lapangan.`);
+    lines.push(`STATUS KATEGORI: [GW LIVE / MATCHDAY BERLANGSUNG]`);
+    lines.push(`ATURAN REDAKSI STATUS: Pertandingan EPL sedang bertanding di lapangan! Skor dan poin bergerak dinamis.`);
   } else if (finishedMatches.length > 0) {
-    lines.push(`STATUS GAMEWEEK: [GW INTERMISSION / JEDA ANTAR-HARI PERTANDINGAN]`);
-    lines.push(`PANDUAN REDAKSI STATUS: Sebagian pertandingan sudah selesai, namun masih ada pertandingan yang dijadwalkan bertanding di hari/jam berikutnya.`);
+    lines.push(`STATUS KATEGORI: [GW INTERMISSION / JEDA ANTAR-LAGA]`);
+    lines.push(`ATURAN REDAKSI STATUS: Sebagian pertandingan rampung, pertandingan berikutnya dijadwalkan bertanding besok.`);
   } else {
-    lines.push(`STATUS GAMEWEEK: [GW LOCKOUT / DEADLINE DITUTUP]`);
-    lines.push(`PANDUAN REDAKSI STATUS: Deadline transfer telah ditutup, formasi tim terkunci, laga perdana segera dimulai.`);
+    lines.push(`STATUS KATEGORI: [GW LOCKOUT / DEADLINE SELESAI]`);
+    lines.push(`ATURAN REDAKSI STATUS: Tim terkunci, laga perdana segera dimulai.`);
   }
 
   // ==========================================================================
-  // B. ARSITEKTUR TAMPILAN APLIKASI (UI CONTEXT)
+  // C. STRUKTUR SELURUH TAMPILAN APLIKASI
   // ==========================================================================
-  lines.push(`\n[STRUKTUR TAMPILAN APLIKASI YANG DILIHAT PENGGUNA]:`);
-  lines.push(`- Tab Klasemen: Menampilkan Peringkat (#), Nama Tim (diawali "Tim "), Nama Manajer, Poin GW, Total Poin, Perubahan Peringkat (naik/turun), dan Poin Minus Transfer.`);
-  lines.push(`- Subtab Status (4 Pilar Juara FNB League):`);
-  lines.push(`  1. Overall Leader (Peringkat 1): Pemuncak klasemen total poin tertinggi sepanjang musim.`);
-  lines.push(`  2. Top Challenger (Peringkat 2): Runner-up yang terus mengancam puncak.`);
-  lines.push(`  3. Most GW Wins (Juara Terbanyak): Manajer peraih piala mingguan terbanyak (jika di Rank 1/2, dialihkan ke manajer eligible peringkat terbaik berikutnya).`);
-  lines.push(`  4. Juara Gameweek: Peraih skor tertinggi di GW ini, berhak atas hadiah pekanan.`);
-  lines.push(`- Modal Detail Pemain: Menampilkan statistik mikro: Menit main, Gol, Assist, Clean Sheet (CS), Saves kiper, DefCon (Defensive Contribution), Gol Kebobolan (GC), Kartu Kuning/Merah, Penalti, dan Bonus Point System (BPS).`);
-  lines.push(`- Tab Transfer & Minus: Menampilkan aktivitas jual/beli dan daftar manajer dengan penalti transfer hit (minus 4 poin per transfer ekstra).`);
-  lines.push(`- Tab Kapten & Chips: Menampilkan pilihan ban kapten (poin x2), vice-captain, dan chip aktif (Triple Captain, Bench Boost, Wildcard, Free Hit).`);
+  lines.push(`\n=== SELURUH TAMPILAN APLIKASI FNB LEAGUE ===`);
+  lines.push(`- Tab Klasemen: Menampilkan Rank (#), Nama Tim (contoh "Ciss"), Nama Manajer, Poin GW, Total Poin, Perubahan Peringkat, dan Potongan Transfer Minus.`);
+  lines.push(`- Subtab Status (4 Pilar Juara): Kartu interaktif Overall Leader, Top Challenger, Most GW Wins, dan Juara Gameweek.`);
+  lines.push(`- Tab Matches: Kartu skor pertandingan live, menit main, pencetak gol, assist, dan kartu.`);
+  lines.push(`- Tab Transfer & Liga Minus: Menampilkan daftar transfer masuk/keluar serta daftar manajer dengan penalti poin minus.`);
+  lines.push(`- Tab Kapten & Chips: Menampilkan persentase pemilihan kapten, vice-captain, dan chip aktif (TC, BB, FH, WC).`);
+  lines.push(`- Tab Kepemilikan: Menampilkan persentase kepemilikan pemain di liga FNB.`);
+  lines.push(`- Modal Detail Pemain: Statistik mikro: Menit Main, Gol, Assist, Clean Sheet, Saves Kiper, DefCon, Kebobolan, Kartu Kuning/Merah, Penalti Gagal/Tepis, BPS.`);
+  lines.push(`- Modal Detail Manajer: Susunan starting XI, bangku cadangan, histori transfer mingguan, dan chip yang digunakan.`);
 
   // ==========================================================================
-  // C. 4 PILAR JUARA & STATISTIK SKOR FNB LEAGUE SAAT INI
+  // D. DATA 4 PILAR JUARA & STATISTIK KLASEMEN SAAT INI
   // ==========================================================================
   if (standingsGw.length > 0) {
     const rank1 = standingsGw.find(r => r.rank === 1) || standingsGw[0];
@@ -121,20 +251,66 @@ function compileLeagueFacts(
     const gwNRow = gwChampsList.find(g => g && g.event === currentGw);
     const topGwNChamp = gwNRow?.champions?.[0];
 
-    lines.push('\n[DATA 4 PILAR JUARA FNB LEAGUE]:');
-    if (rank1) lines.push(`- Pilar 1: Peringkat 1 (Overall Leader): Tim ${rank1.entry_name} (${rank1.player_name}) | Total: ${rank1.total_points} pts | GW${currentGw}: ${rank1.event_points} pts`);
+    lines.push(`\n=== DATA 4 PILAR JUARA SAAT INI ===`);
+    if (rank1) lines.push(`- Pilar 1: Peringkat 1 (Overall Leader): ${rank1.entry_name} (${rank1.player_name}) | Total: ${rank1.total_points} pts | GW${currentGw}: ${rank1.event_points} pts`);
     if (rank2) {
       const gap = (rank1?.total_points || 0) - rank2.total_points;
-      lines.push(`- Pilar 2: Peringkat 2 (Top Challenger): Tim ${rank2.entry_name} (${rank2.player_name}) | Total: ${rank2.total_points} pts | GW${currentGw}: ${rank2.event_points} pts | Selisih jarak ke puncak: ${gap} poin`);
+      lines.push(`- Pilar 2: Peringkat 2 (Top Challenger): ${rank2.entry_name} (${rank2.player_name}) | Total: ${rank2.total_points} pts | GW${currentGw}: ${rank2.event_points} pts | Gap: ${gap} poin ke puncak`);
     }
     if (eligibleMostGw) {
-      lines.push(`- Pilar 3: Juara Terbanyak (Most GW Wins): Tim ${eligibleMostGw.entry_name} (${eligibleMostGw.player_name}) | Memegang ${eligibleMostGw.win_count} gelar juara mingguan sepanjang musim`);
+      lines.push(`- Pilar 3: Juara Terbanyak (Most GW Wins): ${eligibleMostGw.entry_name} (${eligibleMostGw.player_name}) | Memegang ${eligibleMostGw.win_count} piala mingguan`);
     }
     if (topGwNChamp) {
-      lines.push(`- Pilar 4: Juara Gameweek ${currentGw}: Tim ${topGwNChamp.entry_name} (${topGwNChamp.player_name}) | Skor GW: ${topGwNChamp.points} poin`);
+      lines.push(`- Pilar 4: Juara Gameweek ${currentGw}: ${topGwNChamp.entry_name} (${topGwNChamp.player_name}) | Skor: ${topGwNChamp.points} poin`);
     }
 
-    // Skor Poin GW: Tertinggi, Rata-rata, Terendah
+    // Analisis Kudeta & Pertarungan Puncak Klasemen (Title Race Battle & Differentials)
+    if (rank1 && rank2 && prevStandingsGw.length > 0) {
+      const prevRank1 = prevStandingsGw.find(r => r.rank === 1);
+      const isCoup = prevRank1 && prevRank1.entry_id !== rank1.entry_id;
+      const gap = (rank1.total_points || 0) - rank2.total_points;
+
+      let prevStreak = 0;
+      if (isCoup && prevGw) {
+        for (let g = prevGw; g >= 1; g--) {
+          const pastStandings = data.standings?.[g] || [];
+          const pastTop = pastStandings.find(r => r.rank === 1);
+          if (pastTop && pastTop.entry_id === prevRank1.entry_id) {
+            prevStreak++;
+          } else {
+            break;
+          }
+        }
+      }
+
+      const op = data.ownership_players?.[currentGw] || [];
+      const r1Diffs: Array<{ name: string; pts: number; team: string }> = [];
+      const r2Diffs: Array<{ name: string; pts: number; team: string }> = [];
+
+      for (const p of op) {
+        const o1 = (p.owners || []).find(o => o.entry_id === rank1.entry_id && (o.is_starter || o.position_in_squad <= 11));
+        const o2 = (p.owners || []).find(o => o.entry_id === rank2.entry_id && (o.is_starter || o.position_in_squad <= 11));
+        if (o1 && !o2) r1Diffs.push({ name: p.web_name, pts: p.gw_points, team: p.team_short_name });
+        if (o2 && !o1) r2Diffs.push({ name: p.web_name, pts: p.gw_points, team: p.team_short_name });
+      }
+
+      lines.push(`\n=== DRAMA PEREBUTAN JUARA / KUDETA PUNCAK KLASEMEN ===`);
+      if (isCoup) {
+        lines.push(`- STATUS: TERJADI KUDETA TAKHTA BESAR! ${rank1.entry_name} resmi MEREBUT Peringkat #1 dari ${prevRank1.entry_name}.`);
+        lines.push(`- Kronologi: ${prevRank1.entry_name} yang telah memimpin klasemen liga selama ${prevStreak} pekan beruntun (dari GW${prevGw - prevStreak + 1} sampai GW${prevGw}) akhirnya lengser setelah hanya mencetak ${rank2.event_points} poin di GW${currentGw}, berbanding telak dengan ${rank1.entry_name} yang meledak dengan ${rank1.event_points} poin!`);
+        lines.push(`- Gap Klasemen: Defisit sebelumnya berhasil dibalikkan menjadi keunggulan +${gap} poin untuk ${rank1.entry_name}.`);
+        if (r1Diffs.length > 0 || r2Diffs.length > 0) {
+          const r1DiffStr = r1Diffs.map(d => `${d.name} (${d.pts} pts)`).join(', ');
+          const r2DiffStr = r2Diffs.map(d => `${d.name} (${d.pts} pts)`).join(', ');
+          lines.push(`- Pertarungan Aset Diferensial Penentu Kudeta:`);
+          lines.push(`  * Pembeda ${rank1.entry_name}: ${r1DiffStr}`);
+          lines.push(`  * Pembeda ${rank2.entry_name}: ${r2DiffStr}`);
+        }
+      } else {
+        lines.push(`- Persaingan Puncak: ${rank1.entry_name} menjaga keunggulan ${gap} poin dari ancaman ${rank2.entry_name}.`);
+      }
+    }
+
     const ptsList = standingsGw.map(r => Number(r.event_points)).filter(p => !isNaN(p));
     if (ptsList.length > 0) {
       const highestPts = Math.max(...ptsList);
@@ -142,15 +318,15 @@ function compileLeagueFacts(
       const avgPts = Math.round(ptsList.reduce((a, b) => a + b, 0) / ptsList.length);
       const topGwTeam = standingsGw.find(r => r.event_points === highestPts);
       const lowGwTeam = standingsGw.find(r => r.event_points === lowestPts);
-      lines.push(`\n[STATISTIK SKOR GAMEWEEK ${currentGw}]:`);
-      lines.push(`- Skor Tertinggi Pekan Ini: ${highestPts} poin diraih Tim ${topGwTeam?.entry_name || '-'}`);
-      lines.push(`- Rata-rata Skor Liga: ${avgPts} poin`);
-      lines.push(`- Skor Terendah Pekan Ini: ${lowestPts} poin dialami Tim ${lowGwTeam?.entry_name || '-'}`);
+      lines.push(`\n=== RANGKUMAN SKOR LIGA GW${currentGw} ===`);
+      lines.push(`- Skor Tertinggi: ${highestPts} poin diraih ${topGwTeam?.entry_name || '-'}`);
+      lines.push(`- Rata-rata Liga: ${avgPts} poin`);
+      lines.push(`- Skor Terendah: ${lowestPts} poin dialami ${lowGwTeam?.entry_name || '-'}`);
     }
   }
 
   // ==========================================================================
-  // D. HISTORI DARI GW KE GW (STANDINGS MOVEMENT & MOMENTUM)
+  // E. HISTORI PERUBAHAN DARI GW KE GW (STANDINGS MOMENTUM)
   // ==========================================================================
   if (prevStandingsGw.length > 0 && standingsGw.length > 0) {
     const prevMap = new Map<number, StandingsRow>();
@@ -159,7 +335,7 @@ function compileLeagueFacts(
     const movements = standingsGw.map(curr => {
       const prev = prevMap.get(curr.entry_id);
       const prevRank = prev ? prev.rank : curr.last_rank || curr.rank;
-      const rankDiff = prevRank - curr.rank; // positif = naik peringkat, negatif = turun
+      const rankDiff = prevRank - curr.rank;
       return {
         entry_name: curr.entry_name,
         player_name: curr.player_name,
@@ -174,62 +350,50 @@ function compileLeagueFacts(
     const topClimbers = [...movements].filter(m => m.rank_diff > 0).sort((a, b) => b.rank_diff - a.rank_diff).slice(0, 3);
     const bigFallers = [...movements].filter(m => m.rank_diff < 0).sort((a, b) => a.rank_diff - b.rank_diff).slice(0, 3);
 
-    lines.push(`\n[DINAMIKA & HISTORI KLASEMEN GW${prevGw} KE GW${currentGw}]:`);
+    lines.push(`\n=== HISTORI PERGESERAN KLASEMEN GW${prevGw} KE GW${currentGw} ===`);
     if (topClimbers.length > 0) {
-      lines.push(`- Lonjakan Peringkat Terbesar (Top Climbers):`);
+      lines.push(`- Lonjakan Peringkat Terbesar:`);
       topClimbers.forEach(c => {
-        lines.push(`  * Tim ${c.entry_name} (${c.player_name}): Melesat naik +${c.rank_diff} tingkat dari posisi #${c.prev_rank} ke #${c.current_rank} berkat torehan ${c.event_points} poin!`);
+        lines.push(`  * ${c.entry_name} (${c.player_name}): Melesat naik +${c.rank_diff} posisi dari #${c.prev_rank} ke #${c.current_rank} berkat torehan ${c.event_points} poin!`);
       });
     }
 
     if (bigFallers.length > 0) {
-      lines.push(`- Penurunan Peringkat Paling Curam (Big Fallers):`);
+      lines.push(`- Penurunan Paling Curam:`);
       bigFallers.forEach(f => {
-        lines.push(`  * Tim ${f.entry_name} (${f.player_name}): Merosot drastis ${Math.abs(f.rank_diff)} tingkat dari #${f.prev_rank} ke #${f.current_rank} setelah hanya meraup ${f.event_points} poin.`);
+        lines.push(`  * ${f.entry_name} (${f.player_name}): Anjlok ${Math.abs(f.rank_diff)} tingkat dari #${f.prev_rank} ke #${f.current_rank} setelah hanya mengumpulkan ${f.event_points} poin.`);
       });
-    }
-
-    // Perubahan Pucuk Klasemen (Kudeta Tahta)
-    const prevLeader = prevStandingsGw.find(s => s.rank === 1);
-    const currLeader = standingsGw.find(s => s.rank === 1);
-    if (prevLeader && currLeader) {
-      if (prevLeader.entry_id !== currLeader.entry_id) {
-        lines.push(`- KUDETA TAKHTA: Terjadi pergantian pemimpin! Tim ${currLeader.entry_name} sukses mengkudeta Tim ${prevLeader.entry_name} dari puncak klasemen FNB League!`);
-      } else {
-        const prevGap = (prevStandingsGw[1] ? prevLeader.total_points - prevStandingsGw[1].total_points : 0);
-        const currGap = (standingsGw[1] ? currLeader.total_points - standingsGw[1].total_points : 0);
-        lines.push(`- KONSISTENSI PEMUNCAK: Tim ${currLeader.entry_name} mempertahankan posisi #1. Jarak ke peringkat 2 berubah dari ${prevGap} poin pekan lalu menjadi ${currGap} poin saat ini.`);
-      }
     }
   }
 
   // ==========================================================================
-  // E. STATISTIK MIKRO MODAL PEMAIN & DRAMA DI LAPANGAN
+  // F. STATISTIK MIKRO MODAL PEMAIN & DRAMA LAPANGAN
   // ==========================================================================
   const playerStatsList = Array.isArray(data.player_stats) ? data.player_stats : [];
 
-  // 1. DefCon Heroes (Defensive Contribution: Bek CBIT >= 10, MID/FWD CBIRT >= 12 -> +2 pts)
+  // DefCon Stars (DEF CBIT >= 10, MID/FWD CBIRT >= 12 -> +2 pts)
   const defConStars = playerStatsList.filter(p => {
     const isDef = p.position === 'DEF';
-    const cbi = p.clearances_blocks_interceptions || 0;
-    const tackles = p.tackles || 0;
-    const rec = p.recoveries || 0;
-    return (isDef && (cbi + tackles) >= 10) || (!isDef && (cbi + tackles + rec) >= 12);
+    const cbi = (p as any).clearances_blocks_interceptions || (p as any).cbi || 0;
+    const tackles = (p as any).tackles || 0;
+    const rec = (p as any).recoveries || 0;
+    const defCon = (p as any).defensive_contribution || (p as any).defCon || 0;
+    return defCon > 0 || (isDef && (cbi + tackles) >= 10) || (!isDef && (cbi + tackles + rec) >= 12);
   }).slice(0, 4);
 
-  // 2. Kiper Tembok Kokoh (Saves & Tepis Penalti)
+  // Kiper Saves & Tepis Penalti
   const topSavesGk = playerStatsList.filter(p => p.position === 'GKP' && (p.saves || 0) >= 4)
     .sort((a, b) => (b.saves || 0) - (a.saves || 0)).slice(0, 3);
-  const penaltySavers = playerStatsList.filter(p => (p.penalties_saved || 0) > 0);
+  const penaltySavers = playerStatsList.filter(p => (p.penaltiesSaved || 0) > 0);
 
-  // 3. Petaka Penalti Gagal & Kartu Merah
-  const penaltyMissers = playerStatsList.filter(p => (p.penalties_missed || 0) > 0);
-  const redCardPlayers = playerStatsList.filter(p => (p.red_cards || 0) > 0);
+  // Penalti Gagal & Kartu Merah
+  const penaltyMissers = playerStatsList.filter(p => (p.penaltiesMissed || 0) > 0);
+  const redCardPlayers = playerStatsList.filter(p => (p.redCards || 0) > 0);
 
-  // 4. BPS Kings (Opta Bonus Points 3, 2, 1)
+  // Raja BPS Opta
   const bpsLeaders = [...playerStatsList].sort((a, b) => (b.bps || 0) - (a.bps || 0)).slice(0, 5);
 
-  // 5. Diferensial FNB League (Pemain berpoin tinggi yang hanya dimiliki sedikit manajer)
+  // Diferensial FNB League (hanya dimiliki <= 3 tim dan poin >= 9)
   const ownershipMap = new Map<number, number>();
   (data.ownership_players?.[currentGw] || []).forEach(o => ownershipMap.set(o.id, o.owned_count));
   const differentialHaulers = playerStatsList.filter(p => {
@@ -237,91 +401,63 @@ function compileLeagueFacts(
     return count > 0 && count <= 3 && (p.eventPoints || 0) >= 9;
   }).slice(0, 4);
 
-  lines.push(`\n[STATISTIK MIKRO PEMAIN & DRAMA LAPANGAN]:`);
+  lines.push(`\n=== DETAIL STATISTIK MIKRO PEMAIN (DARI MODAL PLAYER) ===`);
   if (bpsLeaders.length > 0) {
-    lines.push(`- Raja BPS Opta:`);
+    lines.push(`- Bintang BPS Opta:`);
     bpsLeaders.forEach(p => {
       lines.push(`  * ${p.webName} (${p.teamShort}): ${p.eventPoints} poin, ${p.bps} BPS, +${p.bonus || 0} bonus points`);
     });
   }
 
   if (defConStars.length > 0) {
-    lines.push(`- Pahlawan Kontribusi Bertahan (DefCon +2 Poin):`);
+    lines.push(`- Bonus DefCon (+2 Pts):`);
     defConStars.forEach(p => {
-      lines.push(`  * ${p.webName} (${p.teamShort}, ${p.position}): Meraih bonus +2 pts DefCon berkat aksi defensif militan!`);
+      lines.push(`  * ${p.webName} (${p.teamShort}, ${p.position}): Meraih bonus +2 pts DefCon berkat aksi defensif solid!`);
     });
   }
 
   if (topSavesGk.length > 0 || penaltySavers.length > 0) {
-    lines.push(`- Tembok Penjaga Gawang:`);
+    lines.push(`- Kiper Tangguh & Rekor Penalti (AKUMULASI SEPANJANG MUSIM - BUKAN DI GW${currentGw}):`);
     topSavesGk.forEach(gk => {
       const savePts = Math.floor((gk.saves || 0) / 3);
-      lines.push(`  * ${gk.webName} (${gk.teamShort}): Melakukan ${gk.saves} penyelamatan (+${savePts} save points)!`);
+      lines.push(`  * ${gk.webName} (${gk.teamShort}): Total ${gk.saves} saves sepanjang musim (+${savePts} pts saves musim ini)`);
     });
     penaltySavers.forEach(gk => {
-      lines.push(`  * ${gk.webName} (${gk.teamShort}): Menepis tendangan penalti langsung (+5 poin heroik)!`);
+      lines.push(`  * ${gk.webName} (${gk.teamShort}): Mengoleksi ${gk.penaltiesSaved || 1} tepisan penalti sepanjang musim ini (CATATAN KONTEKS: Ini adalah milestone musim berjalan, JANGAN sebut terjadi di GW${currentGw} terakhir).`);
     });
   }
 
   if (penaltyMissers.length > 0 || redCardPlayers.length > 0) {
-    lines.push(`- Petaka & Mimpi Buruk:`);
-    penaltyMissers.forEach(p => lines.push(`  * ${p.webName} (${p.teamShort}): Gagal mengeksekusi penalti (-2 poin petaka)!`));
-    redCardPlayers.forEach(p => lines.push(`  * ${p.webName} (${p.teamShort}): Diusir wasit dengan kartu merah (-3 poin dan tetap kena penalti kebobolan lanjutan)!`));
+    lines.push(`- Petaka Kartu & Penalti Gagal (AKUMULASI SEPANJANG MUSIM):`);
+    penaltyMissers.forEach(p => lines.push(`  * ${p.webName} (${p.teamShort}): Mengoleksi ${p.penaltiesMissed} penalti gagal sepanjang musim`));
+    redCardPlayers.forEach(p => lines.push(`  * ${p.webName} (${p.teamShort}): Mengoleksi ${p.redCards} kartu merah sepanjang musim berjalan`));
   }
 
   if (differentialHaulers.length > 0) {
-    lines.push(`- Kartu As Diferensial Komunitas FNB:`);
+    lines.push(`- Kartu As Diferensial FNB:`);
     differentialHaulers.forEach(p => {
       const owned = ownershipMap.get(p.id) || 1;
-      lines.push(`  * ${p.webName} (${p.teamShort}): Meledak membukukan ${p.eventPoints} poin, padahal hanya dimiliki oleh ${owned} tim di liga!`);
+      lines.push(`  * ${p.webName} (${p.teamShort}): Mendulang ${p.eventPoints} poin, hanya dimiliki oleh ${owned} manajer di liga!`);
     });
   }
 
   // ==========================================================================
-  // F. PILIHAN KAPTEN, CHIP & TRANSFER HIT
+  // G. KAPTEN, CHIP & TRANSFER HIT
   // ==========================================================================
   const captainsGw = (data.captain_players && data.captain_players[currentGw]) || [];
   if (captainsGw.length > 0) {
-    lines.push(`\n[ANALISIS BAN KAPTEN]:`);
+    lines.push(`\n=== PILIHAN KAPTEN ===`);
     captainsGw.slice(0, 4).forEach(c => {
-      lines.push(`- ${c.web_name} (${c.team_short_name}): Dipilih oleh ${c.captain_count} tim (${c.captain_percentage}%), mengumpulkan ${c.gw_points} poin dasar (bernilai ${c.gw_points * 2} poin bagi para kapten)`);
+      lines.push(`- ${c.web_name} (${c.team_short_name}): Dipilih ${c.captain_count} tim (${c.captain_percentage}%), mengumpulkan ${c.gw_points} pts dasar (${c.gw_points * 2} pts kapten)`);
     });
   }
 
-  // Chip Aktif
-  if (data.all_chips_used && data.all_chips_used.length > 0) {
-    const activeChips: string[] = [];
-    data.all_chips_used.forEach(row => {
-      if (row.tc1?.gw === currentGw || row.tc2?.gw === currentGw) activeChips.push(`Tim ${row.entry_name} (Triple Captain)`);
-      if (row.bb1?.gw === currentGw || row.bb2?.gw === currentGw) activeChips.push(`Tim ${row.entry_name} (Bench Boost)`);
-      if (row.fh1?.gw === currentGw || row.fh2?.gw === currentGw) activeChips.push(`Tim ${row.entry_name} (Free Hit)`);
-      if (row.wc1?.gw === currentGw || row.wc2?.gw === currentGw) activeChips.push(`Tim ${row.entry_name} (Wildcard)`);
-    });
-    if (activeChips.length > 0) {
-      lines.push(`\n[CHIP AKTIF GW${currentGw}]:`);
-      activeChips.slice(0, 6).forEach(c => lines.push(`- ${c}`));
-    }
-  }
-
-  // Liga Minus (Transfer Hit)
   const transferHitsThisGw = standingsGw.filter(s => (s.event_transfers_cost || 0) > 0)
     .sort((a, b) => b.event_transfers_cost - a.event_transfers_cost).slice(0, 3);
   if (transferHitsThisGw.length > 0) {
-    lines.push(`\n[TRANSFER HIT / LIGA MINUS GW${currentGw}]:`);
+    lines.push(`\n=== TRANSFER HIT / LIGA MINUS ===`);
     transferHitsThisGw.forEach(s => {
-      lines.push(`- Tim ${s.entry_name} (${s.player_name}): Rela memotong -${s.event_transfers_cost} poin demi perombakan transfer ekstra pekan ini`);
-    });
-  }
-
-  // Hasil Pertandingan EPL
-  if (activeMatches.length > 0) {
-    lines.push(`\n[HASIL / SKOR PERTANDINGAN EPL GW${currentGw}]:`);
-    activeMatches.forEach(m => {
-      const home = m.home_team?.name || m.home_team?.short_name || 'Home';
-      const away = m.away_team?.name || m.away_team?.short_name || 'Away';
-      const score = m.started ? `${m.team_h_score ?? 0}–${m.team_a_score ?? 0}` : 'vs';
-      const status = m.finished ? 'FT' : m.started ? `Menit ${m.minutes || m.clock_label || 'Live'}` : 'Mendatang';
-      lines.push(`- ${home} ${score} ${away} [${status}]`);
+      lines.push(`- ${s.entry_name} (${s.player_name}): Mengorbankan -${s.event_transfers_cost} poin demi rotasi ekstra`);
     });
   }
 
@@ -329,7 +465,7 @@ function compileLeagueFacts(
 }
 
 /**
- * Hasilkan berita berjalan dinamis berbobot dengan pemahaman FPL komprehensif
+ * Hasilkan berita berjalan dinamis berbobot dengan pemahaman FPL komprehensif 100% BEBAS TEMPLATE
  */
 export async function generateAiNewsTicker(
   data: TransformedLeagueData | null,
@@ -340,18 +476,22 @@ export async function generateAiNewsTicker(
   const cacheKey = `${lang}_${phase}`;
   const currentHash = createMatchStateHash(data, matches, lang);
 
-  // TTL: Jika live 60s, jika tidak 300s (5 menit) untuk efisiensi kuota
-  const ttl = phase === 'live' ? 60 * 1000 : 300 * 1000;
+  // Cache duration: 60s saat match live, 10 menit (600s) saat laga usai / confirmed
+  const ttl = phase === 'live' ? 60 * 1000 : 600 * 1000;
   const cached = memoryCache.get(cacheKey);
   if (cached && (Date.now() - cached.timestamp < ttl) && cached.hash === currentHash) {
     return cached.stories;
   }
 
+  // Jika Gemini belum siap atau API key tidak disetel
   if (!ai) {
-    console.log('[AI Newsroom] GEMINI_API_KEY is not set. Using dynamic context engine fallback.');
-    const fallbackStories = generateDynamicNewsStories(data, lang, matches);
-    memoryCache.set(cacheKey, { timestamp: Date.now(), hash: currentHash, stories: fallbackStories });
-    return fallbackStories;
+    console.log('[AI Newsroom] GEMINI_API_KEY is not set. Serving high-fidelity cached AI stories.');
+    const fallback = getFallbackPersistentStories(phase);
+    if (fallback.length > 0) {
+      memoryCache.set(cacheKey, { timestamp: Date.now(), hash: currentHash, stories: fallback });
+      return fallback;
+    }
+    return [];
   }
 
   const leagueFacts = compileLeagueFacts(data, matches, phase);
@@ -360,30 +500,37 @@ export async function generateAiNewsTicker(
   const systemInstruction = `Anda adalah Redaktur Utama & Jurnalis Olahraga Resmi untuk liga fantasi "FPL Nusantara BERHADIAH" (FNB League).
 Tugas Anda: Menghasilkan 8 hingga 14 headline berita berjalan (news ticker) yang segar, cerdas, tajam, dramatis, dan sangat menarik.
 
-PRINSIP UTAMA:
+PRINSIP WAJIB:
 1. 100% BEBAS TEMPLATE DAN BEBAS KATALOG:
-   - DILARANG menggunakan kalimat pembuka kaku yang berulang (seperti "kokoh di puncak tahta", "terpuruk di dasar", "habis-habisan mengeluarkan chip", dsb).
-   - DILARANG membuat susunan berita yang monoton seperti daftar urut.
-   - Bertindaklah seperti redaktur olahraga kawakan: pilih sudut berita (angle) paling dramatis, unik, dan menghibur dari fakta yang disediakan!
+   - DILARANG menggunakan kalimat pembuka kaku yang berulang (misal "kokoh di puncak tahta", "terpuruk di dasar", "habis-habisan mengeluarkan chip", dsb).
+   - DILARANG membuat susunan berita yang monoton atau formulaik.
+   - Bertindaklah seperti redaktur olahraga kawakan: temukan drama unik, ironi keputusan transfer, pertaruhan ban kapten, dan dampak aksi lapangan terhadap klasemen liga!
 2. AKURASI STATUS GAMEWEEK:
-   - Patuhi status Gameweek yang diberikan dalam fakta.
-   - Jika status [GW FINAL]: Nyatakan bahwa semua hasil, poin, dan klasemen sudah SAH dan MUTLAK terkunci. JANGAN gunakan frasa menunggu/spekulasi.
-   - Jika status [GW PROVISIONAL]: Seluruh pertandingan di lapangan sudah selesai (FT). JANGAN bilang "kita tunggu pertandingan tersisa" karena tidak ada laga lagi di lapangan. Namun sebutkan bahwa poin bonus BPS dan autosub sedang dalam antrean pengesahan audit akhir oleh FPL.
-   - Jika status [GW LIVE]: Pertandingan sedang berjalan di lapangan secara real-time.
+   - Patuhi status Gameweek dalam fakta.
+   - Jika [GW FINAL]: Semua hasil, poin, dan klasemen sudah SAH dan MUTLAK TERKUNCI. DILARANG menggunakan kata menunggu, berspekulasi, atau mempertanyakan laga berikutnya. Nyatakan pemenang dan poin sebagai fakta sah definitif.
+   - Jika [GW PROVISIONAL]: Seluruh pertandingan di lapangan sudah rampung 100%. DILARANG bilang "menunggu pertandingan tersisa" karena tidak ada laga lagi di lapangan. Sebutkan bahwa poin bonus BPS dan autosub sedang dalam antrean pengesahan audit akhir oleh FPL.
+   - Jika [GW LIVE]: Pertandingan sedang bertanding langsung di lapangan saat ini.
 3. HISTORI GW KE GW:
-   - Sorot drama pergeseran klasemen: siapa manajer yang melonjak naik berkat performa gemilang, siapa yang terjun bebas, dan bagaimana dinamika persaingan juara.
+   - Sorot drama pergeseran klasemen: siapa manajer yang melonjak naik, siapa yang anjlok, dan bagaimana perebutan 4 pilar juara.
 4. DRAMA STATISTIK MIKRO PEMAIN:
    - Manfaatkan detail statistik dari modal pemain: raihan +2 poin DefCon (Defensive Contribution) bek/gelandang, kegemilangan saves kiper, tepisan penalti, petaka kartu merah, hingga kartu as diferensial yang hanya dimiliki sedikit tim di liga.
 5. FORMAT TOKENISASI & NAMA TIM:
    - Setiap berita dipecah menjadi token entitas:
      * 'player': Nama pemain FPL (contoh: "Mohamed Salah", "Erling Haaland", "Gabriel").
-     * 'team': Nama tim manajer FNB League. WAJIB selalu diawali kata "Tim " (contoh: "Tim Yuk Bisa Yuk FC", "Tim Garuda Sakti").
+     * 'team': Nama tim manajer FNB League. Tuliskan nama asli tim secara langsung TANPA awalan kata "Tim " (contoh: "KERTAPATI FC", "Ciss").
      * 'club': Nama klub Premier League (contoh: "Arsenal", "Man City", "Liverpool").
-     * 'stat': Angka statistik, poin, peringkat, skor, persentase (contoh: "14 poin", "#1", "+2 pts", "3-0").
+     * 'stat': Angka statistik, poin, peringkat, skor, persentase (contoh: "83 poin", "#1", "+2 pts", "3-0").
      * 'plain': Narasi jurnalisme yang luwes, elegan, dan kaya diksi olahraga.
    - DILARANG KERAS menggunakan kurung kategori seperti [BREAKING], [HOT], [REKOR], atau awalan "Judul: Cerita". Langsung mulai narasi alami!
    - Pastikan spasi antartoken tetap rapi sehingga kata tidak menempel saat digabungkan.
-6. Berikan 'dramaScore' (40-100) sesuai tingkat urgensi dan emosi berita.`;
+6. Berikan 'dramaScore' (40-100) sesuai tingkat urgensi dan emosi berita.
+7. PRIORITAS UTAMA - DRAMA KUDETA PUNCAK KLASEMEN (TITLE RACE COUP):
+   - Jika terdapat fakta [KUDETA TAKHTA BESAR] atau perebutan posisi #1 vs #2, WAJIB buat minimal 1-2 headline utama dengan dramaScore tinggi (95-100). Ceritakan bagaimana sang penguasa lama yang telah memimpin berpekan-pekan akhirnya digulingkan oleh aset diferensial sang pemuncak baru!
+8. PENGINGAT DEADLINE (DEADLINE REMINDER) SAAT STATUS CONFIRMED:
+   - Saat status [GW FINAL / CONFIRMED], fokus manajer liga beralih ke persiapan pekan depan. WAJIB buat 1 headline Pengingat Deadline GW berikutnya yang menyebutkan batas waktu hari dan jam WIB secara jelas (misal: "Pengingat Deadline GW 9: Tenggat transfer dan susunan pemain ditutup pada Sabtu, 31 Oktober 2026 pukul 18:00 WIB. Selesaikan rotasi tim sebelum batas waktu!").
+9. AKURASI KONTEKS STATISTIK (GW TERAKHIR VS REKOR SEPANJANG MUSIM):
+   - DILARANG memberitakan rekor sepanjang musim (seperti tepisan penalti kiper Raya atau Tzolakis, total saves musim berjalan, atau kartu merah akumulasi) seolah-olah baru saja terjadi di pertandingan Gameweek terakhir!
+   - Boleh memberitakan pencapaian tersebut, tetapi WAJIB sebutkan konteksnya secara tepat sebagai rekor/koleksi musim ini (contoh: "Raya dan Tzolakis tercatat sebagai dua kiper elite dengan rekor penyelamatan penalti musim ini", BUKAN "Raya sukses menepis penalti di GW 8").`;
 
   const userPrompt = `Fakta lengkap liga dan pertandingan saat ini:
 ${leagueFacts}
@@ -391,9 +538,9 @@ ${leagueFacts}
 Bahasa: ${isId ? 'Bahasa Indonesia jurnalisme olahraga modern' : 'English sports journalism'}.
 Tolong buat 8-14 headline berita ticker berjalan dengan tokenisasi entitas yang bervariasi dan memikat.`;
 
-  // Model cascade: 'gemini-3.1-flash-lite' terlebih dahulu karena kuotanya terbukti aktif dan tidak terkena rate limit,
-  // lalu fallback ke 'gemini-flash-latest' dan 'gemini-3.8-flash'.
-  const candidateModels = ['gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
+  // Menggunakan 'gemini-3.1-flash-lite' terlebih dahulu karena kuota gratisnya jauh lebih besar,
+  // lalu fallback ke 'gemini-flash-latest'.
+  const candidateModels = ['gemini-3.1-flash-lite', 'gemini-flash-latest'];
   let response: any = null;
   let lastModelError: any = null;
 
@@ -440,7 +587,7 @@ Tolong buat 8-14 headline berita ticker berjalan dengan tokenisasi entitas yang 
       }
     } catch (e: any) {
       lastModelError = e;
-      console.warn(`[AI Newsroom] Model ${modelName} failed (${e.message}), trying next model...`);
+      console.warn(`[AI Newsroom] Model ${modelName} warning: ${e.message}`);
     }
   }
 
@@ -462,9 +609,9 @@ Tolong buat 8-14 headline berita ticker berjalan dengan tokenisasi entitas yang 
         let text = String(t.text || '');
         const type = (['player', 'team', 'club', 'stat', 'plain'].includes(t.type) ? t.type : 'plain') as NewsToken['type'];
         
-        // Pastikan nama tim selalu memiliki prefix "Tim "
-        if (type === 'team' && !text.trim().startsWith('Tim ')) {
-          text = text.replace(/^(\s*)(.*)$/, '$1Tim $2');
+        // Pastikan nama tim TIDAK diawali kata "Tim " (kecuali nama asli memang "Tim Holland")
+        if (type === 'team') {
+          text = cleanTeamToken(text);
         }
 
         return { text, type };
@@ -491,7 +638,7 @@ Tolong buat 8-14 headline berita ticker berjalan dengan tokenisasi entitas yang 
         normalizedTokens.push({ text, type: cleanTokens[i].type });
       }
 
-      const fullPlain = s.plainText || normalizedTokens.map(t => t.text).join('');
+      const fullPlain = normalizedTokens.map(t => t.text).join('').trim() || (s.plainText || '').replace(/\bTim\s+(?!Holland\b)/gi, '');
 
       return {
         id: s.id || `ai_story_${Date.now()}_${sIdx}`,
@@ -501,7 +648,6 @@ Tolong buat 8-14 headline berita ticker berjalan dengan tokenisasi entitas yang 
         timestamp: Date.now(),
         phase: phase as NewsStory['phase']
       };
-
     });
 
     memoryCache.set(cacheKey, {
@@ -510,13 +656,15 @@ Tolong buat 8-14 headline berita ticker berjalan dengan tokenisasi entitas yang 
       stories: processedStories
     });
 
+    // Simpan ke file persistent agar kebal terhadap restart container atau limit kuota
+    persistAiStories(processedStories);
+
     console.log(`[AI Newsroom] Successfully generated ${processedStories.length} zero-template AI stories for phase '${phase}' (lang: ${lang})`);
     return processedStories;
   } catch (err: any) {
-    console.warn('[AI Newsroom] Gemini fallback triggered:', err.message);
-    const fallbackStories = generateDynamicNewsStories(data, lang, matches);
+    console.warn('[AI Newsroom] Gemini quota or network notice. Serving persistent high-fidelity AI cache:', err.message);
+    const fallbackStories = getFallbackPersistentStories(phase);
     memoryCache.set(cacheKey, { timestamp: Date.now(), hash: currentHash, stories: fallbackStories });
     return fallbackStories;
   }
 }
-

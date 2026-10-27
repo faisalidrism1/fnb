@@ -1,0 +1,250 @@
+[
+  {
+    "id": "1",
+    "tokens": [
+      {
+        "text": "Yuk Bisa Yuk FC ",
+        "type": "team"
+      },
+      {
+        "text": "resmi mengkudeta takhta puncak klasemen FNB League dengan keunggulan ",
+        "type": "plain"
+      },
+      {
+        "text": "5 poin ",
+        "type": "stat"
+      },
+      {
+        "text": "setelah performa impresif di GW 8.",
+        "type": "plain"
+      }
+    ],
+    "plainText": "Yuk Bisa Yuk FC resmi mengkudeta takhta puncak klasemen FNB League dengan keunggulan 5 poin setelah performa impresif di GW 8.",
+    "dramaScore": 100,
+    "timestamp": 1793108377650,
+    "phase": "provisional"
+  },
+  {
+    "id": "2",
+    "tokens": [
+      {
+        "text": "Dominasi 4 pekan ",
+        "type": "plain"
+      },
+      {
+        "text": "PSIS FC ",
+        "type": "team"
+      },
+      {
+        "text": "berakhir tragis, tergelincir ke posisi kedua setelah hanya mampu meraih ",
+        "type": "plain"
+      },
+      {
+        "text": "43 poin ",
+        "type": "stat"
+      },
+      {
+        "text": "di pekan ini.",
+        "type": "plain"
+      }
+    ],
+    "plainText": "Dominasi 4 pekan PSIS FC berakhir tragis, tergelincir ke posisi kedua setelah hanya mampu meraih 43 poin di pekan ini.",
+    "dramaScore": 95,
+    "timestamp": 1793108377650,
+    "phase": "provisional"
+  },
+  {
+    "id": "3",
+    "tokens": [
+      {
+        "text": "Prabu Belgeduwelbeh ",
+        "type": "team"
+      },
+      {
+        "text": "tampil sebagai Juara Gameweek 8 dengan koleksi ",
+        "type": "plain"
+      },
+      {
+        "text": "68 poin ",
+        "type": "stat"
+      },
+      {
+        "text": "sekaligus meroket ",
+        "type": "plain"
+      },
+      {
+        "text": "20 peringkat ",
+        "type": "stat"
+      },
+      {
+        "text": "ke posisi #16.",
+        "type": "plain"
+      }
+    ],
+    "plainText": "Prabu Belgeduwelbeh tampil sebagai Juara Gameweek 8 dengan koleksi 68 poin sekaligus meroket 20 peringkat ke posisi #16.",
+    "dramaScore": 85,
+    "timestamp": 1793108377650,
+    "phase": "provisional"
+  },
+  {
+    "id": "4",
+    "tokens": [
+      {
+        "text": "Aset diferensial seperti ",
+        "type": "plain"
+      },
+      {
+        "text": "Barnes ",
+        "type": "player"
+      },
+      {
+        "text": "dan ",
+        "type": "plain"
+      },
+      {
+        "text": "Muharemović ",
+        "type": "player"
+      },
+      {
+        "text": "terbukti menjadi kunci keberhasilan ",
+        "type": "plain"
+      },
+      {
+        "text": "Yuk Bisa Yuk FC ",
+        "type": "team"
+      },
+      {
+        "text": "menggeser sang petahana.",
+        "type": "plain"
+      }
+    ],
+    "plainText": "Aset diferensial seperti Barnes dan Muharemović terbukti menjadi kunci keberhasilan Yuk Bisa Yuk FC menggeser sang petahana.",
+    "dramaScore": 75,
+    "timestamp": 1793108377650,
+    "phase": "provisional"
+  },
+  {
+    "id": "5",
+    "tokens": [
+      {
+        "text": "Tavernier ",
+        "type": "player"
+      },
+      {
+        "text": "mendulang ",
+        "type": "plain"
+      },
+      {
+        "text": "10 poin ",
+        "type": "stat"
+      },
+      {
+        "text": "dengan catatan ",
+        "type": "plain"
+      },
+      {
+        "text": "231 BPS ",
+        "type": "stat"
+      },
+      {
+        "text": "mengukuhkan dominasi poin bonus di lini tengah musim ini.",
+        "type": "plain"
+      }
+    ],
+    "plainText": "Tavernier mendulang 10 poin dengan catatan 231 BPS mengukuhkan dominasi poin bonus di lini tengah musim ini.",
+    "dramaScore": 60,
+    "timestamp": 1793108377650,
+    "phase": "provisional"
+  },
+  {
+    "id": "6",
+    "tokens": [
+      {
+        "text": "Trafford ",
+        "type": "player"
+      },
+      {
+        "text": "dan ",
+        "type": "plain"
+      },
+      {
+        "text": "Tzolakis ",
+        "type": "player"
+      },
+      {
+        "text": "tetap menjadi tembok tangguh dengan rekor akumulasi masing-masing ",
+        "type": "plain"
+      },
+      {
+        "text": "30 ",
+        "type": "stat"
+      },
+      {
+        "text": "dan ",
+        "type": "plain"
+      },
+      {
+        "text": "31 ",
+        "type": "stat"
+      },
+      {
+        "text": "penyelamatan sepanjang musim.",
+        "type": "plain"
+      }
+    ],
+    "plainText": "Trafford dan Tzolakis tetap menjadi tembok tangguh dengan rekor akumulasi masing-masing 30 dan 31 penyelamatan sepanjang musim.",
+    "dramaScore": 65,
+    "timestamp": 1793108377650,
+    "phase": "provisional"
+  },
+  {
+    "id": "7",
+    "tokens": [
+      {
+        "text": "White ",
+        "type": "player"
+      },
+      {
+        "text": "Truffert ",
+        "type": "player"
+      },
+      {
+        "text": "dan ",
+        "type": "plain"
+      },
+      {
+        "text": "Enciso ",
+        "type": "player"
+      },
+      {
+        "text": "menjadi kartu as bagi segelintir manajer beruntung dengan raihan ",
+        "type": "plain"
+      },
+      {
+        "text": "10 poin ",
+        "type": "stat"
+      },
+      {
+        "text": "per pemain.",
+        "type": "plain"
+      }
+    ],
+    "plainText": "White Truffert dan Enciso menjadi kartu as bagi segelintir manajer beruntung dengan raihan 10 poin per pemain.",
+    "dramaScore": 55,
+    "timestamp": 1793108377650,
+    "phase": "provisional"
+  },
+  {
+    "id": "8",
+    "tokens": [
+      {
+        "text": "Pengingat Deadline GW 9: Tenggat transfer dan susunan pemain ditutup pada Sabtu, 31 Oktober 2026 pukul 18:00 WIB. Pastikan rotasi tim sudah final!",
+        "type": "plain"
+      }
+    ],
+    "plainText": "Pengingat Deadline GW 9: Tenggat transfer dan susunan pemain ditutup pada Sabtu, 31 Oktober 2026 pukul 18:00 WIB. Pastikan rotasi tim sudah final!",
+    "dramaScore": 70,
+    "timestamp": 1793108377650,
+    "phase": "provisional"
+  }
+]
