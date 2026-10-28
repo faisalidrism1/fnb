@@ -2,5 +2,7 @@
   "name": "FPL Nusantara BERHADIAH",
   "description": "Official FPL Mini League 12356 dashboard with live standings, ownership analytics, transfers, captaincy stats, and chip tracking.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

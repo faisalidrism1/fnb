@@ -28,6 +28,12 @@ import {
   getDatabaseStats
 } from './src/server/db.ts';
 import { generateAiNewsTicker } from './src/server/aiNewsroom.ts';
+import {
+  executeReadOnlyDatabaseAction,
+  queryDatabaseWithGemini,
+  readOnlyDatabaseToolDeclarations
+} from './src/server/geminiDatabaseReader.ts';
+
 
 const app = express();
 const PORT = 3000;
@@ -1113,20 +1119,101 @@ app.get('/api/db/sync', handleDbSync);
 app.get('/api/news-ticker/stories', async (req, res) => {
   try {
     const lang = req.query.lang === 'en' ? 'en' : 'id';
+    const forceRefresh = req.query.refresh === '1' || req.query.force === '1';
     const currentGw = cachedData?.current_gw || 1;
     let matches: any[] = [];
     try {
-      matches = await fetchMatchesForGw(currentGw);
+      matches = await Promise.race([
+        fetchMatchesForGw(currentGw),
+        new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 2500))
+      ]);
     } catch (e: any) {
       console.warn('[Server] Could not fetch matches for news ticker:', e.message);
     }
 
-    const stories = await generateAiNewsTicker(cachedData, matches, lang);
+
+    const stories = await generateAiNewsTicker(cachedData, matches, lang, forceRefresh);
     res.json({ success: true, count: stories.length, data: stories });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+// =========================================================================
+// GEMINI AI READ-ONLY CONTAINER DATABASE ACCESS ENDPOINTS
+// =========================================================================
+
+/**
+ * Overview of Gemini AI's read-only permissions, database architecture, and tools
+ */
+app.get('/api/ai/database-overview', (req, res) => {
+  try {
+    const stats = getDatabaseStats();
+    const meta = getDbSyncMeta();
+    res.json({
+      success: true,
+      accessMode: 'STRICTLY_READ_ONLY',
+      permissions: {
+        read: true,
+        write: false,
+        update: false,
+        delete: false,
+      },
+      toolsAvailable: readOnlyDatabaseToolDeclarations.map(t => ({
+        name: t.name,
+        description: t.description,
+      })),
+      databaseState: {
+        leagueId: meta.leagueId,
+        leagueName: meta.leagueName,
+        currentGw: meta.currentGw,
+        totalManagers: stats.indexedManagers,
+        totalPlayers: stats.indexedPlayers,
+        totalSnapshots: stats.indexedSnapshots,
+        totalTables: stats.totalTables,
+        tableCounts: stats.recordCounts,
+        lastSynced: stats.lastSynced,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * Execute a query with Gemini AI against the container database using read-only tools
+ */
+app.post('/api/ai/query-database', async (req, res) => {
+  try {
+    const { query, lang } = req.body || {};
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({
+        success: false,
+        error: 'Body property "query" (string) is required.',
+      });
+    }
+
+    const language = lang === 'en' ? 'en' : 'id';
+    const result = await queryDatabaseWithGemini(query, language);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * Full structured database dump endpoint (strictly read-only)
+ */
+app.get('/api/ai/database-dump', async (req, res) => {
+  try {
+    const includePlayers = req.query.includePlayers === 'true';
+    const result = await executeReadOnlyDatabaseAction('read_full_database_dump', { includePlayers });
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 // Vite / static file serving
 async function startServer() {
