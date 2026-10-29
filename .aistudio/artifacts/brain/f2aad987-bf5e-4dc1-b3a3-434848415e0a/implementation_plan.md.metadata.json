@@ -1,6 +1,6 @@
 {
-  "summary":  "Revisi rencana implementasi (v3):\n1. Navigasi seluruh 38 Gameweek (GW 1 s/d GW 38) di Tab Matches dengan default awal tetap Current GW.\n2. Dropdown GW menampilkan indikator \"Current\" (atau \"Terkini\" dalam Bahasa Indonesia) khusus pada baris Gameweek aktif saat ini.\n3. Gameweek lainnya ditampilkan bersih (\"GW X\") tanpa label tanggal atau status tambahan.\n4. Dropdown dibatasi setinggi ~10 baris Gameweek (max-h-[320px] overflow-y-auto) dan dapat di-scroll vertikal.\n5. Tombol < dan > mendukung perpindahan mulus dari GW 1 sampai GW 38 dengan pemuatan on-demand dan client caching.",
-  "updatedAt":  "2026-10-23T10:46:28.673177043Z",
+  "summary":  "Arsitektur komprehensif dan konsep kerja News Ticker FNB League bertenaga Gemini AI, berfokus penuh pada kualitas narasi jurnalistik olahraga resmi yang menggali drama nyata keputusan manajer (transfer, kapten, bench, chips, hits, kepemilikan) terhadap persaingan 4 jenis juara.",
+  "updatedAt":  "2026-10-29T12:31:12.499995291Z",
   "requestFeedback":  true,
   "userFacing":  true
 }
