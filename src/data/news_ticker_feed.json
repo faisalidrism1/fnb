@@ -1,0 +1,70 @@
+{
+  "success": true,
+  "gameweek": 8,
+  "nextGameweek": 9,
+  "gameweekPhase": "Confirmed",
+  "lastUpdated": "2026-10-30T17:58:00.000Z",
+  "count": 10,
+  "data": [
+    {
+      "id": "story_1",
+      "headline_id": "[T:Yuk Bisa Yuk FC] sukses mengambil alih [N:Peringkat 1] klasemen [N:GW 8] setelah melompat dari posisi runner-up pekan lalu berkat sumbangan [N:9 Poin] bek tangguh [P:Muharemović] ([C:Leeds]).",
+      "headline_en": "[T:Yuk Bisa Yuk FC] seize [N:Rank 1] in [N:GW 8] from last week's runner-up spot powered by [N:9 Points] from defender [P:Muharemović] ([C:Leeds]).",
+      "drama_score": 97
+    },
+    {
+      "id": "story_2",
+      "headline_id": "[T:MCFC ALLNEW] kehilangan potensi [N:+17 Poin] karena mengkaptenkan [P:João Pedro] ([C:Chelsea]) dibanding [P:Gabriel] ([C:Arsenal]) yang mengoleksi poin lebih tinggi di Starting XI.",
+      "headline_en": "[T:MCFC ALLNEW] lost a potential [N:+17 Points] by captaining [P:João Pedro] ([C:Chelsea]) over [P:Gabriel] ([C:Arsenal]) who scored higher in the starting XI.",
+      "drama_score": 95
+    },
+    {
+      "id": "story_3",
+      "headline_id": "[T:Prabu Belgeduwelbeh] menyegel gelar Juara Gameweek dengan torehan [N:68 Poin] dan melesat [N:20 tangga] dari peringkat [N:36] ke peringkat [N:16], dipuncaki aksi gemilang [P:Enciso] ([C:Ipswich Town]).",
+      "headline_en": "[T:Prabu Belgeduwelbeh] clinch GW Champion with [N:68 Points] and surge [N:20 spots] from [N:36th] to [N:16th], spearheaded by [P:Enciso] ([C:Ipswich Town]).",
+      "drama_score": 93
+    },
+    {
+      "id": "story_4",
+      "headline_id": "[T:Maverick] kehilangan potensi [N:+13 Poin] karena mencadangkan [P:Konsa] ([C:Arsenal]) dan memainkan starter yang hanya mendapat [N:1 Poin].",
+      "headline_en": "[T:Maverick] lost a potential [N:+13 Points] by benching [P:Konsa] ([C:Arsenal]) in favor of a starter who earned only [N:1 Point].",
+      "drama_score": 91
+    },
+    {
+      "id": "story_5",
+      "headline_id": "Keputusan membeli [P:Tavernier] ([C:Bournemouth]) berbuah manis [N:10 Poin] krusial bagi lonjakan skuad [T:Doa Mangcek FC].",
+      "headline_en": "Bringing in [P:Tavernier] ([C:Bournemouth]) delivers a decisive [N:10 Points] to propel [T:Doa Mangcek FC].",
+      "drama_score": 88
+    },
+    {
+      "id": "story_6",
+      "headline_id": "Keberanian [T:Mahendraw] memasang kapten [P:Isak] ([C:Liverpool]) menghasilkan [N:18 Poin] berharga dan melesatkan tim [N:14 tangga] dari peringkat [N:73] menuju peringkat [N:59] klasemen.",
+      "headline_en": "[T:Mahendraw]'s bold captaincy on [P:Isak] ([C:Liverpool]) yields [N:18 Points] and vaults the team [N:14 spots] from [N:73rd] to [N:59th] in the standings.",
+      "drama_score": 89
+    },
+    {
+      "id": "story_7",
+      "headline_id": "[T:KST] kehilangan potensi [N:+8 Poin] karena mencadangkan kiper tangguh [P:Kinsky] ([C:Spurs]) di bangku cadangan.",
+      "headline_en": "[T:KST] lost a potential [N:+8 Points] by benching goalkeeper [P:Kinsky] ([C:Spurs]) on the bench.",
+      "drama_score": 85
+    },
+    {
+      "id": "story_8",
+      "headline_id": "Penyelamatan heroik [P:Raya] ([C:Arsenal]) bernilai [N:7 Poin] nirbobol sempurna mengokohkan posisi [T:Team Pick] bertahan di [N:Peringkat 3] klasemen.",
+      "headline_en": "Heroic [N:7 Points] clean sheet display from [P:Raya] ([C:Arsenal]) cements [T:Team Pick] maintaining their hold on [N:Rank 3].",
+      "drama_score": 84
+    },
+    {
+      "id": "story_9",
+      "headline_id": "[T:Ceved SC] terlempar [N:10 peringkat] dari posisi [N:9] ke peringkat [N:19] klasemen akibat penampilan [N:-1 Poin] [P:Palmer] ([C:Chelsea]) di Starting XI.",
+      "headline_en": "[T:Ceved SC] tumble [N:10 places] from [N:9th] down to [N:19th] in the standings after [P:Palmer] ([C:Chelsea]) registers [N:-1 Point] in the starting XI.",
+      "drama_score": 86
+    },
+    {
+      "id": "story_10",
+      "headline_id": "[T:amenk wenger] kehilangan potensi [N:+11 Poin] karena menjual [P:N.Jackson] ([C:Aston Villa]) dan menggantinya dengan [P:Calvert-Lewin] ([C:Leeds]) yang hanya mendapat [N:2 Poin].",
+      "headline_en": "[T:amenk wenger] lost a potential [N:+11 Points] by selling [P:N.Jackson] ([C:Aston Villa]) and replacing him with [P:Calvert-Lewin] ([C:Leeds]) who earned only [N:2 Points].",
+      "drama_score": 87
+    }
+  ]
+}

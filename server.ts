@@ -27,10 +27,14 @@ import {
   getDbSyncMeta,
   getDatabaseStats
 } from './src/server/db.ts';
-
-
+import {
+  generateNewsTickerFeed,
+  triggerBackgroundNewsUpdate,
+  getCachedNewsFeed
+} from './src/server/geminiNewsService.ts';
 
 const app = express();
+
 const PORT = 3000;
 
 app.use(express.json({ limit: '25mb' }));
@@ -145,7 +149,15 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
       // Broadcast fresh data to all active clients immediately via Server-Sent Events (SSE)
       broadcastSyncComplete(freshData, action);
 
+      // Trigger news ticker update in background whenever sync completes
+      try {
+        triggerBackgroundNewsUpdate();
+      } catch (err: any) {
+        console.warn('[Server] Background news update trigger caught error:', err.message);
+      }
+
       return freshData;
+
     } catch (error: any) {
       console.error(`[Server] Sync (${action}) failed:`, error.message);
       if (cachedData) {
@@ -246,6 +258,10 @@ app.get('/api/fpl-data', async (req, res) => {
             // Condition 4b: Both API and Container are Confirmed -> Action C (Zero Sync, serve instantly)
             console.log(`[Sync Orchestrator] Condition 4b met: GW ${apiActiveGW} is Final & container already sealed -> Action C (Serve cached data instantly)`);
             executedAction = 'C_SERVE';
+            if (!getCachedNewsFeed()) {
+              triggerBackgroundNewsUpdate();
+            }
+
           }
         }
       } catch (checkErr: any) {
@@ -1109,6 +1125,18 @@ const handleDbSync = async (req: express.Request, res: express.Response) => {
 
 app.post('/api/db/sync', handleDbSync);
 app.get('/api/db/sync', handleDbSync);
+
+// Endpoint News Ticker Feed bertenaga Gemini AI
+app.get('/api/news-ticker/feed', async (req, res) => {
+  try {
+    const force = req.query.refresh === '1' || req.query.force === '1';
+    const feed = await generateNewsTickerFeed(force);
+    res.json(feed);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 
 

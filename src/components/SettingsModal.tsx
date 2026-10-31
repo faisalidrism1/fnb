@@ -103,12 +103,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   });
 
-  // News Ticker state (default OFF when not yet determined by user)
+  // News Ticker state (default ON when not yet configured by user)
   const [newsTicker, setNewsTicker] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('fnb_setting_news_ticker') === 'true';
+      const stored = localStorage.getItem('fnb_setting_news_ticker');
+      return stored !== null ? stored === 'true' : true;
     } catch {
-      return false;
+      return true;
     }
   });
 
