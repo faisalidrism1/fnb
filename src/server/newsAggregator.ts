@@ -5,6 +5,8 @@
  * Enforces historical GW rank checking to deliver maximum contextual drama.
  */
 
+import fs from 'fs';
+import path from 'path';
 import {
   getOptimalDatabase,
   getDbStandings,
@@ -13,10 +15,66 @@ import {
   getDbLigaMinus,
 } from './db.ts';
 
+export interface RawSquadPlayer {
+  name: string;
+  club: string;
+  pos: string;
+  pts: number;
+  isC: boolean;
+  isVC: boolean;
+  matchStatus: 'Finished' | 'Live' | 'Upcoming';
+  matchLabel: string; // e.g. "Selesai (FT)" | "Live (68')" | "Belum Main (Kickoff 23:30 WIB)"
+  fixture: string; // e.g. "Arsenal 2 - 0 Everton (FT)"
+}
+
+export interface RawBenchPlayer {
+  name: string;
+  club: string;
+  pos: string;
+  pts: number;
+  order: number;
+  matchStatus: 'Finished' | 'Live' | 'Upcoming';
+  matchLabel: string;
+  fixture: string;
+}
+
 export interface RawTeamSquad {
-  starters: Array<{ name: string; club: string; pos: string; pts: number; isC: boolean; isVC: boolean }>;
-  bench: Array<{ name: string; club: string; pos: string; pts: number; order: number }>;
+  starters: RawSquadPlayer[];
+  bench: RawBenchPlayer[];
   benchPts: number;
+}
+
+export interface RawFixtureMatchInfo {
+  id: number;
+  homeTeam: string;
+  awayTeam: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  kickoffWib: string;
+  status: 'Finished' | 'Live' | 'Upcoming';
+  statusLabel: string;
+  minutes: number;
+  scoreDisplay: string;
+}
+
+export interface ClubMatchStatusEntry {
+  club: string;
+  status: 'Finished' | 'Live' | 'Upcoming';
+  statusLabel: string;
+  fixture: string;
+  opponent: string;
+}
+
+export interface MatchesOverview {
+  totalMatches: number;
+  finishedCount: number;
+  liveCount: number;
+  upcomingCount: number;
+  statusSummary: string;
+  finishedMatches: RawFixtureMatchInfo[];
+  liveMatches: RawFixtureMatchInfo[];
+  upcomingMatches: RawFixtureMatchInfo[];
+  allMatches: RawFixtureMatchInfo[];
 }
 
 export interface RawTeamEntry {
@@ -32,8 +90,8 @@ export interface RawTeamEntry {
   captain: string | null;
   viceCaptain: string | null;
   benchPts: number;
-  starters: Array<{ name: string; club: string; pos: string; pts: number; isC: boolean; isVC: boolean }>;
-  bench: Array<{ name: string; club: string; pos: string; pts: number; order: number }>;
+  starters: RawSquadPlayer[];
+  bench: RawBenchPlayer[];
 }
 
 export interface RawPlayerStat {
@@ -43,6 +101,9 @@ export interface RawPlayerStat {
   cost: number;
   gwPts: number;
   mins: number;
+  matchStatus: 'Finished' | 'Live' | 'Upcoming';
+  matchLabel: string;
+  fixture: string;
   goals: number;
   assists: number;
   cs: number;
@@ -102,8 +163,10 @@ export interface StandingsHistoricalContext {
 export interface RawMatchdayPayload {
   gameweek: number;
   nextGameweek: number;
-  gameweekPhase: 'Live' | 'Provisional' | 'Confirmed';
+  gameweekPhase: 'Not started' | 'Live' | 'Provisional' | 'Confirmed';
   phaseDescription: string;
+  clubMatchStatusTable: ClubMatchStatusEntry[];
+  matchesOverview: MatchesOverview;
   leagueStats: {
     totalTeams: number;
     averageScore: number;
@@ -139,10 +202,168 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   const snapshot = getGwSnapshot(currentGw);
   const allPlayers = Object.values(db.players || {});
 
-  // 1. Reconstruct Starting XI (11) and Bench (4) for every team
+  // 1. Load 10 Gameweek Fixtures and map each club's exact match details first
+  const CACHE_FILE_PATH = path.join(process.cwd(), 'src/data/cachedLeagueData.json');
+  let rawCache: any = null;
+  let rawGwFixtures: any[] = [];
+  try {
+    if (fs.existsSync(CACHE_FILE_PATH)) {
+      rawCache = JSON.parse(fs.readFileSync(CACHE_FILE_PATH, 'utf-8'));
+      rawGwFixtures = rawCache?.sync_status?.gw_fixtures || [];
+    }
+  } catch (err: any) {
+    console.warn('[News Aggregator] Could not read gw_fixtures from cache:', err.message);
+  }
+
+  const EPL_CLUB_NAMES: Record<string, string> = {
+    ARS: 'Arsenal', AVL: 'Aston Villa', BOU: 'Bournemouth', BRE: 'Brentford',
+    BHA: 'Brighton', CHE: 'Chelsea', CRY: 'Crystal Palace', EVE: 'Everton',
+    FUL: 'Fulham', IPS: 'Ipswich Town', LEI: 'Leicester', LIV: 'Liverpool',
+    MCI: 'Man City', MUN: 'Man Utd', NEW: 'Newcastle', NFO: "Nott'm Forest",
+    SOU: 'Southampton', TOT: 'Spurs', WHU: 'West Ham', WOL: 'Wolves',
+  };
+
+  interface ClubFixtureInfo {
+    status: 'Finished' | 'Live' | 'Upcoming';
+    matchLabel: string;
+    fixture: string;
+    opponent: string;
+  }
+  const clubDetailMap = new Map<string, ClubFixtureInfo>();
+
+  const allMatches: RawFixtureMatchInfo[] = rawGwFixtures
+    .filter((f) => f.event === currentGw || !f.event)
+    .map((fix) => {
+      const homeName = EPL_CLUB_NAMES[fix.home_team] || fix.home_team || 'Home';
+      const awayName = EPL_CLUB_NAMES[fix.away_team] || fix.away_team || 'Away';
+      const isFt = Boolean(fix.finished || fix.finished_provisional || (fix.minutes && fix.minutes >= 90));
+      const isStarted = Boolean(fix.started);
+      const isLive = Boolean(isStarted && !isFt);
+
+      let status: 'Finished' | 'Live' | 'Upcoming' = 'Upcoming';
+      let statusLabel = 'Belum Dimainkan';
+      let scoreDisplay = `${homeName} vs ${awayName}`;
+
+      let kickoffWib = '';
+      if (fix.kickoff_time) {
+        try {
+          const d = new Date(fix.kickoff_time);
+          kickoffWib = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' }) + ' WIB';
+        } catch {}
+      }
+
+      if (isFt) {
+        status = 'Finished';
+        statusLabel = 'Selesai (FT)';
+        scoreDisplay = `${homeName} ${fix.team_h_score ?? 0} - ${fix.team_a_score ?? 0} ${awayName} (FT)`;
+      } else if (isLive) {
+        status = 'Live';
+        const minStr = fix.minutes ? `Menit ${fix.minutes}` : 'Live';
+        statusLabel = `Live (${minStr})`;
+        scoreDisplay = `${homeName} ${fix.team_h_score ?? 0} - ${fix.team_a_score ?? 0} ${awayName} (${minStr})`;
+      } else {
+        status = 'Upcoming';
+        statusLabel = kickoffWib ? `Belum Dimainkan (${kickoffWib})` : 'Belum Dimainkan';
+        scoreDisplay = `${homeName} vs ${awayName} (${statusLabel})`;
+      }
+
+      const homeInfo: ClubFixtureInfo = {
+        status,
+        matchLabel: statusLabel,
+        fixture: scoreDisplay,
+        opponent: awayName,
+      };
+      const awayInfo: ClubFixtureInfo = {
+        status,
+        matchLabel: statusLabel,
+        fixture: scoreDisplay,
+        opponent: homeName,
+      };
+
+      clubDetailMap.set(homeName.toLowerCase(), homeInfo);
+      clubDetailMap.set(awayName.toLowerCase(), awayInfo);
+      if (fix.home_team) clubDetailMap.set(String(fix.home_team).toLowerCase(), homeInfo);
+      if (fix.away_team) clubDetailMap.set(String(fix.away_team).toLowerCase(), awayInfo);
+
+      return {
+        id: fix.id,
+        homeTeam: homeName,
+        awayTeam: awayName,
+        homeScore: fix.team_h_score ?? null,
+        awayScore: fix.team_a_score ?? null,
+        kickoffWib,
+        status,
+        statusLabel,
+        minutes: fix.minutes || 0,
+        scoreDisplay,
+      };
+    });
+
+  const clubMatchStatusTable: ClubMatchStatusEntry[] = [];
+  const registeredClubs = new Set<string>();
+  for (const m of allMatches) {
+    if (!registeredClubs.has(m.homeTeam)) {
+      registeredClubs.add(m.homeTeam);
+      clubMatchStatusTable.push({
+        club: m.homeTeam,
+        status: m.status,
+        statusLabel: m.statusLabel,
+        fixture: m.scoreDisplay,
+        opponent: m.awayTeam,
+      });
+    }
+    if (!registeredClubs.has(m.awayTeam)) {
+      registeredClubs.add(m.awayTeam);
+      clubMatchStatusTable.push({
+        club: m.awayTeam,
+        status: m.status,
+        statusLabel: m.statusLabel,
+        fixture: m.scoreDisplay,
+        opponent: m.homeTeam,
+      });
+    }
+  }
+
+  function getClubMatchInfo(clubName: string): ClubFixtureInfo {
+    const norm = (clubName || '').toLowerCase().trim();
+    return (
+      clubDetailMap.get(norm) || {
+        status: 'Finished',
+        matchLabel: 'Selesai (FT)',
+        fixture: `${clubName} (FT)`,
+        opponent: '',
+      }
+    );
+  }
+
+  const finishedMatches = allMatches.filter((m) => m.status === 'Finished');
+  const liveMatches = allMatches.filter((m) => m.status === 'Live');
+  const upcomingMatches = allMatches.filter((m) => m.status === 'Upcoming');
+
+  const statusSummary =
+    allMatches.length > 0
+      ? `${finishedMatches.length} selesai (FT), ${liveMatches.length} sedang berjalan (Live), ${upcomingMatches.length} belum dimainkan (Upcoming)`
+      : 'Seluruh 10 laga pekan ini telah selesai dipertandingkan (100% FT).';
+
+  const matchesOverview: MatchesOverview = {
+    totalMatches: allMatches.length,
+    finishedCount: finishedMatches.length,
+    liveCount: liveMatches.length,
+    upcomingCount: upcomingMatches.length,
+    statusSummary,
+    finishedMatches,
+    liveMatches,
+    upcomingMatches,
+    allMatches,
+  };
+
+  // 2. Reconstruct Starting XI (11) and Bench (4) for every team with direct match status on each player
   const managerSquadMap: Record<number, RawTeamSquad> = {};
   for (const p of allPlayers) {
     const owners = p.league_ownership?.owners || [];
+    const clubName = p.teamName || p.teamShort;
+    const matchInfo = getClubMatchInfo(clubName);
+
     for (const o of owners) {
       if (!managerSquadMap[o.entry_id]) {
         managerSquadMap[o.entry_id] = { starters: [], bench: [], benchPts: 0 };
@@ -151,19 +372,25 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
       if (o.is_starter) {
         managerSquadMap[o.entry_id].starters.push({
           name: p.webName,
-          club: p.teamName || p.teamShort,
+          club: clubName,
           pos: p.position,
           pts: pts * (o.multiplier || 1),
           isC: Boolean(o.is_captain),
           isVC: Boolean(o.is_vice_captain),
+          matchStatus: matchInfo.status,
+          matchLabel: matchInfo.matchLabel,
+          fixture: matchInfo.fixture,
         });
       } else {
         managerSquadMap[o.entry_id].bench.push({
           name: p.webName,
-          club: p.teamName || p.teamShort,
+          club: clubName,
           pos: p.position,
           pts,
           order: o.position_in_squad || 12,
+          matchStatus: matchInfo.status,
+          matchLabel: matchInfo.matchLabel,
+          fixture: matchInfo.fixture,
         });
         managerSquadMap[o.entry_id].benchPts += pts;
       }
@@ -175,12 +402,11 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
     sq.bench.sort((a, b) => a.order - b.order);
   }
 
-  // 2. Build 97 Teams Standings Table with Historical GW Context
+  // 3. Build 97 Teams Standings Table with Historical GW Context
   const standingsTable: RawTeamEntry[] = standings.map((s) => {
     const sq = managerSquadMap[s.entry_id] || { starters: [], bench: [], benchPts: 0 };
     const currentRank = Number(s.rank);
     const lastRank = Number(s.last_rank || s.lastRank || currentRank);
-    // Rank change in standings: if lastRank was 2 and current is 1 -> climbed +1 spot
     const rankChange = lastRank - currentRank;
 
     let rankContext = `Peringkat ${currentRank} (stabil dari GW ${previousGw})`;
@@ -294,13 +520,18 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
     .filter((p) => (p.minutes || 0) > 0 || (p.league_ownership?.count || 0) > 0)
     .map((p) => {
       const count = p.league_ownership?.count || 0;
+      const clubName = p.teamName || p.teamShort || '';
+      const matchInfo = getClubMatchInfo(clubName);
       return {
         name: p.webName,
-        club: p.teamName || p.teamShort,
+        club: clubName,
         pos: p.position,
         cost: (p.nowCost || 0) / 10,
         gwPts: p.eventPoints || 0,
         mins: p.minutes || 0,
+        matchStatus: matchInfo.status,
+        matchLabel: matchInfo.matchLabel,
+        fixture: matchInfo.fixture,
         goals: p.goalsScored || 0,
         assists: p.assists || 0,
         cs: p.cleanSheets || 0,
@@ -323,31 +554,68 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   const averageScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
   // 6. The 4 Championship Categories (from Subtab Status Rules)
+  const top1Or2EntryIds = new Set<number>();
   const top1Or2Teams = new Set<string>();
   if (rank1) top1Or2Teams.add(rank1.team);
   if (rank2) top1Or2Teams.add(rank2.team);
 
-  let eligibleMostGwLeader = { team: rank1 ? rank1.team : 'Unknown', winCount: 2, isPassedDown: false, note: '' };
-  try {
-    eligibleMostGwLeader = {
-      team: 'PSIS FC',
-      winCount: 2,
-      isPassedDown: top1Or2Teams.has('Yuk Bisa Yuk FC'),
-      note: 'Status pemenang disahkan mengikuti aturan pelimpahan jika pemegang memuncaki Rank 1 atau 2.',
-    };
-  } catch {}
+  const r1Entry = standings.find((s) => s.rank === 1);
+  const r2Entry = standings.find((s) => s.rank === 2);
+  if (r1Entry?.entry_id) top1Or2EntryIds.add(r1Entry.entry_id);
+  if (r2Entry?.entry_id) top1Or2EntryIds.add(r2Entry.entry_id);
+
+  const rawMostGwList: any[] = db.league_analytics?.most_gameweek_champions || [];
+  const mostGwWithWins = rawMostGwList.filter((m: any) => m && m.win_count > 0);
+  const rawTopLeader = mostGwWithWins[0];
+
+  const eligibleLeader = mostGwWithWins.find((m: any) => {
+    if (m.entry_id && top1Or2EntryIds.has(m.entry_id)) return false;
+    if (m.entry_name && top1Or2Teams.has(m.entry_name)) return false;
+    return true;
+  }) || rawTopLeader;
+
+  const isPassedDown = Boolean(
+    eligibleLeader &&
+    rawTopLeader &&
+    (eligibleLeader.entry_id !== rawTopLeader.entry_id || eligibleLeader.entry_name !== rawTopLeader.entry_name)
+  );
+
+  const eligibleMostGwLeader = {
+    team: eligibleLeader?.entry_name || (rank1 ? rank1.team : 'Unknown'),
+    winCount: eligibleLeader?.win_count || 0,
+    isPassedDown,
+    originalLeaderTeam: rawTopLeader?.entry_name || '',
+    note: isPassedDown
+      ? `Pelimpahan hak: Peringkat teratas Most GW (${rawTopLeader?.entry_name}) menempati Peringkat 1 atau 2 klasemen, sehingga status Juara Terbanyak dilimpahkan ke ${eligibleLeader?.entry_name} (${eligibleLeader?.win_count} kemenangan mingguan).`
+      : `Memimpin Most GW dengan koleksi ${eligibleLeader?.win_count || 0} kemenangan mingguan.`,
+  };
 
   const champEntry = snapshot?.champion?.champions?.[0];
   const topGwScorerTeam = champEntry?.entry_name || (standingsTable.length > 0 ? [...standingsTable].sort((a, b) => b.gwPts - a.gwPts)[0].team : 'Unknown');
   const topGwPoints = champEntry?.points || highestScore;
 
   // 7. Gameweek Phase Identification (Deterministic from RULE[AGENTS_md])
-  let gameweekPhase: 'Live' | 'Provisional' | 'Confirmed' = 'Confirmed';
+  let gameweekPhase: 'Not started' | 'Live' | 'Provisional' | 'Confirmed' = 'Confirmed';
   let phaseDescription = 'GW Confirmed / Final: Poin pemain, tim, dan klasemen liga telah dikunci 100% oleh FPL. Keempat gelar juara disahkan secara resmi.';
 
-  if (db.meta.is_live) {
+  const isAllUpcoming = allMatches.length > 0 && finishedMatches.length === 0 && liveMatches.length === 0;
+  const isAllFinished = allMatches.length > 0 && finishedMatches.length === allMatches.length;
+
+  if (rawCache?.gw_status?.status === 'Not started' || isAllUpcoming) {
+    gameweekPhase = 'Not started';
+    phaseDescription = `GW Not started (Pra-Gameweek): Belum ada pertandingan yang dimainkan di pekan ini (seluruh ${upcomingMatches.length} laga berstatus Upcoming). Fokus berita adalah strategi susunan pemain manajer: transfer in/out terpopuler, aktivasi chip, pemilihan kapten, dan penalti hits sebelum kickoff pembuka.`;
+  } else if (liveMatches.length > 0) {
     gameweekPhase = 'Live';
-    phaseDescription = 'GW Live: Pertandingan Premier League sedang bertanding secara langsung di lapangan saat ini.';
+    phaseDescription = `GW Live (Pertandingan Berlangsung): Ada ${liveMatches.length} laga sedang bergulir langsung di lapangan saat ini. Fokus berita adalah menit berjalan dan aksi langsung pemain yang sedang mengubah skor tim secara live.`;
+  } else if (finishedMatches.length > 0 && upcomingMatches.length > 0) {
+    gameweekPhase = 'Live';
+    phaseDescription = `GW Live (Jeda Antar-Pertandingan / Inter-Match): ${finishedMatches.length} laga telah tuntas dan ${upcomingMatches.length} laga belum dimainkan, dengan 0 laga aktif di lapangan saat ini. Fokus berita adalah evaluasi hasil laga yang sudah usai (FT) vs tim-tim di bawah yang masih menyimpan amunisi pemain/kapten di laga berikutnya untuk melakukan kudeta tahta.`;
+  } else if (isAllFinished && (rawCache?.gw_status?.status === 'Provisional' || rawCache?.gw_status?.data_checked === false || rawCache?.gw_status?.leagues_status !== 'Updated')) {
+    gameweekPhase = 'Provisional';
+    phaseDescription = 'GW Provisional: Seluruh 10 laga pekan ini telah selesai 90 menit (FT). Poin masih bersifat sementara menunggu audit resmi Opta untuk BPS (3, 2, 1), kalkulasi autosub, dan pemotongan penalti hit transfer.';
+  } else if (db.meta.is_live) {
+    gameweekPhase = 'Live';
+    phaseDescription = 'GW Live: Pekan kompetisi sedang aktif berlangsung.';
   }
 
   // 8. Transfers & Chips
@@ -464,6 +732,8 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
     nextGameweek: nextGw,
     gameweekPhase,
     phaseDescription,
+    matchesOverview,
+    clubMatchStatusTable,
     leagueStats: {
       totalTeams: standingsTable.length,
       averageScore,

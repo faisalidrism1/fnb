@@ -1,0 +1,117 @@
+[
+  {
+    "id": "story_1",
+    "gw": 8,
+    "headline_id": "Tergusur dari puncak klasemen, [T:PSIS FC] harus rela turun ke [N:Peringkat 2] setelah hanya mengumpulkan [N:43 Poin] di [N:GW 8], sementara hak gelar Juara Terbanyak dilimpahkan ke [T:Blackswann] sesuai regulasi liga.",
+    "headline_en": "Dethroned from the summit, [T:PSIS FC] drop to [N:Rank 2] after securing only [N:43 Points] in [N:GW 8], while the Most GW Champion entitlement rolls down to [T:Blackswann] under official league rules.",
+    "teams": [
+      "PSIS FC"
+    ],
+    "players": [],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  },
+  {
+    "id": "story_2",
+    "gw": 8,
+    "headline_id": "[T:BERCELANA] kehilangan potensi [N:+9 Poin] karena mencadangkan [P:O'Nien] ([C:Sunderland]) yang meraup [N:9 Poin] dan justru memainkan starter [P:Maguire] ([C:Man Utd]) dengan torehan [N:0 Poin], mengakibatkan tim terpuruk di [N:Peringkat 90].",
+    "headline_en": "[T:BERCELANA] lost a potential [N:+9 Points] by benching [P:O'Nien] ([C:Sunderland]) who collected [N:9 Points] in favor of starter [P:Maguire] ([C:Man Utd]) who produced [N:0 Points], leaving the team slumping in [N:Rank 90].",
+    "teams": [
+      "BERCELANA"
+    ],
+    "players": [
+      "O'Nien",
+      "Maguire"
+    ],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  },
+  {
+    "id": "story_3",
+    "gw": 8,
+    "headline_id": "Pemanfaatan chip Bench Boost melambungkan [T:PENDOEL SELECTION] sejauh [N:12 peringkat] menuju [N:Peringkat 20] klasemen, didukung aksi impresif kiper [P:Leno] ([C:Fulham]) yang mendulang [N:8 Poin].",
+    "headline_en": "Capitalizing on the Bench Boost chip elevates [T:PENDOEL SELECTION] by [N:12 spots] up to [N:Rank 20] in the standings, driven by an impressive [N:8 Points] display from goalkeeper [P:Leno] ([C:Fulham]).",
+    "teams": [
+      "PENDOEL SELECTION"
+    ],
+    "players": [
+      "Leno"
+    ],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  },
+  {
+    "id": "story_4",
+    "gw": 8,
+    "headline_id": "Eksekusi cerdik chip Free Hit berhasil mengerek posisi [T:Petrikor] naik [N:13 tingkat] dari peringkat [N:38] ke [N:Peringkat 25] klasemen, disokong performa tangguh penjaga gawang [P:Trafford] ([C:Leeds]) bernilai [N:10 Poin].",
+    "headline_en": "Astute deployment of the Free Hit chip propels [T:Petrikor] up [N:13 places] from [N:38th] into [N:Rank 25], anchored by a stellar [N:10 Points] contribution from goalkeeper [P:Trafford] ([C:Leeds]).",
+    "teams": [
+      "Petrikor"
+    ],
+    "players": [
+      "Trafford"
+    ],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  },
+  {
+    "id": "story_5",
+    "gw": 8,
+    "headline_id": "Penurunan paling drastis pekan ini dialami [T:Ayase RS] yang terjun bebas [N:17 peringkat] dari posisi [N:24] menuju [N:Peringkat 41] setelah hanya sanggup mengoleksi total [N:28 Poin].",
+    "headline_en": "The steepest descent of the week hit [T:Ayase RS], plummeting [N:17 places] from [N:24th] down to [N:Rank 41] after managing a meager total of just [N:28 Points].",
+    "teams": [
+      "Ayase RS"
+    ],
+    "players": [],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  },
+  {
+    "id": "story_6",
+    "gw": 8,
+    "headline_id": "[T:Talisirah] kehilangan potensi [N:+8 Poin] akibat keputusan mengalungkan ban kapten kepada [P:Cherki] ([C:Man City]) dibanding [P:Jacquet] ([C:Liverpool]) yang mendulang angka jauh lebih tinggi.",
+    "headline_en": "[T:Talisirah] lost a potential [N:+8 Points] due to the captaincy decision on [P:Cherki] ([C:Man City]) over [P:Jacquet] ([C:Liverpool]) who earned a significantly higher score.",
+    "teams": [
+      "Talisirah"
+    ],
+    "players": [
+      "Cherki",
+      "Jacquet"
+    ],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  },
+  {
+    "id": "story_7",
+    "gw": 8,
+    "headline_id": "Pertaruhan ban kapten pada gelandang [P:Ndoye] ([C:Nott'm Forest]) berakhir minim dengan [N:4 Poin] ganda, menyeret [T:E-Win] longsor [N:14 tangga] dari peringkat [N:34] ke [N:Peringkat 48] klasemen setelah dipotong penalti hit transfer.",
+    "headline_en": "Gambling the armband on midfielder [P:Ndoye] ([C:Nott'm Forest]) yields a modest [N:4 Points] doubled, dragging [T:E-Win] down [N:14 spots] from [N:34th] to [N:Rank 48] compounded by a transfer hit penalty.",
+    "teams": [
+      "E-Win"
+    ],
+    "players": [
+      "Ndoye"
+    ],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  },
+  {
+    "id": "story_8",
+    "gw": 8,
+    "headline_id": "Lonjakan impresif menuju [N:Peringkat 8] klasemen diamankan [T:Always Ready] dengan torehan [N:67 Poin], berkat kontribusi kokoh lini belakang [P:N.Williams] ([C:Nott'm Forest]) yang meraup [N:8 Poin].",
+    "headline_en": "An impressive leap into [N:Rank 8] is secured by [T:Always Ready] with a [N:67 Points] tally, powered by a robust [N:8 Points] defensive display from [P:N.Williams] ([C:Nott'm Forest]).",
+    "teams": [
+      "Always Ready"
+    ],
+    "players": [
+      "N.Williams"
+    ],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  },
+  {
+    "id": "story_9",
+    "gw": 8,
+    "headline_id": "Lompatan masif [N:15 tingkat] sukses dibukukan [T:kembang tebu] untuk menduduki [N:Peringkat 50] klasemen bermodalkan [N:59 Poin], didukung penampilan disiplin gelandang [P:Dewsbury-Hall] ([C:Everton]).",
+    "headline_en": "A massive climb of [N:15 spots] is engineered by [T:kembang tebu] to reach [N:Rank 50] on the back of [N:59 Points], supported by a disciplined showing from midfielder [P:Dewsbury-Hall] ([C:Everton]).",
+    "teams": [
+      "kembang tebu"
+    ],
+    "players": [
+      "Dewsbury-Hall"
+    ],
+    "timestamp": "2026-10-31T02:32:13.855Z"
+  }
+]

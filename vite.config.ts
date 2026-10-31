@@ -14,7 +14,7 @@ export default defineConfig(() => {
     server: {
       hmr: false,
       watch: {
-        ignored: ['**/src/data/**', '**/data/**', '**/*.json', '**/.git/**', '**/node_modules/**'],
+        ignored: ['**/*'],
       },
     },
   };

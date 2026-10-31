@@ -1149,7 +1149,7 @@ async function startServer() {
         middlewareMode: true,
         hmr: false,
         watch: {
-          ignored: ['**/src/data/**', '**/data/**', '**/*.json', '**/.git/**', '**/node_modules/**'],
+          ignored: ['**/*'],
         },
       },
       appType: 'spa',

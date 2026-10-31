@@ -18,6 +18,58 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <script>
       (function() {
+        // Prevent Vite HMR WebSocket disconnects from triggering spurious page reloads in iframe/Cloud Run
+        var OriginalWebSocket = window.WebSocket;
+        if (OriginalWebSocket) {
+          window.WebSocket = function(url, protocols) {
+            var isViteHmr = false;
+            try {
+              if (typeof protocols === 'string' && protocols.indexOf('vite-hmr') !== -1) {
+                isViteHmr = true;
+              } else if (Array.isArray(protocols) && protocols.indexOf('vite-hmr') !== -1) {
+                isViteHmr = true;
+              } else if (typeof url === 'string' && (url.indexOf('token=') !== -1 || url.indexOf('vite-hmr') !== -1)) {
+                isViteHmr = true;
+              }
+            } catch (e) {}
+
+            if (isViteHmr) {
+              // Provide an inert mock WebSocket that reports OPEN, dispatches 'open',
+              // and never emits 'close' or 'error' events.
+              // This completely eliminates Vite client's `vite:ws:disconnect -> polling -> location.reload()` cycle.
+              var dummy = new EventTarget();
+              dummy.url = url;
+              dummy.readyState = 1; // WebSocket.OPEN
+              dummy.bufferedAmount = 0;
+              dummy.extensions = '';
+              dummy.protocol = 'vite-hmr';
+              dummy.binaryType = 'blob';
+              dummy.send = function() {};
+              dummy.close = function() {};
+              dummy.onopen = null;
+              dummy.onclose = null;
+              dummy.onerror = null;
+              dummy.onmessage = null;
+
+              setTimeout(function() {
+                var openEvt = new Event('open');
+                if (typeof dummy.onopen === 'function') dummy.onopen(openEvt);
+                dummy.dispatchEvent(openEvt);
+              }, 10);
+
+              return dummy;
+            }
+
+            return new OriginalWebSocket(url, protocols);
+          };
+
+          window.WebSocket.prototype = OriginalWebSocket.prototype;
+          window.WebSocket.CONNECTING = 0;
+          window.WebSocket.OPEN = 1;
+          window.WebSocket.CLOSING = 2;
+          window.WebSocket.CLOSED = 3;
+        }
+
         // Suppress harmless Vite HMR WebSocket connection errors in iframe/Cloud Run environment
         window.addEventListener('error', function(event) {
           if (

@@ -31,10 +31,97 @@ export interface NewsTickerFeedResponse {
 }
 
 const FEED_CACHE_PATH = path.join(process.cwd(), 'src/data/news_ticker_feed.json');
+const HISTORY_CACHE_PATH = path.join(process.cwd(), 'src/data/news_ticker_history.json');
 
 // In-memory microcache for instant (< 1 ms) API response
 let memoryFeedCache: NewsTickerFeedResponse | null = null;
 let lastProcessedDataHash = '';
+
+export interface PastNewsRecord {
+  id: string;
+  gw: number;
+  headline_id: string;
+  headline_en: string;
+  teams: string[];
+  players: string[];
+  timestamp: string;
+}
+
+/**
+ * Extracts tagged entity values from text (e.g. [T:Team], [P:Player])
+ */
+export function extractTags(text: string, tagType: 'T' | 'P' | 'C' | 'N'): string[] {
+  const regex = new RegExp(`\\[${tagType}:([^\\]]+)\\]`, 'g');
+  const matches: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(text)) !== null) {
+    matches.push(m[1].trim());
+  }
+  return matches;
+}
+
+/**
+ * Loads the persistent news production history across previous runs
+ */
+export function loadNewsHistory(): PastNewsRecord[] {
+  try {
+    if (fs.existsSync(HISTORY_CACHE_PATH)) {
+      const raw = fs.readFileSync(HISTORY_CACHE_PATH, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err: any) {
+    console.warn('[Gemini News Service] Failed to read history cache:', err.message);
+  }
+
+  // Fallback: populate from current memoryFeedCache if history file doesn't exist yet
+  if (memoryFeedCache && Array.isArray(memoryFeedCache.data)) {
+    return memoryFeedCache.data.map((item) => ({
+      id: item.id,
+      gw: memoryFeedCache!.gameweek,
+      headline_id: item.headline_id,
+      headline_en: item.headline_en,
+      teams: extractTags(item.headline_id, 'T'),
+      players: extractTags(item.headline_id, 'P'),
+      timestamp: memoryFeedCache!.lastUpdated || new Date().toISOString(),
+    }));
+  }
+
+  return [];
+}
+
+/**
+ * Appends freshly generated stories into the sliding window history cache (retains last 40)
+ */
+export function saveNewsHistory(newStories: NewsTickerStory[], gw: number): void {
+  try {
+    const existing = loadNewsHistory();
+    const newRecords: PastNewsRecord[] = newStories.map((s) => ({
+      id: s.id,
+      gw,
+      headline_id: s.headline_id,
+      headline_en: s.headline_en,
+      teams: extractTags(s.headline_id, 'T'),
+      players: extractTags(s.headline_id, 'P'),
+      timestamp: new Date().toISOString(),
+    }));
+
+    // Merge and deduplicate by exact headline_id
+    const combined = [...existing];
+    for (const rec of newRecords) {
+      if (!combined.some((c) => c.headline_id === rec.headline_id)) {
+        combined.push(rec);
+      }
+    }
+
+    // Keep sliding window of latest 40 stories
+    const trimmed = combined.slice(-40);
+    fs.writeFileSync(HISTORY_CACHE_PATH, JSON.stringify(trimmed, null, 2), 'utf-8');
+    console.log(`[Gemini News Service] Updated history cache with ${trimmed.length} records.`);
+  } catch (err: any) {
+    console.warn('[Gemini News Service] Failed to save history cache:', err.message);
+  }
+}
 
 /**
  * Sanitizes headline text:
@@ -94,6 +181,68 @@ export function cleanHeadlineBody(text: string): string {
     .replace(/\bnet\s+points?\b/gi, 'points')
     .replace(/\bnet\s+(\[N:[^\]]+\])/gi, '$1')
     .replace(/\bnet\s+(\d+)/gi, '$1');
+
+  // Enforce singular entity rule for 1 team:
+  // 1 tim adalah entitas tunggal, tidak boleh dideskripsikan sebagai "mereka" (atau "they/them/their").
+  // Jika dalam 1 headline hanya merujuk 1 tim, ubah rujukan jamak menjadi rujukan entitas tunggal.
+  const teamMatches = cleaned.match(/\[T:[^\]]+\]/g) || [];
+  const isMultipleTeams = teamMatches.length > 1 || /\b(?:kedua|semua|para|antar|beberapa)\s+tim\b/i.test(cleaned) || /\bboth\s+teams\b/i.test(cleaned);
+
+  if (!isMultipleTeams) {
+    // Indonesian: ubah kata ganti jamak "mereka" untuk 1 tim tunggal
+    cleaned = cleaned
+      .replace(/\bposisi\s+mereka\b/gi, 'posisinya')
+      .replace(/\bpoin\s+mereka\b/gi, 'poin tim tersebut')
+      .replace(/\bskuad\s+mereka\b/gi, 'skuadnya')
+      .replace(/\blangkah\s+mereka\b/gi, 'langkahnya')
+      .replace(/\bupaya\s+mereka\b/gi, 'upayanya')
+      .replace(/\bpeluang\s+mereka\b/gi, 'peluangnya')
+      .replace(/\bambisi\s+mereka\b/gi, 'ambisinya')
+      .replace(/\bkeunggulan\s+mereka\b/gi, 'keunggulannya')
+      .replace(/\bperforma\s+mereka\b/gi, 'performanya')
+      .replace(/\bkeberhasilan\s+mereka\b/gi, 'keberhasilannya')
+      .replace(/\bkemenangan\s+mereka\b/gi, 'kemenangannya')
+      .replace(/\bbagi\s+mereka\b/gi, 'bagi tim tersebut')
+      .replace(/\buntuk\s+mereka\b/gi, 'untuk tim tersebut')
+      .replace(/\boleh\s+mereka\b/gi, 'oleh tim tersebut')
+      .replace(/\bmembuat\s+mereka\b/gi, 'membuat tim tersebut')
+      .replace(/\bmembawa\s+mereka\b/gi, 'membawa tim tersebut')
+      .replace(/\bmengantar\s+mereka\b/gi, 'mengantar tim tersebut')
+      .replace(/\bmenempatkan\s+mereka\b/gi, 'menempatkan tim tersebut')
+      .replace(/\bmelesatkan\s+mereka\b/gi, 'melesatkan tim tersebut')
+      .replace(/\bmengangkat\s+mereka\b/gi, 'mengangkat tim tersebut')
+      .replace(/\bmendorong\s+mereka\b/gi, 'mendorong tim tersebut')
+      .replace(/\bmereka\b/gi, 'tim tersebut');
+
+    // English: replace "they/them/their" when referring to a single team
+    cleaned = cleaned
+      .replace(/\btheir\s+hold\b/gi, 'its hold')
+      .replace(/\btheir\s+position\b/gi, 'its position')
+      .replace(/\btheir\s+rank\b/gi, 'its rank')
+      .replace(/\btheir\s+squad\b/gi, 'its squad')
+      .replace(/\btheir\s+points\b/gi, 'its points')
+      .replace(/\btheir\s+chances?\b/gi, 'its chance')
+      .replace(/\btheir\s+lead\b/gi, 'its lead')
+      .replace(/\btheir\s+pursuit\b/gi, 'its pursuit')
+      .replace(/\btheir\s+bid\b/gi, 'its bid')
+      .replace(/\btheir\s+campaign\b/gi, 'its campaign')
+      .replace(/\btheir\b/gi, 'its')
+      .replace(/\bfor\s+them\b/gi, 'for the team')
+      .replace(/\bto\s+them\b/gi, 'to the team')
+      .replace(/\bby\s+them\b/gi, 'by the team')
+      .replace(/\bpropels?\s+them\b/gi, 'propels the team')
+      .replace(/\blifts?\s+them\b/gi, 'lifts the team')
+      .replace(/\bvaults?\s+them\b/gi, 'vaults the team')
+      .replace(/\bpushes?\s+them\b/gi, 'pushes the team')
+      .replace(/\bhelps?\s+them\b/gi, 'helps the team')
+      .replace(/\bthem\b/gi, 'the team')
+      .replace(/\bas\s+they\b/gi, 'as the team')
+      .replace(/\bwhile\s+they\b/gi, 'while the team')
+      .replace(/\bwhere\s+they\b/gi, 'where the team')
+      .replace(/\bbefore\s+they\b/gi, 'before the team')
+      .replace(/\bafter\s+they\b/gi, 'after the team')
+      .replace(/\bthey\b/gi, 'the team');
+  }
 
   // Ensure trailing punctuation is not exclamation
   cleaned = cleaned.replace(/\s*!+$/g, '.');
@@ -194,8 +343,26 @@ export async function generateNewsTickerFeed(force = false): Promise<NewsTickerF
 
   const ai = new GoogleGenAI({ apiKey });
 
-  // Extract entities from previous cache to avoid repetition across runs
-  const cachedEntities = extractEntitiesFromFeed(memoryFeedCache);
+  // Load persistent history across previous production cycles
+  const pastHistory = loadNewsHistory();
+  const recentHistory = pastHistory.slice(-20);
+  const pastHeadlinesFormatted = recentHistory.length > 0
+    ? recentHistory
+        .map((h, idx) => `[Riwayat ${idx + 1}] ID: ${h.headline_id} | EN: ${h.headline_en}`)
+        .join('\n')
+    : '(Belum ada riwayat produksi berita sebelumnya)';
+
+  // Set of past covered (Team + Player) pairs to prevent repetition
+  const pastCoveredPairs = new Set<string>();
+  recentHistory.forEach((h) => {
+    const teams = (h.teams || []).map((t) => t.toLowerCase());
+    const players = (h.players || []).map((p) => p.toLowerCase());
+    teams.forEach((t) => {
+      players.forEach((p) => {
+        pastCoveredPairs.add(`${t}::${p}`);
+      });
+    });
+  });
 
   const systemInstruction = `Anda adalah Redaktur Utama & Jurnalis Olahraga Investigatif Resmi untuk liga fantasi "FPL Nusantara BERHADIAH" (FNB League).
 
@@ -265,7 +432,20 @@ Analisis Anda wajib mengalir mengikuti hukum sebab-akibat 8 tahap kompetisi:
    - [C:Nama Klub] untuk nama klub Premier League.
    - [N:Angka/Poin/Peringkat] untuk angka poin, selisih skor, atau posisi peringkat.
 
-8. RELASI NAMA PEMAIN DAN KLUB:
+8. PEMAHAMAN STATUS PERTANDINGAN (MATCH STATUS AWARENESS):
+   Anda wajib memahami status 10 laga di Gameweek ini yang terbagi menjadi 3 kategori nyata:
+   a. PERTANDINGAN SUDAH SELESAI (Finished / FT):
+      - 90 menit telah tuntas, skor akhir final, dan poin pemain dari kedua klub telah terkunci pasti.
+      - Tim yang seluruh 11 pemain starternya berstatus selesai (0 pemain tersisa) tidak bisa menambah poin lagi dan rentan terkejar oleh rival di bawahnya.
+   b. PERTANDINGAN SEDANG BERJALAN (Live / In Progress):
+      - Laga sedang aktif bergulir di lapangan nyata saat ini (menit berjalan, babak 1, HT, babak 2).
+      - Panggung drama real-time utama: gol, assist, saves, kartu, dan bonus BPS bergerak dinamis mengubah skor tim secara live.
+   c. PERTANDINGAN BELUM DIMAINKAN (Upcoming / Belum Kickoff):
+      - Laga belum dimulai (tertera jam kickoff WIB).
+      - Pemain dari klub yang belum bertanding MASIH MENYIMPAN POTENSI POIN PENUH (poin masih 0 murni karena belum bermain, DILARANG menyebutnya gagal meraih poin atau blank!).
+      - FOKUS JURNALISTIK: Sorot tim-tim yang tertinggal namun masih memiliki 'amunisi simpanan' (pemain starter atau kapten yang belum bertanding) untuk mengejar dan mengguncang tahta juara.
+
+9. RELASI NAMA PEMAIN DAN KLUB:
    - Nama klub pemain wajib merujuk persis pada data relasi resmi di tabel database:
      * Konsa ([C:Arsenal])
      * João Pedro ([C:Chelsea])
@@ -283,18 +463,24 @@ Analisis Anda wajib mengalir mengikuti hukum sebab-akibat 8 tahap kompetisi:
      * Cherki ([C:Man City])
    - Format penyebutan klub pemain dituliskan berdampingan menggunakan tanda kurung siku tanpa kata penghubung 'dari': [P:Nama Pemain] ([C:Nama Klub]).
 
-9. STRUKTUR & PANTANGAN PENULISAN:
+10. STRUKTUR & PANTANGAN PENULISAN:
    - Kalimat berita langsung menyajikan substansi informasi tanpa menambahkan kata pengantar, label kategori, atau judul berita di bagian awal.
    - Gaya penulisan menggunakan tanda titik (.) sebagai penutup dan melarang keras penggunaan tanda seru (!).
    - Penyebutan selisih angka hasil kalkulasi alternatif hanya menggunakan kata 'poin' atau 'tambahan poin' di mana nilai numeriknya telah mencerminkan hasil bersih tanpa menyertakan kata 'bersih'.
+
+11. ATURAN KATA GANTI ENTITAS TIM (TUNGGAL VS JAMAK):
+   - 1 TIM ADALAH ENTITAS TUNGGAL: DILARANG KERAS mendeskripsikan 1 tim sebagai "mereka" (dalam Bahasa Indonesia) atau "they/them/their" (dalam Bahasa Inggris).
+   - Gunakan rujukan tunggal: "tim tersebut", "skuad tersebut", "tim ini", atau akhiran "-nya" (contoh: "posisinya", "upayanya", "skornya", "pemainnya"). Dalam Bahasa Inggris gunakan "the team", "it", atau "its" (bukan "they/their").
+   - Kata "mereka" / "they / them / their" HANYA boleh digunakan jika secara eksplisit merujuk pada LEBIH DARI 1 TIM (jamak, misalnya: "kedua tim", "tim-tim papan bawah", "[T:Tim A] dan [T:Tim B]").
    - Hasilkan 8 hingga 12 headline berita dwibahasa simultan dalam format JSON array valid.`;
 
-  const userPrompt = `Berikut adalah data mentah lengkap GW ${payload.gameweek} FNB League beserta tabel What-If Opportunities dan Data Historis Peringkat Klasemen yang telah dihitung secara presisi:
+  const userPrompt = `Berikut adalah data mentah lengkap GW ${payload.gameweek} FNB League beserta Data Pertandingan (Finished, Live, Upcoming), Tabel What-If Opportunities, dan Data Historis Peringkat Klasemen yang telah dihitung secara presisi:
 ${JSON.stringify({
   gameweek: payload.gameweek,
   nextGameweek: payload.nextGameweek,
   gameweekPhase: payload.gameweekPhase,
   phaseDescription: payload.phaseDescription,
+  matchesOverview: payload.matchesOverview,
   leagueStats: payload.leagueStats,
   championshipStatus: payload.championshipStatus,
   standingsHistoricalContext: payload.standingsHistoricalContext,
@@ -307,16 +493,25 @@ ${JSON.stringify({
   activePlayersTable: payload.activePlayersTable.slice(0, 30),
 })}
 
-PANDUAN EKSEKUSI JURNALISTIK:
-1. Pahami konteks pergerakan klasemen secara historis dengan membandingkan peringkat pekan sebelumnya ('lastRank') terhadap peringkat pekan berjalan ('rank') untuk menangkap dinamika perubahan posisi yang nyata.
-2. Evaluasi tingkat drama secara objektif berdasarkan kombinasi nilai angka relatif dan dampak keputusan manajerial terhadap perburuan 4 gelar juara.
-3. Terapkan diversifikasi ketat: Setiap entitas [P:Pemain] dan [T:Tim] hanya muncul maksimal 1 kali dalam seluruh batch berita.
+### RIWAYAT BERITA HASIL PRODUKSI-PRODUKSI SEBELUMNYA (WAJIB DIPERIKSA AGAR TIDAK DIULANG):
+${pastHeadlinesFormatted}
+
+PANDUAN EKSEKUSI JURNALISTIK & AUDIT ANTI-PENGULANGAN MUTLAK:
+1. PAHAMI STATUS FASE PEKAN & 10 LAGA:
+   - Jika fase 'Not started': Seluruh laga belum dimainkan (Upcoming). DILARANG mengulas skor pemain atau klasemen akhir. Fokus berita pada strategi pra-pekan: pemain terpopuler yang ditransfer masuk/keluar, aktivasi chip (WC, FH, BB, TC), pilihan ban kapten favorit/diferensial, dan penalti minus hits yang diambil para manajer.
+   - Jika fase 'Live' tetapi sedang JEDA ANTAR-PERTANDINGAN (0 laga aktif di lapangan, sebagian laga FT dan sebagian Upcoming): JANGAN buat laporan menit berjalan karena bola sedang tidak bergulir. Fokus liputan pada rekapitulasi poin laga yang telah usai (FT) vs tim-tim di bawah yang masih menyimpan amunisi pemain/kapten di laga berikutnya (Upcoming) untuk melakukan kudeta tahta.
+   - Pada laga yang sedang aktif bergulir (Live): Sorot menit berjalan dan aksi dinamis yang sedang mengubah perolehan tim di lapangan.
+   - Pada laga yang belum dimainkan (Upcoming): Sorot tim-tim yang masih menyimpan amunisi pemain/kapten untuk mengejar ketertinggalan poin. Jangan sebut mereka 'blank' atau gagal.
+   - Pada laga yang selesai (FT): Sorot poin pasti yang berhasil diamankan atau poin yang hilang akibat keputusan susunan skuad.
+2. PERIKSA RIWAYAT SEBELUMNYA DENGAN CERMAT: Jangan sampai memproduksi berita yang mengulang topik, kejadian, atau substansi drama yang sama persis dengan berita-berita di atas!
+3. Eksplorasi tim-tim lain dan pemain-pemain lain yang belum terliput di riwayat. Setiap entitas [P:Pemain] dan [T:Tim] hanya muncul maksimal 1 kali dalam seluruh batch berita.
 4. Skenario keputusan alternatif (what-if) WAJIB disajikan dari sudut pandang fakta riil: Tim kehilangan potensi sejumlah poin karena mencadangkan pemain, mengkaptenkan pemain, atau menjual pemain dan menggantinya dengan pemain lain yang hanya mendapat perolehan poin lebih rendah. DILARANG menggunakan kata pengandaian (seperti 'Andai', 'Seandainya', 'Jika saja', 'Had they', 'If').
 5. Gunakan nilai selisih bersih matematis dari tabel whatIfOpportunities tanpa menyebutkan kata 'bersih', cukup sebutkan kata 'poin' atau 'tambahan poin'.
 6. Mulai kalimat langsung pada substansi berita tanpa judul atau awalan berkategori.
 7. Akhiri setiap kalimat dengan tanda titik (.), tanpa tanda seru (!).
 8. Format penyebutan klub pemain menggunakan tanda kurung tanpa kata 'dari': [P:Pemain] ([C:Klub]).
-9. Buat 8 hingga 12 berita dwibahasa simultan dengan format JSON array valid:
+9. ATURAN ENTITAS TIM TUNGGAL: 1 tim adalah entitas tunggal dan DILARANG dideskripsikan sebagai 'mereka' (atau 'they/them/their'). Gunakan 'tim tersebut', 'skuad tersebut', atau akhiran '-nya' (dalam EN: 'the team', 'its'). Kata 'mereka' hanya boleh jika merujuk lebih dari 1 tim.
+10. Buat 8 hingga 12 berita dwibahasa simultan dengan format JSON array valid:
 [
   {
     "id": "story_1",
@@ -378,6 +573,10 @@ function parseStoriesFromRaw(rawText: string): any[] | null {
           const pMatches = combined.match(/\[P:([^\]]+)\]/g) || [];
           const playerNames = pMatches.map((m) => m.replace(/^\[P:|\]$/g, '').trim().toLowerCase());
 
+          // Extract teams
+          const tMatches = combined.match(/\[T:([^\]]+)\]/g) || [];
+          const teamNames = tMatches.map((m) => m.replace(/^\[T:|\]$/g, '').trim().toLowerCase());
+
           // Check if any player in this headline was already featured in an earlier headline of this batch
           const duplicatePlayer = playerNames.find((p) => seenPlayers.has(p));
           if (duplicatePlayer) {
@@ -385,12 +584,28 @@ function parseStoriesFromRaw(rawText: string): any[] | null {
             continue;
           }
 
-          // Extract teams
-          const tMatches = combined.match(/\[T:([^\]]+)\]/g) || [];
-          const teamNames = tMatches.map((m) => m.replace(/^\[T:|\]$/g, '').trim().toLowerCase());
+          // Check if any team in this headline was already featured in this batch (allow Yuk Bisa Yuk FC if context differs)
           const duplicateTeam = teamNames.find((t) => seenTeams.has(t) && !t.includes('yuk bisa yuk'));
           if (duplicateTeam) {
             console.log(`[Gemini News Service] Skipping duplicate team in batch: ${duplicateTeam}`);
+            continue;
+          }
+
+          // Check against past history to prevent repetition across runs
+          let isRepeatingPast = false;
+          for (const t of teamNames) {
+            for (const p of playerNames) {
+              if (pastCoveredPairs.has(`${t}::${p}`)) {
+                isRepeatingPast = true;
+                break;
+              }
+            }
+            if (isRepeatingPast) break;
+          }
+
+          // If repeating an exact previous team + player story from history, skip it
+          if (isRepeatingPast && recentHistory.length > 0 && parsed.length >= 8) {
+            console.log(`[Gemini News Service] Skipping headline repeating previous production cycle: ${headlineId}`);
             continue;
           }
 
@@ -446,10 +661,11 @@ function parseStoriesFromRaw(rawText: string): any[] | null {
   memoryFeedCache = feedResponse;
   lastProcessedDataHash = currentHash;
 
-  // Persist to disk atomically
+  // Persist feed and update history cache to ensure future production runs don't repeat stories
   try {
     fs.writeFileSync(FEED_CACHE_PATH, JSON.stringify(feedResponse, null, 2), 'utf-8');
-    console.log('[Gemini News Service] Successfully persisted news feed to disk cache.');
+    saveNewsHistory(stories, payload.gameweek);
+    console.log('[Gemini News Service] Successfully persisted news feed and updated history cache.');
   } catch (e: any) {
     console.warn('[Gemini News Service] Disk cache write error:', e.message);
   }

@@ -147,6 +147,68 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         .replace(/\bnet\s+(\[N:[^\]]+\])/gi, '$1')
         .replace(/\bnet\s+(\d+)/gi, '$1');
 
+      // Enforce singular entity rule for 1 team:
+      // 1 tim adalah entitas tunggal, tidak boleh dideskripsikan sebagai "mereka" (atau "they/them/their").
+      // Jika dalam 1 headline hanya merujuk 1 tim, ubah rujukan jamak menjadi rujukan entitas tunggal.
+      const teamMatches = raw.match(/\[T:[^\]]+\]/g) || [];
+      const isMultipleTeams = teamMatches.length > 1 || /\b(?:kedua|semua|para|antar|beberapa)\s+tim\b/i.test(raw) || /\bboth\s+teams\b/i.test(raw);
+
+      if (!isMultipleTeams) {
+        // Indonesian: ubah kata ganti jamak "mereka" untuk 1 tim tunggal
+        raw = raw
+          .replace(/\bposisi\s+mereka\b/gi, 'posisinya')
+          .replace(/\bpoin\s+mereka\b/gi, 'poin tim tersebut')
+          .replace(/\bskuad\s+mereka\b/gi, 'skuadnya')
+          .replace(/\blangkah\s+mereka\b/gi, 'langkahnya')
+          .replace(/\bupaya\s+mereka\b/gi, 'upayanya')
+          .replace(/\bpeluang\s+mereka\b/gi, 'peluangnya')
+          .replace(/\bambisi\s+mereka\b/gi, 'ambisinya')
+          .replace(/\bkeunggulan\s+mereka\b/gi, 'keunggulannya')
+          .replace(/\bperforma\s+mereka\b/gi, 'performanya')
+          .replace(/\bkeberhasilan\s+mereka\b/gi, 'keberhasilannya')
+          .replace(/\bkemenangan\s+mereka\b/gi, 'kemenangannya')
+          .replace(/\bbagi\s+mereka\b/gi, 'bagi tim tersebut')
+          .replace(/\buntuk\s+mereka\b/gi, 'untuk tim tersebut')
+          .replace(/\boleh\s+mereka\b/gi, 'oleh tim tersebut')
+          .replace(/\bmembuat\s+mereka\b/gi, 'membuat tim tersebut')
+          .replace(/\bmembawa\s+mereka\b/gi, 'membawa tim tersebut')
+          .replace(/\bmengantar\s+mereka\b/gi, 'mengantar tim tersebut')
+          .replace(/\bmenempatkan\s+mereka\b/gi, 'menempatkan tim tersebut')
+          .replace(/\bmelesatkan\s+mereka\b/gi, 'melesatkan tim tersebut')
+          .replace(/\bmengangkat\s+mereka\b/gi, 'mengangkat tim tersebut')
+          .replace(/\bmendorong\s+mereka\b/gi, 'mendorong tim tersebut')
+          .replace(/\bmereka\b/gi, 'tim tersebut');
+
+        // English: replace "they/them/their" when referring to a single team
+        raw = raw
+          .replace(/\btheir\s+hold\b/gi, 'its hold')
+          .replace(/\btheir\s+position\b/gi, 'its position')
+          .replace(/\btheir\s+rank\b/gi, 'its rank')
+          .replace(/\btheir\s+squad\b/gi, 'its squad')
+          .replace(/\btheir\s+points\b/gi, 'its points')
+          .replace(/\btheir\s+chances?\b/gi, 'its chance')
+          .replace(/\btheir\s+lead\b/gi, 'its lead')
+          .replace(/\btheir\s+pursuit\b/gi, 'its pursuit')
+          .replace(/\btheir\s+bid\b/gi, 'its bid')
+          .replace(/\btheir\s+campaign\b/gi, 'its campaign')
+          .replace(/\btheir\b/gi, 'its')
+          .replace(/\bfor\s+them\b/gi, 'for the team')
+          .replace(/\bto\s+them\b/gi, 'to the team')
+          .replace(/\bby\s+them\b/gi, 'by the team')
+          .replace(/\bpropels?\s+them\b/gi, 'propels the team')
+          .replace(/\blifts?\s+them\b/gi, 'lifts the team')
+          .replace(/\bvaults?\s+them\b/gi, 'vaults the team')
+          .replace(/\bpushes?\s+them\b/gi, 'pushes the team')
+          .replace(/\bhelps?\s+them\b/gi, 'helps the team')
+          .replace(/\bthem\b/gi, 'the team')
+          .replace(/\bas\s+they\b/gi, 'as the team')
+          .replace(/\bwhile\s+they\b/gi, 'while the team')
+          .replace(/\bwhere\s+they\b/gi, 'where the team')
+          .replace(/\bbefore\s+they\b/gi, 'before the team')
+          .replace(/\bafter\s+they\b/gi, 'after the team')
+          .replace(/\bthey\b/gi, 'the team');
+      }
+
       return raw.trim();
     },
     [language]
