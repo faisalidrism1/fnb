@@ -12,9 +12,11 @@ import {
   ChevronDown,
   Sparkles,
   Info,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-react';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { AdminNewsQueueModal } from './AdminNewsQueueModal.tsx';
 import { StandingsRow, TransferItem } from '../types.ts';
 import { isWakeLockSupported, requestWakeLock, releaseWakeLock } from '../utils/wakeLock.ts';
 import { useLanguage, Language } from '../utils/i18n.ts';
@@ -118,6 +120,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   // Admin Area notification state
   const [adminNotice, setAdminNotice] = useState<string | null>(null);
+
+  // Admin Code verification & Admin Queue modal states
+  const [isAdminCodePromptOpen, setIsAdminCodePromptOpen] = useState<boolean>(false);
+  const [adminCodeInput, setAdminCodeInput] = useState<string>('');
+  const [adminCodeError, setAdminCodeError] = useState<string | null>(null);
+  const [isAdminQueueOpen, setIsAdminQueueOpen] = useState<boolean>(false);
+
+  const handleVerifyAdminCode = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (adminCodeInput.trim() === '0123') {
+      setIsAdminCodePromptOpen(false);
+      setAdminCodeInput('');
+      setAdminCodeError(null);
+      setIsAdminQueueOpen(true);
+    } else {
+      setAdminCodeError('Kode admin salah. Akses ditolak.');
+    }
+  };
 
   // Sync state if prop changes
   useEffect(() => {
@@ -621,10 +641,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => {
-                if (adminNoticeText) {
-                  setAdminNotice(adminNoticeText);
-                  setTimeout(() => setAdminNotice(null), 4000);
-                }
+                setIsAdminCodePromptOpen(true);
+                setAdminCodeInput('');
+                setAdminCodeError(null);
               }}
               className="w-full flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gradient-to-r from-[#37003c] via-[#48004f] to-[#1e0024] hover:from-[#490050] hover:via-[#5c0065] hover:to-[#2c0035] text-white border border-purple-500/40 hover:border-[#00ff87]/60 shadow-md hover:shadow-lg transition-all cursor-pointer group active:scale-[0.99]"
             >
@@ -633,16 +652,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
                 </div>
                 <div className="text-left min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-black tracking-tight text-white">
-                      {t('settings_admin_title')}
-                    </span>
-                  </div>
-                  {adminDesc && (
-                    <p className="text-[10.5px] sm:text-[11px] text-purple-200/80 font-medium truncate mt-0.5">
-                      {adminDesc}
-                    </p>
-                  )}
+                  <span className="text-xs sm:text-sm font-black tracking-tight text-white">
+                    {t('settings_admin_title')}
+                  </span>
                 </div>
               </div>
 
@@ -650,13 +662,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <ChevronRight className="w-4 h-4" />
               </div>
             </button>
-
-            {adminNotice && (
-              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs animate-in fade-in duration-150">
-                <Info className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                <span>{adminNotice}</span>
-              </div>
-            )}
           </div>
         </div>
 
@@ -675,6 +680,95 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
       </div>
+
+      {/* ================= MODAL PERMINTAAN ADMIN CODE ================= */}
+      {isAdminCodePromptOpen && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsAdminCodePromptOpen(false);
+              setAdminCodeInput('');
+              setAdminCodeError(null);
+            }
+          }}
+        >
+          <div
+            className="w-full max-w-sm bg-[#160829] text-white rounded-2xl border border-purple-700/60 shadow-2xl p-5 overflow-hidden animate-in zoom-in-95 duration-150"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-purple-800/40 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-purple-900/50 border border-purple-600/50 flex items-center justify-center text-[#00ff87]">
+                <Lock className="w-4 h-4" />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAdminCodePromptOpen(false);
+                  setAdminCodeInput('');
+                  setAdminCodeError(null);
+                }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-purple-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleVerifyAdminCode} className="space-y-4">
+              <div>
+                <div className="relative">
+                  <input
+                    type="password"
+                    autoFocus
+                    value={adminCodeInput}
+                    onChange={(e) => {
+                      setAdminCodeInput(e.target.value);
+                      if (adminCodeError) setAdminCodeError(null);
+                    }}
+                    placeholder="Enter Code..."
+                    className="w-full text-center tracking-widest text-base font-mono py-2.5 px-3 rounded-xl bg-[#0e041c] border border-purple-700/60 focus:border-[#00ff87] text-white placeholder-slate-500 focus:outline-none transition-colors"
+                  />
+                </div>
+
+                {adminCodeError && (
+                  <div className="flex items-center justify-center gap-1.5 mt-2 text-rose-400 text-xs font-semibold">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{adminCodeError}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-purple-900/40">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAdminCodePromptOpen(false);
+                    setAdminCodeInput('');
+                    setAdminCodeError(null);
+                  }}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#00ff87] hover:bg-[#00e67a] text-[#37003c] transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  Confirm
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL ADMIN ANTRIAN BERITA ================= */}
+      <AdminNewsQueueModal
+        isOpen={isAdminQueueOpen}
+        onClose={() => setIsAdminQueueOpen(false)}
+      />
     </div>
   );
 };

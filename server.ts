@@ -30,7 +30,8 @@ import {
 import {
   generateNewsTickerFeed,
   triggerBackgroundNewsUpdate,
-  getCachedNewsFeed
+  getCachedNewsFeed,
+  deleteNewsTickerStory
 } from './src/server/geminiNewsService.ts';
 
 const app = express();
@@ -93,13 +94,13 @@ let currentSyncPromise: Promise<TransformedLeagueData> | null = null;
 
 export type SyncActionType = 'A_FULL' | 'B_PARTIAL' | 'C_SERVE';
 
-async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?: number): Promise<TransformedLeagueData> {
+async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?: number, isGwTransition = false): Promise<TransformedLeagueData> {
   if (currentSyncPromise) {
     return currentSyncPromise;
   }
 
   isSyncing = true;
-  console.log(`[Server] Starting FPL API sync (${action}, targetGW: ${targetGW ?? 'all'}) for League 12356...`);
+  console.log(`[Server] Starting FPL API sync (${action}, targetGW: ${targetGW ?? 'all'}, gwTransition: ${isGwTransition}) for League 12356...`);
   
   currentSyncPromise = (async () => {
     try {
@@ -147,11 +148,12 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
       console.log(`[Server] FPL API & DB schema sync (${action}) completed successfully at`, new Date().toISOString());
 
       // Broadcast fresh data to all active clients immediately via Server-Sent Events (SSE)
-      broadcastSyncComplete(freshData, action);
+      broadcastSyncComplete(freshData, action, isGwTransition);
 
       // Trigger news ticker update in background whenever sync completes
       try {
-        triggerBackgroundNewsUpdate();
+        const isLive = Boolean(freshData?.sync_status?.is_matchday_live);
+        triggerBackgroundNewsUpdate(isLive);
       } catch (err: any) {
         console.warn('[Server] Background news update trigger caught error:', err.message);
       }
@@ -177,11 +179,13 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
 // Active Server-Sent Events (SSE) connections
 const sseClients = new Set<express.Response>();
 
-function broadcastSyncComplete(freshData: TransformedLeagueData, action: string) {
+function broadcastSyncComplete(freshData: TransformedLeagueData, action: string, isGwTransition = false) {
   if (sseClients.size === 0) return;
   const payload = JSON.stringify({
     type: 'SYNC_COMPLETE',
     action,
+    gw_transition: isGwTransition,
+    current_gw: freshData.current_gw,
     data: freshData,
     last_synced: freshData.sync_status?.last_synced,
     checked_at: new Date().toISOString()
@@ -196,7 +200,7 @@ function broadcastSyncComplete(freshData: TransformedLeagueData, action: string)
       sseClients.delete(client);
     }
   }
-  console.log(`[Server SSE] Broadcasted SYNC_COMPLETE (${action}) to ${sseClients.size} active client(s).`);
+  console.log(`[Server SSE] Broadcasted SYNC_COMPLETE (${action}, gw_transition: ${isGwTransition}) to ${sseClients.size} active client(s).`);
 }
 
 // Keep-alive heartbeat every 15s to keep connections alive across proxies and firewalls
@@ -231,11 +235,12 @@ app.get('/api/fpl-data', async (req, res) => {
 
         console.log(`[Sync Orchestrator] API Active GW: ${apiActiveGW} (${gwStatusInfo.statusText}), Container Active GW: ${cachedActiveGW}`);
 
-        if (apiActiveGW !== cachedActiveGW) {
+        const isGwChanged = Boolean(cachedActiveGW && apiActiveGW && apiActiveGW !== cachedActiveGW);
+        if (isGwChanged) {
           // Condition 2: Active GW does not match -> Action A (Full Sync)
           console.log(`[Sync Orchestrator] Condition 2 met: GW changed (${cachedActiveGW} -> ${apiActiveGW}) -> Action A (Full Sync)`);
           executedAction = 'A_FULL';
-          await triggerSync('A_FULL');
+          await triggerSync('A_FULL', undefined, true);
         } else if (!gwStatusInfo.isFinal) {
           // Condition 3: Active GW matches AND status is still Live -> Action B (Partial Sync: active GW only)
           console.log(`[Sync Orchestrator] Condition 3 met: GW ${apiActiveGW} is Live -> Action B (Refresh active GW ${apiActiveGW})`);
@@ -286,10 +291,13 @@ app.get('/api/fpl-data', async (req, res) => {
       'Expires': '0'
     });
 
+    const isGwTransition = Boolean(gwStatusInfo && cachedData && gwStatusInfo.currentGW !== cachedData.current_gw);
+
     res.json({
       success: true,
       data: cachedData,
       action: executedAction,
+      gw_transition: isGwTransition,
       gw_check: gwStatusInfo,
       cached: executedAction === 'C_SERVE',
       isSyncing,
@@ -1137,6 +1145,33 @@ app.get('/api/news-ticker/feed', async (req, res) => {
   }
 });
 
+// Endpoint untuk menghapus item berita dari antrian news ticker (Admin Area)
+app.post('/api/news-ticker/delete', (req, res) => {
+  try {
+    const { id } = req.body || {};
+    if (!id) {
+      return res.status(400).json({ success: false, error: 'Story ID is required' });
+    }
+    const result = deleteNewsTickerStory(String(id));
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/news-ticker/story/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ success: false, error: 'Story ID is required' });
+    }
+    const result = deleteNewsTickerStory(String(id));
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 
 
@@ -1170,3 +1205,27 @@ async function startServer() {
 }
 
 startServer();
+
+// Auto-refresh news ticker feed periodically in background
+// Live Matchday: Run every 60 seconds (1 minute) so goals, assists, and BPS shifts are broadcasted immediately!
+// Off-Matchday / Breaks: Run every 15 minutes to rotate diverse previews and strategy news.
+let lastLiveNewsCheck = 0;
+setInterval(() => {
+  try {
+    const isLive = Boolean(cachedData?.sync_status?.is_matchday_live);
+    const now = Date.now();
+    if (isLive) {
+      console.log('[Server Scheduled News] Live matchday active: Triggering real-time background news update (1m interval)...');
+      triggerBackgroundNewsUpdate(true);
+      lastLiveNewsCheck = now;
+    } else {
+      if (now - lastLiveNewsCheck >= 15 * 60 * 1000) {
+        console.log('[Server Scheduled News] Off-matchday periodic update (15m interval)...');
+        triggerBackgroundNewsUpdate(true);
+        lastLiveNewsCheck = now;
+      }
+    }
+  } catch (err: any) {
+    console.warn('[Server Scheduled Cron] Error in periodic news check:', err.message);
+  }
+}, 60 * 1000);

@@ -66,6 +66,17 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
 
     fetchFeed();
 
+    // Listen for instant news feed updates (e.g. from Admin Area deletion)
+    const handleFeedUpdated = (e: Event) => {
+      const customEvent = e as CustomEvent<{ data?: NewsTickerStory[] }>;
+      if (customEvent.detail && Array.isArray(customEvent.detail.data)) {
+        handleIncomingStoriesRef.current(customEvent.detail.data);
+      } else {
+        fetchFeed();
+      }
+    };
+    window.addEventListener('fnb:news-feed-updated', handleFeedUpdated);
+
     // Re-fetch periodically (every 45s if live match, every 2 minutes otherwise)
     const isLive = Boolean(
       leagueData?.sync_status?.is_matchday_live ||
@@ -77,6 +88,7 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
     return () => {
       isMounted = false;
       clearInterval(intervalId);
+      window.removeEventListener('fnb:news-feed-updated', handleFeedUpdated);
     };
   }, [leagueData?.current_gw, leagueData?.gw_status?.status, leagueData?.sync_status?.is_matchday_live]);
 

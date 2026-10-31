@@ -160,6 +160,169 @@ export interface StandingsHistoricalContext {
   }>;
 }
 
+export interface ChipDecisionAnalysis {
+  team: string;
+  chipType: 'TC' | 'BB' | 'WC' | 'FH';
+  chipSet: 1 | 2;
+  gw: number;
+  totalTeamPts: number;
+  chipNetGainPts: number;
+  decisionEvaluation: string;
+  isAll15Scored?: boolean;
+  benchPoints?: number;
+  zeroScorers?: string[];
+  captainName?: string;
+  captainBasePts?: number;
+}
+
+export interface OwnershipInsights {
+  highOwnedTemplate: Array<{
+    player: string;
+    club: string;
+    ownedPercentage: string;
+    ownedCount: number;
+    gwPts: number;
+    impactOutcome: 'Exploded' | 'Flop' | 'Decent';
+    insight: string;
+  }>;
+  lowOwnedDifferentials: Array<{
+    player: string;
+    club: string;
+    ownedPercentage: string;
+    ownedCount: number;
+    gwPts: number;
+    owners: string[];
+    insight: string;
+  }>;
+  notOwnedHighScorers: Array<{
+    player: string;
+    club: string;
+    position: string;
+    gwPts: number;
+    insight: string;
+  }>;
+}
+
+export interface PlayerTransferCounterpartRecord {
+  managerTeam: string;
+  transferType: 'BOUGHT_IN' | 'SOLD_OUT';
+  counterpartName: string;
+  counterpartClub: string;
+  counterpartPosition: string;
+  counterpartGwPts: number;
+  counterpartCost: number;
+  pointDelta: number; // For BOUGHT_IN: (player.gwPts - counterpart.gwPts); For SOLD_OUT: (counterpart.gwPts - player.gwPts)
+  narrative: string;
+}
+
+export interface InvestigativePlayerDossier {
+  player: string;
+  club: string;
+  position: string;
+  cost: number;
+  gwPts: number;
+  ownershipPercentage: string;
+  ownershipCount: number;
+  starterCount: number;
+  benchCount: number;
+  captainCount: number;
+  viceCaptainCount: number;
+  chipsInvolvingPlayer: string[];
+  transfersInCount: number;
+  transfersOutCount: number;
+  transferCounterparts: PlayerTransferCounterpartRecord[];
+  recentRoundPoints: Array<{ round: number; points: number }>;
+  keyStats: {
+    minutes: number;
+    goals: number;
+    assists: number;
+    cleanSheet: number;
+    saves: number;
+    penaltiesSaved: number;
+    penaltiesMissed: number;
+    defensiveContribution?: string;
+    yellowCards: number;
+    redCards: number;
+    bps: number;
+    bonus: number;
+  };
+  investigativeSummary: string;
+}
+
+export interface TeamTransferSwapDossier {
+  playerIn: {
+    name: string;
+    club: string;
+    position: string;
+    gwPts: number;
+    cost: number;
+  };
+  playerOut: {
+    name: string;
+    club: string;
+    position: string;
+    gwPts: number;
+    cost: number;
+  };
+  netPointDelta: number; // inPts - outPts
+  swapOutcome: 'PROFIT' | 'LOSS' | 'NEUTRAL';
+  finding: string;
+}
+
+export interface InvestigativeTeamDossier {
+  team: string;
+  rankTrajectory: {
+    currentRank: number;
+    lastRank: number;
+    rankChange: number;
+    trend: 'CLIMBED' | 'FELL' | 'STEADY';
+    gapToRank1Pts: number;
+    gapToNextRankPts: number;
+    trajectoryDescription: string;
+  };
+  transfers: {
+    hitPenalty: number;
+    totalSwapsThisGw: number;
+    swaps: TeamTransferSwapDossier[];
+  };
+  ownershipProfile: {
+    templateCount: number;
+    differentialCount: number;
+    templateNames: string[];
+    differentialNames: string[];
+  };
+  lineupDecisions: {
+    startersCount: number;
+    benchCount: number;
+    benchPointsLeft: number;
+    topScorerInSquad: { name: string; pts: number; role: 'STARTER' | 'BENCH' };
+    lowestStarter: { name: string; pts: number };
+    highestBench: { name: string; pts: number } | null;
+    benchLossPts: number;
+  };
+  captaincyDecision: {
+    captainName: string;
+    captainBasePts: number;
+    captainTotalPts: number;
+    alternativeBestStarter: { name: string; pts: number };
+    missedCaptainPotentialPts: number;
+    evaluation: string;
+  };
+  chipStatus: {
+    activeChip: 'TC' | 'BB' | 'WC' | 'FH' | null;
+    chipSet?: 1 | 2;
+    netGainPts?: number;
+    evaluation?: string;
+  };
+  keyPlayerPerformances: Array<{
+    name: string;
+    pts: number;
+    role: 'STARTER' | 'BENCH' | 'CAPTAIN';
+    highlight: string;
+  }>;
+  investigativeSummary: string;
+}
+
 export interface RawMatchdayPayload {
   gameweek: number;
   nextGameweek: number;
@@ -186,8 +349,14 @@ export interface RawMatchdayPayload {
   transfersIn: Array<{ player: string; club: string; count: number; gwPts: number }>;
   transfersOut: Array<{ player: string; club: string; count: number; gwPts: number }>;
   chipsActive: Array<{ team: string; chip: string }>;
+  chipDecisions: ChipDecisionAnalysis[];
+  ownershipInsights: OwnershipInsights;
   ligaMinusSeasonRecords: Array<{ team: string; totalMinusPoints: number; currentRank: number }>;
   whatIfOpportunities: WhatIfOpportunity[];
+  investigativeDossiers: {
+    players: InvestigativePlayerDossier[];
+    teams: InvestigativeTeamDossier[];
+  };
 }
 
 /**
@@ -633,12 +802,155 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
     gwPts: t.gw_points,
   }));
 
-  const chipsActive = getDbChipsUsed()
-    .filter((c) => c.gw === currentGw)
-    .map((c) => ({
-      team: c.entryName,
-      chip: c.chipName,
+  // 8. Chips & Chip Effectiveness Analysis (2 Set Chip: TC, BB, WC, FH Decision Matrix)
+  const allChipsList = (db.league_analytics?.all_chips_used || rawCache?.all_chips_used || []) as any[];
+  const chipDecisions: ChipDecisionAnalysis[] = [];
+  const chipsActive: Array<{ team: string; chip: string }> = [];
+
+  for (const s of standingsTable) {
+    if (s.chip) {
+      chipsActive.push({ team: s.team, chip: s.chip });
+      const chipCode = String(s.chip).toUpperCase();
+      let chipSet: 1 | 2 = 1;
+
+      // Identify whether Set 1 or Set 2 was used
+      const userChipRec = allChipsList.find((c: any) => c.entry_name === s.team);
+      if (userChipRec) {
+        if (chipCode === 'BB') chipSet = userChipRec.bb2?.gw === currentGw ? 2 : 1;
+        else if (chipCode === 'TC') chipSet = userChipRec.tc2?.gw === currentGw ? 2 : 1;
+        else if (chipCode === 'FH') chipSet = userChipRec.fh2?.gw === currentGw ? 2 : 1;
+        else if (chipCode === 'WC') chipSet = userChipRec.wc2?.gw === currentGw ? 2 : 1;
+      }
+
+      if (chipCode === 'BB') {
+        const benchPoints = s.benchPts;
+        const zeroScorers = [...s.starters, ...s.bench].filter((p) => (p.pts || 0) === 0).map((p) => p.name);
+        const isAll15Scored = zeroScorers.length === 0;
+        chipDecisions.push({
+          team: s.team,
+          chipType: 'BB',
+          chipSet,
+          gw: currentGw,
+          totalTeamPts: s.gwPts,
+          chipNetGainPts: benchPoints,
+          benchPoints,
+          isAll15Scored,
+          zeroScorers,
+          decisionEvaluation: isAll15Scored
+            ? `Seluruh 15 pemain menyumbang poin (net gain +${benchPoints} poin dari bangku cadangan).`
+            : `Menghasilkan net gain +${benchPoints} poin dari bangku cadangan, namun ${zeroScorers.length} pemain membukukan 0 poin (${zeroScorers.join(', ')}).`,
+        });
+      } else if (chipCode === 'TC') {
+        const cap = s.starters.find((p) => p.isC);
+        const basePts = cap ? Math.round(cap.pts / 3) : 0;
+        const netGain = basePts;
+        chipDecisions.push({
+          team: s.team,
+          chipType: 'TC',
+          chipSet,
+          gw: currentGw,
+          totalTeamPts: s.gwPts,
+          chipNetGainPts: netGain,
+          captainName: cap?.name || 'Unknown',
+          captainBasePts: basePts,
+          decisionEvaluation: basePts >= 8
+            ? `Kapten tepat pada [P:${cap?.name}]: meraup ${cap?.pts} poin total (net gain ekstra +${netGain} poin).`
+            : `Pertaruhan kapten pada [P:${cap?.name}] minim hasil: hanya menghasilkan ${cap?.pts} poin total (net gain ekstra +${netGain} poin).`,
+        });
+      } else if (chipCode === 'FH') {
+        const netAdvantage = Math.max(0, s.gwPts - averageScore);
+        chipDecisions.push({
+          team: s.team,
+          chipType: 'FH',
+          chipSet,
+          gw: currentGw,
+          totalTeamPts: s.gwPts,
+          chipNetGainPts: netAdvantage,
+          decisionEvaluation: s.gwPts > averageScore
+            ? `Skuad sewa 1 pekan Free Hit mengumpulkan ${s.gwPts} poin (+${netAdvantage} poin di atas rata-rata liga).`
+            : `Free Hit hanya meraup ${s.gwPts} poin di tengah kebutuhan darurat pekan ini.`,
+        });
+      } else if (chipCode === 'WC') {
+        const netAdvantage = Math.max(0, s.gwPts - averageScore);
+        chipDecisions.push({
+          team: s.team,
+          chipType: 'WC',
+          chipSet,
+          gw: currentGw,
+          totalTeamPts: s.gwPts,
+          chipNetGainPts: netAdvantage,
+          decisionEvaluation: `Perombakan permanen Wildcard menghasilkan ${s.gwPts} poin awal di klasemen.`,
+        });
+      }
+    }
+  }
+
+  // 9. Ownership Intelligence: High Owned (Template), Low Owned (Differentials), Not Owned (0% Owned Potential Gain)
+  const ownershipPlayersRaw: any[] = snapshot?.ownership_players || rawCache?.ownership_players?.[currentGw] || [];
+  
+  // A. High Owned Template (>= 40% kepemilikan di liga)
+  const highOwnedTemplate = ownershipPlayersRaw
+    .filter((p: any) => (p.owned_percentage || 0) >= 40)
+    .sort((a: any, b: any) => (b.owned_percentage || 0) - (a.owned_percentage || 0))
+    .slice(0, 8)
+    .map((p: any) => {
+      const gwPts = Number(p.gw_points) || 0;
+      let impactOutcome: 'Exploded' | 'Flop' | 'Decent' = 'Decent';
+      if (gwPts >= 8) impactOutcome = 'Exploded';
+      else if (gwPts <= 2) impactOutcome = 'Flop';
+      return {
+        player: p.web_name,
+        club: p.team_short_name || p.team_name,
+        ownedPercentage: `${p.owned_percentage}%`,
+        ownedCount: p.owned_count || 0,
+        gwPts,
+        impactOutcome,
+        insight: impactOutcome === 'Flop'
+          ? `Perangkap template liga: dimiliki ${p.owned_percentage}% manajer (${p.owned_count} tim) namun hanya menghasilkan ${gwPts} poin.`
+          : impactOutcome === 'Exploded'
+          ? `Pilar template mengamankan poin: dimiliki ${p.owned_percentage}% manajer (${p.owned_count} tim) dengan torehan ${gwPts} poin.`
+          : `Aset template standar: dimiliki ${p.owned_percentage}% tim dengan ${gwPts} poin.`,
+      };
+    });
+
+  // B. Low Owned Differentials (<= 5% kepemilikan di liga dengan poin >= 7)
+  const lowOwnedDifferentials = ownershipPlayersRaw
+    .filter((p: any) => (p.owned_percentage || 0) <= 5 && (p.gw_points || 0) >= 7)
+    .sort((a: any, b: any) => (b.gw_points || 0) - (a.gw_points || 0))
+    .slice(0, 8)
+    .map((p: any) => {
+      const ownerNames = (p.owners || []).map((o: any) => o.entry_name).slice(0, 4);
+      return {
+        player: p.web_name,
+        club: p.team_short_name || p.team_name,
+        ownedPercentage: `${p.owned_percentage}%`,
+        ownedCount: p.owned_count || 0,
+        gwPts: p.gw_points || 0,
+        owners: ownerNames,
+        insight: `Permata diferensial langka: hanya dimiliki ${p.owned_percentage}% manajer (${ownerNames.join(', ')}) dan mendulang ${p.gw_points} poin.`,
+      };
+    });
+
+  // C. Not Owned High Scorers (0% kepemilikan di FNB League dengan poin >= 10)
+  const ownedPlayerIds = new Set(ownershipPlayersRaw.map((p: any) => p.id));
+  const allPlayerStats: any[] = rawCache?.player_stats || [];
+  const notOwnedHighScorers = allPlayerStats
+    .filter((p: any) => !ownedPlayerIds.has(p.id) && (p.eventPoints || 0) >= 10)
+    .sort((a: any, b: any) => (b.eventPoints || 0) - (a.eventPoints || 0))
+    .slice(0, 8)
+    .map((p: any) => ({
+      player: p.webName,
+      club: p.teamShort || p.teamName,
+      position: p.position,
+      gwPts: p.eventPoints || 0,
+      insight: `Potential gain yang luput dari radar seluruh liga: mencetak ${p.eventPoints} poin di Premier League namun memiliki 0% kepemilikan (tidak dimiliki satu pun tim di liga).`,
     }));
+
+  const ownershipInsights: OwnershipInsights = {
+    highOwnedTemplate,
+    lowOwnedDifferentials,
+    notOwnedHighScorers,
+  };
 
   const ligaMinusSeasonRecords = getDbLigaMinus()
     .slice(0, 5)
@@ -648,7 +960,7 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
       currentRank: h.currentRank,
     }));
 
-  // 9. Pre-calculated What-If Opportunities (Mathematically Exact Net Differences)
+  // 10. Pre-calculated What-If Opportunities (Mathematically Exact Net Differences)
   const whatIfOpportunities: WhatIfOpportunity[] = [];
 
   for (const t of standingsTable) {
@@ -727,6 +1039,361 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   // Sort by net delta descending (most dramatic missed opportunities)
   whatIfOpportunities.sort((a, b) => b.netDeltaPts - a.netDeltaPts);
 
+  // 11. Build Comprehensive Investigative Player & Team Dossiers
+  const teamTransfersMap = new Map<string, any[]>();
+  const playerTransfersInMap = new Map<string, any[]>();
+  const playerTransfersOutMap = new Map<string, any[]>();
+
+  for (const tr of allTransfers) {
+    const tName = tr.entry_name;
+    if (!teamTransfersMap.has(tName)) teamTransfersMap.set(tName, []);
+    teamTransfersMap.get(tName)!.push(tr);
+
+    if (tr.element_in?.name) {
+      const pIn = tr.element_in.name;
+      if (!playerTransfersInMap.has(pIn)) playerTransfersInMap.set(pIn, []);
+      playerTransfersInMap.get(pIn)!.push(tr);
+    }
+    if (tr.element_out?.name) {
+      const pOut = tr.element_out.name;
+      if (!playerTransfersOutMap.has(pOut)) playerTransfersOutMap.set(pOut, []);
+      playerTransfersOutMap.get(pOut)!.push(tr);
+    }
+  }
+
+  // Pre-index player roles across all teams
+  const playerStarterCountMap = new Map<string, number>();
+  const playerBenchCountMap = new Map<string, number>();
+  const playerCaptainCountMap = new Map<string, number>();
+  const playerViceCaptainCountMap = new Map<string, number>();
+  const playerChipsMap = new Map<string, string[]>();
+
+  for (const s of standingsTable) {
+    for (const starter of s.starters) {
+      playerStarterCountMap.set(starter.name, (playerStarterCountMap.get(starter.name) || 0) + 1);
+      if (starter.isC) {
+        playerCaptainCountMap.set(starter.name, (playerCaptainCountMap.get(starter.name) || 0) + 1);
+        if (s.chip && String(s.chip).toUpperCase() === 'TC') {
+          if (!playerChipsMap.has(starter.name)) playerChipsMap.set(starter.name, []);
+          playerChipsMap.get(starter.name)!.push(`TC (Triple Captain) oleh [T:${s.team}]`);
+        }
+      }
+      if (starter.isVC) {
+        playerViceCaptainCountMap.set(starter.name, (playerViceCaptainCountMap.get(starter.name) || 0) + 1);
+      }
+    }
+    for (const b of s.bench) {
+      playerBenchCountMap.set(b.name, (playerBenchCountMap.get(b.name) || 0) + 1);
+      if (s.chip && String(s.chip).toUpperCase() === 'BB') {
+        if (!playerChipsMap.has(b.name)) playerChipsMap.set(b.name, []);
+        playerChipsMap.get(b.name)!.push(`BB (Bench Boost) oleh [T:${s.team}]`);
+      }
+    }
+    if (s.chip && (String(s.chip).toUpperCase() === 'WC' || String(s.chip).toUpperCase() === 'FH')) {
+      const chipCode = String(s.chip).toUpperCase();
+      const teamSwaps = teamTransfersMap.get(s.team) || [];
+      for (const sw of teamSwaps) {
+        if (sw.element_in?.name) {
+          if (!playerChipsMap.has(sw.element_in.name)) playerChipsMap.set(sw.element_in.name, []);
+          playerChipsMap.get(sw.element_in.name)!.push(`${chipCode} oleh [T:${s.team}]`);
+        }
+      }
+    }
+  }
+
+  // Build candidate player names
+  const candidatePlayerNames = new Set<string>();
+  activePlayersTable.filter((p) => p.gwPts >= 6).forEach((p) => candidatePlayerNames.add(p.name));
+  transfersIn.slice(0, 10).forEach((t) => candidatePlayerNames.add(t.player));
+  transfersOut.slice(0, 10).forEach((t) => candidatePlayerNames.add(t.player));
+  highOwnedTemplate.forEach((t) => candidatePlayerNames.add(t.player));
+  lowOwnedDifferentials.forEach((d) => candidatePlayerNames.add(d.player));
+  notOwnedHighScorers.forEach((n) => candidatePlayerNames.add(n.player));
+  for (const [pName, cCount] of playerCaptainCountMap.entries()) {
+    if (cCount >= 2) candidatePlayerNames.add(pName);
+  }
+
+  const investigativePlayerDossiers: InvestigativePlayerDossier[] = [];
+  for (const pName of candidatePlayerNames) {
+    const pStat = allPlayerStats.find((p: any) => p.webName === pName) || allPlayers.find((p) => p.webName === pName);
+    const activeP = activePlayersTable.find((p) => p.name === pName);
+
+    const clubName = pStat?.teamShort || pStat?.teamName || activeP?.club || '';
+    const pos = pStat?.position || activeP?.pos || 'MID';
+    const cost = (pStat?.nowCost || 0) / 10 || activeP?.cost || 0;
+    const gwPts = pStat?.eventPoints ?? (activeP?.gwPts || 0);
+
+    const ownRec = ownershipPlayersRaw.find((p: any) => p.web_name === pName);
+    const ownedPct = ownRec ? `${ownRec.owned_percentage}%` : (pStat?.selectedByPercent ? `${pStat.selectedByPercent}%` : '0%');
+    const ownedCount = ownRec ? ownRec.owned_count : (pStat?.league_ownership?.count || 0);
+
+    const transferCounterparts: PlayerTransferCounterpartRecord[] = [];
+    const inTrs = playerTransfersInMap.get(pName) || [];
+    for (const tr of inTrs) {
+      if (tr.element_out) {
+        const outPts = Number(tr.element_out.gw_points) || 0;
+        const delta = gwPts - outPts;
+        transferCounterparts.push({
+          managerTeam: tr.entry_name,
+          transferType: 'BOUGHT_IN',
+          counterpartName: tr.element_out.name,
+          counterpartClub: tr.element_out.club,
+          counterpartPosition: tr.element_out.position,
+          counterpartGwPts: outPts,
+          counterpartCost: (tr.element_out.cost || 0) / 10,
+          pointDelta: delta,
+          narrative: `Ditransfer masuk oleh [T:${tr.entry_name}] menggantikan [P:${tr.element_out.name}] ([C:${tr.element_out.club}], ${outPts} pts). Selisih poin: ${delta >= 0 ? '+' : ''}${delta}.`,
+        });
+      }
+    }
+
+    const outTrs = playerTransfersOutMap.get(pName) || [];
+    for (const tr of outTrs) {
+      if (tr.element_in) {
+        const inPts = Number(tr.element_in.gw_points) || 0;
+        const delta = inPts - gwPts;
+        transferCounterparts.push({
+          managerTeam: tr.entry_name,
+          transferType: 'SOLD_OUT',
+          counterpartName: tr.element_in.name,
+          counterpartClub: tr.element_in.club,
+          counterpartPosition: tr.element_in.position,
+          counterpartGwPts: inPts,
+          counterpartCost: (tr.element_in.cost || 0) / 10,
+          pointDelta: delta,
+          narrative: `Dijual oleh [T:${tr.entry_name}] demi merekrut [P:${tr.element_in.name}] ([C:${tr.element_in.club}], ${inPts} pts). Selisih poin: ${delta >= 0 ? '+' : ''}${delta}.`,
+        });
+      }
+    }
+
+    const recentRoundPoints = (pStat?.gwHistory || []).slice(-4).map((h: any) => ({
+      round: h.round,
+      points: h.points,
+    }));
+
+    const minutes = pStat?.minutes ?? activeP?.mins ?? 0;
+    const goals = pStat?.goalsScored ?? activeP?.goals ?? 0;
+    const assists = pStat?.assists ?? activeP?.assists ?? 0;
+    const cleanSheet = pStat?.cleanSheets ?? activeP?.cs ?? 0;
+    const saves = pStat?.saves ?? activeP?.saves ?? 0;
+    const penaltiesSaved = pStat?.penaltiesSaved ?? activeP?.penSaved ?? 0;
+    const penaltiesMissed = pStat?.penaltiesMissed ?? activeP?.penMissed ?? 0;
+    const yellowCards = pStat?.yellowCards ?? activeP?.yellow ?? 0;
+    const redCards = pStat?.redCards ?? activeP?.red ?? 0;
+    const bps = pStat?.bps ?? activeP?.bps ?? 0;
+    const bonus = pStat?.bonus ?? activeP?.bonus ?? 0;
+
+    let defConNote: string | undefined;
+    if (pos === 'DEF' && cleanSheet > 0) {
+      defConNote = 'Nirbobol solid (CS terkunci)';
+    } else if (saves >= 3) {
+      defConNote = `${saves} penyelamatan penting (${Math.floor(saves / 3)} poin saves)`;
+    }
+
+    const starterCount = playerStarterCountMap.get(pName) || 0;
+    const benchCount = playerBenchCountMap.get(pName) || 0;
+    const captainCount = playerCaptainCountMap.get(pName) || 0;
+    const viceCaptainCount = playerViceCaptainCountMap.get(pName) || 0;
+    const chipsInvolving = playerChipsMap.get(pName) || [];
+
+    let summary = `[P:${pName}] ([C:${clubName}]): ${gwPts} poin, kepemilikan ${ownedPct} (${ownedCount} tim). Dimainkan starter oleh ${starterCount} tim, dicadangkan oleh ${benchCount} tim, dijadikan kapten oleh ${captainCount} tim.`;
+    if (transferCounterparts.length > 0) {
+      const topSwap = transferCounterparts[0];
+      summary += ` Riwayat transfer: ${topSwap.narrative}`;
+    }
+
+    investigativePlayerDossiers.push({
+      player: pName,
+      club: clubName,
+      position: pos,
+      cost,
+      gwPts,
+      ownershipPercentage: ownedPct,
+      ownershipCount: ownedCount,
+      starterCount,
+      benchCount,
+      captainCount,
+      viceCaptainCount,
+      chipsInvolvingPlayer: chipsInvolving,
+      transfersInCount: inTrs.length,
+      transfersOutCount: outTrs.length,
+      transferCounterparts: transferCounterparts.slice(0, 5),
+      recentRoundPoints,
+      keyStats: {
+        minutes,
+        goals,
+        assists,
+        cleanSheet,
+        saves,
+        penaltiesSaved,
+        penaltiesMissed,
+        defensiveContribution: defConNote,
+        yellowCards,
+        redCards,
+        bps,
+        bonus,
+      },
+      investigativeSummary: summary,
+    });
+  }
+
+  investigativePlayerDossiers.sort((a, b) => b.gwPts - a.gwPts);
+
+  // Construct InvestigativeTeamDossier list
+  const investigativeTeamDossiers: InvestigativeTeamDossier[] = [];
+  const candidateTeamNames = new Set<string>();
+  standingsTable.slice(0, 15).forEach((t) => candidateTeamNames.add(t.team));
+  chipsActive.forEach((c) => candidateTeamNames.add(c.team));
+  topRankClimbers.forEach((c) => candidateTeamNames.add(c.team));
+  topRankFallers.forEach((f) => candidateTeamNames.add(f.team));
+  for (const tr of allTransfers.slice(0, 10)) {
+    if (tr.entry_name) candidateTeamNames.add(tr.entry_name);
+  }
+
+  for (const tName of candidateTeamNames) {
+    const s = standingsTable.find((st) => st.team === tName);
+    if (!s) continue;
+
+    const rankTrajectory = {
+      currentRank: s.rank,
+      lastRank: s.lastRank,
+      rankChange: s.rankChange,
+      trend: (s.rankChange > 0 ? 'CLIMBED' : s.rankChange < 0 ? 'FELL' : 'STEADY') as 'CLIMBED' | 'FELL' | 'STEADY',
+      gapToRank1Pts: rank1 ? Math.max(0, rank1.totalPts - s.totalPts) : 0,
+      gapToNextRankPts: s.rank > 1 ? (standingsTable[s.rank - 2]?.totalPts || 0) - s.totalPts : 0,
+      trajectoryDescription: s.rankContext,
+    };
+
+    const teamTrs = teamTransfersMap.get(tName) || [];
+    const swaps: TeamTransferSwapDossier[] = [];
+    for (const tr of teamTrs) {
+      if (tr.element_in && tr.element_out) {
+        const inPts = Number(tr.element_in.gw_points) || 0;
+        const outPts = Number(tr.element_out.gw_points) || 0;
+        const delta = inPts - outPts;
+        const outcome = (delta > 0 ? 'PROFIT' : delta < 0 ? 'LOSS' : 'NEUTRAL') as 'PROFIT' | 'LOSS' | 'NEUTRAL';
+        const finding = delta > 0
+          ? `Pembelian sukses: mendatangkan [P:${tr.element_in.name}] (${inPts} pts) menggantikan [P:${tr.element_out.name}] (${outPts} pts), surplus +${delta} poin.`
+          : delta < 0
+          ? `Kehilangan potensi: menjual [P:${tr.element_out.name}] (${outPts} pts) dan menggantinya dengan [P:${tr.element_in.name}] (${inPts} pts), defisit -${Math.abs(delta)} poin.`
+          : `Pertukaran netral: [P:${tr.element_in.name}] dan [P:${tr.element_out.name}] sama-sama meraih ${inPts} poin.`;
+
+        swaps.push({
+          playerIn: {
+            name: tr.element_in.name,
+            club: tr.element_in.club || '',
+            position: tr.element_in.position || '',
+            gwPts: inPts,
+            cost: (tr.element_in.cost || 0) / 10,
+          },
+          playerOut: {
+            name: tr.element_out.name,
+            club: tr.element_out.club || '',
+            position: tr.element_out.position || '',
+            gwPts: outPts,
+            cost: (tr.element_out.cost || 0) / 10,
+          },
+          netPointDelta: delta,
+          swapOutcome: outcome,
+          finding,
+        });
+      }
+    }
+
+    const squadPlayers = [...s.starters, ...s.bench];
+    const templateNames: string[] = [];
+    const differentialNames: string[] = [];
+    for (const p of squadPlayers) {
+      const ownRec = ownershipPlayersRaw.find((op: any) => op.web_name === p.name);
+      const pct = ownRec ? ownRec.owned_percentage : 0;
+      if (pct >= 40) templateNames.push(p.name);
+      else if (pct <= 5) differentialNames.push(p.name);
+    }
+
+    const sortedStarters = [...s.starters].sort((a, b) => b.pts - a.pts);
+    const sortedBench = [...s.bench].sort((a, b) => b.pts - a.pts);
+    const topStarter = sortedStarters[0] || { name: 'None', pts: 0 };
+    const lowestStarter = sortedStarters[sortedStarters.length - 1] || { name: 'None', pts: 0 };
+    const highestBench = sortedBench[0] || null;
+    const topScorerInSquad = highestBench && highestBench.pts > topStarter.pts
+      ? { name: highestBench.name, pts: highestBench.pts, role: 'BENCH' as const }
+      : { name: topStarter.name, pts: topStarter.pts, role: 'STARTER' as const };
+    const benchLossPts = highestBench && lowestStarter && highestBench.pts > lowestStarter.pts
+      ? highestBench.pts - lowestStarter.pts
+      : 0;
+
+    const cap = s.starters.find((p) => p.isC);
+    const capBase = cap ? Math.round(cap.pts / 2) : 0;
+    const capTotal = cap ? cap.pts : 0;
+    const bestAltStarter = s.starters.filter((p) => !p.isC).sort((a, b) => b.pts - a.pts)[0] || { name: 'None', pts: 0 };
+    const missedCapPts = Math.max(0, bestAltStarter.pts - capBase);
+    const capEvaluation = missedCapPts > 0
+      ? `Kehilangan potensi [N:+${missedCapPts} Poin] karena mengkaptenkan [P:${cap?.name}] (${capBase} pts) dibanding [P:${bestAltStarter.name}] (${bestAltStarter.pts} pts).`
+      : `Pilihan kapten optimal pada [P:${cap?.name}] (${capBase} pts x 2 = ${capTotal} pts).`;
+
+    const chipRecord = chipDecisions.find((c) => c.team === tName);
+    const chipStatus = {
+      activeChip: s.chip ? (String(s.chip).toUpperCase() as 'TC' | 'BB' | 'WC' | 'FH') : null,
+      chipSet: chipRecord?.chipSet,
+      netGainPts: chipRecord?.chipNetGainPts,
+      evaluation: chipRecord?.decisionEvaluation,
+    };
+
+    const keyPlayerPerformances = sortedStarters.slice(0, 3).map((p) => ({
+      name: p.name,
+      pts: p.pts,
+      role: (p.isC ? 'CAPTAIN' : 'STARTER') as 'STARTER' | 'BENCH' | 'CAPTAIN',
+      highlight: `${p.pts} poin`,
+    }));
+
+    let summary = `[T:${tName}]: ${s.rankContext}, mendulang ${s.gwPts} poin (total ${s.totalPts} poin).`;
+    if (swaps.length > 0) {
+      summary += ` Transfer: ${swaps.map((sw) => sw.finding).join(' ')}`;
+    }
+    if (chipStatus.activeChip) {
+      summary += ` Mengaktifkan chip ${chipStatus.activeChip} (Set ${chipStatus.chipSet}): ${chipStatus.evaluation}`;
+    }
+    if (benchLossPts > 0) {
+      summary += ` Bangku cadangan menyisakan ${s.benchPts} poin (kehilangan potensi +${benchLossPts} poin dari [P:${highestBench?.name}]).`;
+    }
+
+    investigativeTeamDossiers.push({
+      team: tName,
+      rankTrajectory,
+      transfers: {
+        hitPenalty: s.hitPenalty,
+        totalSwapsThisGw: teamTrs.length,
+        swaps,
+      },
+      ownershipProfile: {
+        templateCount: templateNames.length,
+        differentialCount: differentialNames.length,
+        templateNames,
+        differentialNames,
+      },
+      lineupDecisions: {
+        startersCount: s.starters.length,
+        benchCount: s.bench.length,
+        benchPointsLeft: s.benchPts,
+        topScorerInSquad,
+        lowestStarter: { name: lowestStarter.name, pts: lowestStarter.pts },
+        highestBench: highestBench ? { name: highestBench.name, pts: highestBench.pts } : null,
+        benchLossPts,
+      },
+      captaincyDecision: {
+        captainName: cap?.name || 'None',
+        captainBasePts: capBase,
+        captainTotalPts: capTotal,
+        alternativeBestStarter: { name: bestAltStarter.name, pts: bestAltStarter.pts },
+        missedCaptainPotentialPts: missedCapPts,
+        evaluation: capEvaluation,
+      },
+      chipStatus,
+      keyPlayerPerformances,
+      investigativeSummary: summary,
+    });
+  }
+
   return {
     gameweek: currentGw,
     nextGameweek: nextGw,
@@ -753,7 +1420,13 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
     transfersIn,
     transfersOut,
     chipsActive,
+    chipDecisions,
+    ownershipInsights,
     ligaMinusSeasonRecords,
     whatIfOpportunities: whatIfOpportunities.slice(0, 15),
+    investigativeDossiers: {
+      players: investigativePlayerDossiers,
+      teams: investigativeTeamDossiers,
+    },
   };
 }

@@ -242,6 +242,44 @@ export default function App() {
     }, 4000);
   };
 
+  // Detects Gameweek transition for the first time and triggers browser reload
+  const isReloadingForGwTransitionRef = useRef<boolean>(false);
+  const handleGwTransitionCheck = useCallback((newGw: number | undefined | null, isExplicitServerTransition = false): boolean => {
+    if (!newGw || typeof newGw !== 'number' || newGw <= 0 || isReloadingForGwTransitionRef.current) {
+      return false;
+    }
+
+    const STORAGE_KEY = 'fnb_last_known_active_gw';
+    const storedGwStr = localStorage.getItem(STORAGE_KEY);
+    const inMemoryGw = dataRef.current?.current_gw;
+
+    if (storedGwStr === null) {
+      // First boot on a fresh device/browser: initialize baseline without refreshing
+      localStorage.setItem(STORAGE_KEY, String(newGw));
+      return false;
+    }
+
+    const previousGw = Number(storedGwStr);
+    const hasGwChanged =
+      (!isNaN(previousGw) && previousGw > 0 && previousGw !== newGw) ||
+      (inMemoryGw !== undefined && inMemoryGw > 0 && inMemoryGw !== newGw) ||
+      (isExplicitServerTransition && previousGw !== newGw);
+
+    if (hasGwChanged) {
+      isReloadingForGwTransitionRef.current = true;
+      console.log(`[GW Transition] Peralihan GW terdeteksi pertama kali (GW ${previousGw || inMemoryGw} -> GW ${newGw}). Menyegarkan (refresh) browser...`);
+      localStorage.setItem(STORAGE_KEY, String(newGw));
+      showToast('Peralihan Gameweek terdeteksi. Memuat ulang...');
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
+      return true;
+    }
+
+    return false;
+  }, []);
+
   // Fetch data from server with defensive timeout (longer for Action A initial full sync)
   const fetchData = useCallback(async (isInitialBoot = false, forceSync = false) => {
     const controller = new AbortController();
@@ -263,6 +301,12 @@ export default function App() {
 
         if (json.data) {
           const cleanData = deduplicateLeagueData(json.data);
+          const newGw = cleanData.current_gw || json.gw_check?.currentGW;
+
+          // Check if Gameweek transition occurred for the first time
+          if (handleGwTransitionCheck(newGw, Boolean(json.gw_transition))) {
+            return;
+          }
 
           // Update state with fresh API data
           setData(cleanData);
@@ -362,8 +406,15 @@ export default function App() {
           try {
             const payload = JSON.parse(event.data);
             if (payload && payload.data) {
-              console.log('[SSE Stream] Server sync finished. Instantly updating entire application state...');
               const cleanData = deduplicateLeagueData(payload.data);
+              const newGw = cleanData.current_gw || payload.current_gw;
+
+              // Check if Gameweek transition occurred for the first time
+              if (handleGwTransitionCheck(newGw, Boolean(payload.gw_transition))) {
+                return;
+              }
+
+              console.log('[SSE Stream] Server sync finished. Instantly updating entire application state...');
               setData(cleanData);
               dataRef.current = cleanData;
               setLastCheckedTime(payload.checked_at || new Date().toISOString());
@@ -407,7 +458,7 @@ export default function App() {
         eventSource.close();
       }
     };
-  }, []);
+  }, [handleGwTransitionCheck]);
 
   // Boot sequence: Trigger Action A on initial boot and catch up when returning to tab
   useEffect(() => {

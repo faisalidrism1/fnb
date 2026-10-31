@@ -37,6 +37,54 @@ const HISTORY_CACHE_PATH = path.join(process.cwd(), 'src/data/news_ticker_histor
 let memoryFeedCache: NewsTickerFeedResponse | null = null;
 let lastProcessedDataHash = '';
 
+// Pre-load feed cache from disk on startup if available
+try {
+  if (fs.existsSync(FEED_CACHE_PATH)) {
+    const raw = fs.readFileSync(FEED_CACHE_PATH, 'utf-8');
+    memoryFeedCache = JSON.parse(raw);
+    console.log(`[Gemini News Service] Pre-loaded feed cache from disk with ${memoryFeedCache?.data?.length || 0} stories`);
+  }
+} catch (e: any) {
+  console.warn('[Gemini News Service] Failed to read initial feed cache:', e.message);
+}
+
+/**
+ * Deletes a story by its ID from the active news ticker feed and persists to disk
+ */
+export function deleteNewsTickerStory(storyId: string): { success: boolean; count: number; data: NewsTickerStory[] } {
+  if (!memoryFeedCache) {
+    if (fs.existsSync(FEED_CACHE_PATH)) {
+      try {
+        memoryFeedCache = JSON.parse(fs.readFileSync(FEED_CACHE_PATH, 'utf-8'));
+      } catch {
+        memoryFeedCache = null;
+      }
+    }
+  }
+
+  if (!memoryFeedCache || !Array.isArray(memoryFeedCache.data)) {
+    throw new Error('No active news feed found to delete from');
+  }
+
+  const initialCount = memoryFeedCache.data.length;
+  memoryFeedCache.data = memoryFeedCache.data.filter((item) => String(item.id) !== String(storyId));
+  memoryFeedCache.count = memoryFeedCache.data.length;
+  memoryFeedCache.lastUpdated = new Date().toISOString();
+
+  try {
+    fs.writeFileSync(FEED_CACHE_PATH, JSON.stringify(memoryFeedCache, null, 2), 'utf-8');
+    console.log(`[Gemini News Service] Deleted story '${storyId}' (${initialCount} -> ${memoryFeedCache.count})`);
+  } catch (err: any) {
+    console.warn('[Gemini News Service] Failed to persist feed after delete:', err.message);
+  }
+
+  return {
+    success: true,
+    count: memoryFeedCache.count,
+    data: memoryFeedCache.data,
+  };
+}
+
 export interface PastNewsRecord {
   id: string;
   gw: number;
@@ -472,9 +520,40 @@ Analisis Anda wajib mengalir mengikuti hukum sebab-akibat 8 tahap kompetisi:
    - 1 TIM ADALAH ENTITAS TUNGGAL: DILARANG KERAS mendeskripsikan 1 tim sebagai "mereka" (dalam Bahasa Indonesia) atau "they/them/their" (dalam Bahasa Inggris).
    - Gunakan rujukan tunggal: "tim tersebut", "skuad tersebut", "tim ini", atau akhiran "-nya" (contoh: "posisinya", "upayanya", "skornya", "pemainnya"). Dalam Bahasa Inggris gunakan "the team", "it", atau "its" (bukan "they/their").
    - Kata "mereka" / "they / them / their" HANYA boleh digunakan jika secara eksplisit merujuk pada LEBIH DARI 1 TIM (jamak, misalnya: "kedua tim", "tim-tim papan bawah", "[T:Tim A] dan [T:Tim B]").
+
+12. PROTOKOL WAJIB PENELUSURAN INVESTIGATIF ENTITAS SEBELUM DIBERITAKAN:
+   Seluruh penelusuran investigatif berikut WAJIB DILAKUKAN terhadap setiap entitas yang akan diberitakan, namun berlakulah aturan seleksi peliputan:
+   - ATURAN AMBANG BATAS DRAMA TINGGI (HIGH DRAMA THRESHOLD):
+     Gemini HANYA memberitakan dan menyertakan rincian data hasil penelusuran (pasangan transfer, bangku cadangan, status kepemilikan ekstrem, atau kapten alternatif) APABILA DITEMUKAN TINGKAT DRAMA YANG TINGGI (misalnya: kontras poin transfer swap yang tajam >= 5 poin, transfer yang berbuah petaka/sukses besar, pemain diferensial langka yang meledak mendongkrak peringkat, template massal yang flop berpoin minim/kartu merah, atau kehilangan poin besar akibat keputusan kapten/cadangan).
+   - JIKA PENELUSURAN TIDAK MENEMUKAN UNSUR DRAMA YANG MENONJOL (misalnya: transfer biasa dengan selisih 0 atau 1 poin, susunan starter-cadangan yang wajar tanpa ada poin cadangan yang terbuang, performa kapten normal, atau kepemilikan umum):
+     GEMINI MURNI MENAYANGKAN BERITA UTAMA (skor akhir pertandingan, perolehan poin tim, pergeseran posisi klasemen murni) TANPA MENAMBAHKAN DATA TAMBAHAN HASIL PENELUSURAN. Berita disajikan secara murni, lugas, dan proporsional tanpa memaksakan data yang tidak memiliki nilai berita.
+
+   A. Penelusuran Entitas Pemain (Player Tracing):
+      Saat seorang pemain akan diberitakan, telusuri dulu seluruh statistiknya dari dossier pemain (investigativeDossiers.players):
+      - Riwayat transfer: apakah pemain ini ditransfer masuk (in) atau keluar (out) di liga pekan ini?
+      - Siapa pemain yang menjadi pasangan transfernya: siapa yang dilepas demi membelinya, atau siapa yang dibeli demi menjualnya?
+      - Penelusuran terhadap pasangan transfer tersebut: telusuri klubnya, posisinya, berapa poin yang didapat pasangan tersebut di GW ini, dan bagaimana perbandingan poinnya (transfer delta).
+      - Kepemilikan (Ownership): berapa % kepemilikan dan jumlah tim pemilik di FNB League (apakah template >= 40%, diferensial <= 5%, atau 0% not owned)?
+      - Start vs Bench: berapa banyak tim yang memainkannya sebagai starter vs berapa banyak yang mencadangkannya di bench?
+      - Peran Kapten: berapa tim yang menjadikannya Kapten (2x) atau Wakil Kapten?
+      - Keterlibatan Chip: apakah ada tim yang mengaktifkan chip (TC, BB, WC, FH) yang melibatkan pemain ini?
+      - Riwayat poin & statistik penting: menit bermain, gol, assist, clean sheet, saves, kartu kuning/merah, BPS Opta, bonus, dan konsistensi poin dari pekan-pekan sebelumnya (gwHistory).
+
+   B. Penelusuran Entitas Tim (Team Tracing):
+      Saat sebuah tim akan diberitakan, telusuri dulu seluruh statistiknya dari dossier tim (investigativeDossiers.teams):
+      - Riwayat rank (Rank Trajectory): perjalanan peringkat dari pekan lalu (lastRank) ke pekan berjalan (currentRank), selisih lonjakan/penurunan, status tren, dan gap poin ke pemuncak atau rival terdekat.
+      - Riwayat transfer: seluruh transfer yang dilakukan tim di pekan ini beserta penalti minus poin (-4, -8).
+      - Siapa pemain yang menjadi pasangan transfernya: siapa yang dibeli vs siapa yang dijual sebagai gantinya?
+      - Penelusuran terhadap pasangan transfer tersebut: bagaimana komparasi performa dan perolehan poin antara pemain yang dibeli vs pemain yang dijual (apakah mendatangkan surplus poin atau justru kerugian fatal)?
+      - Profil kepemilikan skuad: rasio pemain template populer vs amunisi diferensial langka.
+      - Keputusan susunan Starter vs Bench: 11 starter vs 4 cadangan, total poin bangku cadangan yang mengendap, dan potensi kerugian jika ada pemain cadangan yang berpoin jauh lebih tinggi daripada starter.
+      - Keputusan Kapten: siapa kapten yang dipilih dan perolehannya, serta apakah ada opsi starter lain di skuad yang meraih poin lebih tinggi sehingga tim kehilangan potensi poin kapten.
+      - Status Chip: apakah tim mengaktifkan chip di pekan ini (TC, BB, WC, FH), set ke berapa (Set 1 atau Set 2), dan berapa net gain/loss poin dari chip tersebut.
+      - Riwayat poin pemain & statistik penting di skuad: siapa top performer tim, kontribusi nyata di lapangan, serta pemain yang membukukan 0 poin atau kartu minus.
+
    - Hasilkan 8 hingga 12 headline berita dwibahasa simultan dalam format JSON array valid.`;
 
-  const userPrompt = `Berikut adalah data mentah lengkap GW ${payload.gameweek} FNB League beserta Data Pertandingan (Finished, Live, Upcoming), Tabel What-If Opportunities, dan Data Historis Peringkat Klasemen yang telah dihitung secara presisi:
+  const userPrompt = `Berikut adalah data mentah lengkap GW ${payload.gameweek} FNB League beserta Dossier Investigatif Lengkap Pemain & Tim (Investigative Dossiers), Data Pertandingan (Finished, Live, Upcoming), Analisis Keputusan Chip (TC, BB, WC, FH), Spektrum Ownership (High-Owned Template, Low-Owned Differentials, dan Not-Owned 0%), Tabel What-If Opportunities, dan Data Historis Peringkat Klasemen:
 ${JSON.stringify({
   gameweek: payload.gameweek,
   nextGameweek: payload.nextGameweek,
@@ -484,6 +563,9 @@ ${JSON.stringify({
   leagueStats: payload.leagueStats,
   championshipStatus: payload.championshipStatus,
   standingsHistoricalContext: payload.standingsHistoricalContext,
+  investigativeDossiers: payload.investigativeDossiers,
+  chipDecisions: payload.chipDecisions,
+  ownershipInsights: payload.ownershipInsights,
   whatIfOpportunities: payload.whatIfOpportunities,
   transfersIn: payload.transfersIn,
   transfersOut: payload.transfersOut,
@@ -497,21 +579,41 @@ ${JSON.stringify({
 ${pastHeadlinesFormatted}
 
 PANDUAN EKSEKUSI JURNALISTIK & AUDIT ANTI-PENGULANGAN MUTLAK:
-1. PAHAMI STATUS FASE PEKAN & 10 LAGA:
+0. AUDIT DOSSIER INVESTIGATIF & ATURAN FILTER DRAMA TINGGI (MANDATORY AUDIT WITH HIGH DRAMA FILTER):
+   - Seluruh pemeriksaan dossier investigatif (pemain & tim) WAJIB dilakukan sebelum memproduksi berita.
+   - HANYA sertakan data hasil penelusuran (pasangan transfer swap, bangku cadangan, selisih poin perbandingan, ownership langka) JIKA DITEMUKAN TINGKAT DRAMA YANG TINGGI (misal selisih poin transfer kontras, lonjakan/kejatuhan drastis, poin cadangan melimpah yang terbuang).
+   - JIKA TIDAK DITEMUKAN HAL LAIN YANG BERPOTENSI DRAMA TINGGI dari penelusuran tersebut: TAYANGKAN BERITA MURNI (fakta skor pertandingan, poin tim, atau status klasemen) TANPA TAMBAHAN DATA HASIL PENELUSURAN! Jangan pernah memaksakan rincian transfer atau bangku cadangan jika tidak ada drama.
+
+1. EFEKTIVITAS PENGAMBILAN KEPUTUSAN CHIP (2 SET SEPANJANG MUSIM):
+   - Setiap tim hanya memiliki 2 set chip sepanjang musim (Set 1 dan Set 2). Penggunaannya sangat berdampak pada nasib poin dan peringkat.
+   - Evaluasi kesamaan: Apakah chip digunakan pada pekan (GW) yang tepat? Berapa net gain/loss poin yang disumbangkan oleh chip tersebut?
+   - Dimensi keputusan spesifik tiap chip:
+     * TC (Triple Captain): Apakah pemain yang dipilih tepat? Hitung net gain ekstra 1x base point si kapten vs alternatif lain.
+     * BB (Bench Boost): Apakah seluruh 15 pemain berpoin semua? Sorot net gain murni dari 4 bangku cadangan, dan catat jika ada pemain yang 0 poin / tidak bermain.
+     * WC (Wildcard): Apakah susunan pemain lama tim benar-benar membutuhkan perombakan besar permanen?
+     * FH (Free Hit): Apakah susunan pemain lama tim tidak cukup untuk mengarungi pekan ini? Evaluasi apakah skuad darurat 1 pekan berhasil memberi lonjakan poin di atas rata-rata liga.
+
+2. LIPUTAN SPEKTRUM KEPEMILIKAN (OWNERSHIP INTELLIGENCE):
+   - High Owned Template (>= 40%): Sorot pemain template yang meledak mengamankan rata-rata liga atau sebaliknya menjadi jebakan/perangkap massal (0-1 poin) yang menyeret mayoritas manajer.
+   - Low Owned Differentials (<= 5%): Sorot pemain langka yang meledak (>= 7-17 poin) dan menghasilkan lonjakan peringkat eksklusif bagi segelintir manajer pemiliknya.
+   - Not Owned High Scorers (0% Owned): Sorot pemain Premier League yang meledak (>= 10-13 poin) namun TIDAK DIMILIKI SATU PUN MANAJER di FNB League (0% kepemilikan). Sajikan sebagai 'potensi gain besar yang luput dan belum dimanfaatkan oleh seluruh peserta liga'.
+
+3. PAHAMI STATUS FASE PEKAN & 10 LAGA:
    - Jika fase 'Not started': Seluruh laga belum dimainkan (Upcoming). DILARANG mengulas skor pemain atau klasemen akhir. Fokus berita pada strategi pra-pekan: pemain terpopuler yang ditransfer masuk/keluar, aktivasi chip (WC, FH, BB, TC), pilihan ban kapten favorit/diferensial, dan penalti minus hits yang diambil para manajer.
    - Jika fase 'Live' tetapi sedang JEDA ANTAR-PERTANDINGAN (0 laga aktif di lapangan, sebagian laga FT dan sebagian Upcoming): JANGAN buat laporan menit berjalan karena bola sedang tidak bergulir. Fokus liputan pada rekapitulasi poin laga yang telah usai (FT) vs tim-tim di bawah yang masih menyimpan amunisi pemain/kapten di laga berikutnya (Upcoming) untuk melakukan kudeta tahta.
    - Pada laga yang sedang aktif bergulir (Live): Sorot menit berjalan dan aksi dinamis yang sedang mengubah perolehan tim di lapangan.
    - Pada laga yang belum dimainkan (Upcoming): Sorot tim-tim yang masih menyimpan amunisi pemain/kapten untuk mengejar ketertinggalan poin. Jangan sebut mereka 'blank' atau gagal.
    - Pada laga yang selesai (FT): Sorot poin pasti yang berhasil diamankan atau poin yang hilang akibat keputusan susunan skuad.
-2. PERIKSA RIWAYAT SEBELUMNYA DENGAN CERMAT: Jangan sampai memproduksi berita yang mengulang topik, kejadian, atau substansi drama yang sama persis dengan berita-berita di atas!
-3. Eksplorasi tim-tim lain dan pemain-pemain lain yang belum terliput di riwayat. Setiap entitas [P:Pemain] dan [T:Tim] hanya muncul maksimal 1 kali dalam seluruh batch berita.
-4. Skenario keputusan alternatif (what-if) WAJIB disajikan dari sudut pandang fakta riil: Tim kehilangan potensi sejumlah poin karena mencadangkan pemain, mengkaptenkan pemain, atau menjual pemain dan menggantinya dengan pemain lain yang hanya mendapat perolehan poin lebih rendah. DILARANG menggunakan kata pengandaian (seperti 'Andai', 'Seandainya', 'Jika saja', 'Had they', 'If').
-5. Gunakan nilai selisih bersih matematis dari tabel whatIfOpportunities tanpa menyebutkan kata 'bersih', cukup sebutkan kata 'poin' atau 'tambahan poin'.
-6. Mulai kalimat langsung pada substansi berita tanpa judul atau awalan berkategori.
-7. Akhiri setiap kalimat dengan tanda titik (.), tanpa tanda seru (!).
-8. Format penyebutan klub pemain menggunakan tanda kurung tanpa kata 'dari': [P:Pemain] ([C:Klub]).
-9. ATURAN ENTITAS TIM TUNGGAL: 1 tim adalah entitas tunggal dan DILARANG dideskripsikan sebagai 'mereka' (atau 'they/them/their'). Gunakan 'tim tersebut', 'skuad tersebut', atau akhiran '-nya' (dalam EN: 'the team', 'its'). Kata 'mereka' hanya boleh jika merujuk lebih dari 1 tim.
-10. Buat 8 hingga 12 berita dwibahasa simultan dengan format JSON array valid:
+
+4. PERIKSA RIWAYAT SEBELUMNYA DENGAN CERMAT: Jangan sampai memproduksi berita yang mengulang topik, kejadian, atau substansi drama yang sama persis dengan berita-berita di atas!
+5. Eksplorasi tim-tim lain dan pemain-pemain lain yang belum terliput di riwayat. Setiap entitas [P:Pemain] dan [T:Tim] hanya muncul maksimal 1 kali dalam seluruh batch berita.
+6. Skenario keputusan alternatif (what-if) WAJIB disajikan dari sudut pandang fakta riil: Tim kehilangan potensi sejumlah poin karena mencadangkan pemain, mengkaptenkan pemain, atau menjual pemain dan menggantinya dengan pemain lain yang hanya mendapat perolehan poin lebih rendah. DILARANG menggunakan kata pengandaian (seperti 'Andai', 'Seandainya', 'Jika saja', 'Had they', 'If').
+7. Gunakan nilai selisih bersih matematis dari tabel whatIfOpportunities tanpa menyebutkan kata 'bersih', cukup sebutkan kata 'poin' atau 'tambahan poin'.
+8. Mulai kalimat langsung pada substansi berita tanpa judul atau awalan berkategori.
+9. Akhiri setiap kalimat dengan tanda titik (.), tanpa tanda seru (!).
+10. Format penyebutan klub pemain menggunakan tanda kurung tanpa kata 'dari': [P:Pemain] ([C:Klub]).
+11. ATURAN ENTITAS TIM TUNGGAL: 1 tim adalah entitas tunggal dan DILARANG dideskripsikan sebagai 'mereka' (atau 'they/them/their'). Gunakan 'tim tersebut', 'skuad tersebut', atau akhiran '-nya' (dalam EN: 'the team', 'its'). Kata 'mereka' hanya boleh jika merujuk lebih dari 1 tim.
+12. Buat 8 hingga 12 berita dwibahasa simultan dengan format JSON array valid:
 [
   {
     "id": "story_1",
@@ -647,14 +749,24 @@ function parseStoriesFromRaw(rawText: string): any[] | null {
     throw new Error(`Failed to generate autonomous news feed: ${executionError?.message || 'Unknown error'}`);
   }
 
+  // Merge fresh stories with recent active stories to maintain a dynamic 16-20 story queue buffer
+  let combinedStories = [...stories];
+  if (memoryFeedCache && Array.isArray(memoryFeedCache.data)) {
+    const existingStories = memoryFeedCache.data.filter(
+      (old) => !combinedStories.some((fresh) => fresh.headline_id === old.headline_id || fresh.id === old.id)
+    );
+    // Keep up to 8 of the best existing stories alongside the fresh batch
+    combinedStories = [...combinedStories, ...existingStories.slice(0, 8)].slice(0, 20);
+  }
+
   const feedResponse: NewsTickerFeedResponse = {
     success: true,
     gameweek: payload.gameweek,
     nextGameweek: payload.nextGameweek,
     gameweekPhase: payload.gameweekPhase,
     lastUpdated: new Date().toISOString(),
-    count: stories.length,
-    data: stories,
+    count: combinedStories.length,
+    data: combinedStories,
   };
 
   // Update memory cache and state hash
