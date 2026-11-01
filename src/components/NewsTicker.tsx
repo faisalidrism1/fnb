@@ -80,13 +80,26 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
     };
   }, [leagueData?.current_gw, leagueData?.gw_status?.status, leagueData?.sync_status?.is_matchday_live]);
 
+const POOL_IDX_STORAGE_KEY = 'fnb_news_ticker_pool_index';
+
+const getSavedPoolIdx = (): number => {
+  try {
+    const val = sessionStorage.getItem(POOL_IDX_STORAGE_KEY);
+    if (val !== null) {
+      const parsed = parseInt(val, 10);
+      return !isNaN(parsed) && parsed >= 0 ? parsed : 0;
+    }
+  } catch {}
+  return 0;
+};
+
   // DOM refs & Marquee control
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const currentXRef = useRef<number>(0);
   const isHoveredRef = useRef<boolean>(false);
   const lastTimeRef = useRef<number>(0);
-  const poolIdxRef = useRef<number>(0);
+  const poolIdxRef = useRef<number>(getSavedPoolIdx());
   const nextUidRef = useRef<number>(1);
 
   // Helper to get text based on current active language, stripping any title prefix (e.g. "Judul: Isi" -> "Isi")
@@ -208,6 +221,9 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
           .replace(/\bthey\b/gi, 'the team');
       }
 
+      // Remove any leftover multiplied / collective loss tag like "sama-sama merugi [N:344 Poin]" or "sama-sama merugi [N:44 poin]"
+      raw = raw.replace(/sama-sama\s+merugi\s+\[N:\+?\d+\s*(?:Poin|poin|pts|points)?\]/gi, 'sama-sama merugi');
+
       return raw.trim();
     },
     [language]
@@ -216,10 +232,20 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
   // Memoized lists of known teams and players for entity highlighting
   const knownTeams = useMemo(() => {
     const set = new Set<string>();
-    if (Array.isArray(leagueData?.standings)) {
-      leagueData.standings.forEach((s) => {
-        if (s.entry_name) set.add(s.entry_name.trim());
-      });
+    if (leagueData?.standings) {
+      if (Array.isArray(leagueData.standings)) {
+        leagueData.standings.forEach((s) => {
+          if (s.entry_name) set.add(s.entry_name.trim());
+        });
+      } else if (typeof leagueData.standings === 'object') {
+        Object.values(leagueData.standings).forEach((list: any) => {
+          if (Array.isArray(list)) {
+            list.forEach((s: any) => {
+              if (s?.entry_name) set.add(String(s.entry_name).trim());
+            });
+          }
+        });
+      }
     }
     return Array.from(set).sort((a, b) => b.length - a.length);
   }, [leagueData?.standings]);
@@ -388,7 +414,7 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
     [renderFormattedStory]
   );
 
-  // Get next story in round-robin sequence
+  // Get next story in round-robin sequence with persistent index
   const getNextStory = useCallback((): NewsTickerStory => {
     const list = storiesRef.current;
     if (list.length === 0) {
@@ -399,8 +425,12 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         drama_score: 50,
       };
     }
-    const item = list[poolIdxRef.current % list.length];
-    poolIdxRef.current = (poolIdxRef.current + 1) % list.length;
+    const idx = poolIdxRef.current % list.length;
+    const item = list[idx];
+    poolIdxRef.current = (idx + 1) % list.length;
+    try {
+      sessionStorage.setItem(POOL_IDX_STORAGE_KEY, String(poolIdxRef.current));
+    } catch {}
     return item;
   }, []);
 
@@ -427,6 +457,13 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
     }
   }, [getNextStory, createStoryElement]);
 
+  const getNextStoryRef = useRef(getNextStory);
+  getNextStoryRef.current = getNextStory;
+  const createStoryElementRef = useRef(createStoryElement);
+  createStoryElementRef.current = createStoryElement;
+  const fillTrackInitialRef = useRef(fillTrackInitial);
+  fillTrackInitialRef.current = fillTrackInitial;
+
   // Seamless transition when newly produced news arrives:
   // "Habiskan dulu tampilan 1 berita yang sedang tampil di layar. News baru tersebut tampil sebagai berita berikutnya tepat setelahnya."
   const handleIncomingStories = useCallback(
@@ -435,38 +472,45 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
 
       const track = trackRef.current;
       const container = containerRef.current;
-
       const currentList = storiesRef.current;
-      // Check if new news batch is genuinely different from current
-      const isDifferent =
-        currentList.length !== newStories.length ||
-        newStories.some((item, idx) => {
-          const curr = currentList[idx];
-          return (
-            !curr ||
-            curr.id !== item.id ||
-            curr.headline_id !== item.headline_id ||
-            curr.headline_en !== item.headline_en
-          );
-        });
 
-      // If stories are identical, continue running without any DOM mutation
-      if (!isDifferent && currentList.length > 0) {
+      // Initial load: when we had no stories before
+      if (currentList.length === 0) {
+        storiesRef.current = newStories;
+        setStories(newStories);
+        if (!track || !container || track.children.length === 0) {
+          fillTrackInitial();
+        } else {
+          // If track was previously filled with fallback placeholder items, replace with real stories
+          const hasOnlyFallback = Array.from(track.children).every(
+            (c) => (c as HTMLElement).dataset.storyId?.startsWith('fallback_')
+          );
+          if (hasOnlyFallback) {
+            fillTrackInitial();
+          }
+        }
         return;
       }
 
-      // Update memory reference & state
+      // Check for genuinely new incoming stories that were not in our previous feed
+      const currentIds = new Set(currentList.map((s) => s.id));
+      const freshStories = newStories.filter((s) => !currentIds.has(s.id));
+
+      // Always update stored reference to latest data
       storiesRef.current = newStories;
       setStories(newStories);
 
-      // If track is not yet running or empty, perform initial fill
-      if (!track || !container || track.children.length === 0) {
-        fillTrackInitial();
+      // If no genuinely new stories arrived (just standard periodic re-fetch of the 1000-pool):
+      // DO NOT reset queue or playback position! Let the continuous conveyor keep scrolling uninterrupted.
+      if (freshStories.length === 0) {
         return;
       }
 
-      // Marquee is already actively running on screen!
-      // Keep whatever story is currently visible so it finishes completely without interruption
+      // Genuinely fresh stories arrived (e.g. live goal/event or new AI breaking story):
+      // Keep whatever story is currently visible on screen, remove off-screen queue elements,
+      // and append the fresh stories directly behind the visible story.
+      if (!track || !container) return;
+
       const containerWidth = container.clientWidth || window.innerWidth || 1200;
       let currentPos = currentXRef.current;
       const visibleChildren: HTMLElement[] = [];
@@ -477,11 +521,9 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         const leftPos = currentPos;
         const rightPos = currentPos + childWidth;
 
-        // Keep any element that is currently visible (even partially) on screen
         if (rightPos > 0 && leftPos < containerWidth) {
           visibleChildren.push(child);
         } else if (leftPos >= containerWidth) {
-          // Beyond right edge: off-screen queue to be replaced
           break;
         }
 
@@ -493,7 +535,6 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
           ? visibleChildren
           : [track.firstElementChild as HTMLElement].filter(Boolean);
 
-      // Remove obsolete off-screen queue elements that haven't entered the screen yet
       const keepSet = new Set(activeChildren);
       const toRemove: HTMLElement[] = [];
       for (let i = 0; i < track.children.length; i++) {
@@ -504,31 +545,33 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
       }
       toRemove.forEach((el) => track.removeChild(el));
 
-      // Append newly produced news directly behind the active on-screen story
+      // Append the brand new fresh stories first
+      for (const freshStory of freshStories) {
+        const el = createStoryElement(freshStory, nextUidRef.current++);
+        track.appendChild(el);
+      }
+
+      // Then fill any remaining off-screen gap continuing from ongoing round-robin poolIdx
       const minWidth = containerWidth + 1200;
       let totalWidth = currentXRef.current;
       for (let i = 0; i < track.children.length; i++) {
         totalWidth += (track.children[i] as HTMLElement).offsetWidth;
       }
 
-      let newStoryIdx = 0;
-      let safetyCounter = 0;
-      while (totalWidth < minWidth && safetyCounter < 25) {
-        const nextStory = newStories[newStoryIdx % newStories.length];
+      let safety = 0;
+      while (totalWidth < minWidth && safety < 25) {
+        const nextStory = getNextStory();
         const el = createStoryElement(nextStory, nextUidRef.current++);
         track.appendChild(el);
         totalWidth += el.offsetWidth || 350;
-        newStoryIdx++;
-        safetyCounter++;
+        safety++;
       }
 
-      // Set round-robin index so next conveyor cycles continue seamlessly from new batch
-      poolIdxRef.current = newStoryIdx % newStories.length;
       console.log(
-        `[News Ticker] Successfully scheduled ${newStories.length} new stories directly following the active story.`
+        `[News Ticker] Scheduled ${freshStories.length} breaking stories; continuing round-robin at #${poolIdxRef.current} of ${newStories.length}.`
       );
     },
-    [createStoryElement, fillTrackInitial]
+    [createStoryElement, fillTrackInitial, getNextStory]
   );
   handleIncomingStoriesRef.current = handleIncomingStories;
 
@@ -551,11 +594,12 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
   }, [language, renderFormattedStory]);
 
   // Main 60 FPS Continuous Conveyor Loop (Translate3d, sub-pixel accuracy, pause on hover)
+  // Decoupled from prop/state changes so the ticker continuously rolls across all 1000 items
   useEffect(() => {
     if (!isVisible) return;
 
     if (!trackRef.current || trackRef.current.children.length === 0) {
-      fillTrackInitial();
+      fillTrackInitialRef.current();
     }
 
     let animationFrameId: number;
@@ -581,9 +625,9 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
             track.removeChild(firstChild);
             // 2. Compensate offset by exact exited width (zero jitter, zero void)
             currentXRef.current += itemWidth;
-            // 3. Append next story seamlessly to the right
-            const nextStory = getNextStory();
-            const nextEl = createStoryElement(nextStory, nextUidRef.current++);
+            // 3. Append next story seamlessly to the right from ongoing round-robin pool
+            const nextStory = getNextStoryRef.current();
+            const nextEl = createStoryElementRef.current(nextStory, nextUidRef.current++);
             track.appendChild(nextEl);
           }
         }
@@ -599,7 +643,7 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isVisible, fillTrackInitial, getNextStory, createStoryElement]);
+  }, [isVisible]);
 
   if (!isVisible) {
     return null;

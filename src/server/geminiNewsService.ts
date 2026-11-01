@@ -283,6 +283,10 @@ export function cleanHeadlineBody(text: string): string {
   // Ensure trailing punctuation is not exclamation
   cleaned = cleaned.replace(/\s*!+$/g, '.');
 
+  // Remove erroneous aggregated loss tags such as "sama-sama merugi [N:344 Poin]" or "sama-sama merugi [N:44 poin]"
+  // Player points should only be attached to the player (e.g. "[P:Palmer] yang meraih [N:8] poin")
+  cleaned = cleaned.replace(/sama-sama\s+merugi\s+\[N:\+?\d+\s*(?:Poin|poin|pts|points)?\]/gi, 'sama-sama merugi');
+
   return cleaned.trim();
 }
 
@@ -579,24 +583,29 @@ async function assembleAndCacheFeed(
 
   // 4. Assemble the complete rotating pool (up to 1000 stories) to serve to the client ticker
   const historyRecords = loadNewsHistory();
-  const fullRotatingPool: NewsTickerStory[] = [];
   const seenHeadlines = new Set<string>();
+  const freshScores: NewsTickerStory[] = [];
+  const otherStories: NewsTickerStory[] = [];
 
   // A. Fresh / live match stories first
   for (const s of fused) {
     if (!seenHeadlines.has(s.headline_id)) {
       seenHeadlines.add(s.headline_id);
-      fullRotatingPool.push(s);
+      if (s.id.startsWith('live_score_')) {
+        freshScores.push(s);
+      } else {
+        otherStories.push(s);
+      }
     }
   }
 
   // B. Persistent historical stories up to 1000 items
   for (let i = historyRecords.length - 1; i >= 0; i--) {
-    if (fullRotatingPool.length >= 1000) break;
+    if (seenHeadlines.size >= 1000) break;
     const rec = historyRecords[i];
     if (!seenHeadlines.has(rec.headline_id)) {
       seenHeadlines.add(rec.headline_id);
-      fullRotatingPool.push({
+      otherStories.push({
         id: rec.id,
         headline_id: rec.headline_id,
         headline_en: rec.headline_en,
@@ -604,6 +613,10 @@ async function assembleAndCacheFeed(
       });
     }
   }
+
+  // Interleave the stories across all 5 categories (Title/Champions, What-If, Rank Movers, Star Heroes, Chips/Hits)
+  const interleaved = interleaveStoriesByContext(otherStories);
+  const fullRotatingPool: NewsTickerStory[] = [...freshScores, ...interleaved].slice(0, 1000);
 
   const feedResponse: NewsTickerFeedResponse = {
     success: true,
@@ -747,7 +760,11 @@ Analisis Anda wajib mengalir mengikuti hukum sebab-akibat 8 tahap kompetisi:
      a. Dimensi Bangku Cadangan: Tim kehilangan potensi poin karena keputusan mencadangkan pemain tertentu dan memainkan pemain starter yang hanya mendapat perolehan poin lebih rendah di lapangan.
      b. Dimensi Ban Kapten: Tim kehilangan potensi poin karena keputusan mengkaptenkan pemain tertentu dibanding opsi pemain lain di skuad yang meraih perolehan poin lebih tinggi.
         ATURAN MUTLAK IRONI KAPTEN: Kiper (GKP) dan Bek (DEF) TIDAK LAZIM dijadikan kapten dalam FPL. DILARANG KERAS menjadikan bek atau kiper berpoin besar sebagai bahan perbandingan ironi kegagalan kapten! Alternatif pembanding kapten HANYA BOLEH berasal dari pemain menyerang (Gelandang/MID atau Penyerang/FWD).
-     c. Dimensi Transfer: Tim kehilangan potensi poin karena keputusan menjual pemain tertentu dan menggantinya dengan pemain baru yang hanya mendapat perolehan poin lebih rendah.
+     c. Dimensi Transfer (Karma Transfer / The Sold Asset Haul): Tim kehilangan potensi poin karena keputusan menjual pemain tertentu dan menggantinya dengan pemain baru yang hanya mendapat perolehan poin lebih rendah.
+        ATURAN MUTLAK POIN KARMA TRANSFER (DILARANG MENGALIKAN DENGAN JUMLAH TIM):
+        - Poin pemain yang dijual TETAP DITAMPILKAN SESUAI POIN ASLI PERORANGAN PEMAIN TERSEBUT DI LAPANGAN ([N:playerPts] poin).
+        - DILARANG KERAS MENGALIKAN POIN PEMAIN DENGAN JUMLAH TIM YANG MENJUAL / KENA KARMA!
+        - Baik untuk 1 tim maupun konsolidasi banyak tim, angka poin yang disebut adalah poin murni perorangan pemain tersebut (contoh: "[P:Verbruggen] yang meraih [N:11] poin"), BUKAN akumulasi perkalian tim!
    - DILARANG KERAS menggunakan kata-kata pengandaian (seperti "Andai", "Seandainya", "Jika saja", "Jikalau", "Had they", "If only", "Would have earned").
    - Nilai selisih potensi angka merupakan selisih bersih matematis yang akurat dari tabel whatIfOpportunities data mentah, dan hanya disebut 'poin' atau 'tambahan poin' tanpa menyertakan kata 'bersih'.
 
@@ -825,9 +842,12 @@ Analisis Anda wajib mengalir mengikuti hukum sebab-akibat 8 tahap kompetisi:
         - Contoh 5 tim: [T:A], [T:B], dan [N:3] tim lainnya (EN: [T:A], [T:B], and [N:3] other teams)
         - Contoh 8 tim: [T:A], [T:B], dan [N:6] tim lainnya (EN: [T:A], [T:B], and [N:6] other teams)
     - Jika suatu pemain menjadi sumber drama di lebih dari 1 tim (seperti tertera di tabel crossTeamPlayerDrama), TAMPILKAN DALAM 1 BERITA TUNGGAL (konsolidasi lintas-tim) dengan aturan penyebutan tim di atas:
-      * Contoh 2 tim: "[T:MCFC ALLNEW] dan [T:Lovely Anticipation] sama-sama kehilangan potensi poin karena tidak memilih [P:Gabriel] ([C:Arsenal]) sebagai kapten."
-      * Contoh 3 tim: "[T:Dom Football], [T:De la Fuente], dan [T:Tim Holland] sama-sama menyesali keputusan mengkaptenkan [P:Haaland] ([C:Man City]) dibanding opsi lain."
-      * Contoh >3 tim: "[T:Dom Football], [T:De la Fuente], dan [N:3] tim lainnya sama-sama menyesali keputusan mencadangkan [P:Palmer] ([C:Chelsea])."
+      * ATURAN MUTLAK POIN KARMA TRANSFER & WHAT-IF LINTAS-TIM (DILARANG MENGALIKAN DENGAN JUMLAH TIM):
+        - Poin pemain yang ditampilkan WAJIB SESUAI POIN ASLI PERORANGAN PEMAIN TERSEBUT DI LAPANGAN ([N:playerPts] poin). DILARANG KERAS mengalikannya dengan jumlah tim yang terlibat!
+        - Contoh Karma Transfer (2 tim): "[T:A2N's Team] dan [T:Mooy Pablo] sama-sama merugi setelah menjual [P:Verbruggen] ([C:Brighton]) yang meraih [N:11] poin di pekan ini." (Angka 11 adalah poin asli Verbruggen, DILARANG dikalikan menjadi 22 poin!).
+        - Contoh Karma Transfer (>3 tim): "[T:Carbela FC], [T:Bolakbalik], dan [N:2] tim lainnya sama-sama merugi setelah menjual [P:Palmer] ([C:Chelsea]) yang mencetak [N:8] poin di pekan ini." (Angka 8 adalah poin asli Palmer, DILARANG dikalikan menjadi 32 poin!).
+        - Contoh Bangku Cadangan: "[T:Yuk Bisa Yuk FC], [T:Sumber Bahagia Motor], dan [N:26] tim lainnya sama-sama menyesali keputusan mencadangkan [P:Verbruggen] ([C:Brighton]) yang menyumbang [N:11] poin dari bangku cadangan." (Bukan 297 poin!).
+        - Contoh Ban Kapten: "[T:Persigundul], [T:Long Moo Long FC], dan [N:59] tim lainnya sama-sama kehilangan potensi poin karena tidak memilih [P:Rogers] ([C:Chelsea]) yang meraih [N:7] poin sebagai kapten di pekan ini." (Bukan 435 poin!).
 
 14. ATURAN ROTASI KONTEKS & ANTI-CLUSTER BERTURUT-TURUT:
     - DILARANG KERAS menyajikan berita dengan konteks yang sama secara berturut-turut (TERUTAMA DILARANG MENAMPILKAN WHAT-IF SECARA BERUNTUN!).
@@ -871,7 +891,8 @@ PANDUAN EKSEKUSI JURNALISTIK & AUDIT ANTI-PENGULANGAN MUTLAK:
    - Pada laga yang belum dimainkan (Upcoming): Sorot tim-tim yang masih menyimpan amunisi pemain/kapten untuk mengejar ketertinggalan poin. Jangan sebut mereka 'blank' atau gagal.
    - Pada laga yang selesai (FT): Sorot poin pasti yang berhasil diamankan atau poin yang hilang akibat keputusan susunan skuad.
 2. PERIKSA RIWAYAT SEBELUMNYA DENGAN CERMAT: Jangan sampai memproduksi berita yang mengulang topik, kejadian, atau substansi drama yang sama persis dengan berita-berita di atas!
-3. ENTITAS PEMAIN LINTAS-TIM DITAMPILKAN DALAM 1 BERITA: Manfaatkan tabel crossTeamPlayerDrama. Jika pemain yang sama melibatkan lebih dari 1 tim (misal Konsa, Gabriel, Haaland, Bijol), gabungkan seluruh tim tersebut ke dalam 1 berita konsolidasi (contoh: "[T:Tim A] dan [T:Tim B] sama-sama kehilangan potensi...").
+3. ENTITAS PEMAIN LINTAS-TIM DITAMPILKAN DALAM 1 BERITA: Manfaatkan tabel crossTeamPlayerDrama. Jika pemain yang sama melibatkan lebih dari 1 tim (misal Konsa, Gabriel, Haaland, Bijol), gabungkan seluruh tim tersebut ke dalam 1 berita konsolidasi.
+   ATURAN MUTLAK POIN KARMA & WHAT-IF: Poin pemain TETAP DITAMPILKAN SESUAI POIN ASLI PEMAIN TERSEBUT DI LAPANGAN, TANPA DIKALIKAN JUMLAH TIM YANG KENA KARMA! (Contoh: jika pemain meraih 8 poin, sebutkan 8 poin, jangan dikalikan dengan 4 tim menjadi 32 poin).
 4. ROTASI KONTEKS & ANTI-CLUSTER BERTURUT-TURUT: DILARANG MENAMPILKAN WHAT-IF SECARA BERUNTUN! Wajib selingi setiap berita dengan kategori berbeda (Perebutan Gelar -> Lonjakan/Kejatuhan Peringkat -> What-If Konsolidasi -> Chip/Hits -> Spotlight Pemain Bintang).
 5. Skenario keputusan alternatif (what-if) WAJIB disajikan dari sudut pandang fakta riil: Tim kehilangan potensi sejumlah poin karena mencadangkan pemain, mengkaptenkan pemain, atau menjual pemain dan menggantinya dengan pemain lain yang hanya mendapat perolehan poin lebih rendah. DILARANG menggunakan kata pengandaian (seperti 'Andai', 'Seandainya', 'Jika saja', 'Had they', 'If').
 6. Gunakan nilai selisih bersih matematis dari tabel whatIfOpportunities tanpa menyebutkan kata 'bersih', cukup sebutkan kata 'poin' atau 'tambahan poin'.

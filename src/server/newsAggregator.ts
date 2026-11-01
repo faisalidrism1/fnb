@@ -140,6 +140,7 @@ export interface CrossTeamPlayerDrama {
   category: 'Captaincy' | 'Bench' | 'Transfer';
   teams: string[];
   teamCount: number;
+  playerPts: number; // Actual individual points of the player, NEVER multiplied by team count
   totalMissedDelta: number;
   maxMissedDelta: number;
   consolidatedInsight: string;
@@ -771,6 +772,7 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
     player: string;
     club: string;
     category: 'Captaincy' | 'Bench' | 'Transfer';
+    playerPts: number;
     teams: string[];
     deltas: number[];
   }>();
@@ -783,6 +785,7 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
           player: w.player,
           club: w.club || '',
           category: w.category,
+          playerPts: w.alternativePts, // Actual individual points of the player
           teams: [],
           deltas: []
         });
@@ -800,13 +803,17 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
     if (grp.teams.length >= 2) {
       const teamsTagged = formatTeamList(grp.teams, 'id');
       const playerStr = `[P:${grp.player}]${grp.club ? ` ([C:${grp.club}])` : ''}`;
+      const actualIndividualPts = grp.playerPts;
       let consolidatedInsight = '';
+
       if (grp.category === 'Captaincy') {
-        consolidatedInsight = `${teamsTagged} sama-sama kehilangan potensi poin besar karena tidak memilih ${playerStr} sebagai kapten di pekan ini.`;
+        consolidatedInsight = `${teamsTagged} sama-sama kehilangan potensi poin karena tidak memilih ${playerStr} yang meraih [N:${actualIndividualPts}] poin sebagai kapten di pekan ini.`;
       } else if (grp.category === 'Bench') {
-        consolidatedInsight = `${teamsTagged} sama-sama menyesali keputusan mencadangkan ${playerStr} yang tampil gemilang menyumbang poin di bangku cadangan.`;
+        consolidatedInsight = `${teamsTagged} sama-sama menyesali keputusan mencadangkan ${playerStr} yang menyumbang [N:${actualIndividualPts}] poin dari bangku cadangan.`;
       } else {
-        consolidatedInsight = `${teamsTagged} sama-sama merugi setelah menjual ${playerStr} menjelang penampilannya di pekan ini.`;
+        // KARMA TRANSFER:
+        // Poin pemain tetap ditampilkan sesuai poin pemain tanpa dikalikan jumlah tim yang kena karma!
+        consolidatedInsight = `${teamsTagged} sama-sama merugi setelah menjual ${playerStr} yang meraih [N:${actualIndividualPts}] poin di pekan ini.`;
       }
 
       crossTeamPlayerDrama.push({
@@ -815,15 +822,16 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
         category: grp.category,
         teams: grp.teams,
         teamCount: grp.teams.length,
-        totalMissedDelta: grp.deltas.reduce((a, b) => a + b, 0),
+        playerPts: actualIndividualPts,
+        totalMissedDelta: actualIndividualPts, // Actual individual player points, NEVER multiplied by team count!
         maxMissedDelta: Math.max(...grp.deltas),
         consolidatedInsight,
       });
     }
   }
 
-  // Sort cross-team drama by teamCount desc, then totalMissedDelta desc
-  crossTeamPlayerDrama.sort((a, b) => b.teamCount - a.teamCount || b.totalMissedDelta - a.totalMissedDelta);
+  // Sort cross-team drama by teamCount desc, then playerPts desc
+  crossTeamPlayerDrama.sort((a, b) => b.teamCount - a.teamCount || b.playerPts - a.playerPts);
 
   return {
     gameweek: currentGw,

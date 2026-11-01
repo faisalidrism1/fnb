@@ -1,1039 +1,5 @@
 [
   {
-    "id": "chip_2296586_fh1",
-    "gw": 9,
-    "headline_id": "[T:Majapahit FC] mengaktifkan chip [N:Free Hit] di Gameweek [N:3] dan meraih [N:57 Poin].",
-    "headline_en": "[T:Majapahit FC] played [N:Free Hit] chip in Gameweek [N:3] and earned [N:57 Pts].",
-    "teams": [
-      "Majapahit FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_375017_wc1",
-    "gw": 9,
-    "headline_id": "[T:Inter Arab] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:56 Poin].",
-    "headline_en": "[T:Inter Arab] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:56 Pts].",
-    "teams": [
-      "Inter Arab"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_375017_tc1",
-    "gw": 9,
-    "headline_id": "[T:Inter Arab] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:53 Poin].",
-    "headline_en": "[T:Inter Arab] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:53 Pts].",
-    "teams": [
-      "Inter Arab"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_375017_bb1",
-    "gw": 9,
-    "headline_id": "[T:Inter Arab] mengaktifkan chip [N:Bench Boost] di Gameweek [N:2] dan meraih [N:133 Poin].",
-    "headline_en": "[T:Inter Arab] played [N:Bench Boost] chip in Gameweek [N:2] and earned [N:133 Pts].",
-    "teams": [
-      "Inter Arab"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3174540_wc1",
-    "gw": 9,
-    "headline_id": "[T:Always Ready] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:80 Poin].",
-    "headline_en": "[T:Always Ready] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:80 Pts].",
-    "teams": [
-      "Always Ready"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_7749413_wc1",
-    "gw": 9,
-    "headline_id": "[T:Cikaso Fire] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:97 Poin].",
-    "headline_en": "[T:Cikaso Fire] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:97 Pts].",
-    "teams": [
-      "Cikaso Fire"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_7749413_tc1",
-    "gw": 9,
-    "headline_id": "[T:Cikaso Fire] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:48 Poin].",
-    "headline_en": "[T:Cikaso Fire] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:48 Pts].",
-    "teams": [
-      "Cikaso Fire"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5483428_wc1",
-    "gw": 9,
-    "headline_id": "[T:Doa Mangcek FC] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:32 Poin].",
-    "headline_en": "[T:Doa Mangcek FC] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:32 Pts].",
-    "teams": [
-      "Doa Mangcek FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5483428_tc1",
-    "gw": 9,
-    "headline_id": "[T:Doa Mangcek FC] mengaktifkan chip [N:Triple Captain] di Gameweek [N:4] dan meraih [N:73 Poin].",
-    "headline_en": "[T:Doa Mangcek FC] played [N:Triple Captain] chip in Gameweek [N:4] and earned [N:73 Pts].",
-    "teams": [
-      "Doa Mangcek FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_687007_wc1",
-    "gw": 9,
-    "headline_id": "[T:tukang andong] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:90 Poin].",
-    "headline_en": "[T:tukang andong] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:90 Pts].",
-    "teams": [
-      "tukang andong"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_687007_bb1",
-    "gw": 9,
-    "headline_id": "[T:tukang andong] mengaktifkan chip [N:Bench Boost] di Gameweek [N:8] dan meraih [N:54 Poin].",
-    "headline_en": "[T:tukang andong] played [N:Bench Boost] chip in Gameweek [N:8] and earned [N:54 Pts].",
-    "teams": [
-      "tukang andong"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_687007_fh1",
-    "gw": 9,
-    "headline_id": "[T:tukang andong] mengaktifkan chip [N:Free Hit] di Gameweek [N:3] dan meraih [N:56 Poin].",
-    "headline_en": "[T:tukang andong] played [N:Free Hit] chip in Gameweek [N:3] and earned [N:56 Pts].",
-    "teams": [
-      "tukang andong"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5467140_bb1",
-    "gw": 9,
-    "headline_id": "[T:Sidobig City] mengaktifkan chip [N:Bench Boost] di Gameweek [N:1] dan meraih [N:76 Poin].",
-    "headline_en": "[T:Sidobig City] played [N:Bench Boost] chip in Gameweek [N:1] and earned [N:76 Pts].",
-    "teams": [
-      "Sidobig City"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4002271_wc1",
-    "gw": 9,
-    "headline_id": "[T:saatny mutasi jabar] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:52 Poin].",
-    "headline_en": "[T:saatny mutasi jabar] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:52 Pts].",
-    "teams": [
-      "saatny mutasi jabar"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5485713_wc1",
-    "gw": 9,
-    "headline_id": "[T:Liverbird] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:36 Poin].",
-    "headline_en": "[T:Liverbird] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:36 Pts].",
-    "teams": [
-      "Liverbird"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5485713_tc1",
-    "gw": 9,
-    "headline_id": "[T:Liverbird] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:75 Poin].",
-    "headline_en": "[T:Liverbird] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:75 Pts].",
-    "teams": [
-      "Liverbird"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_658007_wc1",
-    "gw": 9,
-    "headline_id": "[T:Doa Ibu FC] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:67 Poin].",
-    "headline_en": "[T:Doa Ibu FC] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:67 Pts].",
-    "teams": [
-      "Doa Ibu FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_658007_tc1",
-    "gw": 9,
-    "headline_id": "[T:Doa Ibu FC] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:52 Poin].",
-    "headline_en": "[T:Doa Ibu FC] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:52 Pts].",
-    "teams": [
-      "Doa Ibu FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_658007_bb1",
-    "gw": 9,
-    "headline_id": "[T:Doa Ibu FC] mengaktifkan chip [N:Bench Boost] di Gameweek [N:2] dan meraih [N:119 Poin].",
-    "headline_en": "[T:Doa Ibu FC] played [N:Bench Boost] chip in Gameweek [N:2] and earned [N:119 Pts].",
-    "teams": [
-      "Doa Ibu FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2670633_wc1",
-    "gw": 9,
-    "headline_id": "[T:Petrikor] mengaktifkan chip [N:Wildcard] di Gameweek [N:3] dan meraih [N:41 Poin].",
-    "headline_en": "[T:Petrikor] played [N:Wildcard] chip in Gameweek [N:3] and earned [N:41 Pts].",
-    "teams": [
-      "Petrikor"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2670633_bb1",
-    "gw": 9,
-    "headline_id": "[T:Petrikor] mengaktifkan chip [N:Bench Boost] di Gameweek [N:1] dan meraih [N:75 Poin].",
-    "headline_en": "[T:Petrikor] played [N:Bench Boost] chip in Gameweek [N:1] and earned [N:75 Pts].",
-    "teams": [
-      "Petrikor"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2670633_fh1",
-    "gw": 9,
-    "headline_id": "[T:Petrikor] mengaktifkan chip [N:Free Hit] di Gameweek [N:8] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Petrikor] played [N:Free Hit] chip in Gameweek [N:8] and earned [N:58 Pts].",
-    "teams": [
-      "Petrikor"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4529359_bb1",
-    "gw": 9,
-    "headline_id": "[T:tendangan si madun] mengaktifkan chip [N:Bench Boost] di Gameweek [N:2] dan meraih [N:119 Poin].",
-    "headline_en": "[T:tendangan si madun] played [N:Bench Boost] chip in Gameweek [N:2] and earned [N:119 Pts].",
-    "teams": [
-      "tendangan si madun"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2428185_wc1",
-    "gw": 9,
-    "headline_id": "[T:De la Fuente] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:78 Poin].",
-    "headline_en": "[T:De la Fuente] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:78 Pts].",
-    "teams": [
-      "De la Fuente"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2428185_tc1",
-    "gw": 9,
-    "headline_id": "[T:De la Fuente] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:68 Poin].",
-    "headline_en": "[T:De la Fuente] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:68 Pts].",
-    "teams": [
-      "De la Fuente"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2428185_bb1",
-    "gw": 9,
-    "headline_id": "[T:De la Fuente] mengaktifkan chip [N:Bench Boost] di Gameweek [N:1] dan meraih [N:55 Poin].",
-    "headline_en": "[T:De la Fuente] played [N:Bench Boost] chip in Gameweek [N:1] and earned [N:55 Pts].",
-    "teams": [
-      "De la Fuente"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3769462_wc1",
-    "gw": 9,
-    "headline_id": "[T:FornasPengawasan] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:78 Poin].",
-    "headline_en": "[T:FornasPengawasan] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:78 Pts].",
-    "teams": [
-      "FornasPengawasan"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3769462_tc1",
-    "gw": 9,
-    "headline_id": "[T:FornasPengawasan] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:60 Poin].",
-    "headline_en": "[T:FornasPengawasan] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:60 Pts].",
-    "teams": [
-      "FornasPengawasan"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_716175_wc1",
-    "gw": 9,
-    "headline_id": "[T:Prabu Belgeduwelbeh] mengaktifkan chip [N:Wildcard] di Gameweek [N:3] dan meraih [N:64 Poin].",
-    "headline_en": "[T:Prabu Belgeduwelbeh] played [N:Wildcard] chip in Gameweek [N:3] and earned [N:64 Pts].",
-    "teams": [
-      "Prabu Belgeduwelbeh"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_716175_tc1",
-    "gw": 9,
-    "headline_id": "[T:Prabu Belgeduwelbeh] mengaktifkan chip [N:Triple Captain] di Gameweek [N:4] dan meraih [N:67 Poin].",
-    "headline_en": "[T:Prabu Belgeduwelbeh] played [N:Triple Captain] chip in Gameweek [N:4] and earned [N:67 Pts].",
-    "teams": [
-      "Prabu Belgeduwelbeh"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_716175_bb1",
-    "gw": 9,
-    "headline_id": "[T:Prabu Belgeduwelbeh] mengaktifkan chip [N:Bench Boost] di Gameweek [N:1] dan meraih [N:79 Poin].",
-    "headline_en": "[T:Prabu Belgeduwelbeh] played [N:Bench Boost] chip in Gameweek [N:1] and earned [N:79 Pts].",
-    "teams": [
-      "Prabu Belgeduwelbeh"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_6579868_wc1",
-    "gw": 9,
-    "headline_id": "[T:Dom Football] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:68 Poin].",
-    "headline_en": "[T:Dom Football] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:68 Pts].",
-    "teams": [
-      "Dom Football"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_6579868_tc1",
-    "gw": 9,
-    "headline_id": "[T:Dom Football] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:54 Poin].",
-    "headline_en": "[T:Dom Football] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:54 Pts].",
-    "teams": [
-      "Dom Football"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_6579868_bb1",
-    "gw": 9,
-    "headline_id": "[T:Dom Football] mengaktifkan chip [N:Bench Boost] di Gameweek [N:2] dan meraih [N:108 Poin].",
-    "headline_en": "[T:Dom Football] played [N:Bench Boost] chip in Gameweek [N:2] and earned [N:108 Pts].",
-    "teams": [
-      "Dom Football"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5643663_tc1",
-    "gw": 9,
-    "headline_id": "[T:Ceved SC] mengaktifkan chip [N:Triple Captain] di Gameweek [N:4] dan meraih [N:99 Poin].",
-    "headline_en": "[T:Ceved SC] played [N:Triple Captain] chip in Gameweek [N:4] and earned [N:99 Pts].",
-    "teams": [
-      "Ceved SC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3174289_wc1",
-    "gw": 9,
-    "headline_id": "[T:PENDOEL SELECTION] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:64 Poin].",
-    "headline_en": "[T:PENDOEL SELECTION] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:64 Pts].",
-    "teams": [
-      "PENDOEL SELECTION"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3174289_bb1",
-    "gw": 9,
-    "headline_id": "[T:PENDOEL SELECTION] mengaktifkan chip [N:Bench Boost] di Gameweek [N:8] dan meraih [N:58 Poin].",
-    "headline_en": "[T:PENDOEL SELECTION] played [N:Bench Boost] chip in Gameweek [N:8] and earned [N:58 Pts].",
-    "teams": [
-      "PENDOEL SELECTION"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_1248990_wc1",
-    "gw": 9,
-    "headline_id": "[T:Hards Win] mengaktifkan chip [N:Wildcard] di Gameweek [N:3] dan meraih [N:42 Poin].",
-    "headline_en": "[T:Hards Win] played [N:Wildcard] chip in Gameweek [N:3] and earned [N:42 Pts].",
-    "teams": [
-      "Hards Win"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_1248990_bb1",
-    "gw": 9,
-    "headline_id": "[T:Hards Win] mengaktifkan chip [N:Bench Boost] di Gameweek [N:1] dan meraih [N:60 Poin].",
-    "headline_en": "[T:Hards Win] played [N:Bench Boost] chip in Gameweek [N:1] and earned [N:60 Pts].",
-    "teams": [
-      "Hards Win"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_7449475_wc1",
-    "gw": 9,
-    "headline_id": "[T:Supplier KDMP] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:47 Poin].",
-    "headline_en": "[T:Supplier KDMP] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:47 Pts].",
-    "teams": [
-      "Supplier KDMP"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_8377149_wc1",
-    "gw": 9,
-    "headline_id": "[T:Anti Koruptor Laknat] mengaktifkan chip [N:Wildcard] di Gameweek [N:3] dan meraih [N:41 Poin].",
-    "headline_en": "[T:Anti Koruptor Laknat] played [N:Wildcard] chip in Gameweek [N:3] and earned [N:41 Pts].",
-    "teams": [
-      "Anti Koruptor Laknat"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5500676_wc1",
-    "gw": 9,
-    "headline_id": "[T:Thor] mengaktifkan chip [N:Wildcard] di Gameweek [N:9] dan meraih [N:53 Poin].",
-    "headline_en": "[T:Thor] played [N:Wildcard] chip in Gameweek [N:9] and earned [N:53 Pts].",
-    "teams": [
-      "Thor"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5500676_tc1",
-    "gw": 9,
-    "headline_id": "[T:Thor] mengaktifkan chip [N:Triple Captain] di Gameweek [N:7] dan meraih [N:91 Poin].",
-    "headline_en": "[T:Thor] played [N:Triple Captain] chip in Gameweek [N:7] and earned [N:91 Pts].",
-    "teams": [
-      "Thor"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5500676_fh1",
-    "gw": 9,
-    "headline_id": "[T:Thor] mengaktifkan chip [N:Free Hit] di Gameweek [N:4] dan meraih [N:76 Poin].",
-    "headline_en": "[T:Thor] played [N:Free Hit] chip in Gameweek [N:4] and earned [N:76 Pts].",
-    "teams": [
-      "Thor"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_679620_wc1",
-    "gw": 9,
-    "headline_id": "[T:NFSKY Project'X] mengaktifkan chip [N:Wildcard] di Gameweek [N:7] dan meraih [N:71 Poin].",
-    "headline_en": "[T:NFSKY Project'X] played [N:Wildcard] chip in Gameweek [N:7] and earned [N:71 Pts].",
-    "teams": [
-      "NFSKY Project'X"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_679620_fh1",
-    "gw": 9,
-    "headline_id": "[T:NFSKY Project'X] mengaktifkan chip [N:Free Hit] di Gameweek [N:5] dan meraih [N:58 Poin].",
-    "headline_en": "[T:NFSKY Project'X] played [N:Free Hit] chip in Gameweek [N:5] and earned [N:58 Pts].",
-    "teams": [
-      "NFSKY Project'X"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3180753_wc1",
-    "gw": 9,
-    "headline_id": "[T:Denay FC] mengaktifkan chip [N:Wildcard] di Gameweek [N:2] dan meraih [N:80 Poin].",
-    "headline_en": "[T:Denay FC] played [N:Wildcard] chip in Gameweek [N:2] and earned [N:80 Pts].",
-    "teams": [
-      "Denay FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3180753_tc1",
-    "gw": 9,
-    "headline_id": "[T:Denay FC] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:66 Poin].",
-    "headline_en": "[T:Denay FC] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:66 Pts].",
-    "teams": [
-      "Denay FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3180753_bb1",
-    "gw": 9,
-    "headline_id": "[T:Denay FC] mengaktifkan chip [N:Bench Boost] di Gameweek [N:8] dan meraih [N:46 Poin].",
-    "headline_en": "[T:Denay FC] played [N:Bench Boost] chip in Gameweek [N:8] and earned [N:46 Pts].",
-    "teams": [
-      "Denay FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3180753_fh1",
-    "gw": 9,
-    "headline_id": "[T:Denay FC] mengaktifkan chip [N:Free Hit] di Gameweek [N:5] dan meraih [N:66 Poin].",
-    "headline_en": "[T:Denay FC] played [N:Free Hit] chip in Gameweek [N:5] and earned [N:66 Pts].",
-    "teams": [
-      "Denay FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_634373_wc1",
-    "gw": 9,
-    "headline_id": "[T:Tim Holland] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:74 Poin].",
-    "headline_en": "[T:Tim Holland] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:74 Pts].",
-    "teams": [
-      "Tim Holland"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4778781_wc1",
-    "gw": 9,
-    "headline_id": "[T:Bulu Ketek Zombie] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Bulu Ketek Zombie] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:58 Pts].",
-    "teams": [
-      "Bulu Ketek Zombie"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2025408_wc1",
-    "gw": 9,
-    "headline_id": "[T:Carbela FC] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:51 Poin].",
-    "headline_en": "[T:Carbela FC] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:51 Pts].",
-    "teams": [
-      "Carbela FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3773547_wc1",
-    "gw": 9,
-    "headline_id": "[T:A2N's Team] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:84 Poin].",
-    "headline_en": "[T:A2N's Team] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:84 Pts].",
-    "teams": [
-      "A2N's Team"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3773547_fh1",
-    "gw": 9,
-    "headline_id": "[T:A2N's Team] mengaktifkan chip [N:Free Hit] di Gameweek [N:9] dan meraih [N:65 Poin].",
-    "headline_en": "[T:A2N's Team] played [N:Free Hit] chip in Gameweek [N:9] and earned [N:65 Pts].",
-    "teams": [
-      "A2N's Team"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_7624791_wc1",
-    "gw": 9,
-    "headline_id": "[T:notyet] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:68 Poin].",
-    "headline_en": "[T:notyet] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:68 Pts].",
-    "teams": [
-      "notyet"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_7624791_fh1",
-    "gw": 9,
-    "headline_id": "[T:notyet] mengaktifkan chip [N:Free Hit] di Gameweek [N:3] dan meraih [N:57 Poin].",
-    "headline_en": "[T:notyet] played [N:Free Hit] chip in Gameweek [N:3] and earned [N:57 Pts].",
-    "teams": [
-      "notyet"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_60417_wc1",
-    "gw": 9,
-    "headline_id": "[T:Starlet] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:64 Poin].",
-    "headline_en": "[T:Starlet] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:64 Pts].",
-    "teams": [
-      "Starlet"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_60417_tc1",
-    "gw": 9,
-    "headline_id": "[T:Starlet] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Starlet] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:58 Pts].",
-    "teams": [
-      "Starlet"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_60417_bb1",
-    "gw": 9,
-    "headline_id": "[T:Starlet] mengaktifkan chip [N:Bench Boost] di Gameweek [N:1] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Starlet] played [N:Bench Boost] chip in Gameweek [N:1] and earned [N:58 Pts].",
-    "teams": [
-      "Starlet"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5505523_wc1",
-    "gw": 9,
-    "headline_id": "[T:Doanenek] mengaktifkan chip [N:Wildcard] di Gameweek [N:7] dan meraih [N:61 Poin].",
-    "headline_en": "[T:Doanenek] played [N:Wildcard] chip in Gameweek [N:7] and earned [N:61 Pts].",
-    "teams": [
-      "Doanenek"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5505523_bb1",
-    "gw": 9,
-    "headline_id": "[T:Doanenek] mengaktifkan chip [N:Bench Boost] di Gameweek [N:2] dan meraih [N:102 Poin].",
-    "headline_en": "[T:Doanenek] played [N:Bench Boost] chip in Gameweek [N:2] and earned [N:102 Pts].",
-    "teams": [
-      "Doanenek"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5935899_wc1",
-    "gw": 9,
-    "headline_id": "[T:CQMY] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:63 Poin].",
-    "headline_en": "[T:CQMY] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:63 Pts].",
-    "teams": [
-      "CQMY"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_6001158_wc1",
-    "gw": 9,
-    "headline_id": "[T:last hope party_pmp] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:77 Poin].",
-    "headline_en": "[T:last hope party_pmp] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:77 Pts].",
-    "teams": [
-      "last hope party_pmp"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_5501643_fh1",
-    "gw": 9,
-    "headline_id": "[T:Long Moo Long FC] mengaktifkan chip [N:Free Hit] di Gameweek [N:3] dan meraih [N:63 Poin].",
-    "headline_en": "[T:Long Moo Long FC] played [N:Free Hit] chip in Gameweek [N:3] and earned [N:63 Pts].",
-    "teams": [
-      "Long Moo Long FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4770561_wc1",
-    "gw": 9,
-    "headline_id": "[T:kembang tebu] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:48 Poin].",
-    "headline_en": "[T:kembang tebu] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:48 Pts].",
-    "teams": [
-      "kembang tebu"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4770561_tc1",
-    "gw": 9,
-    "headline_id": "[T:kembang tebu] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:47 Poin].",
-    "headline_en": "[T:kembang tebu] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:47 Pts].",
-    "teams": [
-      "kembang tebu"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4133926_wc1",
-    "gw": 9,
-    "headline_id": "[T:Pringless_212] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:64 Poin].",
-    "headline_en": "[T:Pringless_212] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:64 Pts].",
-    "teams": [
-      "Pringless_212"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4133926_tc1",
-    "gw": 9,
-    "headline_id": "[T:Pringless_212] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:82 Poin].",
-    "headline_en": "[T:Pringless_212] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:82 Pts].",
-    "teams": [
-      "Pringless_212"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4133926_bb1",
-    "gw": 9,
-    "headline_id": "[T:Pringless_212] mengaktifkan chip [N:Bench Boost] di Gameweek [N:8] dan meraih [N:56 Poin].",
-    "headline_en": "[T:Pringless_212] played [N:Bench Boost] chip in Gameweek [N:8] and earned [N:56 Pts].",
-    "teams": [
-      "Pringless_212"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4133926_fh1",
-    "gw": 9,
-    "headline_id": "[T:Pringless_212] mengaktifkan chip [N:Free Hit] di Gameweek [N:4] dan meraih [N:48 Poin].",
-    "headline_en": "[T:Pringless_212] played [N:Free Hit] chip in Gameweek [N:4] and earned [N:48 Pts].",
-    "teams": [
-      "Pringless_212"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3775991_wc1",
-    "gw": 9,
-    "headline_id": "[T:PS MC Timur] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:79 Poin].",
-    "headline_en": "[T:PS MC Timur] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:79 Pts].",
-    "teams": [
-      "PS MC Timur"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2599677_wc1",
-    "gw": 9,
-    "headline_id": "[T:amenk wenger] mengaktifkan chip [N:Wildcard] di Gameweek [N:2] dan meraih [N:81 Poin].",
-    "headline_en": "[T:amenk wenger] played [N:Wildcard] chip in Gameweek [N:2] and earned [N:81 Pts].",
-    "teams": [
-      "amenk wenger"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2599677_tc1",
-    "gw": 9,
-    "headline_id": "[T:amenk wenger] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:64 Poin].",
-    "headline_en": "[T:amenk wenger] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:64 Pts].",
-    "teams": [
-      "amenk wenger"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4398425_wc1",
-    "gw": 9,
-    "headline_id": "[T:red setan] mengaktifkan chip [N:Wildcard] di Gameweek [N:2] dan meraih [N:100 Poin].",
-    "headline_en": "[T:red setan] played [N:Wildcard] chip in Gameweek [N:2] and earned [N:100 Pts].",
-    "teams": [
-      "red setan"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_7814533_wc1",
-    "gw": 9,
-    "headline_id": "[T:Uaffukabeh] mengaktifkan chip [N:Wildcard] di Gameweek [N:3] dan meraih [N:59 Poin].",
-    "headline_en": "[T:Uaffukabeh] played [N:Wildcard] chip in Gameweek [N:3] and earned [N:59 Pts].",
-    "teams": [
-      "Uaffukabeh"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_2545795_wc1",
-    "gw": 9,
-    "headline_id": "[T:Sunnah Rasul FC] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:67 Poin].",
-    "headline_en": "[T:Sunnah Rasul FC] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:67 Pts].",
-    "teams": [
-      "Sunnah Rasul FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_8351283_wc1",
-    "gw": 9,
-    "headline_id": "[T:Mahendraw] mengaktifkan chip [N:Wildcard] di Gameweek [N:2] dan meraih [N:96 Poin].",
-    "headline_en": "[T:Mahendraw] played [N:Wildcard] chip in Gameweek [N:2] and earned [N:96 Pts].",
-    "teams": [
-      "Mahendraw"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4004907_wc1",
-    "gw": 9,
-    "headline_id": "[T:Tolyam074] mengaktifkan chip [N:Wildcard] di Gameweek [N:3] dan meraih [N:41 Poin].",
-    "headline_en": "[T:Tolyam074] played [N:Wildcard] chip in Gameweek [N:3] and earned [N:41 Pts].",
-    "teams": [
-      "Tolyam074"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_1738316_wc1",
-    "gw": 9,
-    "headline_id": "[T:Maverick] mengaktifkan chip [N:Wildcard] di Gameweek [N:4] dan meraih [N:86 Poin].",
-    "headline_en": "[T:Maverick] played [N:Wildcard] chip in Gameweek [N:4] and earned [N:86 Pts].",
-    "teams": [
-      "Maverick"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_1738316_bb1",
-    "gw": 9,
-    "headline_id": "[T:Maverick] mengaktifkan chip [N:Bench Boost] di Gameweek [N:1] dan meraih [N:57 Poin].",
-    "headline_en": "[T:Maverick] played [N:Bench Boost] chip in Gameweek [N:1] and earned [N:57 Pts].",
-    "teams": [
-      "Maverick"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_1738316_fh1",
-    "gw": 9,
-    "headline_id": "[T:Maverick] mengaktifkan chip [N:Free Hit] di Gameweek [N:3] dan meraih [N:49 Poin].",
-    "headline_en": "[T:Maverick] played [N:Free Hit] chip in Gameweek [N:3] and earned [N:49 Pts].",
-    "teams": [
-      "Maverick"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_111254_wc1",
-    "gw": 9,
-    "headline_id": "[T:Skybridge FC] mengaktifkan chip [N:Wildcard] di Gameweek [N:3] dan meraih [N:55 Poin].",
-    "headline_en": "[T:Skybridge FC] played [N:Wildcard] chip in Gameweek [N:3] and earned [N:55 Pts].",
-    "teams": [
-      "Skybridge FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_111254_tc1",
-    "gw": 9,
-    "headline_id": "[T:Skybridge FC] mengaktifkan chip [N:Triple Captain] di Gameweek [N:7] dan meraih [N:72 Poin].",
-    "headline_en": "[T:Skybridge FC] played [N:Triple Captain] chip in Gameweek [N:7] and earned [N:72 Pts].",
-    "teams": [
-      "Skybridge FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_111254_bb1",
-    "gw": 9,
-    "headline_id": "[T:Skybridge FC] mengaktifkan chip [N:Bench Boost] di Gameweek [N:1] dan meraih [N:72 Poin].",
-    "headline_en": "[T:Skybridge FC] played [N:Bench Boost] chip in Gameweek [N:1] and earned [N:72 Pts].",
-    "teams": [
-      "Skybridge FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_111254_fh1",
-    "gw": 9,
-    "headline_id": "[T:Skybridge FC] mengaktifkan chip [N:Free Hit] di Gameweek [N:6] dan meraih [N:46 Poin].",
-    "headline_en": "[T:Skybridge FC] played [N:Free Hit] chip in Gameweek [N:6] and earned [N:46 Pts].",
-    "teams": [
-      "Skybridge FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_6161801_wc1",
-    "gw": 9,
-    "headline_id": "[T:KST] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:55 Poin].",
-    "headline_en": "[T:KST] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:55 Pts].",
-    "teams": [
-      "KST"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3465631_wc1",
-    "gw": 9,
-    "headline_id": "[T:U_kNoW_Who] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:53 Poin].",
-    "headline_en": "[T:U_kNoW_Who] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:53 Pts].",
-    "teams": [
-      "U_kNoW_Who"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3179384_wc1",
-    "gw": 9,
-    "headline_id": "[T:Talisirah] mengaktifkan chip [N:Wildcard] di Gameweek [N:6] dan meraih [N:61 Poin].",
-    "headline_en": "[T:Talisirah] played [N:Wildcard] chip in Gameweek [N:6] and earned [N:61 Pts].",
-    "teams": [
-      "Talisirah"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_3179384_fh1",
-    "gw": 9,
-    "headline_id": "[T:Talisirah] mengaktifkan chip [N:Free Hit] di Gameweek [N:3] dan meraih [N:68 Poin].",
-    "headline_en": "[T:Talisirah] played [N:Free Hit] chip in Gameweek [N:3] and earned [N:68 Pts].",
-    "teams": [
-      "Talisirah"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_135488_wc1",
-    "gw": 9,
-    "headline_id": "[T:Kuromi FC] mengaktifkan chip [N:Wildcard] di Gameweek [N:5] dan meraih [N:29 Poin].",
-    "headline_en": "[T:Kuromi FC] played [N:Wildcard] chip in Gameweek [N:5] and earned [N:29 Pts].",
-    "teams": [
-      "Kuromi FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_135488_tc1",
-    "gw": 9,
-    "headline_id": "[T:Kuromi FC] mengaktifkan chip [N:Triple Captain] di Gameweek [N:7] dan meraih [N:89 Poin].",
-    "headline_en": "[T:Kuromi FC] played [N:Triple Captain] chip in Gameweek [N:7] and earned [N:89 Pts].",
-    "teams": [
-      "Kuromi FC"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_4296304_tc1",
-    "gw": 9,
-    "headline_id": "[T:Ricardo] mengaktifkan chip [N:Triple Captain] di Gameweek [N:3] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Ricardo] played [N:Triple Captain] chip in Gameweek [N:3] and earned [N:58 Pts].",
-    "teams": [
-      "Ricardo"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
-    "id": "chip_237939_wc1",
-    "gw": 9,
-    "headline_id": "[T:Rajo's Team] mengaktifkan chip [N:Wildcard] di Gameweek [N:3] dan meraih [N:39 Poin].",
-    "headline_en": "[T:Rajo's Team] played [N:Wildcard] chip in Gameweek [N:3] and earned [N:39 Pts].",
-    "teams": [
-      "Rajo's Team"
-    ],
-    "players": [],
-    "timestamp": "2026-11-01T08:46:09.774Z"
-  },
-  {
     "id": "chip_4575586_wc1",
     "gw": 9,
     "headline_id": "[T:cilukba] mengaktifkan chip [N:Wildcard] di Gameweek [N:7] dan meraih [N:82 Poin].",
@@ -11541,5 +10507,1118 @@
     ],
     "players": [],
     "timestamp": "2026-11-01T08:46:18.731Z"
+  },
+  {
+    "id": "story_1",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] mempertahankan peringkat 1 Peringkat 1 dengan total [N:646 Poin], menjaga jarak aman [N:10 Poin] dari kejaran [T:PSIS FC] yang menempati Peringkat 2 setelah delapan laga tuntas.",
+    "headline_en": "[T:Yuk Bisa Yuk FC] maintains the Rank 1 throne with a total of [N:646 Points], keeping a safe [N:10 Point] gap from [T:PSIS FC] who sits in Rank 2 after eight matches finished.",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_2644639_gw9",
+    "gw": 9,
+    "headline_id": "[T:Team Pick] memperoleh [N:42] poin di GW [N:9], dan turun [N:2] peringkat dari posisi [N:3] ke peringkat [N:5] sementara FNB League dengan total poin [N:615].",
+    "headline_en": "[T:Team Pick] scored [N:42] points in GW [N:9], and dropped [N:2] places from position [N:3] to rank [N:5] in FNB League with [N:615] total points.",
+    "teams": [
+      "Team Pick"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "story_3",
+    "gw": 9,
+    "headline_id": "[T:Persigundul], [T:Long Moo Long FC], dan [N:59] tim lainnya sama-sama kehilangan potensi poin karena tidak mengkaptenkan [P:Rogers] ([C:Chelsea]) di pekan ini.",
+    "headline_en": "[T:Persigundul], [T:Long Moo Long FC], and [N:59] other teams collectively lost [N:435 Points] in potential by not captaining [P:Rogers] ([C:Chelsea]) this week.",
+    "teams": [
+      "Persigundul",
+      "Long Moo Long FC"
+    ],
+    "players": [
+      "Rogers"
+    ],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_7893094_gw9",
+    "gw": 9,
+    "headline_id": "[T:rdwndvsn] memperoleh [N:57] poin di GW [N:9], dan turun [N:1] peringkat dari posisi [N:5] ke peringkat [N:6] sementara FNB League dengan total poin [N:613].",
+    "headline_en": "[T:rdwndvsn] scored [N:57] points in GW [N:9], and dropped [N:1] places from position [N:5] to rank [N:6] in FNB League with [N:613] total points.",
+    "teams": [
+      "rdwndvsn"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_3179533_gw9",
+    "gw": 9,
+    "headline_id": "[T:Gunung Kemukus 1897] memperoleh [N:54] poin di GW [N:9], dan turun [N:1] peringkat dari posisi [N:6] ke peringkat [N:7] sementara FNB League dengan total poin [N:606].",
+    "headline_en": "[T:Gunung Kemukus 1897] scored [N:54] points in GW [N:9], and dropped [N:1] places from position [N:6] to rank [N:7] in FNB League with [N:606] total points.",
+    "teams": [
+      "Gunung Kemukus 1897"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "story_6",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC], [T:Sumber Bahagia Motor], dan [N:26] tim lainnya sama-sama menyesali keputusan mencadangkan [P:Verbruggen] ([C:Brighton]) yang meraih [N:11] poin karena mencadangkan [P:Verbruggen] ([C:Brighton]) yang tampil gemilang di bangku cadangan.",
+    "headline_en": "[T:Yuk Bisa Yuk FC], [T:Sumber Bahagia Motor], and [N:26] other teams collectively lost [N:267 Points] in potential by benching [P:Verbruggen] ([C:Brighton]) who performed brilliantly from the bench.",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "Sumber Bahagia Motor"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_2296586_gw9",
+    "gw": 9,
+    "headline_id": "[T:Majapahit FC] memperoleh [N:60] poin di GW [N:9], dan naik [N:2] peringkat dari posisi [N:11] ke peringkat [N:9] sementara FNB League dengan total poin [N:595].",
+    "headline_en": "[T:Majapahit FC] scored [N:60] points in GW [N:9], and moved up [N:2] places from position [N:11] to rank [N:9] in FNB League with [N:595] total points.",
+    "teams": [
+      "Majapahit FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "story_4",
+    "gw": 9,
+    "headline_id": "[T:Thor] (chip [N:WC]) naik [N:+14] peringkat dari posisi [N:45] ke peringkat [N:31] sementara FNB League dengan total [N:541 Poin] berkat keberanian melakukan perombakan skuad total.",
+    "headline_en": "[T:Thor] (chip [N:WC]) moved up [N:+14] places from [N:45] to provisional rank [N:31] in FNB League with [N:541 Pts] thanks to the courage of making a total squad overhaul.",
+    "teams": [
+      "Thor"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_375017_gw9",
+    "gw": 9,
+    "headline_id": "[T:Inter Arab] memperoleh [N:47] poin di GW [N:9], dan turun [N:1] peringkat dari posisi [N:9] ke peringkat [N:10] sementara FNB League dengan total poin [N:593].",
+    "headline_en": "[T:Inter Arab] scored [N:47] points in GW [N:9], and dropped [N:1] places from position [N:9] to rank [N:10] in FNB League with [N:593] total points.",
+    "teams": [
+      "Inter Arab"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "story_8",
+    "gw": 9,
+    "headline_id": "[T:Carbela FC], [T:Bolakbalik], dan [N:2] tim lainnya sama-sama merugi setelah menjual [P:Palmer] ([C:CHE]) yang meraih [N:8] poin menjelang penampilannya di pekan ini.",
+    "headline_en": "[T:Carbela FC], [T:Bolakbalik], and [N:2] other teams collectively lost [N:24 Points] after selling [P:Palmer] ([C:CHE]) ahead of his performance this week.",
+    "teams": [
+      "Carbela FC",
+      "Bolakbalik"
+    ],
+    "players": [
+      "Palmer"
+    ],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_3174540_gw9",
+    "gw": 9,
+    "headline_id": "[T:Always Ready] memperoleh [N:41] poin di GW [N:9], dan turun [N:3] peringkat dari posisi [N:8] ke peringkat [N:11] sementara FNB League dengan total poin [N:589].",
+    "headline_en": "[T:Always Ready] scored [N:41] points in GW [N:9], and dropped [N:3] places from position [N:8] to rank [N:11] in FNB League with [N:589] total points.",
+    "teams": [
+      "Always Ready"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "story_5",
+    "gw": 9,
+    "headline_id": "[P:Van Hecke] ([C:Spurs]) menjadi pemain kunci poin dengan sumbangan [N:15 Poin] yang membantu [T:Mooy Pablo] menembus Peringkat 3 besar klasemen.",
+    "headline_en": "[P:Van Hecke] ([C:Spurs]) became the point hero with a [N:15 Point] contribution that helped [T:Mooy Pablo] break into the Top 3 of the standings.",
+    "teams": [
+      "Mooy Pablo"
+    ],
+    "players": [
+      "Van Hecke"
+    ],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_7749413_gw9",
+    "gw": 9,
+    "headline_id": "[T:Cikaso Fire] memperoleh [N:45] poin di GW [N:9], dan turun [N:2] peringkat dari posisi [N:10] ke peringkat [N:12] sementara FNB League dengan total poin [N:588].",
+    "headline_en": "[T:Cikaso Fire] scored [N:45] points in GW [N:9], and dropped [N:2] places from position [N:10] to rank [N:12] in FNB League with [N:588] total points.",
+    "teams": [
+      "Cikaso Fire"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "story_7",
+    "gw": 9,
+    "headline_id": "[T:Skybridge FC] mengalami kejatuhan drastis sebesar [N:18] peringkat ke posisi [N:65] setelah hanya mampu mengumpulkan [N:13 Poin] di pekan ini.",
+    "headline_en": "[T:Skybridge FC] suffers a drastic fall of [N:18] ranks to position [N:65] after only managing to collect [N:13 Points] this week.",
+    "teams": [
+      "Skybridge FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_5483428_gw9",
+    "gw": 9,
+    "headline_id": "[T:Doa Mangcek FC] memperoleh [N:47] poin di GW [N:9], dan turun [N:1] peringkat dari posisi [N:12] ke peringkat [N:13] sementara FNB League dengan total poin [N:581].",
+    "headline_en": "[T:Doa Mangcek FC] scored [N:47] points in GW [N:9], and dropped [N:1] places from position [N:12] to rank [N:13] in FNB League with [N:581] total points.",
+    "teams": [
+      "Doa Mangcek FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_687007_gw9",
+    "gw": 9,
+    "headline_id": "[T:tukang andong] memperoleh [N:36] poin di GW [N:9], dan turun [N:1] peringkat dari posisi [N:13] ke peringkat [N:14] sementara FNB League dengan total poin [N:569].",
+    "headline_en": "[T:tukang andong] scored [N:36] points in GW [N:9], and dropped [N:1] places from position [N:13] to rank [N:14] in FNB League with [N:569] total points.",
+    "teams": [
+      "tukang andong"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_5467140_gw9",
+    "gw": 9,
+    "headline_id": "[T:Sidobig City] memperoleh [N:58] poin di GW [N:9], dan naik [N:8] peringkat dari posisi [N:23] ke peringkat [N:15] sementara FNB League dengan total poin [N:569].",
+    "headline_en": "[T:Sidobig City] scored [N:58] points in GW [N:9], and moved up [N:8] places from position [N:23] to rank [N:15] in FNB League with [N:569] total points.",
+    "teams": [
+      "Sidobig City"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_4002271_gw9",
+    "gw": 9,
+    "headline_id": "[T:saatny mutasi jabar] memperoleh [N:52] poin di GW [N:9], dan naik [N:5] peringkat dari posisi [N:21] ke peringkat [N:16] sementara FNB League dengan total poin [N:568].",
+    "headline_en": "[T:saatny mutasi jabar] scored [N:52] points in GW [N:9], and moved up [N:5] places from position [N:21] to rank [N:16] in FNB League with [N:568] total points.",
+    "teams": [
+      "saatny mutasi jabar"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_5485713_gw9",
+    "gw": 9,
+    "headline_id": "[T:Liverbird] memperoleh [N:51] poin di GW [N:9], dan naik [N:7] peringkat dari posisi [N:24] ke peringkat [N:17] sementara FNB League dengan total poin [N:564].",
+    "headline_en": "[T:Liverbird] scored [N:51] points in GW [N:9], and moved up [N:7] places from position [N:24] to rank [N:17] in FNB League with [N:564] total points.",
+    "teams": [
+      "Liverbird"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_658007_gw9",
+    "gw": 9,
+    "headline_id": "[T:Doa Ibu FC] memperoleh [N:34] poin di GW [N:9], dan turun [N:4] peringkat dari posisi [N:14] ke peringkat [N:18] sementara FNB League dengan total poin [N:564].",
+    "headline_en": "[T:Doa Ibu FC] scored [N:34] points in GW [N:9], and dropped [N:4] places from position [N:14] to rank [N:18] in FNB League with [N:564] total points.",
+    "teams": [
+      "Doa Ibu FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_2670633_gw9",
+    "gw": 9,
+    "headline_id": "[T:Petrikor] memperoleh [N:51] poin di GW [N:9], dan naik [N:6] peringkat dari posisi [N:25] ke peringkat [N:19] sementara FNB League dengan total poin [N:564].",
+    "headline_en": "[T:Petrikor] scored [N:51] points in GW [N:9], and moved up [N:6] places from position [N:25] to rank [N:19] in FNB League with [N:564] total points.",
+    "teams": [
+      "Petrikor"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_4529359_gw9",
+    "gw": 9,
+    "headline_id": "[T:tendangan si madun] memperoleh [N:51] poin di GW [N:9], dan naik [N:6] peringkat dari posisi [N:26] ke peringkat [N:20] sementara FNB League dengan total poin [N:563].",
+    "headline_en": "[T:tendangan si madun] scored [N:51] points in GW [N:9], and moved up [N:6] places from position [N:26] to rank [N:20] in FNB League with [N:563] total points.",
+    "teams": [
+      "tendangan si madun"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_2428185_gw9",
+    "gw": 9,
+    "headline_id": "[T:De la Fuente] memperoleh [N:44] poin di GW [N:9], dan naik [N:1] peringkat dari posisi [N:22] ke peringkat [N:21] sementara FNB League dengan total poin [N:560].",
+    "headline_en": "[T:De la Fuente] scored [N:44] points in GW [N:9], and moved up [N:1] places from position [N:22] to rank [N:21] in FNB League with [N:560] total points.",
+    "teams": [
+      "De la Fuente"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_3769462_gw9",
+    "gw": 9,
+    "headline_id": "[T:FornasPengawasan] memperoleh [N:57] poin di GW [N:9], dan naik [N:11] peringkat dari posisi [N:33] ke peringkat [N:22] sementara FNB League dengan total poin [N:558].",
+    "headline_en": "[T:FornasPengawasan] scored [N:57] points in GW [N:9], and moved up [N:11] places from position [N:33] to rank [N:22] in FNB League with [N:558] total points.",
+    "teams": [
+      "FornasPengawasan"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_716175_gw9",
+    "gw": 9,
+    "headline_id": "[T:Prabu Belgeduwelbeh] memperoleh [N:32] poin di GW [N:9], dan turun [N:7] peringkat dari posisi [N:16] ke peringkat [N:23] sementara FNB League dengan total poin [N:557].",
+    "headline_en": "[T:Prabu Belgeduwelbeh] scored [N:32] points in GW [N:9], and dropped [N:7] places from position [N:16] to rank [N:23] in FNB League with [N:557] total points.",
+    "teams": [
+      "Prabu Belgeduwelbeh"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_6579868_gw9",
+    "gw": 9,
+    "headline_id": "[T:Dom Football] memperoleh [N:32] poin di GW [N:9], dan turun [N:7] peringkat dari posisi [N:17] ke peringkat [N:24] sementara FNB League dengan total poin [N:556].",
+    "headline_en": "[T:Dom Football] scored [N:32] points in GW [N:9], and dropped [N:7] places from position [N:17] to rank [N:24] in FNB League with [N:556] total points.",
+    "teams": [
+      "Dom Football"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_1430659_gw9",
+    "gw": 9,
+    "headline_id": "[T:Serigala Margonda] memperoleh [N:47] poin di GW [N:9], dan naik [N:2] peringkat dari posisi [N:27] ke peringkat [N:25] sementara FNB League dengan total poin [N:556].",
+    "headline_en": "[T:Serigala Margonda] scored [N:47] points in GW [N:9], and moved up [N:2] places from position [N:27] to rank [N:25] in FNB League with [N:556] total points.",
+    "teams": [
+      "Serigala Margonda"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_5643663_gw9",
+    "gw": 9,
+    "headline_id": "[T:Ceved SC] memperoleh [N:34] poin di GW [N:9], dan turun [N:7] peringkat dari posisi [N:19] ke peringkat [N:26] sementara FNB League dengan total poin [N:555].",
+    "headline_en": "[T:Ceved SC] scored [N:34] points in GW [N:9], and dropped [N:7] places from position [N:19] to rank [N:26] in FNB League with [N:555] total points.",
+    "teams": [
+      "Ceved SC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_3174289_gw9",
+    "gw": 9,
+    "headline_id": "[T:PENDOEL SELECTION] memperoleh [N:34] poin di GW [N:9], dan turun [N:7] peringkat dari posisi [N:20] ke peringkat [N:27] sementara FNB League dengan total poin [N:552].",
+    "headline_en": "[T:PENDOEL SELECTION] scored [N:34] points in GW [N:9], and dropped [N:7] places from position [N:20] to rank [N:27] in FNB League with [N:552] total points.",
+    "teams": [
+      "PENDOEL SELECTION"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_1248990_gw9",
+    "gw": 9,
+    "headline_id": "[T:Hards Win] memperoleh [N:26] poin di GW [N:9], dan turun [N:10] peringkat dari posisi [N:18] ke peringkat [N:28] sementara FNB League dengan total poin [N:549].",
+    "headline_en": "[T:Hards Win] scored [N:26] points in GW [N:9], and dropped [N:10] places from position [N:18] to rank [N:28] in FNB League with [N:549] total points.",
+    "teams": [
+      "Hards Win"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_7449475_gw9",
+    "gw": 9,
+    "headline_id": "[T:Supplier KDMP] memperoleh [N:48] poin di GW [N:9], dan naik [N:8] peringkat dari posisi [N:37] ke peringkat [N:29] sementara FNB League dengan total poin [N:546].",
+    "headline_en": "[T:Supplier KDMP] scored [N:48] points in GW [N:9], and moved up [N:8] places from position [N:37] to rank [N:29] in FNB League with [N:546] total points.",
+    "teams": [
+      "Supplier KDMP"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "team_shift_8377149_gw9",
+    "gw": 9,
+    "headline_id": "[T:Anti Koruptor Laknat] memperoleh [N:36] poin di GW [N:9], dan turun [N:2] peringkat dari posisi [N:28] ke peringkat [N:30] sementara FNB League dengan total poin [N:541].",
+    "headline_en": "[T:Anti Koruptor Laknat] scored [N:36] points in GW [N:9], and dropped [N:2] places from position [N:28] to rank [N:30] in FNB League with [N:541] total points.",
+    "teams": [
+      "Anti Koruptor Laknat"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:44:16.940Z"
+  },
+  {
+    "id": "story_1",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] berhasil mengamankan posisi puncak klasemen FNB League dengan total [N:646] poin, mempertahankan peringkat 1 dari kejaran [T:PSIS FC] yang tertinggal [N:10 Poin] di posisi kedua.",
+    "headline_en": "[T:Yuk Bisa Yuk FC] successfully secures the top spot in the FNB League with [N:646] total points, maintaining its throne against [T:PSIS FC] which trails by [N:10 Points] in second place.",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "story_3",
+    "gw": 9,
+    "headline_id": "[T:Persigundul], [T:Long Moo Long FC], dan [N:59] tim lainnya sama-sama kehilangan potensi poin karena tidak memilih [P:Rogers] ([C:Chelsea]) sebagai kapten di pekan ini.",
+    "headline_en": "[T:Persigundul], [T:Long Moo Long FC], and [N:59] other teams all lost out on [N:+435 Points] potential by failing to captain [P:Rogers] ([C:Chelsea]) this gameweek.",
+    "teams": [
+      "Persigundul",
+      "Long Moo Long FC"
+    ],
+    "players": [
+      "Rogers"
+    ],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "story_2",
+    "gw": 9,
+    "headline_id": "[T:A2N's Team] mencatatkan lonjakan posisi paling impresif pekan ini dengan melompat [N:27] peringkat ke posisi [N:43] berkat perolehan [N:65] poin.",
+    "headline_en": "[T:A2N's Team] records the most impressive jump this week by climbing [N:27] places to rank [N:43] thanks to a haul of [N:65] points.",
+    "teams": [
+      "A2N's Team"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "story_4",
+    "gw": 9,
+    "headline_id": "[T:Mooy Pablo] melakukan perjudian taktis dengan mengaktifkan chip [N:Free Hit] yang membuahkan [N:73] poin, menjadikannya peraih skor tertinggi pekan ini.",
+    "headline_en": "[T:Mooy Pablo] took a tactical gamble by activating the [N:Free Hit] chip which yielded [N:73] points, making it the highest scorer this week.",
+    "teams": [
+      "Mooy Pablo"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "story_7",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC], [T:Sumber Bahagia Motor], dan [N:26] tim lainnya sama-sama menyesali keputusan mencadangkan [P:Verbruggen] ([C:Brighton]) yang meraih [N:11] poin karena mencadangkan [P:Verbruggen] ([C:Brighton]) yang tampil gemilang dari bangku cadangan.",
+    "headline_en": "[T:Yuk Bisa Yuk FC], [T:Sumber Bahagia Motor], and [N:26] other teams all lost out on [N:+267 Points] potential by benching [P:Verbruggen] ([C:Brighton]) who performed brilliantly from the bench.",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "Sumber Bahagia Motor"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "story_6",
+    "gw": 9,
+    "headline_id": "[T:Skybridge FC] mengalami penurunan posisi paling tajam dengan terjun [N:18] peringkat ke posisi [N:65] setelah hanya mengumpulkan [N:13] poin.",
+    "headline_en": "[T:Skybridge FC] experienced the sharpest drop, falling [N:18] places to rank [N:65] after collecting only [N:13] points.",
+    "teams": [
+      "Skybridge FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "story_9",
+    "gw": 9,
+    "headline_id": "[P:Evanilson] ([C:Bournemouth]) menyumbang [N:9] poin bagi manajer yang mempercayainya, namun [T:blue one], [T:Carbela FC], dan [N:6] tim lainnya menyesali keputusan tidak menjadikannya kapten.",
+    "headline_en": "[P:Evanilson] ([C:Bournemouth]) contributed [N:9] points for managers who trusted him, but [T:blue one], [T:Carbela FC], and [N:6] other teams regret the decision not to captain him.",
+    "teams": [
+      "blue one",
+      "Carbela FC"
+    ],
+    "players": [
+      "Evanilson"
+    ],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "story_5",
+    "gw": 9,
+    "headline_id": "[P:Van Hecke] ([C:Spurs]) menjadi pemain kunci poin dengan sumbangan [N:15] poin, memberikan kontribusi masif bagi manajer yang memercayainya di starting XI.",
+    "headline_en": "[P:Van Hecke] ([C:Spurs]) became a points hero with a contribution of [N:15] points, providing a massive boost to managers who trusted him in its starting XI.",
+    "teams": [],
+    "players": [
+      "Van Hecke"
+    ],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "team_shift_5500676_gw9",
+    "gw": 9,
+    "headline_id": "[T:Thor] yang menggunakan [N:WC] memperoleh [N:53] poin di GW [N:9], dan naik [N:14] peringkat dari posisi [N:45] ke peringkat [N:31] sementara FNB League dengan total poin [N:541].",
+    "headline_en": "[T:Thor] using [N:WC] scored [N:53] points in GW [N:9], and moved up [N:14] places from position [N:45] to rank [N:31] in FNB League with [N:541] total points.",
+    "teams": [
+      "Thor"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:45:12.851Z"
+  },
+  {
+    "id": "story_1",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] sukses menjaga peringkat 1 klasemen dengan total [N:646] poin, unggul [N:10 Poin] dari [T:PSIS FC] yang menempel ketat di posisi kedua.",
+    "headline_en": "[T:Yuk Bisa Yuk FC] successfully maintains the top of the table with [N:646] total points, holding a [N:10 Point] lead over [T:PSIS FC] in second place.",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:46:06.357Z"
+  },
+  {
+    "id": "story_2",
+    "gw": 9,
+    "headline_id": "[T:A2N's Team] mencatatkan lonjakan posisi paling impresif dengan melompat [N:27] peringkat ke posisi [N:43] setelah mengumpulkan [N:65] poin.",
+    "headline_en": "[T:A2N's Team] records the most impressive jump by climbing [N:27] places to rank [N:43] after collecting [N:65] points.",
+    "teams": [
+      "A2N's Team"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:46:06.357Z"
+  },
+  {
+    "id": "story_10",
+    "gw": 9,
+    "headline_id": "[P:Evanilson] ([C:Bournemouth]) menyumbang [N:9] poin, namun [T:blue one], [T:Carbela FC], dan [N:6] tim lainnya kehilangan potensi poin besar karena tidak menjadikannya kapten.",
+    "headline_en": "[P:Evanilson] ([C:Bournemouth]) contributed [N:9] points, but [T:blue one], [T:Carbela FC], and [N:6] other teams lost significant potential points by not captaining him.",
+    "teams": [
+      "blue one",
+      "Carbela FC"
+    ],
+    "players": [
+      "Evanilson"
+    ],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_9",
+    "gw": 9,
+    "headline_id": "[T:Thor] yang menggunakan chip [N:Wildcard] memperoleh [N:53] poin di GW [N:9] dan berhasil naik [N:14] peringkat ke posisi [N:31].",
+    "headline_en": "[T:Thor] using the [N:Wildcard] chip scored [N:53] points in GW [N:9] and successfully climbed [N:14] places to rank [N:31].",
+    "teams": [
+      "Thor"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_13",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] kehilangan potensi [N:+11 Poin] karena mencadangkan [P:Verbruggen] ([C:Brighton]) dan memainkan starter yang hanya mendapat [N:0 Poin].",
+    "headline_en": "[T:Yuk Bisa Yuk FC] lost [N:+11 Points] potential by benching [P:Verbruggen] ([C:Brighton]) and playing a starter who only returned [N:0 Points].",
+    "teams": [
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_12",
+    "gw": 9,
+    "headline_id": "[T:Mesin FC] mencatatkan kenaikan [N:20] peringkat ke posisi [N:45] berkat perolehan [N:59] poin di pekan ini.",
+    "headline_en": "[T:Mesin FC] recorded a rise of [N:20] places to rank [N:45] thanks to a haul of [N:59] points this week.",
+    "teams": [
+      "Mesin FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_15",
+    "gw": 9,
+    "headline_id": "[T:Tim Holland], [T:Bulu Ketek Zombie], dan [N:2] tim lainnya kehilangan potensi [N:+27 Poin] karena tidak memilih [P:N.Jackson] ([C:Aston Villa]) sebagai kapten.",
+    "headline_en": "[T:Tim Holland], [T:Bulu Ketek Zombie], and [N:2] other teams lost [N:+27 Points] potential by failing to captain [P:N.Jackson] ([C:Aston Villa]).",
+    "teams": [
+      "Tim Holland",
+      "Bulu Ketek Zombie"
+    ],
+    "players": [
+      "N.Jackson"
+    ],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_16",
+    "gw": 9,
+    "headline_id": "[T:Badjaj CF] mencatatkan kenaikan [N:16] peringkat ke posisi [N:69] berkat perolehan [N:60] poin di pekan ini.",
+    "headline_en": "[T:Badjaj CF] recorded a rise of [N:16] places to rank [N:69] thanks to a haul of [N:60] points this week.",
+    "teams": [
+      "Badjaj CF"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_17",
+    "gw": 9,
+    "headline_id": "[T:Inter Arab], [T:Rajo's Team], dan [N:2] tim lainnya menyesali keputusan mencadangkan [P:Vuskovic] ([C:Brighton]) yang tampil gemilang menyumbang poin di bangku cadangan.",
+    "headline_en": "[T:Inter Arab], [T:Rajo's Team], and [N:2] other teams regret the decision to bench [P:Vuskovic] ([C:Brighton]) who performed brilliantly from the bench.",
+    "teams": [
+      "Inter Arab",
+      "Rajo's Team"
+    ],
+    "players": [
+      "Vuskovic"
+    ],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_19",
+    "gw": 9,
+    "headline_id": "[T:LEGENDKILLER FC], [T:lupa_atur_formasi], dan [T:Sidobig City] sama-sama kehilangan potensi [N:+26 Poin] karena mencadangkan [P:Rogers] ([C:Chelsea]) yang mencetak poin tinggi.",
+    "headline_en": "[T:LEGENDKILLER FC], [T:lupa_atur_formasi], and [T:Sidobig City] all lost [N:+26 Points] potential by benching [P:Rogers] ([C:Chelsea]) who scored high points.",
+    "teams": [
+      "LEGENDKILLER FC",
+      "lupa_atur_formasi",
+      "Sidobig City"
+    ],
+    "players": [
+      "Rogers"
+    ],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_20",
+    "gw": 9,
+    "headline_id": "[T:Uaffukabeh] dan [T:Ceved SC] sama-sama kehilangan potensi [N:+13 Poin] karena tidak memilih [P:Thiago] ([C:Brentford]) sebagai kapten di pekan ini.",
+    "headline_en": "[T:Uaffukabeh] and [T:Ceved SC] both lost [N:+13 Points] potential by failing to captain [P:Thiago] ([C:Brentford]) this gameweek.",
+    "teams": [
+      "Uaffukabeh",
+      "Ceved SC"
+    ],
+    "players": [
+      "Thiago"
+    ],
+    "timestamp": "2026-11-01T14:46:06.358Z"
+  },
+  {
+    "id": "story_4",
+    "gw": 9,
+    "headline_id": "[T:A2N's Team] dan [T:Mooy Pablo] sama-sama merugi setelah menjual [P:Verbruggen] ([C:BHA]) menjelang penampilannya di pekan ini yang menghasilkan [N:11] poin.",
+    "headline_en": "[T:A2N's Team] and [T:Mooy Pablo] both suffered losses after selling [P:Verbruggen] ([C:BHA]) ahead of his performance this gameweek which yielded [N:11] points.",
+    "teams": [
+      "A2N's Team",
+      "Mooy Pablo"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "timestamp": "2026-11-01T14:46:47.902Z"
+  },
+  {
+    "id": "story_8",
+    "gw": 9,
+    "headline_id": "[T:Carbela FC], [T:Bolakbalik], dan [N:2] tim lainnya sama-sama merugi setelah menjual [P:Palmer] ([C:CHE]) menjelang penampilannya di pekan ini.",
+    "headline_en": "[T:Carbela FC], [T:Bolakbalik], and [N:2] other teams all suffered losses after selling [P:Palmer] ([C:CHE]) ahead of his appearance this week.",
+    "teams": [
+      "Carbela FC",
+      "Bolakbalik"
+    ],
+    "players": [
+      "Palmer"
+    ],
+    "timestamp": "2026-11-01T14:46:47.902Z"
+  },
+  {
+    "id": "story_19",
+    "gw": 9,
+    "headline_id": "[T:palinggabalikmodal] mencatatkan kenaikan [N:12] peringkat ke posisi [N:61] berkat perolehan [N:49] poin di pekan ini.",
+    "headline_en": "[T:palinggabalikmodal] recorded a rise of [N:12] places to rank [N:61] thanks to a haul of [N:49] points this week.",
+    "teams": [
+      "palinggabalikmodal"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:46:47.902Z"
+  },
+  {
+    "id": "fb_mg_gw9",
+    "gw": 9,
+    "headline_id": "[T:Mooy Pablo] memegang status Juara Terbanyak FNB League ([N:1] gelar) melalui klausul pelimpahan resmi, karena [T:PSIS FC] berada di posisi dua teratas klasemen.",
+    "headline_en": "[T:Mooy Pablo] holds the FNB League Most GW Champions spot ([N:1] titles) via the official pass-down rule, as [T:PSIS FC] occupies the top two overall standings.",
+    "teams": [
+      "Mooy Pablo",
+      "PSIS FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "fb_climb_A2N's Team_gw9",
+    "gw": 9,
+    "headline_id": "[T:A2N's Team] naik [N:+27 Peringkat] ke posisi [N:43] klasemen.",
+    "headline_en": "[T:A2N's Team] moved up [N:+27 Places] to rank [N:43] on the table.",
+    "teams": [
+      "A2N's Team"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "fb_gwc_gw9",
+    "gw": 9,
+    "headline_id": "[T:Mooy Pablo] yang menggunakan [N:FH] resmi dinobatkan sebagai Juara Gameweek [N:9] FNB League dengan raihan [N:73] poin, ditopang [P:Van Hecke] yang menyumbang [N:15] poin.",
+    "headline_en": "[T:Mooy Pablo] using [N:FH] is officially crowned FNB League Gameweek [N:9] Champion with [N:73] points, led by [P:Van Hecke] who contributed [N:15] points.",
+    "teams": [
+      "Mooy Pablo"
+    ],
+    "players": [
+      "Van Hecke"
+    ],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "fb_climb_Mesin FC_gw9",
+    "gw": 9,
+    "headline_id": "[T:Mesin FC] naik [N:+20 Peringkat] ke posisi [N:45] klasemen.",
+    "headline_en": "[T:Mesin FC] moved up [N:+20 Places] to rank [N:45] on the table.",
+    "teams": [
+      "Mesin FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "team_shift_2918457_gw9",
+    "gw": 9,
+    "headline_id": "[T:Sumber Bahagia Motor] yang menggunakan [N:BB] memperoleh [N:68] poin di GW [N:9], dan naik [N:7] peringkat dari posisi [N:15] ke peringkat [N:8] sementara FNB League dengan total poin [N:597].",
+    "headline_en": "[T:Sumber Bahagia Motor] using [N:BB] scored [N:68] points in GW [N:9], and moved up [N:7] places from position [N:15] to rank [N:8] in FNB League with [N:597] total points.",
+    "teams": [
+      "Sumber Bahagia Motor"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "fb_r1_gw9",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] menempati peringkat [N:1] klasemen sementara FNB League hingga GW [N:9] dengan total [N:646] poin, unggul [N:10] poin atas [T:PSIS FC].",
+    "headline_en": "[T:Yuk Bisa Yuk FC] holds rank [N:1] on the FNB League table through GW [N:9] with [N:646] points, leading by [N:10] points over [T:PSIS FC].",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "fb_climb_Badjaj CF_gw9",
+    "gw": 9,
+    "headline_id": "[T:Badjaj CF] naik [N:+16 Peringkat] ke posisi [N:69] klasemen.",
+    "headline_en": "[T:Badjaj CF] moved up [N:+16 Places] to rank [N:69] on the table.",
+    "teams": [
+      "Badjaj CF"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "fb_r2_gw9",
+    "gw": 9,
+    "headline_id": "[T:PSIS FC] menempati peringkat [N:2] klasemen sementara FNB League hingga GW [N:9] dengan raihan [N:636] poin, terpaut [N:10] poin dari [T:Yuk Bisa Yuk FC].",
+    "headline_en": "[T:PSIS FC] holds rank [N:2] on the FNB League table through GW [N:9] with [N:636] points, trailing [T:Yuk Bisa Yuk FC] by [N:10] points.",
+    "teams": [
+      "PSIS FC",
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "fb_climb_Thor_gw9",
+    "gw": 9,
+    "headline_id": "[T:Thor] naik [N:+14 Peringkat] ke posisi [N:31] klasemen.",
+    "headline_en": "[T:Thor] moved up [N:+14 Places] to rank [N:31] on the table.",
+    "teams": [
+      "Thor"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.031Z"
+  },
+  {
+    "id": "fb_upcoming_gw9",
+    "gw": 9,
+    "headline_id": "[T:Liverpool] melawan [T:Arsenal].",
+    "headline_en": "[T:Liverpool] vs [T:Arsenal].",
+    "teams": [
+      "Liverpool",
+      "Arsenal"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.032Z"
+  },
+  {
+    "id": "fb_climb_palinggabalikmodal_gw9",
+    "gw": 9,
+    "headline_id": "[T:palinggabalikmodal] naik [N:+12 Peringkat] ke posisi [N:61] klasemen.",
+    "headline_en": "[T:palinggabalikmodal] moved up [N:+12 Places] to rank [N:61] on the table.",
+    "teams": [
+      "palinggabalikmodal"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.032Z"
+  },
+  {
+    "id": "fb_bench_gw9",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] memiliki 23 poin di bangku cadangan dari [P:Verbruggen] ([C:Brighton]).",
+    "headline_en": "[T:Yuk Bisa Yuk FC] has 23 points on the bench from [P:Verbruggen] ([C:Brighton]).",
+    "teams": [
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "timestamp": "2026-11-01T14:52:42.032Z"
+  },
+  {
+    "id": "fb_fall_Skybridge FC_gw9",
+    "gw": 9,
+    "headline_id": "[T:Skybridge FC] turun [N:-18 Peringkat] ke posisi [N:65] klasemen.",
+    "headline_en": "[T:Skybridge FC] moved down [N:-18 Places] to rank [N:65] on the table.",
+    "teams": [
+      "Skybridge FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.032Z"
+  },
+  {
+    "id": "fb_fall_Rajo's Team_gw9",
+    "gw": 9,
+    "headline_id": "[T:Rajo's Team] turun [N:-12 Peringkat] ke posisi [N:76] klasemen.",
+    "headline_en": "[T:Rajo's Team] moved down [N:-12 Places] to rank [N:76] on the table.",
+    "teams": [
+      "Rajo's Team"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.032Z"
+  },
+  {
+    "id": "fb_fall_Oniichan's Team_gw9",
+    "gw": 9,
+    "headline_id": "[T:Oniichan's Team] turun [N:-12 Peringkat] ke posisi [N:79] klasemen.",
+    "headline_en": "[T:Oniichan's Team] moved down [N:-12 Places] to rank [N:79] on the table.",
+    "teams": [
+      "Oniichan's Team"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.032Z"
+  },
+  {
+    "id": "fb_fall_Hards Win_gw9",
+    "gw": 9,
+    "headline_id": "[T:Hards Win] turun [N:-10 Peringkat] ke posisi [N:28] klasemen.",
+    "headline_en": "[T:Hards Win] moved down [N:-10 Places] to rank [N:28] on the table.",
+    "teams": [
+      "Hards Win"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.032Z"
+  },
+  {
+    "id": "fb_fall_Bukan Saya_gw9",
+    "gw": 9,
+    "headline_id": "[T:Bukan Saya] turun [N:-10 Peringkat] ke posisi [N:40] klasemen.",
+    "headline_en": "[T:Bukan Saya] moved down [N:-10 Places] to rank [N:40] on the table.",
+    "teams": [
+      "Bukan Saya"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:42.032Z"
+  },
+  {
+    "id": "fb_upcoming_gw9",
+    "gw": 9,
+    "headline_id": "[T:Liverpool] melawan [T:Arsenal].",
+    "headline_en": "[T:Liverpool] vs [T:Arsenal].",
+    "teams": [
+      "Liverpool",
+      "Arsenal"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:52:45.431Z"
+  },
+  {
+    "id": "story_1",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] mempertahankan posisi puncak klasemen dengan total [N:646] poin, unggul [N:10] poin dari [T:PSIS FC] yang menempati posisi kedua.",
+    "headline_en": "[T:Yuk Bisa Yuk FC] maintains the top spot in the league table with [N:646] total points, leading [T:PSIS FC] by [N:10] points in second place.",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:55:58.401Z"
+  },
+  {
+    "id": "story_2",
+    "gw": 9,
+    "headline_id": "[T:Persigundul], [T:Long Moo Long FC], dan [N:59] tim lainnya sama-sama kehilangan potensi [N:+435] poin karena tidak memilih [P:Rogers] ([C:Chelsea]) sebagai kapten di pekan ini.",
+    "headline_en": "[T:Persigundul], [T:Long Moo Long FC], and [N:59] other teams all lost [N:+435] potential points by not selecting [P:Rogers] ([C:Chelsea]) as captain this week.",
+    "teams": [
+      "Persigundul",
+      "Long Moo Long FC"
+    ],
+    "players": [
+      "Rogers"
+    ],
+    "timestamp": "2026-11-01T14:55:58.402Z"
+  },
+  {
+    "id": "story_4",
+    "gw": 9,
+    "headline_id": "[T:A2N's Team] mencatatkan lonjakan performa luar biasa dengan naik [N:27] peringkat ke posisi [N:43] klasemen setelah mengumpulkan [N:65] poin di pekan ini.",
+    "headline_en": "[T:A2N's Team] recorded an extraordinary performance surge, rising [N:27] places to rank [N:43] after collecting [N:65] points this week.",
+    "teams": [
+      "A2N's Team"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:55:58.402Z"
+  },
+  {
+    "id": "story_8",
+    "gw": 9,
+    "headline_id": "[T:Mooy Pablo] resmi dinobatkan sebagai Juara Gameweek [N:9] dengan raihan [N:73] poin, ditopang [P:Van Hecke] ([C:Spurs]) yang menyumbang [N:15] poin.",
+    "headline_en": "[T:Mooy Pablo] is officially crowned Gameweek [N:9] Champion with [N:73] points, supported by [P:Van Hecke] ([C:Spurs]) who contributed [N:15] points.",
+    "teams": [
+      "Mooy Pablo"
+    ],
+    "players": [
+      "Van Hecke"
+    ],
+    "timestamp": "2026-11-01T14:55:58.402Z"
+  },
+  {
+    "id": "story_3",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] kehilangan potensi [N:+11] poin karena mencadangkan [P:Verbruggen] ([C:Brighton]) yang tampil gemilang di bangku cadangan.",
+    "headline_en": "[T:Yuk Bisa Yuk FC] lost [N:+11] potential points by benching [P:Verbruggen] ([C:Brighton]) who performed brilliantly on the bench.",
+    "teams": [
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "timestamp": "2026-11-01T14:55:58.402Z"
+  },
+  {
+    "id": "story_6",
+    "gw": 9,
+    "headline_id": "[T:Skybridge FC] mengalami kejatuhan drastis dengan turun [N:18] peringkat ke posisi [N:65] setelah hanya memperoleh [N:13] poin di pekan ini.",
+    "headline_en": "[T:Skybridge FC] suffered a drastic fall, dropping [N:18] places to rank [N:65] after scoring only [N:13] points this week.",
+    "teams": [
+      "Skybridge FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:55:58.402Z"
+  },
+  {
+    "id": "story_10",
+    "gw": 9,
+    "headline_id": "[T:Mesin FC] naik [N:20] peringkat ke posisi [N:45] klasemen berkat perolehan [N:59] poin di pekan ini.",
+    "headline_en": "[T:Mesin FC] rose [N:20] places to rank [N:45] in the league table thanks to [N:59] points this week.",
+    "teams": [
+      "Mesin FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T14:55:58.402Z"
+  },
+  {
+    "id": "story_3",
+    "gw": 9,
+    "headline_id": "[T:Persigundul], [T:Long Moo Long FC], dan [N:59] tim lainnya sama-sama kehilangan potensi [N:435] poin karena tidak memilih [P:Rogers] ([C:Chelsea]) sebagai kapten di pekan ini.",
+    "headline_en": "[T:Persigundul], [T:Long Moo Long FC], and [N:59] other teams all lost [N:435] potential points by not selecting [P:Rogers] ([C:Chelsea]) as captain this week.",
+    "teams": [
+      "Persigundul",
+      "Long Moo Long FC"
+    ],
+    "players": [
+      "Rogers"
+    ],
+    "timestamp": "2026-11-01T15:00:03.894Z"
+  },
+  {
+    "id": "story_2",
+    "gw": 9,
+    "headline_id": "[T:A2N's Team] mencatatkan lonjakan performa signifikan dengan naik [N:27] peringkat ke posisi [N:43] klasemen setelah mengumpulkan [N:65] poin pada GW [N:9].",
+    "headline_en": "[T:A2N's Team] recorded a significant performance surge, climbing [N:27] places to rank [N:43] after collecting [N:65] points in GW [N:9].",
+    "teams": [
+      "A2N's Team"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.894Z"
+  },
+  {
+    "id": "story_4",
+    "gw": 9,
+    "headline_id": "[T:Mooy Pablo] mengaktifkan chip [N:Free Hit] dan berhasil melesat ke Peringkat [N:3] klasemen setelah mengumpulkan [N:73] poin.",
+    "headline_en": "[T:Mooy Pablo] activated the [N:Free Hit] chip and moved up to rank [N:3] on the table after collecting [N:73] points.",
+    "teams": [
+      "Mooy Pablo"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.894Z"
+  },
+  {
+    "id": "story_6",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC], [T:Sumber Bahagia Motor], dan [N:26] tim lainnya sama-sama menyesali keputusan mencadangkan [P:Verbruggen] ([C:Brighton]) yang tampil gemilang menyumbang [N:11] poin dari bangku cadangan.",
+    "headline_en": "[T:Yuk Bisa Yuk FC], [T:Sumber Bahagia Motor], and [N:26] other teams all regret the decision to bench [P:Verbruggen] ([C:Brighton]) who performed brilliantly, contributing [N:11] points from the bench.",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "Sumber Bahagia Motor"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_7",
+    "gw": 9,
+    "headline_id": "[T:Skybridge FC] mengalami penurunan tajam dengan turun [N:18] peringkat ke posisi [N:65] setelah hanya mengumpulkan [N:13] poin.",
+    "headline_en": "[T:Skybridge FC] suffered a sharp decline, dropping [N:18] places to rank [N:65] after collecting only [N:13] points.",
+    "teams": [
+      "Skybridge FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_12",
+    "gw": 9,
+    "headline_id": "[T:Carbela FC], [T:Bolakbalik], dan [N:2] tim lainnya sama-sama merugi setelah menjual [P:Palmer] ([C:CHE]) yang tampil impresif dengan [N:8] poin.",
+    "headline_en": "[T:Carbela FC], [T:Bolakbalik], and [N:2] other teams all suffered losses after selling [P:Palmer] ([C:CHE]) who performed impressively with [N:8] points.",
+    "teams": [
+      "Carbela FC",
+      "Bolakbalik"
+    ],
+    "players": [
+      "Palmer"
+    ],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_11",
+    "gw": 9,
+    "headline_id": "[T:Mesin FC] naik [N:20] peringkat ke posisi [N:45] klasemen setelah mengumpulkan [N:59] poin di pekan ini.",
+    "headline_en": "[T:Mesin FC] rose [N:20] places to rank [N:45] on the table after collecting [N:59] points this week.",
+    "teams": [
+      "Mesin FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_14",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] kehilangan potensi [N:11] poin karena mencadangkan [P:Verbruggen] ([C:Brighton]) dan memainkan starter yang hanya mendapat [N:0] poin.",
+    "headline_en": "[T:Yuk Bisa Yuk FC] lost [N:11] potential points by benching [P:Verbruggen] ([C:Brighton]) and playing a starter who only earned [N:0] points.",
+    "teams": [
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_13",
+    "gw": 9,
+    "headline_id": "[T:Badjaj CF] naik [N:16] peringkat ke posisi [N:69] klasemen berkat perolehan [N:60] poin.",
+    "headline_en": "[T:Badjaj CF] climbed [N:16] places to rank [N:69] on the table thanks to [N:60] points.",
+    "teams": [
+      "Badjaj CF"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_18",
+    "gw": 9,
+    "headline_id": "[T:Tim Holland], [T:Bulu Ketek Zombie], dan [N:2] tim lainnya kehilangan potensi [N:27] poin karena tidak memilih [P:N.Jackson] ([C:Aston Villa]) sebagai kapten.",
+    "headline_en": "[T:Tim Holland], [T:Bulu Ketek Zombie], and [N:2] other teams lost [N:27] potential points by not selecting [P:N.Jackson] ([C:Aston Villa]) as captain.",
+    "teams": [
+      "Tim Holland",
+      "Bulu Ketek Zombie"
+    ],
+    "players": [
+      "N.Jackson"
+    ],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_15",
+    "gw": 9,
+    "headline_id": "[T:Thor] naik [N:14] peringkat ke posisi [N:31] klasemen setelah mengumpulkan [N:53] poin.",
+    "headline_en": "[T:Thor] rose [N:14] places to rank [N:31] on the table after collecting [N:53] points.",
+    "teams": [
+      "Thor"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_1",
+    "gw": 9,
+    "headline_id": "[T:Yuk Bisa Yuk FC] mempertahankan Peringkat [N:1] klasemen dengan total [N:646] poin, menjaga keunggulan [N:10] poin dari [T:PSIS FC] yang berada di Peringkat [N:2].",
+    "headline_en": "[T:Yuk Bisa Yuk FC] maintains rank [N:1] on the table with [N:646] total points, holding a [N:10] point lead over [T:PSIS FC] in rank [N:2].",
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_17",
+    "gw": 9,
+    "headline_id": "[T:palinggabalikmodal] naik [N:12] peringkat ke posisi [N:61] klasemen setelah meraih [N:49] poin.",
+    "headline_en": "[T:palinggabalikmodal] rose [N:12] places to rank [N:61] on the table after earning [N:49] points.",
+    "teams": [
+      "palinggabalikmodal"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.895Z"
+  },
+  {
+    "id": "story_19",
+    "gw": 9,
+    "headline_id": "[T:Rajo's Team] turun [N:12] peringkat ke posisi [N:76] klasemen setelah hanya memperoleh [N:41] poin.",
+    "headline_en": "[T:Rajo's Team] dropped [N:12] places to rank [N:76] on the table after earning only [N:41] points.",
+    "teams": [
+      "Rajo's Team"
+    ],
+    "players": [],
+    "timestamp": "2026-11-01T15:00:03.895Z"
   }
 ]
