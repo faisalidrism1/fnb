@@ -1,0 +1,243 @@
+﻿No,Kategori,Key,FNB Default (fnb),English (en),Bahasa Indonesia (id)
+1,1. Header & Navigasi Utama,brand_title,FPL Nusantara BERHADIAH,FPL Nusantara BERHADIAH,FPL Nusantara BERHADIAH
+2,1. Header & Navigasi Utama,brand_subtitle,2026/2027,2026/2027,2026/2027
+3,1. Header & Navigasi Utama,tooltip_settings,Settings,Settings,Pengaturan
+4,1. Header & Navigasi Utama,tab_standings,STANDINGS,STANDINGS,KLASEMEN
+5,1. Header & Navigasi Utama,tab_matches,MATCHES,MATCHES,PERTANDINGAN
+6,1. Header & Navigasi Utama,tab_ownership,OWNERSHIP,OWNERSHIP,KEPEMILIKAN
+7,1. Header & Navigasi Utama,tab_transfer,TRANSFER,TRANSFER,TRANSFER
+8,1. Header & Navigasi Utama,tab_captain,CAPTAIN,CAPTAIN,KAPTEN
+9,1. Header & Navigasi Utama,tab_chips,CHIPS,CHIPS,CHIPS
+10,2. Standings - Status,subtab_status,Status,Status,Status
+11,3. Standings - League Table,subtab_league_table,League Table,League Table,Klasemen Liga
+12,3. Standings - League Table,subtab_live_league_table,Live League Table,Live League Table,Klasemen Liga Live
+13,4. Standings - GW Champions,subtab_gw_champions,GW Champions,GW Champions,Juara Gameweek
+14,5. Standings - Most GW Champions,subtab_most_gw_champions,Most GW Champions,Most GW Champions,Juara Terbanyak
+15,6. Standings - Chart,subtab_chart,Chart,Chart,Grafik
+16,7. Standings - Liga Minus,subtab_liga_minus,Liga Minus,Minus League,Liga Minus
+17,2. Standings - Status,deadline_title,Gameweek {N} Deadline,Gameweek {N} Deadline,Batas Waktu Gameweek {N}
+18,2. Standings - Status,countdown_days,Days,Days,Hari
+19,2. Standings - Status,countdown_hours,Hours,Hours,Jam
+20,2. Standings - Status,countdown_minutes,Minutes,Minutes,Menit
+21,2. Standings - Status,countdown_seconds,Seconds,Seconds,Detik
+22,2. Standings - Status,gw_status_label,Gameweek {N} Status,Gameweek {N} Status,Status Gameweek {N}
+23,2. Standings - Status,status_not_started,Not Started,Not Started,Belum Dimulai
+24,2. Standings - Status,status_live,Live,Live,Live
+25,2. Standings - Status,status_provisional,Provisional,Provisional,Sementara
+26,2. Standings - Status,status_confirmed,Confirmed,Confirmed,Terkonfirmasi
+27,2. Standings - Status,highlight_rank_1,Peringkat 1,1st Place,Peringkat 1
+28,2. Standings - Status,highlight_rank_2,Peringkat 2,2nd Place,Peringkat 2
+29,2. Standings - Status,highlight_most_wins,Juara Terbanyak,Most GW Champions,Juara Terbanyak
+30,2. Standings - Status,highlight_gw_champ,Juara Gameweek {N},Gameweek {N} Champion,Juara Gameweek {N}
+31,2. Standings - Status,no_data_available,Belum ada data,No data available,Belum ada data
+32,2. Standings - Status,points_highest,Highest,Highest,Tertinggi
+33,2. Standings - Status,points_average,Average,Average,Rata-Rata
+34,2. Standings - Status,points_lowest,Lowest,Lowest,Terendah
+35,3. Standings - League Table,search_team_manager,Search team or manager...,Search team or manager...,Cari tim atau manajer...
+36,3. Standings - League Table,col_rank,#,#,#
+37,3. Standings - League Table,col_team_manager,Team & Manager,Team & Manager,Tim & Manajer
+38,3. Standings - League Table,col_total_pts,Total Pts,Total Pts,Total Poin
+39,3. Standings - League Table,col_gw_pts,GW Pts,GW Pts,Poin GW
+40,3. Standings - League Table,col_hits,Hits,Hits,Hits
+41,3. Standings - League Table,col_chip,Chip,Chip,Chip
+42,3. Standings - League Table,col_captain_vice,Captain & Vice,Captain & Vice,Kapten & Wakil
+43,4. Standings - GW Champions,col_gw,GW,GW,GW
+44,4. Standings - GW Champions,col_pts,Pts,Pts,Poin
+45,4. Standings - GW Champions,tooltip_sort_gw,Sort berdasarkan Gameweek,Sort by Gameweek,Urutkan berdasarkan Gameweek
+46,4. Standings - GW Champions,tooltip_sort_pts,Sort berdasarkan GW Poin,Sort by GW Points,Urutkan berdasarkan Poin GW
+47,5. Standings - Most GW Champions,col_wins,Wins,Wins,Juara
+48,5. Standings - Most GW Champions,tooltip_open_team_gw,Buka tim di GW {gw},Open Team in GW {gw},Buka Tim di GW {gw}
+49,6. Standings - Chart,chart_last_rank,Last Rank,Last Rank,Peringkat Akhir
+50,6. Standings - Chart,chart_gw_rank,GW Rank,GW Rank,Peringkat GW
+51,6. Standings - Chart,chart_total_pts,Total Pts,Total Pts,Total Poin
+52,6. Standings - Chart,chart_gw_pts,GW Pts,GW Pts,Poin GW
+53,6. Standings - Chart,chart_filter_by_rank,Filter by Rank,Filter by Rank,Filter berdasarkan Peringkat
+54,6. Standings - Chart,chart_select_individual,Select Individual Teams,Select Individual Teams,Pilih Tim Tertentu
+55,6. Standings - Chart,chart_all,All,All,Semua
+56,6. Standings - Chart,chart_clear,Clear,Clear,Kosongkan
+57,6. Standings - Chart,chart_all_clear,All • Clear,All • Clear,Semua • Kosongkan
+58,6. Standings - Chart,chart_search_team,Search team...,Search Team...,Cari Tim...
+59,6. Standings - Chart,chart_teams_shown,{N} teams shown,{N} teams shown,{N} tim ditampilkan
+60,6. Standings - Chart,chart_done,Done,Done,Selesai
+61,6. Standings - Chart,chart_reset,Reset,Reset,Reset
+62,6. Standings - Chart,chart_chips,Chips,Chips,Chips
+63,6. Standings - Chart,chart_hits,Hits,Hits,Hits
+64,6. Standings - Chart,chart_captains,Captains,Captains,Kapten
+65,6. Standings - Chart,chart_toggle_controls,Chips • Hits • Captains,Chips • Hits • Captains,Chips • Hits • Kapten
+66,7. Standings - Liga Minus,minus_empty_1,No managers have taken transfer hits so far this season!,No managers have taken transfer hits so far this season.,Belum ada manajer yang mengambil penalti transfer musim ini.
+67,7. Standings - Liga Minus,minus_empty_2,Check back after the next gameweek deadline.,Check back after the next gameweek deadline.,Periksa kembali setelah batas waktu Gameweek berikutnya.
+68,8. Matches,matches_toggle_all_open,Buka semua pertandingan,Expand all,Buka semua
+69,8. Matches,matches_toggle_all_close,Tutup semua pertandingan,Collapse all,Tutup semua
+70,8. Matches,match_status_upcoming,Upcoming,Upcoming,Belum Dimulai
+71,8. Matches,match_status_halftime,Half Time,Half Time,Paruh Waktu
+72,8. Matches,match_status_fulltime,Full Time,Full Time,Selesai
+73,9. Ownership,subtab_most_owned_player,Most Owned Player,Most Owned Player,Terbanyak Dimiliki
+74,9. Ownership,subtab_most_owned_by_club,Most Owned by Club,Most Owned by Club,Terbanyak per Klub
+75,9. Ownership,subtab_fans_club,Fans Club,Fans Club,Fans Club
+76,9. Ownership,subtab_template_squad,Template Squad,Template Squad,Tim Template
+77,9. Ownership,filter_all_clubs,All Clubs,All Clubs,Semua Klub
+78,9. Ownership,filter_all_pos,All Pos,All Pos,Semua Posisi
+79,18. Lainnya,filter_season,Season,Season / GW {N},Musim / GW {N}
+80,9. Ownership,squad_cost_label,Squad Cost: £{N}m,Squad Cost: £{N}m,Nilai Skuad: £{N}m
+81,9. Ownership,col_player,Player,Player,Pemain
+82,9. Ownership,col_club,Club,Club,Klub
+83,9. Ownership,col_pos,Pos,Pos,Posisi
+84,9. Ownership,col_cost,Cost,Cost,Harga
+85,9. Ownership,col_ownership,Ownership,Ownership,Kepemilikan
+86,9. Ownership,ownership_empty_players,No players match the selected Club / Pos filters.,No players match the selected criteria.,Tidak ada pemain yang cocok dengan kriteria yang dipilih.
+87,9. Ownership,total_players_owned,Total Players Owned:,Total Players Owned:,Total Pemain Dimiliki:
+88,9. Ownership,card_fans_club,{Club} Fans Club,{Club} Fans Club,Fans Club {Club}
+89,9. Ownership,fans_club_sub,{N} Managers with 3+ players,{N} Managers with 3+ players,{N} Manajer dengan 3+ pemain
+90,9. Ownership,fans_club_badge_players,{N} Players,{N} Players,{N} Pemain
+91,9. Ownership,fans_club_empty,No managers found for this Fans Club criteria.,No managers found for this Fans Club criteria.,Tidak ada manajer yang memenuhi kriteria Fans Club ini.
+92,10. Transfer,subtab_all_transfers,All Transfers,All Transfers,Semua Transfer
+93,10. Transfer,subtab_most_transferred_in,Most Transferred In,Most Transferred In,Terbanyak Dibeli
+94,10. Transfer,subtab_most_transferred_out,Most Transferred Out,Most Transferred Out,Terbanyak Dijual
+95,10. Transfer,filter_all_teams,All Teams,All Teams,Semua Tim
+96,10. Transfer,search_player_team,Search player or team...,Search player or team...,Cari pemain atau tim...
+97,10. Transfer,col_player_in,Player In,Player In,Pemain Masuk
+98,10. Transfer,col_player_out,Player Out,Player Out,Pemain Keluar
+99,10. Transfer,col_time_wib,Time (WIB),Time (WIB),Waktu (WIB)
+100,10. Transfer,col_transfers,Transfers,Transfers,Transfer
+101,10. Transfer,transfers_empty,No transfers found matching your filters.,No transfers found matching your filters.,Tidak ada riwayat transfer yang sesuai dengan filter.
+102,11. Captain,subtab_most_captained_player,Most Captained Player,Most Captained Player,Terbanyak Dikaptenkan
+103,11. Captain,subtab_most_captained_by_club,Most Captained by Club,Most Captained by Club,Terbanyak per Klub
+104,11. Captain,col_c,(C),(C),(C)
+105,11. Captain,col_vc,(VC),(VC),(VC)
+106,11. Captain,card_captain_armbands,Captain Armbands:,Captain Armbands:,Dikaptenkan:
+107,12. Chips,search_manager_team,Search manager or team...,Search manager or team...,Cari manajer atau tim...
+108,12. Chips,tooltip_chip_cell,Buka tim GW {gw},Open Team in GW {gw},Buka Tim di GW {gw}
+109,12. Chips,tooltip_chip_team,Buka tim {entry_name} (GW {gw}),Open Team {entry_name} (GW {gw}),Buka Tim {entry_name} (GW {gw})
+110,13. Settings Modal,modal_settings_title,Settings,Settings,Pengaturan
+111,13. Settings Modal,modal_settings_subtitle,Pengaturan Aplikasi & Preferensi,App Settings & Preferences,Pengaturan Aplikasi & Preferensi
+112,13. Settings Modal,tooltip_close_settings,Tutup Pengaturan,Close,Tutup
+113,13. Settings Modal,settings_profile_label,Profile,Profile,Profil
+114,13. Settings Modal,settings_profile_badge,FNB League ({N} Tim),,
+115,13. Settings Modal,settings_profile_desc,Pilih nama tim dan manajer FNB League Anda. Profil ini akan ditandai secara khusus saat melihat klasemen & transfer.,,
+116,13. Settings Modal,settings_profile_placeholder,Pilih Tim & Manajer FNB League...,Select Team & Manager...,Pilih Tim & Manajer...
+117,13. Settings Modal,settings_profile_active,Profil aktif: {team} ({manager}),Active profile: {team} ({manager}),Profil aktif: {team} ({manager})
+118,13. Settings Modal,settings_display_heading,Display & Live View,Display,Tampilan
+119,13. Settings Modal,settings_keep_awake_title,Keep Screen Awake,Keep Screen Awake,Layar Tetap Menyala
+120,13. Settings Modal,settings_keep_awake_desc,Mencegah layar HP/laptop redup atau terkunci saat matchday live,Prevent screen from dimming or locking during live matchday,Mencegah layar HP/laptop redup atau terkunci saat matchday live
+121,13. Settings Modal,settings_keep_awake_active,Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.,Screen lock active — Display will stay awake while this tab is open.,Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.
+122,13. Settings Modal,settings_keep_awake_unsupported,Browser ini belum mendukung Screen Wake Lock API.,This browser does not support Screen Wake Lock API.,Browser ini belum mendukung Screen Wake Lock API.
+123,13. Settings Modal,settings_news_ticker_title,News Ticker,News Ticker,Berita
+124,13. Settings Modal,settings_news_ticker_desc,Tampilkan baris running text berita atau pemberitahuan penting liga,Display running news ticker and important league updates,Tampilkan baris running text berita atau pemberitahuan penting liga
+125,13. Settings Modal,settings_language_heading,Language,Language,Bahasa
+126,13. Settings Modal,settings_language_desc,Pilih bahasa pengantar antarmuka sistem,Select the display language for the app.,Pilih bahasa yang digunakan untuk tampilan aplikasi.
+127,13. Settings Modal,settings_lang_fnb_label,FNB Default,FNB Default,FNB Default
+128,13. Settings Modal,settings_lang_fnb_sub,Tampilan Bawaan FNB,FNB Default View,Tampilan Bawaan FNB
+129,13. Settings Modal,settings_lang_en_label,English,English,Inggris
+130,13. Settings Modal,settings_lang_en_sub,English (UK),English UK,English UK
+131,13. Settings Modal,settings_lang_id_label,Indonesia,Indonesian,Indonesia
+132,13. Settings Modal,settings_lang_id_sub,Bahasa Indonesia,Bahasa Indonesia,Bahasa Indonesia
+133,13. Settings Modal,settings_admin_heading,Administration,Administration,Administrasi
+134,13. Settings Modal,settings_admin_title,Admin Area,Admin Area,Area Admin
+135,13. Settings Modal,settings_admin_badge,Restricted,Restricted,Terbatas
+136,13. Settings Modal,settings_admin_desc,"Akses kontrol sinkronisasi, data liga, dan pengelolaan sistem",,
+137,13. Settings Modal,settings_admin_notice,Admin Area akan segera hadir pada tahap pengembangan berikutnya.,,
+138,13. Settings Modal,settings_footer_brand,FPL Nusantara 2026/2027,FPL Nusantara BERHADIAH 2026/2027,FPL Nusantara BERHADIAH 2026/2027
+139,13. Settings Modal,btn_close,Tutup,Close,Tutup
+140,14. Manager Detail Modal,modal_mgr_tab_squad,Gameweek Squad,Gameweek Squad,Susunan Skuad GW
+141,14. Manager Detail Modal,modal_mgr_tab_history,Season History,Season History,Riwayat Musim
+142,"17. Tooltips, Popover & Toast",tooltip_close_modal,Tutup Modal,Close,Tutup
+143,14. Manager Detail Modal,modal_mgr_box_points,Points,Points,Poin
+144,14. Manager Detail Modal,modal_mgr_box_hits,Hits,Hits,Hits
+145,14. Manager Detail Modal,modal_mgr_box_total,Total Points,Total Points,Total Poin
+146,14. Manager Detail Modal,modal_mgr_bench,BENCH,BENCH,CADANGAN
+147,14. Manager Detail Modal,modal_mgr_tooltip_breakdown,Klik kotak nama / angka poin untuk melihat breakdown poin pemain,Click player name or points box to view points breakdown,Klik kotak nama / angka poin untuk melihat breakdown poin pemain
+148,14. Manager Detail Modal,modal_mgr_transfers_gw,Transfers in Gameweek {N},Gameweek {N} Transfers,Transfer pada Gameweek {N}
+149,14. Manager Detail Modal,modal_mgr_transfer_time,Waktu: {jam},Time: {time},Waktu: {jam}
+150,14. Manager Detail Modal,modal_mgr_transfer_empty,No Transfer.,No Transfer.,Tidak Ada Transfer.
+151,14. Manager Detail Modal,modal_mgr_col_season,Season,Season,Musim
+152,14. Manager Detail Modal,modal_mgr_col_overall_rank,Overall Rank,Overall Rank,Peringkat Dunia
+153,14. Manager Detail Modal,modal_mgr_col_total_points,Total Points,Total Points,Total Poin
+154,15. Player Detail Modal,modal_plyr_tab_overview,GW Overview,GW Overview,Ringkasan GW
+155,15. Player Detail Modal,modal_plyr_tab_owners,Owners ({N}),Owners ({N}),Pemilik ({N})
+156,15. Player Detail Modal,modal_plyr_tab_history,History,History,Riwayat
+157,15. Player Detail Modal,tooltip_close_player_modal,Close Modal,Close,Tutup
+158,15. Player Detail Modal,modal_plyr_match_result,Result • Points,Result • Points,Hasil • Poin
+159,15. Player Detail Modal,modal_plyr_match_points,Points,Points,Poin
+160,15. Player Detail Modal,modal_plyr_did_not_play,Did not play in this Gameweek (0 pts).,Did not play in this Gameweek (0 pts).,Tidak bermain pada Gameweek ini (0 poin).
+161,15. Player Detail Modal,modal_plyr_col_team_manager,Team & Manager,Team & Manager,Tim & Manajer
+162,15. Player Detail Modal,modal_plyr_col_squad_status,Squad Status,Squad Status,Status Skuad
+163,15. Player Detail Modal,modal_plyr_col_captain,Captain,Captain,Kapten
+164,15. Player Detail Modal,modal_plyr_col_owners_header,Team & Manager • Squad Status • Captain,Team & Manager • Squad Status • Captain,Tim & Manajer • Status Skuad • Kapten
+165,15. Player Detail Modal,modal_plyr_col_history_header,"GW, Opponent, Result, Pts, ST, MP, GS, A, CS","GW, Opponent, Result, Pts, ST, MP, GS, A, CS","GW, Lawan, Hasil, Poin, Starter, Menit, Gol, Assist, CS"
+166,16. Footer Aplikasi,footer_league_name,FPL Nusantara BERHADIAH 2026/2027,FPL Nusantara BERHADIAH 2026/2027,FPL Nusantara BERHADIAH 2026/2027
+167,16. Footer Aplikasi,footer_league_id,Mini League ID: 12356,Mini League ID: 12356,ID Mini League: 12356
+168,16. Footer Aplikasi,footer_integration,Official Premier League FPL Data Integration,Official Premier League Data Integration,Integrasi Data Resmi Premier League
+169,16. Footer Aplikasi,footer_fpl_official,FPL Official,FPL Official,Situs Resmi FPL
+170,16. Footer Aplikasi,footer_last_updated,Last Updated: {datetime} WIB,Last Updated: {datetime} WIB,Terakhir Diperbarui: {datetime} WIB
+171,"17. Tooltips, Popover & Toast",tooltip_open_fpl_site,Buka di Website Resmi FPL,Open Official FPL Site,Buka di Situs Resmi FPL
+172,"17. Tooltips, Popover & Toast",tooltip_jersey_modal,Klik jersey untuk membuka modal {name},Click jersey to open {name} modal,Klik jersey untuk membuka modal {name}
+173,"17. Tooltips, Popover & Toast",tooltip_view_player_detail,Klik untuk melihat detail {name},Click to view {name} details,Klik untuk melihat detail {name}
+174,"17. Tooltips, Popover & Toast",tooltip_view_player_stats,Lihat detail statistik {name},View statistics for {name},Lihat detail statistik {name}
+175,"17. Tooltips, Popover & Toast",badge_current,Current,Current,Terkini
+176,"17. Tooltips, Popover & Toast",badge_in,In,In,Masuk
+177,"17. Tooltips, Popover & Toast",badge_out,Out,Out,Keluar
+178,14. Manager Detail Modal,modal_mgr_career_avg,Career Average,Career Average,Rata-rata Karir
+179,14. Manager Detail Modal,modal_mgr_no_history,No History.,No History.,Belum Ada Riwayat.
+180,14. Manager Detail Modal,modal_mgr_click_gw,Klik untuk melihat detail GW {gw},Click to view GW {gw} details,Klik untuk melihat detail GW {gw}
+181,14. Manager Detail Modal,modal_mgr_col_fnb_rank,FNB Rank,FNB Rank,Peringkat FNB
+182,14. Manager Detail Modal,modal_mgr_col_global_rank,Global Rank,Global Rank,Peringkat Dunia
+183,15. Player Detail Modal,modal_plyr_prev_gw,Lompat ke GW {gw},Jump to GW {gw},Lompat ke GW {gw}
+184,15. Player Detail Modal,modal_plyr_next_gw,Lompat ke GW {gw},Jump to GW {gw},Lompat ke GW {gw}
+185,15. Player Detail Modal,modal_plyr_select_gw,Pilih Gameweek,Select Gameweek,Pilih Gameweek
+186,15. Player Detail Modal,modal_plyr_gw_history,GW History,GW History,Riwayat GW
+187,15. Player Detail Modal,modal_plyr_prev_seasons,Previous Seasons,Previous Seasons,Musim Sebelumnya
+188,15. Player Detail Modal,modal_plyr_season_label,Season,Season,Musim
+189,15. Player Detail Modal,modal_plyr_history_loading,Loading match history...,Loading match history...,Memuat riwayat pertandingan...
+190,15. Player Detail Modal,modal_plyr_history_empty,No history data available.,No history data available.,Belum ada data riwayat.
+191,15. Player Detail Modal,modal_plyr_owners_empty_search,No managers found matching your search.,No managers found matching your search.,Tidak ada manajer yang cocok dengan pencarian Anda.
+192,15. Player Detail Modal,modal_plyr_owners_empty_gw,No managers in FNB League own this player in GW {gw}.,No managers in FNB League own this player in GW {gw}.,Tidak ada manajer di FNB League yang memiliki pemain ini pada GW {gw}.
+193,9. Ownership,fans_club_help,Try selecting a different gameweek filter above.,Try selecting a different gameweek filter above.,Coba pilih filter gameweek yang berbeda di atas.
+194,"17. Tooltips, Popover & Toast",toast_offline,Offline Mode: Menampilkan data cache lokal.,Offline Mode: Displaying local cached data.,Mode Offline: Menampilkan data cache lokal.
+195,"17. Tooltips, Popover & Toast",toast_sync_success,✓ Successfully synced with Official FPL API!,✓ Successfully synced with Official FPL API!,✓ Berhasil disinkronkan dengan API Resmi FPL!
+196,"17. Tooltips, Popover & Toast",toast_sync_failed,⚠️ Sync failed or rate-limited. Retaining current data.,⚠️ Sync failed or rate-limited. Retaining current data.,⚠️ Sinkronisasi gagal atau dibatasi. Mempertahankan data saat ini.
+197,"17. Tooltips, Popover & Toast",loading_connecting,Connecting to Premier League API...,Connecting to Premier League API...,Menghubungkan ke API Premier League...
+198,"17. Tooltips, Popover & Toast",popover_search_placeholder,Search...,Search...,Cari...
+199,"17. Tooltips, Popover & Toast",popover_no_options,No options found,No options found,Pilihan tidak ditemukan
+200,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_minutes,Minutes Played,Minutes Played,Menit Bermain
+201,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_goals_scored,Goals Scored,Goals Scored,Gol
+202,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_assists,Assists,Assists,Umpan Gol (Assist)
+203,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_clean_sheets,Clean Sheets,Clean Sheets,Nirbobol (Clean Sheet)
+204,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_goals_conceded,Goals Conceded,Goals Conceded,Kebobolan
+205,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_own_goals,Own Goals,Own Goals,Gol Bunuh Diri
+206,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_penalties_saved,Penalties Saved,Penalties Saved,Penalti Ditepis
+207,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_penalties_missed,Penalties Missed,Penalties Missed,Gagal Penalti
+208,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_yellow_cards,Yellow Cards,Yellow Cards,Kartu Kuning
+209,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_red_cards,Red Cards,Red Cards,Kartu Merah
+210,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_saves,Saves,Saves,Penyelamatan (Saves)
+211,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_bonus,Bonus Points,Bonus Points,Poin Bonus
+212,19. Rincian Statistik Pemain (Breakdown),stat_breakdown_defensive_contribution,Defensive Contribution (DefCon),Defensive Contribution (DefCon),Kontribusi Bertahan (DefCon)
+213,20. Metrik Laga (30 Match Metrics),match_metric_pts,Total Points,Total Points,Total Poin
+214,20. Metrik Laga (30 Match Metrics),match_metric_st,Starts,Starts,Starter
+215,20. Metrik Laga (30 Match Metrics),match_metric_mp,Minutes Played,Minutes Played,Menit Bermain
+216,20. Metrik Laga (30 Match Metrics),match_metric_gs,Goals Scored,Goals Scored,Gol
+217,20. Metrik Laga (30 Match Metrics),match_metric_a,Assists,Assists,Umpan Gol (Assist)
+218,20. Metrik Laga (30 Match Metrics),match_metric_xg,Expected Goals (xG),Expected Goals (xG),Peluang Gol (xG)
+219,20. Metrik Laga (30 Match Metrics),match_metric_xa,Expected Assists (xA),Expected Assists (xA),Peluang Assist (xA)
+220,20. Metrik Laga (30 Match Metrics),match_metric_xgi,Expected Goal Involvement (xGI),Expected Goal Involvement (xGI),Kontribusi Gol (xGI)
+221,20. Metrik Laga (30 Match Metrics),match_metric_cs,Clean Sheets,Clean Sheets,Nirbobol (Clean Sheet)
+222,20. Metrik Laga (30 Match Metrics),match_metric_gc,Goals Conceded,Goals Conceded,Kebobolan
+223,20. Metrik Laga (30 Match Metrics),match_metric_xgc,Expected Goals Conceded (xGC),Expected Goals Conceded (xGC),Peluang Kebobolan (xGC)
+224,20. Metrik Laga (30 Match Metrics),match_metric_t,Tackles,Tackles,Tekel
+225,20. Metrik Laga (30 Match Metrics),match_metric_cbi,"Clearances, Blocks & Interceptions (CBI)","Clearances, Blocks & Interceptions (CBI)","Sapuan, Blok & Intersep (CBI)"
+226,20. Metrik Laga (30 Match Metrics),match_metric_r,Recoveries,Recoveries,Pemulihan Bola (Recoveries)
+227,20. Metrik Laga (30 Match Metrics),match_metric_dc,Defensive Contribution (DefCon),Defensive Contribution (DefCon),Kontribusi Bertahan (DefCon)
+228,20. Metrik Laga (30 Match Metrics),match_metric_og,Own Goals,Own Goals,Gol Bunuh Diri
+229,20. Metrik Laga (30 Match Metrics),match_metric_ps,Penalties Saved,Penalties Saved,Penalti Ditepis
+230,20. Metrik Laga (30 Match Metrics),match_metric_pm,Penalties Missed,Penalties Missed,Gagal Penalti
+231,20. Metrik Laga (30 Match Metrics),match_metric_yc,Yellow Cards,Yellow Cards,Kartu Kuning
+232,20. Metrik Laga (30 Match Metrics),match_metric_rc,Red Cards,Red Cards,Kartu Merah
+233,20. Metrik Laga (30 Match Metrics),match_metric_s,Saves,Saves,Penyelamatan (Saves)
+234,20. Metrik Laga (30 Match Metrics),match_metric_bp,Bonus Points,Bonus Points,Poin Bonus
+235,20. Metrik Laga (30 Match Metrics),match_metric_bps,Bonus Points System (BPS),Bonus Points System (BPS),Sistem Poin Bonus (BPS)
+236,20. Metrik Laga (30 Match Metrics),match_metric_inf,Influence,Influence,Pengaruh (Influence)
+237,20. Metrik Laga (30 Match Metrics),match_metric_cre,Creativity,Creativity,Kreativitas (Creativity)
+238,20. Metrik Laga (30 Match Metrics),match_metric_thr,Threat,Threat,Ancaman (Threat)
+239,20. Metrik Laga (30 Match Metrics),match_metric_ii,ICT Index,ICT Index,Indeks ICT
+240,20. Metrik Laga (30 Match Metrics),match_metric_nt,Net Transfers (FNB League),Net Transfers (FNB League),Transfer Bersih (FNB League)
+241,20. Metrik Laga (30 Match Metrics),match_metric_tsb,Teams Selected By (FNB League),Teams Selected By (FNB League),Dipilih Tim (FNB League)
+242,20. Metrik Laga (30 Match Metrics),match_metric_cost,Player Price,Player Price,Harga Pemain

@@ -1,0 +1,5 @@
+{
+  "summary":  "Dokumentasi master lengkap seluruh pengaturan sistem News Ticker FNB League, mencakup arsitektur teknis (backend API, caching 1000 item, failover model Gemini, event sync, polling, marquee animation) dan pengaturan non-teknis (filosofi jurnalisme faktual, syntax highlighting entitas, 5 kategori format berita baku, aturan penamaan tim, serta siklus hidup penayangan berita).",
+  "updatedAt":  "2026-11-01T14:11:51.634214193Z",
+  "userFacing":  true
+}

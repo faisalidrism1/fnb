@@ -1,0 +1,6 @@
+{
+  "summary":  "Revisi Rencana Implementasi:\n1. Menambahkan Prinsip Relativitas Nilai Angka (Relative Valuation of Numbers): Menilai bobot sebuah angka dengan membandingkannya terhadap distribusi seluruh elemen yang sama di Gameweek yang sama (posisi pemain, rata-rata liga, margin persaingan).\n2. Menambahkan Analisis Kontrafaktual \"What-If\" (What-If Counterfactual Simulation): Menyelidiki skenario alternatif dari keputusan manajer (kapten vs VC, starter vs bench, transfer in vs out) dan membandingkan hasil nyata vs hasil yang seharusnya bisa dicapai terhadap 4 jenis juara.\n3. Mempertahankan Kerangka Berpikir Kausal 8 Tahap, Prinsip Rentang Kausalitas Terjauh, narasi bersih tanpa markup, hanya nama tim, dan murni tipografi tanpa icon.",
+  "updatedAt":  "2026-10-29T13:33:59.271885710Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

@@ -1,0 +1,1475 @@
+/**
+ * ============================================================================
+ * FPL Nusantara BERHADIAH (FNB League) - KATALOG NEWS TICKER (RUNNING TEXT)
+ * ============================================================================
+ * Katalog terpusat untuk seluruh konten running text pada News Ticker.
+ * Bahasa `fnb` menyamai `en`, dan `id` dirancang khusus dengan gaya jurnalistik
+ * kantor berita olahraga terkemuka.
+ * ============================================================================
+ */
+
+import {
+  TransformedLeagueData,
+  MatchCardItem,
+  PlayerOwnershipItem,
+  PlayerOwnerItem,
+  CaptainPlayerItem,
+} from '../types.ts';
+import { Language } from '../utils/i18n.ts';
+
+/**
+ * Helper untuk memformat daftar tim dengan gaya jurnalistik FPL
+ */
+export function formatOwnersSnippet(
+  owners?: PlayerOwnerItem[],
+  maxNames: number = 2,
+  isId: boolean = true
+): string {
+  if (!owners || owners.length === 0) return '';
+
+  const names = owners.slice(0, maxNames).map(o => `${o.entry_name}`);
+  const remaining = owners.length - maxNames;
+
+  if (remaining <= 0) {
+    if (names.length === 1) return names[0];
+    return `${names[0]} & ${names[1]}`;
+  }
+
+  return `${names.join(', ')} ${isId ? 'dkk.' : '& others'}`;
+}
+
+export function formatCaptainsSnippet(
+  owners?: PlayerOwnerItem[],
+  maxNames: number = 2,
+  isId: boolean = true
+): string {
+  if (!owners) return '';
+  const captains = owners.filter(o => o.is_captain || o.multiplier > 1);
+  return formatOwnersSnippet(captains, maxNames, isId);
+}
+
+export interface NewsItem {
+  tag: string;
+  text: string;
+}
+
+export type NewsCategory =
+  | 'identity'     
+  | 'live_match'   
+  | 'match_impact' 
+  | 'differential' 
+  | 'defensive'    
+  | 'discipline'   
+  | 'status'       
+  | 'standings'    
+  | 'champion'     
+  | 'performance'  
+  | 'trends'       
+  | 'transfers'    
+  | 'chips'        
+  | 'deadline'     
+  | 'announcement' 
+  | 'fallback';    
+
+export type MatchFilterCondition = 'any' | 'has_live_matches' | 'no_live_matches';
+export type GwStatusType = 'Not started' | 'Live' | 'Provisional' | 'Confirmed';
+
+export interface DynamicNewsRule {
+  id: string;
+  title: string;
+  category: NewsCategory;
+  enabled: boolean;
+  order: number;
+  description: string;
+  conditions?: {
+    gwStatuses?: GwStatusType[];
+    matchCondition?: MatchFilterCondition;
+  };
+  generate: (
+    data: TransformedLeagueData,
+    lang: Language,
+    matches?: MatchCardItem[] | null
+  ) => NewsItem | NewsItem[] | null;
+}
+
+export interface CustomAnnouncementItem {
+  id: string;
+  title: string;
+  enabled: boolean;
+  order: number;
+  tags: Record<Language, string>;
+  texts: Record<Language, string>;
+}
+
+// ============================================================================
+// 1. PENGUMUMAN KUSTOM / STATIS
+// ============================================================================
+export const CUSTOM_ANNOUNCEMENTS: CustomAnnouncementItem[] = [
+  {
+    id: 'league_prizes',
+    title: 'Informasi Hadiah FPL Nusantara BERHADIAH',
+    enabled: false,
+    order: 20,
+    tags: {
+      fnb: '💰 PRIZES',
+      en: '💰 PRIZES',
+      id: '💰 PRIZES',
+    },
+    texts: {
+      fnb: 'Competition Rewards: Weekly Gameweek Champion Cash Bonuses + End-of-Season Podium Cash Prizes',
+      en: 'Competition Rewards: Weekly Gameweek Champion Cash Bonuses + End-of-Season Podium Cash Prizes',
+      id: 'Hadiah Kompetisi: Bonus Uang Tunai Mingguan Juara Gameweek + Hadiah Podium Akhir Musim',
+    },
+  },
+  {
+    id: 'fair_play_rules',
+    title: 'Aturan Kompetisi & Fair Play',
+    enabled: false,
+    order: 21,
+    tags: {
+      fnb: '🛡️ RULES',
+      en: '🛡️ RULES',
+      id: '🛡️ RULES',
+    },
+    texts: {
+      fnb: 'Official Policy: Strict 1 Manager 1 Skuad Regulation • Point Deductions & Subs Governed by Official FPL Rules',
+      en: 'Official Policy: Strict 1 Manager 1 Skuad Regulation • Point Deductions & Subs Governed by Official FPL Rules',
+      id: 'Aturan Resmi: Ketentuan Ketat 1 Manajer 1 Skuad • Pengurangan Poin & Subs Mengikuti Regulasi Resmi FPL',
+    },
+  },
+  {
+    id: 'community_group',
+    title: 'Grup Komunitas & Admin',
+    enabled: false,
+    order: 22,
+    tags: {
+      fnb: '💬 INFO',
+      en: '💬 INFO',
+      id: '💬 INFO',
+    },
+    texts: {
+      fnb: 'Community Hub: Access Official WhatsApp & Discord Channels for Matchday Banter & League Bulletins',
+      en: 'Community Hub: Access Official WhatsApp & Discord Channels for Matchday Banter & League Bulletins',
+      id: 'Pusat Komunitas: Akses Kanal Resmi WhatsApp & Discord Untuk Informasi Liga & Diskusi Matchday',
+    },
+  },
+];
+
+// ============================================================================
+// 2. KATALOG KONTEN CADANGAN / FALLBACK
+// ============================================================================
+export const FALLBACK_NEWS_CATALOG: Record<Language, NewsItem[]> = {
+  fnb: [
+    {
+      tag: '⚡ FNB LEAGUE',
+      text: 'Official FNB League (ID: 12356) • 2026/2027 Season Campaign',
+    },
+    {
+      tag: '🔴 LIVE',
+      text: 'Matchday Underway: Live BPS Audits & Autosubs In Progress',
+    },
+    {
+      tag: '🏆 TITLES',
+      text: 'Title Race Tracking: League Championship & Weekly Gameweek Crowns',
+    },
+    {
+      tag: '👑 TRENDS',
+      text: 'Market Intelligence: High-Demand Assets, Template Skuads & Captaincy Analytics',
+    },
+    {
+      tag: '⚽ MATCHDAY',
+      text: 'Good luck to all FNB League managers in this Gameweek!',
+    },
+  ],
+  en: [
+    {
+      tag: '⚡ FNB LEAGUE',
+      text: 'Official FNB League (ID: 12356) • 2026/2027 Season Campaign',
+    },
+    {
+      tag: '🔴 LIVE',
+      text: 'Matchday Underway: Live BPS Audits & Autosubs In Progress',
+    },
+    {
+      tag: '🏆 TITLES',
+      text: 'Title Race Tracking: League Championship & Weekly Gameweek Crowns',
+    },
+    {
+      tag: '👑 TRENDS',
+      text: 'Market Intelligence: High-Demand Assets, Template Skuads & Captaincy Analytics',
+    },
+    {
+      tag: '⚽ MATCHDAY',
+      text: 'Good luck to all FNB League managers in this Gameweek!',
+    },
+  ],
+  id: [
+    {
+      tag: '⚡ FNB LEAGUE',
+      text: 'Liga Resmi FNB League (ID: 12356) • Kampanye Musim 2026/2027',
+    },
+    {
+      tag: '🔴 LIVE',
+      text: 'Matchday Berlangsung: Audit BPS Live & Autosub Sedang Diproses',
+    },
+    {
+      tag: '🏆 JUARA',
+      text: 'Pantau Perburuan Gelar: Juara Liga & Mahkota Gameweek Mingguan',
+    },
+    {
+      tag: '👑 TREN',
+      text: 'Analisis Bursa: Pemain Laris, Skuad Template & Tren Pilihan Kapten',
+    },
+    {
+      tag: '⚽ MATCHDAY',
+      text: 'Semoga sukses untuk seluruh manajer FNB League di Gameweek ini!',
+    },
+  ],
+};
+
+// ============================================================================
+// 3. KATALOG ATURAN DINAMIS
+// ============================================================================
+export const DYNAMIC_NEWS_CATALOG: DynamicNewsRule[] = [
+  // 1. Identitas Resmi Liga
+  {
+    id: 'league_identity',
+    title: 'Identitas Liga',
+    category: 'identity',
+    enabled: true,
+    order: 1,
+    description: 'Menampilkan nama mini league, ID liga resmi, dan pengumuman musim berjalan.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (_data, lang) => {
+      const isId = lang === 'id';
+      return {
+        tag: '⚡ FNB LEAGUE',
+        text: isId
+          ? 'Liga Resmi FNB League (ID: 12356) • Kampanye Musim 2026/2027'
+          : 'Official FNB League (ID: 12356) • 2026/2027 Season Campaign',
+      };
+    },
+  },
+
+  // 2. Skor Match Live
+  {
+    id: 'live_match_scores',
+    title: 'Skor Live Real-Time',
+    category: 'live_match',
+    enabled: true,
+    order: 2,
+    description: 'Menampilkan skor terkini laga Premier League.',
+    conditions: {
+      gwStatuses: ['Live'],
+      matchCondition: 'has_live_matches',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+
+      const ongoingFromMatches = (matches || []).filter(
+        m => m.started && !m.finished && !m.finished_provisional
+      );
+
+      if (ongoingFromMatches.length > 0) {
+        const items: NewsItem[] = [];
+        for (const m of ongoingFromMatches.slice(0, 3)) {
+          const homeName = m.home_team.short_name || 'H';
+          const awayName = m.away_team.short_name || 'A';
+          const scoreH = m.team_h_score ?? 0;
+          const scoreA = m.team_a_score ?? 0;
+          let clock = m.clock_label || (m.minutes ? `${m.minutes}'` : "0'");
+          if (clock === "00'") clock = "0'";
+          else if (clock) clock = clock.replace(/^0([0-9]')/, '$1');
+
+          const allPlayers = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+          const scorers = allPlayers
+            .filter(p => p.stats?.goals_scored && p.stats.goals_scored > 0)
+            .map(p => `${p.web_name}${p.stats.goals_scored > 1 ? ` (${p.stats.goals_scored}⚽)` : ''}`);
+
+          const scorerSnippet = scorers.length > 0 ? (isId ? ` • Gol: ${scorers.join(', ')}` : ` • Goals: ${scorers.join(', ')}`) : '';
+
+          items.push({
+            tag: `🔴 LIVE ${clock}`,
+            text: `${homeName} ${scoreH}–${scoreA} ${awayName} (${clock})${scorerSnippet}`,
+          });
+        }
+        return items.length > 0 ? items : null;
+      }
+
+      const gwFixtures = data.sync_status?.gw_fixtures || [];
+      const ongoingFixtures = gwFixtures.filter(
+        f => f.event === currentGW && f.started && !f.finished && !f.finished_provisional
+      );
+
+      if (ongoingFixtures.length > 0) {
+        const items: NewsItem[] = [];
+        for (const f of ongoingFixtures.slice(0, 3)) {
+          const clock = f.minutes ? `${f.minutes}'` : 'LIVE';
+          const scoreH = f.team_h_score ?? 0;
+          const scoreA = f.team_a_score ?? 0;
+          items.push({
+            tag: `🔴 LIVE ${clock}`,
+            text: isId
+              ? `${f.home_team} ${scoreH}–${scoreA} ${f.away_team} (${clock}) • Matchday Berlangsung di GW ${currentGW}`
+              : `${f.home_team} ${scoreH}–${scoreA} ${f.away_team} (${clock}) • Matchday Underway in GW ${currentGW}`,
+          });
+        }
+        return items.length > 0 ? items : null;
+      }
+
+      return null;
+    },
+  },
+
+  // 3. Dampak Live Match
+  {
+    id: 'live_match_league_impact',
+    title: 'Dampak Live Match',
+    category: 'match_impact',
+    enabled: true,
+    order: 3,
+    description: 'Dampak poin matchday terhadap manajer FNB League.',
+    conditions: {
+      gwStatuses: ['Live'],
+      matchCondition: 'has_live_matches',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const captainList = data.captain_players?.[currentGW] || [];
+
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      const captainMap = new Map<number, CaptainPlayerItem>();
+      captainList.forEach(c => captainMap.set(c.id, c));
+
+      const ongoingMatches = (matches || []).filter(
+        m => m.started && !m.finished && !m.finished_provisional
+      );
+
+      if (ongoingMatches.length > 0) {
+        const impactNews: NewsItem[] = [];
+
+        for (const m of ongoingMatches) {
+          const allPlayers = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+
+          const keyPerformers = allPlayers
+            .filter(p => {
+              const fnbInfo = ownershipMap.get(p.id);
+              const playerPts = p.gw_points || p.stats?.total_points || 0;
+              const hasImpact = (p.stats?.goals_scored && p.stats.goals_scored > 0) ||
+                                (p.stats?.assists && p.stats.assists > 0) ||
+                                playerPts >= 6;
+              return hasImpact && fnbInfo && fnbInfo.owned_count > 0;
+            })
+            .sort((a, b) => {
+              const ptsA = a.gw_points || a.stats?.total_points || 0;
+              const ptsB = b.gw_points || b.stats?.total_points || 0;
+              return ptsB - ptsA;
+            });
+
+          if (keyPerformers.length > 0) {
+            const star = keyPerformers[0];
+            const starPts = star.gw_points || star.stats?.total_points || 0;
+            const fnbOwner = ownershipMap.get(star.id);
+            const fnbCap = captainMap.get(star.id);
+            const capCount = fnbCap?.captain_count || 0;
+
+            const capSnippet = formatCaptainsSnippet(fnbOwner?.owners, 2, isId);
+            const ownersSnippet = formatOwnersSnippet(fnbOwner?.owners, 2, isId);
+            let capSuffix = '';
+            if (capSnippet) {
+              capSuffix = isId
+                ? ` • Menguntungkan ${ownersSnippet} & Kapten ${capSnippet} (C)`
+                : ` • Capitalized by ${ownersSnippet} & Captaincy (C) ${capSnippet}`;
+            } else if (capCount > 0) {
+              capSuffix = isId
+                ? ` • Dipilih Kapten (x2) oleh ${capCount} Tim`
+                : ` • Selected as Captain (2x pts) by ${capCount} Teams`;
+            }
+
+            impactNews.push({
+              tag: '⚡ IMPACT',
+              text: isId
+                ? `Dampak Laga: Performa Gemilang ${star.web_name} (${starPts} Poin) di Laga ${m.home_team.short_name} vs ${m.away_team.short_name}${capSuffix}`
+                : `Match Impact: ${star.web_name} (${starPts} pts) Shines in ${m.home_team.short_name} vs ${m.away_team.short_name}${capSuffix}`,
+            });
+          }
+        }
+
+        if (impactNews.length > 0) return impactNews;
+      }
+
+      const isLive = Boolean(data.sync_status?.is_matchday_live || data.gw_status?.status === 'Live');
+      if (isLive && ownershipList.length > 0) {
+        const topPerformer = [...ownershipList]
+          .filter(p => typeof p.gw_points === 'number' && p.gw_points >= 6 && p.owned_count > 0)
+          .sort((a, b) => (b.gw_points || 0) - (a.gw_points || 0))[0];
+
+        if (topPerformer) {
+          const capSnippet = formatCaptainsSnippet(topPerformer.owners, 2, isId);
+          const ownersSnippet = formatOwnersSnippet(topPerformer.owners, 2, isId);
+          const ownerPart = ownersSnippet ? (isId ? ` • Skuad: ${ownersSnippet}` : ` • Backed by ${ownersSnippet}`) : ` • ${topPerformer.owned_count} tim`;
+          const capPart = capSnippet ? (isId ? ` (Kapten x2: ${capSnippet})` : ` (Captaincy: ${capSnippet})`) : '';
+
+          return {
+            tag: '⚡ IMPACT',
+            text: isId
+              ? `Lonjakan Poin: ${topPerformer.web_name} (${topPerformer.team_short_name}) Menyumbang ${topPerformer.gw_points} Poin${ownerPart}${capPart}`
+              : `Matchday Surge: ${topPerformer.web_name} (${topPerformer.team_short_name}) Delivers ${topPerformer.gw_points} pts${ownerPart}${capPart}`,
+          };
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 4. Pemain Differential
+  {
+    id: 'live_differential_hero',
+    title: 'Differential Gem',
+    category: 'differential',
+    enabled: true,
+    order: 4,
+    description: 'Pemain dengan kepemilikan rendah di liga yang mencetak poin besar.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      if (ownershipList.length === 0) return null;
+
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      if (matches && matches.length > 0) {
+        const liveOrRecentMatches = matches.filter(m => m.started);
+        for (const m of liveOrRecentMatches) {
+          const players = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+          const diffs = players
+            .filter(p => {
+              const fnbInfo = ownershipMap.get(p.id);
+              const pts = p.gw_points || p.stats?.total_points || 0;
+              return fnbInfo && fnbInfo.owned_count > 0 && fnbInfo.owned_percentage <= 15 && pts >= 6;
+            })
+            .sort((a, b) => {
+              const ptsA = a.gw_points || a.stats?.total_points || 0;
+              const ptsB = b.gw_points || b.stats?.total_points || 0;
+              return ptsB - ptsA;
+            });
+
+          if (diffs.length > 0) {
+            const star = diffs[0];
+            const starPts = star.gw_points || star.stats?.total_points || 0;
+            const fnbInfo = ownershipMap.get(star.id)!;
+            const managerNames = formatOwnersSnippet(fnbInfo.owners, 2, isId);
+
+            return {
+              tag: '💎 DIFF',
+              text: isId
+                ? `Kejutan Taktis: Pemain Pembeda ${star.web_name} (${star.team_short_name}) Sumbang ${starPts} Poin (${star.stats?.goals_scored ? `${star.stats.goals_scored} Gol` : 'Performa Apik'}) • Dimiliki oleh ${managerNames || `${fnbInfo.owned_count} Manajer`} (${fnbInfo.owned_percentage.toFixed(0)}% Kepemilikan)`
+                : `Strategic Triumph: Low-Ownership Gem ${star.web_name} (${star.team_short_name}) Delivers ${starPts} Pts • Backed by ${managerNames || 'Select Skuads'} (${fnbInfo.owned_percentage.toFixed(0)}% Ownership)`,
+            };
+          }
+        }
+      }
+
+      const diffCandidates = [...ownershipList]
+        .filter(p => p.owned_count > 0 && p.owned_percentage <= 15 && (p.gw_points || 0) >= 7)
+        .sort((a, b) => (b.gw_points || 0) - (a.gw_points || 0));
+
+      if (diffCandidates.length > 0) {
+        const topDiff = diffCandidates[0];
+        const managerNames = formatOwnersSnippet(topDiff.owners, 2, isId);
+
+        return {
+          tag: '💎 DIFF',
+          text: isId
+            ? `Kejutan Taktis: Pemain Pembeda ${topDiff.web_name} (${topDiff.team_short_name}) Sumbang ${topDiff.gw_points} Poin • Dimiliki oleh ${managerNames || `${topDiff.owned_count} Manajer`} (${topDiff.owned_percentage.toFixed(0)}% Kepemilikan)`
+            : `Strategic Triumph: Low-Ownership Gem ${topDiff.web_name} (${topDiff.team_short_name}) Delivers ${topDiff.gw_points} Pts • Backed by ${managerNames || `${topDiff.owned_count} Managers`} (${topDiff.owned_percentage.toFixed(0)}% Ownership)`,
+        };
+      }
+
+      return null;
+    },
+  },
+
+  // 5. Assist & Playmaker
+  {
+    id: 'live_assist_playmakers',
+    title: 'Playmaker Assist',
+    category: 'match_impact',
+    enabled: true,
+    order: 5,
+    description: 'Pemain yang membukukan assist.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      if (!matches || matches.length === 0) return null;
+
+      const activeMatches = matches.filter(m => m.started);
+      for (const m of activeMatches) {
+        const players = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+        const assistPlayers = players.filter(p => p.stats?.assists && p.stats.assists > 0);
+
+        if (assistPlayers.length > 0) {
+          const assistStar = assistPlayers[0];
+          const fnbInfo = ownershipMap.get(assistStar.id);
+          const assistCount = assistStar.stats.assists;
+          const ownersStr = formatOwnersSnippet(fnbInfo?.owners, 2, isId);
+          const targetStr = ownersStr
+            ? (isId ? ` • Mengalirkan Poin Bagi Skuad ${ownersStr}` : ` • Rewarding Skuads of ${ownersStr}`)
+            : '';
+
+          return {
+            tag: '🎯 ASSIST',
+            text: isId
+              ? `Umpan Matang: ${assistStar.web_name} (${assistStar.team_short_name}) Catat ${assistCount} Assist (+${assistCount * 3} Poin FPL)${targetStr}`
+              : `Masterful Playmaking: ${assistStar.web_name} (${assistStar.team_short_name}) Registers ${assistCount} Assist(s) (+${assistCount * 3} FPL pts)${targetStr}`,
+          };
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 6. CS Wipeout
+  {
+    id: 'live_cs_wipeout',
+    title: 'Clean Sheet Wipeout',
+    category: 'defensive',
+    enabled: true,
+    order: 6,
+    description: 'Kebobolan yang membatalkan poin clean sheet.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      if (!matches || matches.length === 0) return null;
+
+      for (const m of matches.filter(m => m.started)) {
+        const homeConceded = (m.team_a_score ?? 0) > 0;
+        const awayConceded = (m.team_h_score ?? 0) > 0;
+
+        if (homeConceded) {
+          const homeDefs = (m.home_lineup || []).filter(
+            p => (p.position === 'DEF' || p.position === 'GKP') && (ownershipMap.get(p.id)?.owned_count ?? 0) >= 3
+          );
+          if (homeDefs.length > 0) {
+            const topDef = homeDefs[0];
+            const fnbInfo = ownershipMap.get(topDef.id)!;
+            const clock = m.clock_label || (m.minutes ? `${m.minutes}'` : 'FT');
+            const ownersStr = formatOwnersSnippet(fnbInfo.owners, 2, isId);
+
+            return {
+              tag: '🚫 CS WIPEOUT',
+              text: isId
+                ? `Pupus Nirbobol: Kebobolan vs ${m.away_team.short_name} (${clock}) Hapus Bonus Clean Sheet ${topDef.web_name} • Pukulan Bagi Skuad ${ownersStr || 'Terdampak'}`
+                : `Defensive Heartbreak: Goal Conceded vs ${m.away_team.short_name} (${clock}) Denies Clean Sheet Bonus for ${topDef.web_name} • Impacting ${ownersStr || 'Skuads'}`,
+            };
+          }
+        }
+
+        if (awayConceded) {
+          const awayDefs = (m.away_lineup || []).filter(
+            p => (p.position === 'DEF' || p.position === 'GKP') && (ownershipMap.get(p.id)?.owned_count ?? 0) >= 3
+          );
+          if (awayDefs.length > 0) {
+            const topDef = awayDefs[0];
+            const fnbInfo = ownershipMap.get(topDef.id)!;
+            const clock = m.clock_label || (m.minutes ? `${m.minutes}'` : 'FT');
+            const ownersStr = formatOwnersSnippet(fnbInfo.owners, 2, isId);
+
+            return {
+              tag: '🚫 CS WIPEOUT',
+              text: isId
+                ? `Pupus Nirbobol: Kebobolan vs ${m.home_team.short_name} (${clock}) Hapus Bonus Clean Sheet ${topDef.web_name} • Pukulan Bagi Skuad ${ownersStr || 'Terdampak'}`
+                : `Defensive Heartbreak: Goal Conceded vs ${m.home_team.short_name} (${clock}) Denies Clean Sheet Bonus for ${topDef.web_name} • Impacting ${ownersStr || 'Skuads'}`,
+            };
+          }
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 7. DefCon Bonus
+  {
+    id: 'live_defcon_achieved',
+    title: 'DefCon Bonus',
+    category: 'defensive',
+    enabled: true,
+    order: 7,
+    description: 'Pemain defensif mengunci bonus DefCon +2.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      if (!matches || matches.length === 0) return null;
+
+      for (const m of matches.filter(m => m.started)) {
+        const players = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+        const defconStars = players.filter(p => {
+          const dc = p.stats?.defensive_contribution || 0;
+          const cbi = p.stats?.clearances_blocks_interceptions || 0;
+          const t = p.stats?.tackles || 0;
+          const r = p.stats?.recoveries || 0;
+          const cbit = cbi + t;
+          const cbirt = cbit + r;
+          const hitThreshold = p.position === 'DEF' ? cbit >= 10 : cbirt >= 12;
+          return dc > 0 || hitThreshold;
+        });
+
+        if (defconStars.length > 0) {
+          const star = defconStars[0];
+
+          return {
+            tag: '🛡️ DEFCON',
+            text: isId
+              ? `Solid Bertahan: ${star.web_name} (${star.team_short_name}) Amankan Bonus DefCon (+2 Poin FPL) Berkat Aksi Defensif Krusial`
+              : `Tactical Resilience: ${star.web_name} (${star.team_short_name}) Secures DefCon Threshold Bonus (+2 FPL pts) via Key Defensive Actions`,
+          };
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 8. Drama Penalti
+  {
+    id: 'live_penalty_drama',
+    title: 'Drama Penalti',
+    category: 'discipline',
+    enabled: true,
+    order: 8,
+    description: 'Tepis penalti (+5) atau penalti gagal (-2).',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      if (!matches || matches.length === 0) return null;
+
+      for (const m of matches.filter(m => m.started)) {
+        const players = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+
+        const penSaver = players.find(p => p.stats?.penalties_saved && p.stats.penalties_saved > 0);
+        if (penSaver) {
+          const fnbInfo = ownershipMap.get(penSaver.id);
+          const saverOwners = formatOwnersSnippet(fnbInfo?.owners, 2, isId);
+
+          return {
+            tag: '🧤 PENALTY',
+            text: isId
+              ? `Aksi Heroik Kiper: ${penSaver.web_name} (${penSaver.team_short_name}) Tepis Tendangan Penalti (+5 Poin FPL) • Lonjakan Poin Krusial Bagi ${saverOwners || 'Pemilik'}`
+              : `Heroics Between the Posts: ${penSaver.web_name} (${penSaver.team_short_name}) Denies Spot-Kick (+5 FPL pts) • Vital Points Surge for ${saverOwners || 'Owners'}`,
+          };
+        }
+
+        const penMisser = players.find(p => p.stats?.penalties_missed && p.stats.penalties_missed > 0);
+        if (penMisser) {
+          const fnbInfo = ownershipMap.get(penMisser.id);
+          const misserOwners = formatOwnersSnippet(fnbInfo?.owners, 2, isId);
+
+          return {
+            tag: '❌ PENALTY',
+            text: isId
+              ? `Kegagalan 12 Pas: Eksekusi Penalti ${penMisser.web_name} (${penMisser.team_short_name}) Gagal Berbuah Gol (-2 Poin FPL) • Kerugian Bagi ${misserOwners || 'Pemilik'}`
+              : `Misstep from 12 Yards: ${penMisser.web_name} (${penMisser.team_short_name}) Fails to Convert Penalty (-2 FPL pts) • Setback for ${misserOwners || 'Owners'}`,
+          };
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 9. Kartu Merah
+  {
+    id: 'live_red_card_drama',
+    title: 'Kartu Merah',
+    category: 'discipline',
+    enabled: true,
+    order: 9,
+    description: 'Pemain diusir kartu merah (-3).',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      if (!matches || matches.length === 0) return null;
+
+      for (const m of matches.filter(m => m.started)) {
+        const players = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+        const redCardPlayer = players.find(p => p.stats?.red_cards && p.stats.red_cards > 0);
+
+        if (redCardPlayer) {
+          const fnbInfo = ownershipMap.get(redCardPlayer.id);
+          const redOwners = formatOwnersSnippet(fnbInfo?.owners, 2, isId);
+
+          return {
+            tag: '🟥 RED CARD',
+            text: isId
+              ? `Kartu Merah: ${redCardPlayer.web_name} (${redCardPlayer.team_short_name}) Diusir Keluar Lapangan (-3 Poin FPL) • Merugikan Skuad ${redOwners || 'Pemilik'}`
+              : `Dismissal: ${redCardPlayer.web_name} (${redCardPlayer.team_short_name}) Sent Off (-3 FPL pts) • Penalizing Skuads of ${redOwners || 'Owners'}`,
+          };
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 10. Bonus BPS Opta
+  {
+    id: 'live_bps_battle',
+    title: 'Bonus BPS Race',
+    category: 'performance',
+    enabled: true,
+    order: 10,
+    description: 'Proyeksi bonus poin BPS.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional'],
+      matchCondition: 'any',
+    },
+    generate: (_data, lang, matches) => {
+      const isId = lang === 'id';
+      if (!matches || matches.length === 0) return null;
+
+      const activeMatches = matches.filter(m => m.started);
+      for (const m of activeMatches) {
+        const players = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+        const topBps = players
+          .filter(p => (p.stats?.bps || 0) >= 15)
+          .sort((a, b) => (b.stats?.bps || 0) - (a.stats?.bps || 0))
+          .slice(0, 3);
+
+        if (topBps.length >= 2) {
+          const p1 = topBps[0];
+          const p2 = topBps[1];
+          const p3 = topBps[2];
+
+          const p3Snippet = p3 ? `, ${p3.web_name} (${p3.stats.bps} BPS / +1 Pt)` : '';
+          const matchLabel = `${m.home_team.short_name} vs ${m.away_team.short_name}`;
+
+          return {
+            tag: '⭐ BPS',
+            text: isId
+              ? `Persaingan Bonus Opta di Laga ${matchLabel}: ${p1.web_name} Memimpin (${p1.stats.bps} BPS / +3 Pts), Disusul ${p2.web_name} (${p2.stats.bps} BPS / +2 Pts)${p3Snippet}`
+              : `Opta Bonus Race in ${matchLabel}: ${p1.web_name} Leads (${p1.stats.bps} BPS / +3 pts), Followed by ${p2.web_name} (${p2.stats.bps} BPS / +2 pts)${p3Snippet}`,
+          };
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 11. Saves Kiper
+  {
+    id: 'live_goalkeeper_saves',
+    title: 'Saves Kiper',
+    category: 'defensive',
+    enabled: true,
+    order: 11,
+    description: 'Penyelamatan kiper kelipatan 3.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      if (!matches || matches.length === 0) return null;
+
+      for (const m of matches.filter(m => m.started)) {
+        const keepers = [...(m.home_lineup || []), ...(m.away_lineup || [])].filter(
+          p => p.position === 'GKP' && (p.stats?.saves || 0) >= 3
+        );
+
+        if (keepers.length > 0) {
+          const gkp = keepers[0];
+          const saves = gkp.stats.saves;
+          const savePts = Math.floor(saves / 3);
+          const fnbInfo = ownershipMap.get(gkp.id);
+          const gkpOwners = formatOwnersSnippet(fnbInfo?.owners, 2, isId);
+
+          return {
+            tag: '🧱 SAVES',
+            text: isId
+              ? `Tembok Kokoh: ${gkp.web_name} (${gkp.team_short_name}) Bukukan ${saves} Penyelamatan (+${savePts} Poin Saves) Demi Amankan Poin Skuad ${gkpOwners || 'Pemilik'}`
+              : `Under Siege: ${gkp.web_name} (${gkp.team_short_name}) Completes ${saves} Saves (+${savePts} Save pts) to Rescue Vital Points for ${gkpOwners || 'Owners'}`,
+          };
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 12. Gol Bunuh Diri
+  {
+    id: 'live_own_goal_disaster',
+    title: 'Own Goal',
+    category: 'discipline',
+    enabled: true,
+    order: 12,
+    description: 'Gol bunuh diri (-2).',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      if (!matches || matches.length === 0) return null;
+
+      for (const m of matches.filter(m => m.started)) {
+        const players = [...(m.home_lineup || []), ...(m.away_lineup || [])];
+        const ogPlayer = players.find(p => p.stats?.own_goals && p.stats.own_goals > 0);
+
+        if (ogPlayer) {
+          const fnbInfo = ownershipMap.get(ogPlayer.id);
+          const ogOwners = formatOwnersSnippet(fnbInfo?.owners, 2, isId);
+
+          return {
+            tag: '🤦 OWN GOAL',
+            text: isId
+              ? `Gol Bunuh Diri: Sentuhan Fatal ${ogPlayer.web_name} (${ogPlayer.team_short_name}) Berujung Gol Bunuh Diri (-2 Poin FPL) • Pangkas Poin Skuad ${ogOwners || 'Pemilik'}`
+              : `Unfortunate Deflection: ${ogPlayer.web_name} (${ogPlayer.team_short_name}) Concedes Own Goal (-2 FPL pts) • Denting Tallies for ${ogOwners || 'Owners'}`,
+          };
+        }
+      }
+
+      return null;
+    },
+  },
+
+  // 13. Rekap Laga Selesai
+  {
+    id: 'recent_match_league_impact',
+    title: 'Hasil FT Match',
+    category: 'match_impact',
+    enabled: true,
+    order: 13,
+    description: 'Rekap skor pertandingan yang telah selesai (FT).',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang, matches) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const ownershipList = data.ownership_players?.[currentGW] || [];
+      const ownershipMap = new Map<number, PlayerOwnershipItem>();
+      ownershipList.forEach(p => ownershipMap.set(p.id, p));
+
+      const finishedMatches = (matches || []).filter(
+        m => m.finished || m.finished_provisional
+      );
+
+      if (finishedMatches.length > 0) {
+        const latestMatch = finishedMatches[finishedMatches.length - 1];
+        const allPlayers = [...(latestMatch.home_lineup || []), ...(latestMatch.away_lineup || [])];
+        const topScorerInMatch = allPlayers
+          .map(p => ({ player: p, pts: p.gw_points || p.stats?.total_points || 0 }))
+          .filter(x => x.pts > 0)
+          .sort((a, b) => b.pts - a.pts)[0];
+
+        let playerImpactSnippet = '';
+        if (topScorerInMatch) {
+          const { player, pts } = topScorerInMatch;
+          const fnbOwner = ownershipMap.get(player.id);
+          const starOwners = formatOwnersSnippet(fnbOwner?.owners, 2, isId);
+          if (starOwners) {
+            playerImpactSnippet = isId
+              ? ` • Bintang Laga: ${player.web_name} (${pts} Poin) • Aset Krusial Skuad ${starOwners}`
+              : ` • Star Performer: ${player.web_name} (${pts} pts) • Key Asset for ${starOwners}`;
+          }
+        }
+
+        return {
+          tag: '🏁 FULL TIME',
+          text: isId
+            ? `Hasil Akhir: ${latestMatch.home_team.short_name} ${latestMatch.team_h_score ?? 0}–${latestMatch.team_a_score ?? 0} ${latestMatch.away_team.short_name}${playerImpactSnippet}`
+            : `Final Score: ${latestMatch.home_team.short_name} ${latestMatch.team_h_score ?? 0}–${latestMatch.team_a_score ?? 0} ${latestMatch.away_team.short_name}${playerImpactSnippet}`,
+        };
+      }
+
+      return null;
+    },
+  },
+
+  // 14. Status Siklus Gameweek
+  {
+    id: 'gw_status_lifecycle',
+    title: 'Siklus Status Gameweek',
+    category: 'status',
+    enabled: true,
+    order: 14,
+    description: 'Progres matchday, audit BPS, dan penguncian poin.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang) => {
+      const isId = lang === 'id';
+      const currentGW = data.current_gw || 1;
+      const isLive = Boolean(data.sync_status?.is_matchday_live || data.gw_status?.status === 'Live');
+      const isProvisional = data.gw_status?.status === 'Provisional';
+      const isConfirmed = data.gw_status?.status === 'Confirmed';
+
+      if (isLive) {
+        const fixtures = data.sync_status?.gw_fixtures || [];
+        const finishedCount = fixtures.filter(f => f.finished || Boolean((f as any).finished_provisional)).length;
+        const totalCount = fixtures.length || 10;
+        return {
+          tag: `🔴 GW ${currentGW} LIVE`,
+          text: isId
+            ? `Matchday Berlangsung: ${finishedCount} dari ${totalCount} Laga Selesai • Audit BPS Live & Autosub Sedang Diproses`
+            : `Matchday Underway: ${finishedCount} of ${totalCount} Fixtures Concluded • Live BPS Audits & Autosubs In Progress`,
+        };
+      }
+
+      if (isProvisional) {
+        return {
+          tag: `⏳ AUDIT GW ${currentGW}`,
+          text: isId
+            ? 'Pertandingan Selesai • Menunggu Audit Final Poin Bonus Opta & Kalkulasi Autosub'
+            : 'Fixtures Concluded • Awaiting Final Opta Bonus Point Audits & Autosub Calculations',
+        };
+      }
+
+      if (isConfirmed) {
+        return {
+          tag: `🔒 GW ${currentGW}`,
+          text: isId
+            ? 'Gameweek Dikunci: Skor Pertandingan, Alokasi BPS & Klasemen Resmi Ditetapkan FPL'
+            : 'Gameweek Locked: Match Scores, BPS Allocations & Standings Finalized by FPL',
+        };
+      }
+
+      return null;
+    },
+  },
+
+  // 15. Pimpinan Klasemen Liga
+  {
+    id: 'league_leader',
+    title: 'Pimpinan Klasemen',
+    category: 'standings',
+    enabled: true,
+    order: 15,
+    description: 'Manajer pemuncak klasemen liga.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const gwStandings = data.standings?.[currentGW] || [];
+      if (gwStandings.length === 0 || !gwStandings[0]) return null;
+
+      const leader = gwStandings[0];
+      const isId = lang === 'id';
+
+      return {
+        tag: '🏆 LEADER',
+        text: isId
+          ? `Puncak Klasemen: Tim ${leader.entry_name} Pimpin Perburuan Gelar Dengan Koleksi ${leader.total_points} Poin Akumulasi`
+          : `Frontrunner: ${leader.entry_name} Commands Top Spot with ${leader.total_points} Cumulative Points`,
+      };
+    },
+  },
+
+  // 16. Juara Gameweek
+  {
+    id: 'gw_champion',
+    title: 'Juara Gameweek',
+    category: 'champion',
+    enabled: true,
+    order: 16,
+    description: 'Manajer dengan poin tertinggi di Gameweek.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const gwChamps = data.gameweek_champions || [];
+      const currentGwChampRow = gwChamps.find(c => c.event === currentGW) || gwChamps[gwChamps.length - 1];
+      if (!currentGwChampRow || !Array.isArray(currentGwChampRow.champions) || currentGwChampRow.champions.length === 0) {
+        return null;
+      }
+
+      const isId = lang === 'id';
+      const champNames = currentGwChampRow.champions.map(c => `${c.entry_name}`).join(', ');
+
+      return {
+        tag: '🎖️ JUARA GW',
+        text: isId
+          ? `Juara Pekan Ini: Tim ${champNames} Sabet Gelar Gameweek Lewat Raihan ${currentGwChampRow.points} Poin`
+          : `Gameweek Distinction: ${champNames} Claims Top Honors with an Impressive ${currentGwChampRow.points}-Point Haul`,
+      };
+    },
+  },
+
+  // 17. Kolektor Juara GW Terbanyak
+  {
+    id: 'most_gw_titles',
+    title: 'Rekor Gelar GW',
+    category: 'champion',
+    enabled: true,
+    order: 17,
+    description: 'Manajer pemegang rekor kemenangan Juara GW terbanyak.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'no_live_matches',
+    },
+    generate: (data, lang) => {
+      if (!Array.isArray(data.most_gameweek_champions) || data.most_gameweek_champions.length === 0) {
+        return null;
+      }
+
+      const topLeader = data.most_gameweek_champions[0];
+      if (!topLeader || topLeader.win_count <= 0) return null;
+
+      const isId = lang === 'id';
+      return {
+        tag: '👑 REKOR GW',
+        text: isId
+          ? `Dominasi Liga: Tim ${topLeader.entry_name} Pimpin Rekor FNB League Dengan Koleksi ${topLeader.win_count} Gelar Juara Gameweek`
+          : `Dominant Campaign: ${topLeader.entry_name} Leads FNB League with ${topLeader.win_count} Gameweek Champion Titles`,
+      };
+    },
+  },
+
+  // 18. Lonjakan Posisi Terbesar
+  {
+    id: 'top_climber',
+    title: 'Lonjakan Peringkat',
+    category: 'performance',
+    enabled: true,
+    order: 18,
+    description: 'Manajer yang naik peringkat terbanyak.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const gwStandings = data.standings?.[currentGW] || [];
+      const climbers = gwStandings
+        .filter(s => typeof s.rank_change === 'number' && s.rank_change > 0)
+        .sort((a, b) => b.rank_change - a.rank_change);
+
+      if (climbers.length === 0 || climbers[0].rank_change <= 0) return null;
+
+      const topClimber = climbers[0];
+      const isId = lang === 'id';
+
+      return {
+        tag: '🚀 MOVER',
+        text: isId
+          ? `Lonjakan Posisi: Tim ${topClimber.entry_name} Melesat +${topClimber.rank_change} Peringkat ke Posisi #${topClimber.rank} (${topClimber.event_points} Poin GW Ini)`
+          : `Significant Ascent: ${topClimber.entry_name} Surges +${topClimber.rank_change} Positions to Rank #${topClimber.rank} (${topClimber.event_points} pts this GW)`,
+      };
+    },
+  },
+
+  // 19. Pilihan Kapten Terpopuler
+  {
+    id: 'captaincy_battle',
+    title: 'Pilihan Kapten',
+    category: 'trends',
+    enabled: true,
+    order: 19,
+    description: 'Pemain yang paling banyak dijadikan kapten.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const gwCaptains = data.captain_players?.[currentGW] || [];
+      if (gwCaptains.length === 0 || !gwCaptains[0]) return null;
+
+      const cap1 = gwCaptains[0];
+      const cap2 = gwCaptains[1];
+      const isId = lang === 'id';
+
+      let cap2Snippet = '';
+      if (cap2) {
+        cap2Snippet = isId
+          ? `, Disusul ${cap2.web_name} (${cap2.captain_count} Tim, ${cap2.captain_percentage.toFixed(0)}%)`
+          : `, Followed by ${cap2.web_name} (${cap2.captain_count} Teams, ${cap2.captain_percentage.toFixed(0)}%)`;
+      }
+
+      return {
+        tag: '👑 KAPTEN',
+        text: isId
+          ? `Pilihan Utama: ${cap1.web_name} Puncaki Pilihan Ban Kapten (${cap1.captain_count} Tim)${cap2Snippet}`
+          : `Consensus Pick: ${cap1.web_name} Leads Armband Selection (${cap1.captain_count} Teams)${cap2Snippet}`,
+      };
+    },
+  },
+
+  // 20. Pemain Kepemilikan Tertinggi
+  {
+    id: 'highest_ownership',
+    title: 'Pemain Template',
+    category: 'trends',
+    enabled: true,
+    order: 20,
+    description: 'Pemain dengan % kepemilikan terbanyak di liga.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'no_live_matches',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const gwOwnership = data.ownership_players?.[currentGW] || [];
+      if (gwOwnership.length === 0 || !gwOwnership[0]) return null;
+
+      const topOwned = gwOwnership[0];
+      const isId = lang === 'id';
+      return {
+        tag: '💎 OWNERSHIP',
+        text: isId
+          ? `Pemain Paling Laris: ${topOwned.web_name} (${topOwned.team_short_name}) Dipercaya oleh ${topOwned.owned_percentage.toFixed(0)}% Manajer FNB League (${topOwned.owned_count} Skuad)`
+          : `High-Demand Asset: ${topOwned.web_name} (${topOwned.team_short_name}) Featured in ${topOwned.owned_percentage.toFixed(0)}% of FNB League Rosters (${topOwned.owned_count} Skuads)`,
+      };
+    },
+  },
+
+  // 21. Tren Bursa Transfer
+  {
+    id: 'transfer_trends',
+    title: 'Bursa Transfer',
+    category: 'transfers',
+    enabled: true,
+    order: 21,
+    description: 'Tren pemain yang dibeli & dijual.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'no_live_matches',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const transfersInList = data.transfers_in?.[String(currentGW)] || data.transfers_in?.['all'] || [];
+      const transfersOutList = data.transfers_out?.[String(currentGW)] || data.transfers_out?.['all'] || [];
+
+      if (transfersInList.length === 0 && transfersOutList.length === 0) return null;
+
+      const isId = lang === 'id';
+      const topIn = transfersInList[0];
+      const topOut = transfersOutList[0];
+
+      let inPart = '';
+      let outPart = '';
+      if (topIn) {
+        inPart = isId
+          ? `Target Utama ${topIn.web_name} (+${topIn.transfer_count})`
+          : `Top Target ${topIn.web_name} (+${topIn.transfer_count})`;
+      }
+      if (topOut) {
+        outPart = isId
+          ? `Paling Banyak Dilepas ${topOut.web_name} (-${topOut.transfer_count})`
+          : `Most Sold ${topOut.web_name} (-${topOut.transfer_count})`;
+      }
+
+      const combined = [inPart, outPart].filter(Boolean).join(' • ');
+      if (!combined) return null;
+
+      return {
+        tag: '🔄 TRANSFERS',
+        text: isId ? `Pergerakan Bursa: ${combined}` : `Market Movements: ${combined}`,
+      };
+    },
+  },
+
+  // 22. Penggunaan Chip Aktif
+  {
+    id: 'chips_in_play',
+    title: 'Chip Aktif',
+    category: 'chips',
+    enabled: true,
+    order: 22,
+    description: 'Chip yang sedang aktif di Gameweek.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const gwStandings = data.standings?.[currentGW] || [];
+      const activeChipUsers = gwStandings
+        .filter(s => s.active_chip)
+        .map(s => `${s.entry_name}: ${s.active_chip?.toUpperCase()}`);
+
+      if (activeChipUsers.length === 0) return null;
+
+      const isId = lang === 'id';
+      const sampleUsers = activeChipUsers.slice(0, 3).join(' • ');
+      const remainingCount = activeChipUsers.length - 3;
+      const suffix = remainingCount > 0 ? (isId ? ` dkk. (Total ${activeChipUsers.length} Tim)` : ` and others (Total ${activeChipUsers.length} Teams)`) : '';
+
+      return {
+        tag: '🃏 CHIPS',
+        text: isId
+          ? `Chip Aktif GW ${currentGW}: Tim ${sampleUsers}${suffix}`
+          : `Tactical Chips In Play (GW ${currentGW}): ${sampleUsers}${suffix}`,
+      };
+    },
+  },
+
+  // 23. Penalti Hit Transfer
+  {
+    id: 'transfer_hits',
+    title: 'Hits Transfer',
+    category: 'transfers',
+    enabled: true,
+    order: 23,
+    description: 'Manajer yang mengambil minus/hit transfer.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const gwStandings = data.standings?.[currentGW] || [];
+      const hitTakers = gwStandings
+        .filter(s => typeof s.event_transfers_cost === 'number' && s.event_transfers_cost > 0)
+        .sort((a, b) => b.event_transfers_cost - a.event_transfers_cost);
+
+      if (hitTakers.length === 0) return null;
+
+      const topHit = hitTakers[0];
+      const otherHits = hitTakers.slice(1, 3).map(h => `${h.entry_name} (-${h.event_transfers_cost})`).join(', ');
+      const otherPart = otherHits ? (lang === 'id' ? `, Disusul ${otherHits}` : `, Followed by ${otherHits}`) : '';
+      const totalHitTakers = hitTakers.length;
+      const isId = lang === 'id';
+
+      return {
+        tag: '💀 HITS',
+        text: isId
+          ? `Agresivitas Transfer: Tim ${topHit.entry_name} Terkena Penalti -${topHit.event_transfers_cost} Poin${otherPart} • Total ${totalHitTakers} Manajer Ambil Minus Poin GW Ini`
+          : `Market Aggression: ${topHit.entry_name} Incurs -${topHit.event_transfers_cost} Point Hit${otherPart} • ${totalHitTakers} Managers Taking Deductions This GW`,
+      };
+    },
+  },
+
+  // 24. Pemain Skor Tertinggi GW
+  {
+    id: 'gw_top_performer',
+    title: 'MVP Gameweek',
+    category: 'performance',
+    enabled: true,
+    order: 24,
+    description: 'Pemain dengan skor FPL tertinggi di GW ini.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'any',
+    },
+    generate: (data, lang) => {
+      const currentGW = data.current_gw || 1;
+      const gwOwnership = data.ownership_players?.[currentGW] || [];
+      if (gwOwnership.length === 0) return null;
+
+      const topScorer = [...gwOwnership].sort((a, b) => (b.gw_points || 0) - (a.gw_points || 0))[0];
+      if (!topScorer || typeof topScorer.gw_points !== 'number' || topScorer.gw_points <= 0) {
+        return null;
+      }
+
+      const isId = lang === 'id';
+      return {
+        tag: '🔥 MVP GW',
+        text: isId
+          ? `Performa Puncak: ${topScorer.web_name} (${topScorer.team_short_name}) Puncaki Perolehan Poin Gameweek Dengan Torehan ${topScorer.gw_points} Poin`
+          : `Peak Performance: ${topScorer.web_name} (${topScorer.team_short_name}) Tops Gameweek Scoring Charts with ${topScorer.gw_points} Points`,
+      };
+    },
+  },
+
+  // 25. Batas Waktu Gameweek
+  {
+    id: 'next_deadline',
+    title: 'Deadline GW',
+    category: 'deadline',
+    enabled: true,
+    order: 25,
+    description: 'Hitung mundur batas waktu transfer & tim.',
+    conditions: {
+      gwStatuses: ['Live', 'Provisional', 'Confirmed'],
+      matchCondition: 'no_live_matches',
+    },
+    generate: (data, lang) => {
+      if (!data.sync_status?.next_deadline_time) return null;
+
+      try {
+        const deadlineDate = new Date(data.sync_status.next_deadline_time);
+        if (isNaN(deadlineDate.getTime())) return null;
+
+        const currentGW = data.current_gw || 1;
+        const isId = lang === 'id';
+        const locale = isId ? 'id-ID' : 'en-GB';
+
+        const formattedDate = deadlineDate.toLocaleDateString(locale, {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+          timeZone: 'Asia/Jakarta',
+        });
+
+        const formattedTime = deadlineDate.toLocaleTimeString(locale, {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Asia/Jakarta',
+          hour12: false,
+        });
+
+        const nextGw = currentGW < 38 ? currentGW + 1 : 38;
+        return {
+          tag: '⏳ DEADLINE',
+          text: isId
+            ? `Batas Waktu: Penguncian Tim GW ${nextGw} Dijadwalkan ${formattedDate} Pukul ${formattedTime} WIB • Segera Kunci Transfer & Kapten`
+            : `Countdown: Gameweek ${nextGw} Cutoff Scheduled for ${formattedDate} at ${formattedTime} WIB • Lock In Transfers & Captaincy`,
+        };
+      } catch {
+        return null;
+      }
+    },
+  },
+];
+
+// ============================================================================
+// 4. GENERATOR UTAMA
+// ============================================================================
+export function generateNewsFromCatalog(
+  data?: TransformedLeagueData | null,
+  lang: Language = 'fnb',
+  matches?: MatchCardItem[] | null
+): NewsItem[] {
+  const fallbackList = FALLBACK_NEWS_CATALOG[lang] || FALLBACK_NEWS_CATALOG.fnb;
+  if (!data) return fallbackList;
+
+  const currentGwStatus: GwStatusType =
+    data.gw_status?.status || (data.sync_status?.is_matchday_live ? 'Live' : 'Confirmed');
+
+  const hasLiveMatches =
+    (matches || []).some(m => m.started && !m.finished && !m.finished_provisional) ||
+    Boolean(
+      data.sync_status?.gw_fixtures?.some(
+        f => f.event === data.current_gw && f.started && !f.finished && !(f as any).finished_provisional
+      )
+    );
+
+  const results: { order: number; item: NewsItem }[] = [];
+
+  DYNAMIC_NEWS_CATALOG
+    .filter(rule => rule.enabled)
+    .forEach(rule => {
+      if (rule.conditions?.gwStatuses && !rule.conditions.gwStatuses.includes(currentGwStatus)) {
+        return;
+      }
+
+      if (rule.conditions?.matchCondition === 'has_live_matches' && !hasLiveMatches) {
+        return;
+      }
+      if (rule.conditions?.matchCondition === 'no_live_matches' && hasLiveMatches) {
+        return;
+      }
+
+      try {
+        const generated = rule.generate(data, lang, matches);
+        if (generated) {
+          if (Array.isArray(generated)) {
+            generated.forEach((item, subIdx) => {
+              if (item && item.tag && item.text) {
+                results.push({ order: rule.order + subIdx * 0.01, item });
+              }
+            });
+          } else if (generated.tag && generated.text) {
+            results.push({ order: rule.order, item: generated });
+          }
+        }
+      } catch (err) {
+        console.warn(`[NewsTickerCatalog] Error generating dynamic rule "${rule.id}":`, err);
+      }
+    });
+
+  if (!hasLiveMatches) {
+    CUSTOM_ANNOUNCEMENTS
+      .filter(announcement => announcement.enabled)
+      .forEach(announcement => {
+        const tag = announcement.tags[lang] || announcement.tags.fnb || announcement.tags.en;
+        const text = announcement.texts[lang] || announcement.texts.fnb || announcement.texts.en;
+        if (tag && text) {
+          results.push({
+            order: announcement.order,
+            item: { tag, text },
+          });
+        }
+      });
+  }
+
+  results.sort((a, b) => a.order - b.order);
+
+  const finalItems = results.map(r => r.item);
+  return finalItems.length > 0 ? finalItems : fallbackList;
+}

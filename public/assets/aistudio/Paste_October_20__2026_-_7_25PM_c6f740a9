@@ -1,0 +1,806 @@
+1. Header & Menu Navigasi Utama (Header.tsx)																									
+Elemen / Lokasi	Tampilan Saat Ini di Aplikasi	Bahasa Inggris (English)	Bahasa Indonesia																						
+Brand Title	FPL Nusantara BERHADIAH	FPL Nusantara BERHADIAH	FPL Nusantara BERHADIAH																						
+Brand Subtitle	2026/2027	2026/2027	2026/2027																						
+Tombol Settings	(Icon Settings)	(Icon Settings)	(Icon Settings)																						
+Tab 1	STANDINGS	STANDINGS	KLASEMEN																						
+Tab 2	MATCHES	MATCHES	PERTANDINGAN																						
+Tab 3	OWNERSHIP	OWNERSHIP	KEPEMILIKAN																						
+Tab 4	TRANSFER	TRANSFER	TRANSFER																						
+Tab 5	CAPTAIN	CAPTAIN	KAPTEN																						
+Tab 6	CHIPS	CHIPS	CHIPS																						
+																									
+2. Tab STANDINGS (TabStandings.tsx & StandingsChart.tsx)																									
+A. Baris Sub-Tab Standings																									
+Sub-Tab	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Sub-Tab 1	Status	Status	Status																						
+Sub-Tab 2	League Table / Live League Table	League Table / Live League Table	Klasemen Liga / Klasemen Liga Live																						
+Sub-Tab 3	GW Champions	GW Champions	Juara Gameweek																						
+Sub-Tab 4	Most GW Champions	Most GW Champions	Juara Terbanyak																						
+Sub-Tab 5	Chart	Chart	Grafik																						
+Sub-Tab 6	Liga Minus	Minus League	Liga Minus																						
+																									
+B. Konten Sub-Tab: Status																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Judul Batas Waktu	Gameweek {N} Deadline	Gameweek {N} Deadline	Batas Waktu Gameweek {N}																						
+Countdown Hari	Days	Days	Hari																						
+Countdown Jam	Hours	Hours	Jam																						
+Countdown Menit	Minutes	Minutes	Menit																						
+Countdown Detik	Seconds	Seconds	Detik																						
+Label Status GW	Gameweek {N} Status	Gameweek {N} Status	Status Gameweek {N}																						
+Badge Not Started	Not Started	Not Started	Belum Dimulai																						
+Badge Live	Live	Live	Live																						
+Badge Provisional	Provisional	Provisional	Sementara																						
+Badge Confirmed	Confirmed	Confirmed	Terkonfirmasi																						
+Highlight Rank 1	Peringkat 1	1st Place	Peringkat 1																						
+Highlight Rank 2	Peringkat 2	2nd Place	Peringkat 2																						
+Highlight Juara Banyak	Juara Terbanyak	Most GW Champions	Juara Terbanyak																						
+Highlight Juara GW	Juara Gameweek {N}	Gameweek {N} Champion	Juara Gameweek {N}																						
+Data Kosong	Belum ada data	No data available	Belum ada data																						
+Panel Poin: Highest	Highest	Highest	Tertinggi																						
+Panel Poin: Average	Average	Average	Rata-Rata																						
+Panel Poin: Lowest	Lowest	Lowest	Terendah																						
+																									
+C. Konten Sub-Tab: League Table & Live Table																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Search Input	Search team or manager...	Search team or manager...	Cari tim atau manajer...																						
+Header Kolom #	#	#	#																						
+Header Kolom Tim	Team & Manager	Team & Manager	Tim & Manajer																						
+Header Kolom Total	Total Pts	Total Pts	Total Poin																						
+Header Kolom GW	GW Pts	GW Pts	Poin GW																						
+Header Kolom Hits	Hits	Hits	Hits																						
+Header Kolom Chip	Chip	Chip	Chip																						
+Header Kolom Kapten	Captain & Vice	Captain & Vice	Kapten & Wakil																						
+																									
+D. Konten Sub-Tab: GW Champions																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Header Kolom GW	GW	GW	GW																						
+Header Kolom Tim	Team & Manager	Team & Manager	Tim & Manajer																						
+Header Kolom Rank	Rank	Rank	Peringkat																						
+Header Kolom Pts	Pts	Pts	Poin																						
+Tooltip Sort GW	Sort berdasarkan Gameweek	Sort by Gameweek	Urutkan berdasarkan Gameweek																						
+Tooltip Sort Poin	Sort berdasarkan GW Poin	Sort by GW Points	Urutkan berdasarkan Poin GW																						
+																									
+E. Konten Sub-Tab: Most GW Champions																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Header Kolom #	#	#	#																						
+Header Kolom Tim	Team & Manager	Team & Manager	Tim & Manajer																						
+Header Kolom Wins	Wins	Wins	Juara																						
+Header Kolom GW	GW	GW	GW																						
+Tooltip Buka Tim	Buka tim di GW {gw}	Open Team in GW {gw}	Buka Tim di GW {gw}																						
+																									
+F. Konten Sub-Tab: Chart																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Tab Metrik 1	Last Rank	Last Rank	Peringkat Akhir																						
+Tab Metrik 2	GW Rank	GW Rank	Peringkat GW																						
+Tab Metrik 3	Total Pts	Total Pts	Total Poin																						
+Tab Metrik 4	GW Pts	GW Pts	Poin GW																						
+Dropdown Rank	Filter by Rank	Filter by Rank	Filter berdasarkan Peringkat																						
+Tombol Manual	Select Individual Teams	Select Individual Teams	Pilih Tim Tertentu																						
+Aksi Cepat	All • Clear	All • Clear	Semua • Kosongkan																						
+Input Cari	Search team...	Search Team...	Cari Tim...																						
+Keterangan Tim	{N} teams shown	{N} teams shown	{N} tim ditampilkan																						
+Tombol Done	Done	Done	Selesai																						
+Tombol Reset	Reset	Reset	Reset																						
+Toggle Kontrol	Chips • Hits • Captains	Chips • Hits • Captains	Chips • Hits • Kapten																						
+																									
+G. Konten Sub-Tab: Liga Minus																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Empty State 1	No managers have taken transfer hits so far this season!	No managers have taken transfer hits so far this season.	Belum ada manajer yang mengambil penalti transfer musim ini.																						
+Empty State 2	Check back after the next gameweek deadline.	Check back after the next gameweek deadline.	Periksa kembali setelah batas waktu Gameweek berikutnya.																						
+Header Kolom Tim	Team & Manager	Team & Manager	Tim & Manajer																						
+Header Kolom Hits	Hits	Hits	Hits																						
+Header Kolom Rank	Rank	Rank	Peringkat																						
+																									
+3. Tab MATCHES (TabMatches.tsx)																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Rentang Tanggal GW	Format: Sab, 17 Agu - Min, 18 Agu	Saturday, 17 Aug - Sunday, 18 Aug	Sabtu, 17 Agu - Minggu, 18 Agu																						
+Toggle Pertandingan	Buka semua pertandingan / Tutup semua pertandingan	Expand all / Collapse all	Buka semua / Tutup semua																						
+Kickoff Laga	Format: Sabtu, 17 Agu 2024 • 18:30 WIB	Saturday, 17 Aug 2024 • 18:30 WIB	Sabtu, 17 Agu 2024 • 18:30 WIB																						
+Status Menit Laga	Upcoming / Half Time / Full Time	Upcoming / Half Time / Full Time	Belum Dimulai / Paruh Waktu / Selesai																						
+Dropdown Metrik	Total Points, Minutes Played, Goals Scored, Assists, Clean Sheets, dll.	(30 Pilihan Metrik Statistik FPL tetap, tanpa perubahan sedikitpun)	(Terjemahan 30 Metrik Statistik FPL)																						
+																									
+4. Tab OWNERSHIP (TabOwnership.tsx)																									
+A. Baris Sub-Tab Ownership																									
+Sub-Tab	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Sub-Tab 1	Most Owned Player	Most Owned Player	Terbanyak Dimiliki																						
+Sub-Tab 2	Most Owned by Club	Most Owned by Club	Terbanyak per Klub																						
+Sub-Tab 3	Fans Club	Fans Club	Fans Club																						
+Sub-Tab 4	Template Squad	Template Squad	Tim Template																						
+																									
+B. Kontrol & Tabel																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Filter Klub	All Clubs	All Clubs	Semua Klub																						
+Filter Posisi	All Pos	All Pos	Semua Posisi																						
+Filter Fans Club	Season / GW {N}	Season / GW {N}	Musim / GW {N}																						
+Squad Cost	Squad Cost: £{N}m	Squad Cost: £{N}m	Nilai Skuad: £{N}m																						
+Header Kolom #	#	#	#																						
+Header Kolom Player	Player	Player	Pemain																						
+Header Kolom Club	Club	Club	Klub																						
+Header Kolom Pos	Pos	Pos	Posisi																						
+Header Kolom Cost	Cost	Cost	Harga																						
+Header Kolom GW Pts	GW Pts	GW Pts	Poin GW																						
+Header Kolom Total	Total Pts	Total Pts	Total Poin																						
+Header Kolom Persen	Ownership	Ownership	Kepemilikan																						
+Empty State Player	No players match the selected Club / Pos filters.	No players match the selected criteria.	Tidak ada pemain yang cocok dengan kriteria yang dipilih.																						
+Total Pemain Klub	Total Players Owned:	Total Players Owned:	Total Pemain Dimiliki:																						
+Card Fans Club	{Club} Fans Club	{Club} Fans Club	Fans Club {Klub}																						
+Sub Fans Club	{N} Managers with 3+ players	{N} Managers with 3+ players	{N} Manajer dengan 3+ pemain																						
+Badge Jumlah Pemain	{N} Players	{N} Players	{N} Pemain																						
+Empty Fans Club	No managers found for this Fans Club criteria.	No managers found for this Fans Club criteria.	Tidak ada manajer yang memenuhi kriteria Fans Club ini.																						
+																									
+5. Tab TRANSFER (TabTransfer.tsx)																									
+A. Baris Sub-Tab Transfer																									
+Sub-Tab	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Sub-Tab 1	All Transfers	All Transfers	Semua Transfer																						
+Sub-Tab 2	Most Transferred In	Most Transferred In	Terbanyak Dibeli																						
+Sub-Tab 3	Most Transferred Out	Most Transferred Out	Terbanyak Dijual																						
+																									
+B. Kontrol & Tabel																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Filter Tim	All Teams	All Teams	Semua Tim																						
+Filter Klub	All Clubs	All Clubs	Semua Klub																						
+Filter Posisi	All Pos	All Pos	Semua Posisi																						
+Input Search	Search player or team...	Search player or team...	Cari pemain atau tim...																						
+Header Tim	Team & Manager	Team & Manager	Tim & Manajer																						
+Header Player In	Player In	Player In	Pemain Masuk																						
+Header Player Out	Player Out	Player Out	Pemain Keluar																						
+Header GW	GW	GW	GW																						
+Header Waktu	Time (WIB)	Time (WIB)	Waktu (WIB)																						
+Header Transfers	Transfers	Transfers	Transfer																						
+Empty State	No transfers found matching your filters.	No transfers found matching your filters.	Tidak ada riwayat transfer yang sesuai dengan filter.																						
+																									
+6. Tab CAPTAIN (TabCaptain.tsx)																									
+A. Baris Sub-Tab Captain																									
+Sub-Tab	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Sub-Tab 1	Most Captained Player	Most Captained Player	Terbanyak Dikaptenkan																						
+Sub-Tab 2	Most Captained by Club	Most Captained by Club	Terbanyak per Klub																						
+																									
+B. Kontrol & Tabel																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Header Kolom #	#	#	#																						
+Header Kolom Player	Player	Player	Pemain																						
+Header Kolom Club	Club	Club	Klub																						
+Header Kolom Pos	Pos	Pos	Posisi																						
+Header Kolom Cost	Cost	Cost	Harga																						
+Header Kolom GW Pts	GW Pts	GW Pts	Poin GW																						
+Header Kolom Total	Total Pts	Total Pts	Total Poin																						
+Header Kolom Kapten	(C)	(C)	(C)																						
+Header Kolom Wakil	(VC)	(VC)	(VC)																						
+Card Ban Kapten Klub	Captain Armbands:	Captain Armbands:	Dikaptenkan:																						
+																									
+7. Tab CHIPS (TabChips.tsx)																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Input Search	Search manager or team...	Search manager or team...	Cari manajer atau tim...																						
+Header Tim	Team & Manager	Team & Manager	Tim & Manajer																						
+Header Wildcard 1	WC1	WC1	WC1																						
+Header Triple Cap 1	TC1	TC1	TC1																						
+Header Bench Boost 1	BB1	BB1	BB1																						
+Header Free Hit 1	FH1	FH1	FH1																						
+Header Wildcard 2	WC2	WC2	WC2																						
+Header Triple Cap 2	TC2	TC2	TC2																						
+Header Bench Boost 2	BB2	BB2	BB2																						
+Header Free Hit 2	FH2	FH2	FH2																						
+Tooltip Sel Chip	Buka tim GW {gw}	Open Team in GW {gw}	Buka Tim di GW {gw}																						
+Tooltip Nama Tim	Buka tim {entry_name} (GW {gw})	Open Team {entry_name} (GW {gw})	Buka Tim {entry_name} (GW {gw})																						
+																									
+8. MODAL: Settings (SettingsModal.tsx)																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Judul Modal	Settings	Settings	Pengaturan																						
+Sub-judul Modal	Pengaturan Aplikasi & Preferensi	App Settings & Preferences	Pengaturan Aplikasi & Preferensi																						
+Tooltip Tombol X	Tutup Pengaturan	Close	Tutup																						
+Label Profile	Profile	Profile	Profil																						
+Badge Jumlah Tim	FNB League ({N} Tim)	[Dihapus]	[Dihapus]																						
+Deskripsi Profile	Pilih nama tim dan manajer FNB League Anda. Profil ini akan ditandai secara khusus saat melihat klasemen & transfer.	[Dihapus]	[Dihapus]																						
+Placeholder Dropdown	Pilih Tim & Manajer FNB League...	Select Team & Manager...	Pilih Tim & Manajer...																						
+Info Profil Aktif	Profil aktif: {tim} ({manajer})	Active profile: {team} ({manager})	Profil aktif: {tim} ({manajer})																						
+Heading Bagian 2	Display & Live View	Display	Tampilan																						
+Judul Keep Awake	Keep Screen Awake	Keep Screen Awake	Layar Tetap Menyala																						
+Deskripsi Keep Awake	Mencegah layar HP/laptop redup atau terkunci saat matchday live	Prevent screen from dimming or locking during live matchday	Mencegah layar HP/laptop redup atau terkunci saat matchday live																						
+Info Kuncian Aktif	Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.	Screen lock active — Display will stay awake while this tab is open.	Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.																						
+Peringatan Browser	Browser ini belum mendukung Screen Wake Lock API.	This browser does not support Screen Wake Lock API.	Browser ini belum mendukung Screen Wake Lock API.																						
+Judul News Ticker	News Ticker	News Ticker	Berita																						
+Deskripsi Ticker	Tampilkan baris running text berita atau pemberitahuan penting liga	Display running news ticker and important league updates	Tampilkan baris running text berita atau pemberitahuan penting liga																						
+Badge Status Toggle	ON / OFF	ON / OFF	ON / OFF																						
+Heading Bagian 3	Language	Language	Bahasa																						
+Deskripsi Language	Pilih bahasa pengantar antarmuka sistem	Select the display language for the app.	Pilih bahasa yang digunakan untuk tampilan aplikasi.																						
+Opsi Indonesia	Indonesia (Bahasa Indonesia)	Indonesian (Bahasa Indonesia)	Indonesia (Bahasa Indonesia)																						
+Opsi English	English (English (UK))	English (English UK)	Inggris (English UK)																						
+Heading Bagian 4	Administration	Administration	Administrasi																						
+Judul Admin Area	Admin Area	Admin Area	Area Admin																						
+Badge Restricted	Restricted	Restricted	Terbatas																						
+Deskripsi Admin	Akses kontrol sinkronisasi, data liga, dan pengelolaan sistem	[Dihapus]	[Dihapus]																						
+Notifikasi Klik	Admin Area akan segera hadir pada tahap pengembangan berikutnya.	[Dihapus]	[Dihapus]																						
+Footer Modal Settings	FPL Nusantara 2026/2027	FPL Nusantara BERHADIAH 2026/2027	FPL Nusantara BERHADIAH 2026/2027																						
+Tombol Tutup Bawah	Tutup	Close	Tutup																						
+																									
+																									
+9. MODAL: Detail Manajer (ManagerDetailModal.tsx)																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Tab Modal 1	Gameweek Squad	Gameweek Squad	Susunan Skuad GW																						
+Tab Modal 2	Season History	Season History	Riwayat Musim																						
+Tooltip Tutup X	Tutup Modal	Close	Tutup																						
+Box Poin GW	Points	Points	Poin																						
+Box Hits	Hits	Hits	Hits																						
+Box Total Poin	Total Points	Total Points	Total Poin																						
+Seksi Cadangan	BENCH	BENCH	CADANGAN																						
+Tooltip Interaksi	Klik kotak nama / angka poin untuk melihat breakdown poin pemain	Click player name or points box to view points breakdown	Klik kotak nama / angka poin untuk melihat breakdown poin pemain																						
+Seksi Transfer	Transfers in Gameweek {N}	Gameweek {N} Transfers	Transfer pada Gameweek {N}																						
+Waktu Transfer	Waktu: {jam}	Time: {time}	Waktu: {jam}																						
+Transfer Kosong	No Transfer.	No Transfer.	Tidak Ada Transfer.																						
+Header Riwayat 1	Season	Season	Musim																						
+Header Riwayat 2	Overall Rank	Overall Rank	Peringkat Dunia																						
+Header Riwayat 3	Total Points	Total Points	Total Poin																						
+																									
+10. MODAL: Detail Pemain (PlayerDetailModal.tsx)																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Tab Modal 1	GW Overview	GW Overview	Ringkasan GW																						
+Tab Modal 2	Owners ({N})	Owners ({N})	Pemilik ({N})																						
+Tab Modal 3	History	History	Riwayat																						
+Tooltip Close	Close Modal	Close	Tutup																						
+Match Report Box	Result • Points	Result • Points	Hasil • Poin																						
+Status Menit Laga	Half Time / Full Time	Half Time / Full Time	Paruh Waktu / Selesai																						
+Empty Poin GW	Did not play in this Gameweek (0 pts).	Did not play in this Gameweek (0 pts).	Tidak bermain pada Gameweek ini (0 poin).																						
+Tabel Owners: Search	Search team or manager...	Search team or manager...	Cari tim atau manajer...																						
+Header Kolom Owners	Team & Manager • Squad Status • Captain	Team & Manager • Squad Status • Captain	Tim & Manajer • Status Skuad • Kapten																						
+Header Riwayat Musim	GW, Opponent, Result, Pts, ST, MP, GS, A, CS	GW, Opponent, Result, Pts, ST, MP, GS, A, CS	GW, Lawan, Hasil, Poin, Starter, Menit, Gol, Assist, CS																						
+																									
+11. Footer Aplikasi (App.tsx)																									
+Elemen	Tampilan Saat Ini	Bahasa Inggris (English)	Bahasa Indonesia																						
+Nama Liga	FPL Nusantara BERHADIAH 2026/2027	FPL Nusantara BERHADIAH 2026/2027	FPL Nusantara BERHADIAH 2026/2027																						
+ID Liga	Mini League ID: 12356	Mini League ID: 12356	ID Mini League: 12356																						
+Integrasi Data	Official Premier League FPL Data Integration	Official Premier League Data Integration	Integrasi Data Resmi Premier League																						
+Link FPL	FPL Official	FPL Official	Situs Resmi FPL																						
+Waktu Pembaruan	Last Updated: {Tanggal, Jam} WIB	Last Updated: {Date, Time} WIB	Terakhir Diperbarui: {Tanggal, Jam} WIB																						
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
+																									
