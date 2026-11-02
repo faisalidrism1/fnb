@@ -6,6 +6,7 @@ import {
   OwnershipSubTab,
   TransferSubTab,
   CaptainSubTab,
+  AdminSubTab,
   GwEventStatus,
   SyncStatus,
   TransformedLeagueData,
@@ -38,8 +39,11 @@ interface HeaderProps {
   onSelectTransferSubTab?: (sub: TransferSubTab) => void;
   captainSubTab?: CaptainSubTab;
   onSelectCaptainSubTab?: (sub: CaptainSubTab) => void;
+  adminSubTab?: AdminSubTab;
+  onSelectAdminSubTab?: (sub: AdminSubTab) => void;
   onOpenSettings?: () => void;
   leagueData?: TransformedLeagueData | null;
+  isAdminUnlocked?: boolean;
 }
 
 const TABS: { id: MainTab; label: string }[] = [
@@ -49,6 +53,7 @@ const TABS: { id: MainTab; label: string }[] = [
   { id: 'TRANSFER', label: 'TRANSFER' },
   { id: 'CAPTAIN', label: 'CAPTAIN' },
   { id: 'CHIPS', label: 'CHIPS' },
+  { id: 'ADMIN', label: 'ADMIN' },
 ];
 
 export const Header: React.FC<HeaderProps> = ({
@@ -67,8 +72,11 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectTransferSubTab,
   captainSubTab = 'most-captained-player',
   onSelectCaptainSubTab,
+  adminSubTab = 'news-ticker',
+  onSelectAdminSubTab,
   onOpenSettings,
   leagueData,
+  isAdminUnlocked = false,
 }) => {
   const { language, t } = useLanguage();
   const navRef = useRef<HTMLElement>(null);
@@ -115,6 +123,10 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'CAPTAIN', label: t('tab_captain') },
     { id: 'CHIPS', label: t('tab_chips') },
   ];
+
+  if (isAdminUnlocked) {
+    tabsList.push({ id: 'ADMIN', label: 'ADMIN' });
+  }
 
   // Determine subtabs based on active main tab
   interface SubTabItem {
@@ -228,6 +240,15 @@ export const Header: React.FC<HeaderProps> = ({
         label: t('subtab_most_captained_by_club'),
         onClick: () => onSelectCaptainSubTab?.('most-captained-club-players'),
         isActive: captainSubTab === 'most-captained-club-players',
+      },
+    ];
+  } else if (activeTab === 'ADMIN') {
+    subTabs = [
+      {
+        id: 'news-ticker',
+        label: 'News Ticker',
+        onClick: () => onSelectAdminSubTab?.('news-ticker'),
+        isActive: adminSubTab === 'news-ticker',
       },
     ];
   }

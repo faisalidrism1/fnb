@@ -26,6 +26,8 @@ interface SettingsModalProps {
   transfers?: TransferItem[];
   currentProfileEntryId?: number | null;
   onSelectProfile?: (entryId: number) => void;
+  isAdminUnlocked?: boolean;
+  onUnlockAdmin?: () => void;
 }
 
 export interface FnbTeamProfile {
@@ -41,6 +43,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   transfers = [],
   currentProfileEntryId,
   onSelectProfile,
+  isAdminUnlocked,
+  onUnlockAdmin,
 }) => {
   // Extract all unique teams and managers from FNB League data
   const fnbTeams = useMemo(() => {
@@ -116,8 +120,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   // Language state & translation hook
   const { language, setLanguage, t } = useLanguage();
 
-  // Admin Area notification state
+  // Admin Area notification & code verification state
   const [adminNotice, setAdminNotice] = useState<string | null>(null);
+  const [isAdminPopupOpen, setIsAdminPopupOpen] = useState<boolean>(false);
+  const [adminCodeInput, setAdminCodeInput] = useState<string>('');
+  const [adminAuthMessage, setAdminAuthMessage] = useState<string | null>(null);
+
+  const VALID_ADMIN_CODE = '0123';
+
+  const handleConfirmAdminCode = () => {
+    if (adminCodeInput.trim() === VALID_ADMIN_CODE) {
+      setAdminAuthMessage('Access Granted');
+      try {
+        localStorage.setItem('fnb_admin_unlocked', 'true');
+        window.dispatchEvent(new CustomEvent('fnb:admin-unlocked'));
+      } catch {}
+      if (onUnlockAdmin) {
+        onUnlockAdmin();
+      }
+      setTimeout(() => {
+        setIsAdminPopupOpen(false);
+        setAdminCodeInput('');
+        setAdminAuthMessage(null);
+      }, 1000);
+    } else {
+      setAdminAuthMessage('Access denied.');
+    }
+  };
 
   // Sync state if prop changes
   useEffect(() => {
@@ -621,10 +650,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => {
-                if (adminNoticeText) {
-                  setAdminNotice(adminNoticeText);
-                  setTimeout(() => setAdminNotice(null), 4000);
-                }
+                setIsAdminPopupOpen(true);
+                setAdminCodeInput('');
+                setAdminAuthMessage(null);
               }}
               className="w-full flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gradient-to-r from-[#37003c] via-[#48004f] to-[#1e0024] hover:from-[#490050] hover:via-[#5c0065] hover:to-[#2c0035] text-white border border-purple-500/40 hover:border-[#00ff87]/60 shadow-md hover:shadow-lg transition-all cursor-pointer group active:scale-[0.99]"
             >
@@ -675,6 +703,77 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Admin Code Popup */}
+      {isAdminPopupOpen && (
+        <div
+          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsAdminPopupOpen(false);
+              setAdminCodeInput('');
+              setAdminAuthMessage(null);
+            }
+          }}
+        >
+          <div
+            className="bg-white dark:bg-[#1a0b2e] border border-slate-200 dark:border-purple-800/80 rounded-2xl p-5 shadow-2xl max-w-xs w-full space-y-3.5 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleConfirmAdminCode();
+              }}
+              className="space-y-3"
+            >
+              <input
+                type="text"
+                value={adminCodeInput}
+                onChange={(e) => {
+                  setAdminCodeInput(e.target.value);
+                  if (adminAuthMessage) setAdminAuthMessage(null);
+                }}
+                placeholder="Admin Code"
+                autoFocus
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-purple-700 bg-slate-50 dark:bg-[#120524] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#37003c] dark:focus:ring-[#00ff87]"
+              />
+
+              {adminAuthMessage && (
+                <div
+                  className={`text-xs font-semibold text-center ${
+                    adminAuthMessage === 'Access Granted'
+                      ? 'text-emerald-600 dark:text-[#00ff87]'
+                      : 'text-rose-600 dark:text-rose-400'
+                  }`}
+                >
+                  {adminAuthMessage}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAdminPopupOpen(false);
+                    setAdminCodeInput('');
+                    setAdminAuthMessage(null);
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-purple-900/40 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#37003c] dark:bg-[#00ff87] text-white dark:text-[#37003c] hover:opacity-90 transition-opacity shadow-xs cursor-pointer"
+                >
+                  Confirm
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

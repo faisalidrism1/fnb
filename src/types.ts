@@ -538,7 +538,7 @@ export interface TransformedLeagueData {
   player_stats?: DbPlayerStat[];
 }
 
-export type MainTab = 'STANDINGS' | 'MATCHES' | 'OWNERSHIP' | 'TRANSFER' | 'CAPTAIN' | 'CHIPS';
+export type MainTab = 'STANDINGS' | 'MATCHES' | 'OWNERSHIP' | 'TRANSFER' | 'CAPTAIN' | 'CHIPS' | 'ADMIN';
 
 export type MatchStatMetric = 
   | 'pts'
@@ -677,6 +677,24 @@ export type StandingsSubTab = 'status' | 'live-table' | 'gw-champions' | 'most-g
 export type OwnershipSubTab = 'most-owned-players' | 'most-owned-clubs' | 'fans-club' | 'template-squad';
 export type TransferSubTab = 'all-transfers' | 'transferred-in' | 'transferred-out';
 export type CaptainSubTab = 'most-captained-player' | 'most-captained-club-players';
+export type AdminSubTab = 'news-ticker';
+
+export interface NewsTickerDbRow {
+  id: string;
+  timestamp_produksi: string;
+  sumber: 'AI' | 'Bukan';
+  status_tayang: 'Y' | 'N';
+  keterangan_tidak_tayang: string;
+  waktu_tayang: string[];
+  kategori: string;
+  sub_kategori: string;
+  drama_score: number;
+  text_berita: string;
+  text_berita_en: string;
+  gw: number;
+  teams: string[];
+  players: string[];
+}
 
 export interface GwSnapshot {
   gw: number;

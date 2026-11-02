@@ -35,6 +35,11 @@ import {
   clearNewsMemoryCache,
   initNewsTicker
 } from './src/server/geminiNewsService.ts';
+import {
+  queryNewsTickerTable,
+  rebuildNewsTickerTable,
+  getNewsTickerTable
+} from './src/server/newsTickerTableService.ts';
 
 const app = express();
 
@@ -1254,6 +1259,38 @@ app.get('/api/news-ticker/feed', async (req, res) => {
     const force = req.query.refresh === '1' || req.query.force === '1';
     const feed = await generateNewsTickerFeed(force);
     res.json(feed);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Endpoint Admin: News Ticker Database Table in Container
+app.get('/api/admin/news-ticker', (req, res) => {
+  try {
+    const forceRefresh = req.query.refresh === '1';
+    if (forceRefresh) {
+      rebuildNewsTickerTable();
+    }
+
+    const search = req.query.search ? String(req.query.search) : undefined;
+    const kategori = req.query.kategori ? String(req.query.kategori) : undefined;
+    const sumber = req.query.sumber ? String(req.query.sumber) : undefined;
+    const status_tayang = req.query.status_tayang ? String(req.query.status_tayang) : undefined;
+    const waktu_tayang = req.query.waktu_tayang ? String(req.query.waktu_tayang) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const offset = req.query.offset ? Number(req.query.offset) : undefined;
+
+    const result = queryNewsTickerTable({
+      search,
+      kategori,
+      sumber,
+      status_tayang,
+      waktu_tayang,
+      limit,
+      offset
+    });
+
+    res.json(result);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }

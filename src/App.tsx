@@ -7,6 +7,7 @@ import { TabOwnership } from './components/TabOwnership.tsx';
 import { TabTransfer } from './components/TabTransfer.tsx';
 import { TabCaptain } from './components/TabCaptain.tsx';
 import { TabChips } from './components/TabChips.tsx';
+import { TabAdmin } from './components/TabAdmin.tsx';
 import { ManagerDetailModal } from './components/ManagerDetailModal.tsx';
 import { PlayerDetailModal } from './components/PlayerDetailModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
@@ -24,6 +25,7 @@ import {
   OwnershipSubTab,
   TransferSubTab,
   CaptainSubTab,
+  AdminSubTab,
 } from './types.ts';
 import { getGameweekStatus } from './utils/gwStatus.ts';
 import { requestWakeLock, releaseWakeLock } from './utils/wakeLock.ts';
@@ -155,10 +157,28 @@ export default function App() {
   const [ownershipSubTab, setOwnershipSubTab] = useState<OwnershipSubTab>('most-owned-players');
   const [transferSubTab, setTransferSubTab] = useState<TransferSubTab>('all-transfers');
   const [captainSubTab, setCaptainSubTab] = useState<CaptainSubTab>('most-captained-player');
+  const [adminSubTab, setAdminSubTab] = useState<AdminSubTab>('news-ticker');
   const [selectedGW, setSelectedGW] = useState<number>(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [lastCheckedTime, setLastCheckedTime] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('fnb_admin_unlocked') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const handleAdminUnlocked = () => {
+      setIsAdminUnlocked(true);
+    };
+    window.addEventListener('fnb:admin-unlocked', handleAdminUnlocked);
+    return () => {
+      window.removeEventListener('fnb:admin-unlocked', handleAdminUnlocked);
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--app-font', "'Plus Jakarta Sans', sans-serif");
@@ -525,8 +545,11 @@ export default function App() {
         onSelectTransferSubTab={setTransferSubTab}
         captainSubTab={captainSubTab}
         onSelectCaptainSubTab={setCaptainSubTab}
+        adminSubTab={adminSubTab}
+        onSelectAdminSubTab={setAdminSubTab}
         onOpenSettings={() => setIsSettingsOpen(true)}
         leagueData={data}
+        isAdminUnlocked={isAdminUnlocked}
       />
 
       {/* Main Content Area - Preserves mounted tab instances and user filters */}
@@ -611,6 +634,13 @@ export default function App() {
               chips={data.all_chips_used}
               currentGW={data.current_gw}
               onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
+            />
+          </div>
+
+          <div className={activeTab === 'ADMIN' ? 'block' : 'hidden'}>
+            <TabAdmin
+              subTab={adminSubTab}
+              onSelectSubTab={setAdminSubTab}
             />
           </div>
         </ErrorBoundary>
@@ -706,6 +736,8 @@ export default function App() {
         onClose={() => setIsSettingsOpen(false)}
         standings={data?.standings}
         transfers={data?.all_transfers}
+        isAdminUnlocked={isAdminUnlocked}
+        onUnlockAdmin={() => setIsAdminUnlocked(true)}
       />
     </div>
   );

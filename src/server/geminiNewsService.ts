@@ -13,12 +13,53 @@ import crypto from 'crypto';
 import { FPL_OFFICIAL_RULES_TEXT } from './fplOfficialRules.ts';
 import { buildRawMatchdayPayload, RawMatchdayPayload } from './newsAggregator.ts';
 import { formatChipName } from './liveJournalismEngine.ts';
+import { rebuildNewsTickerTable, createCompleteStoryRecord, NewsTickerDbRow } from './newsTickerTableService.ts';
 
 export interface NewsTickerStory {
   id: string;
   headline_id: string;
   headline_en: string;
   drama_score: number;
+  timestamp_produksi?: string;
+  sumber?: 'AI' | 'Bukan';
+  status_tayang?: 'Y' | 'N';
+  keterangan_tidak_tayang?: string;
+  waktu_tayang?: string[];
+  kategori?: string;
+  sub_kategori?: string;
+  text_berita?: string;
+  text_berita_en?: string;
+  gw?: number;
+  teams?: string[];
+  players?: string[];
+}
+
+export function toNewsTickerStory(
+  raw: {
+    id: string;
+    headline_id?: string;
+    headline_en?: string;
+    text_berita?: string;
+    text_berita_en?: string;
+    headline?: string;
+    drama_score?: number;
+    timestamp_produksi?: string;
+    timestamp?: string;
+    sumber?: 'AI' | 'Bukan';
+    status_tayang?: 'Y' | 'N';
+    keterangan_tidak_tayang?: string;
+    gw?: number;
+    teams?: string[];
+    players?: string[];
+  },
+  defaultGw = 9
+): NewsTickerStory {
+  const row = createCompleteStoryRecord(raw, defaultGw);
+  return {
+    ...row,
+    headline_id: row.text_berita,
+    headline_en: row.text_berita_en,
+  };
 }
 
 export interface NewsTickerFeedResponse {
@@ -39,13 +80,13 @@ let memoryFeedCache: NewsTickerFeedResponse | null = null;
 let lastProcessedDataHash = '';
 let quotaCooldownUntil = 0;
 
-export interface PastNewsRecord {
+export interface PastNewsRecord extends Partial<NewsTickerDbRow> {
   id: string;
   gw: number;
   headline_id: string;
   headline_en: string;
-  teams: string[];
-  players: string[];
+  teams?: string[];
+  players?: string[];
   timestamp: string;
 }
 
@@ -106,15 +147,14 @@ export function loadNewsHistory(): PastNewsRecord[] {
 export function saveNewsHistory(newStories: NewsTickerStory[], gw: number): void {
   try {
     const existing = loadNewsHistory();
-    const newRecords: PastNewsRecord[] = newStories.map((s) => ({
-      id: s.id,
-      gw,
-      headline_id: s.headline_id,
-      headline_en: s.headline_en,
-      teams: extractTags(s.headline_id, 'T'),
-      players: extractTags(s.headline_id, 'P'),
-      timestamp: new Date().toISOString(),
-    }));
+    const newRecords: PastNewsRecord[] = newStories.map((s) => {
+      const full = toNewsTickerStory(s, gw);
+      return {
+        ...full,
+        gw: full.gw || gw,
+        timestamp: full.timestamp_produksi,
+      };
+    });
 
     // Merge and deduplicate by exact headline_id
     const combined = [...existing];
@@ -591,10 +631,15 @@ async function assembleAndCacheFeed(
   for (const s of fused) {
     if (!seenHeadlines.has(s.headline_id)) {
       seenHeadlines.add(s.headline_id);
+      const full = toNewsTickerStory({
+        ...s,
+        status_tayang: 'Y',
+        keterangan_tidak_tayang: '',
+      }, payload.gameweek);
       if (s.id.startsWith('live_score_')) {
-        freshScores.push(s);
+        freshScores.push(full);
       } else {
-        otherStories.push(s);
+        otherStories.push(full);
       }
     }
   }
@@ -605,12 +650,11 @@ async function assembleAndCacheFeed(
     const rec = historyRecords[i];
     if (!seenHeadlines.has(rec.headline_id)) {
       seenHeadlines.add(rec.headline_id);
-      otherStories.push({
-        id: rec.id,
-        headline_id: rec.headline_id,
-        headline_en: rec.headline_en,
-        drama_score: 80,
-      });
+      otherStories.push(toNewsTickerStory({
+        ...rec,
+        status_tayang: 'Y',
+        keterangan_tidak_tayang: '',
+      }, rec.gw || payload.gameweek));
     }
   }
 
@@ -634,6 +678,7 @@ async function assembleAndCacheFeed(
   try {
     fs.writeFileSync(FEED_CACHE_PATH, JSON.stringify(feedResponse, null, 2), 'utf-8');
     console.log(`[Gemini News Service] Successfully persisted news feed with ${fullRotatingPool.length} stories (1000 pool).`);
+    rebuildNewsTickerTable();
   } catch (e: any) {
     console.warn('[Gemini News Service] Disk cache write error:', e.message);
   }
@@ -995,21 +1040,27 @@ function parseStoriesFromRaw(rawText: string): any[] | null {
           playerNames.forEach((p) => playerCounts.set(p, (playerCounts.get(p) || 0) + 1));
           teamNames.forEach((t) => seenTeams.add(t));
 
-          filteredStories.push({
+          filteredStories.push(toNewsTickerStory({
             id: String(item.id || `story_${filteredStories.length + 1}`),
             headline_id: headlineId,
             headline_en: headlineEn,
             drama_score: Number(item.drama_score) || 80,
-          });
+            sumber: 'AI',
+            status_tayang: 'Y',
+          }, payload.gameweek));
         }
 
         // If filtering retained at least 6 diverse stories, use them; otherwise use parsed directly
-        const finalStories = filteredStories.length >= 6 ? filteredStories : parsed.map((item, idx) => ({
-          id: String(item.id || `story_${idx + 1}`),
-          headline_id: cleanHeadlineBody(String(item.headline_id || item.headline || '')),
-          headline_en: cleanHeadlineBody(String(item.headline_en || item.headline || item.headline_id || '')),
-          drama_score: Number(item.drama_score) || 80,
-        }));
+        const finalStories = filteredStories.length >= 6
+          ? filteredStories
+          : parsed.map((item, idx) => toNewsTickerStory({
+              id: String(item.id || `story_${idx + 1}`),
+              headline_id: cleanHeadlineBody(String(item.headline_id || item.headline || '')),
+              headline_en: cleanHeadlineBody(String(item.headline_en || item.headline || item.headline_id || '')),
+              drama_score: Number(item.drama_score) || 80,
+              sumber: 'AI',
+              status_tayang: 'Y',
+            }, payload.gameweek));
 
         stories = interleaveStoriesByContext(finalStories);
         console.log(`[Gemini News Service] Successfully generated and interleaved ${stories.length} diverse stories with ${model}`);
@@ -1088,27 +1139,39 @@ export function seedHistoricalNewsPool(forceReset = false): void {
     if (!forceReset) {
       existingHistory.forEach((h) => {
         seen.add(h.headline_id);
-        pool.push({
+        pool.push(toNewsTickerStory({
           id: h.id,
           headline_id: h.headline_id,
           headline_en: h.headline_en,
-          drama_score: 80,
-        });
+          drama_score: h.drama_score || 80,
+          gw: h.gw,
+          timestamp: h.timestamp,
+          teams: h.teams,
+          players: h.players,
+          sumber: h.sumber,
+          status_tayang: h.status_tayang || 'Y',
+          keterangan_tidak_tayang: h.keterangan_tidak_tayang || '',
+        }, h.gw || d.current_gw || 9));
       });
     }
 
-    const addStory = (id: string, idText: string, enText: string) => {
+    const addStory = (id: string, idText: string, enText: string, storyGw?: number) => {
       if (pool.length >= 1000) return;
       const cleanId = cleanHeadlineBody(idText);
       const cleanEn = cleanHeadlineBody(enText);
       if (seen.has(cleanId)) return;
       seen.add(cleanId);
-      pool.push({
+      const gwNum = storyGw || d.current_gw || 9;
+      pool.push(toNewsTickerStory({
         id,
         headline_id: cleanId,
         headline_en: cleanEn,
         drama_score: 80,
-      });
+        gw: gwNum,
+        sumber: 'Bukan',
+        status_tayang: 'Y',
+        keterangan_tidak_tayang: '',
+      }, gwNum));
     };
 
     // 1. GW Champions across all Gameweeks
@@ -1117,7 +1180,8 @@ export function seedHistoricalNewsPool(forceReset = false): void {
         addStory(
           `champ_gw${row.event}_${c.entry_id}`,
           `[T:${c.entry_name}] meraih poin tertinggi Gameweek [N:${row.event}] dengan total [N:${c.points} Poin].`,
-          `[T:${c.entry_name}] scored highest in Gameweek [N:${row.event}] with [N:${c.points} Pts].`
+          `[T:${c.entry_name}] scored highest in Gameweek [N:${row.event}] with [N:${c.points} Pts].`,
+          Number(row.event)
         );
       }
     }
@@ -1136,7 +1200,8 @@ export function seedHistoricalNewsPool(forceReset = false): void {
           addStory(
             `chip_${row.entry_id}_${key}`,
             `[T:${row.entry_name}] mengaktifkan chip [N:${label}] di Gameweek [N:${val.gw}] dan meraih [N:${val.points} Poin].`,
-            `[T:${row.entry_name}] played [N:${label}] chip in Gameweek [N:${val.gw}] and earned [N:${val.points} Pts].`
+            `[T:${row.entry_name}] played [N:${label}] chip in Gameweek [N:${val.gw}] and earned [N:${val.points} Pts].`,
+            Number(val.gw)
           );
         }
       }
@@ -1151,13 +1216,15 @@ export function seedHistoricalNewsPool(forceReset = false): void {
           addStory(
             `rank1_gw${gw}_${r.entry_id}`,
             `[T:${r.entry_name}] menempati peringkat [N:1] klasemen di Gameweek [N:${gw}] dengan total [N:${r.total_points} Poin].`,
-            `[T:${r.entry_name}] held rank [N:1] in Gameweek [N:${gw}] with [N:${r.total_points} Pts].`
+            `[T:${r.entry_name}] held rank [N:1] in Gameweek [N:${gw}] with [N:${r.total_points} Pts].`,
+            Number(gw)
           );
         } else if (r.rank <= 3) {
           addStory(
             `top_gw${gw}_${r.entry_id}`,
             `[T:${r.entry_name}] menempati peringkat [N:${r.rank}] klasemen di Gameweek [N:${gw}] dengan total [N:${r.total_points} Poin].`,
-            `[T:${r.entry_name}] held rank [N:${r.rank}] in Gameweek [N:${gw}] with [N:${r.total_points} Pts].`
+            `[T:${r.entry_name}] held rank [N:${r.rank}] in Gameweek [N:${gw}] with [N:${r.total_points} Pts].`,
+            Number(gw)
           );
         } else if (r.rank_change && Math.abs(r.rank_change) >= 1) {
           const verb = r.rank_change > 0 ? `naik [N:+${r.rank_change}] peringkat` : `turun [N:${r.rank_change}] peringkat`;
@@ -1165,7 +1232,8 @@ export function seedHistoricalNewsPool(forceReset = false): void {
           addStory(
             `mover_gw${gw}_${r.entry_id}`,
             `[T:${r.entry_name}] ${verb} ke posisi [N:${r.rank}] di Gameweek [N:${gw}] dengan total [N:${r.total_points} Poin].`,
-            `[T:${r.entry_name}] ${verbEn} to rank [N:${r.rank}] in Gameweek [N:${gw}] with [N:${r.total_points} Pts].`
+            `[T:${r.entry_name}] ${verbEn} to rank [N:${r.rank}] in Gameweek [N:${gw}] with [N:${r.total_points} Pts].`,
+            Number(gw)
           );
         }
       }
@@ -1177,7 +1245,8 @@ export function seedHistoricalNewsPool(forceReset = false): void {
         addStory(
           `minus_${t.entry_id}`,
           `[T:${t.entry_name}] memiliki total penalti transfer [N:${t.total_minus} Poin] sepanjang musim ini.`,
-          `[T:${t.entry_name}] carries a total transfer penalty of [N:${t.total_minus} Pts] this season.`
+          `[T:${t.entry_name}] carries a total transfer penalty of [N:${t.total_minus} Pts] this season.`,
+          Number(d.current_gw || 9)
         );
       }
     }
@@ -1188,20 +1257,17 @@ export function seedHistoricalNewsPool(forceReset = false): void {
         addStory(
           `tr_${tr.entry_id}_${tr.event}_${tr.element_in.id}`,
           `[T:${tr.entry_name}] mentransfer masuk [P:${tr.element_in.name}] ([C:${tr.element_in.club}]) menggantikan [P:${tr.element_out.name}] ([C:${tr.element_out.club}]) di Gameweek [N:${tr.event}].`,
-          `[T:${tr.entry_name}] transferred in [P:${tr.element_in.name}] ([C:${tr.element_in.club}]) for [P:${tr.element_out.name}] ([C:${tr.element_out.club}]) in Gameweek [N:${tr.event}].`
+          `[T:${tr.entry_name}] transferred in [P:${tr.element_in.name}] ([C:${tr.element_in.club}]) for [P:${tr.element_out.name}] ([C:${tr.element_out.club}]) in Gameweek [N:${tr.event}].`,
+          Number(tr.event)
         );
       }
     }
 
     if (pool.length > 0) {
       const records: PastNewsRecord[] = pool.map((s) => ({
-        id: s.id,
-        gw: d.current_gw || 9,
-        headline_id: s.headline_id,
-        headline_en: s.headline_en,
-        teams: extractTags(s.headline_id, 'T'),
-        players: extractTags(s.headline_id, 'P'),
-        timestamp: new Date().toISOString(),
+        ...s,
+        gw: s.gw,
+        timestamp: s.timestamp_produksi,
       }));
       fs.writeFileSync(HISTORY_CACHE_PATH, JSON.stringify(records, null, 2), 'utf-8');
       console.log(`[Gemini News Service] Seeded historical pool with ${records.length} factual stories (pool now has ${records.length} records).`);
@@ -1388,7 +1454,8 @@ export function buildFallbackStories(payload: RawMatchdayPayload): NewsTickerSto
     });
   }
 
-  return interleaveStoriesByContext(stories);
+  const completeStories = stories.map((s) => toNewsTickerStory(s, gw));
+  return interleaveStoriesByContext(completeStories);
 }
 
 /**
@@ -1438,6 +1505,7 @@ export function initNewsTicker(): void {
       if (parsed && Array.isArray(parsed.data) && parsed.data.length >= 900) {
         memoryFeedCache = parsed;
         console.log(`[Gemini News Service] Pre-warmed news feed cache with ${parsed.data.length} stories.`);
+        rebuildNewsTickerTable();
         return;
       }
     }
