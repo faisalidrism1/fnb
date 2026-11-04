@@ -1302,6 +1302,70 @@ app.get('/api/admin/news-ticker', (req, res) => {
   }
 });
 
+import {
+  getPhase1Templates,
+  updatePhase1Template,
+  savePhase1Templates,
+  resetPhase1Templates,
+  Phase1TemplateItem
+} from './src/data/phase1Templates.ts';
+
+// ================= PHASE 1 TEMPLATES API =================
+// 1. Get all Phase 1 templates
+app.get('/api/admin/phase1-templates', (req, res) => {
+  try {
+    const templates = getPhase1Templates();
+    res.json({ success: true, count: templates.length, data: templates });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 2. Update a Phase 1 template
+app.put('/api/admin/phase1-templates/:id', (req, res) => {
+  try {
+    const templateId = req.params.id;
+    const updates = req.body;
+    const current = getPhase1Templates();
+    const idx = current.findIndex(t => t.id === templateId || t.no === Number(templateId));
+    if (idx === -1) {
+      return res.status(404).json({ success: false, error: `Template ${templateId} not found` });
+    }
+    current[idx] = { ...current[idx], ...updates, updated_at: new Date().toISOString() };
+    savePhase1Templates(current);
+    rebuildNewsTickerTable();
+    res.json({ success: true, message: `Template ${templateId} updated`, data: current[idx] });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 2b. Bulk update all Phase 1 templates (Save whole table at once)
+app.put('/api/admin/phase1-templates', (req, res) => {
+  try {
+    const newItems = req.body;
+    if (!Array.isArray(newItems)) {
+      return res.status(400).json({ success: false, error: 'Expected array of templates' });
+    }
+    savePhase1Templates(newItems);
+    rebuildNewsTickerTable();
+    res.json({ success: true, message: 'Seluruh template berhasil disimpan dan diterapkan', data: newItems });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3. Reset Phase 1 templates to defaults
+app.post('/api/admin/phase1-templates/reset', (req, res) => {
+  try {
+    const defaults = resetPhase1Templates();
+    rebuildNewsTickerTable();
+    res.json({ success: true, message: 'Phase 1 templates reset to default standards', data: defaults });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // ================= NEWS FORMULA & DRAMA EDITOR API =================
 // 1. Get all registered formulas
 app.get('/api/admin/news-formulas', (req, res) => {

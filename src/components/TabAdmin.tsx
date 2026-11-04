@@ -81,10 +81,23 @@ export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'news-ticker', onSe
 
     try {
       const url = `/api/admin/news-ticker${isManualRefresh ? '?refresh=1' : ''}`;
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await res.text();
+        console.warn('[TabAdmin] Received non-JSON response:', text.slice(0, 100));
+        throw new Error('Server returned HTML instead of JSON. Server might still be initializing.');
+      }
+
       const json = await res.json();
       if (json && Array.isArray(json.data)) {
         setNewsRows(json.data);
