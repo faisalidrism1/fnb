@@ -159,22 +159,79 @@ Hanya terbit ketika Gameweek telah resmi berstatus **`GW Final`** (`data_checked
 
 ---
 
-## 5. Siklus Hidup Penayangan Berita (5 Status Gameweek)
+## 5. Siklus Hidup Penayangan Berita (5 Waktu Tayang / 5 Airing Phases)
 
-```
-[1. Not Started]  ──>  [2. Match Live]  ──>  [3. Jeda Antar-Laga]  ──>  [4. Provisional]  ──>  [5. Confirmed/Final]
-```
+Kategori dan formula berita dibagi secara baku ke dalam **5 Waktu Tayang**:
+1. `Not started`
+2. `Live Match`
+3. `Between Match`
+4. `Provisional`
+5. `Confirmed`
 
-1. **`GW Not Started` (Setelah Deadline Lewat, Tim Terkunci, Belum Ada Kick-off Pertama):**
-   * Fokus liputan strategi pra-pekan: pemain transfer favorit, aktivasi chip, perburuan kapten, penalti transfer hits. Dilarang mengulas hasil pertandingan karena laga belum dimulai.
-2. **`Match Live` (Pertandingan Sedang Berlangsung di Lapangan):**
-   * Menu utama: Update skor dan menit berjalan (Kategori 1), peristiwa aksi pemain (Kategori 2), pergerakan klasemen instan (Kategori 3).
-3. **`Jeda Antar-Pertandingan` (Laga Selesai & Laga Berikutnya Belum Kick-off):**
-   * Menu utama: Evaluasi hasil laga FT, pergeseran klasemen sementara, serta puncak penayangan Karma Transfer dan What-If keputusan manajer.
-4. **`GW Provisional` (Seluruh 10 Laga Usai FT, Menunggu Audit Opta):**
-   * Menu utama: Calon peraih gelar mingguan sementara, antisipasi autosub dan pengesahan BPS bonus point.
-5. **`GW Confirmed / Final` (Resmi Diaudit 100%):**
-   * Menu utama: Pengesahan resmi 4 Kategori Juara FNB League (Kategori 4) dan rekap performa final pekan tersebut.
+---
+
+### A. Waktu Tayang 1: `Not started` (Pascadeadline, Skuad Terbuka, Sebelum Kickoff Pertama)
+*Karakteristik Mutlak:* Laga belum bergulir, dilarang keras menyebutkan poin gameweek berjalan atau pergerakan klasemen (`status_tayang: 'N'`). Gaya bahasa jurnalistik mengalir, tanpa tanda seru (`!`) dan tanpa tanda titik dua (`:`).
+
+1. **Jadwal Pembuka (Match / Fixture):**
+   * *Jika 1 laga:* `Laga pembuka Gameweek [N:GW] menyajikan duel antara [C:Klub1] vs [C:Klub2] di [C:Stadion].`
+   * *Jika $\ge 2$ laga serentak (contoh 5 laga):* `Gameweek [N:GW] dibuka serentak oleh 5 pertandingan, mempertemukan [C:Klub1] vs [C:Klub2], [C:Klub3] vs [C:Klub4], [C:Klub5] vs [C:Klub6], [C:Klub7] vs [C:Klub8], serta [C:Klub9] vs [C:Klub10].`
+2. **Penggunaan Chip Wildcard (Chip / Wildcard Use):**
+   * Format `formatTeamList` ($\le 3$ tim disebut semua, $> 3$ tim sebut 2 pertama + sisa tim).
+   * Contoh: `Perombakan skuad lewat chip Wildcard dimaksimalkan oleh [T:Tim A] dan [T:Tim B] dengan mendatangkan [P:Pemain In] dan melepas [P:Pemain Out].`
+3. **Penggunaan Chip Free Hit (Chip / Freehit Use):**
+   * Format `formatTeamList`.
+   * Contoh: `Manuver darurat chip Free Hit pekan ini diambil oleh [T:Tim A] dan [T:Tim B] dengan memboyong [P:Pemain In] serta melepas [P:Pemain Out].`
+4. **Penggunaan Chip Bench Boost (Chip / Bench Boost Use):**
+   * Format `formatTeamList` + pemain paling banyak di bangku cadangan.
+   * Contoh: `Chip Bench Boost diaktifkan oleh [T:Tim A] dan [T:Tim B] dengan [P:Pemain] menjadi pilihan terbanyak di bangku cadangan.`
+5. **Penggunaan Chip Triple Captain (Chip / Triple Captain Use):**
+   * Format `formatTeamList` + opsi dominan + ringkasan tim lain bila ada sebaran berbeda.
+   * Contoh: `Pengerahan chip Triple Captain dilakukan oleh [T:Tim A] dan [T:Tim B] yang mengandalkan [P:Haaland], sementara [N:2] tim lainnya memilih opsi kapten berbeda.`
+6. **Rekapitulasi Penggunaan Chip (Chip / Chip Recap):**
+   * Total chip musim berjalan + penambahan di pekan aktif.
+   * Contoh: `Hingga Gameweek [N:GW], akumulasi penggunaan chip FNB League mencatat Wildcard [N:14] (+[N:2] pekan ini), Free Hit [N:8] (+[N:1] pekan ini), Bench Boost [N:6], dan Triple Captain [N:12] (+[N:3] pekan ini).`
+7. **Pemain Paling Banyak Ditransfer Masuk (Transfer / In):**
+   * 2 pemain terbanyak.
+   * Contoh: `Aktivitas transfer masuk Gameweek [N:GW] didominasi oleh [P:Pemain 1] dengan [N:X] pembelian dan [P:Pemain 2] sebanyak [N:Y] pembelian.`
+8. **Pemain Paling Banyak Ditransfer Keluar (Transfer / Out):**
+   * 2 pemain terbanyak.
+   * Contoh: `Pelepasan pemain terbanyak menjelang Gameweek [N:GW] dialami oleh [P:Pemain 1] yang dilepas [N:X] tim dan [P:Pemain 2] sebanyak [N:Y] tim.`
+9. **Sebaran Ban Kapten (Captaincy / Captaincy Recap):**
+   * Sebaran kapten reguler liga (opsi dominan + alternatif).
+   * Contoh: `Perburuan ban kapten Gameweek [N:GW] dipimpin oleh [P:Haaland] dengan [N:X] pemilih, disusul [P:Salah] sebanyak [N:Y] pemilih, sementara [N:Z] tim lainnya memilih kapten alternatif.`
+10. **Sebaran Poin Pengurangan Transfer / Hits (Hits / Hits Recap):**
+    * *Aturan Khusus:* Setiap nama tim yang muncul wajib dicantumkan nilai minus hits-nya. Menggunakan narasi agresivitas skuad yang mengalir natural.
+    * *Jika $\le 3$ tim:* `Langkah agresif di bursa transfer diambil [T:Tim A] (-[N:4 Poin]) dan [T:Tim B] (-[N:8 Poin]) yang rela mengawali pekan ini dengan modal pengurangan poin.`
+    * *Jika $> 3$ tim:* `Langkah agresif di bursa transfer diambil [T:Tim A] (-[N:8 Poin]), [T:Tim B] (-[N:4 Poin]), serta [N:X] tim lainnya yang rela mengawali pekan ini dengan modal pengurangan poin.`
+11. **Pemain Paling Banyak Dimiliki (Ownership / Most Owned):**
+    * *Aturan Khusus:* Tidak diawali frasa "Dua pemain", langsung sebut pemain.
+    * Contoh: `Pemain dengan kepemilikan tertinggi di FNB League saat ini dipimpin oleh [P:Pemain 1] dengan [N:X%] kepemilikan dan [P:Pemain 2] sebesar [N:Y%].`
+12. **Pemain Pembeda di Starting XI per Tim (Differential / Differential XI):**
+    * *Definisi Baku Differential:* Kepemilikan di FNB League **di bawah 5% (< 5%)**.
+    * *Konsep:* 1 berita per masing-masing tim yang memiliki pemain differential (< 5% kepemilikan liga di starting XI).
+    * *Filter Seleksi:* Jika ada $> 2$ pemain differential di starting XI tim tersebut, pilih **maksimal 2 pemain dengan point form tertinggi**.
+    * *Jika 1 pemain:* `Pilihan taktis diambil [T:Nama Tim] di Gameweek [N:GW] dengan menurunkan [P:Pemain] ([N:X%] kepemilikan) sebagai pembeda di starting XI.`
+    * *Jika 2 pemain:* `Pilihan taktis diambil [T:Nama Tim] di Gameweek [N:GW] dengan menurunkan [P:Pemain 1] ([N:X%] kepemilikan) serta [P:Pemain 2] ([N:Y%] kepemilikan) sebagai pembeda di starting XI.`
+13. **Pilihan Kapten Pembeda per Tim (Differential / Differential Captain):**
+    * *Definisi Baku Differential:* Pemilihan kapten di FNB League **di bawah 5% (< 5%)** atau hanya dipilih oleh 1 tim (eksklusif).
+    * *Konsep:* 1 berita per masing-masing tim yang menunjuk kapten differential (< 5% pemilih kapten di liga).
+    * *Jika kapten tunggal (eksklusif):* `Langkah berani diambil [T:Nama Tim] yang menjadi satu-satunya tim di liga dengan mempercayakan ban kapten kepada [P:Pemain] di Gameweek [N:GW].`
+    * *Jika dipilih $\le 2$ tim (< 5%):* `Langkah berani diambil [T:Nama Tim] dengan mempercayakan ban kapten kepada [P:Pemain] yang hanya dipilih oleh [N:2] tim di liga pada Gameweek [N:GW].`
+
+---
+
+### B. Waktu Tayang 2: `Live Match` (Laga Sedang Berlangsung)
+*Menu utama:* Update skor berjalan, kejadian lapangan pencetak gol/assist/saves/defcon/kartu, pergerakan klasemen instan, dan performa tim live.
+
+### C. Waktu Tayang 3: `Between Match` (Jeda Antar-Laga Selesai)
+*Menu antara:* Evaluasi hasil laga FT, pergeseran klasemen sementara, serta analisis what-if bangku cadangan dan transfer karma.
+
+### D. Waktu Tayang 4: `Provisional` (10 Laga Usai FT, Menunggu Audit Opta)
+*Menu utama:* Calon peraih juara mingguan sementara, antisipasi autosub dan pengesahan BPS bonus point.
+
+### E. Waktu Tayang 5: `Confirmed / Final` (Resmi Diaudit 100%)
+*Menu utama:* Pengesahan resmi 4 Pilar Juara FNB League (Juara Gameweek, Juara Terbanyak, Peringkat 1 Klasemen, dan Peringkat 2 Klasemen).
 
 ---
 
@@ -201,16 +258,60 @@ Hanya terbit ketika Gameweek telah resmi berstatus **`GW Final`** (`data_checked
 * **Persistent Disk Cache:**
   * `src/data/news_ticker_feed.json`: Cache feed aktif.
   * `src/data/news_ticker_history.json`: Riwayat sliding-window hingga 1.000 berita rotasi aktif tanpa duplikasi.
-* **API Endpoint:** `GET /api/news-ticker/feed`
-  * Respons payload JSON terstruktur memuat status gameweek, fase pertandingan, dan array objek berita dwibahasa (`headline_id`, `headline_en`, `drama_score`).
+  * `src/data/news_ticker_table.json`: Master database tabel News Ticker dalam container (lengkap dengan metadata status tayang, kategori, sub-kategori, entitas tim/pemain, dan checklist fase).
+* **API Endpoints:**
+  * `GET /api/news-ticker/feed`: Respons payload JSON feed aktif yang disaring untuk rotasi running text.
+  * `GET /api/admin/news-ticker`: Endpoint query & rekapitulasi data tabel News Ticker untuk tab Admin.
 
 ---
 
-## 7. Komponen Frontend & Mesin Marquee (`NewsTicker.tsx`)
+## 7. Subtab Admin "News Ticker" & Aturan Penayangan GW
+
+### A. Aturan Baku Status Tayang Gameweek (GW Rule):
+* **GW Aktif (Current GW):** Berita yang berasal dari Gameweek yang sedang aktif (`gw === Current_GW`) berstatus **`status_tayang = 'Y'`** (Airing) dengan `keterangan_tidak_tayang = ''`.
+* **GW Selain Current GW:** Seluruh baris berita yang berasal dari Gameweek di luar Gameweek aktif (`gw !== Current_GW`, misalnya arsip GW 1 s/d GW 8) berstatus mutlak **`status_tayang = 'N'`** (Off Air / Inactive) dengan keterangan tidak tayang baku:
+  * `keterangan_tidak_tayang = 'Bukan Gameweek aktif (Arsip Gameweek X)'`
+* **Filter Interaktif Subtab Admin:**
+  * Pengguna admin dapat memfilter tabel berdasarkan Gameweek (All GWs, GW 1 .. GW 9), Kategori, Sub-kategori, Status Tayang (All, Y, N), dan Sumber (All, AI, System).
+  * KPI Card secara otomatis mengkalkulasi jumlah riil berita Aktif (Y) dan Off Air (N) sesuai status mutlak gameweek.
+
+---
+
+## 8. Aturan Deteksi Status GW untuk Berita Poin & Peringkat (Poin & Rank Rules)
+
+Sesuai instruksi dan konvensi baku `AGENTS.md`, seluruh berita yang memuat penyebutan perolehan poin dan peringkat/klasemen (`mentionsPointsOrRank`) wajib mendeteksi fase status Gameweek (`gameweekPhase`):
+
+### A. Kriteria Status GW:
+1. **`Not started`:** Belum ada pertandingan kickoff pada GW aktif saat ini (seluruh laga masih berstatus *upcoming*).
+2. **`Confirmed` (GW Final):** Gameweek telah selesai 100%, seluruh pertandingan tuntas, Opta BPS terkunci (`event.data_checked === true`), dan klasemen liga telah diperbarui resmi oleh FPL (`event_status.leagues === 'Updated'`).
+3. **`Live` / `Provisional` ("Selain Itu"):** Gameweek sedang berlangsung (in-play), berada di antara pertandingan, atau 10 laga selesai namun masih menunggu verifikasi pengesahan FPL.
+
+### B. Aturan Penayangan & Redaksional Poin / Peringkat:
+1. **Fase `Not started` (Dilarang Tayang):**
+   * **Aturan Mutlak:** JANGAN PERNAH menayangkan berita yang menyebutkan poin atau peringkat manajer/tim selama GW berstatus `Not started`.
+   * Berita semacam ini otomatis dicegah tayang: `status_tayang = 'N'` dengan `keterangan_tidak_tayang = 'Poin dan peringkat belum berjalan pada fase Not started'`.
+   * Pada fase ini, newsroom hanya memproduksi dan menayangkan berita persiapan/strategi GW (jadwal pertandingan mendatang, tren transfer masuk/keluar, dan aktivasi chip).
+2. **Fase `Confirmed` (Hasil Resmi):**
+   * Poin dan peringkat wajib disajikan sebagai **hasil resmi yang sudah ditetapkan** oleh FPL:
+     - `hasil resmi yang sudah ditetapkan`
+     - `peringkat resmi` / `klasemen akhir resmi`
+     - `poin resmi`
+     - `resmi dinobatkan sebagai Juara Gameweek` (untuk Juara Gameweek)
+3. **Fase Selain Itu (`Live` / `Provisional` - Hasil Sementara):**
+   * Poin dan peringkat wajib disajikan secara eksplisit sebagai **hasil sementara**:
+     - `hasil sementara`
+     - `peringkat sementara` / `klasemen sementara`
+     - `poin sementara`
+     - `memimpin perolehan poin sementara Juara Gameweek` (dilarang menyebut "resmi dinobatkan" sebelum FPL mengesahkan GW Final)
+
+---
+
+## 9. Komponen Frontend & Mesin Marquee (`NewsTicker.tsx`)
 
 ### A. Polling Data Realtime:
 * Saat ada pertandingan aktif bergulir di lapangan (*live match*): Polling berkala setiap **45 detik**.
 * Saat tidak ada pertandingan aktif (*jeda / non-live*): Polling berkala setiap **120 detik**.
+* **Filter Tayang Aktif:** Komponen ticker frontend hanya memutar berita dengan status `status_tayang !== 'N'`.
 
 ### B. Mesin Marquee & Animasi:
 * Menggunakan rendering DOM dinamis berbasis `requestAnimationFrame` untuk pergerakan running text yang mulus tanpa patah-patah (*zero-stutter*).
@@ -229,6 +330,10 @@ Hanya terbit ketika Gameweek telah resmi berstatus **`GW Final`** (`data_checked
 
 ---
 
-## 8. Status Verifikasi Sistem
+## 10. Status Verifikasi Sistem
 * **Kompilasi & Linting:** 100% Lulus (`compile_applet` & `lint_applet` lolos tanpa error).
-* **Endpoint API:** Teruji aktif dan mengembalikan status HTTP 200 dengan muatan 1.000 berita rotasi siap saji.
+* **Deteksi Status GW & Poin/Rank:** Diuji dan diverifikasi secara langsung:
+  * Fase `Not started`: Berita poin/rank disupresi (`status_tayang = 'N'`).
+  * Fase `Confirmed`: Dinyatakan sebagai hasil resmi yang telah ditetapkan.
+  * Fase `Live` / `Provisional`: Dinyatakan sebagai hasil dan klasemen sementara.
+* **Tabel Master News Ticker:** 1.076 entri tersinkronisasi cepat (< 1 detik) dengan metadata fase dan status tayang yang akurat.

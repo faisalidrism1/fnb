@@ -40,6 +40,12 @@ import {
   rebuildNewsTickerTable,
   getNewsTickerTable
 } from './src/server/newsTickerTableService.ts';
+import {
+  getRegisteredFormulas,
+  updateFormulaConfig,
+  resetFormulasToDefault,
+  calculateDynamicDramaScore
+} from './src/data/newsFormulaRegistry.ts';
 
 const app = express();
 
@@ -1291,6 +1297,59 @@ app.get('/api/admin/news-ticker', (req, res) => {
     });
 
     res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ================= NEWS FORMULA & DRAMA EDITOR API =================
+// 1. Get all registered formulas
+app.get('/api/admin/news-formulas', (req, res) => {
+  try {
+    const formulas = getRegisteredFormulas();
+    res.json({ success: true, count: formulas.length, data: formulas });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 2. Update a formula (airing phases or drama score calibration)
+app.put('/api/admin/news-formulas/:id', (req, res) => {
+  try {
+    const formulaId = req.params.id;
+    const updates = req.body;
+    const updated = updateFormulaConfig(formulaId, updates);
+    if (!updated) {
+      return res.status(404).json({ success: false, error: `Formula ${formulaId} not found` });
+    }
+    // Rebuild news ticker table with updated configurations
+    rebuildNewsTickerTable();
+    res.json({ success: true, message: `Formula ${formulaId} updated successfully`, data: updated });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3. Reset formulas to defaults
+app.post('/api/admin/news-formulas/reset', (req, res) => {
+  try {
+    const defaults = resetFormulasToDefault();
+    rebuildNewsTickerTable();
+    res.json({ success: true, message: 'Formulas reset to defaults', data: defaults });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4. Simulate drama score calculation
+app.post('/api/admin/news-formulas/simulate', (req, res) => {
+  try {
+    const { drama_config, metric_value } = req.body;
+    if (!drama_config) {
+      return res.status(400).json({ success: false, error: 'drama_config is required' });
+    }
+    const score = calculateDynamicDramaScore(drama_config, metric_value);
+    res.json({ success: true, score });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }

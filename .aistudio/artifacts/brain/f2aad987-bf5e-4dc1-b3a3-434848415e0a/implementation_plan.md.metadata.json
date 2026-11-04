@@ -1,6 +1,6 @@
 {
-  "summary":  "Arsitektur komprehensif dan konsep kerja News Ticker FNB League bertenaga Gemini AI, berfokus penuh pada kualitas narasi jurnalistik olahraga resmi yang menggali drama nyata keputusan manajer (transfer, kapten, bench, chips, hits, kepemilikan) terhadap persaingan 4 jenis juara.",
-  "updatedAt":  "2026-10-29T12:31:12.499995291Z",
-  "requestFeedback":  true,
-  "userFacing":  true
+  "summary": "Rencana implementasi sistem klasifikasi formula berita FPL (SYS & AI) berbasis subjek tematik dengan variasi waktu tayang (Live vs Confirmed), skema drama score berbasis metrik dinamis dengan batas per kategori, modul konfigurasi terpusat (newsFormulaRegistry.ts), dan subtab interaktif baru 'Formula & Drama' di Tab Admin.",
+  "updatedAt": "2026-11-03T16:42:34.556295512Z",
+  "requestFeedback": true,
+  "userFacing": true
 }

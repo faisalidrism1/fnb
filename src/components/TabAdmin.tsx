@@ -16,6 +16,7 @@ import {
   Cpu
 } from 'lucide-react';
 import { AdminSubTab, NewsTickerDbRow } from '../types.ts';
+import { TabAdminEditor } from './TabAdminEditor.tsx';
 
 interface TabAdminProps {
   subTab?: AdminSubTab;
@@ -42,7 +43,11 @@ type SortColumn =
 
 type SortDirection = 'asc' | 'desc';
 
-export const TabAdmin: React.FC<TabAdminProps> = () => {
+export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'news-ticker', onSelectSubTab }) => {
+  if (subTab === 'editor') {
+    return <TabAdminEditor />;
+  }
+
   const [newsRows, setNewsRows] = useState<NewsTickerDbRow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);

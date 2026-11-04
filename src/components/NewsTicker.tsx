@@ -56,7 +56,8 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         if (res.ok) {
           const json = await res.json();
           if (json.success && Array.isArray(json.data) && json.data.length > 0 && isMounted) {
-            handleIncomingStoriesRef.current(json.data);
+            const activeOnly = json.data.filter((s: any) => s.status_tayang !== 'N');
+            handleIncomingStoriesRef.current(activeOnly.length > 0 ? activeOnly : json.data);
           }
         }
       } catch (err) {
@@ -405,8 +406,12 @@ const getSavedPoolIdx = (): number => {
       span.appendChild(content);
 
       // Minimalist bullet dot separator (NO ICONS / NO EMOJIS)
+      // Official champions receive golden accent dot (#fbbf24) for visual prestige
+      const isOfficialChamp = story.id.includes('confirmed_') || story.headline_id.includes('Juara Resmi') || story.headline_id.includes('hasil resmi yang sudah ditetapkan');
       const dot = document.createElement('span');
-      dot.className = 'inline-block w-1.5 h-1.5 rounded-full ml-6 shrink-0 bg-[#00ff87]/70 align-middle';
+      dot.className = isOfficialChamp
+        ? 'inline-block w-1.5 h-1.5 rounded-full ml-6 shrink-0 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] align-middle'
+        : 'inline-block w-1.5 h-1.5 rounded-full ml-6 shrink-0 bg-[#00ff87]/70 align-middle';
       span.appendChild(dot);
 
       return span;
@@ -418,6 +423,63 @@ const getSavedPoolIdx = (): number => {
   const getNextStory = useCallback((): NewsTickerStory => {
     const list = storiesRef.current;
     if (list.length === 0) {
+      const activeGw = leagueData?.current_gw || 9;
+      const isConfirmed = leagueData?.gw_status?.status === 'Confirmed';
+      const liveRows = (leagueData?.standings && leagueData.standings[activeGw]) ? leagueData.standings[activeGw] : [];
+      const rank1 = liveRows.find((r) => r.rank === 1);
+      const rank2 = liveRows.find((r) => r.rank === 2);
+      const top1Or2Ids = new Set<number>();
+      if (rank1?.entry_id) top1Or2Ids.add(rank1.entry_id);
+      if (rank2?.entry_id) top1Or2Ids.add(rank2.entry_id);
+
+      const mostGwList = Array.isArray(leagueData?.most_gameweek_champions) ? leagueData.most_gameweek_champions : [];
+      const eligibleMostGw = mostGwList.filter((m) => m && m.win_count > 0).find((m) => !top1Or2Ids.has(m.entry_id)) || mostGwList[0];
+      const rawTopLeader = mostGwList[0];
+      const isPassedDown = Boolean(eligibleMostGw && rawTopLeader && (eligibleMostGw.entry_id !== rawTopLeader.entry_id || eligibleMostGw.entry_name !== rawTopLeader.entry_name));
+
+      const gwChamps = Array.isArray(leagueData?.gameweek_champions) ? leagueData.gameweek_champions : [];
+      const gwChampRow = gwChamps.find((g) => g && g.event === activeGw);
+      const topGwChamp = gwChampRow?.champions?.[0];
+
+      if (isConfirmed && rank1 && rank2 && eligibleMostGw && topGwChamp) {
+        const confirmedFallbacks: NewsTickerStory[] = [
+          {
+            id: `client_confirmed_4champs_gw${activeGw}`,
+            headline_id: `4 Tim Juara Resmi FNB League Gameweek [N:${activeGw}] (hasil resmi yang sudah ditetapkan): Juara Gameweek [T:${topGwChamp.entry_name}] ([N:${topGwChamp.points}] poin), Juara 1 [T:${rank1.entry_name}] ([N:${rank1.total_points}] poin), Juara 2 [T:${rank2.entry_name}] ([N:${rank2.total_points}] poin), dan Juara Terbanyak Mingguan [T:${eligibleMostGw.entry_name}] ([N:${eligibleMostGw.win_count}] gelar).`,
+            headline_en: `4 Official Champions of FNB League Gameweek [N:${activeGw}] (officially confirmed results): Gameweek Champion [T:${topGwChamp.entry_name}] ([N:${topGwChamp.points}] pts), 1st Place [T:${rank1.entry_name}] ([N:${rank1.total_points}] pts), 2nd Place [T:${rank2.entry_name}] ([N:${rank2.total_points}] pts), and Most Gameweek Champion [T:${eligibleMostGw.entry_name}] ([N:${eligibleMostGw.win_count}] titles).`,
+            drama_score: 100,
+          },
+          {
+            id: `client_confirmed_gwc_gw${activeGw}`,
+            headline_id: `[T:${topGwChamp.entry_name}] resmi dinobatkan sebagai Juara Gameweek [N:${activeGw}] FNB League dengan raihan [N:${topGwChamp.points}] poin (hasil resmi yang sudah ditetapkan).`,
+            headline_en: `[T:${topGwChamp.entry_name}] is officially crowned FNB League Gameweek [N:${activeGw}] Champion with [N:${topGwChamp.points}] confirmed points (officially confirmed result).`,
+            drama_score: 99,
+          },
+          {
+            id: `client_confirmed_r1_gw${activeGw}`,
+            headline_id: `[T:${rank1.entry_name}] resmi mengunci posisi Juara 1 klasemen resmi FNB League Gameweek [N:${activeGw}] dengan total [N:${rank1.total_points}] poin (hasil resmi yang sudah ditetapkan).`,
+            headline_en: `[T:${rank1.entry_name}] officially secures 1st Place Champion on the official FNB League table for Gameweek [N:${activeGw}] with [N:${rank1.total_points}] confirmed points (officially confirmed result).`,
+            drama_score: 98,
+          },
+          {
+            id: `client_confirmed_r2_gw${activeGw}`,
+            headline_id: `[T:${rank2.entry_name}] resmi mengamankan posisi Juara 2 (Runner-Up) klasemen resmi FNB League Gameweek [N:${activeGw}] dengan total [N:${rank2.total_points}] poin (hasil resmi yang sudah ditetapkan).`,
+            headline_en: `[T:${rank2.entry_name}] officially secures 2nd Place (Runner-Up) Champion on the official FNB League table for Gameweek [N:${activeGw}] with [N:${rank2.total_points}] confirmed points (officially confirmed result).`,
+            drama_score: 97,
+          },
+          {
+            id: `client_confirmed_mg_gw${activeGw}`,
+            headline_id: `[T:${eligibleMostGw.entry_name}] resmi memegang gelar Juara Terbanyak Mingguan FNB League hingga Gameweek [N:${activeGw}] dengan [N:${eligibleMostGw.win_count}] kemenangan${isPassedDown && rawTopLeader ? ` (pelimpahan hak dari [T:${rawTopLeader.entry_name}])` : ''} (hasil resmi yang sudah ditetapkan).`,
+            headline_en: `[T:${eligibleMostGw.entry_name}] officially holds Most Gameweek Champion title through Gameweek [N:${activeGw}] with [N:${eligibleMostGw.win_count}] wins${isPassedDown && rawTopLeader ? ` via pass-down rule from [T:${rawTopLeader.entry_name}]` : ''} (officially confirmed result).`,
+            drama_score: 96,
+          },
+        ];
+        const idx = poolIdxRef.current % confirmedFallbacks.length;
+        const item = confirmedFallbacks[idx];
+        poolIdxRef.current = (idx + 1) % confirmedFallbacks.length;
+        return item;
+      }
+
       return {
         id: 'fallback_1',
         headline_id: 'FPL Nusantara BERHADIAH • Pantau klasemen dan perebutan 4 gelar juara liga',
@@ -432,7 +494,7 @@ const getSavedPoolIdx = (): number => {
       sessionStorage.setItem(POOL_IDX_STORAGE_KEY, String(poolIdxRef.current));
     } catch {}
     return item;
-  }, []);
+  }, [leagueData]);
 
   // Initialize track buffer on cold start
   const fillTrackInitial = useCallback(() => {

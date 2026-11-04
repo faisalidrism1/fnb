@@ -677,7 +677,39 @@ export type StandingsSubTab = 'status' | 'live-table' | 'gw-champions' | 'most-g
 export type OwnershipSubTab = 'most-owned-players' | 'most-owned-clubs' | 'fans-club' | 'template-squad';
 export type TransferSubTab = 'all-transfers' | 'transferred-in' | 'transferred-out';
 export type CaptainSubTab = 'most-captained-player' | 'most-captained-club-players';
-export type AdminSubTab = 'news-ticker';
+export type AdminSubTab = 'news-ticker' | 'editor';
+
+export type NewsFormulaSource = 'SYS' | 'AI';
+export type NewsAiringPhase = 'Not started' | 'Live Match' | 'Between Match' | 'Provisional' | 'Confirmed';
+
+export interface NewsFormulaDramaConfig {
+  base_score: number;
+  min_cap: number;
+  max_cap: number;
+  metric_name?: string;
+  metric_label?: string;
+  metric_multiplier?: number;
+  metric_default?: number;
+  metric_min?: number;
+  metric_max?: number;
+  metric_step?: number;
+}
+
+export interface NewsFormulaItem {
+  id: string;
+  name: string;
+  description: string;
+  source: NewsFormulaSource;
+  kategori: string;
+  sub_kategori: string;
+  mentions_points_or_rank: boolean;
+  allowed_phases: NewsAiringPhase[];
+  example_live_id: string;
+  example_confirmed_id: string;
+  example_live_en: string;
+  example_confirmed_en: string;
+  drama_config: NewsFormulaDramaConfig;
+}
 
 export interface NewsTickerDbRow {
   id: string;
