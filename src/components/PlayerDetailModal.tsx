@@ -1478,6 +1478,62 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   const ownershipPct = currentGWPlayer ? currentGWPlayer.owned_percentage : 0;
   const totalSeasonPoints = summaryData?.player_info?.totalPoints ?? playerMeta?.total_points ?? '-';
 
+  // Player Availability Status & News directly from FPL
+  const playerNews = useMemo(() => {
+    return (
+      summaryData?.player_info?.news ||
+      (playerMeta as any)?.news ||
+      (playerStatsObj as any)?.news ||
+      ''
+    ).trim();
+  }, [summaryData, playerMeta, playerStatsObj]);
+
+  const chanceOfPlaying = useMemo(() => {
+    const next =
+      summaryData?.player_info?.chanceOfPlayingNextRound ??
+      (playerMeta as any)?.chance_of_playing_next_round ??
+      (playerStatsObj as any)?.chance_of_playing_next_round ??
+      (playerStatsObj as any)?.chanceOfPlayingNextRound;
+    if (next !== undefined && next !== null) return Number(next);
+    const thisRound =
+      summaryData?.player_info?.chanceOfPlayingThisRound ??
+      (playerMeta as any)?.chance_of_playing_this_round ??
+      (playerStatsObj as any)?.chance_of_playing_this_round;
+    if (thisRound !== undefined && thisRound !== null) return Number(thisRound);
+    return null;
+  }, [summaryData, playerMeta, playerStatsObj]);
+
+  const playerStatus = useMemo(() => {
+    return (
+      summaryData?.player_info?.status ||
+      (playerMeta as any)?.status ||
+      (playerStatsObj as any)?.status ||
+      'a'
+    );
+  }, [summaryData, playerMeta, playerStatsObj]);
+
+  const availabilityBannerTheme = useMemo(() => {
+    // 1. Kuning (75% Chance of Playing)
+    if (chanceOfPlaying === 75) {
+      return {
+        bgClass: 'bg-[#ffd700] text-[#37003c] border-b border-[#e6be00]',
+        iconClass: 'text-[#37003c]',
+      };
+    }
+    // 2. Oranye (25% & 50% Chance of Playing)
+    if (chanceOfPlaying === 50 || chanceOfPlaying === 25) {
+      return {
+        bgClass: 'bg-[#ff6900] text-white border-b border-[#e05d00]',
+        iconClass: 'text-white',
+      };
+    }
+    // 3. Merah (0%, 'i' injured, 's' suspended, 'u' unavailable)
+    return {
+      bgClass: 'bg-[#e90052] text-white border-b border-[#cb0047]',
+      iconClass: 'text-white',
+    };
+  }, [chanceOfPlaying, playerStatus]);
+
   return (
     <div
       className="fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xs overflow-hidden"
@@ -1643,6 +1699,28 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
             </nav>
           </div>
         </div>
+
+        {/* ================= FPL OFFICIAL AVAILABILITY BANNER ================= */}
+        {/* Exact same height as News Ticker: h-7 (28px), with zero bottom clipping on letters like y, g, p */}
+        {Boolean(playerNews) && (
+          <div
+            role="alert"
+            className={`w-full h-7 shrink-0 flex items-center px-3 select-none z-20 overflow-hidden ${availabilityBannerTheme.bgClass}`}
+            title={playerNews}
+          >
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1 h-full">
+              <span
+                className={`font-black text-lg sm:text-xl leading-none shrink-0 flex items-center justify-center -translate-y-[0.5px] ${availabilityBannerTheme.iconClass}`}
+                aria-hidden="true"
+              >
+                !
+              </span>
+              <span className="font-bold text-[11.5px] sm:text-[12.5px] tracking-tight truncate leading-normal flex-1">
+                {playerNews}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* ================= MODAL BODY ================= */}
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-2 sm:p-3 text-slate-800 dark:text-slate-100">

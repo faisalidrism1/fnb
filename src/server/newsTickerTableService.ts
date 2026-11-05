@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { getRegisteredFormulas, calculateDynamicDramaScore } from '../data/newsFormulaRegistry.ts';
+import { generatePhase1Stories } from './phase1StoryGenerator.ts';
 
 export interface NewsTickerDbRow {
   id: string;
@@ -610,6 +611,11 @@ export function createCompleteStoryRecord(
   const id = String(raw.id || `story_${Date.now()}`);
   let textId = String(raw.headline_id || raw.text_berita || raw.headline || '').trim();
   let textEn = String(raw.headline_en || raw.text_berita_en || textId).trim();
+
+  // Strip unnecessary word "chip" directly preceding [N:{chip}] per FPL convention
+  textId = textId.replace(/\bchip\s+(\[N:[^\]]+\])/gi, '$1');
+  textEn = textEn.replace(/\bchip\s+(\[N:[^\]]+\])/gi, '$1').replace(/(\[N:[^\]]+\])\s+chip\b/gi, '$1');
+
   const isAi = raw.sumber === 'AI' || (id.startsWith('story_') && !id.startsWith('story_element_'));
   const timestamp = raw.timestamp_produksi || raw.timestamp || new Date().toISOString();
   const gw = extractGwFromStory(textId, textEn, id, Number(raw.gw) || defaultGw);
@@ -625,7 +631,12 @@ export function createCompleteStoryRecord(
     textEn = formatted.headlineEn;
   }
 
-  const classification = classifyNewsItem(textId, textEn, id);
+  const fallbackClass = classifyNewsItem(textId, textEn, id);
+  const classification = {
+    kategori: (raw as any).kategori || fallbackClass.kategori,
+    sub_kategori: (raw as any).sub_kategori || fallbackClass.sub_kategori,
+    waktu_tayang: (raw as any).waktu_tayang || fallbackClass.waktu_tayang,
+  };
 
   // ATURAN STATUS & TAYANG:
   // 1. GW selain Current GW statusnya N
@@ -822,6 +833,35 @@ export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
       }, gw);
 
       tableRows.push(record);
+    }
+
+    // 5. Inject all 13 Phase 1 template stories for the active Gameweek
+    try {
+      const p1Stories = generatePhase1Stories(feedGw);
+      for (const p1 of p1Stories) {
+        if (!seenIds.has(p1.id)) {
+          seenIds.add(p1.id);
+          const p1Record = createCompleteStoryRecord({
+            id: p1.id,
+            headline_id: p1.headline_id,
+            headline_en: p1.headline_en,
+            timestamp_produksi: new Date().toISOString(),
+            sumber: 'Bukan',
+            gw: p1.gw,
+            teams: p1.teams,
+            players: p1.players,
+            drama_score: p1.drama_score,
+            status_tayang: p1.status_tayang,
+            keterangan_tidak_tayang: p1.keterangan_tidak_tayang,
+            kategori: p1.kategori,
+            sub_kategori: p1.sub_kategori,
+            waktu_tayang: p1.waktu_tayang,
+          } as any, p1.gw);
+          tableRows.push(p1Record);
+        }
+      }
+    } catch (err: any) {
+      console.warn('[News Table Service] Warning generating Phase 1 stories:', err.message);
     }
 
     // Sort by: status_tayang 'Y' first, then timestamp descending

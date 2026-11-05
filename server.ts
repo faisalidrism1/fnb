@@ -1304,7 +1304,6 @@ app.get('/api/admin/news-ticker', (req, res) => {
 
 import {
   getPhase1Templates,
-  updatePhase1Template,
   savePhase1Templates,
   resetPhase1Templates,
   Phase1TemplateItem

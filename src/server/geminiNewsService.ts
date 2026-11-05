@@ -23,6 +23,7 @@ import {
   formatPointsAndRankStatus,
   GameweekPhase,
 } from './newsTickerTableService.ts';
+import { generatePhase1Stories } from './phase1StoryGenerator.ts';
 
 export interface NewsTickerStory {
   id: string;
@@ -1318,8 +1319,8 @@ export function seedHistoricalNewsPool(forceReset = false): void {
         if (val && val.gw) {
           addStory(
             `chip_${row.entry_id}_${key}`,
-            `[T:${row.entry_name}] mengaktifkan chip [N:${label}] di Gameweek [N:${val.gw}] dan meraih [N:${val.points} Poin].`,
-            `[T:${row.entry_name}] played [N:${label}] chip in Gameweek [N:${val.gw}] and earned [N:${val.points} Pts].`,
+            `[T:${row.entry_name}] mengaktifkan [N:${label}] di Gameweek [N:${val.gw}] dan meraih [N:${val.points} Poin].`,
+            `[T:${row.entry_name}] played [N:${label}] in Gameweek [N:${val.gw}] and earned [N:${val.points} Pts].`,
             Number(val.gw)
           );
         }
@@ -1552,54 +1553,21 @@ export function buildFallbackStories(payload: RawMatchdayPayload): NewsTickerSto
   // ATURAN MUTLAK USER: Saat menyebutkan poin dan rank, deteksi status GW.
   // JANGAN PERNAH tampilkan news tersebut saat 'Not started'!
   if (isNotStarted) {
-    // 1. Jadwal Pertandingan Mendatang
-    const upcoming = payload.matchesOverview?.upcomingMatches || [];
-    for (const match of upcoming.slice(0, 5)) {
+    const p1Stories = generatePhase1Stories(gw);
+    for (const p1 of p1Stories) {
       stories.push({
-        id: `fb_pre_match_${match.id}_gw${gw}`,
-        headline_id: `Jadwal Gameweek [N:${gw}]: [T:${match.homeTeam}] melawan [T:${match.awayTeam}] (${match.kickoffWib}).`,
-        headline_en: `Gameweek [N:${gw}] fixture: [T:${match.homeTeam}] vs [T:${match.awayTeam}] (${match.kickoffWib}).`,
-        drama_score: 85,
+        id: p1.id,
+        headline_id: p1.headline_id,
+        headline_en: p1.headline_en,
+        drama_score: p1.drama_score,
+        kategori: p1.kategori,
+        sub_kategori: p1.sub_kategori,
+        waktu_tayang: p1.waktu_tayang,
+        sumber: 'Bukan',
+        status_tayang: 'Y',
+        keterangan_tidak_tayang: '',
       });
     }
-
-    // 2. Chip Aktif Pra-Pekan
-    for (const ch of payload.chipsActive || []) {
-      stories.push({
-        id: `fb_pre_chip_${ch.team}_gw${gw}`,
-        headline_id: `[T:${ch.team}] mengaktifkan chip [N:${formatChipName(ch.chip)}] untuk Gameweek [N:${gw}].`,
-        headline_en: `[T:${ch.team}] played the [N:${formatChipName(ch.chip)}] chip for Gameweek [N:${gw}].`,
-        drama_score: 84,
-      });
-    }
-
-    // 3. Tren Transfer Masuk
-    for (const tr of (payload.transfersIn || []).slice(0, 3)) {
-      stories.push({
-        id: `fb_pre_trin_${tr.player}_gw${gw}`,
-        headline_id: `[P:${tr.player}] ([C:${tr.club}]) menjadi aset terpopuler yang ditransfer masuk [N:${tr.count}] tim jelang Gameweek [N:${gw}].`,
-        headline_en: `[P:${tr.player}] ([C:${tr.club}]) is the top transferred-in asset by [N:${tr.count}] teams ahead of Gameweek [N:${gw}].`,
-        drama_score: 82,
-      });
-    }
-
-    // 4. Tren Transfer Keluar
-    for (const tr of (payload.transfersOut || []).slice(0, 3)) {
-      stories.push({
-        id: `fb_pre_trout_${tr.player}_gw${gw}`,
-        headline_id: `[P:${tr.player}] ([C:${tr.club}]) dilepas oleh [N:${tr.count}] manajer jelang batas waktu Gameweek [N:${gw}].`,
-        headline_en: `[P:${tr.player}] ([C:${tr.club}]) was transferred out by [N:${tr.count}] managers ahead of the Gameweek [N:${gw}] deadline.`,
-        drama_score: 80,
-      });
-    }
-
-    // 5. Status Kesiapan Liga
-    stories.push({
-      id: `fb_pre_status_gw${gw}`,
-      headline_id: `Gameweek [N:${gw}] FPL Nusantara BERHADIAH segera bergulir, seluruh manajer telah mengunci susunan pemain pra-pekan.`,
-      headline_en: `Gameweek [N:${gw}] of FPL Nusantara BERHADIAH is about to kick off with managers having locked in their squads.`,
-      drama_score: 75,
-    });
 
     const completeStories = stories.map((s) => toNewsTickerStory(s, gw));
     return interleaveStoriesByContext(completeStories);
@@ -1772,8 +1740,8 @@ export function buildFallbackStories(payload: RawMatchdayPayload): NewsTickerSto
       if (!stories.some((s) => s.headline_id.includes(`[T:${ch.team}]`))) {
         stories.push({
           id: `fb_chip_${ch.team}_gw${gw}`,
-          headline_id: `[T:${ch.team}] mengaktifkan chip [N:${ch.chip}].`,
-          headline_en: `[T:${ch.team}] played the [N:${ch.chip}] chip.`,
+          headline_id: `[T:${ch.team}] mengaktifkan [N:${ch.chip}].`,
+          headline_en: `[T:${ch.team}] played [N:${ch.chip}].`,
           drama_score: 82,
         });
       }
