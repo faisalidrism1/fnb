@@ -6278,8 +6278,111 @@
     "players": []
   },
   {
+    "id": "p1_injury_thomas_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.668Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 84,
+    "text_berita": "Kekhawatiran melanda [N:13] tim pemilik [P:Thomas] ([C:COV]), kondisi sang pemain diragukan tampil akibat cedera betis menjelang Gameweek [N:9].",
+    "text_berita_en": "Kekhawatiran melanda [N:13] tim pemilik [P:Thomas] ([C:COV]), kondisi sang pemain diragukan tampil akibat cedera betis menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "Thomas"
+    ]
+  },
+  {
+    "id": "p1_injury_henderson_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.668Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 84,
+    "text_berita": "Kekhawatiran melanda [N:2] tim pemilik [P:Henderson] ([C:CHE]), kondisi sang pemain diragukan tampil akibat kondisi sakit menjelang Gameweek [N:9].",
+    "text_berita_en": "Kekhawatiran melanda [N:2] tim pemilik [P:Henderson] ([C:CHE]), kondisi sang pemain diragukan tampil akibat kondisi sakit menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "Henderson"
+    ]
+  },
+  {
+    "id": "p1_injury_f_kad_o_lu_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.668Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 84,
+    "text_berita": "Kekhawatiran melanda [N:2] tim pemilik [P:F.Kadıoğlu] ([C:BHA]), kondisi sang pemain diragukan tampil akibat hip injury menjelang Gameweek [N:9].",
+    "text_berita_en": "Kekhawatiran melanda [N:2] tim pemilik [P:F.Kadıoğlu] ([C:BHA]), kondisi sang pemain diragukan tampil akibat hip injury menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "F.Kadıoğlu"
+    ]
+  },
+  {
+    "id": "p1_injury_mukiele_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.668Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 84,
+    "text_berita": "Kekhawatiran melanda [N:1] tim pemilik [P:Mukiele] ([C:SUN]), kondisi sang pemain diragukan tampil akibat cedera kepala menjelang Gameweek [N:9].",
+    "text_berita_en": "Kekhawatiran melanda [N:1] tim pemilik [P:Mukiele] ([C:SUN]), kondisi sang pemain diragukan tampil akibat cedera kepala menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "Mukiele"
+    ]
+  },
+  {
+    "id": "p1_p1_top_rivalry_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.668Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Championship",
+    "sub_kategori": "Top Rivalry",
+    "drama_score": 89,
+    "text_berita": "Rivalitas sengit di puncak klasemen menjelang Gameweek [N:9], [T:Yuk Bisa Yuk FC] menjaga keunggulan [N:5 Poin] dari kejaran [T:PSIS FC], dengan kedua manajer sama-sama memercayakan ban kapten kepada [P:Haaland].",
+    "text_berita_en": "Rivalitas sengit di puncak klasemen menjelang Gameweek [N:9], [T:Yuk Bisa Yuk FC] menjaga keunggulan [N:5 Poin] dari kejaran [T:PSIS FC], dengan kedua manajer sama-sama memercayakan ban kapten kepada [P:Haaland].",
+    "gw": 9,
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [
+      "Haaland"
+    ]
+  },
+  {
     "id": "p1_p1_chip_wildcard_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6289,20 +6392,20 @@
     "kategori": "Chip",
     "sub_kategori": "Wildcard Use",
     "drama_score": 84,
-    "text_berita": "[T:Thor] mengaktifkan [N:Wildcard] pada Gameweek [N:9], dengan mendatangkan [P:Palmer] dan melepas [P:Saka].",
-    "text_berita_en": "[T:Thor] mengaktifkan [N:Wildcard] pada Gameweek [N:9], dengan mendatangkan [P:Palmer] dan melepas [P:Saka].",
+    "text_berita": "[T:Thor] mengaktifkan [N:Wildcard] pada Gameweek [N:9], dengan mendatangkan [P:Isak] dan melepas [P:João Pedro].",
+    "text_berita_en": "[T:Thor] mengaktifkan [N:Wildcard] pada Gameweek [N:9], dengan mendatangkan [P:Isak] dan melepas [P:João Pedro].",
     "gw": 9,
     "teams": [
       "Thor"
     ],
     "players": [
-      "Palmer",
-      "Saka"
+      "Isak",
+      "João Pedro"
     ]
   },
   {
     "id": "p1_p1_chip_freehit_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6312,21 +6415,21 @@
     "kategori": "Chip",
     "sub_kategori": "Freehit Use",
     "drama_score": 85,
-    "text_berita": "[T:Mooy Pablo] dan [T:A2N's Team] mengaktifkan [N:Free Hit] pada Gameweek [N:9], dengan [P:Salah] menjadi pemain yang paling banyak didatangkan dan [P:Son] paling banyak dilepas.",
-    "text_berita_en": "[T:Mooy Pablo] dan [T:A2N's Team] mengaktifkan [N:Free Hit] pada Gameweek [N:9], dengan [P:Salah] menjadi pemain yang paling banyak didatangkan dan [P:Son] paling banyak dilepas.",
+    "text_berita": "[T:Mooy Pablo] dan [T:A2N's Team] mengaktifkan [N:Free Hit] pada Gameweek [N:9], dengan [P:N.Jackson] menjadi pemain yang paling banyak didatangkan dan [P:João Pedro] paling banyak dilepas.",
+    "text_berita_en": "[T:Mooy Pablo] dan [T:A2N's Team] mengaktifkan [N:Free Hit] pada Gameweek [N:9], dengan [P:N.Jackson] menjadi pemain yang paling banyak didatangkan dan [P:João Pedro] paling banyak dilepas.",
     "gw": 9,
     "teams": [
       "Mooy Pablo",
       "A2N's Team"
     ],
     "players": [
-      "Salah",
-      "Son"
+      "N.Jackson",
+      "João Pedro"
     ]
   },
   {
     "id": "p1_p1_chip_bench_boost_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6336,19 +6439,19 @@
     "kategori": "Chip",
     "sub_kategori": "Bench Boost Use",
     "drama_score": 86,
-    "text_berita": "[T:Sumber Bahagia Motor] mengaktifkan [N:Bench Boost] pada Gameweek [N:9], dengan mengandalkan [P:Rogers] di bangku cadangan.",
-    "text_berita_en": "[T:Sumber Bahagia Motor] mengaktifkan [N:Bench Boost] pada Gameweek [N:9], dengan mengandalkan [P:Rogers] di bangku cadangan.",
+    "text_berita": "[T:Sumber Bahagia Motor] mengaktifkan [N:Bench Boost] pada Gameweek [N:9], dengan mengandalkan [P:Groß] di bangku cadangan.",
+    "text_berita_en": "[T:Sumber Bahagia Motor] mengaktifkan [N:Bench Boost] pada Gameweek [N:9], dengan mengandalkan [P:Groß] di bangku cadangan.",
     "gw": 9,
     "teams": [
       "Sumber Bahagia Motor"
     ],
     "players": [
-      "Rogers"
+      "Groß"
     ]
   },
   {
     "id": "p1_p1_chip_triple_captain_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6370,7 +6473,7 @@
   },
   {
     "id": "p1_p1_chip_recap_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6380,15 +6483,15 @@
     "kategori": "Chip",
     "sub_kategori": "Chip Recap",
     "drama_score": 88,
-    "text_berita": "Hingga Gameweek [N:9], akumulasi penggunaan chip FNB League mencatat [N:Wildcard] [N:58] (+[N:1] pekan ini), [N:Free Hit] [N:15] (+[N:2] pekan ini), [N:Bench Boost] [N:27] (+[N:1] pekan ini), dan [N:Triple Captain] [N:29] (+[N:1] pekan ini).",
-    "text_berita_en": "Hingga Gameweek [N:9], akumulasi penggunaan chip FNB League mencatat [N:Wildcard] [N:58] (+[N:1] pekan ini), [N:Free Hit] [N:15] (+[N:2] pekan ini), [N:Bench Boost] [N:27] (+[N:1] pekan ini), dan [N:Triple Captain] [N:29] (+[N:1] pekan ini).",
+    "text_berita": "Hingga Gameweek [N:9], akumulasi penggunaan chip FNB League tercatat: [N:Wildcard] [N:58] (+[N:1] pekan ini), [N:Free Hit] [N:15] (+[N:2] pekan ini), [N:Bench Boost] [N:27] (+[N:1] pekan ini), dan [N:Triple Captain] [N:29] (+[N:1] pekan ini).",
+    "text_berita_en": "Hingga Gameweek [N:9], akumulasi penggunaan chip FNB League tercatat: [N:Wildcard] [N:58] (+[N:1] pekan ini), [N:Free Hit] [N:15] (+[N:2] pekan ini), [N:Bench Boost] [N:27] (+[N:1] pekan ini), dan [N:Triple Captain] [N:29] (+[N:1] pekan ini).",
     "gw": 9,
     "teams": [],
     "players": []
   },
   {
     "id": "p1_p1_transfer_in_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6409,7 +6512,7 @@
   },
   {
     "id": "p1_p1_transfer_out_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6430,7 +6533,7 @@
   },
   {
     "id": "p1_p1_captaincy_recap_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6451,7 +6554,7 @@
   },
   {
     "id": "p1_p1_hits_recap_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6472,7 +6575,7 @@
   },
   {
     "id": "p1_p1_ownership_most_owned_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6493,7 +6596,7 @@
   },
   {
     "id": "p1_p1_differential_xi_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6516,7 +6619,7 @@
   },
   {
     "id": "p1_p1_differential_captain_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.574Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
@@ -6537,8 +6640,108 @@
     ]
   },
   {
+    "id": "p1_injury_jo_o_pedro_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 88,
+    "text_berita": "Kabar buruk bagi [N:35] tim pemilik [P:João Pedro] ([C:CHE]), sang pemain dipastikan absen akibat cedera paha menjelang Gameweek [N:9].",
+    "text_berita_en": "Kabar buruk bagi [N:35] tim pemilik [P:João Pedro] ([C:CHE]), sang pemain dipastikan absen akibat cedera paha menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "João Pedro"
+    ]
+  },
+  {
+    "id": "p1_injury_cash_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 88,
+    "text_berita": "Kabar buruk bagi [N:4] tim pemilik [P:Cash] ([C:AVL]), sang pemain dipastikan absen akibat sanksi larangan bertanding menjelang Gameweek [N:9].",
+    "text_berita_en": "Kabar buruk bagi [N:4] tim pemilik [P:Cash] ([C:AVL]), sang pemain dipastikan absen akibat sanksi larangan bertanding menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "Cash"
+    ]
+  },
+  {
+    "id": "p1_injury_alderete_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 88,
+    "text_berita": "Kabar buruk bagi [N:1] tim pemilik [P:Alderete] ([C:SUN]), sang pemain dipastikan absen akibat sanksi larangan bertanding menjelang Gameweek [N:9].",
+    "text_berita_en": "Kabar buruk bagi [N:1] tim pemilik [P:Alderete] ([C:SUN]), sang pemain dipastikan absen akibat sanksi larangan bertanding menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "Alderete"
+    ]
+  },
+  {
+    "id": "p1_injury_konsa_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 84,
+    "text_berita": "Kekhawatiran melanda [N:25] tim pemilik [P:Konsa] ([C:ARS]), kondisi sang pemain diragukan tampil akibat cedera lutut menjelang Gameweek [N:9].",
+    "text_berita_en": "Kekhawatiran melanda [N:25] tim pemilik [P:Konsa] ([C:ARS]), kondisi sang pemain diragukan tampil akibat cedera lutut menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "Konsa"
+    ]
+  },
+  {
+    "id": "p1_injury_calvert_lewin_gw9",
+    "timestamp_produksi": "2026-11-06T15:57:21.667Z",
+    "sumber": "Bukan",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini bukan Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Injury",
+    "sub_kategori": "Flagged Players",
+    "drama_score": 84,
+    "text_berita": "Kekhawatiran melanda [N:22] tim pemilik [P:Calvert-Lewin] ([C:LEE]), kondisi sang pemain diragukan tampil akibat cedera kaki menjelang Gameweek [N:9].",
+    "text_berita_en": "Kekhawatiran melanda [N:22] tim pemilik [P:Calvert-Lewin] ([C:LEE]), kondisi sang pemain diragukan tampil akibat cedera kaki menjelang Gameweek [N:9].",
+    "gw": 9,
+    "teams": [],
+    "players": [
+      "Calvert-Lewin"
+    ]
+  },
+  {
     "id": "p1_p1_match_fixtures_gw9",
-    "timestamp_produksi": "2026-11-05T14:39:59.573Z",
+    "timestamp_produksi": "2026-11-06T15:57:21.666Z",
     "sumber": "Bukan",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini bukan Not started",

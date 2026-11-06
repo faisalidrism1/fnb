@@ -35,18 +35,28 @@ Berita disajikan mengalir secara horizontal di atas latar gelap tanpa badge/labe
 
 ---
 
-## 3. Aturan Universal Kuantitas Tim (AI & Non-AI)
+## 3. Aturan Universal Kuantitas Tim & Pemilihan Opsi B (Least Featured Queue)
 
-Berlaku secara mutlak di seluruh modul pembuatan berita saat menyebutkan daftar tim:
+Berlaku secara mutlak di seluruh modul pembuatan berita (baik Phase 1 Not started, Phase 2 Live, Phase 3 Between Match, Phase 4 Provisional, maupun Phase 5 Confirmed) saat menyebutkan daftar tim:
 
 * **Jumlah Tim $\le 3$ (Wajib Sebutkan SEMUA Nama Tim):**
   * 1 Tim: `[T:Nama Tim]`
   * 2 Tim: `[T:Tim A] dan [T:Tim B]` *(EN: `[T:Tim A] and [T:Tim B]`)*
   * 3 Tim: `[T:Tim A], [T:Tim B], dan [T:Tim C]` *(EN: `[T:Tim A], [T:Tim B], and [T:Tim C]`)*
-* **Jumlah Tim $> 3$ (Sebutkan 2 Nama Tim Pertama & Sisa $n$ Tim Lainnya):**
+* **Jumlah Tim $> 3$ (Sebutkan 2 Nama Tim Terpilih & Sisa $n$ Tim Lainnya):**
   * 4 Tim: `[T:Tim A], [T:Tim B], dan [N:2] tim lainnya` *(EN: `[T:Tim A], [T:Tim B], and [N:2] other teams`)*
   * 5 Tim: `[T:Tim A], [T:Tim B], dan [N:3] tim lainnya` *(EN: `[T:Tim A], [T:Tim B], and [N:3] other teams`)*
   * 8 Tim: `[T:Tim A], [T:Tim B], dan [N:6] tim lainnya` *(EN: `[T:Tim A], [T:Tim B], and [N:6] other teams`)*
+
+### Aturan Seleksi 2 Tim Saat Jumlah Tim $> 3$:
+1. **Pengecualian Mutlak:** **Hanya Berita Rivalitas Juara** (Kategori 4: GW Champion, Peringkat 1 vs Peringkat 2 Klasemen, Juara Terbanyak) yang menggunakan peringkat klasemen resmi yang relevan.
+2. **Kaidah Umum Seluruh Fase & Seluruh Kategori Lainnya (Opsi B: Least Featured Queue):**
+   * Kecuali rivalitas juara, **SEMUA news template yang sudah dan akan dibuat untuk semua fase** (Not started, Live Match, Between Match, Provisional, Confirmed), bila menyebutkan nama tim $> 3$, **SELALU menggunakan Opsi B**.
+   * **Mekanisme Opsi B:**
+     * Sistem menghitung akumulasi kemunculan nama tim di kolom `teams` pada master `news_ticker_table.json` (`getTeamAppearanceCounts()`).
+     * Tim diurutkan secara menaik (*ascending*) berdasarkan frekuensi kemunculan berita masa lalu (`sortTeamsByLeastFeatured()`), sehingga tim-tim yang paling jarang disorot / belum pernah muncul mendapat prioritas tampil di running text.
+     * Bila terdapat kesamaan frekuensi (misal sama-sama 0 atau 1 kali tayang), tie-breaker diselesaikan secara deterministik alfabetis (`localeCompare`).
+     * Dua tim paling jarang disorot ditampilkan di depan, dan sisanya dirangkum sebagai `, serta [N:X] tim lainnya` (ID) atau `, and [N:X] other teams` (EN).
 
 ---
 
@@ -190,7 +200,7 @@ Kategori dan formula berita dibagi secara baku ke dalam **5 Waktu Tayang**:
    * Contoh: `Pengerahan chip Triple Captain dilakukan oleh [T:Tim A] dan [T:Tim B] yang mengandalkan [P:Haaland], sementara [N:2] tim lainnya memilih opsi kapten berbeda.`
 6. **Rekapitulasi Penggunaan Chip (Chip / Chip Recap):**
    * Total chip musim berjalan + penambahan di pekan aktif.
-   * Contoh: `Hingga Gameweek [N:GW], akumulasi penggunaan chip FNB League mencatat Wildcard [N:14] (+[N:2] pekan ini), Free Hit [N:8] (+[N:1] pekan ini), Bench Boost [N:6], dan Triple Captain [N:12] (+[N:3] pekan ini).`
+   * Contoh: `Hingga Gameweek [N:GW], akumulasi penggunaan chip FNB League tercatat: Wildcard [N:14] (+[N:2] pekan ini), Free Hit [N:8] (+[N:1] pekan ini), Bench Boost [N:6], dan Triple Captain [N:12] (+[N:3] pekan ini).`
 7. **Pemain Paling Banyak Ditransfer Masuk (Transfer / In):**
    * 2 pemain terbanyak.
    * Contoh: `Aktivitas transfer masuk Gameweek [N:GW] didominasi oleh [P:Pemain 1] dengan [N:X] pembelian dan [P:Pemain 2] sebanyak [N:Y] pembelian.`
@@ -202,7 +212,11 @@ Kategori dan formula berita dibagi secara baku ke dalam **5 Waktu Tayang**:
    * Contoh: `Perburuan ban kapten Gameweek [N:GW] dipimpin oleh [P:Haaland] dengan [N:X] pemilih, disusul [P:Salah] sebanyak [N:Y] pemilih, sementara [N:Z] tim lainnya memilih kapten alternatif.`
 10. **Sebaran Poin Pengurangan Transfer / Hits (Hits / Hits Recap):**
     * *Aturan Khusus:* Setiap nama tim yang muncul wajib dicantumkan nilai minus hits-nya. Menggunakan narasi agresivitas skuad yang mengalir natural.
-    * *Jika $\le 3$ tim:* `Langkah agresif di bursa transfer diambil [T:Tim A] (-[N:4 Poin]) dan [T:Tim B] (-[N:8 Poin]) yang rela mengawali pekan ini dengan modal pengurangan poin.`
+    * *Urutan Seleksi Tim:*
+      1. **Prioritas Utama:** Poin pengurangan transfer terbesar / paling agresif (*transfer cost descending*, contoh: -12 Poin, lalu -8 Poin, lalu -4 Poin).
+      2. **Tie-Breaker (Nilai Minus Sama):** Jika beberapa tim memiliki nilai minus yang sama (atau saat memilih 2 tim jika jumlah tim $> 3$), gunakan **Opsi B (Least Featured Queue)** untuk memilih tim yang paling jarang disorot di ticker.
+      3. **Tie-Breaker Lanjutan:** Alfabetis deterministik (`localeCompare`).
+    * *Jika $\le 3$ tim:* `Langkah agresif di bursa transfer diambil [T:Tim A] (-[N:8 Poin]) dan [T:Tim B] (-[N:4 Poin]) yang rela mengawali pekan ini dengan modal pengurangan poin.`
     * *Jika $> 3$ tim:* `Langkah agresif di bursa transfer diambil [T:Tim A] (-[N:8 Poin]), [T:Tim B] (-[N:4 Poin]), serta [N:X] tim lainnya yang rela mengawali pekan ini dengan modal pengurangan poin.`
 11. **Pemain Paling Banyak Dimiliki (Ownership / Most Owned):**
     * *Aturan Khusus:* Tidak diawali frasa "Dua pemain", langsung sebut pemain.
@@ -218,6 +232,17 @@ Kategori dan formula berita dibagi secara baku ke dalam **5 Waktu Tayang**:
     * *Konsep:* 1 berita per masing-masing tim yang menunjuk kapten differential (< 5% pemilih kapten di liga).
     * *Jika kapten tunggal (eksklusif):* `Langkah berani diambil [T:Nama Tim] yang menjadi satu-satunya tim di liga dengan mempercayakan ban kapten kepada [P:Pemain] di Gameweek [N:GW].`
     * *Jika dipilih $\le 2$ tim (< 5%):* `Langkah berani diambil [T:Nama Tim] dengan mempercayakan ban kapten kepada [P:Pemain] yang hanya dipilih oleh [N:2] tim di liga pada Gameweek [N:GW].`
+14. **Pembaruan Pemain Cedera Pascadeadline (Injury / Flagged Players):**
+    * *Kriteria Mutlak:* Menjaring pemain yang status cederanya diperbarui (`news_added`) **setelah batas waktu deadline GW sebelumnya** hingga sebelum GW aktif bergulir.
+    * *Prioritas Seleksi:* Jumlah pemilik terbanyak di liga (`owners_count`), kemudian harga termahal (`nowCost`).
+    * *Jika Dipastikan Absen (status 'i' / chance 0%):* `Kabar buruk bagi [N:X] tim pemilik [P:Pemain] ([C:Klub]), sang pemain dipastikan absen akibat {cedera} menjelang Gameweek [N:GW].`
+    * *Jika Meragukan (status 'd' / chance 25%-75%):* `Kekhawatiran melanda [N:X] tim pemilik [P:Pemain] ([C:Klub]), kondisi sang pemain diragukan tampil akibat {cedera} menjelang Gameweek [N:GW].`
+15. **Sorotan Rivalitas Puncak Klasemen (Championship / Top Rivalry):**
+    * *Karakteristik:* Membedah rivalitas perebutan tahta antara Peringkat 1 vs Peringkat 2 klasemen resmi pekan sebelumnya menjelang bergulirnya Gameweek aktif.
+    * *Kondisi 1 (Kapten Berbeda):* `Persaingan puncak klasemen menjelang Gameweek [N:{gw}], sang pemuncak [T:{team1}] memimpin dengan keunggulan [N:{margin} Poin] atas [T:{team2}], di mana duel taktis terjadi lewat perbedaan pilihan kapten antara [P:{captain1}] kontra [P:{captain2}].`
+    * *Kondisi 2 (Kapten Sama):* `Rivalitas sengit di puncak klasemen menjelang Gameweek [N:{gw}], [T:{team1}] menjaga keunggulan [N:{margin} Poin] dari kejaran [T:{team2}], dengan kedua manajer sama-sama memercayakan ban kapten kepada [P:{captain}].`
+    * *Kondisi 3 (Manuver Chip):* `Manuver krusial di perebutan tahta menjelang Gameweek [N:{gw}], [T:{team_chip}] mengaktifkan [N:{chip}] guna {target_clause} jarak [N:{margin} Poin] dengan [T:{team_rival}].`
+
 
 ---
 

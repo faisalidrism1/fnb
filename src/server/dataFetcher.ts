@@ -1518,6 +1518,7 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
       chanceOfPlayingNextRound: el.chance_of_playing_next_round ?? null,
       chanceOfPlayingThisRound: el.chance_of_playing_this_round ?? null,
       news: el.news || '',
+      newsAdded: el.news_added ?? null,
       photo: (el.code || (el.photo ? el.photo.replace('.jpg', '').replace(/^p/, '') : null))
         ? `https://resources.premierleague.com/premierleague25/photos/players/500x500/${el.code || el.photo.replace('.jpg', '').replace(/^p/, '')}.png`
         : '',

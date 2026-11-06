@@ -1308,6 +1308,7 @@ import {
   resetPhase1Templates,
   Phase1TemplateItem
 } from './src/data/phase1Templates.ts';
+import { generatePhase1Stories } from './src/server/phase1StoryGenerator.ts';
 
 // ================= PHASE 1 TEMPLATES API =================
 // 1. Get all Phase 1 templates
@@ -1315,6 +1316,16 @@ app.get('/api/admin/phase1-templates', (req, res) => {
   try {
     const templates = getPhase1Templates();
     res.json({ success: true, count: templates.length, data: templates });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 1b. Get Real League Data Preview for Phase 1 templates
+app.get('/api/admin/phase1-templates/real-preview', (req, res) => {
+  try {
+    const stories = generatePhase1Stories();
+    res.json({ success: true, count: stories.length, data: stories });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }

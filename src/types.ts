@@ -438,6 +438,7 @@ export interface DbPlayerStat {
   chanceOfPlayingNextRound?: number | null;
   chanceOfPlayingThisRound?: number | null;
   news?: string;
+  newsAdded?: string | null;
   photo?: string;
   
   // Performance stats

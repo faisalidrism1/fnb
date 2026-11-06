@@ -12,6 +12,7 @@ import { getOptimalDatabase, getDbStandings, getGwSnapshot, getDbOwnershipPlayer
 import { fetchMatchesForGw } from './matchesFetcher.ts';
 import { MatchCardItem, MatchPlayerItem } from '../types.ts';
 import { cleanHeadlineBody, NewsTickerStory } from './geminiNewsService.ts';
+import { sortTeamsByLeastFeatured } from './teamExposureTracker.ts';
 
 export interface LiveJournalismOutput {
   liveScores: NewsTickerStory[];
@@ -167,10 +168,15 @@ export function formatChipName(chip?: string | null): string {
  * Memformat daftar tim sesuai aturan baku:
  * - Jumlah tim <= 3: sebutkan semua nama tim ([T:A], [T:A] dan [T:B], [T:A], [T:B], dan [T:C])
  * - Jumlah tim > 3: sebutkan 2 dan n tim lainnya ([T:A], [T:B], dan [N:X] tim lainnya)
+ *   Kecuali rivalitas juara, 2 tim yang disorot SELALU menggunakan Opsi B (Least Featured Queue)
  */
-export function formatTeamList(teams: string[], lang: 'id' | 'en' = 'id'): string {
+export function formatTeamList(
+  teams: string[],
+  lang: 'id' | 'en' = 'id',
+  isChampionshipRivalry: boolean = false
+): string {
   if (!teams || teams.length === 0) return '';
-  const cleanTeams = teams
+  let cleanTeams = teams
     .map((t) => t.replace(/^\[T:/, '').replace(/\]$/, '').trim())
     .filter(Boolean);
   const n = cleanTeams.length;
@@ -187,6 +193,10 @@ export function formatTeamList(teams: string[], lang: 'id' | 'en' = 'id'): strin
       : `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], and [T:${cleanTeams[2]}]`;
   }
   // n > 3: sebutkan 2 dan n tim lainnya
+  // Kecuali rivalitas juara, selalu gunakan Opsi B (tim yang paling jarang disorot)
+  if (!isChampionshipRivalry) {
+    cleanTeams = sortTeamsByLeastFeatured(cleanTeams);
+  }
   const remaining = n - 2;
   return lang === 'id'
     ? `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], dan [N:${remaining}] tim lainnya`

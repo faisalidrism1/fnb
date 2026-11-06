@@ -149,8 +149,8 @@ return renderTemplate(template.multi, {
       team: 'Thor',
       teams: '[T:Garuda FC] dan [T:Bintang Timur]',
       gw: '9',
-      player_in: 'Palmer',
-      player_out: 'Saka',
+      player_in: 'Isak',
+      player_out: 'João Pedro',
     },
   },
   {
@@ -211,7 +211,7 @@ return renderTemplate(template.multi, {
 if (bbTeams.length === 0) return null;
 
 if (bbTeams.length === 1) {
-  const topBench = getTopBenchPlayer(bbTeams[0], gw);
+  const topBench = getTopBenchPlayer(bbTeams[0], gw, ['cost', 'total_points', 'form']);
   return renderTemplate(template.single, {
     team: bbTeams[0].name,
     gw,
@@ -227,10 +227,10 @@ return renderTemplate(template.multi, {
   player_bench: topBenchPlayer.name,
 });`,
     sample_data: {
-      team: 'Petrikor',
-      teams: '[T:Petrikor] dan [T:Sumber Bahagia Motor]',
+      team: 'Sumber Bahagia Motor',
+      teams: '[T:Sumber Bahagia Motor] dan [T:Petrikor]',
       gw: '9',
-      player_bench: 'Rogers',
+      player_bench: 'Groß',
     },
   },
   {
@@ -288,7 +288,7 @@ return renderTemplate(template.multi, {
     gw_phase: 'Not started',
     category: 'Chip',
     subcategory: 'Chip Recap',
-    template: 'Hingga Gameweek [N:{gw}], akumulasi penggunaan chip FNB League mencatat {chips_summary}.',
+    template: 'Hingga Gameweek [N:{gw}], akumulasi penggunaan chip FNB League tercatat: {chips_summary}.',
     example: '',
     code: `const recap = getSeasonChipUsageStats(gw);
 const summary = buildChipAccumulationSummary(recap);
@@ -520,6 +520,121 @@ return stories;`,
       captain: 'Bowen',
       gw: '9',
       pickers_count: '2',
+    },
+  },
+  {
+    no: 14,
+    id: 'P1_INJURY_UPDATE',
+    gw_phase: 'Not started',
+    category: 'Injury',
+    subcategory: 'Flagged Players',
+    template: `[Kondisi: Dipastikan Absen]
+Kabar buruk bagi [N:{owners_count}] tim pemilik [P:{player}] ([C:{club}]), sang pemain dipastikan absen akibat {injury_desc} menjelang Gameweek [N:{gw}].
+
+[Kondisi: Meragukan]
+Kekhawatiran melanda [N:{owners_count}] tim pemilik [P:{player}] ([C:{club}]), kondisi sang pemain diragukan tampil akibat {injury_desc} menjelang Gameweek [N:{gw}].`,
+    example: '',
+    code: `const prevDeadline = getPreviousGwDeadline(gw);
+const flagged = getFlaggedPlayersUpdatedAfter(prevDeadline, gw);
+if (flagged.length === 0) return null;
+
+const top = flagged[0];
+const isOut = top.status === 'i' || top.chanceOfPlaying === 0;
+
+return renderTemplate(isOut ? template.out : template.doubtful, {
+  owners_count: top.ownersCount,
+  player: top.name,
+  club: top.club,
+  injury_desc: top.injuryDesc,
+  gw,
+});`,
+    sample_data: {
+      owners_count: '35',
+      player: 'João Pedro',
+      club: 'CHE',
+      injury_desc: 'cedera paha',
+      gw: '9',
+    },
+  },
+  {
+    no: 15,
+    id: 'P1_TOP_RIVALRY',
+    gw_phase: 'Not started',
+    category: 'Championship',
+    subcategory: 'Top Rivalry',
+    template: `[Kondisi: Kapten Berbeda]
+Persaingan puncak klasemen menjelang Gameweek [N:{gw}], sang pemuncak [T:{team1}] memimpin dengan keunggulan [N:{margin} Poin] atas [T:{team2}], di mana duel taktis terjadi lewat perbedaan pilihan kapten antara [P:{captain1}] kontra [P:{captain2}].
+
+[Kondisi: Kapten Sama]
+Rivalitas sengit di puncak klasemen menjelang Gameweek [N:{gw}], [T:{team1}] menjaga keunggulan [N:{margin} Poin] dari kejaran [T:{team2}] saat kedua manajer sama-sama memercayakan ban kapten kepada [P:{captain}], dengan pembeda starting XI bertumpu pada [P:{diff_player1}] di kubu [T:{team1}] kontra [P:{diff_player2}] milik [T:{team2}].
+
+[Kondisi: Manuver Chip]
+Manuver krusial di perebutan tahta menjelang Gameweek [N:{gw}], [T:{team_chip}] mengaktifkan [N:{chip}] guna {target_clause} jarak [N:{margin} Poin] dengan [T:{team_rival}].`,
+    example: '',
+    code: `const standings = getStandings(gw > 1 ? gw - 1 : gw);
+if (standings.length < 2) return null;
+
+const leader = standings[0];
+const chaser = standings[1];
+const margin = Math.abs(leader.totalPoints - chaser.totalPoints);
+
+const chipLeader = getActiveChip(leader.id, gw);
+const chipChaser = getActiveChip(chaser.id, gw);
+
+if (chipLeader || chipChaser) {
+  const isLeaderChip = !!chipLeader;
+  const chipTeam = isLeaderChip ? leader : chaser;
+  const rivalTeam = isLeaderChip ? chaser : leader;
+  const chipName = chipLeader || chipChaser;
+  return renderTemplate(template.chip, {
+    gw,
+    team_chip: chipTeam.name,
+    chip: chipName,
+    target_clause: isLeaderChip ? 'memperlebar keunggulan' : 'memangkas ketertinggalan',
+    margin,
+    team_rival: rivalTeam.name,
+  });
+}
+
+const capLeader = getTeamCaptain(leader.id, gw);
+const capChaser = getTeamCaptain(chaser.id, gw);
+
+if (capLeader.name !== capChaser.name) {
+  return renderTemplate(template.different_captains, {
+    gw,
+    team1: leader.name,
+    margin,
+    team2: chaser.name,
+    captain1: capLeader.name,
+    captain2: capChaser.name,
+  });
+}
+
+const diffStarters = getTopDifferingStarters(leader.id, chaser.id, gw);
+
+return renderTemplate(template.same_captain, {
+  gw,
+  team1: leader.name,
+  margin,
+  team2: chaser.name,
+  captain: capLeader.name,
+  diff_player1: diffStarters.player1,
+  diff_player2: diffStarters.player2,
+});`,
+    sample_data: {
+      gw: '9',
+      team1: 'Sunda Kelapa',
+      team2: 'Bintang Timur',
+      margin: '14',
+      captain1: 'Haaland',
+      captain2: 'Salah',
+      captain: 'Haaland',
+      diff_player1: 'Palmer',
+      diff_player2: 'Mbeumo',
+      team_chip: 'Bintang Timur',
+      chip: 'Free Hit',
+      target_clause: 'memangkas ketertinggalan',
+      team_rival: 'Sunda Kelapa',
     },
   },
 ];
