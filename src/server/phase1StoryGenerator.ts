@@ -4,6 +4,22 @@ import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.
 import { formatTeamList } from './liveJournalismEngine.ts';
 import { sortTeamsByLeastFeatured, sortObjectsByLeastFeaturedTeam, getTeamAppearanceCounts } from './teamExposureTracker.ts';
 
+/**
+ * ============================================================================
+ * KONVENSI FPL & STATUS GAMEWEEK:
+ * Setelah transfer deadline terlewati, game FPL SUDAH RESMI MASUK KE GAMEWEEK N.
+ * Status 'Not started' BUKAN berarti Gameweek N belum dimulai secara game/kalender,
+ * melainkan berarti seluruh manajer sudah terkunci di GW N, tetapi BELUM ADA
+ * PERTANDINGAN YANG DIMULAI (kickoff) di pekan tersebut.
+ * 
+ * ATURAN BAKU NARASI BERITA (FASE NOT STARTED):
+ * - JANGAN gunakan kata "menjelang", "sebelum Gameweek [N:{gw}]", atau frasa
+ *   sejenis yang mengesankan Gameweek N belum tiba.
+ * - Gunakan frasa: "di Gameweek [N:{gw}]", "pada Gameweek [N:{gw}]", dsb.,
+ *   karena kondisi tim dan pilihan manajer sudah resmi aktif di Gameweek N.
+ * ============================================================================
+ */
+
 const CACHE_PATH = path.join(process.cwd(), 'src/data/cachedLeagueData.json');
 const DB_PATH = path.join(process.cwd(), 'src/data/fpl_database.json');
 
@@ -243,9 +259,21 @@ function getTopDifferingStarters(
   team2Id: number,
   fallbackPlayer1: string,
   fallbackPlayer2: string
-): { player1: string; player2: string } {
+): {
+  player1: string;
+  player2: string;
+  players1Str: string;
+  players2Str: string;
+} {
   try {
-    if (!fs.existsSync(DB_PATH)) return { player1: fallbackPlayer1, player2: fallbackPlayer2 };
+    if (!fs.existsSync(DB_PATH)) {
+      return {
+        player1: fallbackPlayer1,
+        player2: fallbackPlayer2,
+        players1Str: `[P:${fallbackPlayer1}]`,
+        players2Str: `[P:${fallbackPlayer2}]`,
+      };
+    }
     const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
     const playersArr = Array.isArray(db.players) ? db.players : Object.values(db.players || {});
 
@@ -285,13 +313,139 @@ function getTopDifferingStarters(
     diff1.sort(sortByWeight);
     diff2.sort(sortByWeight);
 
+    const formatPlayerList = (list: any[], fallback: string) => {
+      if (list.length === 0) return `[P:${fallback}]`;
+      if (list.length === 1) return `[P:${list[0].name}]`;
+      if (list.length === 2) return `[P:${list[0].name}] dan [P:${list[1].name}]`;
+      return `[P:${list[0].name}], [P:${list[1].name}], dan [P:${list[2].name}]`;
+    };
+
     return {
       player1: diff1[0]?.name || fallbackPlayer1,
       player2: diff2[0]?.name || fallbackPlayer2,
+      players1Str: formatPlayerList(diff1, fallbackPlayer1),
+      players2Str: formatPlayerList(diff2, fallbackPlayer2),
     };
   } catch {
-    return { player1: fallbackPlayer1, player2: fallbackPlayer2 };
+    return {
+      player1: fallbackPlayer1,
+      player2: fallbackPlayer2,
+      players1Str: `[P:${fallbackPlayer1}]`,
+      players2Str: `[P:${fallbackPlayer2}]`,
+    };
   }
+}
+
+/**
+ * Resolves teams with most gameweek champion titles from GW 1 up to GW (n - 1).
+ * Khusus untuk tampilan berita/news, jumlah gelar yang sudah didapat
+ * hanya dihitung dari gameweek yang sudah selesai (GW 1 s.d. n-1).
+ */
+function getHistoricalMostGwLeaders(
+  leagueData: any,
+  currentGw: number
+): {
+  entry_id: number;
+  entry_name: string;
+  player_name: string;
+  titles: number;
+  gws_won: number[];
+}[] {
+  const maxGw = currentGw - 1;
+  if (maxGw < 1) return [];
+
+  const teamMap = new Map<
+    number,
+    {
+      entry_id: number;
+      entry_name: string;
+      player_name: string;
+      titles: number;
+      gws_won: number[];
+    }
+  >();
+
+  // 1. Ambil data dari gameweek_champions untuk event 1..maxGw
+  for (const gc of leagueData?.gameweek_champions || []) {
+    const event = Number(gc.event);
+    if (event >= 1 && event <= maxGw) {
+      for (const champ of gc.champions || []) {
+        const eid = Number(champ.entry_id);
+        const existing = teamMap.get(eid) || {
+          entry_id: eid,
+          entry_name: champ.entry_name || '',
+          player_name: champ.player_name || '',
+          titles: 0,
+          gws_won: [],
+        };
+        existing.titles += 1;
+        if (!existing.gws_won.includes(event)) {
+          existing.gws_won.push(event);
+        }
+        teamMap.set(eid, existing);
+      }
+    }
+  }
+
+  // 2. Fallback / supplementary dari most_gameweek_champions jika ada gws_won
+  for (const m of leagueData?.most_gameweek_champions || []) {
+    const eid = Number(m.entry_id);
+    const validGws = (m.gws_won || []).filter(
+      (gw: any) => Number(gw) >= 1 && Number(gw) <= maxGw
+    );
+    if (validGws.length > 0) {
+      const existing = teamMap.get(eid) || {
+        entry_id: eid,
+        entry_name: m.entry_name || '',
+        player_name: m.player_name || '',
+        titles: 0,
+        gws_won: [],
+      };
+      if (existing.titles === 0) {
+        existing.titles = validGws.length;
+        existing.gws_won = validGws;
+        teamMap.set(eid, existing);
+      }
+    }
+  }
+
+  const list = Array.from(teamMap.values()).filter((t) => t.titles > 0);
+
+  // Sorting & Exclusion:
+  // Peringkat 1 dan 2 di klasemen akhir GW (n - 1) dikecualikan agar tidak bentrok dengan Top Rivalry
+  const standingsPrev =
+    leagueData?.standings?.[String(maxGw)] ||
+    leagueData?.standings?.[String(currentGw)] ||
+    [];
+
+  const excludedEntryIds = new Set<number>();
+  for (const s of standingsPrev) {
+    const r = Number(s.rank);
+    if (r === 1 || r === 2) {
+      excludedEntryIds.add(Number(s.entry_id));
+    }
+  }
+  if (excludedEntryIds.size < 2 && standingsPrev.length >= 2) {
+    if (standingsPrev[0]?.entry_id) excludedEntryIds.add(Number(standingsPrev[0].entry_id));
+    if (standingsPrev[1]?.entry_id) excludedEntryIds.add(Number(standingsPrev[1].entry_id));
+  }
+
+  // Filter keluar peringkat 1 & 2 dari kandidat Most GW Rivalry
+  const candidateList = list.filter((t) => !excludedEntryIds.has(t.entry_id));
+
+  const rankMap = new Map<number, number>();
+  standingsPrev.forEach((s: any, idx: number) => {
+    rankMap.set(Number(s.entry_id), Number(s.rank || idx + 1));
+  });
+
+  candidateList.sort((a, b) => {
+    if (b.titles !== a.titles) return b.titles - a.titles;
+    const rankA = rankMap.get(a.entry_id) ?? 999;
+    const rankB = rankMap.get(b.entry_id) ?? 999;
+    return rankA - rankB;
+  });
+
+  return candidateList;
 }
 
 /**
@@ -683,16 +837,29 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
 
         // 9. Captaincy Recap
         case 9: {
-          const capStats = Array.isArray(leagueData?.captain_stats) ? leagueData.captain_stats : [];
-          if (capStats.length >= 2) {
-            const dominant = capStats[0];
-            const second = capStats[1];
-            const othersCount = capStats.slice(2).reduce((acc: number, c: any) => acc + (c.count || 1), 0);
+          const capPlayers = leagueData?.captain_players?.[String(currentGw)] ||
+            (Array.isArray(leagueData?.captain_players) ? leagueData.captain_players :
+            (Array.isArray(leagueData?.captain_stats) ? leagueData.captain_stats : []));
+
+          if (capPlayers.length >= 2) {
+            const dominant = capPlayers[0];
+            const second = capPlayers[1];
+            const dominantName = dominant.web_name || dominant.name || dominant.player_name || sample.dominant_captain;
+            const dominantCount = dominant.captain_count ?? dominant.count ?? sample.count1;
+            const secondName = second.web_name || second.name || second.player_name || sample.player2 || 'Saka';
+            const secondCount = second.captain_count ?? second.count ?? sample.count2 ?? 7;
+            const othersCount = capPlayers.slice(2).reduce((acc: number, c: any) => acc + (c.captain_count ?? c.count ?? 1), 0);
+
             filledHeadline = renderTemplateBranch(tmpl.template, '', {
               gw: currentGw,
-              dominant_captain: dominant.name || dominant.player_name || sample.dominant_captain,
-              count1: dominant.count || sample.count1,
-              second_clause: `, disusul [P:${second.name || second.player_name}] sebanyak [N:${second.count}] pemilih`,
+              dominant_captain: dominantName,
+              count1: dominantCount,
+              player2: secondName,
+              second_captain: secondName,
+              count2: secondCount,
+              count_others: othersCount,
+              others_count: othersCount,
+              second_clause: `, disusul [P:${secondName}] dengan [N:${secondCount}] tim`,
               others_clause: othersCount > 0 ? `, sementara [N:${othersCount}] tim lainnya memilih kapten alternatif` : '',
             });
           } else {
@@ -733,7 +900,7 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
             } else if (minusTeams.length === 3) {
               formatted = `${minusTeams[0]}, ${minusTeams[1]}, dan ${minusTeams[2]}`;
             } else {
-              formatted = `${minusTeams[0]}, ${minusTeams[1]}, serta [N:${minusTeams.length - 2}] tim lainnya`;
+              formatted = `${minusTeams[0]}, ${minusTeams[1]}, dan [N:${minusTeams.length - 2}] tim lainnya`;
             }
             filledHeadline = renderTemplateBranch(tmpl.template, '', {
               teams_with_hits: formatted,
@@ -868,7 +1035,7 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
               const chipTeam = chip1 ? team1.entry_name : team2.entry_name;
               const rivalTeam = chip1 ? team2.entry_name : team1.entry_name;
               const chipName = chip1 || chip2;
-              const targetClause = chip1 ? 'memperlebar keunggulan' : 'memangkas ketertinggalan';
+              const targetClause = chip1 ? 'memperlebar' : 'memangkas';
               filledHeadline = renderTemplateBranch(tmpl.template, 'manuver chip', {
                 gw: currentGw,
                 team_chip: chipTeam,
@@ -890,8 +1057,8 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
               const diffStarters = getTopDifferingStarters(
                 team1.entry_id,
                 team2.entry_id,
-                sample.diff_player1 || 'Palmer',
-                sample.diff_player2 || 'Mbeumo'
+                String(sample.diff_player1 || 'Palmer'),
+                String(sample.diff_player2 || 'Mbeumo')
               );
               filledHeadline = renderTemplateBranch(tmpl.template, 'kapten sama', {
                 gw: currentGw,
@@ -901,6 +1068,91 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
                 captain: cap1,
                 diff_player1: diffStarters.player1,
                 diff_player2: diffStarters.player2,
+                diff_players1: diffStarters.players1Str,
+                diff_players2: diffStarters.players2Str,
+              });
+            }
+          } else {
+            filledHeadline = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
+              ...sample,
+              gw: currentGw,
+            });
+          }
+          break;
+        }
+
+        // 16. Championship - Most GW Rivalry
+        case 16: {
+          // Khusus untuk tampilan news, raihan gelar dihitung dari GW 1 s.d. (n - 1)
+          const mostGwLeaders = getHistoricalMostGwLeaders(leagueData, currentGw);
+
+          if (mostGwLeaders.length >= 2) {
+            const team1 = mostGwLeaders[0];
+            const team2 = mostGwLeaders[1];
+
+            // Periksa chip aktif untuk kedua tim di currentGw
+            let chip1 = '';
+            let chip2 = '';
+            for (const row of leagueData?.all_chips_used || []) {
+              if (row.entry_id === team1.entry_id) {
+                if (row.wc1 && Number(row.wc1.gw) === currentGw) chip1 = 'Wildcard';
+                else if (row.fh1 && Number(row.fh1.gw) === currentGw) chip1 = 'Free Hit';
+                else if (row.bb1 && Number(row.bb1.gw) === currentGw) chip1 = 'Bench Boost';
+                else if (row.tc1 && Number(row.tc1.gw) === currentGw) chip1 = 'Triple Captain';
+              }
+              if (row.entry_id === team2.entry_id) {
+                if (row.wc1 && Number(row.wc1.gw) === currentGw) chip2 = 'Wildcard';
+                else if (row.fh1 && Number(row.fh1.gw) === currentGw) chip2 = 'Free Hit';
+                else if (row.bb1 && Number(row.bb1.gw) === currentGw) chip2 = 'Bench Boost';
+                else if (row.tc1 && Number(row.tc1.gw) === currentGw) chip2 = 'Triple Captain';
+              }
+            }
+
+            // Periksa kapten kedua tim di currentGw
+            const currentStandings = leagueData?.standings?.[String(currentGw)] || [];
+            const curr1 = currentStandings.find((s: any) => s.entry_id === team1.entry_id) || team1;
+            const curr2 = currentStandings.find((s: any) => s.entry_id === team2.entry_id) || team2;
+            const cap1 = curr1.captain?.name || sample.captain1 || 'Haaland';
+            const cap2 = curr2.captain?.name || sample.captain2 || 'Salah';
+
+            if (chip1 || chip2) {
+              const chipTeam = chip1 ? team1.entry_name : team2.entry_name;
+              const rivalTeam = chip1 ? team2.entry_name : team1.entry_name;
+              const chipName = chip1 || chip2;
+              filledHeadline = renderTemplateBranch(tmpl.template, 'manuver chip', {
+                gw: currentGw,
+                team_chip: chipTeam,
+                chip: chipName,
+                team_rival: rivalTeam,
+              });
+            } else if (cap1 !== cap2) {
+              filledHeadline = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
+                gw: currentGw,
+                team1: team1.entry_name,
+                titles1: team1.titles ?? sample.titles1 ?? 1,
+                team2: team2.entry_name,
+                titles2: team2.titles ?? sample.titles2 ?? 1,
+                captain1: cap1,
+                captain2: cap2,
+              });
+            } else {
+              const diffStarters = getTopDifferingStarters(
+                team1.entry_id,
+                team2.entry_id,
+                String(sample.diff_player1 || 'Mbeumo'),
+                String(sample.diff_player2 || 'Palmer')
+              );
+              filledHeadline = renderTemplateBranch(tmpl.template, 'kapten sama', {
+                gw: currentGw,
+                team1: team1.entry_name,
+                titles1: team1.titles ?? sample.titles1 ?? 1,
+                team2: team2.entry_name,
+                titles2: team2.titles ?? sample.titles2 ?? 1,
+                captain: cap1,
+                diff_player1: diffStarters.player1,
+                diff_player2: diffStarters.player2,
+                diff_players1: diffStarters.players1Str,
+                diff_players2: diffStarters.players2Str,
               });
             }
           } else {

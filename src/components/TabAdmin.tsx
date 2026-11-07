@@ -43,13 +43,27 @@ type SortColumn =
 
 type SortDirection = 'asc' | 'desc';
 
-export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'news-ticker', onSelectSubTab }) => {
-  if (subTab === 'editor') {
-    return <TabAdminEditor />;
-  }
-
-  const [newsRows, setNewsRows] = useState<NewsTickerDbRow[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+const TabAdminNewsTable: React.FC = () => {
+  const [newsRows, setNewsRows] = useState<NewsTickerDbRow[]>(() => {
+    try {
+      const cached = sessionStorage.getItem('fnb_news_ticker_admin_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    try {
+      const cached = sessionStorage.getItem('fnb_news_ticker_admin_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return false;
+      }
+    } catch {}
+    return true;
+  });
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,45 +87,92 @@ export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'news-ticker', onSe
   // Copied indicator state
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Fetch news ticker database table from container
+  // Fetch news ticker database table from container with auto-retries and fallback
   const fetchTableData = useCallback(async (isManualRefresh = false) => {
-    if (isManualRefresh) setIsRefreshing(true);
-    else setIsLoading(true);
+    if (isManualRefresh) {
+      setIsRefreshing(true);
+    } else {
+      if (newsRows.length === 0) setIsLoading(true);
+    }
     setError(null);
 
-    try {
-      const url = `/api/admin/news-ticker${isManualRefresh ? '?refresh=1' : ''}`;
-      const res = await fetch(url, {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
+    const maxRetries = 3;
+    let attempt = 0;
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
+    while (attempt <= maxRetries) {
+      try {
+        const url = `/api/admin/news-ticker${isManualRefresh ? '?refresh=1' : ''}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
 
-      const contentType = res.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) {
-        const text = await res.text();
-        console.warn('[TabAdmin] Received non-JSON response:', text.slice(0, 100));
-        throw new Error('Server returned HTML instead of JSON. Server might still be initializing.');
-      }
+        const res = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+        clearTimeout(timeoutId);
 
-      const json = await res.json();
-      if (json && Array.isArray(json.data)) {
-        setNewsRows(json.data);
-      } else {
-        throw new Error('Invalid data format received from API');
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          const text = await res.text();
+          console.warn('[TabAdmin] Received non-JSON response:', text.slice(0, 100));
+          throw new Error('Server returned HTML instead of JSON. Server might still be initializing.');
+        }
+
+        const json = await res.json();
+        if (json && Array.isArray(json.data)) {
+          setNewsRows(json.data);
+          try {
+            sessionStorage.setItem('fnb_news_ticker_admin_cache', JSON.stringify(json.data));
+          } catch {}
+          setError(null);
+          setIsLoading(false);
+          setIsRefreshing(false);
+          return;
+        } else {
+          throw new Error('Invalid data format received from API');
+        }
+      } catch (err: any) {
+        attempt++;
+        console.warn(`[TabAdmin] Fetch attempt ${attempt} failed:`, err.message || err);
+
+        if (attempt <= maxRetries) {
+          // Retry with backoff: 600ms, 1200ms, 1800ms
+          await new Promise((resolve) => setTimeout(resolve, attempt * 600));
+        } else {
+          // Check if session cache has rows we can show instead of blocking
+          try {
+            const cached = sessionStorage.getItem('fnb_news_ticker_admin_cache');
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setNewsRows(parsed);
+                setError(null);
+                console.info('[TabAdmin] Loaded fallback data from session cache after network failure');
+                setIsLoading(false);
+                setIsRefreshing(false);
+                return;
+              }
+            }
+          } catch {}
+
+          console.error('[TabAdmin] Error fetching news table after all retries:', err);
+          setError(
+            err.name === 'AbortError'
+              ? 'Waktu koneksi habis (Request timeout). Sedang mencoba menghubungkan kembali...'
+              : 'Gagal terhubung ke database News Ticker (Network Error). Silakan klik Coba Lagi.'
+          );
+          setIsLoading(false);
+          setIsRefreshing(false);
+        }
       }
-    } catch (err: any) {
-      console.error('[TabAdmin] Error fetching news table:', err);
-      setError(err?.message || 'Failed to load News Ticker database table');
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
     }
-  }, []);
+  }, [newsRows.length]);
 
   useEffect(() => {
     fetchTableData();
@@ -635,10 +696,11 @@ export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'news-ticker', onSe
             <p className="text-xs font-bold text-rose-600 dark:text-rose-400">{error}</p>
             <button
               type="button"
-              onClick={() => fetchTableData()}
-              className="px-3 py-1 rounded-lg bg-[#37003c] text-white text-xs font-bold"
+              onClick={() => fetchTableData(true)}
+              className="px-4 py-1.5 rounded-lg bg-[#37003c] dark:bg-purple-800 text-white hover:bg-[#4d0254] dark:hover:bg-purple-700 text-xs font-bold transition-colors cursor-pointer inline-flex items-center gap-1.5"
             >
-              Retry
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Coba Lagi (Retry)</span>
             </button>
           </div>
         ) : sortedAndFilteredRows.length === 0 ? (
@@ -1061,4 +1123,11 @@ export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'news-ticker', onSe
       </div>
     </div>
   );
+};
+
+export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'news-ticker', onSelectSubTab }) => {
+  if (subTab === 'editor') {
+    return <TabAdminEditor />;
+  }
+  return <TabAdminNewsTable />;
 };

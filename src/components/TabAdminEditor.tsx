@@ -234,51 +234,76 @@ export const TabAdminEditor: React.FC = () => {
     }
   }, [isTagDropdownOpen]);
 
-  // Fetch templates from API
+  // Fetch templates from API with auto-retries
   const fetchTemplates = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    try {
-      const res = await fetch('/api/admin/phase1-templates', {
-        headers: { Accept: 'application/json' },
-      });
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-      const json = await res.json();
-      if (json && Array.isArray(json.data)) {
-        setSavedRows(json.data);
-        setEditableRows(JSON.parse(JSON.stringify(json.data)));
-      } else {
-        throw new Error('Format data tidak valid');
+    const maxRetries = 2;
+    let attempt = 0;
+    while (attempt <= maxRetries) {
+      try {
+        const res = await fetch('/api/admin/phase1-templates', {
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const json = await res.json();
+        if (json && Array.isArray(json.data)) {
+          setSavedRows(json.data);
+          setEditableRows(JSON.parse(JSON.stringify(json.data)));
+          setError(null);
+          return;
+        } else {
+          throw new Error('Format data tidak valid');
+        }
+      } catch (err: any) {
+        attempt++;
+        if (attempt <= maxRetries) {
+          await new Promise((r) => setTimeout(r, attempt * 600));
+        } else {
+          console.error('[TabAdminEditor] Fetch error:', err);
+          setError(err?.message || 'Gagal memuat template formula');
+        }
+      } finally {
+        if (attempt > maxRetries) {
+          setIsLoading(false);
+        }
       }
-    } catch (err: any) {
-      console.error('[TabAdminEditor] Fetch error:', err);
-      setError(err?.message || 'Gagal memuat template formula');
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
-  // Fetch real league stories for Real Data Preview mode
+  // Fetch real league stories for Real Data Preview mode with auto-retries
   const fetchRealPreviewStories = useCallback(async () => {
     setIsLoadingRealPreview(true);
-    try {
-      const res = await fetch('/api/admin/phase1-templates/real-preview', {
-        headers: { Accept: 'application/json' },
-      });
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-      const json = await res.json();
-      if (json && Array.isArray(json.data)) {
-        const mapping: Record<string, string> = {};
-        for (const story of json.data) {
-          const lowerId = story.id.toLowerCase();
-          mapping[lowerId] = story.headline_id;
+    const maxRetries = 2;
+    let attempt = 0;
+    while (attempt <= maxRetries) {
+      try {
+        const res = await fetch('/api/admin/phase1-templates/real-preview', {
+          headers: { Accept: 'application/json' },
+        });
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        const json = await res.json();
+        if (json && Array.isArray(json.data)) {
+          const mapping: Record<string, string> = {};
+          for (const story of json.data) {
+            const lowerId = story.id.toLowerCase();
+            mapping[lowerId] = story.headline_id;
+          }
+          setRealStoriesMap(mapping);
+          return;
         }
-        setRealStoriesMap(mapping);
+      } catch (err: any) {
+        attempt++;
+        if (attempt <= maxRetries) {
+          await new Promise((r) => setTimeout(r, attempt * 600));
+        } else {
+          console.warn('[TabAdminEditor] Real preview fetch error:', err.message);
+        }
+      } finally {
+        if (attempt > maxRetries) {
+          setIsLoadingRealPreview(false);
+        }
       }
-    } catch (err: any) {
-      console.warn('[TabAdminEditor] Real preview fetch error:', err.message);
-    } finally {
-      setIsLoadingRealPreview(false);
     }
   }, []);
 

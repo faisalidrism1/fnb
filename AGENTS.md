@@ -152,4 +152,17 @@ Ketika user membuka aplikasi / mengaktifkan tab:
 1. **Clean Sheet:** Jika pemain diganti sebelum timnya kebobolan dan telah bermain $\ge 60$ menit, pemain tersebut **tetap berhak mendapatkan Clean Sheet**, meskipun timnya kebobolan setelah ia keluar lapangan.
 2. **Kartu Merah & Kebobolan:** Jika seorang pemain terkena kartu merah, ia **tetap terkena penalti kebobolan (-1 pt per 2 gol)** untuk semua gol yang masuk ke gawang timnya setelah ia diusir keluar lapangan.
 
+---
+
+## 6. Konvensi Fase 'Not started' & Narasi Berita
+
+* **Definisi:** Setelah transfer deadline terlewati, game FPL **SUDAH RESMI MASUK KE GAMEWEEK N**.
+* Status **'Not started'** BUKAN berarti Gameweek N belum tiba secara kalender/game, melainkan berarti seluruh pilihan tim/transfer/chip/kapten sudah terkunci di Gameweek N, namun **BELUM ADA PERTANDINGAN YANG DIMULAI (KICKOFF)** di pekan tersebut.
+* **Aturan Baku Bahasa Berita:**
+  - **DILARANG KERAS** menggunakan kata *"menjelang"*, *"sebelum Gameweek N"*, atau frasa lain yang mengesankan Gameweek N belum dimulai.
+  - **GUNAKAN** kata/frasa *"di Gameweek [N:{gw}]"* atau *"pada Gameweek [N:{gw}]"*.
+  - Khusus tampilan berita, jumlah gelar juara mingguan yang dibawa manajer saat fase *Not started* dihitung murni dari **GW 1 s.d. GW $(n - 1)$**.
+  - Pada berita Most GW Rivalry (`P1_MOST_GW_RIVALRY`), **KECUALIKAN peringkat 1 dan 2 di klasemen akhir GW $(n - 1)$** dari daftar tim yang dapat ditampilkan, sehingga sorotan calon juara mingguan terbanyak berfokus pada tim-tim di luar dua besar klasemen utama (menghindari duplikasi dengan `P1_TOP_RIVALRY`).
+
+
 
