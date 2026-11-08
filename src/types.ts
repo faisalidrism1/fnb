@@ -722,6 +722,7 @@ export interface NewsTickerDbRow {
   kategori: string;
   sub_kategori: string;
   drama_score: number;
+  poin_tayang: number;
   text_berita: string;
   text_berita_en: string;
   gw: number;

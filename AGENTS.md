@@ -164,5 +164,20 @@ Ketika user membuka aplikasi / mengaktifkan tab:
   - Khusus tampilan berita, jumlah gelar juara mingguan yang dibawa manajer saat fase *Not started* dihitung murni dari **GW 1 s.d. GW $(n - 1)$**.
   - Pada berita Most GW Rivalry (`P1_MOST_GW_RIVALRY`), **KECUALIKAN peringkat 1 dan 2 di klasemen akhir GW $(n - 1)$** dari daftar tim yang dapat ditampilkan, sehingga sorotan calon juara mingguan terbanyak berfokus pada tim-tim di luar dua besar klasemen utama (menghindari duplikasi dengan `P1_TOP_RIVALRY`).
 
+---
+
+## 7. Aturan Dasar Poin Tayang & Antrean Penayangan News (Berlaku di Semua Fase)
+
+* **Definisi Poin Tayang (`poin_tayang`):**
+  - Setiap baris berita saat dimasukkan ke dalam antrean tampilan (*news ticker queue*), otomatis diberi **+1 poin tayang**.
+* **Kaidah Multi-Tier Sort Wajib:**
+  - Setiap kali sistem melakukan sortir kandidat berita (misal: sort by peluang main asc, peluang main desc, margin poin, dsb.):
+    1. **Prioritas Utama (Tier 1):** **`poin_tayang` ASC (SELALU ASCENDING)**.
+       - Menjamin berita yang belum pernah tayang / memiliki poin tayang terendah diprioritaskan lebih dulu.
+       - Mencegah berita yang sama muncul 2x dalam 1 siklus putaran (terutama saat jumlah berita ganjil atau saat pertemuan sort ASC dan DESC).
+    2. **Kriteria Tematik (Tier 2):** Kriteria spesifik yang diminta (misal: `peluang_main` ASC untuk Gelombang 2, `peluang_main` DESC untuk Gelombang 4, dsb.).
+    3. **Tie-Breaker Deterministik (Tier 3):** Jumlah pemilik terbanyak (`ownersCount` DESC), harga termahal (`nowCost` DESC), atau ID unik.
+
+
 
 

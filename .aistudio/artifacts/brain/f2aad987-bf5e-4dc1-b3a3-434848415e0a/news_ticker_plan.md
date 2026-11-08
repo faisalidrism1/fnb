@@ -238,10 +238,41 @@ Kategori dan formula berita dibagi secara baku ke dalam **5 Waktu Tayang**:
     * *Jika Dipastikan Absen (status 'i' / chance 0%):* `Kabar buruk bagi [N:X] tim pemilik [P:Pemain] ([C:Klub]), sang pemain dipastikan absen akibat {cedera} menjelang Gameweek [N:GW].`
     * *Jika Meragukan (status 'd' / chance 25%-75%):* `Kekhawatiran melanda [N:X] tim pemilik [P:Pemain] ([C:Klub]), kondisi sang pemain diragukan tampil akibat {cedera} menjelang Gameweek [N:GW].`
 15. **Sorotan Rivalitas Puncak Klasemen (Championship / Top Rivalry):**
-    * *Karakteristik:* Membedah rivalitas perebutan tahta antara Peringkat 1 vs Peringkat 2 klasemen resmi pekan sebelumnya menjelang bergulirnya Gameweek aktif.
-    * *Kondisi 1 (Kapten Berbeda):* `Persaingan puncak klasemen menjelang Gameweek [N:{gw}], sang pemuncak [T:{team1}] memimpin dengan keunggulan [N:{margin} Poin] atas [T:{team2}], di mana duel taktis terjadi lewat perbedaan pilihan kapten antara [P:{captain1}] kontra [P:{captain2}].`
-    * *Kondisi 2 (Kapten Sama):* `Rivalitas sengit di puncak klasemen menjelang Gameweek [N:{gw}], [T:{team1}] menjaga keunggulan [N:{margin} Poin] dari kejaran [T:{team2}], dengan kedua manajer sama-sama memercayakan ban kapten kepada [P:{captain}].`
-    * *Kondisi 3 (Manuver Chip):* `Manuver krusial di perebutan tahta menjelang Gameweek [N:{gw}], [T:{team_chip}] mengaktifkan [N:{chip}] guna {target_clause} jarak [N:{margin} Poin] dengan [T:{team_rival}].`
+    * *Karakteristik:* Membedah rivalitas perebutan tahta antara Peringkat 1 vs Peringkat 2 klasemen resmi pekan sebelumnya pada Gameweek aktif.
+    * *Kondisi 1 (Kapten Berbeda):* `Persaingan di puncak klasemen pada Gameweek [N:{gw}]. Sang pemuncak [T:{team1}] memimpin dengan keunggulan [N:{margin} Poin] atas [T:{team2}], di mana duel taktis terjadi lewat perbedaan pilihan kapten antara [P:{captain1}] kontra [P:{captain2}].`
+    * *Kondisi 2 (Kapten Sama):* `Perebutan posisi puncak klasemen pada Gameweek [N:{gw}]. [T:{team1}] berupaya menjaga keunggulan [N:{margin} Poin] dari kejaran [T:{team2}], saat kedua manajer sama-sama mempercayakan ban kapten kepada [P:{captain}]. Persaingan ditentukan oleh pembeda starting XI, bertumpu pada [P:{diff_player1}] di kubu [T:{team1}] kontra [P:{diff_player2}] di kubu [T:{team2}].`
+    * *Kondisi 3 (Manuver Chip):* `Manuver krusial perebutan tahta puncak klasemen pada Gameweek [N:{gw}]. [T:{team_chip}] mengaktifkan [N:{chip}] guna {target_clause} selisih [N:{margin} Poin] dengan [T:{team_rival}].`
+16. **Rivalitas Juara Mingguan Terbanyak (Championship / Most GW Rivalry):**
+    * *Karakteristik:* Membedah tim-tim dengan gelar juara mingguan terbanyak dari GW 1 s.d. GW n-1 (mengecualikan peringkat 1 dan 2 klasemen pekan sebelumnya).
+
+#### Siklus Rotasi 4 Gelombang Tematik Baku (Fase Not started):
+Seluruh formula fase *Not started* ditayangkan berputar menggunakan formasi 4 gelombang tematik berimbang:
+* **Gelombang 1 (Opening & Prime Rivalry):**
+  1. **`Match Fixtures`** (**Wajib di paling awal Gelombang 1**)
+  2. `Top Rivalry` (Duel Tahta P1 vs P2)
+  3. `Captaincy Recap` (Sebaran Kapten Dominan Liga)
+* **Gelombang 2 (Transfer Maneuvers & Severe Flagged):**
+  4. `Hits Recap` (Poin Minus Transfer Agresif)
+  5. `Wildcard Use` & `Freehit Use`
+  6. `Most Transferred In` (Pembelian Terbanyak)
+  7. `Differential Captain` (Keberanian Kapten Langka / Eksklusif)
+  8. **1 Flagged Player (Tier 1: `poin_tayang` ASC, Tier 2: Peluang main ASC / Paling Parah / Absen)** (**Wajib di akhir Gelombang 2**)
+* **Gelombang 3 (Weekly Race & Squad Tactics):**
+  9. `Most GW Rivalry` (Rivalitas Trofi Mingguan Terbanyak)
+  10. `Triple Captain Use` & `Bench Boost Use`
+  11. `Most Transferred Out` (Pelepasan Terbanyak)
+  12. `Differential XI` (Taktik Pembeda Starting XI)
+* **Gelombang 4 (Macro Recap & Doubtful Flagged):**
+  13. `Most Owned` (Aset Esensial Kepemilikan Tertinggi)
+  14. `Chip Recap` (Akumulasi Penggunaan Seluruh Chip)
+  15. **1 Flagged Player (Tier 1: `poin_tayang` ASC, Tier 2: Peluang main DESC / Meragukan Tampil)** (**Wajib di akhir Gelombang 4**)
+
+#### Kaidah Universal Poin Tayang & Antrean Berita (Berlaku di Semua Fase):
+1. **Definisi Poin Tayang (`poin_tayang`):** Setiap baris berita saat dimasukkan ke dalam antrean tampilan (*news ticker queue*), otomatis diberi **+1 poin tayang**.
+2. **Kaidah Multi-Tier Sort Wajib:**
+   - **Tier 1:** **`poin_tayang` ASC (SELALU ASCENDING)**. Menjamin berita yang belum tayang / berpoin tayang terendah diprioritaskan lebih dulu. Hal ini mencegah berita yang sama muncul 2x dalam 1 siklus putaran (khususnya saat jumlah kandidat berita ganjil pada pertemuan sort ASC dan DESC).
+   - **Tier 2:** Kriteria tematik spesifik (misal: `peluang_main` ASC untuk Gelombang 2, `peluang_main` DESC untuk Gelombang 4).
+   - **Tier 3:** Tie-breaker deterministik (jumlah pemilik `ownersCount` DESC, lalu harga `nowCost` DESC, lalu ID).
 
 
 ---
@@ -355,10 +386,29 @@ Sesuai instruksi dan konvensi baku `AGENTS.md`, seluruh berita yang memuat penye
 
 ---
 
-## 10. Status Verifikasi Sistem
+## 11. Arsitektur Poin Tayang & Penyusunan Antrean Just-In-Time (JIT)
+
+### A. Kaidah Poin Tayang (`poin_tayang`):
+1. **Definisi:** Mengukur berapa kali suatu berita telah masuk ke dalam antrean tayang aktif (*news ticker queue*).
+2. **Kaidah Multi-Tier Sort Wajib:**
+   * **Tier 1:** `poin_tayang` ASC (Selalu ASCENDING) — Menjamin pemerataan berita dan mencegah berita yang sama muncul 2x dalam satu siklus (misal saat pemilihan Flagged Player di Gelombang 2 dan Gelombang 4).
+   * **Tier 2:** Kriteria tematik spesifik (misal `peluang_main` ASC pada Gelombang 2, `peluang_main` DESC pada Gelombang 4).
+   * **Tier 3:** Tie-breaker deterministik (`ownersCount` DESC, `nowCost` DESC, ID unik).
+3. **Penyimpanan Persisten:** Nilai tersimpan di `news_ticker_table.json` dan tidak ter-reset saat proses sinkronisasi 120 detik.
+4. **Baseline Minimum Berita Baru:** Berita baru yang lahir di tengah kompetisi disemai dengan `baselinePoinTayang = Math.min(...activeExistingPoints)` agar tidak memonopoli perputaran akibat nilai 0 (*starvation prevention*).
+
+### B. Penyusunan Antrean Just-In-Time (JIT) 1 Siklus Aktif:
+1. **Prinsip JIT:** Sistem **HANYA** menyusun tepat 1 siklus aktif yang sedang/akan segera tayang di layar (Gelombang 1, Gelombang 2, Gelombang 3, dan Gelombang 4).
+2. **Larangan Pre-Queuing:** Dilarang menyusun antrean untuk beberapa siklus ke depan (menghapus penggandaan klon siklus masa depan `_c2`, `_c3`, `_c4`).
+3. **Integritas Database:** Nilai `poin_tayang` terbesar di database adalah representasi akurat dari siklus yang **sedang berjalan di news ticker saat ini**, bukan beberapa siklus di masa depan.
+4. **Rotasi Pool:** Kandidat cedera/flagged players yang belum terpilih pada siklus berjalan tetap tersimpan di database dengan poin tayang sebelumnya (atau 0), dan akan otomatis diprioritaskan pada siklus berikutnya melalui sortir Tier 1 (`poin_tayang` ASC).
+
+---
+
+## 12. Status Verifikasi Sistem
 * **Kompilasi & Linting:** 100% Lulus (`compile_applet` & `lint_applet` lolos tanpa error).
 * **Deteksi Status GW & Poin/Rank:** Diuji dan diverifikasi secara langsung:
   * Fase `Not started`: Berita poin/rank disupresi (`status_tayang = 'N'`).
   * Fase `Confirmed`: Dinyatakan sebagai hasil resmi yang telah ditetapkan.
   * Fase `Live` / `Provisional`: Dinyatakan sebagai hasil dan klasemen sementara.
-* **Tabel Master News Ticker:** 1.076 entri tersinkronisasi cepat (< 1 detik) dengan metadata fase dan status tayang yang akurat.
+* **Tabel Master News Ticker:** Seluruh baris tersinkronisasi cepat dengan metadata fase, status tayang, dan kolom Poin Tayang yang akurat.

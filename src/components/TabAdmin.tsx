@@ -39,6 +39,7 @@ type SortColumn =
   | 'category'
   | 'subcategory'
   | 'drama'
+  | 'poin_tayang'
   | 'headline';
 
 type SortDirection = 'asc' | 'desc';
@@ -428,6 +429,9 @@ const TabAdminNewsTable: React.FC = () => {
           break;
         case 'drama':
           comparison = (Number(a.drama_score) || 0) - (Number(b.drama_score) || 0);
+          break;
+        case 'poin_tayang':
+          comparison = (Number(a.poin_tayang) || 0) - (Number(b.poin_tayang) || 0);
           break;
         case 'headline':
           const textA = displayLanguage === 'en' ? (a.text_berita_en || a.text_berita) : a.text_berita;
@@ -892,6 +896,18 @@ const TabAdminNewsTable: React.FC = () => {
                     </div>
                   </th>
 
+                  {/* Poin Tayang */}
+                  <th
+                    onClick={() => handleSort('poin_tayang')}
+                    className="py-2.5 px-2 w-20 text-center cursor-pointer hover:bg-slate-200 dark:hover:bg-purple-950 transition-colors whitespace-nowrap group"
+                    title="Sort by Poin Tayang (Frekuensi Tampil di Antrean Ticker)"
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      <span>Poin Tayang</span>
+                      {renderSortIndicator('poin_tayang')}
+                    </div>
+                  </th>
+
                   {/* Text Berita (Format News Ticker) */}
                   <th
                     onClick={() => handleSort('headline')}
@@ -1056,7 +1072,21 @@ const TabAdminNewsTable: React.FC = () => {
                         </span>
                       </td>
 
-                      {/* 16. Headline (Fit to longest content without wrap text) */}
+                      {/* 16. Poin Tayang */}
+                      <td className="py-2 px-2 text-center whitespace-nowrap font-mono font-bold text-[11px]">
+                        <span
+                          className={
+                            (row.poin_tayang ?? 0) > 0
+                              ? 'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-[#37003c] dark:bg-purple-900/60 dark:text-[#00ff87] border border-purple-200 dark:border-purple-700/60'
+                              : 'text-slate-400 dark:text-slate-600'
+                          }
+                          title={`Sudah tayang sebanyak ${row.poin_tayang ?? 0} kali`}
+                        >
+                          {row.poin_tayang ?? 0}
+                        </span>
+                      </td>
+
+                      {/* 17. Headline (Fit to longest content without wrap text) */}
                       <td className="py-2 px-3 text-slate-800 dark:text-slate-100 whitespace-nowrap">
                         <div className="flex items-center gap-1.5 whitespace-nowrap">
                           <button

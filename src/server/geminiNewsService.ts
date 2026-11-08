@@ -1553,7 +1553,7 @@ export function buildFallbackStories(payload: RawMatchdayPayload): NewsTickerSto
   // ATURAN MUTLAK USER: Saat menyebutkan poin dan rank, deteksi status GW.
   // JANGAN PERNAH tampilkan news tersebut saat 'Not started'!
   if (isNotStarted) {
-    const p1Stories = generatePhase1Stories(gw);
+    const p1Stories = generatePhase1Stories(gw, false);
     for (const p1 of p1Stories) {
       stories.push({
         id: p1.id,
@@ -1570,7 +1570,8 @@ export function buildFallbackStories(payload: RawMatchdayPayload): NewsTickerSto
     }
 
     const completeStories = stories.map((s) => toNewsTickerStory(s, gw));
-    return interleaveStoriesByContext(completeStories);
+    // Pertahankan urutan 4 Gelombang Tematik yang telah dikurasi presisi
+    return completeStories;
   }
 
   // STATUS 'Confirmed': WAJIB tampilkan 4 tim juara resmi di news ticker

@@ -13,6 +13,7 @@ export interface NewsTickerDbRow {
   kategori: string;
   sub_kategori: string;
   drama_score: number;
+  poin_tayang: number;
   text_berita: string; // Indonesian headline with entity tags
   text_berita_en: string; // English headline with entity tags
   gw: number;
@@ -596,6 +597,7 @@ export function createCompleteStoryRecord(
     text_berita_en?: string;
     headline?: string;
     drama_score?: number;
+    poin_tayang?: number;
     timestamp_produksi?: string;
     timestamp?: string;
     sumber?: 'AI' | 'Bukan';
@@ -702,6 +704,7 @@ export function createCompleteStoryRecord(
     kategori: classification.kategori,
     sub_kategori: classification.sub_kategori,
     drama_score: dramaScore,
+    poin_tayang: Math.max(0, Number(raw.poin_tayang) || 0),
     text_berita: textId,
     text_berita_en: textEn,
     gw,
@@ -739,6 +742,33 @@ export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
   try {
     const tableRows: NewsTickerDbRow[] = [];
     const seenIds = new Set<string>();
+
+    // 0. Load existing table records to preserve poin_tayang and prevent overwrite resets
+    const existingTableMap = new Map<string, NewsTickerDbRow>();
+    if (fs.existsSync(TABLE_FILE_PATH)) {
+      try {
+        const rawExisting = fs.readFileSync(TABLE_FILE_PATH, 'utf-8');
+        const parsedExisting = JSON.parse(rawExisting);
+        if (Array.isArray(parsedExisting)) {
+          parsedExisting.forEach((r: NewsTickerDbRow) => {
+            if (r && r.id) existingTableMap.set(String(r.id), r);
+          });
+        }
+      } catch {}
+    }
+
+    // Hitung baseline poin_tayang minimum dari berita aktif yang sudah ada
+    // (Mencegah "Starvation" / monopoli nilai 0 saat berita baru lahir)
+    let baselinePoinTayang = 0;
+    const activeExistingPoints: number[] = [];
+    for (const r of existingTableMap.values()) {
+      if (r.status_tayang === 'Y' && r.poin_tayang > 0) {
+        activeExistingPoints.push(r.poin_tayang);
+      }
+    }
+    if (activeExistingPoints.length > 0) {
+      baselinePoinTayang = Math.min(...activeExistingPoints);
+    }
 
     // 1. Read active feed
     let activeFeedMap = new Map<string, { drama_score: number; headline_id: string; headline_en: string; gw?: number }>();
@@ -785,10 +815,16 @@ export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
       seenIds.add(id);
 
       const histMatch = historyList.find((h) => String(h.id) === id);
+      const existingRecord = existingTableMap.get(id);
       const headlineId = feedItem.headline_id || histMatch?.headline_id || '';
       const headlineEn = feedItem.headline_en || histMatch?.headline_en || headlineId;
       const gw = extractGwFromStory(headlineId, headlineEn, id, Number(histMatch?.gw) || Number(feedItem.gw) || feedGw);
-      const timestamp = histMatch?.timestamp || new Date().toISOString();
+      const timestamp = histMatch?.timestamp || existingRecord?.timestamp_produksi || new Date().toISOString();
+
+      // Poin tayang: jika sudah pernah ada di DB, pertahankan. Jika baru lahir, beri baseline minimum selevel!
+      const resolvedPoinTayang = existingRecord
+        ? (existingRecord.poin_tayang ?? baselinePoinTayang)
+        : baselinePoinTayang;
 
       const record = createCompleteStoryRecord({
         id,
@@ -797,9 +833,10 @@ export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
         timestamp_produksi: timestamp,
         sumber: (id.startsWith('story_') && !id.startsWith('story_element_')) ? 'AI' : 'Bukan',
         gw,
-        teams: histMatch?.teams,
-        players: histMatch?.players,
-        drama_score: feedItem.drama_score || 80,
+        teams: histMatch?.teams || existingRecord?.teams,
+        players: histMatch?.players || existingRecord?.players,
+        drama_score: feedItem.drama_score || existingRecord?.drama_score || 80,
+        poin_tayang: resolvedPoinTayang,
         status_tayang: (gw === feedGw) ? 'Y' : 'N',
       }, gw);
 
@@ -813,10 +850,12 @@ export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
       if (seenIds.has(id)) continue;
       seenIds.add(id);
 
+      const existingRecord = existingTableMap.get(id);
       const headlineId = String(h.headline_id || '');
       const headlineEn = String(h.headline_en || headlineId);
       const gw = Number(h.gw) || extractGwFromStory(headlineId, headlineEn, id, feedGw);
-      const timestamp = h.timestamp || new Date().toISOString();
+      const timestamp = h.timestamp || existingRecord?.timestamp_produksi || new Date().toISOString();
+      const resolvedPoinTayang = existingRecord ? (existingRecord.poin_tayang ?? 0) : 0;
 
       const record = createCompleteStoryRecord({
         id,
@@ -825,9 +864,10 @@ export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
         timestamp_produksi: timestamp,
         sumber: (id.startsWith('story_') && !id.startsWith('story_element_')) ? 'AI' : 'Bukan',
         gw,
-        teams: h.teams,
-        players: h.players,
-        drama_score: Number(h.drama_score) || 75,
+        teams: h.teams || existingRecord?.teams,
+        players: h.players || existingRecord?.players,
+        drama_score: Number(h.drama_score) || existingRecord?.drama_score || 75,
+        poin_tayang: resolvedPoinTayang,
         status_tayang: 'N',
         keterangan_tidak_tayang: gw !== feedGw ? `Bukan Gameweek aktif (Arsip Gameweek ${gw})` : 'Diarsipkan (di luar kuota 1000 rotasi aktif)',
       }, gw);
@@ -841,16 +881,24 @@ export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
       for (const p1 of p1Stories) {
         if (!seenIds.has(p1.id)) {
           seenIds.add(p1.id);
+          const existingRecord = existingTableMap.get(p1.id);
+          const resolvedPoinTayang = (p1 as any).poin_tayang !== undefined
+            ? (p1 as any).poin_tayang
+            : (existingRecord
+              ? (existingRecord.poin_tayang ?? baselinePoinTayang)
+              : baselinePoinTayang);
+
           const p1Record = createCompleteStoryRecord({
             id: p1.id,
             headline_id: p1.headline_id,
             headline_en: p1.headline_en,
-            timestamp_produksi: new Date().toISOString(),
+            timestamp_produksi: existingRecord?.timestamp_produksi || new Date().toISOString(),
             sumber: 'Bukan',
             gw: p1.gw,
             teams: p1.teams,
             players: p1.players,
             drama_score: p1.drama_score,
+            poin_tayang: resolvedPoinTayang,
             status_tayang: p1.status_tayang,
             keterangan_tidak_tayang: p1.keterangan_tidak_tayang,
             kategori: p1.kategori,

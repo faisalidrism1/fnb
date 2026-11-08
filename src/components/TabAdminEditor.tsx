@@ -251,6 +251,7 @@ export const TabAdminEditor: React.FC = () => {
           setSavedRows(json.data);
           setEditableRows(JSON.parse(JSON.stringify(json.data)));
           setError(null);
+          setIsLoading(false);
           return;
         } else {
           throw new Error('Format data tidak valid');
@@ -262,13 +263,11 @@ export const TabAdminEditor: React.FC = () => {
         } else {
           console.error('[TabAdminEditor] Fetch error:', err);
           setError(err?.message || 'Gagal memuat template formula');
-        }
-      } finally {
-        if (attempt > maxRetries) {
           setIsLoading(false);
         }
       }
     }
+    setIsLoading(false);
   }, []);
 
   // Fetch real league stories for Real Data Preview mode with auto-retries
@@ -290,6 +289,7 @@ export const TabAdminEditor: React.FC = () => {
             mapping[lowerId] = story.headline_id;
           }
           setRealStoriesMap(mapping);
+          setIsLoadingRealPreview(false);
           return;
         }
       } catch (err: any) {
@@ -298,13 +298,11 @@ export const TabAdminEditor: React.FC = () => {
           await new Promise((r) => setTimeout(r, attempt * 600));
         } else {
           console.warn('[TabAdminEditor] Real preview fetch error:', err.message);
-        }
-      } finally {
-        if (attempt > maxRetries) {
           setIsLoadingRealPreview(false);
         }
       }
     }
+    setIsLoadingRealPreview(false);
   }, []);
 
   useEffect(() => {
@@ -666,7 +664,7 @@ export const TabAdminEditor: React.FC = () => {
                   </th>
                   {/* 3. Sub Categories: Fitted to 1 longest word (~115px) */}
                   <th className="py-3 px-2.5 w-[115px] min-w-[115px] max-w-[115px] border-r border-slate-200 dark:border-purple-900/50 break-words">
-                    Sub Categories
+                    Sub Categories <span className="text-slate-400 font-normal lowercase text-[9px] block">output</span>
                   </th>
                   {/* 4. Template: Fitted exactly to 1 Mobile View (~360px) */}
                   <th className="py-3 px-3 w-[360px] min-w-[360px] max-w-[360px] border-r border-slate-200 dark:border-purple-900/50 whitespace-nowrap">
@@ -704,6 +702,8 @@ export const TabAdminEditor: React.FC = () => {
                     ? realExampleHeadline
                     : row.example;
 
+                  const isMultiStory = row.id === 'P1_INJURY_UPDATE' || row.subcategory === 'Flagged Players';
+
                   return (
                     <tr
                       key={row.id || actualIndex}
@@ -729,14 +729,35 @@ export const TabAdminEditor: React.FC = () => {
                         />
                       </td>
 
-                      {/* 3. Sub Categories (Fitted to 1 Longest Word) */}
+                      {/* 3. Sub Categories with Output Production Badge */}
                       <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[115px] max-w-[115px]">
-                        <textarea
-                          value={row.subcategory}
-                          onChange={(e) => handleMetaChange(actualIndex, 'subcategory', e.target.value)}
-                          className="w-full h-[96px] min-h-[96px] max-h-[96px] px-1.5 py-2 rounded-md bg-transparent hover:bg-slate-100 dark:hover:bg-[#120522] focus:bg-white dark:focus:bg-[#10051e] border border-transparent focus:border-[#00ff87] text-[11px] font-bold text-slate-900 dark:text-white outline-none transition-all resize-none leading-snug break-words overflow-y-auto scrollbar-thin"
-                          placeholder="Sub Category"
-                        />
+                        <div className="h-[96px] flex flex-col justify-between">
+                          <textarea
+                            value={row.subcategory}
+                            onChange={(e) => handleMetaChange(actualIndex, 'subcategory', e.target.value)}
+                            className="w-full h-[66px] min-h-[66px] max-h-[66px] px-1.5 py-1 rounded-md bg-transparent hover:bg-slate-100 dark:hover:bg-[#120522] focus:bg-white dark:focus:bg-[#10051e] border border-transparent focus:border-[#00ff87] text-[11px] font-bold text-slate-900 dark:text-white outline-none transition-all resize-none leading-snug break-words overflow-y-auto scrollbar-thin"
+                            placeholder="Sub Category"
+                          />
+                          <div className="pt-0.5">
+                            {isMultiStory ? (
+                              <span
+                                title="Multi-News: Menghasilkan beberapa baris berita (1 baris per pemain cedera/sanksi pascadeadline)"
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold tracking-tight bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 uppercase cursor-help shadow-2xs"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                <span>Multi-News</span>
+                              </span>
+                            ) : (
+                              <span
+                                title="Single News: Menghasilkan tepat 1 baris berita per Gameweek"
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold tracking-tight bg-slate-100 dark:bg-purple-950/60 text-slate-600 dark:text-purple-300 border border-slate-200 dark:border-purple-800/40 uppercase cursor-help shadow-2xs"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                <span>Single</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </td>
 
                       {/* 4. Template (Fixed 4-line height with vertical scroll) */}

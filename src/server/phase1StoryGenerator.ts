@@ -22,6 +22,7 @@ import { sortTeamsByLeastFeatured, sortObjectsByLeastFeaturedTeam, getTeamAppear
 
 const CACHE_PATH = path.join(process.cwd(), 'src/data/cachedLeagueData.json');
 const DB_PATH = path.join(process.cwd(), 'src/data/fpl_database.json');
+const TABLE_PATH = path.join(process.cwd(), 'src/data/news_ticker_table.json');
 
 interface GeneratedPhase1Story {
   id: string;
@@ -37,6 +38,28 @@ interface GeneratedPhase1Story {
   sumber: 'Bukan';
   status_tayang: 'Y' | 'N';
   keterangan_tidak_tayang: string;
+  poin_tayang?: number;
+}
+
+/**
+ * Reads existing poin_tayang map directly from database table
+ */
+function getExistingPoinTayangMap(): Map<string, number> {
+  const map = new Map<string, number>();
+  try {
+    if (fs.existsSync(TABLE_PATH)) {
+      const raw = fs.readFileSync(TABLE_PATH, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        for (const r of parsed) {
+          if (r && r.id && typeof r.poin_tayang === 'number') {
+            map.set(String(r.id), r.poin_tayang);
+          }
+        }
+      }
+    }
+  } catch {}
+  return map;
 }
 
 /**
@@ -529,7 +552,7 @@ function getAllFlaggedPlayersPostDeadline(gw: number): FlaggedPlayerItem[] {
 /**
  * Generates ready-to-air news stories for all 13 Phase 1 templates based on real league data
  */
-export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[] {
+export function generatePhase1Stories(targetGw?: number, includeRemainingPool: boolean = true): GeneratedPhase1Story[] {
   const templates = getPhase1Templates();
   let leagueData: any = null;
   try {
@@ -542,7 +565,9 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
   const isGwNotStarted = leagueData?.gw_status?.status === 'Not started' ||
     (leagueData?.sync_status?.gw_fixtures && leagueData.sync_status.gw_fixtures.filter((f: any) => f.event === currentGw).every((f: any) => !f.started));
 
-  const stories: GeneratedPhase1Story[] = [];
+  const storiesByTemplateId = new Map<string, GeneratedPhase1Story>();
+  let flaggedAscStories: GeneratedPhase1Story[] = [];
+  let flaggedDescStories: GeneratedPhase1Story[] = [];
 
   for (const tmpl of templates) {
     try {
@@ -927,36 +952,173 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
           break;
         }
 
-        // 12. Differential Starting XI
+        // 12. Differential Starting XI (Single News: 1 tim paling unik via Opsi B)
         case 12: {
-          filledHeadline = renderTemplateBranch(tmpl.template, '2 pemain', {
-            team: sample.team || 'Kuda Hitam',
-            gw: currentGw,
-            player1: sample.player1 || 'Kluivert',
-            pct1: sample.pct1 || '3',
-            player2: sample.player2 || 'Welbeck',
-            pct2: sample.pct2 || '4',
-          });
+          try {
+            if (fs.existsSync(DB_PATH)) {
+              const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
+              const playersArr = Array.isArray(db.players) ? db.players : Object.values(db.players || {});
+              const standings = leagueData?.standings?.[String(currentGw)] || [];
+              const totalLeagueTeams = standings.length || 97;
+
+              // Cari pemain yang kepemilikan total liganya < 5%
+              const diffPlayersMap = new Map<number, { name: string; pct: number; form: number; cost: number }>();
+              for (const p of playersArr as any[]) {
+                const count = p.league_ownership?.count || 0;
+                const pct = Math.round((count / totalLeagueTeams) * 100);
+                if (count > 0 && pct < 5) {
+                  diffPlayersMap.set(p.id, {
+                    name: p.webName || p.web_name || p.name,
+                    pct: pct || 1,
+                    form: parseFloat(String(p.form || '0')) || 0,
+                    cost: Number(p.nowCost || p.cost || 0),
+                  });
+                }
+              }
+
+              // Cari tim yang memiliki pemain differential di starting XI
+              const teamDiffCandidates: { team: any; diffs: any[] }[] = [];
+              const counts = getTeamAppearanceCounts();
+
+              for (const s of standings) {
+                const starterDiffs: any[] = [];
+                for (const p of playersArr as any[]) {
+                  if (diffPlayersMap.has(p.id)) {
+                    const owner = (p.league_ownership?.owners || []).find((o: any) => o.entry_id === s.entry_id);
+                    if (owner && (owner.is_starter === true || (owner.position_in_squad != null && owner.position_in_squad <= 11))) {
+                      starterDiffs.push(diffPlayersMap.get(p.id));
+                    }
+                  }
+                }
+                if (starterDiffs.length > 0) {
+                  starterDiffs.sort((a, b) => {
+                    if (b.form !== a.form) return b.form - a.form;
+                    return b.cost - a.cost;
+                  });
+                  teamDiffCandidates.push({ team: s, diffs: starterDiffs });
+                }
+              }
+
+              if (teamDiffCandidates.length > 0) {
+                teamDiffCandidates.sort((a, b) => {
+                  if (b.diffs.length !== a.diffs.length) return b.diffs.length - a.diffs.length;
+                  const cleanA = (a.team.entry_name || '').trim();
+                  const cleanB = (b.team.entry_name || '').trim();
+                  const countA = counts[cleanA] || 0;
+                  const countB = counts[cleanB] || 0;
+                  if (countA !== countB) return countA - countB;
+                  return cleanA.localeCompare(cleanB);
+                });
+
+                const picked = teamDiffCandidates[0];
+                const topDiffs = picked.diffs.slice(0, 2);
+
+                if (topDiffs.length === 1) {
+                  filledHeadline = renderTemplateBranch(tmpl.template, '1 pemain', {
+                    team: picked.team.entry_name,
+                    gw: currentGw,
+                    player1: topDiffs[0].name,
+                    pct1: topDiffs[0].pct,
+                  });
+                } else {
+                  filledHeadline = renderTemplateBranch(tmpl.template, '2 pemain', {
+                    team: picked.team.entry_name,
+                    gw: currentGw,
+                    player1: topDiffs[0].name,
+                    pct1: topDiffs[0].pct,
+                    player2: topDiffs[1].name,
+                    pct2: topDiffs[1].pct,
+                  });
+                }
+              }
+            }
+          } catch (err: any) {
+            console.warn('[Phase1StoryGenerator] Error resolving real diff starters:', err.message);
+          }
+
+          if (!filledHeadline) {
+            filledHeadline = renderTemplateBranch(tmpl.template, '2 pemain', {
+              team: sample.team || 'Kuda Hitam',
+              gw: currentGw,
+              player1: sample.player1 || 'Kluivert',
+              pct1: sample.pct1 || '3',
+              player2: sample.player2 || 'Welbeck',
+              pct2: sample.pct2 || '4',
+            });
+          }
           break;
         }
 
-        // 13. Differential Captain
+        // 13. Differential Captain (Single News: 1 tim kapten langka via Opsi B)
         case 13: {
-          filledHeadline = renderTemplateBranch(tmpl.template, 'kapten eksklusif', {
-            team: sample.team || 'Sunda Kelapa',
-            captain: sample.captain || 'Bowen',
-            gw: currentGw,
-            pickers_count: sample.pickers_count || '2',
-          });
+          const capPlayers = leagueData?.captain_players?.[String(currentGw)] || [];
+          const standings = leagueData?.standings?.[String(currentGw)] || [];
+          const diffCaptains = capPlayers.filter(
+            (c: any) =>
+              (c.captain_percentage != null && c.captain_percentage < 5) ||
+              (c.captain_count != null && c.captain_count <= 2)
+          );
+
+          if (diffCaptains.length > 0 && standings.length > 0) {
+            diffCaptains.sort((a: any, b: any) => {
+              const cntDiff = (a.captain_count || 0) - (b.captain_count || 0);
+              if (cntDiff !== 0) return cntDiff;
+              return (b.now_cost || 0) - (a.now_cost || 0);
+            });
+
+            const counts = getTeamAppearanceCounts();
+            const targetCap = diffCaptains[0];
+            const pickingTeams = standings.filter(
+              (s: any) =>
+                s.captain?.id === targetCap.id ||
+                s.captain?.name === targetCap.web_name
+            );
+
+            if (pickingTeams.length > 0) {
+              pickingTeams.sort((a: any, b: any) => {
+                const cleanA = (a.entry_name || '').trim();
+                const cleanB = (b.entry_name || '').trim();
+                const countA = counts[cleanA] || 0;
+                const countB = counts[cleanB] || 0;
+                if (countA !== countB) return countA - countB;
+                return cleanA.localeCompare(cleanB);
+              });
+
+              const selectedTeam = pickingTeams[0];
+              const isExclusive = targetCap.captain_count === 1 || pickingTeams.length === 1;
+              const cond = isExclusive ? 'kapten eksklusif' : 'kapten differential';
+
+              filledHeadline = renderTemplateBranch(tmpl.template, cond, {
+                team: selectedTeam.entry_name,
+                captain: targetCap.web_name || selectedTeam.captain?.name || sample.captain,
+                gw: currentGw,
+                pickers_count: targetCap.captain_count || pickingTeams.length || sample.pickers_count,
+              });
+            }
+          }
+
+          if (!filledHeadline) {
+            filledHeadline = renderTemplateBranch(tmpl.template, 'kapten eksklusif', {
+              team: sample.team || 'Sunda Kelapa',
+              captain: sample.captain || 'Bowen',
+              gw: currentGw,
+              pickers_count: sample.pickers_count || '2',
+            });
+          }
           break;
         }
 
         // 14. Flagged Players (Injury Update Post-Deadline)
+        // Menggunakan Aturan Dasar Poin Tayang (AGENTS.md Section 7):
+        // Tier 1: poin_tayang ASC (selalu ascending)
+        // Tier 2: Gelombang 2: peluang main ASC (paling parah/absen)
+        //         Gelombang 4: peluang main DESC (peluang tertinggi di antara cedera)
+        // Tier 3: ownersCount DESC, cost DESC
         case 14: {
           const flaggedList = getAllFlaggedPlayersPostDeadline(currentGw);
           if (flaggedList.length > 0) {
-            for (const item of flaggedList) {
-              const cond = item.isOut ? 'dipastikan absen' : 'meragukan';
+            flaggedAscStories = flaggedList.map((item) => {
+              const cond = item.isOut || (item.chance != null && item.chance === 0) ? 'dipastikan absen' : 'meragukan';
               const headline = renderTemplateBranch(tmpl.template, cond, {
                 owners_count: item.ownersCount,
                 player: item.name,
@@ -964,35 +1126,54 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
                 injury_desc: item.injuryDesc,
                 gw: currentGw,
               });
-              if (headline) {
-                const teams = extractTagNames(headline, 'T');
-                const players = extractTagNames(headline, 'P');
-                const slug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                stories.push({
-                  id: `p1_injury_${slug}_gw${currentGw}`,
-                  headline_id: headline,
-                  headline_en: headline,
-                  kategori: tmpl.category,
-                  sub_kategori: tmpl.subcategory,
-                  drama_score: item.isOut ? 88 : 84,
-                  waktu_tayang: ['Not started'],
-                  gw: currentGw,
-                  teams,
-                  players,
-                  sumber: 'Bukan',
-                  status_tayang: isGwNotStarted ? 'Y' : 'N',
-                  keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
-                });
-              }
-            }
+              const slug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+              return {
+                id: `p1_injury_${slug}_gw${currentGw}`,
+                headline_id: headline,
+                headline_en: headline,
+                kategori: tmpl.category,
+                sub_kategori: tmpl.subcategory,
+                drama_score: item.isOut ? 88 : 84,
+                waktu_tayang: ['Not started'],
+                gw: currentGw,
+                teams: extractTagNames(headline, 'T'),
+                players: extractTagNames(headline, 'P'),
+                sumber: 'Bukan',
+                status_tayang: isGwNotStarted ? 'Y' : 'N',
+                keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+                // Metadata untuk multi-tier sorting poin tayang
+                _flaggedMeta: {
+                  id: item.id,
+                  chance: item.chance != null ? item.chance : (item.isOut ? 0 : 50),
+                  ownersCount: item.ownersCount,
+                  cost: item.cost || 0,
+                },
+              } as any;
+            });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, 'dipastikan absen', {
+            const headlineAsc = renderTemplateBranch(tmpl.template, 'dipastikan absen', {
               owners_count: sample.owners_count || 35,
               player: sample.player || 'João Pedro',
               club: sample.club || 'CHE',
               injury_desc: sample.injury_desc || 'cedera paha',
               gw: currentGw,
             });
+            flaggedAscStories.push({
+              id: `p1_injury_sample_gw${currentGw}`,
+              headline_id: headlineAsc,
+              headline_en: headlineAsc,
+              kategori: tmpl.category,
+              sub_kategori: tmpl.subcategory,
+              drama_score: 88,
+              waktu_tayang: ['Not started'],
+              gw: currentGw,
+              teams: extractTagNames(headlineAsc, 'T'),
+              players: extractTagNames(headlineAsc, 'P'),
+              sumber: 'Bukan',
+              status_tayang: isGwNotStarted ? 'Y' : 'N',
+              keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+              _flaggedMeta: { id: 9999, chance: 0, ownersCount: 35, cost: 60 },
+            } as any);
           }
           break;
         }
@@ -1173,7 +1354,7 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
         const teams = extractTagNames(filledHeadline, 'T');
         const players = extractTagNames(filledHeadline, 'P');
 
-        stories.push({
+        storiesByTemplateId.set(tmpl.id, {
           id: `p1_${tmpl.id.toLowerCase()}_gw${currentGw}`,
           headline_id: filledHeadline,
           headline_en: filledHeadline, // Clean English/Indonesian format
@@ -1194,5 +1375,160 @@ export function generatePhase1Stories(targetGw?: number): GeneratedPhase1Story[]
     }
   }
 
-  return stories;
+  // =========================================================================
+  // ATURAN SIKLUS ROTASI 4 GELOMBANG TEMATIK & KAIDAH POIN TAYANG (AGENTS.md Sec 7)
+  // 1. Gelombang 1:
+  //    - Fixture SELALU di paling awal gelombang 1
+  //    - Top Rivalry (Puncak Klasemen P1 vs P2)
+  //    - Captaincy Recap (Sebaran Kapten Dominan Liga)
+  // 2. Gelombang 2:
+  //    - Hits Recap (Agresivitas Minus Transfer)
+  //    - Wildcard Use & Freehit Use (Manuver Chip Skuad)
+  //    - Most Transferred In (Pembelian Terbanyak)
+  //    - Differential Captain (Keberanian Kapten Langka)
+  //    - 1 Flagged player (Multi-tier: poin_tayang ASC, peluang main ASC) di AKHIR gelombang 2
+  // 3. Gelombang 3:
+  //    - Most GW Rivalry (Perburuan Gelar Mingguan Terbanyak)
+  //    - Triple Captain Use & Bench Boost Use (Chip Daya Ledak Poin)
+  //    - Most Transferred Out (Pelepasan Terbanyak)
+  //    - Differential XI (Pilihan Pembeda Starting XI)
+  // 4. Gelombang 4:
+  //    - Most Owned (Aset Esensial Kepemilikan Tertinggi)
+  //    - Chip Recap (Akumulasi Penggunaan Seluruh Chip)
+  //    - 1 Flagged player (Multi-tier: poin_tayang ASC, peluang main DESC) di AKHIR gelombang 4
+  // =========================================================================
+
+  // Inisialisasi pool kandidat Flagged Players dengan poin_tayang persisten dari database
+  interface FlaggedCandidate {
+    story: GeneratedPhase1Story;
+    meta: { id: number; chance: number; ownersCount: number; cost: number };
+    poin_tayang: number;
+  }
+
+  const existingPointsMap = getExistingPoinTayangMap();
+
+  // Hitung baseline poin tayang untuk siklus aktif saat ini
+  let currentCycle = 1;
+  for (const [id, pts] of existingPointsMap.entries()) {
+    if (id.includes(`gw${currentGw}`) && pts > currentCycle) {
+      currentCycle = pts;
+    }
+  }
+
+  const flaggedPool: FlaggedCandidate[] = (flaggedAscStories.length > 0 ? flaggedAscStories : []).map((s: any) => ({
+    story: s,
+    meta: s._flaggedMeta || { id: 0, chance: 0, ownersCount: 0, cost: 0 },
+    poin_tayang: existingPointsMap.get(s.id) ?? 0,
+  }));
+
+  // =========================================================================
+  // PENYUSUNAN ANTREAN JIT (JUST-IN-TIME): TEPAT 1 SIKLUS AKTIF BERJALAN
+  // Tidak membuat antrean untuk beberapa siklus ke depan!
+  // Poin tayang terbesar di database selalu merepresentasikan siklus yang sedang berjalan.
+  // =========================================================================
+
+  // -------------------------------------------------------------
+  // Pemilihan 1 Flagged Player untuk Gelombang 2:
+  // Multi-tier sort:
+  // 1) poin_tayang ASC (selalu ASCENDING)
+  // 2) Peluang main ASC (paling kecil peluangnya / absen)
+  // 3) ownersCount DESC, cost DESC
+  // -------------------------------------------------------------
+  let pickedAscStory: GeneratedPhase1Story | undefined;
+  if (flaggedPool.length > 0) {
+    flaggedPool.sort((a, b) => {
+      if (a.poin_tayang !== b.poin_tayang) return a.poin_tayang - b.poin_tayang;
+      if (a.meta.chance !== b.meta.chance) return a.meta.chance - b.meta.chance;
+      if (b.meta.ownersCount !== a.meta.ownersCount) return b.meta.ownersCount - a.meta.ownersCount;
+      return b.meta.cost - a.meta.cost;
+    });
+    const chosenAsc = flaggedPool[0];
+    chosenAsc.poin_tayang = Math.max(chosenAsc.poin_tayang + 1, currentCycle);
+    pickedAscStory = {
+      ...chosenAsc.story,
+      poin_tayang: chosenAsc.poin_tayang,
+    };
+  }
+
+  // -------------------------------------------------------------
+  // Pemilihan 1 Flagged Player untuk Gelombang 4:
+  // Multi-tier sort:
+  // 1) poin_tayang ASC (selalu ASCENDING) -> Menjamin pemain berbeda dari Wave 2 terpilih!
+  // 2) Peluang main DESC (peluang tertinggi di antara cedera)
+  // 3) ownersCount DESC, cost DESC
+  // -------------------------------------------------------------
+  let pickedDescStory: GeneratedPhase1Story | undefined;
+  if (flaggedPool.length > 0) {
+    flaggedPool.sort((a, b) => {
+      if (a.poin_tayang !== b.poin_tayang) return a.poin_tayang - b.poin_tayang;
+      if (b.meta.chance !== a.meta.chance) return b.meta.chance - a.meta.chance;
+      if (b.meta.ownersCount !== a.meta.ownersCount) return b.meta.ownersCount - a.meta.ownersCount;
+      return b.meta.cost - a.meta.cost;
+    });
+    const chosenDesc = flaggedPool[0];
+    chosenDesc.poin_tayang = Math.max(chosenDesc.poin_tayang + 1, currentCycle);
+    pickedDescStory = {
+      ...chosenDesc.story,
+      poin_tayang: chosenDesc.poin_tayang,
+    };
+  }
+
+  const wave1 = [
+    storiesByTemplateId.get('P1_MATCH_FIXTURES'),
+    storiesByTemplateId.get('P1_TOP_RIVALRY'),
+    storiesByTemplateId.get('P1_CAPTAINCY_RECAP'),
+  ].filter(Boolean) as GeneratedPhase1Story[];
+
+  const wave2 = [
+    storiesByTemplateId.get('P1_HITS_RECAP'),
+    storiesByTemplateId.get('P1_CHIP_WILDCARD'),
+    storiesByTemplateId.get('P1_CHIP_FREEHIT'),
+    storiesByTemplateId.get('P1_TRANSFER_IN'),
+    storiesByTemplateId.get('P1_DIFFERENTIAL_CAPTAIN'),
+    pickedAscStory,
+  ].filter(Boolean) as GeneratedPhase1Story[];
+
+  const wave3 = [
+    storiesByTemplateId.get('P1_MOST_GW_RIVALRY'),
+    storiesByTemplateId.get('P1_CHIP_TRIPLE_CAPTAIN'),
+    storiesByTemplateId.get('P1_CHIP_BENCH_BOOST'),
+    storiesByTemplateId.get('P1_TRANSFER_OUT'),
+    storiesByTemplateId.get('P1_DIFFERENTIAL_XI'),
+  ].filter(Boolean) as GeneratedPhase1Story[];
+
+  const wave4 = [
+    storiesByTemplateId.get('P1_OWNERSHIP_MOST_OWNED'),
+    storiesByTemplateId.get('P1_CHIP_RECAP'),
+    pickedDescStory,
+  ].filter(Boolean) as GeneratedPhase1Story[];
+
+  const activeCycleItems = [...wave1, ...wave2, ...wave3, ...wave4];
+  const orderedStories: GeneratedPhase1Story[] = [];
+
+  for (const item of activeCycleItems) {
+    const cleanItem = { ...item };
+    delete (cleanItem as any)._flaggedMeta;
+    // Beri poin tayang siklus aktif jika belum terdefinisi
+    if (cleanItem.poin_tayang === undefined) {
+      cleanItem.poin_tayang = Math.max(existingPointsMap.get(cleanItem.id) ?? 0, currentCycle);
+    }
+    orderedStories.push(cleanItem);
+  }
+
+  // Jika diminta (default untuk master DB table), sertakan sisa kandidat cedera yang belum tayang
+  // di siklus ini agar tetap terdaftar lengkap di tabel dengan poin_tayang mereka saat ini (0 / sebelumnya)
+  if (includeRemainingPool) {
+    const registeredIds = new Set(orderedStories.map((s) => s.id));
+    for (const f of flaggedPool) {
+      const cleanStory = { ...f.story, poin_tayang: f.poin_tayang };
+      delete (cleanStory as any)._flaggedMeta;
+      if (!registeredIds.has(cleanStory.id)) {
+        registeredIds.add(cleanStory.id);
+        orderedStories.push(cleanStory);
+      }
+    }
+  }
+
+  return orderedStories;
 }
+

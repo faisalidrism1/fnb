@@ -460,35 +460,31 @@ Pilihan taktis diambil [T:{team}] pada Gameweek [N:{gw}] dengan menurunkan [P:{p
 [Kondisi: 2 Pemain]
 Pilihan taktis diambil [T:{team}] pada Gameweek [N:{gw}] dengan menurunkan [P:{player1}] ([N:{pct1}%] kepemilikan) dan [P:{player2}] ([N:{pct2}%] kepemilikan) sebagai pembeda di starting XI.`,
     example: 'Pilihan taktis diambil [T:Kuda Hitam] pada Gameweek [N:9] dengan menurunkan [P:Kluivert] ([N:3%] kepemilikan) dan [P:Welbeck] ([N:4%] kepemilikan) sebagai pembeda di starting XI.',
-    code: `// 1 berita per masing-masing tim yang memiliki starting XI differential (< 5%)
-const teamStories = [];
-for (const team of allLeagueTeams) {
-  const starters = getStartingXI(team.id, gw);
-  const diffs = filterStartersUnder5Pct(starters);
-  if (diffs.length === 0) continue;
+    code: `// Single News: Pilih 1 tim dengan starting XI paling unik (< 5%), seleksi via Opsi B (Least Featured)
+const candidates = getTeamsWithDifferentialStarters(gw, 0.05);
+if (candidates.length === 0) return null;
 
-  // Filter maksimal 2 pemain dengan point form tertinggi
-  const topDiffs = pickTop2ByPointForm(diffs);
+// Sort by count differential desc, lalu Opsi B
+const sortedTeams = sortByLeastFeaturedTeam(candidates);
+const topTeam = sortedTeams[0];
+const topDiffs = pickTop2ByPointForm(topTeam.diffStarters);
 
-  if (topDiffs.length === 1) {
-    teamStories.push(renderTemplate(template.single, {
-      team: team.name,
-      gw,
-      player1: topDiffs[0].name,
-      pct1: topDiffs[0].ownershipPct,
-    }));
-  } else {
-    teamStories.push(renderTemplate(template.multi, {
-      team: team.name,
-      gw,
-      player1: topDiffs[0].name,
-      pct1: topDiffs[0].ownershipPct,
-      player2: topDiffs[1].name,
-      pct2: topDiffs[1].ownershipPct,
-    }));
-  }
+if (topDiffs.length === 1) {
+  return renderTemplate(template.single, {
+    team: topTeam.name,
+    gw,
+    player1: topDiffs[0].name,
+    pct1: topDiffs[0].ownershipPct,
+  });
 }
-return teamStories;`,
+return renderTemplate(template.multi, {
+  team: topTeam.name,
+  gw,
+  player1: topDiffs[0].name,
+  pct1: topDiffs[0].ownershipPct,
+  player2: topDiffs[1].name,
+  pct2: topDiffs[1].ownershipPct,
+});`,
     sample_data: {
       team: 'Kuda Hitam',
       gw: '9',
@@ -510,30 +506,28 @@ Langkah berani diambil [T:{team}] di Gameweek [N:{gw}], dengan menjadi satu-satu
 [Kondisi: Kapten Differential (< 5%)]
 Langkah berani diambil [T:{team}] di Gameweek [N:{gw}], dengan mempercayakan ban kapten kepada [P:{captain}] yang hanya dipilih oleh [N:{pickers_count}] tim di liga.`,
     example: 'Langkah berani diambil [T:Sunda Kelapa] di Gameweek [N:9], dengan menjadi satu-satunya tim di liga yang mempercayakan ban kapten kepada [P:Bowen].',
-    code: `// 1 berita per masing-masing tim yang menunjuk kapten langka/eksklusif (< 5%)
-const stories = [];
-for (const team of allLeagueTeams) {
-  const cap = getTeamCaptain(team.id, gw);
-  const pickersCount = getCaptainPickersCount(cap.id, gw);
+    code: `// Single News: Pilih 1 tim dengan kapten paling langka (< 5%), seleksi via Opsi B (Least Featured)
+const diffCaptains = getDifferentialCaptains(gw, 0.05);
+if (diffCaptains.length === 0) return null;
 
-  if (!isDifferentialCaptain(pickersCount, totalTeams)) continue;
+// Urutkan kapten terlangka (count terkecil, cost termahal)
+const topCap = diffCaptains[0];
+const candidateTeams = getTeamsCaptainPickers(topCap.id, gw);
+const selectedTeam = sortByLeastFeaturedTeam(candidateTeams)[0];
 
-  if (pickersCount === 1) {
-    stories.push(renderTemplate(template.exclusive, {
-      team: team.name,
-      captain: cap.name,
-      gw,
-    }));
-  } else {
-    stories.push(renderTemplate(template.differential, {
-      team: team.name,
-      captain: cap.name,
-      pickers_count: pickersCount,
-      gw,
-    }));
-  }
+if (topCap.pickersCount === 1) {
+  return renderTemplate(template.exclusive, {
+    team: selectedTeam.name,
+    captain: topCap.name,
+    gw,
+  });
 }
-return stories;`,
+return renderTemplate(template.differential, {
+  team: selectedTeam.name,
+  captain: topCap.name,
+  pickers_count: topCap.pickersCount,
+  gw,
+});`,
     sample_data: {
       team: 'Sunda Kelapa',
       captain: 'Bowen',
