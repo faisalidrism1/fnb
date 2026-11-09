@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { getRegisteredFormulas, calculateDynamicDramaScore } from '../data/newsFormulaRegistry.ts';
 import { generatePhase1Stories } from './phase1StoryGenerator.ts';
+import { generateStoriesFromPulseMatch } from './pulseMatchStoryGenerator.ts';
 
 export interface NewsTickerDbRow {
   id: string;
@@ -642,13 +643,32 @@ export function createCompleteStoryRecord(
 
   // ATURAN STATUS & TAYANG:
   // 1. GW selain Current GW statusnya N
-  // 2. Saat menyebutkan poin dan rank, deteksi status GW: JANGAN PERNAH tampilkan news tersebut saat 'Not started'!
+  // 2. FASE LIVE MATCH: Hanya tayangkan berita dengan sumber hasil produksi dari subtab editor (sumber: 'Bukan')
+  // 3. Saat menyebutkan poin dan rank, deteksi status GW: JANGAN PERNAH tampilkan news tersebut saat 'Not started'!
   let statusTayang: 'Y' | 'N';
   let keterangan: string;
 
   if (gw !== currentActiveGw) {
     statusTayang = 'N';
     keterangan = raw.keterangan_tidak_tayang || `Bukan Gameweek aktif (Arsip Gameweek ${gw})`;
+  } else if (gwPhase === 'Live') {
+    // ATURAN MUTLAK FASE LIVE MATCH:
+    // Hanya tayangkan berita dengan sumber hasil produksi dari subtab editor di Fase Live match
+    if (isAi) {
+      statusTayang = 'N';
+      keterangan = 'Hanya berita produksi Editor yang ditayangkan pada fase Live Match';
+    } else {
+      const allowsLive = Array.isArray(classification.waktu_tayang) && classification.waktu_tayang.some(
+        (w) => w.toLowerCase() === 'live match' || w.toLowerCase() === 'all'
+      );
+      if (allowsLive) {
+        statusTayang = 'Y';
+        keterangan = '';
+      } else {
+        statusTayang = 'N';
+        keterangan = 'Bukan waktu tayang fase Live Match';
+      }
+    }
   } else if (gwPhase === 'Not started' && hasPointsOrRank) {
     statusTayang = 'N';
     keterangan = 'Poin dan peringkat belum berjalan pada fase Not started (jangan tampilkan saat not started)';
@@ -689,15 +709,17 @@ export function createCompleteStoryRecord(
     }
   }
 
-  // Use configured allowed phases from formula registry if available
-  const waktuTayang = matchedFormula && Array.isArray(matchedFormula.allowed_phases) && matchedFormula.allowed_phases.length > 0
-    ? matchedFormula.allowed_phases
-    : classification.waktu_tayang;
+  // Prioritize explicitly provided waktu_tayang from template / production metadata
+  const waktuTayang = (raw.waktu_tayang && Array.isArray(raw.waktu_tayang) && raw.waktu_tayang.length > 0)
+    ? raw.waktu_tayang
+    : (matchedFormula && Array.isArray(matchedFormula.allowed_phases) && matchedFormula.allowed_phases.length > 0
+        ? matchedFormula.allowed_phases
+        : classification.waktu_tayang);
 
   return {
     id,
     timestamp_produksi: timestamp,
-    sumber: isAi ? 'AI' : 'Bukan',
+    sumber: (raw.sumber) ? raw.sumber : (isAi ? 'AI' : 'Bukan'),
     status_tayang: statusTayang,
     keterangan_tidak_tayang: keterangan,
     waktu_tayang: waktuTayang,
@@ -738,7 +760,7 @@ export function extractGwFromStory(headlineId: string, headlineEn: string, id: s
  * Rebuilds and synchronizes the news ticker database table in the container.
  * Scans both active feed (news_ticker_feed.json) and history cache (news_ticker_history.json).
  */
-export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
+export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[] {
   try {
     const tableRows: NewsTickerDbRow[] = [];
     const seenIds = new Set<string>();
@@ -910,6 +932,71 @@ export function rebuildNewsTickerTable(): NewsTickerDbRow[] {
       }
     } catch (err: any) {
       console.warn('[News Table Service] Warning generating Phase 1 stories:', err.message);
+    }
+
+    // 6. Inject all Live Match template stories produced from Editor templates (No. 17-29)
+    try {
+      const pulseFile = path.join(process.cwd(), 'src/data/pulse_match_129021.json');
+      if (fs.existsSync(pulseFile)) {
+        const pulseData = JSON.parse(fs.readFileSync(pulseFile, 'utf-8'));
+        const liveStories = generateStoriesFromPulseMatch(pulseData, feedGw);
+        for (const ls of liveStories) {
+          if (!seenIds.has(ls.id)) {
+            seenIds.add(ls.id);
+            const existingRecord = existingTableMap.get(ls.id);
+            const resolvedPoinTayang = existingRecord
+              ? (existingRecord.poin_tayang ?? baselinePoinTayang)
+              : baselinePoinTayang;
+
+            const isLive = (phaseOverride === 'Live' || getGameweekPhase(feedGw) === 'Live');
+            const liveRecord = createCompleteStoryRecord({
+              id: ls.id,
+              headline_id: ls.headline_id,
+              headline_en: ls.headline_en,
+              timestamp_produksi: existingRecord?.timestamp_produksi || new Date().toISOString(),
+              sumber: 'Bukan',
+              gw: ls.gw,
+              teams: ls.teams,
+              players: ls.players,
+              drama_score: ls.drama_score,
+              poin_tayang: resolvedPoinTayang,
+              status_tayang: isLive ? 'Y' : 'N',
+              keterangan_tidak_tayang: isLive ? '' : 'Bukan fase tayang Live Match',
+              kategori: ls.kategori,
+              sub_kategori: ls.sub_kategori,
+              waktu_tayang: ls.waktu_tayang,
+            } as any, ls.gw);
+            tableRows.push(liveRecord);
+          }
+        }
+      }
+    } catch (err: any) {
+      console.warn('[News Table Service] Warning generating Live Match stories:', err.message);
+    }
+
+    // ATURAN MUTLAK FASE LIVE MATCH:
+    // "Hanya tayangkan berita dengan sumber hasil produksi dari subtab editor di Fase Live match."
+    const resolvedGwPhase = phaseOverride || getGameweekPhase(feedGw);
+    if (resolvedGwPhase === 'Live') {
+      for (const row of tableRows) {
+        if (row.gw === feedGw) {
+          if (row.sumber === 'AI') {
+            row.status_tayang = 'N';
+            row.keterangan_tidak_tayang = 'Hanya berita produksi Editor yang ditayangkan pada fase Live Match';
+          } else if (row.sumber === 'Bukan') {
+            const allowsLive = Array.isArray(row.waktu_tayang) && row.waktu_tayang.some(
+              (w) => w.toLowerCase() === 'live match' || w.toLowerCase() === 'all'
+            );
+            if (allowsLive) {
+              row.status_tayang = 'Y';
+              row.keterangan_tidak_tayang = '';
+            } else {
+              row.status_tayang = 'N';
+              row.keterangan_tidak_tayang = 'Bukan waktu tayang fase Live Match';
+            }
+          }
+        }
+      }
     }
 
     // Sort by: status_tayang 'Y' first, then timestamp descending

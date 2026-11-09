@@ -39,6 +39,7 @@ interface GeneratedPhase1Story {
   status_tayang: 'Y' | 'N';
   keterangan_tidak_tayang: string;
   poin_tayang?: number;
+  timestamp_produksi?: string;
 }
 
 /**
@@ -1134,13 +1135,14 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 kategori: tmpl.category,
                 sub_kategori: tmpl.subcategory,
                 drama_score: item.isOut ? 88 : 84,
-                waktu_tayang: ['Not started'],
+                waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
                 gw: currentGw,
                 teams: extractTagNames(headline, 'T'),
                 players: extractTagNames(headline, 'P'),
                 sumber: 'Bukan',
                 status_tayang: isGwNotStarted ? 'Y' : 'N',
                 keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+                timestamp_produksi: new Date().toISOString(),
                 // Metadata untuk multi-tier sorting poin tayang
                 _flaggedMeta: {
                   id: item.id,
@@ -1165,13 +1167,14 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               kategori: tmpl.category,
               sub_kategori: tmpl.subcategory,
               drama_score: 88,
-              waktu_tayang: ['Not started'],
+              waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
               gw: currentGw,
               teams: extractTagNames(headlineAsc, 'T'),
               players: extractTagNames(headlineAsc, 'P'),
               sumber: 'Bukan',
               status_tayang: isGwNotStarted ? 'Y' : 'N',
               keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+              timestamp_produksi: new Date().toISOString(),
               _flaggedMeta: { id: 9999, chance: 0, ownersCount: 35, cost: 60 },
             } as any);
           }
@@ -1361,13 +1364,14 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
           kategori: tmpl.category,
           sub_kategori: tmpl.subcategory,
           drama_score: 82 + (tmpl.no % 8),
-          waktu_tayang: ['Not started'],
+          waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
           gw: currentGw,
           teams,
           players,
           sumber: 'Bukan',
           status_tayang: isGwNotStarted ? 'Y' : 'N',
           keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+          timestamp_produksi: new Date().toISOString(),
         });
       }
     } catch (err: any) {

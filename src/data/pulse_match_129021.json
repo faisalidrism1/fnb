@@ -1,0 +1,2265 @@
+{
+  "gameweek": {
+    "id": 19770,
+    "compSeason": {
+      "label": "English Premier League Season 2026/2027",
+      "competition": {
+        "abbreviation": "EN_PR",
+        "description": "Premier League",
+        "level": "SEN",
+        "source": "",
+        "id": 1,
+        "altIds": {
+          "opta": "8"
+        }
+      },
+      "id": 841
+    },
+    "gameweek": 10,
+    "competitionPhase": {
+      "id": 8163,
+      "type": "L",
+      "gameweekRange": [
+        1,
+        38
+      ]
+    }
+  },
+  "kickoff": {
+    "completeness": 3,
+    "millis": 1794072600000,
+    "label": "Sat 7 Nov 2026, 17:30 GMT"
+  },
+  "provisionalKickoff": {
+    "completeness": 3,
+    "millis": 1794072600000,
+    "label": "Sat 7 Nov 2026, 17:30 GMT"
+  },
+  "teams": [
+    {
+      "team": {
+        "name": "Nottingham Forest",
+        "club": {
+          "name": "Nottingham Forest",
+          "shortName": "Nott'm Forest",
+          "abbr": "NFO",
+          "id": 15
+        },
+        "teamType": "FIRST",
+        "shortName": "Nott'm Forest",
+        "id": 15,
+        "altIds": {
+          "opta": "t17"
+        }
+      },
+      "score": 3
+    },
+    {
+      "team": {
+        "name": "Manchester City",
+        "club": {
+          "name": "Manchester City",
+          "shortName": "Man City",
+          "abbr": "MCI",
+          "id": 11
+        },
+        "teamType": "FIRST",
+        "shortName": "Man City",
+        "id": 11,
+        "altIds": {
+          "opta": "t43"
+        }
+      },
+      "score": 1
+    }
+  ],
+  "replay": false,
+  "ground": {
+    "name": "The City Ground",
+    "city": "Nottingham",
+    "source": "OPTA",
+    "id": 9520
+  },
+  "neutralGround": false,
+  "status": "C",
+  "phase": "F",
+  "outcome": "H",
+  "attendance": 30762,
+  "clock": {
+    "secs": 5760,
+    "label": "90+6'00"
+  },
+  "fixtureType": "REGULAR",
+  "extraTime": false,
+  "shootout": false,
+  "matchOfficials": [
+    {
+      "matchOfficialId": 168350,
+      "role": "MAIN",
+      "birth": {},
+      "name": {
+        "display": "Samuel Barrott",
+        "first": "Samuel",
+        "last": "Barrott"
+      },
+      "id": 21346
+    },
+    {
+      "matchOfficialId": 168351,
+      "birth": {},
+      "name": {
+        "display": "Adam Nunn",
+        "first": "Adam",
+        "last": "Nunn"
+      },
+      "id": 17036
+    },
+    {
+      "matchOfficialId": 168352,
+      "birth": {},
+      "name": {
+        "display": "Timothy Wood",
+        "first": "Timothy",
+        "last": "Wood"
+      },
+      "id": 17425
+    },
+    {
+      "matchOfficialId": 168353,
+      "role": "FOURTH_OFFICIAL",
+      "birth": {},
+      "name": {
+        "display": "Adam Herczeg",
+        "first": "Adam",
+        "last": "Herczeg"
+      },
+      "id": 28094
+    },
+    {
+      "matchOfficialId": 168354,
+      "role": "VAR",
+      "birth": {},
+      "name": {
+        "display": "Paul Tierney",
+        "first": "Paul",
+        "last": "Tierney"
+      },
+      "id": 17019
+    },
+    {
+      "matchOfficialId": 168355,
+      "role": "ASSISTANT_VAR",
+      "birth": {},
+      "name": {
+        "display": "Richard West",
+        "first": "Richard",
+        "last": "West"
+      },
+      "id": 16970
+    }
+  ],
+  "halfTimeScore": {
+    "homeScore": 2,
+    "awayScore": 0
+  },
+  "teamLists": [
+    {
+      "teamId": 15,
+      "lineup": [
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 22,
+          "captain": true,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 22,
+            "positionInfo": "Left/Centre/Right Attacking Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 880070400000,
+              "label": "21 November 1997"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Nottingham"
+          },
+          "age": "28 years 351 days",
+          "name": {
+            "display": "Ryan Yates",
+            "first": "Ryan",
+            "last": "Yates"
+          },
+          "id": 14238,
+          "altIds": {
+            "opta": "p204968"
+          }
+        },
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 24,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 24,
+            "positionInfo": "Centre/Right Attacking Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 1034899200000,
+              "label": "18 October 2002"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Salford"
+          },
+          "age": "24 years 20 days",
+          "name": {
+            "display": "James McAtee",
+            "first": "James",
+            "last": "McAtee"
+          },
+          "id": 49270,
+          "altIds": {
+            "opta": "p432714"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 31,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 31,
+            "positionInfo": "Centre Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "RS",
+            "country": "Serbia",
+            "demonym": "Serbian"
+          },
+          "birth": {
+            "date": {
+              "millis": 876614400000,
+              "label": "12 October 1997"
+            },
+            "country": {
+              "isoCode": "RS",
+              "country": "Serbia",
+              "demonym": "Serbian"
+            },
+            "place": "Beograd"
+          },
+          "age": "29 years 26 days",
+          "name": {
+            "display": "Nikola Milenkovic",
+            "first": "Nikola",
+            "last": "Milenkovic"
+          },
+          "id": 16035,
+          "altIds": {
+            "opta": "p227444"
+          }
+        },
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 19,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 19,
+            "positionInfo": "Centre Striker"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 1044662400000,
+              "label": "8 February 2003"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Winchester"
+          },
+          "age": "23 years 272 days",
+          "name": {
+            "display": "Liam Delap",
+            "first": "Liam",
+            "last": "Delap"
+          },
+          "id": 51813,
+          "altIds": {
+            "opta": "p463034"
+          }
+        },
+        {
+          "matchPosition": "G",
+          "matchShirtNumber": 26,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "G",
+            "shirtNum": 26,
+            "positionInfo": "Goalkeeper"
+          },
+          "nationalTeam": {
+            "isoCode": "BE",
+            "country": "Belgium",
+            "demonym": "Belgian"
+          },
+          "birth": {
+            "date": {
+              "millis": 699062400000,
+              "label": "26 February 1992"
+            },
+            "country": {
+              "isoCode": "BE",
+              "country": "Belgium",
+              "demonym": "Belgian"
+            },
+            "place": "Lint"
+          },
+          "age": "34 years 254 days",
+          "name": {
+            "display": "Matz Sels",
+            "first": "Matz",
+            "last": "Sels"
+          },
+          "id": 16723,
+          "altIds": {
+            "opta": "p85633"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 5,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 5,
+            "positionInfo": "Left/Centre Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "BR",
+            "country": "Brazil",
+            "demonym": "Brazilian"
+          },
+          "birth": {
+            "date": {
+              "millis": 1025740800000,
+              "label": "4 July 2002"
+            },
+            "country": {
+              "isoCode": "BR",
+              "country": "Brazil",
+              "demonym": "Brazilian"
+            },
+            "place": "São Paulo"
+          },
+          "age": "24 years 126 days",
+          "name": {
+            "display": "Murillo",
+            "first": "Murillo Santiago",
+            "last": "Costa dos Santos"
+          },
+          "id": 139648,
+          "altIds": {
+            "opta": "p575476"
+          }
+        },
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 10,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 10,
+            "positionInfo": "Centre Central Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 948931200000,
+              "label": "27 January 2000"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Stafford"
+          },
+          "age": "26 years 284 days",
+          "name": {
+            "display": "Morgan Gibbs-White",
+            "first": "Morgan",
+            "last": "Gibbs-White"
+          },
+          "id": 15259,
+          "altIds": {
+            "opta": "p222531"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 21,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 21,
+            "positionInfo": "Central Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "AT",
+            "country": "Austria",
+            "demonym": "Austrian"
+          },
+          "birth": {
+            "date": {
+              "millis": 875404800000,
+              "label": "28 September 1997"
+            },
+            "country": {
+              "isoCode": "AT",
+              "country": "Austria",
+              "demonym": "Austrian"
+            },
+            "place": "Linz"
+          },
+          "age": "29 years 40 days",
+          "name": {
+            "display": "Xaver Schlager",
+            "first": "Xaver",
+            "last": "Schlager"
+          },
+          "id": 20335,
+          "altIds": {
+            "opta": "p204561"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 27,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 27,
+            "positionInfo": "Right Full Back"
+          },
+          "nationalTeam": {
+            "isoCode": "CO",
+            "country": "Colombia",
+            "demonym": "Colombian"
+          },
+          "birth": {
+            "date": {
+              "millis": 833068800000,
+              "label": "26 May 1996"
+            },
+            "country": {
+              "isoCode": "CO",
+              "country": "Colombia",
+              "demonym": "Colombian"
+            },
+            "place": "Amalfi"
+          },
+          "age": "30 years 165 days",
+          "name": {
+            "display": "Daniel Muñoz",
+            "first": "Daniel",
+            "last": "Muñoz"
+          },
+          "id": 76353,
+          "altIds": {
+            "opta": "p247348"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 3,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 3,
+            "positionInfo": "Right Full Back"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-WLS",
+            "country": "Wales",
+            "demonym": "Welsh"
+          },
+          "birth": {
+            "date": {
+              "millis": 987120000000,
+              "label": "13 April 2001"
+            },
+            "country": {
+              "isoCode": "GB-WLS",
+              "country": "Wales",
+              "demonym": "Welsh"
+            },
+            "place": "Wrexham"
+          },
+          "age": "25 years 208 days",
+          "name": {
+            "display": "Neco Williams",
+            "first": "Neco",
+            "last": "Williams"
+          },
+          "id": 23811,
+          "altIds": {
+            "opta": "p215136"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 23,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 23,
+            "positionInfo": "Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "BR",
+            "country": "Brazil",
+            "demonym": "Brazilian"
+          },
+          "birth": {
+            "date": {
+              "millis": 1110153600000,
+              "label": "7 March 2005"
+            },
+            "country": {
+              "isoCode": "BR",
+              "country": "Brazil",
+              "demonym": "Brazilian"
+            },
+            "place": "Orlândia"
+          },
+          "age": "21 years 245 days",
+          "name": {
+            "display": "Jair Cunha",
+            "first": "Jair",
+            "last": "Paula da Cunha Filho"
+          },
+          "id": 304238,
+          "altIds": {
+            "opta": "p575458"
+          }
+        }
+      ],
+      "substitutes": [
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 14,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 14,
+            "positionInfo": "Left/Right Winger"
+          },
+          "nationalTeam": {
+            "isoCode": "CH",
+            "country": "Switzerland",
+            "demonym": "Swiss"
+          },
+          "birth": {
+            "date": {
+              "millis": 972432000000,
+              "label": "25 October 2000"
+            },
+            "country": {
+              "isoCode": "CH",
+              "country": "Switzerland",
+              "demonym": "Swiss"
+            },
+            "place": "Nyon"
+          },
+          "age": "26 years 13 days",
+          "name": {
+            "display": "Dan Ndoye",
+            "first": "Dan",
+            "last": "Ndoye"
+          },
+          "id": 50623,
+          "altIds": {
+            "opta": "p456512"
+          }
+        },
+        {
+          "matchPosition": "G",
+          "matchShirtNumber": 12,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "G",
+            "shirtNum": 12,
+            "positionInfo": "Goalkeeper"
+          },
+          "nationalTeam": {
+            "isoCode": "BR",
+            "country": "Brazil",
+            "demonym": "Brazilian"
+          },
+          "birth": {
+            "date": {
+              "millis": 824169600000,
+              "label": "13 February 1996"
+            },
+            "country": {
+              "isoCode": "BR",
+              "country": "Brazil",
+              "demonym": "Brazilian"
+            },
+            "place": "Diadema"
+          },
+          "age": "30 years 267 days",
+          "name": {
+            "display": "John Victor",
+            "first": "John Victor",
+            "last": "Maciel Furtado"
+          },
+          "id": 141639,
+          "altIds": {
+            "opta": "p221389"
+          }
+        },
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 11,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 11,
+            "positionInfo": "Striker"
+          },
+          "nationalTeam": {
+            "isoCode": "BR",
+            "country": "Brazil",
+            "demonym": "Brazilian"
+          },
+          "birth": {
+            "date": {
+              "millis": 983059200000,
+              "label": "25 February 2001"
+            },
+            "country": {
+              "isoCode": "BR",
+              "country": "Brazil",
+              "demonym": "Brazilian"
+            },
+            "place": "Cuiabá"
+          },
+          "age": "25 years 255 days",
+          "name": {
+            "display": "Igor Jesus",
+            "first": "Igor Jesus",
+            "last": "Maciel da Cruz"
+          },
+          "id": 304123,
+          "altIds": {
+            "opta": "p482973"
+          }
+        },
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 15,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 15,
+            "positionInfo": "Centre Striker"
+          },
+          "nationalTeam": {
+            "isoCode": "FR",
+            "country": "France",
+            "demonym": "French"
+          },
+          "birth": {
+            "date": {
+              "millis": 1011484800000,
+              "label": "20 January 2002"
+            },
+            "country": {
+              "isoCode": "FR",
+              "country": "France",
+              "demonym": "French"
+            },
+            "place": "Suresnes"
+          },
+          "age": "24 years 291 days",
+          "name": {
+            "display": "Arnaud Kalimuendo",
+            "first": "Arnaud",
+            "last": "Kalimuendo"
+          },
+          "id": 68219,
+          "altIds": {
+            "opta": "p465680"
+          }
+        },
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 7,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 7,
+            "positionInfo": "Left Winger"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 973555200000,
+              "label": "7 November 2000"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "London"
+          },
+          "age": "26 years",
+          "name": {
+            "display": "Callum Hudson-Odoi",
+            "first": "Callum",
+            "last": "Hudson-Odoi"
+          },
+          "id": 23702,
+          "altIds": {
+            "opta": "p209046"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 6,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 6,
+            "positionInfo": "Centre Central Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "CI",
+            "country": "Cote D’Ivoire",
+            "demonym": "Ivorian"
+          },
+          "birth": {
+            "date": {
+              "millis": 881020800000,
+              "label": "2 December 1997"
+            },
+            "country": {
+              "isoCode": "CI",
+              "country": "Cote D’Ivoire",
+              "demonym": "Ivorian"
+            },
+            "place": "Abidjan"
+          },
+          "age": "28 years 340 days",
+          "name": {
+            "display": "Ibrahim Sangaré",
+            "first": "Ibrahim",
+            "last": "Sangaré"
+          },
+          "id": 108816,
+          "altIds": {
+            "opta": "p210462"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 25,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 25,
+            "positionInfo": "Left Full Back"
+          },
+          "nationalTeam": {
+            "isoCode": "DE",
+            "country": "Germany",
+            "demonym": "German"
+          },
+          "birth": {
+            "date": {
+              "millis": 1052956800000,
+              "label": "15 May 2003"
+            },
+            "country": {
+              "isoCode": "DE",
+              "country": "Germany",
+              "demonym": "German"
+            },
+            "place": "Berlin"
+          },
+          "age": "23 years 176 days",
+          "name": {
+            "display": "Luca Netz",
+            "first": "Luca",
+            "last": "Netz"
+          },
+          "id": 76426,
+          "altIds": {
+            "opta": "p470315"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 2,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 2,
+            "positionInfo": "Centre Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "CI",
+            "country": "Cote D’Ivoire",
+            "demonym": "Ivorian"
+          },
+          "birth": {
+            "date": {
+              "millis": 1070496000000,
+              "label": "4 December 2003"
+            },
+            "country": {
+              "isoCode": "CI",
+              "country": "Cote D’Ivoire",
+              "demonym": "Ivorian"
+            },
+            "place": "Abidjan"
+          },
+          "age": "22 years 338 days",
+          "name": {
+            "display": "Ousmane Diomande",
+            "first": "Ousmane",
+            "last": "Diomande"
+          },
+          "id": 123299,
+          "altIds": {
+            "opta": "p568420"
+          }
+        },
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 9,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 9,
+            "positionInfo": "Centre Striker"
+          },
+          "nationalTeam": {
+            "isoCode": "NZ",
+            "country": "New Zealand",
+            "demonym": "New Zealander"
+          },
+          "birth": {
+            "date": {
+              "millis": 692064000000,
+              "label": "7 December 1991"
+            },
+            "country": {
+              "isoCode": "NZ",
+              "country": "New Zealand",
+              "demonym": "New Zealander"
+            },
+            "place": "Auckland"
+          },
+          "age": "34 years 335 days",
+          "name": {
+            "display": "Chris Wood",
+            "first": "Chris",
+            "last": "Wood"
+          },
+          "id": 3756,
+          "altIds": {
+            "opta": "p60689"
+          }
+        }
+      ],
+      "formation": {
+        "label": "3-4-2-1",
+        "players": [
+          [
+            16723
+          ],
+          [
+            304238,
+            16035,
+            139648
+          ],
+          [
+            76353,
+            20335,
+            14238,
+            23811
+          ],
+          [
+            49270,
+            15259
+          ],
+          [
+            51813
+          ]
+        ]
+      }
+    },
+    {
+      "teamId": 11,
+      "lineup": [
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 11,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 11,
+            "positionInfo": "Left/Right Winger"
+          },
+          "nationalTeam": {
+            "isoCode": "BE",
+            "country": "Belgium",
+            "demonym": "Belgian"
+          },
+          "birth": {
+            "date": {
+              "millis": 1022457600000,
+              "label": "27 May 2002"
+            },
+            "country": {
+              "isoCode": "BE",
+              "country": "Belgium",
+              "demonym": "Belgian"
+            },
+            "place": "Antwerpen"
+          },
+          "age": "24 years 164 days",
+          "name": {
+            "display": "Jérémy Doku",
+            "first": "Jérémy",
+            "last": "Doku"
+          },
+          "id": 54156,
+          "altIds": {
+            "opta": "p248875"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 7,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 7,
+            "positionInfo": "Left/Right Winger"
+          },
+          "nationalTeam": {
+            "isoCode": "SN",
+            "country": "Senegal",
+            "demonym": "Senegalese"
+          },
+          "birth": {
+            "date": {
+              "millis": 952300800000,
+              "label": "6 March 2000"
+            },
+            "country": {
+              "isoCode": "FR",
+              "country": "France",
+              "demonym": "French"
+            },
+            "place": "Rouen"
+          },
+          "age": "26 years 246 days",
+          "name": {
+            "display": "Iliman Ndiaye",
+            "first": "Iliman",
+            "last": "Ndiaye"
+          },
+          "id": 31936,
+          "altIds": {
+            "opta": "p440993"
+          }
+        },
+        {
+          "matchPosition": "G",
+          "matchShirtNumber": 1,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "G",
+            "shirtNum": 1,
+            "positionInfo": "Goalkeeper"
+          },
+          "nationalTeam": {
+            "isoCode": "IT",
+            "country": "Italy",
+            "demonym": "Italian"
+          },
+          "birth": {
+            "date": {
+              "millis": 919900800000,
+              "label": "25 February 1999"
+            },
+            "country": {
+              "isoCode": "IT",
+              "country": "Italy",
+              "demonym": "Italian"
+            },
+            "place": "Castellammare di Stabia"
+          },
+          "age": "27 years 255 days",
+          "name": {
+            "display": "Gianluigi Donnarumma",
+            "first": "Gianluigi",
+            "last": "Donnarumma"
+          },
+          "id": 22857,
+          "altIds": {
+            "opta": "p204936"
+          }
+        },
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 9,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 9,
+            "positionInfo": "Centre Striker"
+          },
+          "nationalTeam": {
+            "isoCode": "NO",
+            "country": "Norway",
+            "demonym": "Norwegian"
+          },
+          "birth": {
+            "date": {
+              "millis": 964137600000,
+              "label": "21 July 2000"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Leeds"
+          },
+          "age": "26 years 109 days",
+          "name": {
+            "display": "Erling Haaland",
+            "first": "Erling",
+            "last": "Haaland"
+          },
+          "id": 65970,
+          "altIds": {
+            "opta": "p223094"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 10,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 10,
+            "positionInfo": "Attacking Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "FR",
+            "country": "France",
+            "demonym": "French"
+          },
+          "birth": {
+            "date": {
+              "millis": 1061078400000,
+              "label": "17 August 2003"
+            },
+            "country": {
+              "isoCode": "FR",
+              "country": "France",
+              "demonym": "French"
+            },
+            "place": "Lyon"
+          },
+          "age": "23 years 82 days",
+          "name": {
+            "display": "Rayan Cherki",
+            "first": "Rayan",
+            "last": "Cherki"
+          },
+          "id": 68150,
+          "altIds": {
+            "opta": "p466052"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 24,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 24,
+            "positionInfo": "Left/Centre Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "HR",
+            "country": "Croatia",
+            "demonym": "Croatian"
+          },
+          "birth": {
+            "date": {
+              "millis": 1011744000000,
+              "label": "23 January 2002"
+            },
+            "country": {
+              "isoCode": "HR",
+              "country": "Croatia",
+              "demonym": "Croatian"
+            },
+            "place": "Zagreb"
+          },
+          "age": "24 years 288 days",
+          "name": {
+            "display": "Josko Gvardiol",
+            "first": "Josko",
+            "last": "Gvardiol"
+          },
+          "id": 67178,
+          "altIds": {
+            "opta": "p477424"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 45,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 45,
+            "positionInfo": "Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "UZ",
+            "country": "Uzbekistan",
+            "demonym": "Uzbek"
+          },
+          "birth": {
+            "date": {
+              "millis": 1078012800000,
+              "label": "29 February 2004"
+            },
+            "country": {
+              "isoCode": "UZ",
+              "country": "Uzbekistan",
+              "demonym": "Uzbek"
+            },
+            "place": "Tashkent"
+          },
+          "age": "22 years 252 days",
+          "name": {
+            "display": "Abdukodir Khusanov",
+            "first": "Abdukodir",
+            "last": "Khusanov"
+          },
+          "id": 137371,
+          "altIds": {
+            "opta": "p578153"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 3,
+          "captain": true,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 3,
+            "positionInfo": "Centre Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "PT",
+            "country": "Portugal",
+            "demonym": "Portugese"
+          },
+          "birth": {
+            "date": {
+              "millis": 863568000000,
+              "label": "14 May 1997"
+            },
+            "country": {
+              "isoCode": "PT",
+              "country": "Portugal",
+              "demonym": "Portugese"
+            },
+            "place": "Amadora"
+          },
+          "age": "29 years 177 days",
+          "name": {
+            "display": "Rúben Dias",
+            "first": "Rúben",
+            "last": "dos Santos Gato Alves Dias"
+          },
+          "id": 16431,
+          "altIds": {
+            "opta": "p171314"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 5,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 5,
+            "positionInfo": "Central Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 1036540800000,
+              "label": "6 November 2002"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Whitley Bay"
+          },
+          "age": "24 years 1 day",
+          "name": {
+            "display": "Elliot Anderson",
+            "first": "Elliot",
+            "last": "Anderson"
+          },
+          "id": 51593,
+          "altIds": {
+            "opta": "p215379"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 6,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 6,
+            "positionInfo": "Centre Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 963446400000,
+              "label": "13 July 2000"
+            },
+            "country": {
+              "isoCode": "CI",
+              "country": "Cote D’Ivoire",
+              "demonym": "Ivorian"
+            },
+            "place": "Abidjan"
+          },
+          "age": "26 years 117 days",
+          "name": {
+            "display": "Marc Guéhi",
+            "first": "Marc",
+            "last": "Guéhi"
+          },
+          "id": 14569,
+          "altIds": {
+            "opta": "p209036"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 17,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 17,
+            "positionInfo": "Centre Central Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "AR",
+            "country": "Argentina"
+          },
+          "birth": {
+            "date": {
+              "millis": 979689600000,
+              "label": "17 January 2001"
+            },
+            "country": {
+              "isoCode": "AR",
+              "country": "Argentina"
+            },
+            "place": "San Martín"
+          },
+          "age": "25 years 294 days",
+          "name": {
+            "display": "Enzo Fernández",
+            "first": "Enzo",
+            "last": "Fernández"
+          },
+          "id": 63741,
+          "altIds": {
+            "opta": "p448047"
+          }
+        }
+      ],
+      "substitutes": [
+        {
+          "matchPosition": "F",
+          "matchShirtNumber": 37,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "F",
+            "shirtNum": 37,
+            "positionInfo": "Right Winger"
+          },
+          "nationalTeam": {
+            "isoCode": "BR",
+            "country": "Brazil",
+            "demonym": "Brazilian"
+          },
+          "birth": {
+            "date": {
+              "millis": 1082332800000,
+              "label": "19 April 2004"
+            },
+            "country": {
+              "isoCode": "BR",
+              "country": "Brazil",
+              "demonym": "Brazilian"
+            },
+            "place": "Florianópolis"
+          },
+          "age": "22 years 202 days",
+          "name": {
+            "display": "Allan",
+            "first": "Allan",
+            "last": "Andrade Elias"
+          },
+          "id": 338602,
+          "altIds": {
+            "opta": "p624777"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 27,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 27,
+            "positionInfo": "Centre Central Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "PT",
+            "country": "Portugal",
+            "demonym": "Portugese"
+          },
+          "birth": {
+            "date": {
+              "millis": 904176000000,
+              "label": "27 August 1998"
+            },
+            "country": {
+              "isoCode": "BR",
+              "country": "Brazil",
+              "demonym": "Brazilian"
+            },
+            "place": "Rio de Janeiro"
+          },
+          "age": "28 years 72 days",
+          "name": {
+            "display": "Matheus Nunes",
+            "first": "Matheus Luiz",
+            "last": "Nunes"
+          },
+          "id": 76204,
+          "altIds": {
+            "opta": "p465351"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 32,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 32,
+            "positionInfo": "Centre Central Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "MA",
+            "country": "Morocco",
+            "demonym": "Moroccan"
+          },
+          "birth": {
+            "date": {
+              "millis": 1191283200000,
+              "label": "2 October 2007"
+            },
+            "country": {
+              "isoCode": "FR",
+              "country": "France",
+              "demonym": "French"
+            },
+            "place": "Senlis"
+          },
+          "age": "19 years 36 days",
+          "name": {
+            "display": "Ayyoub Bouaddi",
+            "first": "Ayyoub",
+            "last": "Bouaddi"
+          },
+          "id": 141425,
+          "altIds": {
+            "opta": "p637238"
+          }
+        },
+        {
+          "matchPosition": "G",
+          "matchShirtNumber": 28,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "G",
+            "shirtNum": 28,
+            "positionInfo": "Goalkeeper"
+          },
+          "nationalTeam": {
+            "isoCode": "AR",
+            "country": "Argentina"
+          },
+          "birth": {
+            "date": {
+              "millis": 706320000000,
+              "label": "20 May 1992"
+            },
+            "country": {
+              "isoCode": "AR",
+              "country": "Argentina"
+            },
+            "place": "La Plata"
+          },
+          "age": "34 years 171 days",
+          "name": {
+            "display": "Gerónimo Rulli",
+            "first": "Gerónimo",
+            "last": "Rulli"
+          },
+          "id": 20857,
+          "altIds": {
+            "opta": "p106921"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 47,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 47,
+            "positionInfo": "Centre/Right Attacking Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 959472000000,
+              "label": "28 May 2000"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Stockport"
+          },
+          "age": "26 years 163 days",
+          "name": {
+            "display": "Phil Foden",
+            "first": "Phil",
+            "last": "Foden"
+          },
+          "id": 14805,
+          "altIds": {
+            "opta": "p209244"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 22,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 22,
+            "positionInfo": "Central Defender"
+          },
+          "nationalTeam": {
+            "isoCode": "BR",
+            "country": "Brazil",
+            "demonym": "Brazilian"
+          },
+          "birth": {
+            "date": {
+              "millis": 1137024000000,
+              "label": "12 January 2006"
+            },
+            "country": {
+              "isoCode": "BR",
+              "country": "Brazil",
+              "demonym": "Brazilian"
+            },
+            "place": "São José dos Campos"
+          },
+          "age": "20 years 299 days",
+          "name": {
+            "display": "Vitor Reis",
+            "first": "Vitor",
+            "last": "de Oliveira Nunes dos Reis"
+          },
+          "id": 302583,
+          "altIds": {
+            "opta": "p616222"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 33,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 33,
+            "positionInfo": "Left/Centre Full Back"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 1111363200000,
+              "label": "21 March 2005"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Manchester"
+          },
+          "age": "21 years 231 days",
+          "name": {
+            "display": "Nico O'Reilly",
+            "first": "Nico",
+            "last": "O'Reilly"
+          },
+          "id": 112948,
+          "altIds": {
+            "opta": "p472769"
+          }
+        },
+        {
+          "matchPosition": "D",
+          "matchShirtNumber": 82,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "D",
+            "shirtNum": 82,
+            "positionInfo": "Right Full Back"
+          },
+          "nationalTeam": {
+            "isoCode": "GB-ENG",
+            "country": "England",
+            "demonym": "English"
+          },
+          "birth": {
+            "date": {
+              "millis": 1100995200000,
+              "label": "21 November 2004"
+            },
+            "country": {
+              "isoCode": "GB-ENG",
+              "country": "England",
+              "demonym": "English"
+            },
+            "place": "Bury"
+          },
+          "age": "21 years 351 days",
+          "name": {
+            "display": "Rico Lewis",
+            "first": "Rico",
+            "last": "Lewis"
+          },
+          "id": 99281,
+          "altIds": {
+            "opta": "p477064"
+          }
+        },
+        {
+          "matchPosition": "M",
+          "matchShirtNumber": 8,
+          "captain": false,
+          "playerId": 0,
+          "info": {
+            "position": "M",
+            "shirtNum": 8,
+            "positionInfo": "Centre Central Midfielder"
+          },
+          "nationalTeam": {
+            "isoCode": "HR",
+            "country": "Croatia",
+            "demonym": "Croatian"
+          },
+          "birth": {
+            "date": {
+              "millis": 768182400000,
+              "label": "6 May 1994"
+            },
+            "country": {
+              "isoCode": "AT",
+              "country": "Austria",
+              "demonym": "Austrian"
+            },
+            "place": "Linz"
+          },
+          "age": "32 years 185 days",
+          "name": {
+            "display": "Mateo Kovacic",
+            "first": "Mateo",
+            "last": "Kovacic"
+          },
+          "id": 12520,
+          "altIds": {
+            "opta": "p91651"
+          }
+        }
+      ],
+      "formation": {
+        "label": "4-2-3-1",
+        "players": [
+          [
+            22857
+          ],
+          [
+            137371,
+            16431,
+            14569,
+            67178
+          ],
+          [
+            63741,
+            51593
+          ],
+          [
+            31936,
+            68150,
+            54156
+          ],
+          [
+            65970
+          ]
+        ]
+      }
+    }
+  ],
+  "events": [
+    {
+      "clock": {
+        "secs": 0,
+        "label": "00'00"
+      },
+      "phase": "1",
+      "type": "PS",
+      "time": {
+        "millis": 1794072751000,
+        "label": "7 November 2026, 17:32"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "id": 187592,
+      "personId": 304238,
+      "teamId": 15,
+      "clock": {
+        "secs": 360,
+        "label": "06'00"
+      },
+      "phase": "1",
+      "type": "G",
+      "description": "G",
+      "time": {
+        "millis": 1794073111000,
+        "label": "7 November 2026, 17:38"
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "id": 187594,
+      "personId": 51813,
+      "teamId": 15,
+      "assistId": 20335,
+      "clock": {
+        "secs": 1080,
+        "label": "18'00"
+      },
+      "phase": "1",
+      "type": "G",
+      "description": "G",
+      "time": {
+        "millis": 1794073831000,
+        "label": "7 November 2026, 17:50"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "clock": {
+        "secs": 2880,
+        "label": "45+3'00"
+      },
+      "phase": "1",
+      "type": "PE",
+      "time": {
+        "millis": 1794075588000,
+        "label": "7 November 2026, 18:19"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "id": 400389,
+      "personId": 112948,
+      "teamId": 11,
+      "clock": {
+        "secs": 2700,
+        "label": "45'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "ON",
+      "time": {
+        "millis": 1794076525000,
+        "label": "7 November 2026, 18:35"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "id": 400389,
+      "personId": 67178,
+      "teamId": 11,
+      "clock": {
+        "secs": 2700,
+        "label": "45'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "OFF",
+      "time": {
+        "millis": 1794076525000,
+        "label": "7 November 2026, 18:35"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "id": 400390,
+      "personId": 76204,
+      "teamId": 11,
+      "clock": {
+        "secs": 2700,
+        "label": "45'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "ON",
+      "time": {
+        "millis": 1794076525000,
+        "label": "7 November 2026, 18:35"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "id": 400390,
+      "personId": 14569,
+      "teamId": 11,
+      "clock": {
+        "secs": 2700,
+        "label": "45'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "OFF",
+      "time": {
+        "millis": 1794076525000,
+        "label": "7 November 2026, 18:35"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "clock": {
+        "secs": 2700,
+        "label": "45'00"
+      },
+      "phase": "2",
+      "type": "PS",
+      "time": {
+        "millis": 1794076525000,
+        "label": "7 November 2026, 18:35"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "id": 187598,
+      "personId": 68150,
+      "teamId": 11,
+      "clock": {
+        "secs": 3120,
+        "label": "52'00"
+      },
+      "phase": "2",
+      "type": "G",
+      "description": "G",
+      "time": {
+        "millis": 1794076945000,
+        "label": "7 November 2026, 18:42"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 231623,
+      "personId": 49270,
+      "teamId": 15,
+      "clock": {
+        "secs": 3840,
+        "label": "64'00"
+      },
+      "phase": "2",
+      "type": "B",
+      "description": "Y",
+      "time": {
+        "millis": 1794077665000,
+        "label": "7 November 2026, 18:54"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400395,
+      "personId": 50623,
+      "teamId": 15,
+      "clock": {
+        "secs": 3900,
+        "label": "65'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "ON",
+      "time": {
+        "millis": 1794077725000,
+        "label": "7 November 2026, 18:55"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400395,
+      "personId": 49270,
+      "teamId": 15,
+      "clock": {
+        "secs": 3900,
+        "label": "65'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "OFF",
+      "time": {
+        "millis": 1794077725000,
+        "label": "7 November 2026, 18:55"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400396,
+      "personId": 76426,
+      "teamId": 15,
+      "clock": {
+        "secs": 3900,
+        "label": "65'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "ON",
+      "time": {
+        "millis": 1794077725000,
+        "label": "7 November 2026, 18:55"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400396,
+      "personId": 76353,
+      "teamId": 15,
+      "clock": {
+        "secs": 3900,
+        "label": "65'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "OFF",
+      "time": {
+        "millis": 1794077725000,
+        "label": "7 November 2026, 18:55"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 231625,
+      "personId": 50623,
+      "teamId": 15,
+      "clock": {
+        "secs": 4140,
+        "label": "69'00"
+      },
+      "phase": "2",
+      "type": "B",
+      "description": "Y",
+      "time": {
+        "millis": 1794077965000,
+        "label": "7 November 2026, 18:59"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 187600,
+      "personId": 51813,
+      "teamId": 15,
+      "assistId": 15259,
+      "clock": {
+        "secs": 4380,
+        "label": "73'00"
+      },
+      "phase": "2",
+      "type": "G",
+      "description": "G",
+      "time": {
+        "millis": 1794078205000,
+        "label": "7 November 2026, 19:03"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400399,
+      "personId": 14805,
+      "teamId": 11,
+      "clock": {
+        "secs": 4680,
+        "label": "78'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "ON",
+      "time": {
+        "millis": 1794078505000,
+        "label": "7 November 2026, 19:08"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400399,
+      "personId": 63741,
+      "teamId": 11,
+      "clock": {
+        "secs": 4680,
+        "label": "78'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "OFF",
+      "time": {
+        "millis": 1794078505000,
+        "label": "7 November 2026, 19:08"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400398,
+      "personId": 108816,
+      "teamId": 15,
+      "clock": {
+        "secs": 4740,
+        "label": "79'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "ON",
+      "time": {
+        "millis": 1794078565000,
+        "label": "7 November 2026, 19:09"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400398,
+      "personId": 14238,
+      "teamId": 15,
+      "clock": {
+        "secs": 4740,
+        "label": "79'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "OFF",
+      "time": {
+        "millis": 1794078565000,
+        "label": "7 November 2026, 19:09"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400402,
+      "personId": 304123,
+      "teamId": 15,
+      "clock": {
+        "secs": 5220,
+        "label": "87'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "ON",
+      "time": {
+        "millis": 1794079045000,
+        "label": "7 November 2026, 19:17"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 400402,
+      "personId": 51813,
+      "teamId": 15,
+      "clock": {
+        "secs": 5220,
+        "label": "87'00"
+      },
+      "phase": "2",
+      "type": "S",
+      "description": "OFF",
+      "time": {
+        "millis": 1794079045000,
+        "label": "7 November 2026, 19:17"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 231627,
+      "personId": 76426,
+      "teamId": 15,
+      "clock": {
+        "secs": 5640,
+        "label": "90+4'00"
+      },
+      "phase": "2",
+      "type": "B",
+      "description": "Y",
+      "time": {
+        "millis": 1794079465000,
+        "label": "7 November 2026, 19:24"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "id": 231628,
+      "personId": 304123,
+      "teamId": 15,
+      "clock": {
+        "secs": 5700,
+        "label": "90+5'00"
+      },
+      "phase": "2",
+      "type": "B",
+      "description": "Y",
+      "time": {
+        "millis": 1794079525000,
+        "label": "7 November 2026, 19:25"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    },
+    {
+      "clock": {
+        "secs": 5760,
+        "label": "90+6'00"
+      },
+      "phase": "2",
+      "type": "PE",
+      "time": {
+        "millis": 1794079543000,
+        "label": "7 November 2026, 19:25"
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 1
+      }
+    }
+  ],
+  "penaltyShootouts": [],
+  "behindClosedDoors": false,
+  "id": 129021,
+  "altIds": {
+    "opta": "g2645293"
+  },
+  "metadata": {},
+  "_source": "s3"
+}

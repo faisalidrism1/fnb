@@ -706,7 +706,7 @@ export const TabAdminEditor: React.FC = () => {
 
                   return (
                     <tr
-                      key={row.id || actualIndex}
+                      key={`${row.no}_${row.id}_${actualIndex}`}
                       className="hover:bg-purple-50/20 dark:hover:bg-purple-950/20 transition-colors align-top"
                     >
                       {/* 1. GW Phase (Fitted to 1 Longest Word) */}

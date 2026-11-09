@@ -733,6 +733,508 @@ return renderTemplate(template.same_captain, {
       team_rival: 'rdwndvsn',
     },
   },
+
+  // =========================================================================
+  // FASE LIVE MATCH (PREMIER LEAGUE PULSE API x FPL LEAGUE DATA)
+  // Jurnalisme olahraga faktual, objektif, tanpa asumsi dan hiperbola.
+  // Setiap nama pemain disertai ([N:{pct}%]) kepemilikan riil di FNB League.
+  // Kategori & Sub Kategori 100% selaras dengan Kamus Tipe Kejadian Pertandingan.
+  // =========================================================================
+
+  // A. Alur Waktu & Babak (Period Control)
+  {
+    no: 17,
+    id: 'LM_PERIOD_START',
+    gw_phase: 'Live Match',
+    category: 'Period Control',
+    subcategory: 'Period Start',
+    template: `[Kondisi: Kickoff Babak 1]
+[N:{minute}] Kickoff babak pertama. Pertandingan Gameweek [N:{gw}] antara [C:{home_club}] menghadapi [C:{away_club}] resmi dimulai di [N:{venue}].
+
+[Kondisi: Kickoff Babak 2]
+[N:{minute}] Kickoff babak kedua di [N:{venue}]. Skor sementara: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].`,
+    example: '',
+    code: `if (event.period === '1') {
+  return renderTemplate(template.first_half, {
+    minute: "0'",
+    gw,
+    home_club: match.homeTeam.name,
+    away_club: match.awayTeam.name,
+    venue: match.ground.name,
+  });
+}
+return renderTemplate(template.second_half, {
+  minute: "45'",
+  venue: match.ground.name,
+  home_club: match.homeTeam.name,
+  home_score: match.teams[0].score,
+  away_score: match.teams[1].score,
+  away_club: match.awayTeam.name,
+});`,
+    sample_data: {
+      minute: '0\'',
+      gw: '10',
+      home_club: 'Nott\'m Forest',
+      away_club: 'Man City',
+      venue: 'The City Ground',
+      home_score: '2',
+      away_score: '0',
+    },
+  },
+  {
+    no: 18,
+    id: 'LM_PERIOD_END',
+    gw_phase: 'Live Match',
+    category: 'Period Control',
+    subcategory: 'Period End',
+    template: `[Kondisi: Half Time]
+[N:{minute}] Peluit jeda babak pertama di [N:{venue}]. Skor sementara: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
+
+[Kondisi: Full Time]
+[N:{minute}] Peluit panjang akhir laga di [N:{venue}]. Hasil akhir: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}]. Pencetak gol: {goalscorers_list}.`,
+    example: '',
+    code: `if (event.period === '1') {
+  return renderTemplate(template.half_time, {
+    minute: event.clock.label || "45+3'",
+    venue: match.ground.name,
+    home_club: match.homeTeam.name,
+    home_score: match.teams[0].score,
+    away_score: match.teams[1].score,
+    away_club: match.awayTeam.name,
+  });
+}
+const scorersStr = formatScorersWithLeaguePct(getMatchScorers(match.id));
+return renderTemplate(template.full_time, {
+  minute: event.clock.label || "90+6'",
+  venue: match.ground.name,
+  home_club: match.homeTeam.name,
+  home_score: match.teams[0].score,
+  away_score: match.teams[1].score,
+  away_club: match.awayTeam.name,
+  goalscorers_list: scorersStr,
+});`,
+    sample_data: {
+      minute: '90+6\'',
+      venue: 'The City Ground',
+      home_club: 'Nott\'m Forest',
+      home_score: '3',
+      away_score: '1',
+      away_club: 'Man City',
+      goalscorers_list: '[P:Jair Cunha] ([N:2%]), [P:Delap] ([N:12%]) [N:(2 Gol)], dan [P:Cherki] ([N:4%])',
+    },
+  },
+
+  // B. Gol & Poin Serangan (Scoring Events)
+  {
+    no: 19,
+    id: 'LM_GOAL_OPEN_PLAY',
+    gw_phase: 'Live Match',
+    category: 'Scoring Events',
+    subcategory: 'Goal',
+    template: `[Kondisi: Dengan Assist]
+[N:{minute}] Gol untuk [C:{club}]. [P:{scorer}] ([N:{scorer_pct}%]) mencetak gol setelah menerima umpan dari [P:{assister}] ([N:{assister_pct}%]). Skor: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
+
+[Kondisi: Tanpa Assist]
+[N:{minute}] Gol untuk [C:{club}]. [P:{scorer}] ([N:{scorer_pct}%]) mencetak gol. Skor: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].`,
+    example: '',
+    code: `const scorer = getPlayerFromPulse(event.personId);
+const scorerPct = getLeagueOwnershipPct(scorer.id);
+const assister = event.assistId ? getPlayerFromPulse(event.assistId) : null;
+
+if (assister) {
+  const assisterPct = getLeagueOwnershipPct(assister.id);
+  return renderTemplate(template.with_assist, {
+    minute: event.clock.label,
+    club: event.team.name,
+    scorer: scorer.web_name,
+    scorer_pct: scorerPct,
+    assister: assister.web_name,
+    assister_pct: assisterPct,
+    home_club: match.homeTeam.name,
+    home_score: match.teams[0].score,
+    away_score: match.teams[1].score,
+    away_club: match.awayTeam.name,
+  });
+}
+
+return renderTemplate(template.solo, {
+  minute: event.clock.label,
+  club: event.team.name,
+  scorer: scorer.web_name,
+  scorer_pct: scorerPct,
+  home_club: match.homeTeam.name,
+  home_score: match.teams[0].score,
+  away_score: match.teams[1].score,
+  away_club: match.awayTeam.name,
+});`,
+    sample_data: {
+      minute: '18\'',
+      club: 'Nott\'m Forest',
+      scorer: 'Delap',
+      scorer_pct: '12',
+      assister: 'Schlager',
+      assister_pct: '1',
+      home_club: 'Nott\'m Forest',
+      home_score: '2',
+      away_score: '0',
+      away_club: 'Man City',
+    },
+  },
+  {
+    no: 20,
+    id: 'LM_GOAL_PENALTY',
+    gw_phase: 'Live Match',
+    category: 'Scoring Events',
+    subcategory: 'Penalty Goal',
+    template: `[N:{minute}] Gol penalti untuk [C:{club}]. [P:{scorer}] ([N:{scorer_pct}%]) berhasil mengeksekusi tendangan penalti. Skor: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].`,
+    example: '',
+    code: `const scorer = getPlayerFromPulse(event.personId);
+const scorerPct = getLeagueOwnershipPct(scorer.id);
+
+return renderTemplate(template, {
+  minute: event.clock.label,
+  club: event.team.name,
+  scorer: scorer.web_name,
+  scorer_pct: scorerPct,
+  home_club: match.homeTeam.name,
+  home_score: match.teams[0].score,
+  away_score: match.teams[1].score,
+  away_club: match.awayTeam.name,
+});`,
+    sample_data: {
+      minute: '34\'',
+      club: 'Man City',
+      scorer: 'Haaland',
+      scorer_pct: '74',
+      home_club: 'Nott\'m Forest',
+      home_score: '2',
+      away_score: '1',
+      away_club: 'Man City',
+    },
+  },
+  {
+    no: 21,
+    id: 'LM_OWN_GOAL',
+    gw_phase: 'Live Match',
+    category: 'Scoring Events',
+    subcategory: 'Own Goal',
+    template: `[N:{minute}] Gol bunuh diri. Bola masuk ke gawang sendiri setelah mengenai [P:{player}] ([N:{player_pct}%]). Skor: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].`,
+    example: '',
+    code: `const player = getPlayerFromPulse(event.personId);
+const playerPct = getLeagueOwnershipPct(player.id);
+
+return renderTemplate(template, {
+  minute: event.clock.label,
+  player: player.web_name,
+  player_pct: playerPct,
+  home_club: match.homeTeam.name,
+  home_score: match.teams[0].score,
+  away_score: match.teams[1].score,
+  away_club: match.awayTeam.name,
+});`,
+    sample_data: {
+      minute: '41\'',
+      player: 'Murillo',
+      player_pct: '8',
+      home_club: 'Nott\'m Forest',
+      home_score: '1',
+      away_score: '1',
+      away_club: 'Man City',
+    },
+  },
+
+  // C. Insiden Penalti (Penalty Incidents)
+  {
+    no: 22,
+    id: 'LM_PENALTY_MISSED',
+    gw_phase: 'Live Match',
+    category: 'Penalty Incidents',
+    subcategory: 'Penalty Missed',
+    template: `[N:{minute}] Eksekusi penalti gagal. Tendangan penalti dari [P:{taker}] ([N:{taker_pct}%]) untuk [C:{club}] tidak menemui sasaran.`,
+    example: '',
+    code: `const taker = getPlayerFromPulse(event.personId);
+
+return renderTemplate(template, {
+  minute: event.clock.label,
+  taker: taker.web_name,
+  taker_pct: getLeagueOwnershipPct(taker.id),
+  club: event.team.name,
+});`,
+    sample_data: {
+      minute: '55\'',
+      taker: 'Cherki',
+      taker_pct: '4',
+      club: 'Man City',
+    },
+  },
+  {
+    no: 23,
+    id: 'LM_PENALTY_SAVED',
+    gw_phase: 'Live Match',
+    category: 'Penalty Incidents',
+    subcategory: 'Penalty Saved',
+    template: `[N:{minute}] Penalti digagalkan. Kiper [P:{keeper}] ([N:{keeper_pct}%]) menepis eksekusi tendangan penalti yang dilepaskan oleh [P:{taker}] ([N:{taker_pct}%]).`,
+    example: '',
+    code: `const keeper = getPlayerFromPulse(event.keeperId || event.personId);
+const taker = getPlayerFromPulse(event.takerId || event.opponentPersonId);
+
+return renderTemplate(template, {
+  minute: event.clock.label,
+  keeper: keeper.web_name,
+  keeper_pct: getLeagueOwnershipPct(keeper.id),
+  taker: taker.web_name,
+  taker_pct: getLeagueOwnershipPct(taker.id),
+});`,
+    sample_data: {
+      minute: '28\'',
+      keeper: 'Sels',
+      keeper_pct: '15',
+      taker: 'Haaland',
+      taker_pct: '74',
+    },
+  },
+  {
+    no: 24,
+    id: 'LM_PENALTY_AWARDED',
+    gw_phase: 'Live Match',
+    category: 'Penalty Incidents',
+    subcategory: 'Penalty Awarded',
+    template: `[Kondisi: Hadiah Penalti]
+[N:{minute}] Hadiah penalti. Wasit menunjuk titik putih untuk [C:{club}] setelah pelanggaran terhadap [P:{fouled_player}] ([N:{fouled_player_pct}%]).
+
+[Kondisi: Penalti Dibatalkan]
+[N:{minute}] Penalti dibatalkan. Putusan hadiah penalti untuk [C:{club}] resmi dibatalkan oleh wasit.`,
+    example: '',
+    code: `if (event.isOverturned) {
+  return renderTemplate(template.overturned, {
+    minute: event.clock.label,
+    club: event.team.name,
+  });
+}
+const fouled = getPlayerFromPulse(event.fouledPersonId);
+return renderTemplate(template.awarded, {
+  minute: event.clock.label,
+  club: event.team.name,
+  fouled_player: fouled.web_name,
+  fouled_player_pct: getLeagueOwnershipPct(fouled.id),
+});`,
+    sample_data: {
+      minute: '33\'',
+      club: 'Man City',
+      fouled_player: 'Doku',
+      fouled_player_pct: '18',
+    },
+  },
+
+  // D. Disiplin & Pelanggaran (Disciplinary Events)
+  {
+    no: 25,
+    id: 'LM_BOOKING_YELLOW',
+    gw_phase: 'Live Match',
+    category: 'Disciplinary Events',
+    subcategory: 'Yellow Card',
+    template: `[N:{minute}] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:{club}], [P:{player}] ([N:{player_pct}%]).`,
+    example: '',
+    code: `const player = getPlayerFromPulse(event.personId);
+
+return renderTemplate(template, {
+  minute: event.clock.label,
+  club: event.team.name,
+  player: player.web_name,
+  player_pct: getLeagueOwnershipPct(player.id),
+});`,
+    sample_data: {
+      minute: '64\'',
+      club: 'Nott\'m Forest',
+      player: 'McAtee',
+      player_pct: '2',
+    },
+  },
+  {
+    no: 26,
+    id: 'LM_CARD_SECOND_YELLOW',
+    gw_phase: 'Live Match',
+    category: 'Disciplinary Events',
+    subcategory: 'Second Yellow',
+    template: `[N:{minute}] Kartu merah akumulasi. [P:{player}] ([N:{player_pct}%]) dari [C:{club}] menerima kartu kuning kedua dan harus meninggalkan lapangan.`,
+    example: '',
+    code: `const player = getPlayerFromPulse(event.personId);
+
+return renderTemplate(template, {
+  minute: event.clock.label,
+  player: player.web_name,
+  player_pct: getLeagueOwnershipPct(player.id),
+  club: event.team.name,
+});`,
+    sample_data: {
+      minute: '82\'',
+      player: 'Yates',
+      player_pct: '3',
+      club: 'Nott\'m Forest',
+    },
+  },
+  {
+    no: 27,
+    id: 'LM_CARD_RED_STRAIGHT',
+    gw_phase: 'Live Match',
+    category: 'Disciplinary Events',
+    subcategory: 'Straight Red Card',
+    template: `[N:{minute}] Kartu merah. [P:{player}] ([N:{player_pct}%]) dari [C:{club}] menerima kartu merah langsung dari wasit.`,
+    example: '',
+    code: `const player = getPlayerFromPulse(event.personId);
+
+return renderTemplate(template, {
+  minute: event.clock.label,
+  player: player.web_name,
+  player_pct: getLeagueOwnershipPct(player.id),
+  club: event.team.name,
+});`,
+    sample_data: {
+      minute: '71\'',
+      player: 'Khusanov',
+      player_pct: '1',
+      club: 'Man City',
+    },
+  },
+
+  // E. Taktik & Substitusi (Substitutions)
+  {
+    no: 28,
+    id: 'LM_SUBSTITUTION',
+    gw_phase: 'Live Match',
+    category: 'Substitutions',
+    subcategory: 'Substitution',
+    template: `[Kondisi: Pergantian Biasa]
+[N:{minute}] Pergantian pemain [C:{club}]: [P:{player_on}] ([N:{player_on_pct}%]) masuk menggantikan [P:{player_off}] ([N:{player_off_pct}%]).
+
+[Kondisi: Pemain Bertahan Keluar Menit >= 60 Saat Belum Kebobolan]
+[N:{minute}] Pergantian pemain [C:{club}]: [P:{player_off}] ([N:{player_off_pct}%]) ditarik keluar dan digantikan oleh [P:{player_on}] ([N:{player_on_pct}%]) setelah mencatat 60 menit bermain tanpa kebobolan.`,
+    example: '',
+    code: `const pOn = getPlayerFromPulse(event.personIdOn);
+const pOff = getPlayerFromPulse(event.personIdOff);
+const isDefenderOrGk = ['DEF', 'GKP'].includes(pOff.element_type);
+const isCleanSheetLocked = isDefenderOrGk && event.clock.min >= 60 && match.concededBeforeSub === 0;
+
+if (isCleanSheetLocked) {
+  return renderTemplate(template.cs_locked, {
+    minute: event.clock.label,
+    club: event.team.name,
+    player_off: pOff.web_name,
+    player_off_pct: getLeagueOwnershipPct(pOff.id),
+    player_on: pOn.web_name,
+    player_on_pct: getLeagueOwnershipPct(pOn.id),
+  });
+}
+
+return renderTemplate(template.regular, {
+  minute: event.clock.label,
+  club: event.team.name,
+  player_on: pOn.web_name,
+  player_on_pct: getLeagueOwnershipPct(pOn.id),
+  player_off: pOff.web_name,
+  player_off_pct: getLeagueOwnershipPct(pOff.id),
+});`,
+    sample_data: {
+      minute: '65\'',
+      club: 'Nott\'m Forest',
+      player_on: 'Ndoye',
+      player_on_pct: '3',
+      player_off: 'McAtee',
+      player_off_pct: '2',
+    },
+  },
+
+  // F. Intervensi VAR (Video Assistant Referee)
+  {
+    no: 29,
+    id: 'LM_VAR_REVIEW',
+    gw_phase: 'Live Match',
+    category: 'VAR Review',
+    subcategory: 'VAR Decision',
+    template: `[Kondisi: Gol Dibatalkan]
+[N:{minute}] Keputusan VAR: Gol dari [P:{player}] ([N:{player_pct}%]) untuk [C:{club}] dianulir ({reason}). Skor tetap: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
+
+[Kondisi: Gol Dinyatakan Sah]
+[N:{minute}] Keputusan VAR: Gol dari [P:{player}] ([N:{player_pct}%]) untuk [C:{club}] disahkan. Skor: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
+
+[Kondisi: Penalti Diberikan]
+[N:{minute}] Keputusan VAR: Hadiah penalti diberikan kepada [C:{club}] setelah tinjauan pelanggaran di kotak terlarang.
+
+[Kondisi: Penalti Dibatalkan]
+[N:{minute}] Keputusan VAR: Hadiah penalti untuk [C:{club}] resmi dibatalkan setelah tinjauan video wasit.
+
+[Kondisi: Kartu Merah Diberikan]
+[N:{minute}] Keputusan VAR: Wasit mengeluarkan kartu merah langsung untuk [P:{player}] ([N:{player_pct}%]) ([C:{club}]) setelah tinjauan pelanggaran serius.
+
+[Kondisi: Kartu Merah Dibatalkan]
+[N:{minute}] Keputusan VAR: Hukuman kartu merah untuk [P:{player}] ([N:{player_pct}%]) ([C:{club}]) dibatalkan setelah tinjauan VAR.`,
+    example: '',
+    code: `const player = event.personId ? getPlayerFromPulse(event.personId) : null;
+const playerPct = player ? getLeagueOwnershipPct(player.id) : 0;
+
+switch (event.subType) {
+  case 'GOAL_DISALLOWED':
+    return renderTemplate(template.goal_disallowed, {
+      minute: event.clock.label,
+      player: player?.web_name,
+      player_pct: playerPct,
+      club: event.team.name,
+      reason: event.reason || 'Offside',
+      home_club: match.homeTeam.name,
+      home_score: match.teams[0].score,
+      away_score: match.teams[1].score,
+      away_club: match.awayTeam.name,
+    });
+  case 'GOAL_AWARDED':
+    return renderTemplate(template.goal_awarded, {
+      minute: event.clock.label,
+      player: player?.web_name,
+      player_pct: playerPct,
+      club: event.team.name,
+      home_club: match.homeTeam.name,
+      home_score: match.teams[0].score,
+      away_score: match.teams[1].score,
+      away_club: match.awayTeam.name,
+    });
+  case 'PENALTY_AWARDED':
+    return renderTemplate(template.penalty_awarded, {
+      minute: event.clock.label,
+      club: event.team.name,
+    });
+  case 'PENALTY_CANCELLED':
+    return renderTemplate(template.penalty_cancelled, {
+      minute: event.clock.label,
+      club: event.team.name,
+    });
+  case 'RED_CARD_GIVEN':
+    return renderTemplate(template.red_card_given, {
+      minute: event.clock.label,
+      player: player?.web_name,
+      player_pct: playerPct,
+      club: event.team.name,
+    });
+  case 'RED_CARD_OVERTURNED':
+    return renderTemplate(template.red_card_overturned, {
+      minute: event.clock.label,
+      player: player?.web_name,
+      player_pct: playerPct,
+      club: event.team.name,
+    });
+  default:
+    return null;
+}`,
+    sample_data: {
+      minute: '38\'',
+      player: 'Haaland',
+      player_pct: '74',
+      club: 'Man City',
+      reason: 'Offside',
+      home_club: 'Nott\'m Forest',
+      home_score: '2',
+      away_score: '0',
+      away_club: 'Man City',
+    },
+  },
 ];
 
 export function getPhase1Templates(): Phase1TemplateItem[] {

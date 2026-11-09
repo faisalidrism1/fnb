@@ -612,6 +612,98 @@ export async function fuseLiveStories(baseStories: NewsTickerStory[], gw: number
 }
 
 /**
+ * Assembles news ticker feed strictly for Phase Live Match.
+ * ATURAN MUTLAK USER:
+ * "Hanya tayangkan berita dengan sumber hasil produksi dari subtab editor di Fase Live match."
+ * - Sumber berita WAJIB 'Bukan' (hasil produksi template subtab Editor No. 17-29 & Phase 1 live templates).
+ * - Berita 'AI' DILARANG TAYANG (status_tayang = 'N').
+ * - Ticker feed hanya memuat data hasil produksi subtab editor.
+ */
+async function assembleLiveMatchFeed(
+  payload: RawMatchdayPayload,
+  currentHash: string
+): Promise<NewsTickerFeedResponse> {
+  const { getAllLiveMatchStories } = await import('./pulseMatchStoryGenerator.ts');
+  const livePulseStories = await getAllLiveMatchStories(payload.gameweek);
+
+  // Ambil juga template editor Phase 1 yang diizinkan tayang pada Live Match (sumber: 'Bukan')
+  const p1Stories = generatePhase1Stories(payload.gameweek);
+  const p1LiveStories = p1Stories.filter(
+    (s) => s.waktu_tayang.includes('Live Match') || s.waktu_tayang.includes('ALL')
+  );
+
+  const seenHeadlines = new Set<string>();
+  const liveFeedStories: NewsTickerStory[] = [];
+
+  // Urutan penayangan:
+  // 1. Live Match Pulse Stories (kejadian real-time dari template Editor No. 17-29)
+  for (const s of livePulseStories) {
+    if (!seenHeadlines.has(s.headline_id)) {
+      seenHeadlines.add(s.headline_id);
+      liveFeedStories.push(
+        toNewsTickerStory(
+          {
+            ...s,
+            sumber: 'Bukan',
+            status_tayang: 'Y',
+            keterangan_tidak_tayang: '',
+          },
+          payload.gameweek
+        )
+      );
+    }
+  }
+
+  // 2. Editor templates lain yang waktu_tayang memuat 'Live Match'
+  for (const s of p1LiveStories) {
+    if (!seenHeadlines.has(s.headline_id)) {
+      seenHeadlines.add(s.headline_id);
+      liveFeedStories.push(
+        toNewsTickerStory(
+          {
+            ...s,
+            sumber: 'Bukan',
+            status_tayang: 'Y',
+            keterangan_tidak_tayang: '',
+          },
+          payload.gameweek
+        )
+      );
+    }
+  }
+
+  // Simpan ke riwayat
+  if (liveFeedStories.length > 0) {
+    saveNewsHistory(liveFeedStories, payload.gameweek);
+  }
+
+  const feedResponse: NewsTickerFeedResponse = {
+    success: true,
+    gameweek: payload.gameweek,
+    nextGameweek: payload.nextGameweek,
+    gameweekPhase: 'Live',
+    lastUpdated: new Date().toISOString(),
+    count: liveFeedStories.length,
+    data: liveFeedStories,
+  };
+
+  memoryFeedCache = feedResponse;
+  lastProcessedDataHash = currentHash;
+
+  try {
+    fs.writeFileSync(FEED_CACHE_PATH, JSON.stringify(feedResponse, null, 2), 'utf-8');
+    console.log(
+      `[Gemini News Service] Live Match feed assembled: ${liveFeedStories.length} stories exclusively from Editor templates (sumber: 'Bukan').`
+    );
+    rebuildNewsTickerTable('Live');
+  } catch (e: any) {
+    console.warn('[Gemini News Service] Disk cache write error:', e.message);
+  }
+
+  return feedResponse;
+}
+
+/**
  * Assembles the full rotating pool of up to 1000 items, merging live match stories,
  * newly generated stories, and factual historical league records.
  */
@@ -620,6 +712,12 @@ async function assembleAndCacheFeed(
   payload: RawMatchdayPayload,
   currentHash: string
 ): Promise<NewsTickerFeedResponse> {
+  // ATURAN MUTLAK USER:
+  // "Hanya tayangkan berita dengan sumber hasil produksi dari subtab editor di Fase Live match."
+  if (payload.gameweekPhase === 'Live') {
+    return await assembleLiveMatchFeed(payload, currentHash);
+  }
+
   // 1. Hybrid Fusion: Blend real-time live match journalism stories
   const fused = await fuseLiveStories(activeStories, payload.gameweek);
 
@@ -716,9 +814,18 @@ async function assembleAndCacheFeed(
 /**
  * Generates news ticker stories using Google Gemini AI
  */
-export async function generateNewsTickerFeed(force = false): Promise<NewsTickerFeedResponse> {
+export async function generateNewsTickerFeed(force = false, phaseOverride?: string): Promise<NewsTickerFeedResponse> {
   const payload = buildRawMatchdayPayload();
-  const currentHash = computeStateHash(payload);
+  if (phaseOverride) {
+    (payload as any).gameweekPhase = phaseOverride;
+  }
+  const currentHash = computeStateHash(payload) + (phaseOverride ? `_${phaseOverride}` : '');
+
+  // ATURAN MUTLAK USER:
+  // "Hanya tayangkan berita dengan sumber hasil produksi dari subtab editor di Fase Live match."
+  if (payload.gameweekPhase === 'Live') {
+    return await assembleLiveMatchFeed(payload, currentHash);
+  }
 
   // Return cached result if data hasn't changed and not forced
   if (!force && memoryFeedCache && memoryFeedCache.data.length >= 900) {

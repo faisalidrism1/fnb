@@ -1,1886 +1,5 @@
 [
   {
-    "id": "chip_3180753_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.219Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 5)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:Denay FC] mengaktifkan [N:Free Hit] di Gameweek [N:5] dan meraih [N:66 Poin].",
-    "text_berita_en": "[T:Denay FC] played [N:Free Hit] in Gameweek [N:5] and earned [N:66 Pts].",
-    "gw": 5,
-    "teams": [
-      "Denay FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Denay FC] mengaktifkan [N:Free Hit] di Gameweek [N:5] dan meraih [N:66 Poin].",
-    "headline_en": "[T:Denay FC] played [N:Free Hit] in Gameweek [N:5] and earned [N:66 Pts].",
-    "timestamp": "2026-11-03T10:53:52.219Z"
-  },
-  {
-    "id": "chip_2025408_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.219Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 5)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Carbela FC] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:51 Poin].",
-    "text_berita_en": "[T:Carbela FC] played [N:Wildcard] in Gameweek [N:5] and earned [N:51 Pts].",
-    "gw": 5,
-    "teams": [
-      "Carbela FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Carbela FC] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:51 Poin].",
-    "headline_en": "[T:Carbela FC] played [N:Wildcard] in Gameweek [N:5] and earned [N:51 Pts].",
-    "timestamp": "2026-11-03T10:53:52.219Z"
-  },
-  {
-    "id": "chip_5500676_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.219Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Thor] mengaktifkan [N:Wildcard] di Gameweek [N:9] dan meraih [N:58 Poin].",
-    "text_berita_en": "[T:Thor] played [N:Wildcard] in Gameweek [N:9] and earned [N:58 Pts].",
-    "gw": 9,
-    "teams": [
-      "Thor"
-    ],
-    "players": [],
-    "headline_id": "[T:Thor] mengaktifkan [N:Wildcard] di Gameweek [N:9] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Thor] played [N:Wildcard] in Gameweek [N:9] and earned [N:58 Pts].",
-    "timestamp": "2026-11-03T10:53:52.219Z"
-  },
-  {
-    "id": "chip_5500676_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.219Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 7)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:Thor] mengaktifkan [N:Triple Captain] di Gameweek [N:7] dan meraih [N:91 Poin].",
-    "text_berita_en": "[T:Thor] played [N:Triple Captain] in Gameweek [N:7] and earned [N:91 Pts].",
-    "gw": 7,
-    "teams": [
-      "Thor"
-    ],
-    "players": [],
-    "headline_id": "[T:Thor] mengaktifkan [N:Triple Captain] di Gameweek [N:7] dan meraih [N:91 Poin].",
-    "headline_en": "[T:Thor] played [N:Triple Captain] in Gameweek [N:7] and earned [N:91 Pts].",
-    "timestamp": "2026-11-03T10:53:52.219Z"
-  },
-  {
-    "id": "chip_5500676_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.219Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:Thor] mengaktifkan [N:Free Hit] di Gameweek [N:4] dan meraih [N:76 Poin].",
-    "text_berita_en": "[T:Thor] played [N:Free Hit] in Gameweek [N:4] and earned [N:76 Pts].",
-    "gw": 4,
-    "teams": [
-      "Thor"
-    ],
-    "players": [],
-    "headline_id": "[T:Thor] mengaktifkan [N:Free Hit] di Gameweek [N:4] dan meraih [N:76 Poin].",
-    "headline_en": "[T:Thor] played [N:Free Hit] in Gameweek [N:4] and earned [N:76 Pts].",
-    "timestamp": "2026-11-03T10:53:52.219Z"
-  },
-  {
-    "id": "chip_3775991_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.219Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:PS MC Timur] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:79 Poin].",
-    "text_berita_en": "[T:PS MC Timur] played [N:Wildcard] in Gameweek [N:4] and earned [N:79 Pts].",
-    "gw": 4,
-    "teams": [
-      "PS MC Timur"
-    ],
-    "players": [],
-    "headline_id": "[T:PS MC Timur] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:79 Poin].",
-    "headline_en": "[T:PS MC Timur] played [N:Wildcard] in Gameweek [N:4] and earned [N:79 Pts].",
-    "timestamp": "2026-11-03T10:53:52.219Z"
-  },
-  {
-    "id": "chip_5501643_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.219Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:Long Moo Long FC] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:63 Poin].",
-    "text_berita_en": "[T:Long Moo Long FC] played [N:Free Hit] in Gameweek [N:3] and earned [N:63 Pts].",
-    "gw": 3,
-    "teams": [
-      "Long Moo Long FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Long Moo Long FC] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:63 Poin].",
-    "headline_en": "[T:Long Moo Long FC] played [N:Free Hit] in Gameweek [N:3] and earned [N:63 Pts].",
-    "timestamp": "2026-11-03T10:53:52.219Z"
-  },
-  {
-    "id": "chip_60417_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.219Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 6)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Starlet] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:64 Poin].",
-    "text_berita_en": "[T:Starlet] played [N:Wildcard] in Gameweek [N:6] and earned [N:64 Pts].",
-    "gw": 6,
-    "teams": [
-      "Starlet"
-    ],
-    "players": [],
-    "headline_id": "[T:Starlet] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:64 Poin].",
-    "headline_en": "[T:Starlet] played [N:Wildcard] in Gameweek [N:6] and earned [N:64 Pts].",
-    "timestamp": "2026-11-03T10:53:52.219Z"
-  },
-  {
-    "id": "chip_60417_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:Starlet] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:58 Poin].",
-    "text_berita_en": "[T:Starlet] played [N:Triple Captain] in Gameweek [N:3] and earned [N:58 Pts].",
-    "gw": 3,
-    "teams": [
-      "Starlet"
-    ],
-    "players": [],
-    "headline_id": "[T:Starlet] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Starlet] played [N:Triple Captain] in Gameweek [N:3] and earned [N:58 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_60417_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 1)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:Starlet] mengaktifkan [N:Bench Boost] di Gameweek [N:1] dan meraih [N:58 Poin].",
-    "text_berita_en": "[T:Starlet] played [N:Bench Boost] in Gameweek [N:1] and earned [N:58 Pts].",
-    "gw": 1,
-    "teams": [
-      "Starlet"
-    ],
-    "players": [],
-    "headline_id": "[T:Starlet] mengaktifkan [N:Bench Boost] di Gameweek [N:1] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Starlet] played [N:Bench Boost] in Gameweek [N:1] and earned [N:58 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_7624791_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 6)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:notyet] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:68 Poin].",
-    "text_berita_en": "[T:notyet] played [N:Wildcard] in Gameweek [N:6] and earned [N:68 Pts].",
-    "gw": 6,
-    "teams": [
-      "notyet"
-    ],
-    "players": [],
-    "headline_id": "[T:notyet] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:68 Poin].",
-    "headline_en": "[T:notyet] played [N:Wildcard] in Gameweek [N:6] and earned [N:68 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_7624791_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:notyet] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:57 Poin].",
-    "text_berita_en": "[T:notyet] played [N:Free Hit] in Gameweek [N:3] and earned [N:57 Pts].",
-    "gw": 3,
-    "teams": [
-      "notyet"
-    ],
-    "players": [],
-    "headline_id": "[T:notyet] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:57 Poin].",
-    "headline_en": "[T:notyet] played [N:Free Hit] in Gameweek [N:3] and earned [N:57 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_2599677_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 2)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:amenk wenger] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:81 Poin].",
-    "text_berita_en": "[T:amenk wenger] played [N:Wildcard] in Gameweek [N:2] and earned [N:81 Pts].",
-    "gw": 2,
-    "teams": [
-      "amenk wenger"
-    ],
-    "players": [],
-    "headline_id": "[T:amenk wenger] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:81 Poin].",
-    "headline_en": "[T:amenk wenger] played [N:Wildcard] in Gameweek [N:2] and earned [N:81 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_2599677_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:amenk wenger] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:64 Poin].",
-    "text_berita_en": "[T:amenk wenger] played [N:Triple Captain] in Gameweek [N:3] and earned [N:64 Pts].",
-    "gw": 3,
-    "teams": [
-      "amenk wenger"
-    ],
-    "players": [],
-    "headline_id": "[T:amenk wenger] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:64 Poin].",
-    "headline_en": "[T:amenk wenger] played [N:Triple Captain] in Gameweek [N:3] and earned [N:64 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_6161801_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 5)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:KST] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:55 Poin].",
-    "text_berita_en": "[T:KST] played [N:Wildcard] in Gameweek [N:5] and earned [N:55 Pts].",
-    "gw": 5,
-    "teams": [
-      "KST"
-    ],
-    "players": [],
-    "headline_id": "[T:KST] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:55 Poin].",
-    "headline_en": "[T:KST] played [N:Wildcard] in Gameweek [N:5] and earned [N:55 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_6001158_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:last hope party_pmp] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:77 Poin].",
-    "text_berita_en": "[T:last hope party_pmp] played [N:Wildcard] in Gameweek [N:4] and earned [N:77 Pts].",
-    "gw": 4,
-    "teams": [
-      "last hope party_pmp"
-    ],
-    "players": [],
-    "headline_id": "[T:last hope party_pmp] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:77 Poin].",
-    "headline_en": "[T:last hope party_pmp] played [N:Wildcard] in Gameweek [N:4] and earned [N:77 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_4770561_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 5)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:kembang tebu] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:48 Poin].",
-    "text_berita_en": "[T:kembang tebu] played [N:Wildcard] in Gameweek [N:5] and earned [N:48 Pts].",
-    "gw": 5,
-    "teams": [
-      "kembang tebu"
-    ],
-    "players": [],
-    "headline_id": "[T:kembang tebu] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:48 Poin].",
-    "headline_en": "[T:kembang tebu] played [N:Wildcard] in Gameweek [N:5] and earned [N:48 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_4770561_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.220Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:kembang tebu] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:47 Poin].",
-    "text_berita_en": "[T:kembang tebu] played [N:Triple Captain] in Gameweek [N:3] and earned [N:47 Pts].",
-    "gw": 3,
-    "teams": [
-      "kembang tebu"
-    ],
-    "players": [],
-    "headline_id": "[T:kembang tebu] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:47 Poin].",
-    "headline_en": "[T:kembang tebu] played [N:Triple Captain] in Gameweek [N:3] and earned [N:47 Pts].",
-    "timestamp": "2026-11-03T10:53:52.220Z"
-  },
-  {
-    "id": "chip_5505523_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 7)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Doanenek] mengaktifkan [N:Wildcard] di Gameweek [N:7] dan meraih [N:61 Poin].",
-    "text_berita_en": "[T:Doanenek] played [N:Wildcard] in Gameweek [N:7] and earned [N:61 Pts].",
-    "gw": 7,
-    "teams": [
-      "Doanenek"
-    ],
-    "players": [],
-    "headline_id": "[T:Doanenek] mengaktifkan [N:Wildcard] di Gameweek [N:7] dan meraih [N:61 Poin].",
-    "headline_en": "[T:Doanenek] played [N:Wildcard] in Gameweek [N:7] and earned [N:61 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_5505523_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 2)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:Doanenek] mengaktifkan [N:Bench Boost] di Gameweek [N:2] dan meraih [N:102 Poin].",
-    "text_berita_en": "[T:Doanenek] played [N:Bench Boost] in Gameweek [N:2] and earned [N:102 Pts].",
-    "gw": 2,
-    "teams": [
-      "Doanenek"
-    ],
-    "players": [],
-    "headline_id": "[T:Doanenek] mengaktifkan [N:Bench Boost] di Gameweek [N:2] dan meraih [N:102 Poin].",
-    "headline_en": "[T:Doanenek] played [N:Bench Boost] in Gameweek [N:2] and earned [N:102 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_1738316_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Maverick] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:86 Poin].",
-    "text_berita_en": "[T:Maverick] played [N:Wildcard] in Gameweek [N:4] and earned [N:86 Pts].",
-    "gw": 4,
-    "teams": [
-      "Maverick"
-    ],
-    "players": [],
-    "headline_id": "[T:Maverick] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:86 Poin].",
-    "headline_en": "[T:Maverick] played [N:Wildcard] in Gameweek [N:4] and earned [N:86 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_1738316_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 1)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:Maverick] mengaktifkan [N:Bench Boost] di Gameweek [N:1] dan meraih [N:57 Poin].",
-    "text_berita_en": "[T:Maverick] played [N:Bench Boost] in Gameweek [N:1] and earned [N:57 Pts].",
-    "gw": 1,
-    "teams": [
-      "Maverick"
-    ],
-    "players": [],
-    "headline_id": "[T:Maverick] mengaktifkan [N:Bench Boost] di Gameweek [N:1] dan meraih [N:57 Poin].",
-    "headline_en": "[T:Maverick] played [N:Bench Boost] in Gameweek [N:1] and earned [N:57 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_1738316_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:Maverick] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:49 Poin].",
-    "text_berita_en": "[T:Maverick] played [N:Free Hit] in Gameweek [N:3] and earned [N:49 Pts].",
-    "gw": 3,
-    "teams": [
-      "Maverick"
-    ],
-    "players": [],
-    "headline_id": "[T:Maverick] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:49 Poin].",
-    "headline_en": "[T:Maverick] played [N:Free Hit] in Gameweek [N:3] and earned [N:49 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_3773547_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:A2N's Team] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:84 Poin].",
-    "text_berita_en": "[T:A2N's Team] played [N:Wildcard] in Gameweek [N:4] and earned [N:84 Pts].",
-    "gw": 4,
-    "teams": [
-      "A2N's Team"
-    ],
-    "players": [],
-    "headline_id": "[T:A2N's Team] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:84 Poin].",
-    "headline_en": "[T:A2N's Team] played [N:Wildcard] in Gameweek [N:4] and earned [N:84 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_3773547_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:A2N's Team] mengaktifkan [N:Free Hit] di Gameweek [N:9] dan meraih [N:65 Poin].",
-    "text_berita_en": "[T:A2N's Team] played [N:Free Hit] in Gameweek [N:9] and earned [N:65 Pts].",
-    "gw": 9,
-    "teams": [
-      "A2N's Team"
-    ],
-    "players": [],
-    "headline_id": "[T:A2N's Team] mengaktifkan [N:Free Hit] di Gameweek [N:9] dan meraih [N:65 Poin].",
-    "headline_en": "[T:A2N's Team] played [N:Free Hit] in Gameweek [N:9] and earned [N:65 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_5935899_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 5)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:CQMY] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:63 Poin].",
-    "text_berita_en": "[T:CQMY] played [N:Wildcard] in Gameweek [N:5] and earned [N:63 Pts].",
-    "gw": 5,
-    "teams": [
-      "CQMY"
-    ],
-    "players": [],
-    "headline_id": "[T:CQMY] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:63 Poin].",
-    "headline_en": "[T:CQMY] played [N:Wildcard] in Gameweek [N:5] and earned [N:63 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_4133926_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 6)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Pringless_212] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:64 Poin].",
-    "text_berita_en": "[T:Pringless_212] played [N:Wildcard] in Gameweek [N:6] and earned [N:64 Pts].",
-    "gw": 6,
-    "teams": [
-      "Pringless_212"
-    ],
-    "players": [],
-    "headline_id": "[T:Pringless_212] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:64 Poin].",
-    "headline_en": "[T:Pringless_212] played [N:Wildcard] in Gameweek [N:6] and earned [N:64 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_4133926_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:Pringless_212] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:82 Poin].",
-    "text_berita_en": "[T:Pringless_212] played [N:Triple Captain] in Gameweek [N:3] and earned [N:82 Pts].",
-    "gw": 3,
-    "teams": [
-      "Pringless_212"
-    ],
-    "players": [],
-    "headline_id": "[T:Pringless_212] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:82 Poin].",
-    "headline_en": "[T:Pringless_212] played [N:Triple Captain] in Gameweek [N:3] and earned [N:82 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_4133926_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 8)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:Pringless_212] mengaktifkan [N:Bench Boost] di Gameweek [N:8] dan meraih [N:56 Poin].",
-    "text_berita_en": "[T:Pringless_212] played [N:Bench Boost] in Gameweek [N:8] and earned [N:56 Pts].",
-    "gw": 8,
-    "teams": [
-      "Pringless_212"
-    ],
-    "players": [],
-    "headline_id": "[T:Pringless_212] mengaktifkan [N:Bench Boost] di Gameweek [N:8] dan meraih [N:56 Poin].",
-    "headline_en": "[T:Pringless_212] played [N:Bench Boost] in Gameweek [N:8] and earned [N:56 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_4133926_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.221Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:Pringless_212] mengaktifkan [N:Free Hit] di Gameweek [N:4] dan meraih [N:48 Poin].",
-    "text_berita_en": "[T:Pringless_212] played [N:Free Hit] in Gameweek [N:4] and earned [N:48 Pts].",
-    "gw": 4,
-    "teams": [
-      "Pringless_212"
-    ],
-    "players": [],
-    "headline_id": "[T:Pringless_212] mengaktifkan [N:Free Hit] di Gameweek [N:4] dan meraih [N:48 Poin].",
-    "headline_en": "[T:Pringless_212] played [N:Free Hit] in Gameweek [N:4] and earned [N:48 Pts].",
-    "timestamp": "2026-11-03T10:53:52.221Z"
-  },
-  {
-    "id": "chip_7814533_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Uaffukabeh] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:59 Poin].",
-    "text_berita_en": "[T:Uaffukabeh] played [N:Wildcard] in Gameweek [N:3] and earned [N:59 Pts].",
-    "gw": 3,
-    "teams": [
-      "Uaffukabeh"
-    ],
-    "players": [],
-    "headline_id": "[T:Uaffukabeh] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:59 Poin].",
-    "headline_en": "[T:Uaffukabeh] played [N:Wildcard] in Gameweek [N:3] and earned [N:59 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_3465631_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 5)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:U_kNoW_Who] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:53 Poin].",
-    "text_berita_en": "[T:U_kNoW_Who] played [N:Wildcard] in Gameweek [N:5] and earned [N:53 Pts].",
-    "gw": 5,
-    "teams": [
-      "U_kNoW_Who"
-    ],
-    "players": [],
-    "headline_id": "[T:U_kNoW_Who] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:53 Poin].",
-    "headline_en": "[T:U_kNoW_Who] played [N:Wildcard] in Gameweek [N:5] and earned [N:53 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_111254_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Skybridge FC] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:55 Poin].",
-    "text_berita_en": "[T:Skybridge FC] played [N:Wildcard] in Gameweek [N:3] and earned [N:55 Pts].",
-    "gw": 3,
-    "teams": [
-      "Skybridge FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Skybridge FC] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:55 Poin].",
-    "headline_en": "[T:Skybridge FC] played [N:Wildcard] in Gameweek [N:3] and earned [N:55 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_111254_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 7)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:Skybridge FC] mengaktifkan [N:Triple Captain] di Gameweek [N:7] dan meraih [N:72 Poin].",
-    "text_berita_en": "[T:Skybridge FC] played [N:Triple Captain] in Gameweek [N:7] and earned [N:72 Pts].",
-    "gw": 7,
-    "teams": [
-      "Skybridge FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Skybridge FC] mengaktifkan [N:Triple Captain] di Gameweek [N:7] dan meraih [N:72 Poin].",
-    "headline_en": "[T:Skybridge FC] played [N:Triple Captain] in Gameweek [N:7] and earned [N:72 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_111254_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 1)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:Skybridge FC] mengaktifkan [N:Bench Boost] di Gameweek [N:1] dan meraih [N:72 Poin].",
-    "text_berita_en": "[T:Skybridge FC] played [N:Bench Boost] in Gameweek [N:1] and earned [N:72 Pts].",
-    "gw": 1,
-    "teams": [
-      "Skybridge FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Skybridge FC] mengaktifkan [N:Bench Boost] di Gameweek [N:1] dan meraih [N:72 Poin].",
-    "headline_en": "[T:Skybridge FC] played [N:Bench Boost] in Gameweek [N:1] and earned [N:72 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_111254_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 6)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:Skybridge FC] mengaktifkan [N:Free Hit] di Gameweek [N:6] dan meraih [N:46 Poin].",
-    "text_berita_en": "[T:Skybridge FC] played [N:Free Hit] in Gameweek [N:6] and earned [N:46 Pts].",
-    "gw": 6,
-    "teams": [
-      "Skybridge FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Skybridge FC] mengaktifkan [N:Free Hit] di Gameweek [N:6] dan meraih [N:46 Poin].",
-    "headline_en": "[T:Skybridge FC] played [N:Free Hit] in Gameweek [N:6] and earned [N:46 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_4398425_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 2)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:red setan] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:100 Poin].",
-    "text_berita_en": "[T:red setan] played [N:Wildcard] in Gameweek [N:2] and earned [N:100 Pts].",
-    "gw": 2,
-    "teams": [
-      "red setan"
-    ],
-    "players": [],
-    "headline_id": "[T:red setan] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:100 Poin].",
-    "headline_en": "[T:red setan] played [N:Wildcard] in Gameweek [N:2] and earned [N:100 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_2545795_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Sunnah Rasul FC] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:67 Poin].",
-    "text_berita_en": "[T:Sunnah Rasul FC] played [N:Wildcard] in Gameweek [N:4] and earned [N:67 Pts].",
-    "gw": 4,
-    "teams": [
-      "Sunnah Rasul FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Sunnah Rasul FC] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:67 Poin].",
-    "headline_en": "[T:Sunnah Rasul FC] played [N:Wildcard] in Gameweek [N:4] and earned [N:67 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_8351283_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 2)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Mahendraw] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:96 Poin].",
-    "text_berita_en": "[T:Mahendraw] played [N:Wildcard] in Gameweek [N:2] and earned [N:96 Pts].",
-    "gw": 2,
-    "teams": [
-      "Mahendraw"
-    ],
-    "players": [],
-    "headline_id": "[T:Mahendraw] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:96 Poin].",
-    "headline_en": "[T:Mahendraw] played [N:Wildcard] in Gameweek [N:2] and earned [N:96 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_4004907_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Tolyam074] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:41 Poin].",
-    "text_berita_en": "[T:Tolyam074] played [N:Wildcard] in Gameweek [N:3] and earned [N:41 Pts].",
-    "gw": 3,
-    "teams": [
-      "Tolyam074"
-    ],
-    "players": [],
-    "headline_id": "[T:Tolyam074] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:41 Poin].",
-    "headline_en": "[T:Tolyam074] played [N:Wildcard] in Gameweek [N:3] and earned [N:41 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_3179384_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 6)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Talisirah] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:61 Poin].",
-    "text_berita_en": "[T:Talisirah] played [N:Wildcard] in Gameweek [N:6] and earned [N:61 Pts].",
-    "gw": 6,
-    "teams": [
-      "Talisirah"
-    ],
-    "players": [],
-    "headline_id": "[T:Talisirah] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:61 Poin].",
-    "headline_en": "[T:Talisirah] played [N:Wildcard] in Gameweek [N:6] and earned [N:61 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_3179384_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:Talisirah] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:68 Poin].",
-    "text_berita_en": "[T:Talisirah] played [N:Free Hit] in Gameweek [N:3] and earned [N:68 Pts].",
-    "gw": 3,
-    "teams": [
-      "Talisirah"
-    ],
-    "players": [],
-    "headline_id": "[T:Talisirah] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:68 Poin].",
-    "headline_en": "[T:Talisirah] played [N:Free Hit] in Gameweek [N:3] and earned [N:68 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_237939_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.222Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Rajo's Team] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:39 Poin].",
-    "text_berita_en": "[T:Rajo's Team] played [N:Wildcard] in Gameweek [N:3] and earned [N:39 Pts].",
-    "gw": 3,
-    "teams": [
-      "Rajo's Team"
-    ],
-    "players": [],
-    "headline_id": "[T:Rajo's Team] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:39 Poin].",
-    "headline_en": "[T:Rajo's Team] played [N:Wildcard] in Gameweek [N:3] and earned [N:39 Pts].",
-    "timestamp": "2026-11-03T10:53:52.222Z"
-  },
-  {
-    "id": "chip_3359794_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:candles fc] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:57 Poin].",
-    "text_berita_en": "[T:candles fc] played [N:Wildcard] in Gameweek [N:3] and earned [N:57 Pts].",
-    "gw": 3,
-    "teams": [
-      "candles fc"
-    ],
-    "players": [],
-    "headline_id": "[T:candles fc] mengaktifkan [N:Wildcard] di Gameweek [N:3] dan meraih [N:57 Poin].",
-    "headline_en": "[T:candles fc] played [N:Wildcard] in Gameweek [N:3] and earned [N:57 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_135488_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 5)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Kuromi FC] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:29 Poin].",
-    "text_berita_en": "[T:Kuromi FC] played [N:Wildcard] in Gameweek [N:5] and earned [N:29 Pts].",
-    "gw": 5,
-    "teams": [
-      "Kuromi FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Kuromi FC] mengaktifkan [N:Wildcard] di Gameweek [N:5] dan meraih [N:29 Poin].",
-    "headline_en": "[T:Kuromi FC] played [N:Wildcard] in Gameweek [N:5] and earned [N:29 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_135488_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 7)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:Kuromi FC] mengaktifkan [N:Triple Captain] di Gameweek [N:7] dan meraih [N:89 Poin].",
-    "text_berita_en": "[T:Kuromi FC] played [N:Triple Captain] in Gameweek [N:7] and earned [N:89 Pts].",
-    "gw": 7,
-    "teams": [
-      "Kuromi FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Kuromi FC] mengaktifkan [N:Triple Captain] di Gameweek [N:7] dan meraih [N:89 Poin].",
-    "headline_en": "[T:Kuromi FC] played [N:Triple Captain] in Gameweek [N:7] and earned [N:89 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_4296304_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:Ricardo] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:58 Poin].",
-    "text_berita_en": "[T:Ricardo] played [N:Triple Captain] in Gameweek [N:3] and earned [N:58 Pts].",
-    "gw": 3,
-    "teams": [
-      "Ricardo"
-    ],
-    "players": [],
-    "headline_id": "[T:Ricardo] mengaktifkan [N:Triple Captain] di Gameweek [N:3] dan meraih [N:58 Poin].",
-    "headline_en": "[T:Ricardo] played [N:Triple Captain] in Gameweek [N:3] and earned [N:58 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_4575586_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 7)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:cilukba] mengaktifkan [N:Wildcard] di Gameweek [N:7] dan meraih [N:82 Poin].",
-    "text_berita_en": "[T:cilukba] played [N:Wildcard] in Gameweek [N:7] and earned [N:82 Pts].",
-    "gw": 7,
-    "teams": [
-      "cilukba"
-    ],
-    "players": [],
-    "headline_id": "[T:cilukba] mengaktifkan [N:Wildcard] di Gameweek [N:7] dan meraih [N:82 Poin].",
-    "headline_en": "[T:cilukba] played [N:Wildcard] in Gameweek [N:7] and earned [N:82 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_4575586_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:cilukba] mengaktifkan [N:Triple Captain] di Gameweek [N:9] dan meraih [N:41 Poin].",
-    "text_berita_en": "[T:cilukba] played [N:Triple Captain] in Gameweek [N:9] and earned [N:41 Pts].",
-    "gw": 9,
-    "teams": [
-      "cilukba"
-    ],
-    "players": [],
-    "headline_id": "[T:cilukba] mengaktifkan [N:Triple Captain] di Gameweek [N:9] dan meraih [N:41 Poin].",
-    "headline_en": "[T:cilukba] played [N:Triple Captain] in Gameweek [N:9] and earned [N:41 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_4575586_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:cilukba] mengaktifkan [N:Bench Boost] di Gameweek [N:4] dan meraih [N:59 Poin].",
-    "text_berita_en": "[T:cilukba] played [N:Bench Boost] in Gameweek [N:4] and earned [N:59 Pts].",
-    "gw": 4,
-    "teams": [
-      "cilukba"
-    ],
-    "players": [],
-    "headline_id": "[T:cilukba] mengaktifkan [N:Bench Boost] di Gameweek [N:4] dan meraih [N:59 Poin].",
-    "headline_en": "[T:cilukba] played [N:Bench Boost] in Gameweek [N:4] and earned [N:59 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_4575586_fh1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Free Hit",
-    "drama_score": 80,
-    "text_berita": "[T:cilukba] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:58 Poin].",
-    "text_berita_en": "[T:cilukba] played [N:Free Hit] in Gameweek [N:3] and earned [N:58 Pts].",
-    "gw": 3,
-    "teams": [
-      "cilukba"
-    ],
-    "players": [],
-    "headline_id": "[T:cilukba] mengaktifkan [N:Free Hit] di Gameweek [N:3] dan meraih [N:58 Poin].",
-    "headline_en": "[T:cilukba] played [N:Free Hit] in Gameweek [N:3] and earned [N:58 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_148318_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 3)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:Dalijo's Team] mengaktifkan [N:Bench Boost] di Gameweek [N:3] dan meraih [N:75 Poin].",
-    "text_berita_en": "[T:Dalijo's Team] played [N:Bench Boost] in Gameweek [N:3] and earned [N:75 Pts].",
-    "gw": 3,
-    "teams": [
-      "Dalijo's Team"
-    ],
-    "players": [],
-    "headline_id": "[T:Dalijo's Team] mengaktifkan [N:Bench Boost] di Gameweek [N:3] dan meraih [N:75 Poin].",
-    "headline_en": "[T:Dalijo's Team] played [N:Bench Boost] in Gameweek [N:3] and earned [N:75 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_2161291_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:LEGENDKILLER FC] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:55 Poin].",
-    "text_berita_en": "[T:LEGENDKILLER FC] played [N:Wildcard] in Gameweek [N:4] and earned [N:55 Pts].",
-    "gw": 4,
-    "teams": [
-      "LEGENDKILLER FC"
-    ],
-    "players": [],
-    "headline_id": "[T:LEGENDKILLER FC] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:55 Poin].",
-    "headline_en": "[T:LEGENDKILLER FC] played [N:Wildcard] in Gameweek [N:4] and earned [N:55 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_2161291_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 1)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:LEGENDKILLER FC] mengaktifkan [N:Bench Boost] di Gameweek [N:1] dan meraih [N:61 Poin].",
-    "text_berita_en": "[T:LEGENDKILLER FC] played [N:Bench Boost] in Gameweek [N:1] and earned [N:61 Pts].",
-    "gw": 1,
-    "teams": [
-      "LEGENDKILLER FC"
-    ],
-    "players": [],
-    "headline_id": "[T:LEGENDKILLER FC] mengaktifkan [N:Bench Boost] di Gameweek [N:1] dan meraih [N:61 Poin].",
-    "headline_en": "[T:LEGENDKILLER FC] played [N:Bench Boost] in Gameweek [N:1] and earned [N:61 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_1155308_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 2)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Chikabandeng] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:76 Poin].",
-    "text_berita_en": "[T:Chikabandeng] played [N:Wildcard] in Gameweek [N:2] and earned [N:76 Pts].",
-    "gw": 2,
-    "teams": [
-      "Chikabandeng"
-    ],
-    "players": [],
-    "headline_id": "[T:Chikabandeng] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:76 Poin].",
-    "headline_en": "[T:Chikabandeng] played [N:Wildcard] in Gameweek [N:2] and earned [N:76 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_8514975_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.223Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 6)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Yudi Fasya] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:49 Poin].",
-    "text_berita_en": "[T:Yudi Fasya] played [N:Wildcard] in Gameweek [N:6] and earned [N:49 Pts].",
-    "gw": 6,
-    "teams": [
-      "Yudi Fasya"
-    ],
-    "players": [],
-    "headline_id": "[T:Yudi Fasya] mengaktifkan [N:Wildcard] di Gameweek [N:6] dan meraih [N:49 Poin].",
-    "headline_en": "[T:Yudi Fasya] played [N:Wildcard] in Gameweek [N:6] and earned [N:49 Pts].",
-    "timestamp": "2026-11-03T10:53:52.223Z"
-  },
-  {
-    "id": "chip_2346201_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.224Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 2)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:Bolakbalik] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:71 Poin].",
-    "text_berita_en": "[T:Bolakbalik] played [N:Wildcard] in Gameweek [N:2] and earned [N:71 Pts].",
-    "gw": 2,
-    "teams": [
-      "Bolakbalik"
-    ],
-    "players": [],
-    "headline_id": "[T:Bolakbalik] mengaktifkan [N:Wildcard] di Gameweek [N:2] dan meraih [N:71 Poin].",
-    "headline_en": "[T:Bolakbalik] played [N:Wildcard] in Gameweek [N:2] and earned [N:71 Pts].",
-    "timestamp": "2026-11-03T10:53:52.224Z"
-  },
-  {
-    "id": "chip_650487_wc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.224Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 4)",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Chips & Transfer Hits",
-    "sub_kategori": "Aktivasi Wildcard",
-    "drama_score": 80,
-    "text_berita": "[T:asoy banget] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:84 Poin].",
-    "text_berita_en": "[T:asoy banget] played [N:Wildcard] in Gameweek [N:4] and earned [N:84 Pts].",
-    "gw": 4,
-    "teams": [
-      "asoy banget"
-    ],
-    "players": [],
-    "headline_id": "[T:asoy banget] mengaktifkan [N:Wildcard] di Gameweek [N:4] dan meraih [N:84 Poin].",
-    "headline_en": "[T:asoy banget] played [N:Wildcard] in Gameweek [N:4] and earned [N:84 Pts].",
-    "timestamp": "2026-11-03T10:53:52.224Z"
-  },
-  {
-    "id": "chip_650487_tc1",
-    "timestamp_produksi": "2026-11-03T10:53:52.224Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 7)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Kapten vs Naib Kapten",
-    "drama_score": 80,
-    "text_berita": "[T:asoy banget] mengaktifkan [N:Triple Captain] di Gameweek [N:7] dan meraih [N:86 Poin].",
-    "text_berita_en": "[T:asoy banget] played [N:Triple Captain] in Gameweek [N:7] and earned [N:86 Pts].",
-    "gw": 7,
-    "teams": [
-      "asoy banget"
-    ],
-    "players": [],
-    "headline_id": "[T:asoy banget] mengaktifkan [N:Triple Captain] di Gameweek [N:7] dan meraih [N:86 Poin].",
-    "headline_en": "[T:asoy banget] played [N:Triple Captain] in Gameweek [N:7] and earned [N:86 Pts].",
-    "timestamp": "2026-11-03T10:53:52.224Z"
-  },
-  {
-    "id": "chip_650487_bb1",
-    "timestamp_produksi": "2026-11-03T10:53:52.224Z",
-    "sumber": "Bukan",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Bukan Gameweek aktif (Arsip Gameweek 5)",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "What-If & Keputusan Manajer",
-    "sub_kategori": "Bangku Cadangan (Bench)",
-    "drama_score": 80,
-    "text_berita": "[T:asoy banget] mengaktifkan [N:Bench Boost] di Gameweek [N:5] dan meraih [N:62 Poin].",
-    "text_berita_en": "[T:asoy banget] played [N:Bench Boost] in Gameweek [N:5] and earned [N:62 Pts].",
-    "gw": 5,
-    "teams": [
-      "asoy banget"
-    ],
-    "players": [],
-    "headline_id": "[T:asoy banget] mengaktifkan [N:Bench Boost] di Gameweek [N:5] dan meraih [N:62 Poin].",
-    "headline_en": "[T:asoy banget] played [N:Bench Boost] in Gameweek [N:5] and earned [N:62 Pts].",
-    "timestamp": "2026-11-03T10:53:52.224Z"
-  },
-  {
-    "id": "summary_4champions_gw9",
-    "timestamp_produksi": "2026-11-03T10:53:52.224Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Perebutan Juara",
-    "sub_kategori": "Juara Gameweek",
-    "drama_score": 80,
-    "text_berita": "4 Tim Juara Resmi FNB League Gameweek [N:9] (hasil sementara): Juara Gameweek [T:Sumber Bahagia Motor] ([N:85] poin), Juara 1 [T:Yuk Bisa Yuk FC] ([N:668] poin), Juara 2 [T:PSIS FC] ([N:653] poin), dan Juara Terbanyak Mingguan [T:Blackswann] ([N:1] gelar).",
-    "text_berita_en": "4 Official Champions of FNB League Gameweek [N:9] (provisional results): Gameweek Champion [T:Sumber Bahagia Motor] ([N:85] pts), 1st Place [T:Yuk Bisa Yuk FC] ([N:668] pts), 2nd Place [T:PSIS FC] ([N:653] pts), and Most Gameweek Champion [T:Blackswann] ([N:1] titles).",
-    "gw": 9,
-    "teams": [
-      "Sumber Bahagia Motor",
-      "Yuk Bisa Yuk FC",
-      "PSIS FC",
-      "Blackswann"
-    ],
-    "players": [],
-    "headline_id": "4 Tim Juara Resmi FNB League Gameweek [N:9] (hasil sementara): Juara Gameweek [T:Sumber Bahagia Motor] ([N:85] poin), Juara 1 [T:Yuk Bisa Yuk FC] ([N:668] poin), Juara 2 [T:PSIS FC] ([N:653] poin), dan Juara Terbanyak Mingguan [T:Blackswann] ([N:1] gelar).",
-    "headline_en": "4 Official Champions of FNB League Gameweek [N:9] (provisional results): Gameweek Champion [T:Sumber Bahagia Motor] ([N:85] pts), 1st Place [T:Yuk Bisa Yuk FC] ([N:668] pts), 2nd Place [T:PSIS FC] ([N:653] pts), and Most Gameweek Champion [T:Blackswann] ([N:1] titles).",
-    "timestamp": "2026-11-03T10:53:52.224Z"
-  },
-  {
-    "id": "rank1_gw9_3180359",
-    "timestamp_produksi": "2026-11-03T10:53:52.225Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Not started",
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Informasi Liga",
-    "sub_kategori": "Kabar Umum Pekan",
-    "drama_score": 80,
-    "text_berita": "[T:Yuk Bisa Yuk FC] resmi mengunci posisi Juara 1 klasemen sementara FNB League Gameweek [N:9] dengan total [N:668 Poin] (hasil sementara).",
-    "text_berita_en": "[T:Yuk Bisa Yuk FC] officially secures 1st Place on the official FNB League table for Gameweek [N:9] with [N:668 Pts] (provisional result).",
-    "gw": 9,
-    "teams": [
-      "Yuk Bisa Yuk FC"
-    ],
-    "players": [],
-    "headline_id": "[T:Yuk Bisa Yuk FC] resmi mengunci posisi Juara 1 klasemen sementara FNB League Gameweek [N:9] dengan total [N:668 Poin] (hasil sementara).",
-    "headline_en": "[T:Yuk Bisa Yuk FC] officially secures 1st Place on the official FNB League table for Gameweek [N:9] with [N:668 Pts] (provisional result).",
-    "timestamp": "2026-11-03T10:53:52.225Z"
-  },
-  {
-    "id": "rank2_gw9_2972164",
-    "timestamp_produksi": "2026-11-03T10:53:52.225Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Perebutan Juara",
-    "sub_kategori": "Runner-Up Klasemen",
-    "drama_score": 80,
-    "text_berita": "[T:PSIS FC] resmi mengamankan posisi Juara 2 (Runner-Up) klasemen sementara FNB League Gameweek [N:9] dengan total [N:653 Poin] (hasil sementara).",
-    "text_berita_en": "[T:PSIS FC] officially secures 2nd Place (Runner-Up) on the official FNB League table for Gameweek [N:9] with [N:653 Pts] (provisional result).",
-    "gw": 9,
-    "teams": [
-      "PSIS FC"
-    ],
-    "players": [],
-    "headline_id": "[T:PSIS FC] resmi mengamankan posisi Juara 2 (Runner-Up) klasemen sementara FNB League Gameweek [N:9] dengan total [N:653 Poin] (hasil sementara).",
-    "headline_en": "[T:PSIS FC] officially secures 2nd Place (Runner-Up) on the official FNB League table for Gameweek [N:9] with [N:653 Pts] (provisional result).",
-    "timestamp": "2026-11-03T10:53:52.225Z"
-  },
-  {
-    "id": "top_gw9_4787794",
-    "timestamp_produksi": "2026-11-03T10:53:52.225Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Live Match",
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Perebutan Juara",
-    "sub_kategori": "Persaingan 3 Besar",
-    "drama_score": 80,
-    "text_berita": "[T:Blackswann] menempati peringkat [N:3] klasemen sementara di Gameweek [N:9] dengan total [N:635 Poin].",
-    "text_berita_en": "[T:Blackswann] held rank [N:3] in Gameweek [N:9] with [N:635 Pts].",
-    "gw": 9,
-    "teams": [
-      "Blackswann"
-    ],
-    "players": [],
-    "headline_id": "[T:Blackswann] menempati peringkat [N:3] klasemen sementara di Gameweek [N:9] dengan total [N:635 Poin].",
-    "headline_en": "[T:Blackswann] held rank [N:3] in Gameweek [N:9] with [N:635 Pts].",
-    "timestamp": "2026-11-03T10:53:52.225Z"
-  },
-  {
-    "id": "mover_gw9_7893094",
-    "timestamp_produksi": "2026-11-03T10:53:52.225Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Pergerakan Peringkat",
-    "sub_kategori": "Lonjakan Peringkat (Top Climber)",
-    "drama_score": 80,
-    "text_berita": "[T:rdwndvsn] naik [N:+1] peringkat ke posisi [N:4] di Gameweek [N:9] dengan total [N:632 Poin].",
-    "text_berita_en": "[T:rdwndvsn] moved up [N:+1] places to rank [N:4] in Gameweek [N:9] with [N:632 Pts].",
-    "gw": 9,
-    "teams": [
-      "rdwndvsn"
-    ],
-    "players": [],
-    "headline_id": "[T:rdwndvsn] naik [N:+1] peringkat ke posisi [N:4] di Gameweek [N:9] dengan total [N:632 Poin].",
-    "headline_en": "[T:rdwndvsn] moved up [N:+1] places to rank [N:4] in Gameweek [N:9] with [N:632 Pts].",
-    "timestamp": "2026-11-03T10:53:52.225Z"
-  },
-  {
-    "id": "mover_gw9_774708",
-    "timestamp_produksi": "2026-11-03T10:53:52.225Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Pergerakan Peringkat",
-    "sub_kategori": "Lonjakan Peringkat (Top Climber)",
-    "drama_score": 80,
-    "text_berita": "[T:Mooy Pablo] naik [N:+2] peringkat ke posisi [N:5] di Gameweek [N:9] dengan total [N:627 Poin].",
-    "text_berita_en": "[T:Mooy Pablo] moved up [N:+2] places to rank [N:5] in Gameweek [N:9] with [N:627 Pts].",
-    "gw": 9,
-    "teams": [
-      "Mooy Pablo"
-    ],
-    "players": [],
-    "headline_id": "[T:Mooy Pablo] naik [N:+2] peringkat ke posisi [N:5] di Gameweek [N:9] dengan total [N:627 Poin].",
-    "headline_en": "[T:Mooy Pablo] moved up [N:+2] places to rank [N:5] in Gameweek [N:9] with [N:627 Pts].",
-    "timestamp": "2026-11-03T10:53:52.225Z"
-  },
-  {
-    "id": "mover_gw9_2644639",
-    "timestamp_produksi": "2026-11-03T10:53:52.226Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Pergerakan Peringkat",
-    "sub_kategori": "Penurunan Peringkat (Faller)",
-    "drama_score": 80,
-    "text_berita": "[T:Team Pick] turun [N:-3] peringkat ke posisi [N:6] di Gameweek [N:9] dengan total [N:626 Poin].",
-    "text_berita_en": "[T:Team Pick] moved down [N:-3] places to rank [N:6] in Gameweek [N:9] with [N:626 Pts].",
-    "gw": 9,
-    "teams": [
-      "Team Pick"
-    ],
-    "players": [],
-    "headline_id": "[T:Team Pick] turun [N:-3] peringkat ke posisi [N:6] di Gameweek [N:9] dengan total [N:626 Poin].",
-    "headline_en": "[T:Team Pick] moved down [N:-3] places to rank [N:6] in Gameweek [N:9] with [N:626 Pts].",
-    "timestamp": "2026-11-03T10:53:52.226Z"
-  },
-  {
-    "id": "mover_gw9_3179533",
-    "timestamp_produksi": "2026-11-03T10:53:52.226Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Pergerakan Peringkat",
-    "sub_kategori": "Penurunan Peringkat (Faller)",
-    "drama_score": 80,
-    "text_berita": "[T:Gunung Kemukus 1897] turun [N:-1] peringkat ke posisi [N:7] di Gameweek [N:9] dengan total [N:620 Poin].",
-    "text_berita_en": "[T:Gunung Kemukus 1897] moved down [N:-1] places to rank [N:7] in Gameweek [N:9] with [N:620 Pts].",
-    "gw": 9,
-    "teams": [
-      "Gunung Kemukus 1897"
-    ],
-    "players": [],
-    "headline_id": "[T:Gunung Kemukus 1897] turun [N:-1] peringkat ke posisi [N:7] di Gameweek [N:9] dengan total [N:620 Poin].",
-    "headline_en": "[T:Gunung Kemukus 1897] moved down [N:-1] places to rank [N:7] in Gameweek [N:9] with [N:620 Pts].",
-    "timestamp": "2026-11-03T10:53:52.226Z"
-  },
-  {
-    "id": "mover_gw9_2918457",
-    "timestamp_produksi": "2026-11-03T10:53:52.226Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Pergerakan Peringkat",
-    "sub_kategori": "Lonjakan Peringkat (Top Climber)",
-    "drama_score": 80,
-    "text_berita": "[T:Sumber Bahagia Motor] naik [N:+7] peringkat ke posisi [N:8] di Gameweek [N:9] dengan total [N:614 Poin].",
-    "text_berita_en": "[T:Sumber Bahagia Motor] moved up [N:+7] places to rank [N:8] in Gameweek [N:9] with [N:614 Pts].",
-    "gw": 9,
-    "teams": [
-      "Sumber Bahagia Motor"
-    ],
-    "players": [],
-    "headline_id": "[T:Sumber Bahagia Motor] naik [N:+7] peringkat ke posisi [N:8] di Gameweek [N:9] dengan total [N:614 Poin].",
-    "headline_en": "[T:Sumber Bahagia Motor] moved up [N:+7] places to rank [N:8] in Gameweek [N:9] with [N:614 Pts].",
-    "timestamp": "2026-11-03T10:53:52.226Z"
-  },
-  {
-    "id": "mover_gw9_3174540",
-    "timestamp_produksi": "2026-11-03T10:53:52.226Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Pergerakan Peringkat",
-    "sub_kategori": "Penurunan Peringkat (Faller)",
-    "drama_score": 80,
-    "text_berita": "[T:Always Ready] turun [N:-1] peringkat ke posisi [N:9] di Gameweek [N:9] dengan total [N:613 Poin].",
-    "text_berita_en": "[T:Always Ready] moved down [N:-1] places to rank [N:9] in Gameweek [N:9] with [N:613 Pts].",
-    "gw": 9,
-    "teams": [
-      "Always Ready"
-    ],
-    "players": [],
-    "headline_id": "[T:Always Ready] turun [N:-1] peringkat ke posisi [N:9] di Gameweek [N:9] dengan total [N:613 Poin].",
-    "headline_en": "[T:Always Ready] moved down [N:-1] places to rank [N:9] in Gameweek [N:9] with [N:613 Pts].",
-    "timestamp": "2026-11-03T10:53:52.226Z"
-  },
-  {
-    "id": "mover_gw9_375017",
-    "timestamp_produksi": "2026-11-03T10:53:52.226Z",
-    "sumber": "Bukan",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "waktu_tayang": [
-      "Between Match",
-      "Provisional",
-      "Confirmed"
-    ],
-    "kategori": "Pergerakan Peringkat",
-    "sub_kategori": "Penurunan Peringkat (Faller)",
-    "drama_score": 80,
-    "text_berita": "[T:Inter Arab] turun [N:-3] peringkat ke posisi [N:12] di Gameweek [N:9] dengan total [N:598 Poin].",
-    "text_berita_en": "[T:Inter Arab] moved down [N:-3] places to rank [N:12] in Gameweek [N:9] with [N:598 Pts].",
-    "gw": 9,
-    "teams": [
-      "Inter Arab"
-    ],
-    "players": [],
-    "headline_id": "[T:Inter Arab] turun [N:-3] peringkat ke posisi [N:12] di Gameweek [N:9] dengan total [N:598 Poin].",
-    "headline_en": "[T:Inter Arab] moved down [N:-3] places to rank [N:12] in Gameweek [N:9] with [N:598 Pts].",
-    "timestamp": "2026-11-03T10:53:52.226Z"
-  },
-  {
     "id": "mover_gw9_5483428",
     "timestamp_produksi": "2026-11-03T10:53:52.226Z",
     "sumber": "Bukan",
@@ -25311,5 +23430,1996 @@
     "headline_id": "[T:Supplier KDMP] memperoleh [N:56] poin di GW [N:9], dan naik [N:5] peringkat dari posisi [N:37] ke peringkat [N:32] resmi FNB League dengan total poin [N:554].",
     "headline_en": "[T:Supplier KDMP] scored [N:56] points in GW [N:9], and moved up [N:5] places from position [N:37] to rank [N:32] in FNB League with [N:554] total points.",
     "timestamp": "2026-11-05T14:38:39.120Z"
+  },
+  {
+    "id": "story_1",
+    "timestamp_produksi": "2026-11-09T12:59:59.840Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Puncak Klasemen",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:Yuk Bisa Yuk FC] resmi mempertahankan posisi puncak klasemen sementara FNB League dengan total [N:733] poin setelah mengamankan [N:65] poin di Gameweek 10.",
+    "text_berita_en": "[T:Yuk Bisa Yuk FC] officially maintains the top spot in the provisional FNB League standings with [N:733] total points after securing [N:65] points in Gameweek 10.",
+    "gw": 10,
+    "teams": [
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [],
+    "headline_id": "[T:Yuk Bisa Yuk FC] resmi mempertahankan posisi puncak klasemen sementara FNB League dengan total [N:733] poin setelah mengamankan [N:65] poin di Gameweek 10.",
+    "headline_en": "[T:Yuk Bisa Yuk FC] officially maintains the top spot in the provisional FNB League standings with [N:733] total points after securing [N:65] points in Gameweek 10.",
+    "timestamp": "2026-11-09T12:59:59.840Z"
+  },
+  {
+    "id": "team_shift_2972164_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.910Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Gelar & Juara",
+    "sub_kategori": "Runner-Up Klasemen",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:PSIS FC] memperoleh [N:61] poin di GW [N:10], dan tertahan di peringkat [N:2] sementara FNB League dengan total poin [N:714].",
+    "text_berita_en": "[T:PSIS FC] scored [N:61] points in GW [N:10], and holds rank [N:2] in provisional FNB League table with [N:714] total points.",
+    "gw": 10,
+    "teams": [
+      "PSIS FC"
+    ],
+    "players": [],
+    "headline_id": "[T:PSIS FC] memperoleh [N:61] poin di GW [N:10], dan tertahan di peringkat [N:2] sementara FNB League dengan total poin [N:714].",
+    "headline_en": "[T:PSIS FC] scored [N:61] points in GW [N:10], and holds rank [N:2] in provisional FNB League table with [N:714] total points.",
+    "timestamp": "2026-11-09T12:59:59.910Z"
+  },
+  {
+    "id": "story_3",
+    "timestamp_produksi": "2026-11-09T12:59:59.845Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Keputusan Manajer",
+    "sub_kategori": "Pilihan Kapten",
+    "drama_score": 95,
+    "poin_tayang": 0,
+    "text_berita": "[T:Chikabandeng], [T:San_saro], dan [N:24] tim lainnya sama-sama kehilangan potensi poin karena tidak memilih [P:N.Jackson] ([C:Aston Villa]) yang meraih [N:11] poin sebagai kapten di pekan ini.",
+    "text_berita_en": "[T:Chikabandeng], [T:San_saro], and [N:24] other teams all lost potential points by not selecting [P:N.Jackson] ([C:Aston Villa]) who scored [N:11] points as captain this week.",
+    "gw": 10,
+    "teams": [
+      "Chikabandeng",
+      "San_saro"
+    ],
+    "players": [
+      "N.Jackson"
+    ],
+    "headline_id": "[T:Chikabandeng], [T:San_saro], dan [N:24] tim lainnya sama-sama kehilangan potensi poin karena tidak memilih [P:N.Jackson] ([C:Aston Villa]) yang meraih [N:11] poin sebagai kapten di pekan ini.",
+    "headline_en": "[T:Chikabandeng], [T:San_saro], and [N:24] other teams all lost potential points by not selecting [P:N.Jackson] ([C:Aston Villa]) who scored [N:11] points as captain this week.",
+    "timestamp": "2026-11-09T12:59:59.845Z"
+  },
+  {
+    "id": "team_shift_4787794_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.910Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Blackswann] memperoleh [N:62] poin di GW [N:10], dan turun [N:1] peringkat dari posisi [N:3] ke peringkat [N:4] sementara FNB League dengan total poin [N:697].",
+    "text_berita_en": "[T:Blackswann] scored [N:62] points in GW [N:10], and dropped [N:1] places from position [N:3] to rank [N:4] in FNB League with [N:697] total points.",
+    "gw": 10,
+    "teams": [
+      "Blackswann"
+    ],
+    "players": [],
+    "headline_id": "[T:Blackswann] memperoleh [N:62] poin di GW [N:10], dan turun [N:1] peringkat dari posisi [N:3] ke peringkat [N:4] sementara FNB League dengan total poin [N:697].",
+    "headline_en": "[T:Blackswann] scored [N:62] points in GW [N:10], and dropped [N:1] places from position [N:3] to rank [N:4] in FNB League with [N:697] total points.",
+    "timestamp": "2026-11-09T12:59:59.910Z"
+  },
+  {
+    "id": "story_2",
+    "timestamp_produksi": "2026-11-09T12:59:59.844Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Always Ready] melakukan lonjakan impresif dengan naik [N:5] peringkat ke posisi [N:3] klasemen sementara setelah meraih [N:81] poin di pekan ini.",
+    "text_berita_en": "[T:Always Ready] made an impressive leap by climbing [N:5] places to [N:3] in the provisional standings after scoring [N:81] points this week.",
+    "gw": 10,
+    "teams": [
+      "Always Ready"
+    ],
+    "players": [],
+    "headline_id": "[T:Always Ready] melakukan lonjakan impresif dengan naik [N:5] peringkat ke posisi [N:3] klasemen sementara setelah meraih [N:81] poin di pekan ini.",
+    "headline_en": "[T:Always Ready] made an impressive leap by climbing [N:5] places to [N:3] in the provisional standings after scoring [N:81] points this week.",
+    "timestamp": "2026-11-09T12:59:59.844Z"
+  },
+  {
+    "id": "team_shift_7893094_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.910Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:rdwndvsn] memperoleh [N:65] poin di GW [N:10], dan turun [N:1] peringkat dari posisi [N:4] ke peringkat [N:5] sementara FNB League dengan total poin [N:697].",
+    "text_berita_en": "[T:rdwndvsn] scored [N:65] points in GW [N:10], and dropped [N:1] places from position [N:4] to rank [N:5] in FNB League with [N:697] total points.",
+    "gw": 10,
+    "teams": [
+      "rdwndvsn"
+    ],
+    "players": [],
+    "headline_id": "[T:rdwndvsn] memperoleh [N:65] poin di GW [N:10], dan turun [N:1] peringkat dari posisi [N:4] ke peringkat [N:5] sementara FNB League dengan total poin [N:697].",
+    "headline_en": "[T:rdwndvsn] scored [N:65] points in GW [N:10], and dropped [N:1] places from position [N:4] to rank [N:5] in FNB League with [N:697] total points.",
+    "timestamp": "2026-11-09T12:59:59.910Z"
+  },
+  {
+    "id": "story_9",
+    "timestamp_produksi": "2026-11-09T12:59:59.846Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Keputusan Manajer",
+    "sub_kategori": "Bangku Cadangan",
+    "drama_score": 91,
+    "poin_tayang": 0,
+    "text_berita": "[T:FornasPengawasan] mengaktifkan [N:Bench Boost] dan meraih [N:69] poin di pekan ini meski harus menanggung penalti [N:12] poin karena transfer hits.",
+    "text_berita_en": "[T:FornasPengawasan] activated the [N:Bench Boost] and scored [N:69] points this week despite incurring a [N:12] point penalty for transfer hits.",
+    "gw": 10,
+    "teams": [
+      "FornasPengawasan"
+    ],
+    "players": [],
+    "headline_id": "[T:FornasPengawasan] mengaktifkan [N:Bench Boost] dan meraih [N:69] poin di pekan ini meski harus menanggung penalti [N:12] poin karena transfer hits.",
+    "headline_en": "[T:FornasPengawasan] activated the [N:Bench Boost] and scored [N:69] points this week despite incurring a [N:12] point penalty for transfer hits.",
+    "timestamp": "2026-11-09T12:59:59.846Z"
+  },
+  {
+    "id": "team_shift_2644639_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.910Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Team Pick] memperoleh [N:50] poin di GW [N:10], dan turun [N:3] peringkat dari posisi [N:5] ke peringkat [N:8] sementara FNB League dengan total poin [N:678].",
+    "text_berita_en": "[T:Team Pick] scored [N:50] points in GW [N:10], and dropped [N:3] places from position [N:5] to rank [N:8] in FNB League with [N:678] total points.",
+    "gw": 10,
+    "teams": [
+      "Team Pick"
+    ],
+    "players": [],
+    "headline_id": "[T:Team Pick] memperoleh [N:50] poin di GW [N:10], dan turun [N:3] peringkat dari posisi [N:5] ke peringkat [N:8] sementara FNB League dengan total poin [N:678].",
+    "headline_en": "[T:Team Pick] scored [N:50] points in GW [N:10], and dropped [N:3] places from position [N:5] to rank [N:8] in FNB League with [N:678] total points.",
+    "timestamp": "2026-11-09T12:59:59.910Z"
+  },
+  {
+    "id": "story_5",
+    "timestamp_produksi": "2026-11-09T12:59:59.845Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Keputusan Manajer",
+    "sub_kategori": "Bangku Cadangan",
+    "drama_score": 89,
+    "poin_tayang": 0,
+    "text_berita": "[P:Barry] ([C:Everton]) menjadi pembeda dengan raihan [N:16] poin, membuat [T:Long Moo Long FC] dan [T:TELUR DADAR] menyesali keputusan mencadangkan pemain tersebut di bangku cadangan.",
+    "text_berita_en": "[P:Barry] ([C:Everton]) made the difference with [N:16] points, leaving [T:Long Moo Long FC] and [T:TELUR DADAR] regretting the decision to bench the player.",
+    "gw": 10,
+    "teams": [
+      "Long Moo Long FC",
+      "TELUR DADAR"
+    ],
+    "players": [
+      "Barry"
+    ],
+    "headline_id": "[P:Barry] ([C:Everton]) menjadi pembeda dengan raihan [N:16] poin, membuat [T:Long Moo Long FC] dan [T:TELUR DADAR] menyesali keputusan mencadangkan pemain tersebut di bangku cadangan.",
+    "headline_en": "[P:Barry] ([C:Everton]) made the difference with [N:16] points, leaving [T:Long Moo Long FC] and [T:TELUR DADAR] regretting the decision to bench the player.",
+    "timestamp": "2026-11-09T12:59:59.845Z"
+  },
+  {
+    "id": "team_shift_7749413_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.910Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Cikaso Fire] memperoleh [N:69] poin di GW [N:10], dan naik [N:1] peringkat dari posisi [N:10] ke peringkat [N:9] sementara FNB League dengan total poin [N:676].",
+    "text_berita_en": "[T:Cikaso Fire] scored [N:69] points in GW [N:10], and moved up [N:1] places from position [N:10] to rank [N:9] in FNB League with [N:676] total points.",
+    "gw": 10,
+    "teams": [
+      "Cikaso Fire"
+    ],
+    "players": [],
+    "headline_id": "[T:Cikaso Fire] memperoleh [N:69] poin di GW [N:10], dan naik [N:1] peringkat dari posisi [N:10] ke peringkat [N:9] sementara FNB League dengan total poin [N:676].",
+    "headline_en": "[T:Cikaso Fire] scored [N:69] points in GW [N:10], and moved up [N:1] places from position [N:10] to rank [N:9] in FNB League with [N:676] total points.",
+    "timestamp": "2026-11-09T12:59:59.910Z"
+  },
+  {
+    "id": "story_4",
+    "timestamp_produksi": "2026-11-09T12:59:59.845Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Keputusan Manajer",
+    "sub_kategori": "Pilihan Kapten",
+    "drama_score": 92,
+    "poin_tayang": 0,
+    "text_berita": "[T:Anti Koruptor Laknat] melesat naik [N:8] peringkat ke posisi [N:21] klasemen sementara berkat aktivasi [N:Triple Captain] yang menghasilkan [N:74] poin di pekan ini.",
+    "text_berita_en": "[T:Anti Koruptor Laknat] moved up [N:8] places to [N:21] in the provisional standings thanks to the activation of the [N:Triple Captain] which yielded [N:74] points this week.",
+    "gw": 10,
+    "teams": [
+      "Anti Koruptor Laknat"
+    ],
+    "players": [],
+    "headline_id": "[T:Anti Koruptor Laknat] melesat naik [N:8] peringkat ke posisi [N:21] klasemen sementara berkat aktivasi [N:Triple Captain] yang menghasilkan [N:74] poin di pekan ini.",
+    "headline_en": "[T:Anti Koruptor Laknat] moved up [N:8] places to [N:21] in the provisional standings thanks to the activation of the [N:Triple Captain] which yielded [N:74] points this week.",
+    "timestamp": "2026-11-09T12:59:59.845Z"
+  },
+  {
+    "id": "team_shift_375017_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.910Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Inter Arab] memperoleh [N:66] poin di GW [N:10], dan naik [N:1] peringkat dari posisi [N:11] ke peringkat [N:10] sementara FNB League dengan total poin [N:672].",
+    "text_berita_en": "[T:Inter Arab] scored [N:66] points in GW [N:10], and moved up [N:1] places from position [N:11] to rank [N:10] in FNB League with [N:672] total points.",
+    "gw": 10,
+    "teams": [
+      "Inter Arab"
+    ],
+    "players": [],
+    "headline_id": "[T:Inter Arab] memperoleh [N:66] poin di GW [N:10], dan naik [N:1] peringkat dari posisi [N:11] ke peringkat [N:10] sementara FNB League dengan total poin [N:672].",
+    "headline_en": "[T:Inter Arab] scored [N:66] points in GW [N:10], and moved up [N:1] places from position [N:11] to rank [N:10] in FNB League with [N:672] total points.",
+    "timestamp": "2026-11-09T12:59:59.910Z"
+  },
+  {
+    "id": "story_6",
+    "timestamp_produksi": "2026-11-09T12:59:59.846Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Keputusan Manajer",
+    "sub_kategori": "Pilihan Kapten",
+    "drama_score": 82,
+    "poin_tayang": 0,
+    "text_berita": "[T:Yuk Bisa Yuk FC] kehilangan potensi [N:+14 Poin] karena mengkaptenkan [P:Haaland] ([C:Man City]) dibanding [P:Barry] ([C:Everton]) yang meraih poin lebih tinggi di skuadnya.",
+    "text_berita_en": "[T:Yuk Bisa Yuk FC] lost [N:+14 Points] in potential by captaining [P:Haaland] ([C:Man City]) over [P:Barry] ([C:Everton]) who scored higher in the squad.",
+    "gw": 10,
+    "teams": [
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [
+      "Haaland",
+      "Barry"
+    ],
+    "headline_id": "[T:Yuk Bisa Yuk FC] kehilangan potensi [N:+14 Poin] karena mengkaptenkan [P:Haaland] ([C:Man City]) dibanding [P:Barry] ([C:Everton]) yang meraih poin lebih tinggi di skuadnya.",
+    "headline_en": "[T:Yuk Bisa Yuk FC] lost [N:+14 Points] in potential by captaining [P:Haaland] ([C:Man City]) over [P:Barry] ([C:Everton]) who scored higher in the squad.",
+    "timestamp": "2026-11-09T12:59:59.846Z"
+  },
+  {
+    "id": "team_shift_2918457_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Sumber Bahagia Motor] memperoleh [N:55] poin di GW [N:10], dan turun [N:2] peringkat dari posisi [N:9] ke peringkat [N:11] sementara FNB League dengan total poin [N:669].",
+    "text_berita_en": "[T:Sumber Bahagia Motor] scored [N:55] points in GW [N:10], and dropped [N:2] places from position [N:9] to rank [N:11] in FNB League with [N:669] total points.",
+    "gw": 10,
+    "teams": [
+      "Sumber Bahagia Motor"
+    ],
+    "players": [],
+    "headline_id": "[T:Sumber Bahagia Motor] memperoleh [N:55] poin di GW [N:10], dan turun [N:2] peringkat dari posisi [N:9] ke peringkat [N:11] sementara FNB League dengan total poin [N:669].",
+    "headline_en": "[T:Sumber Bahagia Motor] scored [N:55] points in GW [N:10], and dropped [N:2] places from position [N:9] to rank [N:11] in FNB League with [N:669] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "story_7",
+    "timestamp_produksi": "2026-11-09T12:59:59.846Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 96,
+    "poin_tayang": 0,
+    "text_berita": "[T:A2N's Team] mengalami kejatuhan tajam dengan turun [N:21] peringkat ke posisi [N:77] klasemen sementara setelah hanya mengumpulkan [N:28] poin di pekan ini.",
+    "text_berita_en": "[T:A2N's Team] suffered a sharp fall, dropping [N:21] places to [N:77] in the provisional standings after collecting only [N:28] points this week.",
+    "gw": 10,
+    "teams": [
+      "A2N's Team"
+    ],
+    "players": [],
+    "headline_id": "[T:A2N's Team] mengalami kejatuhan tajam dengan turun [N:21] peringkat ke posisi [N:77] klasemen sementara setelah hanya mengumpulkan [N:28] poin di pekan ini.",
+    "headline_en": "[T:A2N's Team] suffered a sharp fall, dropping [N:21] places to [N:77] in the provisional standings after collecting only [N:28] points this week.",
+    "timestamp": "2026-11-09T12:59:59.846Z"
+  },
+  {
+    "id": "team_shift_5485713_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Liverbird] memperoleh [N:56] poin di GW [N:10], dan naik [N:1] peringkat dari posisi [N:15] ke peringkat [N:14] sementara FNB League dengan total poin [N:643].",
+    "text_berita_en": "[T:Liverbird] scored [N:56] points in GW [N:10], and moved up [N:1] places from position [N:15] to rank [N:14] in FNB League with [N:643] total points.",
+    "gw": 10,
+    "teams": [
+      "Liverbird"
+    ],
+    "players": [],
+    "headline_id": "[T:Liverbird] memperoleh [N:56] poin di GW [N:10], dan naik [N:1] peringkat dari posisi [N:15] ke peringkat [N:14] sementara FNB League dengan total poin [N:643].",
+    "headline_en": "[T:Liverbird] scored [N:56] points in GW [N:10], and moved up [N:1] places from position [N:15] to rank [N:14] in FNB League with [N:643] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "story_10",
+    "timestamp_produksi": "2026-11-09T12:59:59.846Z",
+    "sumber": "AI",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Keputusan Manajer",
+    "sub_kategori": "Bangku Cadangan",
+    "drama_score": 84,
+    "poin_tayang": 0,
+    "text_berita": "[P:Groß] ([C:Brighton]) tampil gemilang dengan [N:10] poin, menyebabkan [T:Ceved SC], [T:Dom Football], dan [N:4] tim lainnya menyesali keputusan mencadangkan pemain tersebut.",
+    "text_berita_en": "[P:Groß] ([C:Brighton]) performed brilliantly with [N:10] points, causing [T:Ceved SC], [T:Dom Football], and [N:4] other teams to regret benching the player.",
+    "gw": 10,
+    "teams": [
+      "Ceved SC",
+      "Dom Football"
+    ],
+    "players": [
+      "Groß"
+    ],
+    "headline_id": "[P:Groß] ([C:Brighton]) tampil gemilang dengan [N:10] poin, menyebabkan [T:Ceved SC], [T:Dom Football], dan [N:4] tim lainnya menyesali keputusan mencadangkan pemain tersebut.",
+    "headline_en": "[P:Groß] ([C:Brighton]) performed brilliantly with [N:10] points, causing [T:Ceved SC], [T:Dom Football], and [N:4] other teams to regret benching the player.",
+    "timestamp": "2026-11-09T12:59:59.846Z"
+  },
+  {
+    "id": "team_shift_4529359_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:tendangan si madun] memperoleh [N:63] poin di GW [N:10], dan naik [N:8] peringkat dari posisi [N:23] ke peringkat [N:15] sementara FNB League dengan total poin [N:637].",
+    "text_berita_en": "[T:tendangan si madun] scored [N:63] points in GW [N:10], and moved up [N:8] places from position [N:23] to rank [N:15] in FNB League with [N:637] total points.",
+    "gw": 10,
+    "teams": [
+      "tendangan si madun"
+    ],
+    "players": [],
+    "headline_id": "[T:tendangan si madun] memperoleh [N:63] poin di GW [N:10], dan naik [N:8] peringkat dari posisi [N:23] ke peringkat [N:15] sementara FNB League dengan total poin [N:637].",
+    "headline_en": "[T:tendangan si madun] scored [N:63] points in GW [N:10], and moved up [N:8] places from position [N:23] to rank [N:15] in FNB League with [N:637] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_5467140_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Sidobig City] memperoleh [N:62] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:21] ke peringkat [N:16] sementara FNB League dengan total poin [N:637].",
+    "text_berita_en": "[T:Sidobig City] scored [N:62] points in GW [N:10], and moved up [N:5] places from position [N:21] to rank [N:16] in FNB League with [N:637] total points.",
+    "gw": 10,
+    "teams": [
+      "Sidobig City"
+    ],
+    "players": [],
+    "headline_id": "[T:Sidobig City] memperoleh [N:62] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:21] ke peringkat [N:16] sementara FNB League dengan total poin [N:637].",
+    "headline_en": "[T:Sidobig City] scored [N:62] points in GW [N:10], and moved up [N:5] places from position [N:21] to rank [N:16] in FNB League with [N:637] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_658007_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Doa Ibu FC] memperoleh [N:61] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:22] ke peringkat [N:17] sementara FNB League dengan total poin [N:635].",
+    "text_berita_en": "[T:Doa Ibu FC] scored [N:61] points in GW [N:10], and moved up [N:5] places from position [N:22] to rank [N:17] in FNB League with [N:635] total points.",
+    "gw": 10,
+    "teams": [
+      "Doa Ibu FC"
+    ],
+    "players": [],
+    "headline_id": "[T:Doa Ibu FC] memperoleh [N:61] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:22] ke peringkat [N:17] sementara FNB League dengan total poin [N:635].",
+    "headline_en": "[T:Doa Ibu FC] scored [N:61] points in GW [N:10], and moved up [N:5] places from position [N:22] to rank [N:17] in FNB League with [N:635] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_687007_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:tukang andong] memperoleh [N:55] poin di GW [N:10], dan turun [N:1] peringkat dari posisi [N:17] ke peringkat [N:18] sementara FNB League dengan total poin [N:634].",
+    "text_berita_en": "[T:tukang andong] scored [N:55] points in GW [N:10], and dropped [N:1] places from position [N:17] to rank [N:18] in FNB League with [N:634] total points.",
+    "gw": 10,
+    "teams": [
+      "tukang andong"
+    ],
+    "players": [],
+    "headline_id": "[T:tukang andong] memperoleh [N:55] poin di GW [N:10], dan turun [N:1] peringkat dari posisi [N:17] ke peringkat [N:18] sementara FNB League dengan total poin [N:634].",
+    "headline_en": "[T:tukang andong] scored [N:55] points in GW [N:10], and dropped [N:1] places from position [N:17] to rank [N:18] in FNB League with [N:634] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_2670633_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Petrikor] memperoleh [N:53] poin di GW [N:10], dan turun [N:4] peringkat dari posisi [N:16] ke peringkat [N:20] sementara FNB League dengan total poin [N:633].",
+    "text_berita_en": "[T:Petrikor] scored [N:53] points in GW [N:10], and dropped [N:4] places from position [N:16] to rank [N:20] in FNB League with [N:633] total points.",
+    "gw": 10,
+    "teams": [
+      "Petrikor"
+    ],
+    "players": [],
+    "headline_id": "[T:Petrikor] memperoleh [N:53] poin di GW [N:10], dan turun [N:4] peringkat dari posisi [N:16] ke peringkat [N:20] sementara FNB League dengan total poin [N:633].",
+    "headline_en": "[T:Petrikor] scored [N:53] points in GW [N:10], and dropped [N:4] places from position [N:16] to rank [N:20] in FNB League with [N:633] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_4002271_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:saatny mutasi jabar] memperoleh [N:54] poin di GW [N:10], dan turun [N:3] peringkat dari posisi [N:19] ke peringkat [N:22] sementara FNB League dengan total poin [N:630].",
+    "text_berita_en": "[T:saatny mutasi jabar] scored [N:54] points in GW [N:10], and dropped [N:3] places from position [N:19] to rank [N:22] in FNB League with [N:630] total points.",
+    "gw": 10,
+    "teams": [
+      "saatny mutasi jabar"
+    ],
+    "players": [],
+    "headline_id": "[T:saatny mutasi jabar] memperoleh [N:54] poin di GW [N:10], dan turun [N:3] peringkat dari posisi [N:19] ke peringkat [N:22] sementara FNB League dengan total poin [N:630].",
+    "headline_en": "[T:saatny mutasi jabar] scored [N:54] points in GW [N:10], and dropped [N:3] places from position [N:19] to rank [N:22] in FNB League with [N:630] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_7466921_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Persigundul] memperoleh [N:71] poin di GW [N:10], dan naik [N:8] peringkat dari posisi [N:31] ke peringkat [N:23] sementara FNB League dengan total poin [N:627].",
+    "text_berita_en": "[T:Persigundul] scored [N:71] points in GW [N:10], and moved up [N:8] places from position [N:31] to rank [N:23] in FNB League with [N:627] total points.",
+    "gw": 10,
+    "teams": [
+      "Persigundul"
+    ],
+    "players": [],
+    "headline_id": "[T:Persigundul] memperoleh [N:71] poin di GW [N:10], dan naik [N:8] peringkat dari posisi [N:31] ke peringkat [N:23] sementara FNB League dengan total poin [N:627].",
+    "headline_en": "[T:Persigundul] scored [N:71] points in GW [N:10], and moved up [N:8] places from position [N:31] to rank [N:23] in FNB League with [N:627] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_679620_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:NFSKY Project'X] memperoleh [N:69] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:30] ke peringkat [N:25] sementara FNB League dengan total poin [N:626].",
+    "text_berita_en": "[T:NFSKY Project'X] scored [N:69] points in GW [N:10], and moved up [N:5] places from position [N:30] to rank [N:25] in FNB League with [N:626] total points.",
+    "gw": 10,
+    "teams": [
+      "NFSKY Project'X"
+    ],
+    "players": [],
+    "headline_id": "[T:NFSKY Project'X] memperoleh [N:69] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:30] ke peringkat [N:25] sementara FNB League dengan total poin [N:626].",
+    "headline_en": "[T:NFSKY Project'X] scored [N:69] points in GW [N:10], and moved up [N:5] places from position [N:30] to rank [N:25] in FNB League with [N:626] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_1248990_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Hards Win] memperoleh [N:47] poin di GW [N:10], dan turun [N:7] peringkat dari posisi [N:20] ke peringkat [N:27] sementara FNB League dengan total poin [N:622].",
+    "text_berita_en": "[T:Hards Win] scored [N:47] points in GW [N:10], and dropped [N:7] places from position [N:20] to rank [N:27] in FNB League with [N:622] total points.",
+    "gw": 10,
+    "teams": [
+      "Hards Win"
+    ],
+    "players": [],
+    "headline_id": "[T:Hards Win] memperoleh [N:47] poin di GW [N:10], dan turun [N:7] peringkat dari posisi [N:20] ke peringkat [N:27] sementara FNB League dengan total poin [N:622].",
+    "headline_en": "[T:Hards Win] scored [N:47] points in GW [N:10], and dropped [N:7] places from position [N:20] to rank [N:27] in FNB League with [N:622] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_2428185_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:De la Fuente] memperoleh [N:43] poin di GW [N:10], dan turun [N:10] peringkat dari posisi [N:18] ke peringkat [N:28] sementara FNB League dengan total poin [N:619].",
+    "text_berita_en": "[T:De la Fuente] scored [N:43] points in GW [N:10], and dropped [N:10] places from position [N:18] to rank [N:28] in FNB League with [N:619] total points.",
+    "gw": 10,
+    "teams": [
+      "De la Fuente"
+    ],
+    "players": [],
+    "headline_id": "[T:De la Fuente] memperoleh [N:43] poin di GW [N:10], dan turun [N:10] peringkat dari posisi [N:18] ke peringkat [N:28] sementara FNB League dengan total poin [N:619].",
+    "headline_en": "[T:De la Fuente] scored [N:43] points in GW [N:10], and dropped [N:10] places from position [N:18] to rank [N:28] in FNB League with [N:619] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_2025408_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Carbela FC] memperoleh [N:73] poin di GW [N:10], dan naik [N:9] peringkat dari posisi [N:38] ke peringkat [N:29] sementara FNB League dengan total poin [N:619].",
+    "text_berita_en": "[T:Carbela FC] scored [N:73] points in GW [N:10], and moved up [N:9] places from position [N:38] to rank [N:29] in FNB League with [N:619] total points.",
+    "gw": 10,
+    "teams": [
+      "Carbela FC"
+    ],
+    "players": [],
+    "headline_id": "[T:Carbela FC] memperoleh [N:73] poin di GW [N:10], dan naik [N:9] peringkat dari posisi [N:38] ke peringkat [N:29] sementara FNB League dengan total poin [N:619].",
+    "headline_en": "[T:Carbela FC] scored [N:73] points in GW [N:10], and moved up [N:9] places from position [N:38] to rank [N:29] in FNB League with [N:619] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_7449475_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Supplier KDMP] memperoleh [N:63] poin di GW [N:10], dan naik [N:2] peringkat dari posisi [N:32] ke peringkat [N:30] sementara FNB League dengan total poin [N:617].",
+    "text_berita_en": "[T:Supplier KDMP] scored [N:63] points in GW [N:10], and moved up [N:2] places from position [N:32] to rank [N:30] in FNB League with [N:617] total points.",
+    "gw": 10,
+    "teams": [
+      "Supplier KDMP"
+    ],
+    "players": [],
+    "headline_id": "[T:Supplier KDMP] memperoleh [N:63] poin di GW [N:10], dan naik [N:2] peringkat dari posisi [N:32] ke peringkat [N:30] sementara FNB League dengan total poin [N:617].",
+    "headline_en": "[T:Supplier KDMP] scored [N:63] points in GW [N:10], and moved up [N:2] places from position [N:32] to rank [N:30] in FNB League with [N:617] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_3775991_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:PS MC Timur] memperoleh [N:77] poin di GW [N:10], dan naik [N:11] peringkat dari posisi [N:42] ke peringkat [N:31] sementara FNB League dengan total poin [N:615].",
+    "text_berita_en": "[T:PS MC Timur] scored [N:77] points in GW [N:10], and moved up [N:11] places from position [N:42] to rank [N:31] in FNB League with [N:615] total points.",
+    "gw": 10,
+    "teams": [
+      "PS MC Timur"
+    ],
+    "players": [],
+    "headline_id": "[T:PS MC Timur] memperoleh [N:77] poin di GW [N:10], dan naik [N:11] peringkat dari posisi [N:42] ke peringkat [N:31] sementara FNB League dengan total poin [N:615].",
+    "headline_en": "[T:PS MC Timur] scored [N:77] points in GW [N:10], and moved up [N:11] places from position [N:42] to rank [N:31] in FNB League with [N:615] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_3174289_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:PENDOEL SELECTION] memperoleh [N:52] poin di GW [N:10], dan turun [N:4] peringkat dari posisi [N:28] ke peringkat [N:32] sementara FNB League dengan total poin [N:614].",
+    "text_berita_en": "[T:PENDOEL SELECTION] scored [N:52] points in GW [N:10], and dropped [N:4] places from position [N:28] to rank [N:32] in FNB League with [N:614] total points.",
+    "gw": 10,
+    "teams": [
+      "PENDOEL SELECTION"
+    ],
+    "players": [],
+    "headline_id": "[T:PENDOEL SELECTION] memperoleh [N:52] poin di GW [N:10], dan turun [N:4] peringkat dari posisi [N:28] ke peringkat [N:32] sementara FNB League dengan total poin [N:614].",
+    "headline_en": "[T:PENDOEL SELECTION] scored [N:52] points in GW [N:10], and dropped [N:4] places from position [N:28] to rank [N:32] in FNB League with [N:614] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_716175_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Prabu Belgeduwelbeh] memperoleh [N:57] poin di GW [N:10], dan turun [N:6] peringkat dari posisi [N:27] ke peringkat [N:33] sementara FNB League dengan total poin [N:613].",
+    "text_berita_en": "[T:Prabu Belgeduwelbeh] scored [N:57] points in GW [N:10], and dropped [N:6] places from position [N:27] to rank [N:33] in FNB League with [N:613] total points.",
+    "gw": 10,
+    "teams": [
+      "Prabu Belgeduwelbeh"
+    ],
+    "players": [],
+    "headline_id": "[T:Prabu Belgeduwelbeh] memperoleh [N:57] poin di GW [N:10], dan turun [N:6] peringkat dari posisi [N:27] ke peringkat [N:33] sementara FNB League dengan total poin [N:613].",
+    "headline_en": "[T:Prabu Belgeduwelbeh] scored [N:57] points in GW [N:10], and dropped [N:6] places from position [N:27] to rank [N:33] in FNB League with [N:613] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_5500676_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Thor] memperoleh [N:66] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:39] ke peringkat [N:34] sementara FNB League dengan total poin [N:612].",
+    "text_berita_en": "[T:Thor] scored [N:66] points in GW [N:10], and moved up [N:5] places from position [N:39] to rank [N:34] in FNB League with [N:612] total points.",
+    "gw": 10,
+    "teams": [
+      "Thor"
+    ],
+    "players": [],
+    "headline_id": "[T:Thor] memperoleh [N:66] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:39] ke peringkat [N:34] sementara FNB League dengan total poin [N:612].",
+    "headline_en": "[T:Thor] scored [N:66] points in GW [N:10], and moved up [N:5] places from position [N:39] to rank [N:34] in FNB League with [N:612] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_634373_gw10",
+    "timestamp_produksi": "2026-11-09T12:59:59.911Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Tim Holland] yang menggunakan [N:FH] memperoleh [N:61] poin di GW [N:10], dan turun [N:1] peringkat dari posisi [N:34] ke peringkat [N:35] sementara FNB League dengan total poin [N:611].",
+    "text_berita_en": "[T:Tim Holland] using [N:FH] scored [N:61] points in GW [N:10], and dropped [N:1] places from position [N:34] to rank [N:35] in FNB League with [N:611] total points.",
+    "gw": 10,
+    "teams": [
+      "Tim Holland"
+    ],
+    "players": [],
+    "headline_id": "[T:Tim Holland] yang menggunakan [N:FH] memperoleh [N:61] poin di GW [N:10], dan turun [N:1] peringkat dari posisi [N:34] ke peringkat [N:35] sementara FNB League dengan total poin [N:611].",
+    "headline_en": "[T:Tim Holland] using [N:FH] scored [N:61] points in GW [N:10], and dropped [N:1] places from position [N:34] to rank [N:35] in FNB League with [N:611] total points.",
+    "timestamp": "2026-11-09T12:59:59.911Z"
+  },
+  {
+    "id": "team_shift_3174540_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.103Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Persaingan 3 Besar",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Always Ready] memperoleh [N:81] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:8] ke peringkat [N:3] sementara FNB League dengan total poin [N:699].",
+    "text_berita_en": "[T:Always Ready] scored [N:81] points in GW [N:10], and moved up [N:5] places from position [N:8] to rank [N:3] in FNB League with [N:699] total points.",
+    "gw": 10,
+    "teams": [
+      "Always Ready"
+    ],
+    "players": [],
+    "headline_id": "[T:Always Ready] memperoleh [N:81] poin di GW [N:10], dan naik [N:5] peringkat dari posisi [N:8] ke peringkat [N:3] sementara FNB League dengan total poin [N:699].",
+    "headline_en": "[T:Always Ready] scored [N:81] points in GW [N:10], and moved up [N:5] places from position [N:8] to rank [N:3] in FNB League with [N:699] total points.",
+    "timestamp": "2026-11-09T13:05:36.103Z"
+  },
+  {
+    "id": "fb_climb_Tolyam074_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:Tolyam074] naik [N:+14 Peringkat] ke posisi [N:53] klasemen sementara.",
+    "text_berita_en": "[T:Tolyam074] moved up [N:+14 Places] to rank [N:53] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "Tolyam074"
+    ],
+    "players": [],
+    "headline_id": "[T:Tolyam074] naik [N:+14 Peringkat] ke posisi [N:53] klasemen sementara.",
+    "headline_en": "[T:Tolyam074] moved up [N:+14 Places] to rank [N:53] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_gwc_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Gelar & Juara",
+    "sub_kategori": "Juara Gameweek",
+    "drama_score": 95,
+    "poin_tayang": 0,
+    "text_berita": "[T:Rajo's Team] yang menggunakan [N:TC] memimpin perolehan poin sementara Juara Gameweek [N:10] FNB League dengan raihan sementara [N:85] poin, ditopang [P:Vuskovic] yang menyumbang [N:12] poin. (hasil sementara).",
+    "text_berita_en": "[T:Rajo's Team] using [N:TC] leads the provisional Gameweek [N:10] Champion race with [N:85] temporary points, led by [P:Vuskovic] who contributed [N:12] points.",
+    "gw": 10,
+    "teams": [
+      "Rajo's Team"
+    ],
+    "players": [
+      "Vuskovic"
+    ],
+    "headline_id": "[T:Rajo's Team] yang menggunakan [N:TC] memimpin perolehan poin sementara Juara Gameweek [N:10] FNB League dengan raihan sementara [N:85] poin, ditopang [P:Vuskovic] yang menyumbang [N:12] poin. (hasil sementara).",
+    "headline_en": "[T:Rajo's Team] using [N:TC] leads the provisional Gameweek [N:10] Champion race with [N:85] temporary points, led by [P:Vuskovic] who contributed [N:12] points.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_climb_CQMY_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:CQMY] naik [N:+13 Peringkat] ke posisi [N:44] klasemen sementara.",
+    "text_berita_en": "[T:CQMY] moved up [N:+13 Places] to rank [N:44] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "CQMY"
+    ],
+    "players": [],
+    "headline_id": "[T:CQMY] naik [N:+13 Peringkat] ke posisi [N:44] klasemen sementara.",
+    "headline_en": "[T:CQMY] moved up [N:+13 Places] to rank [N:44] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_r1_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.005Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Puncak Klasemen",
+    "drama_score": 92,
+    "poin_tayang": 0,
+    "text_berita": "[T:Yuk Bisa Yuk FC] menempati peringkat [N:1] klasemen sementara FNB League hingga GW [N:10] saat ini dengan total sementara [N:733] poin, unggul [N:19] poin atas [T:PSIS FC] (hasil sementara).",
+    "text_berita_en": "[T:Yuk Bisa Yuk FC] holds provisional rank [N:1] on the FNB League table through GW [N:10] with [N:733] temporary points, leading by [N:19] points over [T:PSIS FC].",
+    "gw": 10,
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [],
+    "headline_id": "[T:Yuk Bisa Yuk FC] menempati peringkat [N:1] klasemen sementara FNB League hingga GW [N:10] saat ini dengan total sementara [N:733] poin, unggul [N:19] poin atas [T:PSIS FC] (hasil sementara).",
+    "headline_en": "[T:Yuk Bisa Yuk FC] holds provisional rank [N:1] on the FNB League table through GW [N:10] with [N:733] temporary points, leading by [N:19] points over [T:PSIS FC].",
+    "timestamp": "2026-11-09T13:05:36.005Z"
+  },
+  {
+    "id": "fb_climb_PS MC Timur_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:PS MC Timur] naik [N:+11 Peringkat] ke posisi [N:31] klasemen sementara.",
+    "text_berita_en": "[T:PS MC Timur] moved up [N:+11 Places] to rank [N:31] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "PS MC Timur"
+    ],
+    "players": [],
+    "headline_id": "[T:PS MC Timur] naik [N:+11 Peringkat] ke posisi [N:31] klasemen sementara.",
+    "headline_en": "[T:PS MC Timur] moved up [N:+11 Places] to rank [N:31] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_r2_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Gelar & Juara",
+    "sub_kategori": "Runner-Up Klasemen",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:PSIS FC] menempati peringkat [N:2] klasemen sementara FNB League hingga GW [N:10] saat ini dengan raihan sementara [N:714] poin, terpaut [N:19] poin dari [T:Yuk Bisa Yuk FC] (hasil sementara).",
+    "text_berita_en": "[T:PSIS FC] holds provisional rank [N:2] on the FNB League table through GW [N:10] with [N:714] temporary points, trailing [T:Yuk Bisa Yuk FC] by [N:19] points.",
+    "gw": 10,
+    "teams": [
+      "PSIS FC",
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [],
+    "headline_id": "[T:PSIS FC] menempati peringkat [N:2] klasemen sementara FNB League hingga GW [N:10] saat ini dengan raihan sementara [N:714] poin, terpaut [N:19] poin dari [T:Yuk Bisa Yuk FC] (hasil sementara).",
+    "headline_en": "[T:PSIS FC] holds provisional rank [N:2] on the FNB League table through GW [N:10] with [N:714] temporary points, trailing [T:Yuk Bisa Yuk FC] by [N:19] points.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_climb_Mahendraw_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:Mahendraw] naik [N:+11 Peringkat] ke posisi [N:54] klasemen sementara.",
+    "text_berita_en": "[T:Mahendraw] moved up [N:+11 Places] to rank [N:54] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "Mahendraw"
+    ],
+    "players": [],
+    "headline_id": "[T:Mahendraw] naik [N:+11 Peringkat] ke posisi [N:54] klasemen sementara.",
+    "headline_en": "[T:Mahendraw] moved up [N:+11 Places] to rank [N:54] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_player_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Pergeseran Klasemen",
+    "drama_score": 97,
+    "poin_tayang": 0,
+    "text_berita": "[P:Raya] ([C:Arsenal]) mengumpulkan [N:6] poin sementara di Gameweek [N:10].",
+    "text_berita_en": "[P:Raya] ([C:Arsenal]) collected [N:6] provisional points in Gameweek [N:10].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Raya"
+    ],
+    "headline_id": "[P:Raya] ([C:Arsenal]) mengumpulkan [N:6] poin sementara di Gameweek [N:10].",
+    "headline_en": "[P:Raya] ([C:Arsenal]) collected [N:6] provisional points in Gameweek [N:10].",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_fall_A2N's Team_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:A2N's Team] turun [N:-21 Peringkat] ke posisi [N:77] klasemen sementara.",
+    "text_berita_en": "[T:A2N's Team] moved down [N:-21 Places] to rank [N:77] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "A2N's Team"
+    ],
+    "players": [],
+    "headline_id": "[T:A2N's Team] turun [N:-21 Peringkat] ke posisi [N:77] klasemen sementara.",
+    "headline_en": "[T:A2N's Team] moved down [N:-21 Places] to rank [N:77] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_bench_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Keputusan Manajer",
+    "sub_kategori": "Bangku Cadangan",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:Yuk Bisa Yuk FC] memiliki [N:20] poin di bangku cadangan dari [P:Verbruggen] ([C:Brighton]).",
+    "text_berita_en": "[T:Yuk Bisa Yuk FC] has [N:20] points on the bench from [P:Verbruggen] ([C:Brighton]).",
+    "gw": 10,
+    "teams": [
+      "Yuk Bisa Yuk FC"
+    ],
+    "players": [
+      "Verbruggen"
+    ],
+    "headline_id": "[T:Yuk Bisa Yuk FC] memiliki [N:20] poin di bangku cadangan dari [P:Verbruggen] ([C:Brighton]).",
+    "headline_en": "[T:Yuk Bisa Yuk FC] has [N:20] points on the bench from [P:Verbruggen] ([C:Brighton]).",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_fall_Ceved SC_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:Ceved SC] turun [N:-20 Peringkat] ke posisi [N:45] klasemen sementara.",
+    "text_berita_en": "[T:Ceved SC] moved down [N:-20 Places] to rank [N:45] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "Ceved SC"
+    ],
+    "players": [],
+    "headline_id": "[T:Ceved SC] turun [N:-20 Peringkat] ke posisi [N:45] klasemen sementara.",
+    "headline_en": "[T:Ceved SC] moved down [N:-20 Places] to rank [N:45] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "team_shift_6579868_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.104Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Dom Football] memperoleh [N:43] poin di GW [N:10], dan turun [N:5] peringkat dari posisi [N:14] ke peringkat [N:19] sementara FNB League dengan total poin [N:633].",
+    "text_berita_en": "[T:Dom Football] scored [N:43] points in GW [N:10], and dropped [N:5] places from position [N:14] to rank [N:19] in FNB League with [N:633] total points.",
+    "gw": 10,
+    "teams": [
+      "Dom Football"
+    ],
+    "players": [],
+    "headline_id": "[T:Dom Football] memperoleh [N:43] poin di GW [N:10], dan turun [N:5] peringkat dari posisi [N:14] ke peringkat [N:19] sementara FNB League dengan total poin [N:633].",
+    "headline_en": "[T:Dom Football] scored [N:43] points in GW [N:10], and dropped [N:5] places from position [N:14] to rank [N:19] in FNB League with [N:633] total points.",
+    "timestamp": "2026-11-09T13:05:36.104Z"
+  },
+  {
+    "id": "fb_fall_amenk wenger_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:amenk wenger] turun [N:-15 Peringkat] ke posisi [N:64] klasemen sementara.",
+    "text_berita_en": "[T:amenk wenger] moved down [N:-15 Places] to rank [N:64] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "amenk wenger"
+    ],
+    "players": [],
+    "headline_id": "[T:amenk wenger] turun [N:-15 Peringkat] ke posisi [N:64] klasemen sementara.",
+    "headline_en": "[T:amenk wenger] moved down [N:-15 Places] to rank [N:64] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "fb_fall_De la Fuente_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:De la Fuente] turun [N:-10 Peringkat] ke posisi [N:28] klasemen sementara.",
+    "text_berita_en": "[T:De la Fuente] moved down [N:-10 Places] to rank [N:28] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "De la Fuente"
+    ],
+    "players": [],
+    "headline_id": "[T:De la Fuente] turun [N:-10 Peringkat] ke posisi [N:28] klasemen sementara.",
+    "headline_en": "[T:De la Fuente] moved down [N:-10 Places] to rank [N:28] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "team_shift_8377149_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.105Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Lonjakan Peringkat",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:Anti Koruptor Laknat] yang menggunakan [N:TC] memperoleh [N:74] poin di GW [N:10], dan naik [N:8] peringkat dari posisi [N:29] ke peringkat [N:21] sementara FNB League dengan total poin [N:632].",
+    "text_berita_en": "[T:Anti Koruptor Laknat] using [N:TC] scored [N:74] points in GW [N:10], and moved up [N:8] places from position [N:29] to rank [N:21] in FNB League with [N:632] total points.",
+    "gw": 10,
+    "teams": [
+      "Anti Koruptor Laknat"
+    ],
+    "players": [],
+    "headline_id": "[T:Anti Koruptor Laknat] yang menggunakan [N:TC] memperoleh [N:74] poin di GW [N:10], dan naik [N:8] peringkat dari posisi [N:29] ke peringkat [N:21] sementara FNB League dengan total poin [N:632].",
+    "headline_en": "[T:Anti Koruptor Laknat] using [N:TC] scored [N:74] points in GW [N:10], and moved up [N:8] places from position [N:29] to rank [N:21] in FNB League with [N:632] total points.",
+    "timestamp": "2026-11-09T13:05:36.105Z"
+  },
+  {
+    "id": "fb_fall_Denay FC_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.007Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Penurunan Peringkat",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:Denay FC] turun [N:-10 Peringkat] ke posisi [N:47] klasemen sementara.",
+    "text_berita_en": "[T:Denay FC] moved down [N:-10 Places] to rank [N:47] in provisional standings.",
+    "gw": 10,
+    "teams": [
+      "Denay FC"
+    ],
+    "players": [],
+    "headline_id": "[T:Denay FC] turun [N:-10 Peringkat] ke posisi [N:47] klasemen sementara.",
+    "headline_en": "[T:Denay FC] moved down [N:-10 Places] to rank [N:47] in provisional standings.",
+    "timestamp": "2026-11-09T13:05:36.007Z"
+  },
+  {
+    "id": "team_shift_3769462_gw10",
+    "timestamp_produksi": "2026-11-09T13:05:36.105Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Klasemen & Peringkat",
+    "sub_kategori": "Pergeseran Klasemen",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[T:FornasPengawasan] yang menggunakan [N:BB] memperoleh [N:69] poin di GW [N:10], dan tertahan di peringkat [N:24] sementara FNB League dengan total poin [N:627].",
+    "text_berita_en": "[T:FornasPengawasan] using [N:BB] scored [N:69] points in GW [N:10], and holds rank [N:24] in provisional FNB League table with [N:627] total points.",
+    "gw": 10,
+    "teams": [
+      "FornasPengawasan"
+    ],
+    "players": [],
+    "headline_id": "[T:FornasPengawasan] yang menggunakan [N:BB] memperoleh [N:69] poin di GW [N:10], dan tertahan di peringkat [N:24] sementara FNB League dengan total poin [N:627].",
+    "headline_en": "[T:FornasPengawasan] using [N:BB] scored [N:69] points in GW [N:10], and holds rank [N:24] in provisional FNB League table with [N:627] total points.",
+    "timestamp": "2026-11-09T13:05:36.105Z"
+  },
+  {
+    "id": "pulse_129021_ps_1",
+    "timestamp_produksi": "2026-11-09T13:10:33.362Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match"
+    ],
+    "kategori": "Period Control",
+    "sub_kategori": "Period Start",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[N:0'] Kickoff babak pertama. Pertandingan Gameweek [N:10] antara [C:Nottingham Forest] menghadapi [C:Manchester City] resmi dimulai di [N:The City Ground].",
+    "text_berita_en": "[N:0'] First half kicks off. Gameweek [N:10] match between [C:Nottingham Forest] vs [C:Manchester City] is underway at [N:The City Ground].",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [],
+    "headline_id": "[N:0'] Kickoff babak pertama. Pertandingan Gameweek [N:10] antara [C:Nottingham Forest] menghadapi [C:Manchester City] resmi dimulai di [N:The City Ground].",
+    "headline_en": "[N:0'] First half kicks off. Gameweek [N:10] match between [C:Nottingham Forest] vs [C:Manchester City] is underway at [N:The City Ground].",
+    "timestamp": "2026-11-09T13:10:33.362Z"
+  },
+  {
+    "id": "pulse_129021_goal_1_304238",
+    "timestamp_produksi": "2026-11-09T13:10:33.364Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Scoring Events",
+    "sub_kategori": "Goal",
+    "drama_score": 95,
+    "poin_tayang": 0,
+    "text_berita": "[N:6'] Gol untuk [C:Nottingham Forest]. [P:Jair Cunha] ([N:0%]) mencetak gol. Skor: [C:Nottingham Forest] [N:1] - [N:0] [C:Manchester City].",
+    "text_berita_en": "[N:6'] Goal for [C:Nottingham Forest]. [P:Jair Cunha] ([N:0%]) scores. Score: [C:Nottingham Forest] [N:1] - [N:0] [C:Manchester City].",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Jair Cunha"
+    ],
+    "headline_id": "[N:6'] Gol untuk [C:Nottingham Forest]. [P:Jair Cunha] ([N:0%]) mencetak gol. Skor: [C:Nottingham Forest] [N:1] - [N:0] [C:Manchester City].",
+    "headline_en": "[N:6'] Goal for [C:Nottingham Forest]. [P:Jair Cunha] ([N:0%]) scores. Score: [C:Nottingham Forest] [N:1] - [N:0] [C:Manchester City].",
+    "timestamp": "2026-11-09T13:10:33.364Z"
+  },
+  {
+    "id": "pulse_129021_goal_2_51813",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Scoring Events",
+    "sub_kategori": "Goal",
+    "drama_score": 95,
+    "poin_tayang": 0,
+    "text_berita": "[N:18'] Gol untuk [C:Nottingham Forest]. [P:Delap] ([N:0%]) mencetak gol setelah menerima umpan dari [P:Schlager] ([N:0%]). Skor: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "text_berita_en": "[N:18'] Goal for [C:Nottingham Forest]. [P:Delap] ([N:0%]) scores assisted by [P:Schlager] ([N:0%]). Score: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Delap",
+      "Schlager"
+    ],
+    "headline_id": "[N:18'] Gol untuk [C:Nottingham Forest]. [P:Delap] ([N:0%]) mencetak gol setelah menerima umpan dari [P:Schlager] ([N:0%]). Skor: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "headline_en": "[N:18'] Goal for [C:Nottingham Forest]. [P:Delap] ([N:0%]) scores assisted by [P:Schlager] ([N:0%]). Score: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_pe_1",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Period Control",
+    "sub_kategori": "Period End",
+    "drama_score": 92,
+    "poin_tayang": 0,
+    "text_berita": "[N:45+3'] Peluit jeda babak pertama di [N:The City Ground]. Skor sementara: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "text_berita_en": "[N:45+3'] Half time at [N:The City Ground]. [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [],
+    "headline_id": "[N:45+3'] Peluit jeda babak pertama di [N:The City Ground]. Skor sementara: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "headline_en": "[N:45+3'] Half time at [N:The City Ground]. [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_sub_4_112948",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Substitutions",
+    "sub_kategori": "Substitution",
+    "drama_score": 70,
+    "poin_tayang": 0,
+    "text_berita": "[N:45'] Pergantian pemain [C:Manchester City]: [P:O'Reilly] ([N:2%]) masuk menggantikan [P:Gvardiol] ([N:22%]).",
+    "text_berita_en": "[N:45'] Substitution for [C:Manchester City]: [P:O'Reilly] ([N:2%]) comes on replacing [P:Gvardiol] ([N:22%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "O'Reilly",
+      "Gvardiol"
+    ],
+    "headline_id": "[N:45'] Pergantian pemain [C:Manchester City]: [P:O'Reilly] ([N:2%]) masuk menggantikan [P:Gvardiol] ([N:22%]).",
+    "headline_en": "[N:45'] Substitution for [C:Manchester City]: [P:O'Reilly] ([N:2%]) comes on replacing [P:Gvardiol] ([N:22%]).",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_sub_6_76204",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Substitutions",
+    "sub_kategori": "Substitution",
+    "drama_score": 70,
+    "poin_tayang": 0,
+    "text_berita": "[N:45'] Pergantian pemain [C:Manchester City]: [P:Matheus N.] ([N:0%]) masuk menggantikan [P:Guéhi] ([N:13%]).",
+    "text_berita_en": "[N:45'] Substitution for [C:Manchester City]: [P:Matheus N.] ([N:0%]) comes on replacing [P:Guéhi] ([N:13%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Matheus N.",
+      "Guéhi"
+    ],
+    "headline_id": "[N:45'] Pergantian pemain [C:Manchester City]: [P:Matheus N.] ([N:0%]) masuk menggantikan [P:Guéhi] ([N:13%]).",
+    "headline_en": "[N:45'] Substitution for [C:Manchester City]: [P:Matheus N.] ([N:0%]) comes on replacing [P:Guéhi] ([N:13%]).",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_ps_2",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match"
+    ],
+    "kategori": "Period Control",
+    "sub_kategori": "Period Start",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[N:45'] Kickoff babak kedua di [N:The City Ground]. Skor sementara: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "text_berita_en": "[N:45'] Second half kicks off between [C:Nottingham Forest] vs [C:Manchester City] at [N:The City Ground]. Score: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [],
+    "headline_id": "[N:45'] Kickoff babak kedua di [N:The City Ground]. Skor sementara: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "headline_en": "[N:45'] Second half kicks off between [C:Nottingham Forest] vs [C:Manchester City] at [N:The City Ground]. Score: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_goal_9_68150",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Scoring Events",
+    "sub_kategori": "Goal",
+    "drama_score": 95,
+    "poin_tayang": 0,
+    "text_berita": "[N:52'] Gol untuk [C:Manchester City]. [P:Cherki] ([N:31%]) mencetak gol. Skor: [C:Nottingham Forest] [N:2] - [N:1] [C:Manchester City].",
+    "text_berita_en": "[N:52'] Goal for [C:Manchester City]. [P:Cherki] ([N:31%]) scores. Score: [C:Nottingham Forest] [N:2] - [N:1] [C:Manchester City].",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Cherki"
+    ],
+    "headline_id": "[N:52'] Gol untuk [C:Manchester City]. [P:Cherki] ([N:31%]) mencetak gol. Skor: [C:Nottingham Forest] [N:2] - [N:1] [C:Manchester City].",
+    "headline_en": "[N:52'] Goal for [C:Manchester City]. [P:Cherki] ([N:31%]) scores. Score: [C:Nottingham Forest] [N:2] - [N:1] [C:Manchester City].",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_card_b_10_49270",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Disciplinary Events",
+    "sub_kategori": "Yellow Card",
+    "drama_score": 75,
+    "poin_tayang": 0,
+    "text_berita": "[N:64'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:McAtee] ([N:0%]).",
+    "text_berita_en": "[N:64'] Yellow card. The referee books [C:Nottingham Forest] player [P:McAtee] ([N:0%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "McAtee"
+    ],
+    "headline_id": "[N:64'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:McAtee] ([N:0%]).",
+    "headline_en": "[N:64'] Yellow card. The referee books [C:Nottingham Forest] player [P:McAtee] ([N:0%]).",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_sub_11_50623",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Substitutions",
+    "sub_kategori": "Substitution",
+    "drama_score": 70,
+    "poin_tayang": 0,
+    "text_berita": "[N:65'] Pergantian pemain [C:Nottingham Forest]: [P:Ndoye] ([N:0%]) masuk menggantikan [P:McAtee] ([N:0%]).",
+    "text_berita_en": "[N:65'] Substitution for [C:Nottingham Forest]: [P:Ndoye] ([N:0%]) comes on replacing [P:McAtee] ([N:0%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Ndoye",
+      "McAtee"
+    ],
+    "headline_id": "[N:65'] Pergantian pemain [C:Nottingham Forest]: [P:Ndoye] ([N:0%]) masuk menggantikan [P:McAtee] ([N:0%]).",
+    "headline_en": "[N:65'] Substitution for [C:Nottingham Forest]: [P:Ndoye] ([N:0%]) comes on replacing [P:McAtee] ([N:0%]).",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_sub_13_76426",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Substitutions",
+    "sub_kategori": "Substitution",
+    "drama_score": 70,
+    "poin_tayang": 0,
+    "text_berita": "[N:65'] Pergantian pemain [C:Nottingham Forest]: [P:Muñoz] ([N:1%]) ditarik keluar dan digantikan oleh [P:Netz] ([N:0%]) setelah mencatat 60 menit bermain tanpa kebobolan.",
+    "text_berita_en": "[N:65'] Substitution for [C:Nottingham Forest]: [P:Muñoz] ([N:1%]) is substituted for [P:Netz] ([N:0%]) with clean sheet locked.",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Netz",
+      "Muñoz"
+    ],
+    "headline_id": "[N:65'] Pergantian pemain [C:Nottingham Forest]: [P:Muñoz] ([N:1%]) ditarik keluar dan digantikan oleh [P:Netz] ([N:0%]) setelah mencatat 60 menit bermain tanpa kebobolan.",
+    "headline_en": "[N:65'] Substitution for [C:Nottingham Forest]: [P:Muñoz] ([N:1%]) is substituted for [P:Netz] ([N:0%]) with clean sheet locked.",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_card_b_15_50623",
+    "timestamp_produksi": "2026-11-09T13:10:33.365Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Disciplinary Events",
+    "sub_kategori": "Yellow Card",
+    "drama_score": 75,
+    "poin_tayang": 0,
+    "text_berita": "[N:69'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Ndoye] ([N:0%]).",
+    "text_berita_en": "[N:69'] Yellow card. The referee books [C:Nottingham Forest] player [P:Ndoye] ([N:0%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Ndoye"
+    ],
+    "headline_id": "[N:69'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Ndoye] ([N:0%]).",
+    "headline_en": "[N:69'] Yellow card. The referee books [C:Nottingham Forest] player [P:Ndoye] ([N:0%]).",
+    "timestamp": "2026-11-09T13:10:33.365Z"
+  },
+  {
+    "id": "pulse_129021_goal_16_51813",
+    "timestamp_produksi": "2026-11-09T13:10:33.366Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Scoring Events",
+    "sub_kategori": "Goal",
+    "drama_score": 95,
+    "poin_tayang": 0,
+    "text_berita": "[N:73'] Gol untuk [C:Nottingham Forest]. [P:Delap] ([N:0%]) mencetak gol setelah menerima umpan dari [P:Gibbs-White] ([N:6%]). Skor: [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City].",
+    "text_berita_en": "[N:73'] Goal for [C:Nottingham Forest]. [P:Delap] ([N:0%]) scores assisted by [P:Gibbs-White] ([N:6%]). Score: [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City].",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Delap",
+      "Gibbs-White"
+    ],
+    "headline_id": "[N:73'] Gol untuk [C:Nottingham Forest]. [P:Delap] ([N:0%]) mencetak gol setelah menerima umpan dari [P:Gibbs-White] ([N:6%]). Skor: [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City].",
+    "headline_en": "[N:73'] Goal for [C:Nottingham Forest]. [P:Delap] ([N:0%]) scores assisted by [P:Gibbs-White] ([N:6%]). Score: [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City].",
+    "timestamp": "2026-11-09T13:10:33.366Z"
+  },
+  {
+    "id": "pulse_129021_sub_17_14805",
+    "timestamp_produksi": "2026-11-09T13:10:33.366Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Substitutions",
+    "sub_kategori": "Substitution",
+    "drama_score": 70,
+    "poin_tayang": 0,
+    "text_berita": "[N:78'] Pergantian pemain [C:Manchester City]: [P:Foden] ([N:2%]) masuk menggantikan [P:Enzo] ([N:0%]).",
+    "text_berita_en": "[N:78'] Substitution for [C:Manchester City]: [P:Foden] ([N:2%]) comes on replacing [P:Enzo] ([N:0%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Foden",
+      "Enzo"
+    ],
+    "headline_id": "[N:78'] Pergantian pemain [C:Manchester City]: [P:Foden] ([N:2%]) masuk menggantikan [P:Enzo] ([N:0%]).",
+    "headline_en": "[N:78'] Substitution for [C:Manchester City]: [P:Foden] ([N:2%]) comes on replacing [P:Enzo] ([N:0%]).",
+    "timestamp": "2026-11-09T13:10:33.366Z"
+  },
+  {
+    "id": "pulse_129021_sub_19_108816",
+    "timestamp_produksi": "2026-11-09T13:10:33.366Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Substitutions",
+    "sub_kategori": "Substitution",
+    "drama_score": 70,
+    "poin_tayang": 0,
+    "text_berita": "[N:79'] Pergantian pemain [C:Nottingham Forest]: [P:I.Sangaré] ([N:1%]) masuk menggantikan [P:Yates] ([N:0%]).",
+    "text_berita_en": "[N:79'] Substitution for [C:Nottingham Forest]: [P:I.Sangaré] ([N:1%]) comes on replacing [P:Yates] ([N:0%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "I.Sangaré",
+      "Yates"
+    ],
+    "headline_id": "[N:79'] Pergantian pemain [C:Nottingham Forest]: [P:I.Sangaré] ([N:1%]) masuk menggantikan [P:Yates] ([N:0%]).",
+    "headline_en": "[N:79'] Substitution for [C:Nottingham Forest]: [P:I.Sangaré] ([N:1%]) comes on replacing [P:Yates] ([N:0%]).",
+    "timestamp": "2026-11-09T13:10:33.366Z"
+  },
+  {
+    "id": "pulse_129021_sub_21_304123",
+    "timestamp_produksi": "2026-11-09T13:10:33.366Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Substitutions",
+    "sub_kategori": "Substitution",
+    "drama_score": 70,
+    "poin_tayang": 0,
+    "text_berita": "[N:87'] Pergantian pemain [C:Nottingham Forest]: [P:Igor Jesus] ([N:0%]) masuk menggantikan [P:Delap] ([N:0%]).",
+    "text_berita_en": "[N:87'] Substitution for [C:Nottingham Forest]: [P:Igor Jesus] ([N:0%]) comes on replacing [P:Delap] ([N:0%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Igor Jesus",
+      "Delap"
+    ],
+    "headline_id": "[N:87'] Pergantian pemain [C:Nottingham Forest]: [P:Igor Jesus] ([N:0%]) masuk menggantikan [P:Delap] ([N:0%]).",
+    "headline_en": "[N:87'] Substitution for [C:Nottingham Forest]: [P:Igor Jesus] ([N:0%]) comes on replacing [P:Delap] ([N:0%]).",
+    "timestamp": "2026-11-09T13:10:33.366Z"
+  },
+  {
+    "id": "pulse_129021_card_b_23_76426",
+    "timestamp_produksi": "2026-11-09T13:10:33.366Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Disciplinary Events",
+    "sub_kategori": "Yellow Card",
+    "drama_score": 75,
+    "poin_tayang": 0,
+    "text_berita": "[N:90+4'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Netz] ([N:0%]).",
+    "text_berita_en": "[N:90+4'] Yellow card. The referee books [C:Nottingham Forest] player [P:Netz] ([N:0%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Netz"
+    ],
+    "headline_id": "[N:90+4'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Netz] ([N:0%]).",
+    "headline_en": "[N:90+4'] Yellow card. The referee books [C:Nottingham Forest] player [P:Netz] ([N:0%]).",
+    "timestamp": "2026-11-09T13:10:33.366Z"
+  },
+  {
+    "id": "pulse_129021_card_b_24_304123",
+    "timestamp_produksi": "2026-11-09T13:10:33.366Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Disciplinary Events",
+    "sub_kategori": "Yellow Card",
+    "drama_score": 75,
+    "poin_tayang": 0,
+    "text_berita": "[N:90+5'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Igor Jesus] ([N:0%]).",
+    "text_berita_en": "[N:90+5'] Yellow card. The referee books [C:Nottingham Forest] player [P:Igor Jesus] ([N:0%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Igor Jesus"
+    ],
+    "headline_id": "[N:90+5'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Igor Jesus] ([N:0%]).",
+    "headline_en": "[N:90+5'] Yellow card. The referee books [C:Nottingham Forest] player [P:Igor Jesus] ([N:0%]).",
+    "timestamp": "2026-11-09T13:10:33.366Z"
+  },
+  {
+    "id": "pulse_129021_pe_2",
+    "timestamp_produksi": "2026-11-09T13:10:33.366Z",
+    "sumber": "Bukan",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "waktu_tayang": [
+      "Live Match",
+      "Between Match",
+      "Provisional",
+      "Confirmed"
+    ],
+    "kategori": "Period Control",
+    "sub_kategori": "Period End",
+    "drama_score": 92,
+    "poin_tayang": 0,
+    "text_berita": "[N:90+6'] Peluit panjang akhir laga di [N:The City Ground]. Hasil akhir: [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City]. Pencetak gol: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Gol)], [P:Cherki] ([N:31%]).",
+    "text_berita_en": "[N:90+6'] Full time at [N:The City Ground]. [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City]. Goalscorers: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Gol)], [P:Cherki] ([N:31%]).",
+    "gw": 10,
+    "teams": [
+      "Nottingham Forest",
+      "Manchester City"
+    ],
+    "players": [
+      "Jair Cunha",
+      "Delap",
+      "Cherki"
+    ],
+    "headline_id": "[N:90+6'] Peluit panjang akhir laga di [N:The City Ground]. Hasil akhir: [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City]. Pencetak gol: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Gol)], [P:Cherki] ([N:31%]).",
+    "headline_en": "[N:90+6'] Full time at [N:The City Ground]. [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City]. Goalscorers: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Gol)], [P:Cherki] ([N:31%]).",
+    "timestamp": "2026-11-09T13:10:33.366Z"
   }
 ]

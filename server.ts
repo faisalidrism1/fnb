@@ -1263,7 +1263,8 @@ app.get('/api/db/sync', handleDbSync);
 app.get('/api/news-ticker/feed', async (req, res) => {
   try {
     const force = req.query.refresh === '1' || req.query.force === '1';
-    const feed = await generateNewsTickerFeed(force);
+    const phase = req.query.phase ? String(req.query.phase) : undefined;
+    const feed = await generateNewsTickerFeed(force, phase);
     res.json(feed);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
@@ -1274,8 +1275,9 @@ app.get('/api/news-ticker/feed', async (req, res) => {
 app.get('/api/admin/news-ticker', (req, res) => {
   try {
     const forceRefresh = req.query.refresh === '1';
-    if (forceRefresh) {
-      rebuildNewsTickerTable();
+    const phase = req.query.phase ? String(req.query.phase) : undefined;
+    if (forceRefresh || phase) {
+      rebuildNewsTickerTable(phase);
     }
 
     const search = req.query.search ? String(req.query.search) : undefined;
@@ -1321,11 +1323,66 @@ app.get('/api/admin/phase1-templates', (req, res) => {
   }
 });
 
-// 1b. Get Real League Data Preview for Phase 1 templates
-app.get('/api/admin/phase1-templates/real-preview', (req, res) => {
+// 1b. Get Real League Data Preview for Phase 1 & Live Match templates
+app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
   try {
     const stories = generatePhase1Stories();
+    
+    // Also include live match preview stories from Pulse API (using GW 10 match 129021 Nottingham Forest vs Man City)
+    try {
+      const { fetchPulseMatch, generateStoriesFromPulseMatch } = await import('./src/server/pulseMatchStoryGenerator.ts');
+      const pulseData = await fetchPulseMatch(129021);
+      if (pulseData) {
+        const liveStories = generateStoriesFromPulseMatch(pulseData, 10);
+        // Map to story format
+        for (const ls of liveStories) {
+          stories.push({
+            id: ls.id,
+            headline_id: ls.headline_id,
+            headline_en: ls.headline_en,
+            kategori: ls.kategori,
+            sub_kategori: ls.sub_kategori,
+            drama_score: ls.drama_score,
+            waktu_tayang: ls.waktu_tayang,
+            gw: ls.gw,
+            teams: ls.teams,
+            players: ls.players,
+            sumber: ls.sumber,
+            status_tayang: ls.status_tayang,
+            keterangan_tidak_tayang: ls.keterangan_tidak_tayang,
+          } as any);
+        }
+      }
+    } catch (err: any) {
+      console.warn('[Admin Editor] Could not fetch Pulse match preview:', err.message);
+    }
+
     res.json({ success: true, count: stories.length, data: stories });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 1c. Live Pulse Match Events Generator Endpoint
+app.get('/api/admin/phase1-templates/pulse-live', async (req, res) => {
+  try {
+    const matchId = req.query.matchId ? Number(req.query.matchId) : 129021;
+    const gw = req.query.gw ? Number(req.query.gw) : 10;
+    const { fetchPulseMatch, generateStoriesFromPulseMatch } = await import('./src/server/pulseMatchStoryGenerator.ts');
+    const pulseData = await fetchPulseMatch(matchId);
+    if (!pulseData) {
+      return res.status(404).json({ success: false, error: `Match ${matchId} not found in Pulse API` });
+    }
+    const stories = generateStoriesFromPulseMatch(pulseData, gw);
+    res.json({
+      success: true,
+      matchId,
+      gw,
+      matchName: `${pulseData.teams?.[0]?.team?.name} vs ${pulseData.teams?.[1]?.team?.name}`,
+      totalEvents: pulseData.events?.length || 0,
+      generatedStoriesCount: stories.length,
+      data: stories
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
