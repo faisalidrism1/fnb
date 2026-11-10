@@ -245,16 +245,16 @@ export const Header: React.FC<HeaderProps> = ({
   } else if (activeTab === 'ADMIN') {
     subTabs = [
       {
-        id: 'news-ticker',
-        label: 'News Ticker',
-        onClick: () => onSelectAdminSubTab?.('news-ticker'),
-        isActive: adminSubTab === 'news-ticker',
-      },
-      {
         id: 'editor',
         label: 'Editor',
         onClick: () => onSelectAdminSubTab?.('editor'),
         isActive: adminSubTab === 'editor',
+      },
+      {
+        id: 'news-ticker',
+        label: 'News Ticker',
+        onClick: () => onSelectAdminSubTab?.('news-ticker'),
+        isActive: adminSubTab === 'news-ticker',
       },
     ];
   }

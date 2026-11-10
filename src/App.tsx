@@ -157,7 +157,7 @@ export default function App() {
   const [ownershipSubTab, setOwnershipSubTab] = useState<OwnershipSubTab>('most-owned-players');
   const [transferSubTab, setTransferSubTab] = useState<TransferSubTab>('all-transfers');
   const [captainSubTab, setCaptainSubTab] = useState<CaptainSubTab>('most-captained-player');
-  const [adminSubTab, setAdminSubTab] = useState<AdminSubTab>('news-ticker');
+  const [adminSubTab, setAdminSubTab] = useState<AdminSubTab>('editor');
   const [selectedGW, setSelectedGW] = useState<number>(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [lastCheckedTime, setLastCheckedTime] = useState<string | null>(null);

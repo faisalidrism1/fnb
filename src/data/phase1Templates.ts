@@ -3,10 +3,14 @@ import path from 'path';
 
 export interface Phase1TemplateItem {
   no: number;
+  gw?: number;
   id: string;
+  timestamp?: string;
+  source?: 'Bukan' | 'Sys' | string;
   gw_phase: string;
   category: string;
   subcategory: string;
+  output?: 'SINGLE-NEWS' | 'MULTI-NEWS' | string;
   template: string; // Teks template narasi (mendukung varian kondisi bila ada)
   example: string;  // Otomatis ter-update mengikuti template
   code: string;     // Murni logika teknis tanpa hardcoded narasi
@@ -1238,8 +1242,13 @@ switch (event.subType) {
 ];
 
 export function getPhase1Templates(): Phase1TemplateItem[] {
+  const defaultTimestamp = new Date().toISOString();
   const baseDefaults = DEFAULT_PHASE1_TEMPLATES.map((def) => ({
     ...def,
+    gw: def.gw || 10,
+    timestamp: def.timestamp || def.updated_at || defaultTimestamp,
+    source: def.source || 'Sys',
+    output: (def.gw_phase === 'Live Match' || def.id === 'P1_INJURY_UPDATE' || def.subcategory === 'Flagged Players') ? 'MULTI-NEWS' : 'SINGLE-NEWS',
     example: interpolateExample(def.template, def.sample_data),
   }));
 
@@ -1252,9 +1261,20 @@ export function getPhase1Templates(): Phase1TemplateItem[] {
           const custom = parsed.find((p: any) => p.id === def.id || p.no === def.no);
           if (custom) {
             const tmpl = custom.template || def.template;
+            const gwPhase = custom.gw_phase || def.gw_phase;
+            const isLive = (gwPhase || '').trim().toLowerCase() === 'live match';
+            const resolvedOutput = isLive
+              ? 'MULTI-NEWS'
+              : (custom.output || def.output || ((def.id === 'P1_INJURY_UPDATE' || def.subcategory === 'Flagged Players') ? 'MULTI-NEWS' : 'SINGLE-NEWS'));
+
             return {
               ...def,
               ...custom,
+              gw_phase: gwPhase,
+              output: resolvedOutput,
+              gw: Number(custom.gw) || def.gw || 10,
+              timestamp: custom.timestamp || custom.updated_at || def.timestamp || defaultTimestamp,
+              source: custom.source || def.source || 'Sys',
               template: tmpl,
               example: custom.example || interpolateExample(tmpl, custom.sample_data || def.sample_data),
             };
@@ -1271,8 +1291,20 @@ export function getPhase1Templates(): Phase1TemplateItem[] {
 
 export function savePhase1Templates(items: Phase1TemplateItem[]): boolean {
   try {
+    const saveTime = new Date().toISOString();
+    const enriched = items.map((item) => {
+      const isLive = (item.gw_phase || '').trim().toLowerCase() === 'live match';
+      return {
+        ...item,
+        output: isLive ? 'MULTI-NEWS' : (item.output || 'SINGLE-NEWS'),
+        gw: Number(item.gw) || 10,
+        timestamp: item.timestamp || item.updated_at || saveTime,
+        source: item.source || 'Sys',
+        updated_at: saveTime,
+      };
+    });
     fs.mkdirSync(path.dirname(TEMPLATES_FILE_PATH), { recursive: true });
-    fs.writeFileSync(TEMPLATES_FILE_PATH, JSON.stringify(items, null, 2), 'utf-8');
+    fs.writeFileSync(TEMPLATES_FILE_PATH, JSON.stringify(enriched, null, 2), 'utf-8');
     return true;
   } catch (err: any) {
     console.error('[Phase1Templates] Failed to save templates:', err);

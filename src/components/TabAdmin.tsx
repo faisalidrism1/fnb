@@ -31,11 +31,7 @@ type SortColumn =
   | 'source'
   | 'status'
   | 'reason'
-  | 'not_started'
-  | 'live_match'
-  | 'between_match'
-  | 'provisional'
-  | 'confirmed'
+  | 'phase'
   | 'category'
   | 'subcategory'
   | 'drama'
@@ -71,6 +67,7 @@ const TabAdminNewsTable: React.FC = () => {
   // Filters state
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedGw, setSelectedGw] = useState<string>('ALL');
+  const [selectedPhase, setSelectedPhase] = useState<string>('ALL');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
@@ -190,11 +187,6 @@ const TabAdminNewsTable: React.FC = () => {
     }
   };
 
-  // Check if item has a specific airing phase
-  const hasPhase = (row: NewsTickerDbRow, phase: string): boolean => {
-    return Array.isArray(row.waktu_tayang) && row.waktu_tayang.includes(phase);
-  };
-
   // Helper to render text with entity syntax tags ([T:Team], [P:Player], [C:Club], [N:Number])
   const renderFormattedHeadline = (text: string) => {
     if (!text) return null;
@@ -309,6 +301,37 @@ const TabAdminNewsTable: React.FC = () => {
     return Array.from(set).sort();
   }, [newsRows, selectedCategory]);
 
+  // Unique Phases for dropdown filter
+  const phasesList = useMemo(() => {
+    const defaultPhases = ['Not started', 'Live Match', 'Between Match', 'Provisional', 'Confirmed'];
+    const set = new Set<string>(defaultPhases);
+    newsRows.forEach((r) => {
+      if (r.fase) set.add(r.fase);
+    });
+    return Array.from(set);
+  }, [newsRows]);
+
+  // Badge classes for Gameweek Phase
+  const getPhaseBadgeClasses = (phase?: string) => {
+    const p = (phase || '').toLowerCase();
+    if (p === 'live match' || p === 'live') {
+      return 'inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-black bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60';
+    }
+    if (p === 'not started') {
+      return 'inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60';
+    }
+    if (p === 'between match') {
+      return 'inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60';
+    }
+    if (p === 'provisional') {
+      return 'inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-purple-100 dark:bg-purple-950/80 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60';
+    }
+    if (p === 'confirmed') {
+      return 'inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-black bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60';
+    }
+    return 'inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
+  };
+
   // Handle column header sort click
   const handleSort = (col: SortColumn) => {
     if (sortColumn === col) {
@@ -344,27 +367,39 @@ const TabAdminNewsTable: React.FC = () => {
         return false;
       }
 
-      // 2. Category filter
+      // 2. Phase filter
+      if (selectedPhase !== 'ALL' && (row.fase || '').toLowerCase() !== selectedPhase.toLowerCase()) {
+        return false;
+      }
+
+      // 3. Category filter
       if (selectedCategory !== 'ALL' && row.kategori !== selectedCategory) {
         return false;
       }
 
-      // 3. Subcategory filter
+      // 4. Subcategory filter
       if (selectedSubcategory !== 'ALL' && row.sub_kategori !== selectedSubcategory) {
         return false;
       }
 
-      // 4. Status filter
+      // 5. Status filter
       if (selectedStatus !== 'ALL' && row.status_tayang !== selectedStatus) {
         return false;
       }
 
-      // 5. Source filter
-      if (selectedSource !== 'ALL' && row.sumber !== selectedSource) {
-        return false;
+      // 6. Source filter
+      if (selectedSource !== 'ALL') {
+        const isSysRow = row.sumber === 'Sys' || row.id.startsWith('P1_') || row.id.startsWith('p1_') || row.id.startsWith('LM_') || row.id.startsWith('lm_') || row.id.startsWith('live_score_');
+        if (selectedSource === 'Sys') {
+          if (!isSysRow) return false;
+        } else if (selectedSource === 'AI') {
+          if (row.sumber !== 'AI') return false;
+        } else {
+          if (isSysRow || row.sumber !== selectedSource) return false;
+        }
       }
 
-      // 4. Search filter
+      // 7. Search filter
       if (searchTerm.trim()) {
         const q = searchTerm.toLowerCase().trim();
         const matchesId = row.id.toLowerCase().includes(q);
@@ -372,10 +407,11 @@ const TabAdminNewsTable: React.FC = () => {
         const matchesTextEn = (row.text_berita_en || '').toLowerCase().includes(q);
         const matchesSub = row.sub_kategori.toLowerCase().includes(q);
         const matchesGw = String(row.gw || '').includes(q);
+        const matchesPhase = (row.fase || '').toLowerCase().includes(q);
         const matchesTeam = (row.teams || []).some((t) => t.toLowerCase().includes(q));
         const matchesPlayer = (row.players || []).some((p) => p.toLowerCase().includes(q));
 
-        if (!matchesId && !matchesTextId && !matchesTextEn && !matchesSub && !matchesGw && !matchesTeam && !matchesPlayer) {
+        if (!matchesId && !matchesTextId && !matchesTextEn && !matchesSub && !matchesGw && !matchesPhase && !matchesTeam && !matchesPlayer) {
           return false;
         }
       }
@@ -406,20 +442,8 @@ const TabAdminNewsTable: React.FC = () => {
         case 'reason':
           comparison = (a.keterangan_tidak_tayang || '').localeCompare(b.keterangan_tidak_tayang || '');
           break;
-        case 'not_started':
-          comparison = (hasPhase(a, 'Not started') ? 1 : 0) - (hasPhase(b, 'Not started') ? 1 : 0);
-          break;
-        case 'live_match':
-          comparison = (hasPhase(a, 'Live Match') ? 1 : 0) - (hasPhase(b, 'Live Match') ? 1 : 0);
-          break;
-        case 'between_match':
-          comparison = (hasPhase(a, 'Between Match') ? 1 : 0) - (hasPhase(b, 'Between Match') ? 1 : 0);
-          break;
-        case 'provisional':
-          comparison = (hasPhase(a, 'Provisional') ? 1 : 0) - (hasPhase(b, 'Provisional') ? 1 : 0);
-          break;
-        case 'confirmed':
-          comparison = (hasPhase(a, 'Confirmed') ? 1 : 0) - (hasPhase(b, 'Confirmed') ? 1 : 0);
+        case 'phase':
+          comparison = (a.fase || '').localeCompare(b.fase || '');
           break;
         case 'category':
           comparison = a.kategori.localeCompare(b.kategori);
@@ -446,12 +470,12 @@ const TabAdminNewsTable: React.FC = () => {
 
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [newsRows, selectedGw, selectedCategory, selectedSubcategory, selectedStatus, selectedSource, searchTerm, sortColumn, sortDirection, displayLanguage]);
+  }, [newsRows, selectedGw, selectedPhase, selectedCategory, selectedSubcategory, selectedStatus, selectedSource, searchTerm, sortColumn, sortDirection, displayLanguage]);
 
   // Reset pagination on filter change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedGw, selectedCategory, selectedSubcategory, selectedStatus, selectedSource, searchTerm, pageSize, sortColumn, sortDirection]);
+  }, [selectedGw, selectedPhase, selectedCategory, selectedSubcategory, selectedStatus, selectedSource, searchTerm, pageSize, sortColumn, sortDirection]);
 
   // Paginated rows
   const paginatedRows = useMemo(() => {
@@ -601,6 +625,20 @@ const TabAdminNewsTable: React.FC = () => {
             ))}
           </select>
 
+          {/* Phase Filter */}
+          <select
+            value={selectedPhase}
+            onChange={(e) => setSelectedPhase(e.target.value)}
+            className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+          >
+            <option value="ALL">All Phases</option>
+            {phasesList.map((ph) => (
+              <option key={ph} value={ph}>
+                {ph}
+              </option>
+            ))}
+          </select>
+
           {/* Category Filter */}
           <select
             value={selectedCategory}
@@ -650,8 +688,9 @@ const TabAdminNewsTable: React.FC = () => {
             className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
           >
             <option value="ALL">All Sources</option>
+            <option value="Sys">Sys (Editor Template)</option>
             <option value="AI">AI</option>
-            <option value="Bukan">System</option>
+            <option value="Bukan">Bukan</option>
           </select>
 
           {/* Page size select */}
@@ -668,12 +707,15 @@ const TabAdminNewsTable: React.FC = () => {
           </select>
 
           {/* Reset Filters button */}
-          {(searchTerm || selectedCategory !== 'ALL' || selectedStatus !== 'ALL' || selectedSource !== 'ALL') && (
+          {(searchTerm || selectedGw !== 'ALL' || selectedPhase !== 'ALL' || selectedCategory !== 'ALL' || selectedSubcategory !== 'ALL' || selectedStatus !== 'ALL' || selectedSource !== 'ALL') && (
             <button
               type="button"
               onClick={() => {
                 setSearchTerm('');
+                setSelectedGw('ALL');
+                setSelectedPhase('ALL');
                 setSelectedCategory('ALL');
+                setSelectedSubcategory('ALL');
                 setSelectedStatus('ALL');
                 setSelectedSource('ALL');
               }}
@@ -804,59 +846,15 @@ const TabAdminNewsTable: React.FC = () => {
                     </div>
                   </th>
 
-                  {/* 5 Distinct Airing Phase Checklist Columns */}
+                  {/* Gameweek Phase */}
                   <th
-                    onClick={() => handleSort('not_started')}
-                    className="py-2.5 px-2 w-24 text-center cursor-pointer hover:bg-slate-200 dark:hover:bg-purple-950 transition-colors whitespace-nowrap group border-l border-slate-200 dark:border-purple-900/40"
-                    title="Sort by Not Started Checklist"
+                    onClick={() => handleSort('phase')}
+                    className="py-2.5 px-2.5 min-w-[120px] cursor-pointer hover:bg-slate-200 dark:hover:bg-purple-950 transition-colors whitespace-nowrap group"
+                    title="Sort by Gameweek Phase"
                   >
-                    <div className="flex items-center justify-center">
-                      <span>Not Started</span>
-                      {renderSortIndicator('not_started')}
-                    </div>
-                  </th>
-
-                  <th
-                    onClick={() => handleSort('live_match')}
-                    className="py-2.5 px-2 w-24 text-center cursor-pointer hover:bg-slate-200 dark:hover:bg-purple-950 transition-colors whitespace-nowrap group"
-                    title="Sort by Live Match Checklist"
-                  >
-                    <div className="flex items-center justify-center">
-                      <span>Live Match</span>
-                      {renderSortIndicator('live_match')}
-                    </div>
-                  </th>
-
-                  <th
-                    onClick={() => handleSort('between_match')}
-                    className="py-2.5 px-2 w-28 text-center cursor-pointer hover:bg-slate-200 dark:hover:bg-purple-950 transition-colors whitespace-nowrap group"
-                    title="Sort by Between Match Checklist"
-                  >
-                    <div className="flex items-center justify-center">
-                      <span>Between Match</span>
-                      {renderSortIndicator('between_match')}
-                    </div>
-                  </th>
-
-                  <th
-                    onClick={() => handleSort('provisional')}
-                    className="py-2.5 px-2 w-24 text-center cursor-pointer hover:bg-slate-200 dark:hover:bg-purple-950 transition-colors whitespace-nowrap group"
-                    title="Sort by Provisional Checklist"
-                  >
-                    <div className="flex items-center justify-center">
-                      <span>Provisional</span>
-                      {renderSortIndicator('provisional')}
-                    </div>
-                  </th>
-
-                  <th
-                    onClick={() => handleSort('confirmed')}
-                    className="py-2.5 px-2 w-24 text-center cursor-pointer hover:bg-slate-200 dark:hover:bg-purple-950 transition-colors whitespace-nowrap group border-r border-slate-200 dark:border-purple-900/40"
-                    title="Sort by Confirmed Checklist"
-                  >
-                    <div className="flex items-center justify-center">
-                      <span>Confirmed</span>
-                      {renderSortIndicator('confirmed')}
+                    <div className="flex items-center">
+                      <span>Phase</span>
+                      {renderSortIndicator('phase')}
                     </div>
                   </th>
 
@@ -971,9 +969,13 @@ const TabAdminNewsTable: React.FC = () => {
                             <Sparkles className="w-2.5 h-2.5" />
                             AI
                           </span>
-                        ) : (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                        ) : (row.sumber === 'Sys' || row.id.startsWith('P1_') || row.id.startsWith('p1_') || row.id.startsWith('LM_') || row.id.startsWith('lm_') || row.id.startsWith('live_score_')) ? (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
                             Sys
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            {row.sumber || 'Bukan'}
                           </span>
                         )}
                       </td>
@@ -1002,49 +1004,11 @@ const TabAdminNewsTable: React.FC = () => {
                         )}
                       </td>
 
-                      {/* 8. Airing Phase Checklist: Not Started */}
-                      <td className="py-2 px-2 text-center whitespace-nowrap border-l border-slate-100 dark:border-purple-900/30">
-                        {hasPhase(row, 'Not started') ? (
-                          <span className="text-emerald-600 dark:text-[#00ff87] font-black text-xs">✓</span>
-                        ) : (
-                          <span className="text-slate-300 dark:text-slate-700 select-none">-</span>
-                        )}
-                      </td>
-
-                      {/* 9. Airing Phase Checklist: Live Match */}
-                      <td className="py-2 px-2 text-center whitespace-nowrap">
-                        {hasPhase(row, 'Live Match') ? (
-                          <span className="text-emerald-600 dark:text-[#00ff87] font-black text-xs">✓</span>
-                        ) : (
-                          <span className="text-slate-300 dark:text-slate-700 select-none">-</span>
-                        )}
-                      </td>
-
-                      {/* 10. Airing Phase Checklist: Between Match */}
-                      <td className="py-2 px-2 text-center whitespace-nowrap">
-                        {hasPhase(row, 'Between Match') ? (
-                          <span className="text-emerald-600 dark:text-[#00ff87] font-black text-xs">✓</span>
-                        ) : (
-                          <span className="text-slate-300 dark:text-slate-700 select-none">-</span>
-                        )}
-                      </td>
-
-                      {/* 11. Airing Phase Checklist: Provisional */}
-                      <td className="py-2 px-2 text-center whitespace-nowrap">
-                        {hasPhase(row, 'Provisional') ? (
-                          <span className="text-emerald-600 dark:text-[#00ff87] font-black text-xs">✓</span>
-                        ) : (
-                          <span className="text-slate-300 dark:text-slate-700 select-none">-</span>
-                        )}
-                      </td>
-
-                      {/* 12. Airing Phase Checklist: Confirmed */}
-                      <td className="py-2 px-2 text-center whitespace-nowrap border-r border-slate-100 dark:border-purple-900/30">
-                        {hasPhase(row, 'Confirmed') ? (
-                          <span className="text-emerald-600 dark:text-[#00ff87] font-black text-xs">✓</span>
-                        ) : (
-                          <span className="text-slate-300 dark:text-slate-700 select-none">-</span>
-                        )}
+                      {/* 8. Phase */}
+                      <td className="py-2 px-2.5 whitespace-nowrap">
+                        <span className={getPhaseBadgeClasses(row.fase)}>
+                          {row.fase || '-'}
+                        </span>
                       </td>
 
                       {/* 13. Category */}
@@ -1155,9 +1119,9 @@ const TabAdminNewsTable: React.FC = () => {
   );
 };
 
-export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'news-ticker', onSelectSubTab }) => {
-  if (subTab === 'editor') {
-    return <TabAdminEditor />;
+export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'editor', onSelectSubTab }) => {
+  if (subTab === 'news-ticker') {
+    return <TabAdminNewsTable />;
   }
-  return <TabAdminNewsTable />;
+  return <TabAdminEditor />;
 };

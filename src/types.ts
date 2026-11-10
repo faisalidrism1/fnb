@@ -715,9 +715,10 @@ export interface NewsFormulaItem {
 export interface NewsTickerDbRow {
   id: string;
   timestamp_produksi: string;
-  sumber: 'AI' | 'Bukan';
+  sumber: 'AI' | 'Sys' | 'Bukan' | string;
   status_tayang: 'Y' | 'N';
   keterangan_tidak_tayang: string;
+  fase: string;
   waktu_tayang: string[];
   kategori: string;
   sub_kategori: string;

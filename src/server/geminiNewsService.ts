@@ -31,7 +31,7 @@ export interface NewsTickerStory {
   headline_en: string;
   drama_score: number;
   timestamp_produksi?: string;
-  sumber?: 'AI' | 'Bukan';
+  sumber?: 'AI' | 'Sys' | 'Bukan' | string;
   status_tayang?: 'Y' | 'N';
   keterangan_tidak_tayang?: string;
   waktu_tayang?: string[];
@@ -55,7 +55,7 @@ export function toNewsTickerStory(
     drama_score?: number;
     timestamp_produksi?: string;
     timestamp?: string;
-    sumber?: 'AI' | 'Bukan';
+    sumber?: 'AI' | 'Sys' | 'Bukan' | string;
     status_tayang?: 'Y' | 'N';
     keterangan_tidak_tayang?: string;
     gw?: number;

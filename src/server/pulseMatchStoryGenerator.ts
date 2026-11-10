@@ -267,12 +267,29 @@ export async function fetchPulseMatch(matchId: number): Promise<any | null> {
 
 /**
  * Loads all active Live Match stories generated from the Subtab Editor Live Match templates.
+ * Supports multi-match: scans all pulse_match_*.json files in src/data.
  */
 export async function getAllLiveMatchStories(gw = 10): Promise<LiveMatchStory[]> {
   try {
-    const pulseData = await fetchPulseMatch(129021);
-    if (!pulseData) return [];
-    return generateStoriesFromPulseMatch(pulseData, gw);
+    const dataDir = path.join(process.cwd(), 'src/data');
+    const allStories: LiveMatchStory[] = [];
+    if (fs.existsSync(dataDir)) {
+      const matchFiles = fs.readdirSync(dataDir).filter(f => f.startsWith('pulse_match_') && f.endsWith('.json'));
+      for (const file of matchFiles) {
+        try {
+          const content = JSON.parse(fs.readFileSync(path.join(dataDir, file), 'utf-8'));
+          const stories = generateStoriesFromPulseMatch(content, gw);
+          allStories.push(...stories);
+        } catch {}
+      }
+    }
+    if (allStories.length === 0) {
+      const pulseData = await fetchPulseMatch(129021);
+      if (pulseData) {
+        return generateStoriesFromPulseMatch(pulseData, gw);
+      }
+    }
+    return allStories;
   } catch (err: any) {
     console.warn('[Pulse Match Generator] Error in getAllLiveMatchStories:', err.message);
     return [];
@@ -378,20 +395,20 @@ export function generateStoriesFromPulseMatch(
       players: string[],
       clockSecs: number
     ): LiveMatchStory => ({
-      id: storyId,
+      id: `${tmpl.id}_${storyId}`,
       headline_id: headlineId,
       headline_en: headlineEn,
       kategori: tmpl.category,
       sub_kategori: tmpl.subcategory,
       drama_score: dramaScore,
       waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Live Match'],
-      gw,
+      gw: Number(tmpl.gw) || gw,
       teams,
       players,
-      sumber: 'Bukan',
+      sumber: (tmpl.source as any) || 'Bukan',
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
-      timestamp_produksi: new Date().toISOString(),
+      timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
       pulseMatchId: matchId,
       minute: minuteStr,
       clockSecs,

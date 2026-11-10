@@ -35,7 +35,7 @@ interface GeneratedPhase1Story {
   gw: number;
   teams: string[];
   players: string[];
-  sumber: 'Bukan';
+  sumber: 'Sys' | 'Bukan' | string;
   status_tayang: 'Y' | 'N';
   keterangan_tidak_tayang: string;
   poin_tayang?: number;
@@ -650,10 +650,8 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               player_out: wcTransfers.player_out,
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
-              ...sample,
-              gw: currentGw,
-            });
+            // Tidak ada tim yang mengaktifkan Wildcard pada GW ini -> tidak menghasilkan berita
+            filledHeadline = '';
           }
           break;
         }
@@ -692,10 +690,8 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               player_out: fhTransfers.player_out,
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
-              ...sample,
-              gw: currentGw,
-            });
+            // Tidak ada tim yang mengaktifkan Free Hit pada GW ini -> tidak menghasilkan berita
+            filledHeadline = '';
           }
           break;
         }
@@ -730,11 +726,8 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               player_bench: bbBenchPlayer,
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
-              ...sample,
-              player_bench: bbBenchPlayer,
-              gw: currentGw,
-            });
+            // Tidak ada tim yang mengaktifkan Bench Boost pada GW ini -> tidak menghasilkan berita
+            filledHeadline = '';
           }
           break;
         }
@@ -776,12 +769,8 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               others_clause: rawTcTeams.length > 2 ? `, sementara [N:${rawTcTeams.length - 2}] tim lainnya memilih opsi kapten berbeda` : '',
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
-              ...sample,
-              captain: dynamicCaptain,
-              dominant_captain: dynamicCaptain,
-              gw: currentGw,
-            });
+            // Tidak ada tim yang mengaktifkan Triple Captain pada GW ini -> tidak menghasilkan berita
+            filledHeadline = '';
           }
           break;
         }
@@ -832,7 +821,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               count2: sortedIn[1][1],
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '', sample);
+            filledHeadline = '';
           }
           break;
         }
@@ -856,7 +845,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               count2: sortedOut[1][1],
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '', sample);
+            filledHeadline = '';
           }
           break;
         }
@@ -889,7 +878,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               others_clause: othersCount > 0 ? `, sementara [N:${othersCount}] tim lainnya memilih kapten alternatif` : '',
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '', sample);
+            filledHeadline = '';
           }
           break;
         }
@@ -932,7 +921,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               teams_with_hits: formatted,
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '', sample);
+            filledHeadline = '';
           }
           break;
         }
@@ -948,7 +937,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               pct2: ownPlayers[1].ownership || ownPlayers[1].percentage || sample.pct2,
             });
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, '', sample);
+            filledHeadline = '';
           }
           break;
         }
@@ -1038,14 +1027,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
           }
 
           if (!filledHeadline) {
-            filledHeadline = renderTemplateBranch(tmpl.template, '2 pemain', {
-              team: sample.team || 'Kuda Hitam',
-              gw: currentGw,
-              player1: sample.player1 || 'Kluivert',
-              pct1: sample.pct1 || '3',
-              player2: sample.player2 || 'Welbeck',
-              pct2: sample.pct2 || '4',
-            });
+            filledHeadline = '';
           }
           break;
         }
@@ -1099,12 +1081,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
           }
 
           if (!filledHeadline) {
-            filledHeadline = renderTemplateBranch(tmpl.template, 'kapten eksklusif', {
-              team: sample.team || 'Sunda Kelapa',
-              captain: sample.captain || 'Bowen',
-              gw: currentGw,
-              pickers_count: sample.pickers_count || '2',
-            });
+            filledHeadline = '';
           }
           break;
         }
@@ -1129,20 +1106,20 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               });
               const slug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
               return {
-                id: `p1_injury_${slug}_gw${currentGw}`,
+                id: `${tmpl.id}_${slug}`,
                 headline_id: headline,
                 headline_en: headline,
                 kategori: tmpl.category,
                 sub_kategori: tmpl.subcategory,
                 drama_score: item.isOut ? 88 : 84,
                 waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
-                gw: currentGw,
+                gw: Number(tmpl.gw) || currentGw,
                 teams: extractTagNames(headline, 'T'),
                 players: extractTagNames(headline, 'P'),
-                sumber: 'Bukan',
+                sumber: 'Sys',
                 status_tayang: isGwNotStarted ? 'Y' : 'N',
                 keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
-                timestamp_produksi: new Date().toISOString(),
+                timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
                 // Metadata untuk multi-tier sorting poin tayang
                 _flaggedMeta: {
                   id: item.id,
@@ -1152,32 +1129,8 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 },
               } as any;
             });
-          } else {
-            const headlineAsc = renderTemplateBranch(tmpl.template, 'dipastikan absen', {
-              owners_count: sample.owners_count || 35,
-              player: sample.player || 'João Pedro',
-              club: sample.club || 'CHE',
-              injury_desc: sample.injury_desc || 'cedera paha',
-              gw: currentGw,
-            });
-            flaggedAscStories.push({
-              id: `p1_injury_sample_gw${currentGw}`,
-              headline_id: headlineAsc,
-              headline_en: headlineAsc,
-              kategori: tmpl.category,
-              sub_kategori: tmpl.subcategory,
-              drama_score: 88,
-              waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
-              gw: currentGw,
-              teams: extractTagNames(headlineAsc, 'T'),
-              players: extractTagNames(headlineAsc, 'P'),
-              sumber: 'Bukan',
-              status_tayang: isGwNotStarted ? 'Y' : 'N',
-              keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
-              timestamp_produksi: new Date().toISOString(),
-              _flaggedMeta: { id: 9999, chance: 0, ownersCount: 35, cost: 60 },
-            } as any);
           }
+          // Jika tidak ada pemain cedera/sanksi post-deadline -> tidak ada berita
           break;
         }
 
@@ -1257,10 +1210,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               });
             }
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
-              ...sample,
-              gw: currentGw,
-            });
+            filledHeadline = '';
           }
           break;
         }
@@ -1340,16 +1290,13 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               });
             }
           } else {
-            filledHeadline = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
-              ...sample,
-              gw: currentGw,
-            });
+            filledHeadline = '';
           }
           break;
         }
 
         default:
-          filledHeadline = renderTemplateBranch(tmpl.template, '', sample);
+          filledHeadline = '';
           break;
       }
 
@@ -1358,20 +1305,20 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
         const players = extractTagNames(filledHeadline, 'P');
 
         storiesByTemplateId.set(tmpl.id, {
-          id: `p1_${tmpl.id.toLowerCase()}_gw${currentGw}`,
+          id: tmpl.id,
           headline_id: filledHeadline,
           headline_en: filledHeadline, // Clean English/Indonesian format
           kategori: tmpl.category,
           sub_kategori: tmpl.subcategory,
           drama_score: 82 + (tmpl.no % 8),
           waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
-          gw: currentGw,
+          gw: Number(tmpl.gw) || currentGw,
           teams,
           players,
-          sumber: 'Bukan',
+          sumber: 'Sys',
           status_tayang: isGwNotStarted ? 'Y' : 'N',
           keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
-          timestamp_produksi: new Date().toISOString(),
+          timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
         });
       }
     } catch (err: any) {

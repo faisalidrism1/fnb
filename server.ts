@@ -38,7 +38,10 @@ import {
 import {
   queryNewsTickerTable,
   rebuildNewsTickerTable,
-  getNewsTickerTable
+  getNewsTickerTable,
+  incrementPoinTayang,
+  getCurrentGw,
+  getGameweekPhase
 } from './src/server/newsTickerTableService.ts';
 import {
   getRegisteredFormulas,
@@ -1259,13 +1262,59 @@ const handleDbSync = async (req: express.Request, res: express.Response) => {
 app.post('/api/db/sync', handleDbSync);
 app.get('/api/db/sync', handleDbSync);
 
-// Endpoint News Ticker Feed bertenaga Gemini AI
+// Endpoint News Ticker Feed (Directly served from database container)
 app.get('/api/news-ticker/feed', async (req, res) => {
   try {
     const force = req.query.refresh === '1' || req.query.force === '1';
     const phase = req.query.phase ? String(req.query.phase) : undefined;
-    const feed = await generateNewsTickerFeed(force, phase);
-    res.json(feed);
+
+    let containerRows = getNewsTickerTable();
+    if (force || phase || containerRows.length === 0) {
+      containerRows = rebuildNewsTickerTable(phase);
+    }
+
+    const currentGw = getCurrentGw();
+    const currentPhase = phase || getGameweekPhase(currentGw);
+
+    // Active airing stories from db container
+    const activeRows = containerRows.filter((r) => r.status_tayang === 'Y');
+    const stories = (activeRows.length > 0 ? activeRows : containerRows.slice(0, 50)).map((r) => ({
+      id: r.id,
+      headline_id: r.text_berita,
+      headline_en: r.text_berita_en,
+      headline: r.text_berita,
+      drama_score: r.drama_score,
+      poin_tayang: r.poin_tayang,
+      sumber: r.sumber,
+      status_tayang: r.status_tayang,
+      keterangan_tidak_tayang: r.keterangan_tidak_tayang,
+      fase: r.fase,
+      waktu_tayang: r.waktu_tayang,
+      kategori: r.kategori,
+      sub_kategori: r.sub_kategori,
+      gw: r.gw,
+      teams: r.teams,
+      players: r.players,
+    }));
+
+    // Multi-tier sort per RULE[AGENTS_md] Section 7:
+    // Tier 1: poin_tayang ASC, Tier 2: drama_score DESC, Tier 3: id ASC
+    stories.sort((a, b) => {
+      const pDiff = (a.poin_tayang || 0) - (b.poin_tayang || 0);
+      if (pDiff !== 0) return pDiff;
+      const dDiff = (b.drama_score || 0) - (a.drama_score || 0);
+      if (dDiff !== 0) return dDiff;
+      return a.id.localeCompare(b.id);
+    });
+
+    res.json({
+      success: true,
+      gameweek: currentGw,
+      gameweekPhase: currentPhase,
+      lastUpdated: new Date().toISOString(),
+      count: stories.length,
+      data: stories,
+    });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -1285,6 +1334,7 @@ app.get('/api/admin/news-ticker', (req, res) => {
     const sumber = req.query.sumber ? String(req.query.sumber) : undefined;
     const status_tayang = req.query.status_tayang ? String(req.query.status_tayang) : undefined;
     const waktu_tayang = req.query.waktu_tayang ? String(req.query.waktu_tayang) : undefined;
+    const fase = req.query.fase ? String(req.query.fase) : (req.query.phase ? String(req.query.phase) : undefined);
     const limit = req.query.limit ? Number(req.query.limit) : undefined;
     const offset = req.query.offset ? Number(req.query.offset) : undefined;
 
@@ -1294,11 +1344,24 @@ app.get('/api/admin/news-ticker', (req, res) => {
       sumber,
       status_tayang,
       waktu_tayang,
+      fase,
       limit,
       offset
     });
 
     res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Endpoint Admin: Increment poin tayang
+app.post('/api/admin/news-ticker/increment-point', (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) return res.status(400).json({ success: false, error: 'ID is required' });
+    const success = incrementPoinTayang(String(id));
+    res.json({ success });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }

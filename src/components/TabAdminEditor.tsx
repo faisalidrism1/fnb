@@ -10,7 +10,8 @@ import {
   Database,
   ChevronDown,
   AlertTriangle,
-  Info
+  Info,
+  Copy,
 } from 'lucide-react';
 
 export interface Phase1TemplateItem {
@@ -19,6 +20,8 @@ export interface Phase1TemplateItem {
   gw_phase: string;
   category: string;
   subcategory: string;
+  output?: 'SINGLE-NEWS' | 'MULTI-NEWS' | string;
+  source?: 'Bukan' | 'Sys' | string;
   template: string;
   example: string;
   code: string;
@@ -347,14 +350,22 @@ export const TabAdminEditor: React.FC = () => {
   };
 
   // Metadata cell change handler
-  const handleMetaChange = (index: number, field: 'gw_phase' | 'category' | 'subcategory', val: string) => {
+  const handleMetaChange = (
+    index: number,
+    field: 'gw_phase' | 'category' | 'subcategory' | 'output',
+    val: string
+  ) => {
     setEditableRows((prev) => {
       const next = [...prev];
       if (!next[index]) return prev;
-      next[index] = {
+      const updated = {
         ...next[index],
         [field]: val,
       };
+      if (field === 'gw_phase' && val.trim().toLowerCase() === 'live match') {
+        updated.output = 'MULTI-NEWS';
+      }
+      next[index] = updated;
       return next;
     });
   };
@@ -406,6 +417,7 @@ export const TabAdminEditor: React.FC = () => {
       const json = await res.json();
       if (json && json.success) {
         setSavedRows(JSON.parse(JSON.stringify(editableRows)));
+        setEditableRows(JSON.parse(JSON.stringify(editableRows)));
         showToast('Seluruh template berhasil disimpan dan langsung diterapkan!');
         if (previewMode === 'real') {
           fetchRealPreviewStories();
@@ -651,30 +663,38 @@ export const TabAdminEditor: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto scrollbar-thin">
-            <table className="table-fixed text-left border-collapse text-xs w-full min-w-[1385px]">
+            <table className="table-fixed text-left border-collapse text-xs w-full min-w-[1700px]">
               <thead>
                 <tr className="bg-slate-100 dark:bg-[#10051e] border-b-2 border-slate-200 dark:border-purple-900/80 text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black text-[11px]">
-                  {/* 1. GW Phase: Fitted to 1 longest word (~95px) */}
-                  <th className="py-3 px-2.5 w-[95px] min-w-[95px] max-w-[95px] border-r border-slate-200 dark:border-purple-900/50 break-words">
+                  {/* 1. ID: Identifier (~140px) */}
+                  <th className="py-3 px-2.5 w-[140px] min-w-[140px] max-w-[140px] border-r border-slate-200 dark:border-purple-900/50">
+                    ID
+                  </th>
+                  {/* 2. GW Phase: Fitted to 1 longest word (~110px) */}
+                  <th className="py-3 px-2.5 w-[110px] min-w-[110px] max-w-[110px] border-r border-slate-200 dark:border-purple-900/50 break-words">
                     GW Phase
                   </th>
-                  {/* 2. Categories: Fitted to 1 longest word (~105px) */}
-                  <th className="py-3 px-2.5 w-[105px] min-w-[105px] max-w-[105px] border-r border-slate-200 dark:border-purple-900/50 break-words">
+                  {/* 3. Categories: Fitted to 1 longest word (~120px) */}
+                  <th className="py-3 px-2.5 w-[120px] min-w-[120px] max-w-[120px] border-r border-slate-200 dark:border-purple-900/50 break-words">
                     Categories
                   </th>
-                  {/* 3. Sub Categories: Fitted to 1 longest word (~115px) */}
-                  <th className="py-3 px-2.5 w-[115px] min-w-[115px] max-w-[115px] border-r border-slate-200 dark:border-purple-900/50 break-words">
-                    Sub Categories <span className="text-slate-400 font-normal lowercase text-[9px] block">output</span>
+                  {/* 4. Sub Categories: Fitted to 1 longest word (~130px) */}
+                  <th className="py-3 px-2.5 w-[130px] min-w-[130px] max-w-[130px] border-r border-slate-200 dark:border-purple-900/50 break-words">
+                    Sub Categories
                   </th>
-                  {/* 4. Template: Fitted exactly to 1 Mobile View (~360px) */}
+                  {/* 5. Output: Dedicated Column (~110px) */}
+                  <th className="py-3 px-2.5 w-[110px] min-w-[110px] max-w-[110px] border-r border-slate-200 dark:border-purple-900/50 break-words">
+                    Output
+                  </th>
+                  {/* 6. Template: Fitted exactly to 1 Mobile View (~360px) */}
                   <th className="py-3 px-3 w-[360px] min-w-[360px] max-w-[360px] border-r border-slate-200 dark:border-purple-900/50 whitespace-nowrap">
                     Template <span className="text-[#00ff87] font-bold lowercase text-[10px] ml-1">(editable)</span>
                   </th>
-                  {/* 5. Example: Fitted exactly to 1 Mobile View (~360px) */}
+                  {/* 7. Example: Fitted exactly to 1 Mobile View (~360px) */}
                   <th className="py-3 px-3 w-[360px] min-w-[360px] max-w-[360px] border-r border-slate-200 dark:border-purple-900/50 whitespace-nowrap">
                     Example <span className="text-slate-400 font-medium lowercase text-[10px] ml-1">({previewMode === 'real' ? 'real' : 'sample'})</span>
                   </th>
-                  {/* 6. Code: Fitted exactly to 1 Mobile View (~360px) */}
+                  {/* 8. Code: Fitted exactly to 1 Mobile View (~360px) */}
                   <th className="py-3 px-3 w-[360px] min-w-[360px] max-w-[360px] whitespace-nowrap">
                     Code <span className="text-slate-400 font-medium lowercase text-[10px] ml-1">(clean logic)</span>
                   </th>
@@ -702,15 +722,42 @@ export const TabAdminEditor: React.FC = () => {
                     ? realExampleHeadline
                     : row.example;
 
-                  const isMultiStory = row.id === 'P1_INJURY_UPDATE' || row.subcategory === 'Flagged Players';
+                  // Output logic: Live Match is strictly MULTI-NEWS
+                  const isLiveMatch = (row.gw_phase || '').trim().toLowerCase() === 'live match';
+                  const resolvedOutput = isLiveMatch
+                    ? 'MULTI-NEWS'
+                    : (row.output || (row.id === 'P1_INJURY_UPDATE' || row.subcategory === 'Flagged Players' ? 'MULTI-NEWS' : 'SINGLE-NEWS'));
 
                   return (
                     <tr
                       key={`${row.no}_${row.id}_${actualIndex}`}
                       className="hover:bg-purple-50/20 dark:hover:bg-purple-950/20 transition-colors align-top"
                     >
-                      {/* 1. GW Phase (Fitted to 1 Longest Word) */}
-                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[95px] max-w-[95px]">
+                      {/* 1. ID (Identifier with Copy, aligned top matching GW phase first line, wrapping without table overlap) */}
+                      <td className="py-2.5 px-2.5 border-r border-slate-200 dark:border-purple-900/30 w-[140px] min-w-[140px] max-w-[140px] align-top overflow-hidden">
+                        <div className="w-full py-2 px-1.5 border border-transparent flex items-start justify-between gap-1 box-border">
+                          <span
+                            className="font-mono text-[11px] font-bold text-slate-800 dark:text-slate-200 select-all leading-snug break-all [overflow-wrap:anywhere]"
+                            title={row.id}
+                          >
+                            {row.id}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(row.id);
+                              showToast(`ID ${row.id} disalin!`);
+                            }}
+                            className="text-slate-400 hover:text-purple-600 dark:hover:text-[#00ff87] p-0.5 cursor-pointer shrink-0 rounded transition-colors -mr-0.5"
+                            title="Salin ID Template"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+
+                      {/* 2. GW Phase (Fitted to 1 Longest Word) */}
+                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[110px] max-w-[110px] align-top">
                         <textarea
                           value={row.gw_phase}
                           onChange={(e) => handleMetaChange(actualIndex, 'gw_phase', e.target.value)}
@@ -719,8 +766,8 @@ export const TabAdminEditor: React.FC = () => {
                         />
                       </td>
 
-                      {/* 2. Categories (Fitted to 1 Longest Word) */}
-                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[105px] max-w-[105px]">
+                      {/* 3. Categories (Fitted to 1 Longest Word) */}
+                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[120px] max-w-[120px] align-top">
                         <textarea
                           value={row.category}
                           onChange={(e) => handleMetaChange(actualIndex, 'category', e.target.value)}
@@ -729,34 +776,36 @@ export const TabAdminEditor: React.FC = () => {
                         />
                       </td>
 
-                      {/* 3. Sub Categories with Output Production Badge */}
-                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[115px] max-w-[115px]">
-                        <div className="h-[96px] flex flex-col justify-between">
-                          <textarea
-                            value={row.subcategory}
-                            onChange={(e) => handleMetaChange(actualIndex, 'subcategory', e.target.value)}
-                            className="w-full h-[66px] min-h-[66px] max-h-[66px] px-1.5 py-1 rounded-md bg-transparent hover:bg-slate-100 dark:hover:bg-[#120522] focus:bg-white dark:focus:bg-[#10051e] border border-transparent focus:border-[#00ff87] text-[11px] font-bold text-slate-900 dark:text-white outline-none transition-all resize-none leading-snug break-words overflow-y-auto scrollbar-thin"
-                            placeholder="Sub Category"
-                          />
-                          <div className="pt-0.5">
-                            {isMultiStory ? (
-                              <span
-                                title="Multi-News: Menghasilkan beberapa baris berita (1 baris per pemain cedera/sanksi pascadeadline)"
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold tracking-tight bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 uppercase cursor-help shadow-2xs"
-                              >
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                                <span>Multi-News</span>
-                              </span>
-                            ) : (
-                              <span
-                                title="Single News: Menghasilkan tepat 1 baris berita per Gameweek"
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold tracking-tight bg-slate-100 dark:bg-purple-950/60 text-slate-600 dark:text-purple-300 border border-slate-200 dark:border-purple-800/40 uppercase cursor-help shadow-2xs"
-                              >
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                <span>Single</span>
-                              </span>
-                            )}
-                          </div>
+                      {/* 4. Sub Categories */}
+                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[130px] max-w-[130px] align-top">
+                        <textarea
+                          value={row.subcategory}
+                          onChange={(e) => handleMetaChange(actualIndex, 'subcategory', e.target.value)}
+                          className="w-full h-[96px] min-h-[96px] max-h-[96px] px-1.5 py-2 rounded-md bg-transparent hover:bg-slate-100 dark:hover:bg-[#120522] focus:bg-white dark:focus:bg-[#10051e] border border-transparent focus:border-[#00ff87] text-[11px] font-bold text-slate-900 dark:text-white outline-none transition-all resize-none leading-snug break-words overflow-y-auto scrollbar-thin"
+                          placeholder="Sub Category"
+                        />
+                      </td>
+
+                      {/* 5. Output (Dedicated Field: Sifatnya Tetap / No Dropdown) */}
+                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[110px] min-w-[110px] max-w-[110px] align-top">
+                        <div className="py-2 px-1 border border-transparent">
+                          {resolvedOutput === 'MULTI-NEWS' ? (
+                            <span
+                              title="MULTI-NEWS: Menghasilkan beberapa baris berita sesuai peristiwa/pemain"
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-black tracking-tight bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 uppercase select-none shadow-2xs whitespace-nowrap"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                              <span>MULTI-NEWS</span>
+                            </span>
+                          ) : (
+                            <span
+                              title="SINGLE-NEWS: Menghasilkan tepat 1 baris berita per Gameweek"
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold tracking-tight bg-slate-100 dark:bg-purple-950/60 text-slate-600 dark:text-purple-300 border border-slate-200 dark:border-purple-800/40 uppercase select-none shadow-2xs whitespace-nowrap"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              <span>SINGLE-NEWS</span>
+                            </span>
+                          )}
                         </div>
                       </td>
 
