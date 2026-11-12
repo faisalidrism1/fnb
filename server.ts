@@ -41,7 +41,9 @@ import {
   getNewsTickerTable,
   incrementPoinTayang,
   getCurrentGw,
-  getGameweekPhase
+  getGameweekPhase,
+  classifyNewsItem,
+  isPhaseActive
 } from './src/server/newsTickerTableService.ts';
 import {
   getRegisteredFormulas,
@@ -1276,9 +1278,16 @@ app.get('/api/news-ticker/feed', async (req, res) => {
     const currentGw = getCurrentGw();
     const currentPhase = phase || getGameweekPhase(currentGw);
 
-    // Active airing stories from db container
-    const activeRows = containerRows.filter((r) => r.status_tayang === 'Y');
-    const stories = (activeRows.length > 0 ? activeRows : containerRows.slice(0, 50)).map((r) => ({
+    // Active airing stories from db container: Hanya tampilkan berita sesuai fase yang sedang berlaku
+    // Berita dengan fase kosong ('-') TIDAK BOLEH tampil di running news ticker
+    const activeRows = containerRows.filter((r) => {
+      if (r.status_tayang !== 'Y') return false;
+      if (r.gw && Number(r.gw) !== currentGw) return false;
+      if (!r.fase || r.fase.trim() === '' || r.fase === '-') return false;
+      return isPhaseActive(r.fase, currentPhase);
+    });
+
+    const stories = activeRows.map((r) => ({
       id: r.id,
       headline_id: r.text_berita,
       headline_en: r.text_berita_en,

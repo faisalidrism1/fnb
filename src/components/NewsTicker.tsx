@@ -55,18 +55,9 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         const res = await fetch(`/api/news-ticker/feed?_t=${Date.now()}`);
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0 && isMounted) {
-            const isLivePhase = json.gameweekPhase === 'Live' || Boolean(
-              leagueData?.sync_status?.is_matchday_live ||
-              leagueData?.gw_status?.status === 'Live'
-            );
-            let activeOnly = json.data.filter((s: any) => s.status_tayang !== 'N');
-            if (isLivePhase) {
-              // ATURAN MUTLAK USER:
-              // Hanya tayangkan berita dengan sumber hasil produksi dari subtab editor di Fase Live match
-              activeOnly = activeOnly.filter((s: any) => s.sumber === 'Bukan');
-            }
-            handleIncomingStoriesRef.current(activeOnly.length > 0 ? activeOnly : json.data);
+          if (json.success && Array.isArray(json.data) && isMounted) {
+            const activeOnly = json.data.filter((s: any) => s.status_tayang === 'Y');
+            handleIncomingStoriesRef.current(activeOnly);
           }
         }
       } catch (err) {

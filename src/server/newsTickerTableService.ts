@@ -3,6 +3,7 @@ import path from 'path';
 import { getRegisteredFormulas, calculateDynamicDramaScore } from '../data/newsFormulaRegistry.ts';
 import { generatePhase1Stories } from './phase1StoryGenerator.ts';
 import { generateStoriesFromPulseMatch } from './pulseMatchStoryGenerator.ts';
+import { generateConfirmedStories } from './confirmedStoryGenerator.ts';
 import { getPhase1Templates, interpolateExample } from '../data/phase1Templates.ts';
 
 export interface NewsTickerDbRow {
@@ -94,18 +95,31 @@ export function classifyNewsItem(
     };
   }
 
-  // 3. PERTANDINGAN LANGSUNG (Live Match Score)
+  // 3. PERTANDINGAN LANGSUNG & EVENT PULSE MATCH (Live Match Score, Period Control & Match Events)
   if (
     id.startsWith('live_score_') ||
+    id.startsWith('pulse_') ||
+    id.startsWith('LM_') ||
+    id.startsWith('lm_') ||
+    t.includes('peluit panjang') ||
+    t.includes('peluit akhir') ||
+    t.includes('full time') ||
+    t.includes('half time') ||
     t.includes('sedang berlangsung') ||
     t.includes('babak pertama') ||
     t.includes('babak kedua') ||
     t.includes('(menit') ||
     t.includes('menit ke-')
   ) {
+    const isPeriodControl =
+      id.includes('_pe_') ||
+      id.includes('_ps_') ||
+      t.includes('peluit') ||
+      t.includes('full time') ||
+      t.includes('half time');
     return {
-      kategori: 'Pemain & Match',
-      sub_kategori: 'Skor Laga',
+      kategori: isPeriodControl ? 'Period Control' : 'Pemain & Match',
+      sub_kategori: isPeriodControl ? 'Period End' : 'Skor Laga',
       waktu_tayang: ['Live Match'],
     };
   }
@@ -638,7 +652,8 @@ export function createStoryRecordsForPhases(
   currentActivePhase?: string
 ): NewsTickerDbRow[] {
   const currentActiveGw = getCurrentGw();
-  const baseId = String(raw.id || `story_${Date.now()}`);
+  const rawId = String(raw.id || `story_${Date.now()}`);
+  const baseId = rawId.split('__')[0];
   let textId = String(raw.headline_id || raw.text_berita || raw.headline || '').trim();
   let textEn = String(raw.headline_en || raw.text_berita_en || textId).trim();
 
@@ -646,12 +661,14 @@ export function createStoryRecordsForPhases(
   textId = textId.replace(/\bchip\s+(\[N:[^\]]+\])/gi, '$1');
   textEn = textEn.replace(/\bchip\s+(\[N:[^\]]+\])/gi, '$1').replace(/(\[N:[^\]]+\])\s+chip\b/gi, '$1');
 
+  // Identifikasi apakah berasal dari Template di Tabel Editor (P1_... dan LM_... atau sumber: 'Sys')
   const isEditorTemplate =
-    raw.sumber === 'Sys' ||
     baseId.startsWith('P1_') ||
     baseId.startsWith('p1_') ||
     baseId.startsWith('LM_') ||
-    baseId.startsWith('lm_');
+    baseId.startsWith('lm_') ||
+    raw.sumber === 'Sys';
+
   const isAi = raw.sumber === 'AI' || (baseId.startsWith('story_') && !baseId.startsWith('story_element_'));
   const resolvedSumber = isEditorTemplate ? 'Sys' : (raw.sumber ? raw.sumber : (isAi ? 'AI' : 'Bukan'));
   const timestamp = raw.timestamp_produksi || raw.timestamp || new Date().toISOString();
@@ -661,33 +678,6 @@ export function createStoryRecordsForPhases(
   const fallbackClass = classifyNewsItem(textId, textEn, baseId);
   const kategori = raw.kategori || fallbackClass.kategori;
   const sub_kategori = raw.sub_kategori || fallbackClass.sub_kategori;
-
-  // Determine allowed phases
-  let phases: string[] = [];
-  if (raw.fase) {
-    phases = raw.fase.split(',').map((p) => p.trim()).filter(Boolean);
-  }
-  if (phases.length === 0 && Array.isArray(raw.waktu_tayang) && raw.waktu_tayang.length > 0) {
-    phases = raw.waktu_tayang;
-  }
-  if (phases.length === 0) {
-    phases = fallbackClass.waktu_tayang;
-  }
-  if (phases.length === 0) {
-    phases = ['Not started'];
-  }
-
-  // Normalize phase names
-  const validPhaseNames = ['Not started', 'Live Match', 'Between Match', 'Provisional', 'Confirmed'];
-  const normalizedPhases = phases.map((p) => {
-    const pl = p.toLowerCase().trim();
-    if (pl === 'live') return 'Live Match';
-    if (pl === 'pre-deadline') return 'Not started';
-    const match = validPhaseNames.find((vp) => vp.toLowerCase() === pl);
-    return match || p;
-  });
-
-  const uniquePhases = Array.from(new Set(normalizedPhases));
 
   // Dynamic drama score
   const registeredFormulas = getRegisteredFormulas();
@@ -720,6 +710,60 @@ export function createStoryRecordsForPhases(
 
   const teams = Array.isArray(raw.teams) && raw.teams.length > 0 ? raw.teams : extractTags(textId, 'T');
   const players = Array.isArray(raw.players) && raw.players.length > 0 ? raw.players : extractTags(textId, 'P');
+
+  // ATURAN BAKU: Semua berita yg diproduksi SELAIN dari template di tabel editor, metadata phase nya dikosongkan.
+  if (!isEditorTemplate) {
+    // Berita non-editor tidak memiliki fase terdefinisi (fase: ''), sehingga status_tayang dikunci ke 'N'
+    // agar tidak muncul pada running news ticker fase aktif manapun
+    const statusTayang = 'N';
+    const keterangan = 'Bukan hasil produksi template editor (fase tidak terdefinisi)';
+
+    return [{
+      id: baseId,
+      timestamp_produksi: timestamp,
+      sumber: resolvedSumber,
+      status_tayang: statusTayang,
+      keterangan_tidak_tayang: keterangan,
+      fase: '',
+      waktu_tayang: [],
+      kategori,
+      sub_kategori,
+      drama_score: dramaScore,
+      poin_tayang: Math.max(0, Number(raw.poin_tayang) || 0),
+      text_berita: textId,
+      text_berita_en: textEn,
+      gw,
+      teams,
+      players,
+    }];
+  }
+
+  // KHUSUS TEMPLATE DI TABEL EDITOR: Gunakan fase & waktu tayang sesuai konfigurasi template
+  let phases: string[] = [];
+  if (raw.fase) {
+    phases = raw.fase.split(',').map((p) => p.trim()).filter(Boolean);
+  }
+  if (phases.length === 0 && Array.isArray(raw.waktu_tayang) && raw.waktu_tayang.length > 0) {
+    phases = raw.waktu_tayang;
+  }
+  if (phases.length === 0) {
+    phases = fallbackClass.waktu_tayang;
+  }
+  if (phases.length === 0) {
+    phases = ['Live Match'];
+  }
+
+  // Normalize phase names
+  const validPhaseNames = ['Not started', 'Live Match', 'Between Match', 'Provisional', 'Confirmed'];
+  const normalizedPhases = phases.map((p) => {
+    const pl = p.toLowerCase().trim();
+    if (pl === 'live') return 'Live Match';
+    if (pl === 'pre-deadline') return 'Not started';
+    const match = validPhaseNames.find((vp) => vp.toLowerCase() === pl);
+    return match || p;
+  });
+
+  const uniquePhases = Array.from(new Set(normalizedPhases));
   const hasPointsOrRank = mentionsPointsOrRank(textId) || mentionsPointsOrRank(textEn);
 
   // Generate 1 distinct row per allowed phase
@@ -881,7 +925,7 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
     };
 
     // 1. Read active feed
-    let activeFeedMap = new Map<string, { drama_score: number; headline_id: string; headline_en: string; gw?: number }>();
+    let activeFeedMap = new Map<string, any>();
     if (fs.existsSync(FEED_CACHE_PATH)) {
       try {
         const rawFeed = fs.readFileSync(FEED_CACHE_PATH, 'utf-8');
@@ -889,12 +933,7 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
         if (parsed && Array.isArray(parsed.data)) {
           parsed.data.forEach((s: any) => {
             if (s && s.id) {
-              activeFeedMap.set(String(s.id), {
-                drama_score: Number(s.drama_score) || 80,
-                headline_id: String(s.headline_id || ''),
-                headline_en: String(s.headline_en || s.headline_id || ''),
-                gw: Number(s.gw) || undefined,
-              });
+              activeFeedMap.set(String(s.id), s);
             }
           });
         }
@@ -964,6 +1003,21 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       console.warn('[News Table Service] Warning generating Live Match stories:', err.message);
     }
 
+    // 3c. Inject Confirmed template stories produced from Editor templates (No. 54-63)
+    try {
+      const confStories = generateConfirmedStories(feedGw);
+      for (const cs of confStories) {
+        const records = createStoryRecordsForPhases({
+          ...cs,
+          sumber: (cs.sumber as any) || 'Sys',
+          gw: cs.gw || feedGw,
+        }, cs.gw || feedGw, currentActivePhase);
+        addRows(records);
+      }
+    } catch (err: any) {
+      console.warn('[News Table Service] Warning generating Confirmed stories:', err.message);
+    }
+
     // 4. Process remaining active feed stories using createStoryRecordsForPhases
     for (const [id, feedItem] of activeFeedMap.entries()) {
       const baseId = id.split('__')[0];
@@ -974,15 +1028,19 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       const timestamp = histMatch?.timestamp || new Date().toISOString();
 
       const records = createStoryRecordsForPhases({
-        id,
+        id: baseId,
         headline_id: headlineId,
         headline_en: headlineEn,
         timestamp_produksi: timestamp,
-        sumber: (id.startsWith('story_') && !id.startsWith('story_element_')) ? 'AI' : 'Bukan',
+        sumber: feedItem.sumber || ((baseId.startsWith('story_') && !baseId.startsWith('story_element_')) ? 'AI' : 'Bukan'),
         gw,
-        teams: histMatch?.teams,
-        players: histMatch?.players,
+        teams: histMatch?.teams || feedItem.teams,
+        players: histMatch?.players || feedItem.players,
         drama_score: feedItem.drama_score || 80,
+        kategori: feedItem.kategori,
+        sub_kategori: feedItem.sub_kategori,
+        fase: feedItem.fase,
+        waktu_tayang: feedItem.waktu_tayang,
       }, gw, currentActivePhase);
       addRows(records);
     }
@@ -990,22 +1048,26 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
     // 5. Process remaining non-airing history stories (Status Tayang: N)
     for (const h of historyList) {
       if (!h || !h.id) continue;
-      const id = String(h.id);
+      const baseId = String(h.id).split('__')[0];
       const headlineId = String(h.headline_id || '');
       const headlineEn = String(h.headline_en || headlineId);
-      const gw = Number(h.gw) || extractGwFromStory(headlineId, headlineEn, id, feedGw);
+      const gw = Number(h.gw) || extractGwFromStory(headlineId, headlineEn, baseId, feedGw);
       const timestamp = h.timestamp || new Date().toISOString();
 
       const records = createStoryRecordsForPhases({
-        id,
+        id: baseId,
         headline_id: headlineId,
         headline_en: headlineEn,
         timestamp_produksi: timestamp,
-        sumber: (id.startsWith('story_') && !id.startsWith('story_element_')) ? 'AI' : 'Bukan',
+        sumber: (baseId.startsWith('story_') && !baseId.startsWith('story_element_')) ? 'AI' : 'Bukan',
         gw,
         teams: h.teams,
         players: h.players,
         drama_score: Number(h.drama_score) || 75,
+        kategori: h.kategori,
+        sub_kategori: h.sub_kategori,
+        fase: h.fase,
+        waktu_tayang: h.waktu_tayang,
         status_tayang: 'N',
         keterangan_tidak_tayang: gw !== feedGw ? `Bukan Gameweek aktif (Arsip Gameweek ${gw})` : 'Diarsipkan (di luar kuota 1000 rotasi aktif)',
       }, gw, currentActivePhase);

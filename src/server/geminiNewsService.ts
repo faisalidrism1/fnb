@@ -24,6 +24,7 @@ import {
   GameweekPhase,
 } from './newsTickerTableService.ts';
 import { generatePhase1Stories } from './phase1StoryGenerator.ts';
+import { generateConfirmedStories } from './confirmedStoryGenerator.ts';
 
 export interface NewsTickerStory {
   id: string;
@@ -1681,10 +1682,25 @@ export function buildFallbackStories(payload: RawMatchdayPayload): NewsTickerSto
     return completeStories;
   }
 
-  // STATUS 'Confirmed': WAJIB tampilkan 4 tim juara resmi di news ticker
+  // STATUS 'Confirmed': WAJIB tampilkan 10 template resmi Confirmed dari Editor
   if (isConfirmed) {
-    const officialChamps = buildOfficialChampionsStories(payload);
-    stories.push(...officialChamps);
+    const confStories = generateConfirmedStories(gw);
+    for (const cs of confStories) {
+      stories.push({
+        id: cs.id,
+        headline_id: cs.headline_id,
+        headline_en: cs.headline_en,
+        drama_score: cs.drama_score,
+        kategori: cs.kategori,
+        sub_kategori: cs.sub_kategori,
+        waktu_tayang: cs.waktu_tayang,
+        sumber: 'Sys',
+        status_tayang: 'Y',
+        keterangan_tidak_tayang: '',
+      });
+    }
+    const completeStories = stories.map((s) => toNewsTickerStory(s, gw));
+    return completeStories;
   } else {
     // STATUS 'Live' / 'Provisional' (Hasil Sementara)
     // 1. Rank 1 leader (Sementara)

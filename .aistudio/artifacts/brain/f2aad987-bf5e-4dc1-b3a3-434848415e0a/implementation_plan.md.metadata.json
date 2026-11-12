@@ -1,6 +1,0 @@
-{
-  "summary": "Rencana implementasi sistem klasifikasi formula berita FPL (SYS & AI) berbasis subjek tematik dengan variasi waktu tayang (Live vs Confirmed), skema drama score berbasis metrik dinamis dengan batas per kategori, modul konfigurasi terpusat (newsFormulaRegistry.ts), dan subtab interaktif baru 'Formula & Drama' di Tab Admin.",
-  "updatedAt": "2026-11-03T16:42:34.556295512Z",
-  "requestFeedback": true,
-  "userFacing": true
-}
