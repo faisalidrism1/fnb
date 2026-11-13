@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Search,
   RefreshCw,
-  Sparkles,
   Layers,
   CheckCircle2,
   XCircle,
@@ -265,9 +264,8 @@ const TabAdminNewsTable: React.FC = () => {
     const total = newsRows.length;
     const active = newsRows.filter((r) => r.status_tayang === 'Y').length;
     const inactive = newsRows.filter((r) => r.status_tayang === 'N').length;
-    const ai = newsRows.filter((r) => r.sumber === 'AI').length;
-    const nonAi = newsRows.filter((r) => r.sumber === 'Bukan').length;
-    return { total, active, inactive, ai, nonAi };
+    const sys = newsRows.filter((r) => r.sumber === 'Sys').length;
+    return { total, active, inactive, sys };
   }, [newsRows]);
 
   // Unique categories for dropdown filter
@@ -388,15 +386,8 @@ const TabAdminNewsTable: React.FC = () => {
       }
 
       // 6. Source filter
-      if (selectedSource !== 'ALL') {
-        const isSysRow = row.sumber === 'Sys' || row.id.startsWith('P1_') || row.id.startsWith('p1_') || row.id.startsWith('LM_') || row.id.startsWith('lm_') || row.id.startsWith('live_score_');
-        if (selectedSource === 'Sys') {
-          if (!isSysRow) return false;
-        } else if (selectedSource === 'AI') {
-          if (row.sumber !== 'AI') return false;
-        } else {
-          if (isSysRow || row.sumber !== selectedSource) return false;
-        }
+      if (selectedSource !== 'ALL' && row.sumber !== selectedSource) {
+        return false;
       }
 
       // 7. Search filter
@@ -531,18 +522,11 @@ const TabAdminNewsTable: React.FC = () => {
               <strong className="text-rose-700 dark:text-rose-300 font-black">{stats.inactive}</strong>
             </div>
 
-            {/* AI */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/50 text-xs">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-[#00ff87]" />
-              <span className="text-purple-800 dark:text-purple-300 font-medium">AI:</span>
-              <strong className="text-purple-900 dark:text-purple-100 font-black">{stats.ai}</strong>
-            </div>
-
-            {/* System */}
+            {/* Editor (Sys) */}
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#120522] border border-slate-200 dark:border-purple-900/50 text-xs">
               <Cpu className="w-3.5 h-3.5 text-slate-500" />
-              <span className="text-slate-500 dark:text-slate-400 font-medium">System:</span>
-              <strong className="text-slate-900 dark:text-white font-black">{stats.nonAi}</strong>
+              <span className="text-slate-500 dark:text-slate-400 font-medium">Editor (Sys):</span>
+              <strong className="text-slate-900 dark:text-white font-black">{stats.sys}</strong>
             </div>
           </div>
 
@@ -689,8 +673,6 @@ const TabAdminNewsTable: React.FC = () => {
           >
             <option value="ALL">All Sources</option>
             <option value="Sys">Sys (Editor Template)</option>
-            <option value="AI">AI</option>
-            <option value="Bukan">Bukan</option>
           </select>
 
           {/* Page size select */}
@@ -964,20 +946,9 @@ const TabAdminNewsTable: React.FC = () => {
 
                       {/* 5. Source */}
                       <td className="py-2 px-2 text-center whitespace-nowrap">
-                        {row.sumber === 'AI' ? (
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-black bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-[#00ff87] border border-purple-200 dark:border-purple-700/60">
-                            <Sparkles className="w-2.5 h-2.5" />
-                            AI
-                          </span>
-                        ) : (row.sumber === 'Sys' || row.id.startsWith('P1_') || row.id.startsWith('p1_') || row.id.startsWith('LM_') || row.id.startsWith('lm_') || row.id.startsWith('live_score_')) ? (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
-                            Sys
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            {row.sumber || 'Bukan'}
-                          </span>
-                        )}
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                          {row.sumber || 'Sys'}
+                        </span>
                       </td>
 
                       {/* 6. Status */}

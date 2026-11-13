@@ -14,7 +14,7 @@ import {
   getDbChipsUsed,
   getDbLigaMinus,
 } from './db.ts';
-import { formatTeamList } from './liveJournalismEngine.ts';
+import { formatTeamList } from './teamExposureTracker.ts';
 
 export interface RawSquadPlayer {
   name: string;

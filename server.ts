@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle } from './src/server/dataFetcher.ts';
-import { fetchMatchesForGw, invalidateMatchesCache } from './src/server/matchesFetcher.ts';
+import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache } from './src/server/matchesFetcher.ts';
 import { TransformedLeagueData } from './src/types.ts';
 import {
   initDatabase,
@@ -29,28 +29,16 @@ import {
   resetDatabaseState
 } from './src/server/db.ts';
 import {
-  generateNewsTickerFeed,
-  triggerBackgroundNewsUpdate,
-  getCachedNewsFeed,
-  clearNewsMemoryCache,
-  initNewsTicker
-} from './src/server/geminiNewsService.ts';
-import {
   queryNewsTickerTable,
   rebuildNewsTickerTable,
   getNewsTickerTable,
   incrementPoinTayang,
   getCurrentGw,
   getGameweekPhase,
-  classifyNewsItem,
-  isPhaseActive
+  isPhaseActive,
+  isEditorTemplateId,
+  clearNewsTickerMemoryCache
 } from './src/server/newsTickerTableService.ts';
-import {
-  getRegisteredFormulas,
-  updateFormulaConfig,
-  resetFormulasToDefault,
-  calculateDynamicDramaScore
-} from './src/data/newsFormulaRegistry.ts';
 
 const app = express();
 
@@ -106,86 +94,6 @@ if (fs.existsSync(CACHE_PATH)) {
 }
 let isSyncing = false;
 console.log('[Server] Initialized with Optimal Pre-Aggregated DB Schema & Deterministic Orchestrator (Action A, B, C)');
-
-// Event-Driven AI News Tracker
-interface AiNewsEventTracker {
-  lastKnownGw: number;
-  lastKnownGwStatus: string;
-  triggeredKickoffBatches: Set<string>;
-}
-
-const aiNewsTracker: AiNewsEventTracker = {
-  lastKnownGw: 0,
-  lastKnownGwStatus: '',
-  triggeredKickoffBatches: new Set<string>()
-};
-
-/**
- * Event-Driven AI News Trigger:
- * 1. Pergantian status GW atau pergantian GW.
- * 2. Setiap pertandingan berakhir (Bila ada jadwal kickoff sama, hanya aktif saat seluruhnya berakhir).
- */
-export function checkAndTriggerEventDrivenAiNews(data: TransformedLeagueData): void {
-  const currentGw = data.current_gw;
-  const gwStatus = data.gw_status?.status || (data.sync_status?.is_matchday_live ? 'Live' : 'Upcoming');
-
-  let shouldTrigger = false;
-  let reason = '';
-
-  // Event 1: Pergantian Status GW atau Nomor GW
-  if (aiNewsTracker.lastKnownGw !== 0) {
-    if (aiNewsTracker.lastKnownGw !== currentGw) {
-      shouldTrigger = true;
-      reason = `Pergantian GW dari GW${aiNewsTracker.lastKnownGw} ke GW${currentGw}`;
-      aiNewsTracker.triggeredKickoffBatches.clear(); // Reset batch triggers for new GW
-    } else if (aiNewsTracker.lastKnownGwStatus && aiNewsTracker.lastKnownGwStatus !== gwStatus) {
-      shouldTrigger = true;
-      reason = `Status GW${currentGw} berganti dari ${aiNewsTracker.lastKnownGwStatus} ke ${gwStatus}`;
-    }
-  }
-
-  aiNewsTracker.lastKnownGw = currentGw;
-  aiNewsTracker.lastKnownGwStatus = gwStatus;
-
-  // Event 2: Pertandingan berakhir (Kickoff-Batch Aware)
-  // Aturan: Bila ada pertandingan yang jadwal mulainya sama, aktifkan HANYA saat SELURUH pertandingan
-  // yang jadwal mulainya sama tersebut berakhir!
-  const fixtures = data.sync_status?.gw_fixtures || [];
-  if (fixtures.length > 0) {
-    const kickoffGroups = new Map<string, any[]>();
-    for (const fix of fixtures) {
-      const ko = fix.kickoff_time || 'UNKNOWN';
-      if (!kickoffGroups.has(ko)) kickoffGroups.set(ko, []);
-      kickoffGroups.get(ko)!.push(fix);
-    }
-
-    for (const [koTime, groupFixes] of kickoffGroups.entries()) {
-      if (koTime === 'UNKNOWN') continue;
-      const batchKey = `gw${currentGw}_ko_${koTime}`;
-
-      // Lewati jika sudah pernah memicu update untuk batch kickoff ini
-      if (aiNewsTracker.triggeredKickoffBatches.has(batchKey)) continue;
-
-      // Cek apakah seluruh pertandingan dalam kelompok kickoff ini sudah selesai (FT)
-      const anyStarted = groupFixes.some((f: any) => Boolean(f.started));
-      const allFinished = groupFixes.every(
-        (f: any) => Boolean(f.finished || f.finished_provisional || (f.minutes && f.minutes >= 90))
-      );
-
-      if (anyStarted && allFinished) {
-        // SELURUH pertandingan pada jam kickoff ini telah tuntas!
-        aiNewsTracker.triggeredKickoffBatches.add(batchKey);
-        shouldTrigger = true;
-        reason = `Seluruh ${groupFixes.length} pertandingan dengan jam kickoff ${koTime} telah berakhir (FT)`;
-      }
-    }
-  }
-
-  if (shouldTrigger) {
-    console.log(`[Event-Driven AI News] Event terdeteksi: ${reason} -> Memicu pembaruan AI News Ticker.`);
-    triggerBackgroundNewsUpdate(true);
-  }
-}
 
 // Background sync runner with promise deduplication
 let currentSyncPromise: Promise<TransformedLeagueData> | null = null;
@@ -243,20 +151,17 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
         console.warn('[Server] Error clearing live caches:', cErr.message);
       }
 
+      // Refresh News Ticker table immediately after FPL sync completes
+      try {
+        rebuildNewsTickerTable();
+      } catch (ntErr: any) {
+        console.warn('[Server] Error rebuilding news ticker table after sync:', ntErr.message);
+      }
+
       console.log(`[Server] FPL API & DB schema sync (${action}) completed successfully at`, new Date().toISOString());
 
       // Broadcast fresh data to all active clients immediately via Server-Sent Events (SSE)
       broadcastSyncComplete(freshData, action);
-
-      // Event-Driven AI News Trigger:
-      // Hanya aktifkan AI saat terjadi:
-      // 1. Pergantian status / nomor GW
-      // 2. Setiap pertandingan berakhir (jika jam kickoff sama, tunggu seluruhnya berakhir)
-      try {
-        checkAndTriggerEventDrivenAiNews(freshData);
-      } catch (err: any) {
-        console.warn('[Server] Event-Driven AI News trigger caught error:', err.message);
-      }
 
       return freshData;
 
@@ -360,10 +265,6 @@ app.get('/api/fpl-data', async (req, res) => {
             // Condition 4b: Both API and Container are Confirmed -> Action C (Zero Sync, serve instantly)
             console.log(`[Sync Orchestrator] Condition 4b met: GW ${apiActiveGW} is Final & container already sealed -> Action C (Serve cached data instantly)`);
             executedAction = 'C_SERVE';
-            if (!getCachedNewsFeed()) {
-              triggerBackgroundNewsUpdate();
-            }
-
           }
         }
       } catch (checkErr: any) {
@@ -951,7 +852,7 @@ app.all('/api/container/clear', (req, res) => {
   console.log('[Server] Request received to completely empty container cache...');
   cachedData = null;
   resetDatabaseState();
-  clearNewsMemoryCache();
+  clearNewsTickerMemoryCache();
   playerSummaryCache.clear();
   eventLiveCache.clear();
   fixturesCache.clear();
@@ -1269,19 +1170,26 @@ app.get('/api/news-ticker/feed', async (req, res) => {
   try {
     const force = req.query.refresh === '1' || req.query.force === '1';
     const phase = req.query.phase ? String(req.query.phase) : undefined;
+    const currentGw = getCurrentGw();
+    const currentPhase = phase || getGameweekPhase(currentGw);
+
+    if (
+      (currentPhase === 'Live' || currentPhase === 'Live Match') &&
+      !getCachedMatchesForGw(currentGw)
+    ) {
+      await fetchMatchesForGw(currentGw).catch(() => {});
+    }
 
     let containerRows = getNewsTickerTable();
     if (force || phase || containerRows.length === 0) {
       containerRows = rebuildNewsTickerTable(phase);
     }
 
-    const currentGw = getCurrentGw();
-    const currentPhase = phase || getGameweekPhase(currentGw);
-
-    // Active airing stories from db container: Hanya tampilkan berita sesuai fase yang sedang berlaku
-    // Berita dengan fase kosong ('-') TIDAK BOLEH tampil di running news ticker
+    // Active airing stories from db container:
+    // ATURAN MUTLAK: Jangan tayangkan apapun selain yang bersumber dari tabel editor
     const activeRows = containerRows.filter((r) => {
       if (r.status_tayang !== 'Y') return false;
+      if (r.sumber !== 'Sys' || !isEditorTemplateId(r.id)) return false;
       if (r.gw && Number(r.gw) !== currentGw) return false;
       if (!r.fase || r.fase.trim() === '' || r.fase === '-') return false;
       return isPhaseActive(r.fase, currentPhase);
@@ -1314,6 +1222,12 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       const dDiff = (b.drama_score || 0) - (a.drama_score || 0);
       if (dDiff !== 0) return dDiff;
       return a.id.localeCompare(b.id);
+    });
+
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
     });
 
     res.json({
@@ -1383,6 +1297,7 @@ import {
   Phase1TemplateItem
 } from './src/data/phase1Templates.ts';
 import { generatePhase1Stories } from './src/server/phase1StoryGenerator.ts';
+import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.ts';
 
 // ================= PHASE 1 TEMPLATES API =================
 // 1. Get all Phase 1 templates
@@ -1398,15 +1313,19 @@ app.get('/api/admin/phase1-templates', (req, res) => {
 // 1b. Get Real League Data Preview for Phase 1 & Live Match templates
 app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
   try {
-    const stories = generatePhase1Stories();
+    const currentGw = getCurrentGw();
+    const stories = generatePhase1Stories(currentGw);
     
-    // Also include live match preview stories from Pulse API (using GW 10 match 129021 Nottingham Forest vs Man City)
+    // Also include live match preview stories from Pulse API + live stats (LM_GK_SAVES, LM_DEFCON_BONUS)
     try {
-      const { fetchPulseMatch, generateStoriesFromPulseMatch } = await import('./src/server/pulseMatchStoryGenerator.ts');
+      const {
+        fetchPulseMatch,
+        generateStoriesFromPulseMatch,
+        fetchAndGenerateLiveMatchStatStories,
+      } = await import('./src/server/pulseMatchStoryGenerator.ts');
       const pulseData = await fetchPulseMatch(129021);
       if (pulseData) {
-        const liveStories = generateStoriesFromPulseMatch(pulseData, 10);
-        // Map to story format
+        const liveStories = generateStoriesFromPulseMatch(pulseData, currentGw);
         for (const ls of liveStories) {
           stories.push({
             id: ls.id,
@@ -1425,8 +1344,37 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
           } as any);
         }
       }
+
+      const statStories = await fetchAndGenerateLiveMatchStatStories(currentGw, true);
+      for (const ss of statStories) {
+        stories.push({
+          id: ss.id,
+          headline_id: ss.headline_id,
+          headline_en: ss.headline_en,
+          kategori: ss.kategori,
+          sub_kategori: ss.sub_kategori,
+          drama_score: ss.drama_score,
+          waktu_tayang: ss.waktu_tayang,
+          gw: ss.gw,
+          teams: ss.teams,
+          players: ss.players,
+          sumber: ss.sumber,
+          status_tayang: ss.status_tayang,
+          keterangan_tidak_tayang: ss.keterangan_tidak_tayang,
+        } as any);
+      }
     } catch (err: any) {
       console.warn('[Admin Editor] Could not fetch Pulse match preview:', err.message);
+    }
+
+    // Also include Confirmed phase stories generated from Editor templates (CF_*)
+    try {
+      const confStories = generateConfirmedStories(currentGw);
+      for (const cs of confStories) {
+        stories.push(cs as any);
+      }
+    } catch (err: any) {
+      console.warn('[Admin Editor] Could not generate Confirmed preview:', err.message);
     }
 
     res.json({ success: true, count: stories.length, data: stories });
@@ -1505,58 +1453,6 @@ app.post('/api/admin/phase1-templates/reset', (req, res) => {
   }
 });
 
-// ================= NEWS FORMULA & DRAMA EDITOR API =================
-// 1. Get all registered formulas
-app.get('/api/admin/news-formulas', (req, res) => {
-  try {
-    const formulas = getRegisteredFormulas();
-    res.json({ success: true, count: formulas.length, data: formulas });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// 2. Update a formula (airing phases or drama score calibration)
-app.put('/api/admin/news-formulas/:id', (req, res) => {
-  try {
-    const formulaId = req.params.id;
-    const updates = req.body;
-    const updated = updateFormulaConfig(formulaId, updates);
-    if (!updated) {
-      return res.status(404).json({ success: false, error: `Formula ${formulaId} not found` });
-    }
-    // Rebuild news ticker table with updated configurations
-    rebuildNewsTickerTable();
-    res.json({ success: true, message: `Formula ${formulaId} updated successfully`, data: updated });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// 3. Reset formulas to defaults
-app.post('/api/admin/news-formulas/reset', (req, res) => {
-  try {
-    const defaults = resetFormulasToDefault();
-    rebuildNewsTickerTable();
-    res.json({ success: true, message: 'Formulas reset to defaults', data: defaults });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// 4. Simulate drama score calculation
-app.post('/api/admin/news-formulas/simulate', (req, res) => {
-  try {
-    const { drama_config, metric_value } = req.body;
-    if (!drama_config) {
-      return res.status(400).json({ success: false, error: 'drama_config is required' });
-    }
-    const score = calculateDynamicDramaScore(drama_config, metric_value);
-    res.json({ success: true, score });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
 
 app.get('/api/container/status', (req, res) => {
   res.json({
@@ -1601,7 +1497,13 @@ async function startServer() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] FPL Nusantara BERHADIAH running on port ${PORT}`);
     prewarmShirtCache().catch(() => {});
-    initNewsTicker();
+    setImmediate(() => {
+      try {
+        rebuildNewsTickerTable();
+      } catch (err: any) {
+        console.warn('[Server] Initial Editor news table build warning:', err.message);
+      }
+    });
   });
 }
 

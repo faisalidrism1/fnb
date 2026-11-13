@@ -7,6 +7,18 @@ export interface NewsTickerStory {
   headline_id: string;
   headline_en: string;
   drama_score: number;
+  sumber?: string;
+  status_tayang?: 'Y' | 'N';
+}
+
+const EDITOR_TEMPLATE_PREFIXES = ['NS_', 'LM_', 'BM_', 'PV_', 'CF_'];
+
+function isEditorSourcedStory(story: any): boolean {
+  if (!story || typeof story.id !== 'string') return false;
+  if (story.status_tayang !== 'Y') return false;
+  if (story.sumber !== 'Sys') return false;
+  const upperId = story.id.trim().toUpperCase();
+  return EDITOR_TEMPLATE_PREFIXES.some((prefix) => upperId.startsWith(prefix));
 }
 
 interface NewsTickerProps {
@@ -56,8 +68,8 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         if (res.ok) {
           const json = await res.json();
           if (json.success && Array.isArray(json.data) && isMounted) {
-            const activeOnly = json.data.filter((s: any) => s.status_tayang === 'Y');
-            handleIncomingStoriesRef.current(activeOnly);
+            const editorOnly = json.data.filter(isEditorSourcedStory);
+            handleIncomingStoriesRef.current(editorOnly);
           }
         }
       } catch (err) {
@@ -407,7 +419,10 @@ const getSavedPoolIdx = (): number => {
 
       // Minimalist bullet dot separator (NO ICONS / NO EMOJIS)
       // Official champions receive golden accent dot (#fbbf24) for visual prestige
-      const isOfficialChamp = story.id.includes('confirmed_') || story.headline_id.includes('Juara Resmi') || story.headline_id.includes('hasil resmi yang sudah ditetapkan');
+      const isOfficialChamp =
+        story.id.startsWith('CF_') ||
+        story.headline_id.includes('Juara Resmi') ||
+        story.headline_id.includes('hasil resmi yang sudah ditetapkan');
       const dot = document.createElement('span');
       dot.className = isOfficialChamp
         ? 'inline-block w-1.5 h-1.5 rounded-full ml-6 shrink-0 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] align-middle'
@@ -419,73 +434,11 @@ const getSavedPoolIdx = (): number => {
     [renderFormattedStory]
   );
 
-  // Get next story in round-robin sequence with persistent index
-  const getNextStory = useCallback((): NewsTickerStory => {
+  // Get next story in round-robin sequence with persistent index (strictly Editor-sourced only)
+  const getNextStory = useCallback((): NewsTickerStory | null => {
     const list = storiesRef.current;
     if (list.length === 0) {
-      const activeGw = leagueData?.current_gw || 9;
-      const isConfirmed = leagueData?.gw_status?.status === 'Confirmed';
-      const liveRows = (leagueData?.standings && leagueData.standings[activeGw]) ? leagueData.standings[activeGw] : [];
-      const rank1 = liveRows.find((r) => r.rank === 1);
-      const rank2 = liveRows.find((r) => r.rank === 2);
-      const top1Or2Ids = new Set<number>();
-      if (rank1?.entry_id) top1Or2Ids.add(rank1.entry_id);
-      if (rank2?.entry_id) top1Or2Ids.add(rank2.entry_id);
-
-      const mostGwList = Array.isArray(leagueData?.most_gameweek_champions) ? leagueData.most_gameweek_champions : [];
-      const eligibleMostGw = mostGwList.filter((m) => m && m.win_count > 0).find((m) => !top1Or2Ids.has(m.entry_id)) || mostGwList[0];
-      const rawTopLeader = mostGwList[0];
-      const isPassedDown = Boolean(eligibleMostGw && rawTopLeader && (eligibleMostGw.entry_id !== rawTopLeader.entry_id || eligibleMostGw.entry_name !== rawTopLeader.entry_name));
-
-      const gwChamps = Array.isArray(leagueData?.gameweek_champions) ? leagueData.gameweek_champions : [];
-      const gwChampRow = gwChamps.find((g) => g && g.event === activeGw);
-      const topGwChamp = gwChampRow?.champions?.[0];
-
-      if (isConfirmed && rank1 && rank2 && eligibleMostGw && topGwChamp) {
-        const confirmedFallbacks: NewsTickerStory[] = [
-          {
-            id: `client_confirmed_4champs_gw${activeGw}`,
-            headline_id: `4 Tim Juara Resmi FNB League Gameweek [N:${activeGw}] (hasil resmi yang sudah ditetapkan): Juara Gameweek [T:${topGwChamp.entry_name}] ([N:${topGwChamp.points}] poin), Juara 1 [T:${rank1.entry_name}] ([N:${rank1.total_points}] poin), Juara 2 [T:${rank2.entry_name}] ([N:${rank2.total_points}] poin), dan Juara Terbanyak Mingguan [T:${eligibleMostGw.entry_name}] ([N:${eligibleMostGw.win_count}] gelar).`,
-            headline_en: `4 Official Champions of FNB League Gameweek [N:${activeGw}] (officially confirmed results): Gameweek Champion [T:${topGwChamp.entry_name}] ([N:${topGwChamp.points}] pts), 1st Place [T:${rank1.entry_name}] ([N:${rank1.total_points}] pts), 2nd Place [T:${rank2.entry_name}] ([N:${rank2.total_points}] pts), and Most Gameweek Champion [T:${eligibleMostGw.entry_name}] ([N:${eligibleMostGw.win_count}] titles).`,
-            drama_score: 100,
-          },
-          {
-            id: `client_confirmed_gwc_gw${activeGw}`,
-            headline_id: `[T:${topGwChamp.entry_name}] resmi dinobatkan sebagai Juara Gameweek [N:${activeGw}] FNB League dengan raihan [N:${topGwChamp.points}] poin (hasil resmi yang sudah ditetapkan).`,
-            headline_en: `[T:${topGwChamp.entry_name}] is officially crowned FNB League Gameweek [N:${activeGw}] Champion with [N:${topGwChamp.points}] confirmed points (officially confirmed result).`,
-            drama_score: 99,
-          },
-          {
-            id: `client_confirmed_r1_gw${activeGw}`,
-            headline_id: `[T:${rank1.entry_name}] resmi mengunci posisi Juara 1 klasemen resmi FNB League Gameweek [N:${activeGw}] dengan total [N:${rank1.total_points}] poin (hasil resmi yang sudah ditetapkan).`,
-            headline_en: `[T:${rank1.entry_name}] officially secures 1st Place Champion on the official FNB League table for Gameweek [N:${activeGw}] with [N:${rank1.total_points}] confirmed points (officially confirmed result).`,
-            drama_score: 98,
-          },
-          {
-            id: `client_confirmed_r2_gw${activeGw}`,
-            headline_id: `[T:${rank2.entry_name}] resmi mengamankan posisi Juara 2 (Runner-Up) klasemen resmi FNB League Gameweek [N:${activeGw}] dengan total [N:${rank2.total_points}] poin (hasil resmi yang sudah ditetapkan).`,
-            headline_en: `[T:${rank2.entry_name}] officially secures 2nd Place (Runner-Up) Champion on the official FNB League table for Gameweek [N:${activeGw}] with [N:${rank2.total_points}] confirmed points (officially confirmed result).`,
-            drama_score: 97,
-          },
-          {
-            id: `client_confirmed_mg_gw${activeGw}`,
-            headline_id: `[T:${eligibleMostGw.entry_name}] resmi memegang gelar Juara Terbanyak Mingguan FNB League hingga Gameweek [N:${activeGw}] dengan [N:${eligibleMostGw.win_count}] kemenangan${isPassedDown && rawTopLeader ? ` (pelimpahan hak dari [T:${rawTopLeader.entry_name}])` : ''} (hasil resmi yang sudah ditetapkan).`,
-            headline_en: `[T:${eligibleMostGw.entry_name}] officially holds Most Gameweek Champion title through Gameweek [N:${activeGw}] with [N:${eligibleMostGw.win_count}] wins${isPassedDown && rawTopLeader ? ` via pass-down rule from [T:${rawTopLeader.entry_name}]` : ''} (officially confirmed result).`,
-            drama_score: 96,
-          },
-        ];
-        const idx = poolIdxRef.current % confirmedFallbacks.length;
-        const item = confirmedFallbacks[idx];
-        poolIdxRef.current = (idx + 1) % confirmedFallbacks.length;
-        return item;
-      }
-
-      return {
-        id: 'fallback_1',
-        headline_id: 'FPL Nusantara BERHADIAH • Pantau klasemen dan perebutan 4 gelar juara liga',
-        headline_en: 'FPL Nusantara BERHADIAH • Track standings and the race for 4 league championships',
-        drama_score: 50,
-      };
+      return null;
     }
     const idx = poolIdxRef.current % list.length;
     const item = list[idx];
@@ -494,9 +447,9 @@ const getSavedPoolIdx = (): number => {
       sessionStorage.setItem(POOL_IDX_STORAGE_KEY, String(poolIdxRef.current));
     } catch {}
     return item;
-  }, [leagueData]);
+  }, []);
 
-  // Initialize track buffer on cold start
+  // Initialize track buffer from Editor-sourced stories only
   const fillTrackInitial = useCallback(() => {
     const track = trackRef.current;
     const container = containerRef.current;
@@ -506,12 +459,17 @@ const getSavedPoolIdx = (): number => {
     currentXRef.current = 0;
     track.style.transform = 'translate3d(0, 0, 0)';
 
+    if (storiesRef.current.length === 0) {
+      return;
+    }
+
     const minWidth = (container.clientWidth || window.innerWidth || 1200) + 1200;
     let currentWidth = 0;
     let safetyCounter = 0;
 
     while (currentWidth < minWidth && safetyCounter < 25) {
       const story = getNextStory();
+      if (!story) break;
       const el = createStoryElement(story, nextUidRef.current++);
       track.appendChild(el);
       currentWidth += el.offsetWidth || 350;
@@ -530,26 +488,28 @@ const getSavedPoolIdx = (): number => {
   // "Habiskan dulu tampilan 1 berita yang sedang tampil di layar. News baru tersebut tampil sebagai berita berikutnya tepat setelahnya."
   const handleIncomingStories = useCallback(
     (newStories: NewsTickerStory[]) => {
-      if (!Array.isArray(newStories) || newStories.length === 0) return;
-
       const track = trackRef.current;
       const container = containerRef.current;
+
+      if (!Array.isArray(newStories) || newStories.length === 0) {
+        storiesRef.current = [];
+        setStories([]);
+        if (track) {
+          track.innerHTML = '';
+          currentXRef.current = 0;
+          track.style.transform = 'translate3d(0, 0, 0)';
+        }
+        return;
+      }
+
       const currentList = storiesRef.current;
 
       // Initial load: when we had no stories before
       if (currentList.length === 0) {
         storiesRef.current = newStories;
         setStories(newStories);
-        if (!track || !container || track.children.length === 0) {
+        if (track && container) {
           fillTrackInitial();
-        } else {
-          // If track was previously filled with fallback placeholder items, replace with real stories
-          const hasOnlyFallback = Array.from(track.children).every(
-            (c) => (c as HTMLElement).dataset.storyId?.startsWith('fallback_')
-          );
-          if (hasOnlyFallback) {
-            fillTrackInitial();
-          }
         }
         return;
       }
@@ -623,6 +583,7 @@ const getSavedPoolIdx = (): number => {
       let safety = 0;
       while (totalWidth < minWidth && safety < 25) {
         const nextStory = getNextStory();
+        if (!nextStory) break;
         const el = createStoryElement(nextStory, nextUidRef.current++);
         track.appendChild(el);
         totalWidth += el.offsetWidth || 350;
@@ -655,10 +616,12 @@ const getSavedPoolIdx = (): number => {
     }
   }, [language, renderFormattedStory]);
 
+  const hasStories = stories.length > 0;
+
   // Main 60 FPS Continuous Conveyor Loop (Translate3d, sub-pixel accuracy, pause on hover)
-  // Decoupled from prop/state changes so the ticker continuously rolls across all 1000 items
+  // Decoupled from prop/state changes so the ticker continuously rolls across Editor-sourced items
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || !hasStories) return;
 
     if (!trackRef.current || trackRef.current.children.length === 0) {
       fillTrackInitialRef.current();
@@ -675,7 +638,7 @@ const getSavedPoolIdx = (): number => {
       const track = trackRef.current;
       const container = containerRef.current;
 
-      if (!isHoveredRef.current && track && container) {
+      if (!isHoveredRef.current && track && container && storiesRef.current.length > 0) {
         currentXRef.current -= speed * deltaSec;
 
         const firstChild = track.firstElementChild as HTMLElement;
@@ -689,8 +652,10 @@ const getSavedPoolIdx = (): number => {
             currentXRef.current += itemWidth;
             // 3. Append next story seamlessly to the right from ongoing round-robin pool
             const nextStory = getNextStoryRef.current();
-            const nextEl = createStoryElementRef.current(nextStory, nextUidRef.current++);
-            track.appendChild(nextEl);
+            if (nextStory) {
+              const nextEl = createStoryElementRef.current(nextStory, nextUidRef.current++);
+              track.appendChild(nextEl);
+            }
           }
         }
 
@@ -705,9 +670,9 @@ const getSavedPoolIdx = (): number => {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isVisible]);
+  }, [isVisible, hasStories]);
 
-  if (!isVisible) {
+  if (!isVisible || !hasStories) {
     return null;
   }
 

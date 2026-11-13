@@ -1,8 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
-import { formatTeamList } from './liveJournalismEngine.ts';
-import { sortTeamsByLeastFeatured, sortObjectsByLeastFeaturedTeam, getTeamAppearanceCounts } from './teamExposureTracker.ts';
+import { formatTeamList, sortTeamsByLeastFeatured, sortObjectsByLeastFeaturedTeam, getTeamAppearanceCounts } from './teamExposureTracker.ts';
 
 /**
  * ============================================================================
@@ -1425,31 +1424,31 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   }
 
   const wave1 = [
-    storiesByTemplateId.get('P1_MATCH_FIXTURES'),
-    storiesByTemplateId.get('P1_TOP_RIVALRY'),
-    storiesByTemplateId.get('P1_CAPTAINCY_RECAP'),
+    storiesByTemplateId.get('NS_MATCH_FIXTURE'),
+    storiesByTemplateId.get('NS_TOP_RIVALRY'),
+    storiesByTemplateId.get('NS_CAPTAIN_RECAP'),
   ].filter(Boolean) as GeneratedPhase1Story[];
 
   const wave2 = [
-    storiesByTemplateId.get('P1_HITS_RECAP'),
-    storiesByTemplateId.get('P1_CHIP_WILDCARD'),
-    storiesByTemplateId.get('P1_CHIP_FREEHIT'),
-    storiesByTemplateId.get('P1_TRANSFER_IN'),
-    storiesByTemplateId.get('P1_DIFFERENTIAL_CAPTAIN'),
+    storiesByTemplateId.get('NS_HITS_RECAP'),
+    storiesByTemplateId.get('NS_CHIP_WILDCARD'),
+    storiesByTemplateId.get('NS_CHIP_FREEHIT'),
+    storiesByTemplateId.get('NS_TRANSFER_IN'),
+    storiesByTemplateId.get('NS_DIFFERENTIAL_CAPTAIN'),
     pickedAscStory,
   ].filter(Boolean) as GeneratedPhase1Story[];
 
   const wave3 = [
-    storiesByTemplateId.get('P1_MOST_GW_RIVALRY'),
-    storiesByTemplateId.get('P1_CHIP_TRIPLE_CAPTAIN'),
-    storiesByTemplateId.get('P1_CHIP_BENCH_BOOST'),
-    storiesByTemplateId.get('P1_TRANSFER_OUT'),
-    storiesByTemplateId.get('P1_DIFFERENTIAL_XI'),
+    storiesByTemplateId.get('NS_MOST_GW_RIVALRY'),
+    storiesByTemplateId.get('NS_CHIP_TRIPLE_CAPTAIN'),
+    storiesByTemplateId.get('NS_CHIP_BENCH_BOOST'),
+    storiesByTemplateId.get('NS_TRANSFER_OUT'),
+    storiesByTemplateId.get('NS_DIFFERENTIAL_XI'),
   ].filter(Boolean) as GeneratedPhase1Story[];
 
   const wave4 = [
-    storiesByTemplateId.get('P1_OWNERSHIP_MOST_OWNED'),
-    storiesByTemplateId.get('P1_CHIP_RECAP'),
+    storiesByTemplateId.get('NS_MOST_OWNED'),
+    storiesByTemplateId.get('NS_CHIP_RECAP'),
     pickedDescStory,
   ].filter(Boolean) as GeneratedPhase1Story[];
 

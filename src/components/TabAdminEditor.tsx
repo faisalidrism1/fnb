@@ -182,6 +182,108 @@ function computeDynamicExample(template: string, sampleData?: Record<string, any
   return result.trim();
 }
 
+/**
+ * Renders formatted example headline with identical entity badge styling to TabAdmin News Ticker table
+ * ([T:Team], [P:Player], [C:Club], [N:Number]) and clean [Kondisi: ...] section headers.
+ */
+function renderFormattedExample(text: string): React.ReactNode {
+  if (!text) return null;
+
+  const renderLineWithTags = (line: string, lineKey: string) => {
+    const parts: React.ReactNode[] = [];
+    const regex = /\[([TPCN]):([^\]]+)\]/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(line)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(line.substring(lastIndex, match.index));
+      }
+
+      const tagType = match[1];
+      const tagContent = match[2];
+      const key = `${lineKey}-${match.index}-${tagType}-${tagContent}`;
+
+      switch (tagType) {
+        case 'T':
+          parts.push(
+            <span
+              key={key}
+              className="inline-flex items-center px-1 rounded font-extrabold text-[11px] leading-tight bg-purple-100 dark:bg-purple-950/80 text-[#37003c] dark:text-[#00ff87] border border-purple-200 dark:border-purple-800/60"
+            >
+              {tagContent}
+            </span>
+          );
+          break;
+        case 'P':
+          parts.push(
+            <span
+              key={key}
+              className="inline-flex items-center px-1 rounded font-bold text-[11px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60"
+            >
+              {tagContent}
+            </span>
+          );
+          break;
+        case 'C':
+          parts.push(
+            <span
+              key={key}
+              className="inline-flex items-center px-1 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+            >
+              {tagContent}
+            </span>
+          );
+          break;
+        case 'N':
+          parts.push(
+            <span
+              key={key}
+              className="inline-flex items-center px-1 rounded font-black text-[11px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
+            >
+              {tagContent}
+            </span>
+          );
+          break;
+        default:
+          parts.push(tagContent);
+      }
+
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < line.length) {
+      parts.push(line.substring(lastIndex));
+    }
+
+    return parts;
+  };
+
+  const lines = text.split('\n');
+  return lines.map((rawLine, idx) => {
+    const trimmed = rawLine.trim();
+    const condMatch = /^\[Kondisi:\s*([^\]]+)\]$/i.exec(trimmed);
+    if (condMatch) {
+      return (
+        <div
+          key={`cond-${idx}`}
+          className="text-[10px] font-black uppercase tracking-wider text-purple-700 dark:text-[#00ff87] mt-1.5 first:mt-0 mb-0.5"
+        >
+          Kondisi: {condMatch[1].trim()}
+        </div>
+      );
+    }
+    if (!trimmed) {
+      return <div key={`sp-${idx}`} className="h-1" />;
+    }
+    return (
+      <div key={`line-${idx}`} className="leading-relaxed">
+        {renderLineWithTags(rawLine, `l${idx}`)}
+      </div>
+    );
+  });
+}
+
 const GW_PHASES = [
   'ALL',
   'Not started',
@@ -709,9 +811,12 @@ export const TabAdminEditor: React.FC = () => {
                   // Real story lookup if in real mode
                   let realExampleHeadline = '';
                   if (previewMode === 'real') {
-                    const targetSub = `p1_${row.id.toLowerCase()}_gw`;
+                    const rowIdLower = row.id.toLowerCase();
                     for (const [storyId, storyHeadline] of Object.entries(realStoriesMap)) {
-                      if (storyId.startsWith(targetSub)) {
+                      if (
+                        storyId === rowIdLower ||
+                        storyId.startsWith(`${rowIdLower}_`)
+                      ) {
                         realExampleHeadline = storyHeadline;
                         break;
                       }
@@ -726,7 +831,7 @@ export const TabAdminEditor: React.FC = () => {
                   const isLiveMatch = (row.gw_phase || '').trim().toLowerCase() === 'live match';
                   const resolvedOutput = isLiveMatch
                     ? 'MULTI-NEWS'
-                    : (row.output || (row.id === 'P1_INJURY_UPDATE' || row.subcategory === 'Flagged Players' ? 'MULTI-NEWS' : 'SINGLE-NEWS'));
+                    : (row.output || (row.id === 'NS_INJURY_UPDATE' || row.subcategory === 'Flagged Players' ? 'MULTI-NEWS' : 'SINGLE-NEWS'));
 
                   return (
                     <tr
@@ -844,7 +949,7 @@ export const TabAdminEditor: React.FC = () => {
                       {/* 5. Example (Fixed 4-line height with vertical scroll like template) */}
                       <td className="py-2.5 px-3 border-r border-slate-200 dark:border-purple-900/30 w-[360px] max-w-[360px]">
                         <div className="w-full h-[96px] min-h-[96px] max-h-[96px] p-2.5 rounded-md bg-slate-50 dark:bg-[#120522] border border-slate-200 dark:border-purple-950 text-xs font-medium text-slate-800 dark:text-slate-200 leading-relaxed font-sans overflow-y-auto scrollbar-thin select-text whitespace-pre-wrap break-words">
-                          {displayExample}
+                          {renderFormattedExample(displayExample)}
                         </div>
                       </td>
 

@@ -58,3 +58,39 @@ export function sortObjectsByLeastFeaturedTeam<T>(
   });
 }
 
+/**
+ * Memformat daftar tim sesuai aturan baku:
+ * - Jumlah tim <= 3: sebutkan semua nama tim ([T:A], [T:A] dan [T:B], [T:A], [T:B], dan [T:C])
+ * - Jumlah tim > 3: sebutkan 2 dan n tim lainnya ([T:A], [T:B], dan [N:X] tim lainnya)
+ *   Kecuali rivalitas juara, 2 tim yang disorot SELALU menggunakan Opsi B (Least Featured Queue)
+ */
+export function formatTeamList(
+  teams: string[],
+  lang: 'id' | 'en' = 'id',
+  isChampionshipRivalry: boolean = false
+): string {
+  if (!teams || teams.length === 0) return '';
+  let cleanTeams = teams
+    .map((t) => t.replace(/^\[T:/, '').replace(/\]$/, '').trim())
+    .filter(Boolean);
+  const n = cleanTeams.length;
+  if (n === 0) return '';
+  if (n === 1) return `[T:${cleanTeams[0]}]`;
+  if (n === 2) {
+    return lang === 'id'
+      ? `[T:${cleanTeams[0]}] dan [T:${cleanTeams[1]}]`
+      : `[T:${cleanTeams[0]}] and [T:${cleanTeams[1]}]`;
+  }
+  if (n === 3) {
+    return lang === 'id'
+      ? `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], dan [T:${cleanTeams[2]}]`
+      : `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], and [T:${cleanTeams[2]}]`;
+  }
+  if (!isChampionshipRivalry) {
+    cleanTeams = sortTeamsByLeastFeatured(cleanTeams);
+  }
+  const remaining = n - 2;
+  return lang === 'id'
+    ? `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], dan [N:${remaining}] tim lainnya`
+    : `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], and [N:${remaining}] other teams`;
+}

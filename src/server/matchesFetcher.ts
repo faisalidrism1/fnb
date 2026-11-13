@@ -67,6 +67,13 @@ let pulseSeasonFixturesCache: {
 const pulseMatchDetailsCache = new Map<number, { data: any; time: number; isFinished: boolean }>();
 
 /**
+ * Synchronously returns cached matches for a GW if already loaded in memory
+ */
+export function getCachedMatchesForGw(gw: number): MatchCardItem[] | null {
+  return matchesGwCache.get(gw)?.data || null;
+}
+
+/**
  * Clear matches cache to force fresh live fetch on next request or after sync
  */
 export function invalidateMatchesCache(gw?: number): void {

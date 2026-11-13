@@ -1,6 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
+import { fetchMatchesForGw, getCachedMatchesForGw } from './matchesFetcher.ts';
+import { getDbStandings } from './db.ts';
+import type { MatchCardItem, MatchPlayerItem } from '../types.ts';
 
 const DB_PATH = path.join(process.cwd(), 'src/data/fpl_database.json');
 const PULSE_BASE = 'https://footballapi.pulselive.com/football';
@@ -22,7 +25,7 @@ export interface LiveMatchStory {
   gw: number;
   teams: string[];
   players: string[];
-  sumber: 'Bukan';
+  sumber: 'Sys' | 'Bukan' | string;
   status_tayang: 'Y' | 'N';
   keterangan_tidak_tayang: string;
   timestamp_produksi?: string;
@@ -286,9 +289,28 @@ export async function getAllLiveMatchStories(gw = 10): Promise<LiveMatchStory[]>
     if (allStories.length === 0) {
       const pulseData = await fetchPulseMatch(129021);
       if (pulseData) {
-        return generateStoriesFromPulseMatch(pulseData, gw);
+        allStories.push(...generateStoriesFromPulseMatch(pulseData, gw));
       }
     }
+
+    // Include live match statistical threshold events (LM_GK_SAVES & LM_DEFCON_BONUS)
+    try {
+      const statStories = await fetchAndGenerateLiveMatchStatStories(gw, false);
+      allStories.push(...statStories);
+    } catch {}
+
+    // Include live team rank shift events (LM_TEAM_RANK_SHIFT) when matches are live
+    try {
+      const rankShiftStories = generateLiveTeamRankShiftStories(gw, { requireLiveMatch: true });
+      allStories.push(...rankShiftStories);
+    } catch {}
+
+    // Include ongoing live match score snapshots (LM_MATCH_SCORE)
+    try {
+      const scoreStories = generateLiveMatchScoreStories(gw);
+      allStories.push(...scoreStories);
+    } catch {}
+
     return allStories;
   } catch (err: any) {
     console.warn('[Pulse Match Generator] Error in getAllLiveMatchStories:', err.message);
@@ -405,7 +427,7 @@ export function generateStoriesFromPulseMatch(
       gw: Number(tmpl.gw) || gw,
       teams,
       players,
-      sumber: (tmpl.source as any) || 'Bukan',
+      sumber: (tmpl.source as any) || 'Sys',
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
       timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
@@ -610,7 +632,7 @@ export function generateStoriesFromPulseMatch(
 
     // D. Disciplinary: Yellow Card (B), Second Yellow (SY), Straight Red (R)
     else if (ev.type === 'B') {
-      const tmpl = tmplMap.get('LM_BOOKING_YELLOW');
+      const tmpl = tmplMap.get('LM_CARD_YELLOW');
       if (tmpl) {
         const player = resolvePlayer(ev.personId);
         const vars = {
@@ -776,3 +798,366 @@ export function generateStoriesFromPulseMatch(
 
   return stories;
 }
+
+/**
+ * Generates live match FPL statistical stories (`LM_GK_SAVES` and `LM_DEFCON_BONUS`)
+ * from MatchCardItem data (cached or provided).
+ */
+export function generateLiveMatchStatStories(
+  gw = 10,
+  options?: { includeFinished?: boolean; matchesOverride?: MatchCardItem[] }
+): LiveMatchStory[] {
+  const matches = options?.matchesOverride ?? getCachedMatchesForGw(gw) ?? [];
+  if (!Array.isArray(matches) || matches.length === 0) return [];
+
+  const includeFinished = Boolean(options?.includeFinished);
+  const templates = getPhase1Templates();
+  const tmplSaves = templates.find((t) => t.id === 'LM_GK_SAVES');
+  const tmplDefcon = templates.find((t) => t.id === 'LM_DEFCON_BONUS');
+  if (!tmplSaves && !tmplDefcon) return [];
+
+  const { playersById } = getFplPlayerDirectory(gw);
+  const stories: LiveMatchStory[] = [];
+  const nowIso = new Date().toISOString();
+
+  for (const m of matches) {
+    const isEligibleMatch = m.started && (includeFinished || (!m.finished && !m.finished_provisional));
+    if (!isEligibleMatch) continue;
+
+    const homeClub = m.home_team?.name || 'Home';
+    const awayClub = m.away_team?.name || 'Away';
+    const minuteStr = m.clock_label || (m.minutes ? `${m.minutes}'` : 'Live');
+    const clockSecs = (m.minutes || 0) * 60;
+
+    const processTeamPlayers = (players: MatchPlayerItem[], clubName: string, opponentName: string) => {
+      const seenIds = new Set<number>();
+      for (const p of players) {
+        if (!p || !p.id || seenIds.has(p.id)) continue;
+        seenIds.add(p.id);
+
+        const mins = p.stats?.minutes || 0;
+        if (mins <= 0) continue;
+
+        const dirPlayer = playersById.get(p.id);
+        const playerPct = dirPlayer?.ownershipPct ?? 0;
+        const playerName = dirPlayer?.webName || p.web_name || 'Player';
+
+        // 1. LM_GK_SAVES (Goalkeeper saves >= 3 -> +1 pt per 3 saves)
+        if (tmplSaves && p.position === 'GKP') {
+          const saves = Number(p.stats?.saves || 0);
+          if (saves >= 3) {
+            const savesPts = Math.floor(saves / 3);
+            const vars = {
+              club: clubName,
+              player: playerName,
+              player_pct: playerPct,
+              saves,
+              saves_pts: savesPts,
+              opponent: opponentName,
+            };
+            const headlineId = fillPlaceholders(tmplSaves.template, vars);
+            const headlineEn = `[C:${clubName}] goalkeeper [P:${playerName}] ([N:${playerPct}%]) has made [N:${saves} Saves], earning [N:+${savesPts} Pts] against [C:${opponentName}].`;
+            stories.push({
+              id: `${tmplSaves.id}_m${m.id}_p${p.id}`,
+              headline_id: headlineId,
+              headline_en: headlineEn,
+              kategori: tmplSaves.category,
+              sub_kategori: tmplSaves.subcategory,
+              drama_score: Math.min(93, 80 + savesPts * 4),
+              waktu_tayang: ['Live Match'],
+              gw: Number(tmplSaves.gw) || gw,
+              teams: [homeClub, awayClub],
+              players: [playerName],
+              sumber: (tmplSaves.source as any) || 'Sys',
+              status_tayang: 'Y',
+              keterangan_tidak_tayang: '',
+              timestamp_produksi: tmplSaves.timestamp || tmplSaves.updated_at || nowIso,
+              pulseMatchId: m.id,
+              minute: minuteStr,
+              clockSecs,
+            });
+          }
+        }
+
+        // 2. LM_DEFCON_BONUS (DEF >= 10 CBIT, MID/FWD >= 12 CBIRT -> +2 pts)
+        if (tmplDefcon) {
+          const dc = Number(p.stats?.defensive_contribution || 0);
+          const isEligible =
+            (p.position === 'DEF' && dc >= 10) ||
+            ((p.position === 'MID' || p.position === 'FWD') && dc >= 12);
+
+          if (isEligible) {
+            const vars = {
+              player: playerName,
+              player_pct: playerPct,
+              dc_count: dc,
+              club: clubName,
+              opponent: opponentName,
+            };
+            const headlineId = fillPlaceholders(tmplDefcon.template, vars);
+            const headlineEn = `[P:${playerName}] ([N:${playerPct}%]) has recorded [N:${dc} Defensive Actions] for [C:${clubName}] against [C:${opponentName}], securing [N:+2 Pts] Defensive Contribution.`;
+            stories.push({
+              id: `${tmplDefcon.id}_m${m.id}_p${p.id}`,
+              headline_id: headlineId,
+              headline_en: headlineEn,
+              kategori: tmplDefcon.category,
+              sub_kategori: tmplDefcon.subcategory,
+              drama_score: Math.min(92, 82 + Math.floor(dc / 2)),
+              waktu_tayang: ['Live Match'],
+              gw: Number(tmplDefcon.gw) || gw,
+              teams: [homeClub, awayClub],
+              players: [playerName],
+              sumber: (tmplDefcon.source as any) || 'Sys',
+              status_tayang: 'Y',
+              keterangan_tidak_tayang: '',
+              timestamp_produksi: tmplDefcon.timestamp || tmplDefcon.updated_at || nowIso,
+              pulseMatchId: m.id,
+              minute: minuteStr,
+              clockSecs,
+            });
+          }
+        }
+      }
+    };
+
+    const homePlayers = [...(m.home_lineup || []), ...(m.home_bench || [])];
+    const awayPlayers = [...(m.away_lineup || []), ...(m.away_bench || [])];
+    processTeamPlayers(homePlayers, homeClub, awayClub);
+    processTeamPlayers(awayPlayers, awayClub, homeClub);
+  }
+
+  return stories;
+}
+
+/**
+ * Async wrapper that ensures matches for the target GW are loaded before generating stat stories.
+ */
+export async function fetchAndGenerateLiveMatchStatStories(
+  gw = 10,
+  includeFinished = false
+): Promise<LiveMatchStory[]> {
+  try {
+    let matches = getCachedMatchesForGw(gw);
+    if (!matches || matches.length === 0) {
+      matches = await fetchMatchesForGw(gw);
+    }
+    return generateLiveMatchStatStories(gw, {
+      includeFinished,
+      matchesOverride: matches || undefined,
+    });
+  } catch (err: any) {
+    console.warn('[Pulse Match Generator] Error fetching live match stat stories:', err.message);
+    return [];
+  }
+}
+
+/**
+ * Generates live match team rank shift stories (`LM_TEAM_RANK_SHIFT`)
+ * from provisional/live standings while matches are in progress.
+ */
+export function generateLiveTeamRankShiftStories(
+  gw = 10,
+  options?: { requireLiveMatch?: boolean; matchesOverride?: MatchCardItem[] }
+): LiveMatchStory[] {
+  const templates = getPhase1Templates();
+  const tmpl = templates.find((t) => t.id === 'LM_TEAM_RANK_SHIFT');
+  if (!tmpl) return [];
+
+  if (options?.requireLiveMatch !== false) {
+    const matches = options?.matchesOverride ?? getCachedMatchesForGw(gw) ?? [];
+    const hasLiveMatch = matches.some((m) => m.started && !m.finished && !m.finished_provisional);
+    if (!hasLiveMatch) return [];
+  }
+
+  const standings = getDbStandings(gw);
+  if (!Array.isArray(standings) || standings.length === 0) return [];
+
+  const movers = standings
+    .filter((s) => Math.abs(s.rank_change || 0) >= 1 || s.rank <= 3)
+    .slice(0, 30);
+
+  const nowIso = new Date().toISOString();
+  const stories: LiveMatchStory[] = [];
+
+  for (const team of movers) {
+    const rankChange = Number(team.rank_change || 0);
+    const currentRank = Number(team.rank || 0);
+    const lastRank = Number(team.last_rank || currentRank);
+    const gwPts = Number(team.event_points || 0);
+    const totalPts = Number(team.total_points || 0);
+    const rankDiff = Math.abs(rankChange);
+
+    let cond = 'Bertahan Peringkat';
+    let headlineEn = `[T:${team.entry_name}] collected [N:${gwPts} Pts] provisionally in Gameweek [N:${gw}] and holds rank [N:${currentRank}] on the live table with [N:${totalPts} Pts].`;
+    if (rankChange > 0) {
+      cond = 'Naik Peringkat';
+      headlineEn = `[T:${team.entry_name}] collected [N:${gwPts} Pts] provisionally in Gameweek [N:${gw}], climbing [N:+${rankDiff} Places] from rank [N:${lastRank}] to rank [N:${currentRank}] on the live table with [N:${totalPts} Pts].`;
+    } else if (rankChange < 0) {
+      cond = 'Turun Peringkat';
+      headlineEn = `[T:${team.entry_name}] collected [N:${gwPts} Pts] provisionally in Gameweek [N:${gw}], dropping [N:-${rankDiff} Places] from rank [N:${lastRank}] to rank [N:${currentRank}] on the live table with [N:${totalPts} Pts].`;
+    }
+
+    const headlineId = resolveConditionalBlock(tmpl.template, cond, {
+      team: team.entry_name,
+      gw_pts: gwPts,
+      gw,
+      rank_diff: rankDiff,
+      old_rank: lastRank,
+      new_rank: currentRank,
+      total_pts: totalPts,
+    });
+
+    stories.push({
+      id: `${tmpl.id}_${team.entry_id}_gw${gw}`,
+      headline_id: headlineId,
+      headline_en: headlineEn,
+      kategori: tmpl.category,
+      sub_kategori: tmpl.subcategory,
+      drama_score: rankDiff >= 5 ? 90 : currentRank <= 3 ? 89 : 84,
+      waktu_tayang: ['Live Match'],
+      gw: Number(tmpl.gw) || gw,
+      teams: [team.entry_name],
+      players: [],
+      sumber: (tmpl.source as any) || 'Sys',
+      status_tayang: 'Y',
+      keterangan_tidak_tayang: '',
+      timestamp_produksi: tmpl.timestamp || tmpl.updated_at || nowIso,
+    });
+  }
+
+  return stories;
+}
+
+/**
+ * Generates ongoing live match score snapshot stories (`LM_MATCH_SCORE`)
+ * for matches currently in progress (including 0-0 and Half Time states).
+ */
+export function generateLiveMatchScoreStories(
+  gw = 10,
+  options?: { includeFinished?: boolean; matchesOverride?: MatchCardItem[] }
+): LiveMatchStory[] {
+  const templates = getPhase1Templates();
+  const tmpl = templates.find((t) => t.id === 'LM_MATCH_SCORE');
+  if (!tmpl) return [];
+
+  const matches = options?.matchesOverride ?? getCachedMatchesForGw(gw) ?? [];
+  if (!Array.isArray(matches) || matches.length === 0) return [];
+
+  const includeFinished = Boolean(options?.includeFinished);
+  const { playersById } = getFplPlayerDirectory(gw);
+  const nowIso = new Date().toISOString();
+  const stories: LiveMatchStory[] = [];
+
+  for (const m of matches) {
+    const isEligible = m.started && (includeFinished || (!m.finished && !m.finished_provisional));
+    if (!isEligible) continue;
+
+    const homeClub = m.home_team?.name || 'Home';
+    const awayClub = m.away_team?.name || 'Away';
+    const homeScore = m.team_h_score ?? 0;
+    const awayScore = m.team_a_score ?? 0;
+    const totalGoals = homeScore + awayScore;
+    const minuteStr = m.clock_label || (m.minutes ? `${m.minutes}'` : 'Live');
+    const isHT = Boolean(
+      m.is_half_time ||
+        minuteStr.toLowerCase().includes('half') ||
+        minuteStr.toLowerCase() === 'ht'
+    );
+
+    const allPlayers = [
+      ...(m.home_lineup || []),
+      ...(m.home_bench || []),
+      ...(m.away_lineup || []),
+      ...(m.away_bench || []),
+    ];
+
+    const seenScorerIds = new Set<number>();
+    const scorerItemsId: string[] = [];
+    const scorerItemsEn: string[] = [];
+    const scorerNames: string[] = [];
+
+    for (const p of allPlayers) {
+      if (!p || !p.id || seenScorerIds.has(p.id)) continue;
+      const goals = Number(p.stats?.goals_scored || 0);
+      const ownGoals = Number(p.stats?.own_goals || 0);
+      if (goals <= 0 && ownGoals <= 0) continue;
+      seenScorerIds.add(p.id);
+
+      const dirPlayer = playersById.get(p.id);
+      const name = dirPlayer?.webName || p.web_name || 'Player';
+      const pct = dirPlayer?.ownershipPct ?? 0;
+      scorerNames.push(name);
+
+      if (goals > 0) {
+        const suffixId = goals > 1 ? ` [N:(${goals} Gol)]` : '';
+        const suffixEn = goals > 1 ? ` [N:(${goals} Goals)]` : '';
+        scorerItemsId.push(`[P:${name}] ([N:${pct}%])${suffixId}`);
+        scorerItemsEn.push(`[P:${name}] ([N:${pct}%])${suffixEn}`);
+      } else if (ownGoals > 0) {
+        scorerItemsId.push(`[P:${name}] ([N:${pct}%]) [N:(GBD)]`);
+        scorerItemsEn.push(`[P:${name}] ([N:${pct}%]) [N:(OG)]`);
+      }
+    }
+
+    const joinHuman = (items: string[], conj: string): string => {
+      if (items.length === 0) return '';
+      if (items.length === 1) return items[0];
+      if (items.length === 2) return `${items[0]} ${conj} ${items[1]}`;
+      return `${items.slice(0, -1).join(', ')}, ${conj} ${items[items.length - 1]}`;
+    };
+
+    const scorersListId = joinHuman(scorerItemsId, 'dan');
+    const scorersListEn = joinHuman(scorerItemsEn, 'and');
+
+    const hasScorers = totalGoals > 0 && Boolean(scorersListId);
+    let cond = 'Skor 0-0 Berjalan';
+    let headlineEn = `[C:${homeClub}] vs [C:${awayClub}] is underway at minute [N:${minuteStr}] with the score at [N:0 - 0].`;
+
+    if (isHT) {
+      if (hasScorers) {
+        cond = 'Dengan Gol Half Time';
+        headlineEn = `[C:${homeClub}] vs [C:${awayClub}] reaches Half Time with the score at [N:${homeScore} - ${awayScore}], goals scored by ${scorersListEn}.`;
+      } else {
+        cond = 'Skor 0-0 Half Time';
+        headlineEn = `[C:${homeClub}] vs [C:${awayClub}] reaches Half Time with the score at [N:0 - 0].`;
+      }
+    } else if (hasScorers) {
+      cond = 'Dengan Gol Berjalan';
+      headlineEn = `[C:${homeClub}] vs [C:${awayClub}] is underway at minute [N:${minuteStr}] with the score at [N:${homeScore} - ${awayScore}], goals scored by ${scorersListEn}.`;
+    }
+
+    const headlineId = resolveConditionalBlock(tmpl.template, cond, {
+      home_club: homeClub,
+      away_club: awayClub,
+      minute: minuteStr,
+      home_score: homeScore,
+      away_score: awayScore,
+      scorers_list: scorersListId,
+    });
+
+    stories.push({
+      id: `${tmpl.id}_m${m.id}`,
+      headline_id: headlineId,
+      headline_en: headlineEn,
+      kategori: tmpl.category,
+      sub_kategori: tmpl.subcategory,
+      drama_score: totalGoals >= 3 ? 91 : totalGoals > 0 ? 87 : 78,
+      waktu_tayang: ['Live Match'],
+      gw: Number(tmpl.gw) || gw,
+      teams: [homeClub, awayClub],
+      players: scorerNames,
+      sumber: (tmpl.source as any) || 'Sys',
+      status_tayang: 'Y',
+      keterangan_tidak_tayang: '',
+      timestamp_produksi: tmpl.timestamp || tmpl.updated_at || nowIso,
+      pulseMatchId: m.id,
+      minute: minuteStr,
+      clockSecs: (m.minutes || 0) * 60,
+    });
+  }
+
+  return stories;
+}
+
+
+

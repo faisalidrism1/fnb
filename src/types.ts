@@ -680,42 +680,10 @@ export type TransferSubTab = 'all-transfers' | 'transferred-in' | 'transferred-o
 export type CaptainSubTab = 'most-captained-player' | 'most-captained-club-players';
 export type AdminSubTab = 'news-ticker' | 'editor';
 
-export type NewsFormulaSource = 'SYS' | 'AI';
-export type NewsAiringPhase = 'Not started' | 'Live Match' | 'Between Match' | 'Provisional' | 'Confirmed';
-
-export interface NewsFormulaDramaConfig {
-  base_score: number;
-  min_cap: number;
-  max_cap: number;
-  metric_name?: string;
-  metric_label?: string;
-  metric_multiplier?: number;
-  metric_default?: number;
-  metric_min?: number;
-  metric_max?: number;
-  metric_step?: number;
-}
-
-export interface NewsFormulaItem {
-  id: string;
-  name: string;
-  description: string;
-  source: NewsFormulaSource;
-  kategori: string;
-  sub_kategori: string;
-  mentions_points_or_rank: boolean;
-  allowed_phases: NewsAiringPhase[];
-  example_live_id: string;
-  example_confirmed_id: string;
-  example_live_en: string;
-  example_confirmed_en: string;
-  drama_config: NewsFormulaDramaConfig;
-}
-
 export interface NewsTickerDbRow {
   id: string;
   timestamp_produksi: string;
-  sumber: 'AI' | 'Sys' | 'Bukan' | string;
+  sumber: 'Sys' | string;
   status_tayang: 'Y' | 'N';
   keterangan_tidak_tayang: string;
   fase: string;

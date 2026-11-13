@@ -162,7 +162,7 @@ Ketika user membuka aplikasi / mengaktifkan tab:
   - **DILARANG KERAS** menggunakan kata *"menjelang"*, *"sebelum Gameweek N"*, atau frasa lain yang mengesankan Gameweek N belum dimulai.
   - **GUNAKAN** kata/frasa *"di Gameweek [N:{gw}]"* atau *"pada Gameweek [N:{gw}]"*.
   - Khusus tampilan berita, jumlah gelar juara mingguan yang dibawa manajer saat fase *Not started* dihitung murni dari **GW 1 s.d. GW $(n - 1)$**.
-  - Pada berita Most GW Rivalry (`P1_MOST_GW_RIVALRY`), **KECUALIKAN peringkat 1 dan 2 di klasemen akhir GW $(n - 1)$** dari daftar tim yang dapat ditampilkan, sehingga sorotan calon juara mingguan terbanyak berfokus pada tim-tim di luar dua besar klasemen utama (menghindari duplikasi dengan `P1_TOP_RIVALRY`).
+  - Pada berita Most GW Rivalry (`NS_MOST_GW_RIVALRY`), **KECUALIKAN peringkat 1 dan 2 di klasemen akhir GW $(n - 1)$** dari daftar tim yang dapat ditampilkan, sehingga sorotan calon juara mingguan terbanyak berfokus pada tim-tim di luar dua besar klasemen utama (menghindari duplikasi dengan `NS_TOP_RIVALRY`).
 
 ---
 
