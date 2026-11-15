@@ -182,6 +182,113 @@ function computeDynamicExample(template: string, sampleData?: Record<string, any
   return result.trim();
 }
 
+function splitConditionSections(text: string): Array<{ header: string; condName: string; body: string }> {
+  const sections: Array<{ header: string; condName: string; body: string }> = [];
+  const lines = String(text || '').split('\n');
+  let currentHeader = '';
+  let currentCondName = '';
+  let currentLines: string[] = [];
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    const match = /^\[Kondisi:\s*([^\]]+)\]$/i.exec(line);
+    if (match) {
+      if (currentHeader || currentLines.length > 0) {
+        sections.push({
+          header: currentHeader,
+          condName: currentCondName,
+          body: currentLines.join('\n').trim(),
+        });
+      }
+      currentHeader = match[0];
+      currentCondName = match[1].trim();
+      currentLines = [];
+    } else if (line) {
+      currentLines.push(rawLine);
+    }
+  }
+
+  if (currentHeader || currentLines.length > 0) {
+    sections.push({
+      header: currentHeader,
+      condName: currentCondName,
+      body: currentLines.join('\n').trim(),
+    });
+  }
+
+  return sections;
+}
+
+function buildBranchRegex(body: string): { rx: RegExp; staticLen: number } {
+  const parts = body.trim().split(/(\{[a-zA-Z0-9_]+\})/g);
+  let staticLen = 0;
+  const pattern = parts
+    .map((part) => {
+      if (/^\{[a-zA-Z0-9_]+\}$/.test(part)) return '[\\s\\S]*?';
+      staticLen += part.replace(/\s+/g, '').length;
+      return part.replace(/[.*+?^$|()[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+    })
+    .join('');
+  return { rx: new RegExp('^' + pattern + '$', 'i'), staticLen };
+}
+
+function buildRealExampleForRow(
+  row: Phase1TemplateItem,
+  realStories: Array<{ id: string; headline_id: string }>
+): string {
+  const rowIdLower = row.id.toLowerCase();
+  const matchingStories = realStories.filter((s) => {
+    const sid = s.id.toLowerCase();
+    return sid === rowIdLower || sid.startsWith(`${rowIdLower}_`);
+  });
+
+  if (matchingStories.length === 0) {
+    return row.example;
+  }
+
+  const hasConditions = /\[Kondisi:[^\]]+\]/i.test(row.template);
+  if (!hasConditions) {
+    return matchingStories[0].headline_id || row.example;
+  }
+
+  const templateBranches = splitConditionSections(row.template).filter((s) => s.header);
+  const sampleText = /\[Kondisi:[^\]]+\]/i.test(row.example || '')
+    ? row.example
+    : computeDynamicExample(row.template, row.sample_data);
+  const sampleBranches = splitConditionSections(sampleText);
+
+  const branches = templateBranches.map((tb, idx) => {
+    const { rx, staticLen } = buildBranchRegex(tb.body);
+    const matchingSample =
+      sampleBranches.find((sb) => sb.condName.toLowerCase() === tb.condName.toLowerCase()) ||
+      sampleBranches[idx];
+    return {
+      header: tb.header,
+      rx,
+      staticLen,
+      sampleBody: matchingSample?.body || computeDynamicExample(tb.body, row.sample_data),
+      realHeadline: '',
+    };
+  });
+
+  for (const story of matchingStories) {
+    const headline = String(story.headline_id || '').trim();
+    if (!headline) continue;
+    const matched = branches.filter((b) => b.rx.test(headline));
+    if (matched.length > 0) {
+      matched.sort((a, b) => b.staticLen - a.staticLen);
+      if (!matched[0].realHeadline) {
+        matched[0].realHeadline = headline;
+      }
+    }
+  }
+
+  return branches
+    .map((b) => `${b.header}\n${b.realHeadline || b.sampleBody}`)
+    .join('\n\n')
+    .trim();
+}
+
 /**
  * Renders formatted example headline with identical entity badge styling to TabAdmin News Ticker table
  * ([T:Team], [P:Player], [C:Club], [N:Number]) and clean [Kondisi: ...] section headers.
@@ -209,7 +316,7 @@ function renderFormattedExample(text: string): React.ReactNode {
           parts.push(
             <span
               key={key}
-              className="inline-flex items-center px-1 rounded font-extrabold text-[11px] leading-tight bg-purple-100 dark:bg-purple-950/80 text-[#37003c] dark:text-[#00ff87] border border-purple-200 dark:border-purple-800/60"
+              className="inline-flex items-center px-1 rounded font-extrabold text-[12px] leading-tight bg-purple-100 dark:bg-purple-950/80 text-[#37003c] dark:text-[#00ff87] border border-purple-200 dark:border-purple-800/60"
             >
               {tagContent}
             </span>
@@ -219,7 +326,7 @@ function renderFormattedExample(text: string): React.ReactNode {
           parts.push(
             <span
               key={key}
-              className="inline-flex items-center px-1 rounded font-bold text-[11px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60"
+              className="inline-flex items-center px-1 rounded font-bold text-[12px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60"
             >
               {tagContent}
             </span>
@@ -229,7 +336,7 @@ function renderFormattedExample(text: string): React.ReactNode {
           parts.push(
             <span
               key={key}
-              className="inline-flex items-center px-1 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+              className="inline-flex items-center px-1 rounded font-semibold text-[12px] leading-tight bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
             >
               {tagContent}
             </span>
@@ -239,7 +346,7 @@ function renderFormattedExample(text: string): React.ReactNode {
           parts.push(
             <span
               key={key}
-              className="inline-flex items-center px-1 rounded font-black text-[11px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
+              className="inline-flex items-center px-1 rounded font-black text-[12px] leading-tight bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
             >
               {tagContent}
             </span>
@@ -267,7 +374,7 @@ function renderFormattedExample(text: string): React.ReactNode {
       return (
         <div
           key={`cond-${idx}`}
-          className="text-[10px] font-black uppercase tracking-wider text-purple-700 dark:text-[#00ff87] mt-1.5 first:mt-0 mb-0.5"
+          className="text-[12px] font-black uppercase tracking-wider text-purple-700 dark:text-[#00ff87] mt-1.5 first:mt-0 mb-0.5 leading-relaxed"
         >
           Kondisi: {condMatch[1].trim()}
         </div>
@@ -277,20 +384,19 @@ function renderFormattedExample(text: string): React.ReactNode {
       return <div key={`sp-${idx}`} className="h-1" />;
     }
     return (
-      <div key={`line-${idx}`} className="leading-relaxed">
+      <div key={`line-${idx}`} className="text-[12px] leading-relaxed">
         {renderLineWithTags(rawLine, `l${idx}`)}
       </div>
     );
   });
 }
 
-const GW_PHASES = [
-  'ALL',
+const PHASE_ORDER = [
   'Not started',
   'Live Match',
   'Between Match',
   'Provisional',
-  'Confirmed'
+  'Confirmed',
 ] as const;
 
 const FLOATING_TAG_OPTIONS = [
@@ -308,15 +414,19 @@ export const TabAdminEditor: React.FC = () => {
   const [editableRows, setEditableRows] = useState<Phase1TemplateItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isConfirmingCancel, setIsConfirmingCancel] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // GW Phase Filter
+  // Mutually bound Filters: Phase, Category, Subcategory
   const [selectedPhase, setSelectedPhase] = useState<string>('ALL');
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('ALL');
 
   // Preview Mode Toggle: Sample Data vs Real League Data
   const [previewMode, setPreviewMode] = useState<'sample' | 'real'>('sample');
-  const [realStoriesMap, setRealStoriesMap] = useState<Record<string, string>>({});
+  const [realStoriesList, setRealStoriesList] = useState<Array<{ id: string; headline_id: string }>>([]);
   const [isLoadingRealPreview, setIsLoadingRealPreview] = useState<boolean>(false);
 
   // Floating Tag Dropdown State
@@ -339,7 +449,7 @@ export const TabAdminEditor: React.FC = () => {
     }
   }, [isTagDropdownOpen]);
 
-  // Fetch templates from API with auto-retries
+  // Fetch templates from API with auto-retries & cache busting
   const fetchTemplates = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -347,7 +457,8 @@ export const TabAdminEditor: React.FC = () => {
     let attempt = 0;
     while (attempt <= maxRetries) {
       try {
-        const res = await fetch('/api/admin/phase1-templates', {
+        const res = await fetch(`/api/admin/phase1-templates?_t=${Date.now()}`, {
+          cache: 'no-store',
           headers: { Accept: 'application/json' },
         });
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
@@ -375,25 +486,27 @@ export const TabAdminEditor: React.FC = () => {
     setIsLoading(false);
   }, []);
 
-  // Fetch real league stories for Real Data Preview mode with auto-retries
+  // Fetch real league stories for Real Data Preview mode with auto-retries & cache busting
   const fetchRealPreviewStories = useCallback(async () => {
     setIsLoadingRealPreview(true);
     const maxRetries = 2;
     let attempt = 0;
     while (attempt <= maxRetries) {
       try {
-        const res = await fetch('/api/admin/phase1-templates/real-preview', {
+        const res = await fetch(`/api/admin/phase1-templates/real-preview?_t=${Date.now()}`, {
+          cache: 'no-store',
           headers: { Accept: 'application/json' },
         });
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const json = await res.json();
         if (json && Array.isArray(json.data)) {
-          const mapping: Record<string, string> = {};
-          for (const story of json.data) {
-            const lowerId = story.id.toLowerCase();
-            mapping[lowerId] = story.headline_id;
-          }
-          setRealStoriesMap(mapping);
+          const list = json.data
+            .filter((story: any) => story && story.id && story.headline_id)
+            .map((story: any) => ({
+              id: String(story.id),
+              headline_id: String(story.headline_id),
+            }));
+          setRealStoriesList(list);
           setIsLoadingRealPreview(false);
           return;
         }
@@ -415,10 +528,10 @@ export const TabAdminEditor: React.FC = () => {
   }, [fetchTemplates]);
 
   useEffect(() => {
-    if (previewMode === 'real' && Object.keys(realStoriesMap).length === 0) {
+    if (previewMode === 'real' && realStoriesList.length === 0) {
       fetchRealPreviewStories();
     }
-  }, [previewMode, realStoriesMap, fetchRealPreviewStories]);
+  }, [previewMode, realStoriesList.length, fetchRealPreviewStories]);
 
   // Check if any edits have occurred compared to saved state
   const hasChanges = useMemo(() => {
@@ -464,7 +577,7 @@ export const TabAdminEditor: React.FC = () => {
         ...next[index],
         [field]: val,
       };
-      if (field === 'gw_phase' && val.trim().toLowerCase() === 'live match') {
+      if (field === 'gw_phase' && val.trim().toLowerCase() === 'live match' && !updated.output) {
         updated.output = 'MULTI-NEWS';
       }
       next[index] = updated;
@@ -508,6 +621,8 @@ export const TabAdminEditor: React.FC = () => {
   // Save all table contents to server
   const handleSaveAll = async () => {
     setIsSaving(true);
+    setSaveError(null);
+    setIsConfirmingCancel(false);
     try {
       const res = await fetch('/api/admin/phase1-templates', {
         method: 'PUT',
@@ -515,56 +630,158 @@ export const TabAdminEditor: React.FC = () => {
         body: JSON.stringify(editableRows),
       });
 
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-      const json = await res.json();
+      const json = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(json?.error || `HTTP error ${res.status}`);
+      }
       if (json && json.success) {
-        setSavedRows(JSON.parse(JSON.stringify(editableRows)));
-        setEditableRows(JSON.parse(JSON.stringify(editableRows)));
-        showToast('Seluruh template berhasil disimpan dan langsung diterapkan!');
+        const persistedRows = Array.isArray(json.data) ? json.data : editableRows;
+        setSavedRows(JSON.parse(JSON.stringify(persistedRows)));
+        setEditableRows(JSON.parse(JSON.stringify(persistedRows)));
+        // Clear cached real preview stories so switching to Data Riil always fetches fresh data
+        setRealStoriesList([]);
         if (previewMode === 'real') {
           fetchRealPreviewStories();
         }
+        // Notify NewsTicker and TabAdminNewsTable immediately
+        window.dispatchEvent(
+          new CustomEvent('fnb:news-ticker-updated', { detail: { timestamp: Date.now() } })
+        );
+        showToast('Seluruh template berhasil disimpan dan langsung diterapkan!');
       } else {
         throw new Error(json?.error || 'Gagal menyimpan');
       }
     } catch (err: any) {
       console.error('[TabAdminEditor] Save error:', err);
-      alert('Gagal menyimpan perubahan: ' + (err?.message || 'Unknown error'));
+      setSaveError('Gagal menyimpan perubahan: ' + (err?.message || 'Unknown error'));
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Cancel edits and revert
+  // Cancel edits and revert (inline two-step confirmation instead of window.confirm)
   const handleCancelAll = () => {
-    if (hasChanges) {
-      const confirmRevert = window.confirm(
-        'Kembalikan seluruh konten tabel ke kondisi terakhir kali disimpan?'
-      );
-      if (!confirmRevert) return;
+    if (hasChanges && !isConfirmingCancel) {
+      setIsConfirmingCancel(true);
+      setTimeout(() => {
+        setIsConfirmingCancel(false);
+      }, 4000);
+      return;
     }
+    setIsConfirmingCancel(false);
+    setSaveError(null);
     setEditableRows(JSON.parse(JSON.stringify(savedRows)));
     showToast('Perubahan dibatalkan dan dikembalikan ke kondisi simpanan terakhir.');
   };
 
-  // Calculate phase counts
-  const phaseCounts = useMemo(() => {
-    const counts: Record<string, number> = { ALL: editableRows.length };
-    for (const phase of GW_PHASES) {
-      if (phase !== 'ALL') counts[phase] = 0;
-    }
-    for (const r of editableRows) {
-      const p = r.gw_phase || 'Not started';
-      counts[p] = (counts[p] || 0) + 1;
-    }
-    return counts;
-  }, [editableRows]);
+  // Mutually bound Phases list (constrained by active Category & Subcategory)
+  const phasesList = useMemo(() => {
+    const set = new Set<string>();
+    editableRows.forEach((r) => {
+      const phase = r.gw_phase || 'Not started';
+      if (selectedCategory !== 'ALL' && r.category !== selectedCategory) return;
+      if (selectedSubcategory !== 'ALL' && r.subcategory !== selectedSubcategory) return;
+      if (phase) set.add(phase);
+    });
+    return Array.from(set).sort((a, b) => {
+      const idxA = PHASE_ORDER.findIndex((p) => p.toLowerCase() === a.toLowerCase());
+      const idxB = PHASE_ORDER.findIndex((p) => p.toLowerCase() === b.toLowerCase());
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return a.localeCompare(b);
+    });
+  }, [editableRows, selectedCategory, selectedSubcategory]);
 
-  // Filtered rows by GW Phase
+  // Mutually bound Categories list (constrained by active Phase & Subcategory)
+  const categoriesList = useMemo(() => {
+    const set = new Set<string>();
+    editableRows.forEach((r) => {
+      const phase = r.gw_phase || 'Not started';
+      if (selectedPhase !== 'ALL' && phase.toLowerCase() !== selectedPhase.toLowerCase()) return;
+      if (selectedSubcategory !== 'ALL' && r.subcategory !== selectedSubcategory) return;
+      if (r.category) set.add(r.category);
+    });
+    return Array.from(set).sort();
+  }, [editableRows, selectedPhase, selectedSubcategory]);
+
+  // Mutually bound Subcategories list (constrained by active Phase & Category)
+  const subcategoriesList = useMemo(() => {
+    const set = new Set<string>();
+    editableRows.forEach((r) => {
+      const phase = r.gw_phase || 'Not started';
+      if (selectedPhase !== 'ALL' && phase.toLowerCase() !== selectedPhase.toLowerCase()) return;
+      if (selectedCategory !== 'ALL' && r.category !== selectedCategory) return;
+      if (r.subcategory) set.add(r.subcategory);
+    });
+    return Array.from(set).sort();
+  }, [editableRows, selectedPhase, selectedCategory]);
+
+  // Handlers for mutually bound Phase, Category, Subcategory dropdowns
+  const handlePhaseFilterChange = (newPhase: string) => {
+    setSelectedPhase(newPhase);
+    let nextCategory = selectedCategory;
+    if (newPhase !== 'ALL' && selectedCategory !== 'ALL') {
+      const catValid = editableRows.some(
+        (r) =>
+          (r.gw_phase || 'Not started').toLowerCase() === newPhase.toLowerCase() &&
+          r.category === selectedCategory
+      );
+      if (!catValid) {
+        nextCategory = 'ALL';
+        setSelectedCategory('ALL');
+      }
+    }
+    if (selectedSubcategory !== 'ALL') {
+      const subValid = editableRows.some(
+        (r) =>
+          (newPhase === 'ALL' ||
+            (r.gw_phase || 'Not started').toLowerCase() === newPhase.toLowerCase()) &&
+          (nextCategory === 'ALL' || r.category === nextCategory) &&
+          r.subcategory === selectedSubcategory
+      );
+      if (!subValid) {
+        setSelectedSubcategory('ALL');
+      }
+    }
+  };
+
+  const handleCategoryFilterChange = (newCategory: string) => {
+    setSelectedCategory(newCategory);
+    if (selectedSubcategory !== 'ALL') {
+      const subValid = editableRows.some(
+        (r) =>
+          (selectedPhase === 'ALL' ||
+            (r.gw_phase || 'Not started').toLowerCase() === selectedPhase.toLowerCase()) &&
+          (newCategory === 'ALL' || r.category === newCategory) &&
+          r.subcategory === selectedSubcategory
+      );
+      if (!subValid) {
+        setSelectedSubcategory('ALL');
+      }
+    }
+  };
+
+  const handleSubcategoryFilterChange = (newSubcategory: string) => {
+    setSelectedSubcategory(newSubcategory);
+  };
+
+  // Filtered rows by mutually bound Phase, Category, and Subcategory
   const filteredRows = useMemo(() => {
-    if (selectedPhase === 'ALL') return editableRows;
-    return editableRows.filter((r) => (r.gw_phase || 'Not started').toLowerCase() === selectedPhase.toLowerCase());
-  }, [editableRows, selectedPhase]);
+    return editableRows.filter((r) => {
+      const phase = r.gw_phase || 'Not started';
+      if (selectedPhase !== 'ALL' && phase.toLowerCase() !== selectedPhase.toLowerCase()) {
+        return false;
+      }
+      if (selectedCategory !== 'ALL' && r.category !== selectedCategory) {
+        return false;
+      }
+      if (selectedSubcategory !== 'ALL' && r.subcategory !== selectedSubcategory) {
+        return false;
+      }
+      return true;
+    });
+  }, [editableRows, selectedPhase, selectedCategory, selectedSubcategory]);
 
   return (
     <div className="space-y-3 pb-8">
@@ -576,41 +793,87 @@ export const TabAdminEditor: React.FC = () => {
         </div>
       )}
 
+      {/* Save Error Banner */}
+      {saveError && (
+        <div className="bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200 px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-3 text-xs font-bold">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+            <span>{saveError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSaveError(null)}
+            className="text-rose-700 dark:text-rose-300 hover:underline cursor-pointer shrink-0"
+          >
+            Tutup
+          </button>
+        </div>
+      )}
+
       {/* Clean Top Header Toolbar */}
       <div className="bg-white dark:bg-[#190a2a] rounded-xl border border-slate-200 dark:border-purple-900/60 p-3 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        {/* Left: Phase Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1 mr-1">
+        {/* Left: Mutually Bound Phase, Category, Subcategory Dropdown Filters */}
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 text-xs w-full lg:w-auto">
+          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 hidden sm:inline-flex items-center gap-1 mr-0.5">
             <Filter className="w-3.5 h-3.5 text-purple-600 dark:text-[#00ff87]" />
-            <span>Fase:</span>
           </span>
-          {GW_PHASES.map((phase) => {
-            const count = phaseCounts[phase] || 0;
-            const isActive = selectedPhase === phase;
-            return (
-              <button
-                key={phase}
-                type="button"
-                onClick={() => setSelectedPhase(phase)}
-                className={`px-2.5 py-1 rounded-md text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-                  isActive
-                    ? 'bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] shadow-xs'
-                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-purple-950/50 dark:hover:bg-purple-900/70 text-slate-700 dark:text-slate-300'
-                }`}
-              >
-                <span>{phase === 'ALL' ? 'Semua Fase' : phase}</span>
-                <span
-                  className={`text-[10px] px-1 py-0.2 rounded-full font-black ${
-                    isActive
-                      ? 'bg-white/20 text-white dark:bg-[#37003c]/20 dark:text-[#37003c]'
-                      : 'bg-slate-200 dark:bg-purple-900/60 text-slate-600 dark:text-slate-400'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+
+          {/* Phase Filter */}
+          <select
+            value={selectedPhase}
+            onChange={(e) => handlePhaseFilterChange(e.target.value)}
+            className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+          >
+            <option value="ALL">All Phases</option>
+            {phasesList.map((ph) => (
+              <option key={ph} value={ph}>
+                {ph}
+              </option>
+            ))}
+          </select>
+
+          {/* Category Filter */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => handleCategoryFilterChange(e.target.value)}
+            className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+          >
+            <option value="ALL">All Categories</option>
+            {categoriesList.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+
+          {/* Subcategory Filter */}
+          <select
+            value={selectedSubcategory}
+            onChange={(e) => handleSubcategoryFilterChange(e.target.value)}
+            className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
+          >
+            <option value="ALL">All Subcategories</option>
+            {subcategoriesList.map((sub) => (
+              <option key={sub} value={sub}>
+                {sub}
+              </option>
+            ))}
+          </select>
+
+          {/* Reset Filters button */}
+          {(selectedPhase !== 'ALL' || selectedCategory !== 'ALL' || selectedSubcategory !== 'ALL') && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedPhase('ALL');
+                setSelectedCategory('ALL');
+                setSelectedSubcategory('ALL');
+              }}
+              className="text-[#37003c] dark:text-[#00ff87] font-bold hover:underline cursor-pointer whitespace-nowrap px-1 text-left sm:text-center"
+            >
+              Reset
+            </button>
+          )}
         </div>
 
         {/* Center / Right Controls */}
@@ -704,14 +967,16 @@ export const TabAdminEditor: React.FC = () => {
               onClick={handleCancelAll}
               disabled={!hasChanges || isSaving}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                hasChanges && !isSaving
+                isConfirmingCancel && hasChanges && !isSaving
+                  ? 'bg-rose-600 hover:bg-rose-700 text-white border border-rose-500 cursor-pointer shadow-xs active:scale-95'
+                  : hasChanges && !isSaving
                   ? 'bg-slate-100 hover:bg-slate-200 dark:bg-purple-950/70 dark:hover:bg-purple-900 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-purple-800/80 cursor-pointer shadow-xs active:scale-95'
                   : 'bg-slate-100 dark:bg-[#120522] text-slate-400 dark:text-slate-600 border border-slate-200 dark:border-purple-950 cursor-not-allowed opacity-60'
               }`}
               title="Kembalikan seluruh konten tabel ke kondisi terakhir kali di-save"
             >
               <Undo2 className="w-3.5 h-3.5" />
-              <span>Cancel</span>
+              <span>{isConfirmingCancel ? 'Yakin Batal?' : 'Cancel'}</span>
             </button>
 
             <button
@@ -757,11 +1022,21 @@ export const TabAdminEditor: React.FC = () => {
           <div className="p-12 text-center space-y-2 text-slate-500 dark:text-slate-400">
             <Info className="w-6 h-6 mx-auto text-slate-400" />
             <p className="text-xs font-bold">
-              Tidak ada template formula untuk fase &quot;{selectedPhase}&quot;.
+              Tidak ada template formula yang sesuai dengan kombinasi filter yang dipilih.
             </p>
-            <p className="text-[11px] text-slate-400">
-              Template berita untuk fase ini dapat ditambahkan pada iterasi berikutnya.
-            </p>
+            {(selectedPhase !== 'ALL' || selectedCategory !== 'ALL' || selectedSubcategory !== 'ALL') && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedPhase('ALL');
+                  setSelectedCategory('ALL');
+                  setSelectedSubcategory('ALL');
+                }}
+                className="text-xs font-bold text-[#37003c] dark:text-[#00ff87] hover:underline cursor-pointer"
+              >
+                Reset Filter
+              </button>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto scrollbar-thin">
@@ -784,8 +1059,8 @@ export const TabAdminEditor: React.FC = () => {
                   <th className="py-3 px-2.5 w-[130px] min-w-[130px] max-w-[130px] border-r border-slate-200 dark:border-purple-900/50 break-words">
                     Sub Categories
                   </th>
-                  {/* 5. Output: Dedicated Column (~110px) */}
-                  <th className="py-3 px-2.5 w-[110px] min-w-[110px] max-w-[110px] border-r border-slate-200 dark:border-purple-900/50 break-words">
+                  {/* 5. Output: Dedicated Column (~120px) */}
+                  <th className="py-3 px-2.5 w-[120px] min-w-[120px] max-w-[120px] border-r border-slate-200 dark:border-purple-900/50 break-words">
                     Output
                   </th>
                   {/* 6. Template: Fitted exactly to 1 Mobile View (~360px) */}
@@ -808,23 +1083,8 @@ export const TabAdminEditor: React.FC = () => {
                   const actualIndex = originalIndex >= 0 ? originalIndex : 0;
                   const validation = validateTemplateTags(row.template, row.sample_data);
 
-                  // Real story lookup if in real mode
-                  let realExampleHeadline = '';
-                  if (previewMode === 'real') {
-                    const rowIdLower = row.id.toLowerCase();
-                    for (const [storyId, storyHeadline] of Object.entries(realStoriesMap)) {
-                      if (
-                        storyId === rowIdLower ||
-                        storyId.startsWith(`${rowIdLower}_`)
-                      ) {
-                        realExampleHeadline = storyHeadline;
-                        break;
-                      }
-                    }
-                  }
-
-                  const displayExample = previewMode === 'real' && realExampleHeadline
-                    ? realExampleHeadline
+                  const displayExample = previewMode === 'real'
+                    ? buildRealExampleForRow(row, realStoriesList)
                     : row.example;
 
                   // Output logic: Live Match is strictly MULTI-NEWS
@@ -891,27 +1151,23 @@ export const TabAdminEditor: React.FC = () => {
                         />
                       </td>
 
-                      {/* 5. Output (Dedicated Field: Sifatnya Tetap / No Dropdown) */}
-                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[110px] min-w-[110px] max-w-[110px] align-top">
-                        <div className="py-2 px-1 border border-transparent">
-                          {resolvedOutput === 'MULTI-NEWS' ? (
-                            <span
-                              title="MULTI-NEWS: Menghasilkan beberapa baris berita sesuai peristiwa/pemain"
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-black tracking-tight bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 uppercase select-none shadow-2xs whitespace-nowrap"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                              <span>MULTI-NEWS</span>
-                            </span>
-                          ) : (
-                            <span
-                              title="SINGLE-NEWS: Menghasilkan tepat 1 baris berita per Gameweek"
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold tracking-tight bg-slate-100 dark:bg-purple-950/60 text-slate-600 dark:text-purple-300 border border-slate-200 dark:border-purple-800/40 uppercase select-none shadow-2xs whitespace-nowrap"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              <span>SINGLE-NEWS</span>
-                            </span>
-                          )}
-                        </div>
+                      {/* 5. Output (Editable text matching GW Phase / Categories / Sub Categories) */}
+                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[120px] min-w-[120px] max-w-[120px] align-top">
+                        <textarea
+                          value={row.output ?? resolvedOutput}
+                          onChange={(e) => handleMetaChange(actualIndex, 'output', e.target.value)}
+                          title={
+                            /multi/i.test(resolvedOutput)
+                              ? 'Multiple: Menghasilkan beberapa baris berita sesuai peristiwa/pemain'
+                              : 'Single: Menghasilkan tepat 1 baris berita per Gameweek'
+                          }
+                          className={`w-full h-[96px] min-h-[96px] max-h-[96px] px-1.5 py-2 rounded-md bg-transparent hover:bg-slate-100 dark:hover:bg-[#120522] focus:bg-white dark:focus:bg-[#10051e] border border-transparent focus:border-[#00ff87] text-[11px] font-bold outline-none transition-all resize-none leading-snug break-words overflow-y-auto scrollbar-thin ${
+                            /multi/i.test(resolvedOutput)
+                              ? 'text-amber-700 dark:text-amber-300'
+                              : 'text-slate-700 dark:text-slate-200'
+                          }`}
+                          placeholder="Output"
+                        />
                       </td>
 
                       {/* 4. Template (Fixed 4-line height with vertical scroll) */}
@@ -927,7 +1183,7 @@ export const TabAdminEditor: React.FC = () => {
                           }}
                           value={row.template}
                           onChange={(e) => handleTemplateChange(actualIndex, e.target.value)}
-                          className={`w-full h-[96px] min-h-[96px] max-h-[96px] p-2.5 rounded-md bg-white/70 dark:bg-[#10051e]/80 hover:bg-white dark:hover:bg-[#10051e] focus:bg-white dark:focus:bg-[#10051e] border text-xs font-medium text-slate-900 dark:text-white outline-none transition-all resize-none overflow-y-auto scrollbar-thin leading-relaxed font-sans shadow-2xs ${
+                          className={`editor-uniform-text w-full h-[96px] min-h-[96px] max-h-[96px] p-2.5 rounded-md bg-white/70 dark:bg-[#10051e]/80 hover:bg-white dark:hover:bg-[#10051e] focus:bg-white dark:focus:bg-[#10051e] border text-[12px] font-medium text-slate-900 dark:text-white outline-none transition-all resize-none overflow-y-auto scrollbar-thin leading-relaxed font-sans shadow-2xs ${
                             validation.isValid
                               ? 'border-purple-200 dark:border-purple-900/60 focus:border-[#00ff87]'
                               : 'border-rose-400 dark:border-rose-800/80 focus:border-rose-500'
@@ -948,7 +1204,7 @@ export const TabAdminEditor: React.FC = () => {
 
                       {/* 5. Example (Fixed 4-line height with vertical scroll like template) */}
                       <td className="py-2.5 px-3 border-r border-slate-200 dark:border-purple-900/30 w-[360px] max-w-[360px]">
-                        <div className="w-full h-[96px] min-h-[96px] max-h-[96px] p-2.5 rounded-md bg-slate-50 dark:bg-[#120522] border border-slate-200 dark:border-purple-950 text-xs font-medium text-slate-800 dark:text-slate-200 leading-relaxed font-sans overflow-y-auto scrollbar-thin select-text whitespace-pre-wrap break-words">
+                        <div className="editor-uniform-text w-full h-[96px] min-h-[96px] max-h-[96px] p-2.5 rounded-md bg-slate-50 dark:bg-[#120522] border border-slate-200 dark:border-purple-950 text-[12px] font-medium text-slate-800 dark:text-slate-200 leading-relaxed font-sans overflow-y-auto scrollbar-thin select-text whitespace-pre-wrap break-words">
                           {renderFormattedExample(displayExample)}
                         </div>
                       </td>

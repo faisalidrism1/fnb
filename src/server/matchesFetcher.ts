@@ -941,6 +941,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       clock_label: clockLabel,
       phase: matchPhase,
       is_half_time: isHalfTime,
+      venue: pulseMatchData?.ground?.name || undefined,
       home_team: homeTeam,
       away_team: awayTeam,
       team_h_score: fix.team_h_score ?? (pulseMatchData?.teams?.[0]?.score ?? null),

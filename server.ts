@@ -26,7 +26,8 @@ import {
   getDbPlayerStatById,
   getDbSyncMeta,
   getDatabaseStats,
-  resetDatabaseState
+  resetDatabaseState,
+  getTransformedLeagueDataFromDb
 } from './src/server/db.ts';
 import {
   queryNewsTickerTable,
@@ -47,7 +48,6 @@ const PORT = 3000;
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-const CACHE_PATH = path.join(process.cwd(), 'src/data/cachedLeagueData.json');
 const LEAGUE_PAST_SEASONS_PATH = path.join(process.cwd(), 'src/data/league_past_seasons.json');
 
 let leaguePastSeasonsData: Record<string, Array<{ season_name: string; total_points: number; rank: number }>> = {};
@@ -75,25 +75,18 @@ function calculateFnbRank(seasonName: string, globalRank: number): number {
   return pos >= 0 ? pos + 1 : 1;
 }
 
-// Initialize the Optimal Pre-Aggregated Database Schema
+// Initialize the Single Truth Source Database (src/data/fpl_database.json)
 initDatabase();
 
-// In-Memory Micro-Cache with instant disk pre-seed for 0ms cold starts
-let cachedData: TransformedLeagueData | null = null;
-if (fs.existsSync(CACHE_PATH)) {
-  try {
-    const raw = fs.readFileSync(CACHE_PATH, 'utf-8');
-    cachedData = JSON.parse(raw);
-    console.log('[Server] Pre-seeded cachedData from disk for instant sub-5ms boot response');
-  } catch (e: any) {
-    console.warn('[Server] Cache file read error:', e.message);
-    cachedData = null;
-  }
+// In-Memory view hydrated strictly from the Single Truth Source (db.ts)
+let cachedData: TransformedLeagueData | null = getTransformedLeagueDataFromDb();
+if (cachedData) {
+  console.log('[Server] Hydrated view directly from Single Truth Source (fpl_database.json) for instant sub-5ms boot response');
 } else {
-  console.log('[Server] Container started with EMPTY data cache (Published/Cold Start state). Waiting for first user request to trigger Action A.');
+  console.log('[Server] Container started with EMPTY database (Cold Start state). Waiting for first user request to trigger Action A.');
 }
 let isSyncing = false;
-console.log('[Server] Initialized with Optimal Pre-Aggregated DB Schema & Deterministic Orchestrator (Action A, B, C)');
+console.log('[Server] Initialized with Single Truth Source (Optimal DB Schema) & Deterministic Orchestrator (Action A, B, C)');
 
 // Background sync runner with promise deduplication
 let currentSyncPromise: Promise<TransformedLeagueData> | null = null;
@@ -121,18 +114,9 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
         freshData = await fetchAndTransformLeague(12356);
       }
 
-      cachedData = freshData;
-      fs.mkdirSync(path.dirname(CACHE_PATH), { recursive: true });
-      const tempCachePath = `${CACHE_PATH}.tmp.${Date.now()}`;
-      fs.writeFileSync(tempCachePath, JSON.stringify(freshData, null, 2));
-      fs.renameSync(tempCachePath, CACHE_PATH);
-      
-      // Execute normalization and synchronization to 11-table database schema
-      try {
-        executeSchemaSync(freshData);
-      } catch (dbErr: any) {
-        console.error('[Server] DB Schema Sync error:', dbErr.message);
-      }
+      // Persist strictly to the Single Truth Source (fpl_database.json)
+      executeSchemaSync(freshData);
+      cachedData = getTransformedLeagueDataFromDb() || freshData;
 
       // Invalidate matches cache so that matches data reflects the latest sync
       try {
@@ -167,10 +151,6 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
 
     } catch (error: any) {
       console.error(`[Server] Sync (${action}) failed:`, error.message);
-      if (cachedData) {
-        console.log('[Server] Falling back to existing in-memory cached data');
-        return cachedData;
-      }
       throw error;
     } finally {
       isSyncing = false;
@@ -406,8 +386,8 @@ app.get('/api/fpl-player-summary/:id', async (req, res) => {
       }
     }
 
-    const targetGW = gwParam || (cachedData?.current_gw || 5);
-    const dbPlayer = getDbPlayerStatById(id) || (cachedData?.player_stats?.find(p => p.id === id) as any) || null;
+    const targetGW = gwParam || (cachedData?.current_gw || 0);
+    const dbPlayer = getDbPlayerStatById(id) || null;
 
     if (!summaryData) {
       // Fallback directly to Database Player Statistics!
@@ -858,14 +838,6 @@ app.all('/api/container/clear', (req, res) => {
   fixturesCache.clear();
   eventStatusBundleCache = null;
 
-  if (fs.existsSync(CACHE_PATH)) {
-    try {
-      fs.unlinkSync(CACHE_PATH);
-    } catch (e: any) {
-      console.warn('[Server] Error deleting CACHE_PATH:', e.message);
-    }
-  }
-
   // Broadcast sync clear to SSE clients
   const payload = JSON.stringify({ action: 'CLEARED', timestamp: new Date().toISOString() });
   const message = `event: sync_cleared\ndata: ${payload}\n\n`;
@@ -1272,6 +1244,11 @@ app.get('/api/admin/news-ticker', (req, res) => {
       offset
     });
 
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
     res.json(result);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
@@ -1298,12 +1275,18 @@ import {
 } from './src/data/phase1Templates.ts';
 import { generatePhase1Stories } from './src/server/phase1StoryGenerator.ts';
 import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.ts';
+import { generateBetweenMatchStories, generateProvisionalStories } from './src/server/betweenMatchAndProvisionalGenerator.ts';
 
 // ================= PHASE 1 TEMPLATES API =================
 // 1. Get all Phase 1 templates
 app.get('/api/admin/phase1-templates', (req, res) => {
   try {
     const templates = getPhase1Templates();
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
     res.json({ success: true, count: templates.length, data: templates });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
@@ -1367,6 +1350,20 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
       console.warn('[Admin Editor] Could not fetch Pulse match preview:', err.message);
     }
 
+    // Include Between Match & Provisional phase stories generated from Editor templates (BM_*, PV_*)
+    try {
+      const bmStories = generateBetweenMatchStories(currentGw);
+      for (const bms of bmStories) {
+        stories.push(bms as any);
+      }
+      const pvStories = generateProvisionalStories(currentGw);
+      for (const pvs of pvStories) {
+        stories.push(pvs as any);
+      }
+    } catch (err: any) {
+      console.warn('[Admin Editor] Could not generate Between Match/Provisional preview:', err.message);
+    }
+
     // Also include Confirmed phase stories generated from Editor templates (CF_*)
     try {
       const confStories = generateConfirmedStories(currentGw);
@@ -1377,6 +1374,11 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
       console.warn('[Admin Editor] Could not generate Confirmed preview:', err.message);
     }
 
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
     res.json({ success: true, count: stories.length, data: stories });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
@@ -1419,9 +1421,15 @@ app.put('/api/admin/phase1-templates/:id', (req, res) => {
       return res.status(404).json({ success: false, error: `Template ${templateId} not found` });
     }
     current[idx] = { ...current[idx], ...updates, updated_at: new Date().toISOString() };
-    savePhase1Templates(current);
+    const savedOk = savePhase1Templates(current);
+    if (!savedOk) {
+      return res.status(500).json({ success: false, error: 'Gagal menulis file template ke disk' });
+    }
+    clearNewsTickerMemoryCache();
     rebuildNewsTickerTable();
-    res.json({ success: true, message: `Template ${templateId} updated`, data: current[idx] });
+    const updatedList = getPhase1Templates();
+    const updatedRow = updatedList.find(t => t.id === current[idx].id) || current[idx];
+    res.json({ success: true, message: `Template ${templateId} updated`, data: updatedRow });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -1434,9 +1442,14 @@ app.put('/api/admin/phase1-templates', (req, res) => {
     if (!Array.isArray(newItems)) {
       return res.status(400).json({ success: false, error: 'Expected array of templates' });
     }
-    savePhase1Templates(newItems);
+    const savedOk = savePhase1Templates(newItems);
+    if (!savedOk) {
+      return res.status(500).json({ success: false, error: 'Gagal menulis perubahan template ke disk' });
+    }
+    clearNewsTickerMemoryCache();
     rebuildNewsTickerTable();
-    res.json({ success: true, message: 'Seluruh template berhasil disimpan dan diterapkan', data: newItems });
+    const freshTemplates = getPhase1Templates();
+    res.json({ success: true, message: 'Seluruh template berhasil disimpan dan diterapkan', data: freshTemplates });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -1446,6 +1459,7 @@ app.put('/api/admin/phase1-templates', (req, res) => {
 app.post('/api/admin/phase1-templates/reset', (req, res) => {
   try {
     const defaults = resetPhase1Templates();
+    clearNewsTickerMemoryCache();
     rebuildNewsTickerTable();
     res.json({ success: true, message: 'Phase 1 templates reset to default standards', data: defaults });
   } catch (err: any) {
@@ -1455,12 +1469,13 @@ app.post('/api/admin/phase1-templates/reset', (req, res) => {
 
 
 app.get('/api/container/status', (req, res) => {
+  const hasDatabase = fs.existsSync(path.join(process.cwd(), 'src/data/fpl_database.json'));
   res.json({
     success: true,
     isColdStart: cachedData === null,
     hasMemoryCache: cachedData !== null,
-    hasDiskCache: fs.existsSync(CACHE_PATH),
-    hasDatabase: fs.existsSync(path.join(process.cwd(), 'src/data/fpl_database.json')),
+    hasDiskCache: hasDatabase,
+    hasDatabase,
     currentGw: cachedData?.current_gw ?? null,
     timestamp: new Date().toISOString()
   });

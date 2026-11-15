@@ -178,6 +178,20 @@ Ketika user membuka aplikasi / mengaktifkan tab:
     2. **Kriteria Tematik (Tier 2):** Kriteria spesifik yang diminta (misal: `peluang_main` ASC untuk Gelombang 2, `peluang_main` DESC untuk Gelombang 4, dsb.).
     3. **Tie-Breaker Deterministik (Tier 3):** Jumlah pemilik terbanyak (`ownersCount` DESC), harga termahal (`nowCost` DESC), atau ID unik.
 
+---
 
+## 8. Aturan Dasar Penulisan Tabel Editor & News Ticker
 
+Aturan baku berikut wajib diterapkan pada seluruh template di Tabel Editor maupun seluruh hasil produksi berita di News Ticker:
 
+1. **Nama Klub (Penyebutan Langsung Tab Matches):**
+   - Nama klub **WAJIB** ditampilkan sebagai penyebutan langsung yang sama persis dengan **Tab Matches** (berasal dari `team.name` resmi FPL, misal: `Arsenal`, `Chelsea`, `Man City`, `Man Utd`, `Spurs`, `Nott'm Forest`, `Ipswich Town`, `Coventry City`, `Hull City`, `Leeds`, `Sunderland`, dst.).
+   - **DILARANG** menggunakan singkatan 3 huruf seperti `ARS`, `CHE`, `MCI`, `EVE`, `COV`, dll. maupun nama panjang eksternal yang berbeda dari Tab Matches (seperti `Manchester City` atau `Nottingham Forest`).
+2. **Nama Pemain (FPL Web Name):**
+   - Nama pemain **WAJIB** ditampilkan menggunakan **`web_name`** (`webName`) persis seperti di aplikasi resmi FPL (misal: `Haaland`, `Salah`, `João Pedro`, `B.Fernandes`, `Raya`), bukan nama lengkap (`first_name + second_name`).
+3. **Entitas Tim & Penggunaan Kata "Tim" (Bukan Manajer):**
+   - Saat narasi template menyebutkan entitas tim/manajer, **WAJIB** menyebut **Nama Tim** (`entry_name`), **BUKAN** nama pribadi manajer (`player_name`).
+   - Pada teks narasi, **WAJIB** menggunakan kata **`tim`** (atau `Tim`), **DILARANG** menggunakan kata **`manajer`** / `manager`.
+4. **Istilah Klasemen ("Peringkat", Bukan "Posisi"):**
+   - Selalu gunakan kata **`peringkat`** untuk penyebutan urutan/posisi di klasemen, **DILARANG** menggunakan kata **`posisi`**.
+   - Istilah deskriptif seperti **`pemuncak`**, **`papan atas`**, **`papan tengah`**, **`10 besar`**, **`dasar klasemen`**, dan sejenisnya tetap dapat digunakan.

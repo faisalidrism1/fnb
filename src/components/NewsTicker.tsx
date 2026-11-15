@@ -64,7 +64,9 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
     let isMounted = true;
     const fetchFeed = async () => {
       try {
-        const res = await fetch(`/api/news-ticker/feed?_t=${Date.now()}`);
+        const res = await fetch(`/api/news-ticker/feed?_t=${Date.now()}`, {
+          cache: 'no-store',
+        });
         if (res.ok) {
           const json = await res.json();
           if (json.success && Array.isArray(json.data) && isMounted) {
@@ -79,6 +81,12 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
 
     fetchFeed();
 
+    // Immediately re-fetch whenever templates are saved in Tabel Editor
+    const handleTickerUpdated = () => {
+      fetchFeed();
+    };
+    window.addEventListener('fnb:news-ticker-updated', handleTickerUpdated);
+
     // Re-fetch periodically (every 45s if live match, every 2 minutes otherwise)
     const isLive = Boolean(
       leagueData?.sync_status?.is_matchday_live ||
@@ -89,6 +97,7 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
 
     return () => {
       isMounted = false;
+      window.removeEventListener('fnb:news-ticker-updated', handleTickerUpdated);
       clearInterval(intervalId);
     };
   }, [leagueData?.current_gw, leagueData?.gw_status?.status, leagueData?.sync_status?.is_matchday_live]);
@@ -514,23 +523,32 @@ const getSavedPoolIdx = (): number => {
         return;
       }
 
-      // Check for genuinely new incoming stories that were not in our previous feed
-      const currentIds = new Set(currentList.map((s) => s.id));
-      const freshStories = newStories.filter((s) => !currentIds.has(s.id));
+      // Check for genuinely new stories OR existing stories whose template/text changed
+      const prevById = new Map<string, NewsTickerStory>(currentList.map((s) => [s.id, s]));
+      const newIds = new Set(newStories.map((s) => s.id));
+      const freshStories = newStories.filter((s) => !prevById.has(s.id));
+      const updatedStories = newStories.filter((s) => {
+        const prev = prevById.get(s.id);
+        return (
+          prev !== undefined &&
+          (prev.headline_id !== s.headline_id || prev.headline_en !== s.headline_en)
+        );
+      });
+      const hasRemovals = currentList.some((s) => !newIds.has(s.id));
 
       // Always update stored reference to latest data
       storiesRef.current = newStories;
       setStories(newStories);
 
-      // If no genuinely new stories arrived (just standard periodic re-fetch of the 1000-pool):
+      // If neither new IDs, text updates, nor removals occurred:
       // DO NOT reset queue or playback position! Let the continuous conveyor keep scrolling uninterrupted.
-      if (freshStories.length === 0) {
+      if (freshStories.length === 0 && updatedStories.length === 0 && !hasRemovals) {
         return;
       }
 
-      // Genuinely fresh stories arrived (e.g. live goal/event or new AI breaking story):
+      // Genuinely fresh or edited stories arrived:
       // Keep whatever story is currently visible on screen, remove off-screen queue elements,
-      // and append the fresh stories directly behind the visible story.
+      // and append the fresh/updated stories directly behind the visible story.
       if (!track || !container) return;
 
       const containerWidth = container.clientWidth || window.innerWidth || 1200;
@@ -567,9 +585,10 @@ const getSavedPoolIdx = (): number => {
       }
       toRemove.forEach((el) => track.removeChild(el));
 
-      // Append the brand new fresh stories first
-      for (const freshStory of freshStories) {
-        const el = createStoryElement(freshStory, nextUidRef.current++);
+      // Append brand new and newly edited stories first so changes appear immediately
+      const priorityQueue = [...freshStories, ...updatedStories];
+      for (const storyItem of priorityQueue) {
+        const el = createStoryElement(storyItem, nextUidRef.current++);
         track.appendChild(el);
       }
 
@@ -591,7 +610,7 @@ const getSavedPoolIdx = (): number => {
       }
 
       console.log(
-        `[News Ticker] Scheduled ${freshStories.length} breaking stories; continuing round-robin at #${poolIdxRef.current} of ${newStories.length}.`
+        `[News Ticker] Scheduled ${priorityQueue.length} fresh/updated stories; continuing round-robin at #${poolIdxRef.current} of ${newStories.length}.`
       );
     },
     [createStoryElement, fillTrackInitial, getNextStory]

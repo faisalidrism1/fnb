@@ -12,6 +12,17 @@ html, body, #root, #root * {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+.editor-uniform-text, .editor-uniform-text * {
+  -webkit-text-size-adjust: none !important;
+  -moz-text-size-adjust: none !important;
+  text-size-adjust: none !important;
+  font-size: 12px !important;
+  max-height: 999999px;
 }
 
 table, th, td, tr, .tabular-nums, input, select {

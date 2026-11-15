@@ -1,32 +1,7 @@
 [
   {
-    "id": "CF_FOUR_CHAMPS",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Standings",
-    "sub_kategori": "Four Champions",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "Hasil resmi Gameweek [N:10] menetapkan 4 juara pekan ini, yaitu Juara 1 [T:Rajo's Team] ([N:85 Poin]), Juara 2 [T:Always Ready] ([N:81 Poin]), Juara 3 [T:ehajrakab fc] ([N:81 Poin]), dan Juara 4 [T:TELUR DADAR] ([N:79 Poin]).",
-    "text_berita_en": "Official results for Gameweek [N:10] crown 4 champions: 1st Place [T:Rajo's Team] ([N:85 Pts]), 2nd Place [T:Always Ready] ([N:81 Pts]), 3rd Place [T:ehajrakab fc] ([N:81 Pts]), and 4th Place [T:TELUR DADAR] ([N:79 Pts]).",
-    "gw": 10,
-    "teams": [
-      "Rajo's Team",
-      "Always Ready",
-      "ehajrakab fc",
-      "TELUR DADAR"
-    ],
-    "players": []
-  },
-  {
     "id": "CF_GW_CHAMPION",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -38,8 +13,8 @@
     "sub_kategori": "Gameweek Leader",
     "drama_score": 94,
     "poin_tayang": 0,
-    "text_berita": "[T:Rajo's Team] resmi keluar sebagai Juara Gameweek [N:10] dengan torehan [N:85 Poin], unggul [N:4 Poin] atas pesaing terdekatnya [T:Always Ready].",
-    "text_berita_en": "[T:Rajo's Team] is officially crowned Gameweek [N:10] Champion with [N:85 Pts], leading by [N:4 Pts] over [T:Always Ready].",
+    "text_berita": "[T:Rajo's Team] menjadi juara Gameweek [N:10] dengan perolehan [N:85 Poin], unggul [N:4 Poin] atas [T:Always Ready] di peringkat kedua.",
+    "text_berita_en": "[T:Rajo's Team] wins Gameweek [N:10] with [N:85 Pts], finishing [N:4 Pts] ahead of [T:Always Ready].",
     "gw": 10,
     "teams": [
       "Rajo's Team",
@@ -49,7 +24,7 @@
   },
   {
     "id": "CF_TOP_RIVALRY",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -61,8 +36,8 @@
     "sub_kategori": "Top Rivalry",
     "drama_score": 93,
     "poin_tayang": 0,
-    "text_berita": "Klasemen resmi Gameweek [N:10] menempatkan [T:Yuk Bisa Yuk FC] di puncak klasemen dengan total [N:733 Poin], memimpin keunggulan [N:19 Poin] dari [T:PSIS FC] di peringkat 2.",
-    "text_berita_en": "Official Gameweek [N:10] standings place [T:Yuk Bisa Yuk FC] at the summit with [N:733 Pts], holding a [N:19 Pts] lead over [T:PSIS FC] in 2nd place.",
+    "text_berita": "Hingga akhir Gameweek [N:10], [T:Yuk Bisa Yuk FC] memuncaki klasemen liga dengan total [N:733 Poin], unggul [N:19 Poin] atas [T:PSIS FC] di peringkat kedua.",
+    "text_berita_en": "At the end of Gameweek [N:10], [T:Yuk Bisa Yuk FC] tops the league standings with [N:733 Pts], holding a [N:19 Pts] lead over [T:PSIS FC] in 2nd place.",
     "gw": 10,
     "teams": [
       "Yuk Bisa Yuk FC",
@@ -72,7 +47,7 @@
   },
   {
     "id": "CF_MOST_GW_RIVALRY",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -84,18 +59,18 @@
     "sub_kategori": "Most GW Rivalry",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Hingga Gameweek [N:10], daftar perolehan gelar juara mingguan dipimpin oleh [T:PSIS FC] ([N:1 Gelar]), ditempel ketat oleh [T:Blackswann] ([N:1 Gelar]).",
-    "text_berita_en": "Through Gameweek [N:10], the Most Weekly Champion leaderboard is led by [T:PSIS FC] ([N:1 Titles]), closely trailed by [T:Blackswann] ([N:1 Titles]).",
+    "text_berita": "Hingga Gameweek [N:10], [T:Blackswann] (peringkat [N:4]) sementara memimpin perburuan gelar juara mingguan terbanyak dengan [N:1 Gelar], unggul peringkat klasemen atas [T:rdwndvsn] (peringkat [N:5]) dan [N:7] tim lainnya yang juga mengoleksi [N:1 Gelar].",
+    "text_berita_en": "Through Gameweek [N:10], [T:Blackswann] (rank [N:4]) leads the race for most weekly titles with [N:1 Titles], edging [T:rdwndvsn] (rank [N:5]) and [N:7] other teams on league standing.",
     "gw": 10,
     "teams": [
-      "PSIS FC",
-      "Blackswann"
+      "Blackswann",
+      "rdwndvsn"
     ],
     "players": []
   },
   {
     "id": "CF_RANK_CLIMBER",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -107,7 +82,7 @@
     "sub_kategori": "Rank Climber",
     "drama_score": 88,
     "poin_tayang": 0,
-    "text_berita": "[T:Rajo's Team] mencatatkan kenaikan peringkat tertinggi di Gameweek [N:10], melesat naik [N:+21 Posisi] dari peringkat [N:76] ke peringkat [N:55].",
+    "text_berita": "[T:Rajo's Team] membukukan lonjakan peringkat tertinggi pada Gameweek [N:10], naik [N:+21 Peringkat] dari peringkat [N:76] ke peringkat [N:55].",
     "text_berita_en": "[T:Rajo's Team] recorded the highest rank climb in Gameweek [N:10], leaping [N:+21 Places] from rank [N:76] to rank [N:55].",
     "gw": 10,
     "teams": [
@@ -117,7 +92,7 @@
   },
   {
     "id": "CF_PLAYER_OF_THE_GW",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -129,17 +104,18 @@
     "sub_kategori": "Top Performer",
     "drama_score": 91,
     "poin_tayang": 0,
-    "text_berita": "[P:Alysson] ([C:AVL]) dinobatkan sebagai pemain terbaik resmi Gameweek [N:10] dengan torehan [N:16 Poin], berkat kontribusi [N:1 Gol], [N:2 Assist], dan [N:3 Poin Bonus].",
-    "text_berita_en": "[P:Alysson] ([C:AVL]) is officially crowned player of the week for Gameweek [N:10] with [N:16 Pts], contributed by [N:1 Goals], [N:2 Assists], and [N:3 Bonus Pts].",
+    "text_berita": "[P:Barry] ([C:Everton]) dan [P:Alysson] ([C:Aston Villa]) sama-sama menjadi pemain dengan poin tertinggi pada Gameweek [N:10] setelah masing-masing mengoleksi [N:16 Poin].",
+    "text_berita_en": "[P:Barry] ([C:Everton]) and [P:Alysson] ([C:Aston Villa]) share the top-scoring player honor in Gameweek [N:10] with [N:16 Pts] each.",
     "gw": 10,
     "teams": [],
     "players": [
+      "Barry",
       "Alysson"
     ]
   },
   {
     "id": "CF_AUTOSUB_OFFICIAL",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -151,8 +127,8 @@
     "sub_kategori": "Autosub Watch",
     "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "Pergantian otomatis resmi Gameweek [N:10] memasukkan [P:A.Becker] ([N:+4 Poin]) ke susunan pemain inti [T:AHAY JEBRET], menggantikan [P:João Pedro] yang tidak bermain.",
-    "text_berita_en": "Official automatic substitutions for Gameweek [N:10] brought in [P:A.Becker] ([N:+4 Pts]) into [T:AHAY JEBRET] starting XI, replacing the unplayed [P:João Pedro].",
+    "text_berita": "Pergantian otomatis pada Gameweek [N:10] memasukkan [P:A.Becker] ([N:+4 Poin]) ke susunan inti [T:AHAY JEBRET], menggantikan [P:João Pedro] yang tidak bermain.",
+    "text_berita_en": "Automatic substitutions in Gameweek [N:10] brought [P:A.Becker] ([N:+4 Pts]) into [T:AHAY JEBRET] starting XI, replacing [P:João Pedro] who did not play.",
     "gw": 10,
     "teams": [
       "AHAY JEBRET"
@@ -164,7 +140,7 @@
   },
   {
     "id": "CF_CAPTAIN_OFFICIAL",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -176,8 +152,8 @@
     "sub_kategori": "Most Captained",
     "drama_score": 87,
     "poin_tayang": 0,
-    "text_berita": "Pilihan kapten terbanyak di liga pada Gameweek [N:10], [P:Haaland] ([N:65] tim), menyumbangkan [N:4 Poin] ganda usai pengesahan poin bonus.",
-    "text_berita_en": "The most popular captain across the league in Gameweek [N:10], [P:Haaland] ([N:65] teams), yielded [N:4 Pts] doubled following official Opta bonus confirmation.",
+    "text_berita": "Kapten paling banyak dipilih pada Gameweek [N:10], [P:Haaland] ([N:65] tim), mengakhiri pekan dengan sumbangan [N:4 Poin] setelah penambahan bonus.",
+    "text_berita_en": "The most captained player in the league for Gameweek [N:10], [P:Haaland] ([N:65] teams), finished the week with [N:4 Pts] after bonus points were added.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -186,7 +162,7 @@
   },
   {
     "id": "CF_CHIP_WILDCARD_1_blue_one",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -198,8 +174,8 @@
     "sub_kategori": "Wildcard",
     "drama_score": 88,
     "poin_tayang": 0,
-    "text_berita": "Aktivasi resmi Wildcard [T:blue one] pada Gameweek [N:10] menghasilkan total [N:72 Poin].",
-    "text_berita_en": "Official Wildcard activation by [T:blue one] in Gameweek [N:10] produced [N:72 Pts].",
+    "text_berita": "Mengaktifkan [N:Wildcard] pada Gameweek [N:10], [T:blue one] menutup pekan ini dengan perolehan [N:72 Poin].",
+    "text_berita_en": "Activating [N:Wildcard] in Gameweek [N:10], [T:blue one] finished the week with [N:72 Pts].",
     "gw": 10,
     "teams": [
       "blue one"
@@ -208,7 +184,7 @@
   },
   {
     "id": "CF_CHIP_FREEHIT_1_tim_holland",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -220,8 +196,8 @@
     "sub_kategori": "Free Hit",
     "drama_score": 88,
     "poin_tayang": 0,
-    "text_berita": "Aktivasi resmi Free Hit [T:Tim Holland] pada Gameweek [N:10] menghasilkan total [N:61 Poin].",
-    "text_berita_en": "Official Free Hit activation by [T:Tim Holland] in Gameweek [N:10] produced [N:61 Pts].",
+    "text_berita": "Mengaktifkan [N:Free Hit] pada Gameweek [N:10], [T:Tim Holland] menutup pekan ini dengan perolehan [N:61 Poin].",
+    "text_berita_en": "Activating [N:Free Hit] in Gameweek [N:10], [T:Tim Holland] finished the week with [N:61 Pts].",
     "gw": 10,
     "teams": [
       "Tim Holland"
@@ -230,7 +206,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_1_fornaspengawasan",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -242,8 +218,8 @@
     "sub_kategori": "Bench Boost",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Aktivasi resmi Bench Boost [T:FornasPengawasan] pada Gameweek [N:10] mendulang total [N:19 Poin] dari kontribusi empat pemain bangku cadangan.",
-    "text_berita_en": "Official Bench Boost activation by [T:FornasPengawasan] in Gameweek [N:10] harvested [N:19 Pts] from all four bench players.",
+    "text_berita": "Mengaktifkan [N:Bench Boost] pada Gameweek [N:10], [T:FornasPengawasan] mendapat tambahan [N:19 Poin] dari keempat pemain di bangku cadangannya.",
+    "text_berita_en": "Activating [N:Bench Boost] in Gameweek [N:10], [T:FornasPengawasan] added [N:19 Pts] from all four bench players.",
     "gw": 10,
     "teams": [
       "FornasPengawasan"
@@ -252,7 +228,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_2_telur_dadar",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -264,8 +240,8 @@
     "sub_kategori": "Bench Boost",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Aktivasi resmi Bench Boost [T:TELUR DADAR] pada Gameweek [N:10] mendulang total [N:22 Poin] dari kontribusi empat pemain bangku cadangan.",
-    "text_berita_en": "Official Bench Boost activation by [T:TELUR DADAR] in Gameweek [N:10] harvested [N:22 Pts] from all four bench players.",
+    "text_berita": "Mengaktifkan [N:Bench Boost] pada Gameweek [N:10], [T:TELUR DADAR] mendapat tambahan [N:22 Poin] dari keempat pemain di bangku cadangannya.",
+    "text_berita_en": "Activating [N:Bench Boost] in Gameweek [N:10], [T:TELUR DADAR] added [N:22 Pts] from all four bench players.",
     "gw": 10,
     "teams": [
       "TELUR DADAR"
@@ -274,7 +250,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_3_ehajrakab_fc",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -286,8 +262,8 @@
     "sub_kategori": "Bench Boost",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Aktivasi resmi Bench Boost [T:ehajrakab fc] pada Gameweek [N:10] mendulang total [N:21 Poin] dari kontribusi empat pemain bangku cadangan.",
-    "text_berita_en": "Official Bench Boost activation by [T:ehajrakab fc] in Gameweek [N:10] harvested [N:21 Pts] from all four bench players.",
+    "text_berita": "Mengaktifkan [N:Bench Boost] pada Gameweek [N:10], [T:ehajrakab fc] mendapat tambahan [N:21 Poin] dari keempat pemain di bangku cadangannya.",
+    "text_berita_en": "Activating [N:Bench Boost] in Gameweek [N:10], [T:ehajrakab fc] added [N:21 Pts] from all four bench players.",
     "gw": 10,
     "teams": [
       "ehajrakab fc"
@@ -296,7 +272,7 @@
   },
   {
     "id": "CF_CHIP_TRIPLE_CAPTAIN_1_anti_koruptor_laknat",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -308,8 +284,8 @@
     "sub_kategori": "Triple Captain",
     "drama_score": 91,
     "poin_tayang": 0,
-    "text_berita": "Aktivasi resmi Triple Captain [T:Anti Koruptor Laknat] pada Gameweek [N:10] mendulang total [N:24 Poin] berkat performa kapten [P:Isak].",
-    "text_berita_en": "Official Triple Captain activation by [T:Anti Koruptor Laknat] in Gameweek [N:10] harvested [N:24 Pts] thanks to captain [P:Isak].",
+    "text_berita": "Mengaktifkan [N:Triple Captain] pada Gameweek [N:10], [T:Anti Koruptor Laknat] memperoleh [N:24 Poin] dari kapten [P:Isak].",
+    "text_berita_en": "Activating [N:Triple Captain] in Gameweek [N:10], [T:Anti Koruptor Laknat] collected [N:24 Pts] from captain [P:Isak].",
     "gw": 10,
     "teams": [
       "Anti Koruptor Laknat"
@@ -320,7 +296,7 @@
   },
   {
     "id": "CF_CHIP_TRIPLE_CAPTAIN_2_rajo_s_team",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -332,8 +308,8 @@
     "sub_kategori": "Triple Captain",
     "drama_score": 91,
     "poin_tayang": 0,
-    "text_berita": "Aktivasi resmi Triple Captain [T:Rajo's Team] pada Gameweek [N:10] mendulang total [N:18 Poin] berkat performa kapten [P:De Cuyper].",
-    "text_berita_en": "Official Triple Captain activation by [T:Rajo's Team] in Gameweek [N:10] harvested [N:18 Pts] thanks to captain [P:De Cuyper].",
+    "text_berita": "Mengaktifkan [N:Triple Captain] pada Gameweek [N:10], [T:Rajo's Team] memperoleh [N:18 Poin] dari kapten [P:De Cuyper].",
+    "text_berita_en": "Activating [N:Triple Captain] in Gameweek [N:10], [T:Rajo's Team] collected [N:18 Pts] from captain [P:De Cuyper].",
     "gw": 10,
     "teams": [
       "Rajo's Team"
@@ -343,8 +319,52 @@
     ]
   },
   {
-    "id": "CF_HITS_DEDUCTED",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "id": "CF_HITS_DEDUCTED_1_asoy_banget",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Hits",
+    "sub_kategori": "Most Hits",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[T:asoy banget] mencatat pengurangan [N:-24 Poin] pada Gameweek [N:10] setelah melakukan [N:7 Transfer].",
+    "text_berita_en": "[T:asoy banget] had [N:-24 Pts] deducted in Gameweek [N:10] after making [N:7 Transfers].",
+    "gw": 10,
+    "teams": [
+      "asoy banget"
+    ],
+    "players": []
+  },
+  {
+    "id": "CF_HITS_DEDUCTED_2_fornaspengawasan",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Hits",
+    "sub_kategori": "Most Hits",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:FornasPengawasan] mencatat pengurangan [N:-12 Poin] pada Gameweek [N:10] setelah melakukan [N:4 Transfer].",
+    "text_berita_en": "[T:FornasPengawasan] had [N:-12 Pts] deducted in Gameweek [N:10] after making [N:4 Transfers].",
+    "gw": 10,
+    "teams": [
+      "FornasPengawasan"
+    ],
+    "players": []
+  },
+  {
+    "id": "CF_HITS_DEDUCTED_3_notyet",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -356,17 +376,17 @@
     "sub_kategori": "Most Hits",
     "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "Pengurangan poin transfer resmi Gameweek [N:10] memotong [N:-24 Poin] dari total skor [T:asoy banget] usai melakukan [N:7 Transfer].",
-    "text_berita_en": "Official transfer point deductions for Gameweek [N:10] deducted [N:-24 Pts] from [T:asoy banget] after completing [N:7 Transfers].",
+    "text_berita": "[T:notyet] mencatat pengurangan [N:-12 Poin] pada Gameweek [N:10] setelah melakukan [N:4 Transfer].",
+    "text_berita_en": "[T:notyet] had [N:-12 Pts] deducted in Gameweek [N:10] after making [N:4 Transfers].",
     "gw": 10,
     "teams": [
-      "asoy banget"
+      "notyet"
     ],
     "players": []
   },
   {
     "id": "CF_TRANSFER_KARMA_1_cherki",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -378,12 +398,12 @@
     "sub_kategori": "Transfer Karma",
     "drama_score": 95,
     "poin_tayang": 0,
-    "text_berita": "[T:Kuromi FC], [T:notyet], dan [N:9] tim lainnya sama-sama melepas [P:Cherki] ([C:MCI]) yang resmi menorehkan [N:9 Poin] di Gameweek [N:10].",
-    "text_berita_en": "[T:Kuromi FC], [T:notyet], and [N:9] other teams all sold [P:Cherki] ([C:MCI]) who officially scored [N:9 Pts] in Gameweek [N:10].",
+    "text_berita": "[T:Kuromi FC], [T:San_saro], dan [N:9] tim lainnya sama-sama melepas [P:Cherki] ([C:Man City]) yang mengemas [N:9 Poin] pada Gameweek [N:10].",
+    "text_berita_en": "[T:Kuromi FC], [T:San_saro], and [N:9] other teams all sold [P:Cherki] ([C:Man City]), who went on to score [N:9 Pts] in Gameweek [N:10].",
     "gw": 10,
     "teams": [
       "Kuromi FC",
-      "notyet"
+      "San_saro"
     ],
     "players": [
       "Cherki"
@@ -391,7 +411,7 @@
   },
   {
     "id": "CF_TRANSFER_KARMA_2_gro",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -403,8 +423,8 @@
     "sub_kategori": "Transfer Karma",
     "drama_score": 89,
     "poin_tayang": 0,
-    "text_berita": "[T:amenk wenger] dan [T:ehajrakab fc] sama-sama melepas [P:Groß] ([C:BHA]) yang resmi menorehkan [N:10 Poin] di Gameweek [N:10].",
-    "text_berita_en": "[T:amenk wenger] and [T:ehajrakab fc] all sold [P:Groß] ([C:BHA]) who officially scored [N:10 Pts] in Gameweek [N:10].",
+    "text_berita": "[T:amenk wenger] dan [T:ehajrakab fc] sama-sama melepas [P:Groß] ([C:Brighton]) yang mengemas [N:10 Poin] pada Gameweek [N:10].",
+    "text_berita_en": "[T:amenk wenger] and [T:ehajrakab fc] all sold [P:Groß] ([C:Brighton]), who went on to score [N:10 Pts] in Gameweek [N:10].",
     "gw": 10,
     "teams": [
       "amenk wenger",
@@ -416,7 +436,7 @@
   },
   {
     "id": "CF_TRANSFER_KARMA_s_3_roefs",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -428,8 +448,8 @@
     "sub_kategori": "Transfer Karma",
     "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[T:TELUR DADAR] melepas [P:Roefs] ([C:SUN]) yang resmi mengemas [N:9 Poin] di Gameweek [N:10], sementara penggantinya [P:Suzuki] hanya meraih [N:0 Poin].",
-    "text_berita_en": "[T:TELUR DADAR] sold [P:Roefs] ([C:SUN]) who officially scored [N:9 Pts] in Gameweek [N:10], while replacement [P:Suzuki] earned [N:0 Pts].",
+    "text_berita": "[T:TELUR DADAR] melepas [P:Roefs] ([C:Sunderland]) yang mencetak [N:9 Poin] di Gameweek [N:10], sementara pemain penggantinya [P:Suzuki] meraih [N:0 Poin].",
+    "text_berita_en": "[T:TELUR DADAR] sold [P:Roefs] ([C:Sunderland]) who scored [N:9 Pts] in Gameweek [N:10], while replacement [P:Suzuki] earned [N:0 Pts].",
     "gw": 10,
     "teams": [
       "TELUR DADAR"
@@ -441,7 +461,7 @@
   },
   {
     "id": "CF_CAPTAIN_REGRET_1_n_jackson",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -453,8 +473,8 @@
     "sub_kategori": "Captain Regret",
     "drama_score": 95,
     "poin_tayang": 0,
-    "text_berita": "[T:cilukba], [T:Gunung Kemukus 1897], dan [N:24] tim lainnya tidak mengkaptenkan [P:N.Jackson] ([C:Aston Villa]) yang resmi mencetak [N:11 Poin] pada Gameweek [N:10].",
-    "text_berita_en": "[T:cilukba], [T:Gunung Kemukus 1897], and [N:24] other teams opted not to captain [P:N.Jackson] ([C:Aston Villa]) who officially scored [N:11 Pts] in Gameweek [N:10].",
+    "text_berita": "[T:cilukba], [T:Gunung Kemukus 1897], dan [N:24] tim lainnya sama-sama memiliki [P:N.Jackson] ([C:Aston Villa]) yang mencetak [N:11 Poin] pada Gameweek [N:10], namun tidak menjadikannya kapten.",
+    "text_berita_en": "[T:cilukba], [T:Gunung Kemukus 1897], and [N:24] other teams owned [P:N.Jackson] ([C:Aston Villa]) who scored [N:11 Pts] in Gameweek [N:10], but opted not to captain him.",
     "gw": 10,
     "teams": [
       "cilukba",
@@ -466,7 +486,7 @@
   },
   {
     "id": "CF_CAPTAIN_REGRET_2_gro",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -478,8 +498,8 @@
     "sub_kategori": "Captain Regret",
     "drama_score": 93,
     "poin_tayang": 0,
-    "text_berita": "[T:Ayase RS], [T:Badjaj CF], dan [N:17] tim lainnya tidak mengkaptenkan [P:Groß] ([C:Brighton]) yang resmi mencetak [N:10 Poin] pada Gameweek [N:10].",
-    "text_berita_en": "[T:Ayase RS], [T:Badjaj CF], and [N:17] other teams opted not to captain [P:Groß] ([C:Brighton]) who officially scored [N:10 Pts] in Gameweek [N:10].",
+    "text_berita": "[T:Ayase RS], [T:Badjaj CF], dan [N:17] tim lainnya sama-sama memiliki [P:Groß] ([C:Brighton]) yang mencetak [N:10 Poin] pada Gameweek [N:10], namun tidak menjadikannya kapten.",
+    "text_berita_en": "[T:Ayase RS], [T:Badjaj CF], and [N:17] other teams owned [P:Groß] ([C:Brighton]) who scored [N:10 Pts] in Gameweek [N:10], but opted not to captain him.",
     "gw": 10,
     "teams": [
       "Ayase RS",
@@ -491,7 +511,7 @@
   },
   {
     "id": "CF_CAPTAIN_REGRET_3_degaard",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -503,8 +523,8 @@
     "sub_kategori": "Captain Regret",
     "drama_score": 91,
     "poin_tayang": 0,
-    "text_berita": "[T:Carbela FC], [T:HBFC], dan [N:11] tim lainnya tidak mengkaptenkan [P:Ødegaard] ([C:Arsenal]) yang resmi mencetak [N:11 Poin] pada Gameweek [N:10].",
-    "text_berita_en": "[T:Carbela FC], [T:HBFC], and [N:11] other teams opted not to captain [P:Ødegaard] ([C:Arsenal]) who officially scored [N:11 Pts] in Gameweek [N:10].",
+    "text_berita": "[T:Carbela FC], [T:HBFC], dan [N:11] tim lainnya sama-sama memiliki [P:Ødegaard] ([C:Arsenal]) yang mencetak [N:11 Poin] pada Gameweek [N:10], namun tidak menjadikannya kapten.",
+    "text_berita_en": "[T:Carbela FC], [T:HBFC], and [N:11] other teams owned [P:Ødegaard] ([C:Arsenal]) who scored [N:11 Pts] in Gameweek [N:10], but opted not to captain him.",
     "gw": 10,
     "teams": [
       "Carbela FC",
@@ -516,7 +536,7 @@
   },
   {
     "id": "CF_RANK_FALLER_1_a2n_s_team",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -528,8 +548,8 @@
     "sub_kategori": "Rank Faller",
     "drama_score": 89,
     "poin_tayang": 0,
-    "text_berita": "[T:A2N's Team] mencatatkan penurunan peringkat tajam di klasemen resmi Gameweek [N:10], merosot [N:-21 Posisi] dari peringkat [N:56] ke peringkat [N:77] setelah meraih [N:28 Poin].",
-    "text_berita_en": "[T:A2N's Team] suffered a sharp drop in the official Gameweek [N:10] standings, sliding [N:-21 Places] from rank [N:56] to rank [N:77] after scoring [N:28 Pts].",
+    "text_berita": "[T:A2N's Team] mengalami penurunan peringkat di Gameweek [N:10], turun [N:-21 Peringkat] dari peringkat [N:56] ke peringkat [N:77] usai meraih [N:28 Poin].",
+    "text_berita_en": "[T:A2N's Team] dropped [N:-21 Places] in the Gameweek [N:10] standings, sliding from rank [N:56] to rank [N:77] after scoring [N:28 Pts].",
     "gw": 10,
     "teams": [
       "A2N's Team"
@@ -538,7 +558,7 @@
   },
   {
     "id": "CF_RANK_FALLER_2_ceved_sc",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -550,8 +570,8 @@
     "sub_kategori": "Rank Faller",
     "drama_score": 88,
     "poin_tayang": 0,
-    "text_berita": "[T:Ceved SC] mencatatkan penurunan peringkat tajam di klasemen resmi Gameweek [N:10], merosot [N:-20 Posisi] dari peringkat [N:25] ke peringkat [N:45] setelah meraih [N:31 Poin].",
-    "text_berita_en": "[T:Ceved SC] suffered a sharp drop in the official Gameweek [N:10] standings, sliding [N:-20 Places] from rank [N:25] to rank [N:45] after scoring [N:31 Pts].",
+    "text_berita": "[T:Ceved SC] mengalami penurunan peringkat di Gameweek [N:10], turun [N:-20 Peringkat] dari peringkat [N:25] ke peringkat [N:45] usai meraih [N:31 Poin].",
+    "text_berita_en": "[T:Ceved SC] dropped [N:-20 Places] in the Gameweek [N:10] standings, sliding from rank [N:25] to rank [N:45] after scoring [N:31 Pts].",
     "gw": 10,
     "teams": [
       "Ceved SC"
@@ -560,7 +580,7 @@
   },
   {
     "id": "CF_RANK_FALLER_3_amenk_wenger",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -572,8 +592,8 @@
     "sub_kategori": "Rank Faller",
     "drama_score": 87,
     "poin_tayang": 0,
-    "text_berita": "[T:amenk wenger] mencatatkan penurunan peringkat tajam di klasemen resmi Gameweek [N:10], merosot [N:-15 Posisi] dari peringkat [N:49] ke peringkat [N:64] setelah meraih [N:54 Poin].",
-    "text_berita_en": "[T:amenk wenger] suffered a sharp drop in the official Gameweek [N:10] standings, sliding [N:-15 Places] from rank [N:49] to rank [N:64] after scoring [N:54 Pts].",
+    "text_berita": "[T:amenk wenger] mengalami penurunan peringkat di Gameweek [N:10], turun [N:-15 Peringkat] dari peringkat [N:49] ke peringkat [N:64] usai meraih [N:54 Poin].",
+    "text_berita_en": "[T:amenk wenger] dropped [N:-15 Places] in the Gameweek [N:10] standings, sliding from rank [N:49] to rank [N:64] after scoring [N:54 Pts].",
     "gw": 10,
     "teams": [
       "amenk wenger"
@@ -582,7 +602,7 @@
   },
   {
     "id": "CF_RIVALRY_DUEL_1_r4_r5",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -594,8 +614,8 @@
     "sub_kategori": "Rivalry Duel",
     "drama_score": 93,
     "poin_tayang": 0,
-    "text_berita": "Persaingan ketat terjadi di papan klasemen resmi Gameweek [N:10] antara peringkat [N:4] [T:Blackswann] dan peringkat [N:5] [T:rdwndvsn] yang sama-sama mengoleksi [N:697 Poin].",
-    "text_berita_en": "A tight battle in the official Gameweek [N:10] standings sees rank [N:4] [T:Blackswann] and rank [N:5] [T:rdwndvsn] locked level on [N:697 Pts].",
+    "text_berita": "Pada klasemen Gameweek [N:10], peringkat [N:4] [T:Blackswann] dan peringkat [N:5] [T:rdwndvsn] sama-sama mengoleksi [N:697 Poin].",
+    "text_berita_en": "In the Gameweek [N:10] standings, rank [N:4] [T:Blackswann] and rank [N:5] [T:rdwndvsn] sit level on [N:697 Pts].",
     "gw": 10,
     "teams": [
       "Blackswann",
@@ -605,7 +625,7 @@
   },
   {
     "id": "CF_RIVALRY_DUEL_2_r15_r16",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -617,8 +637,8 @@
     "sub_kategori": "Rivalry Duel",
     "drama_score": 93,
     "poin_tayang": 0,
-    "text_berita": "Persaingan ketat terjadi di papan klasemen resmi Gameweek [N:10] antara peringkat [N:15] [T:tendangan si madun] dan peringkat [N:16] [T:Sidobig City] yang sama-sama mengoleksi [N:637 Poin].",
-    "text_berita_en": "A tight battle in the official Gameweek [N:10] standings sees rank [N:15] [T:tendangan si madun] and rank [N:16] [T:Sidobig City] locked level on [N:637 Pts].",
+    "text_berita": "Pada klasemen Gameweek [N:10], peringkat [N:15] [T:tendangan si madun] dan peringkat [N:16] [T:Sidobig City] sama-sama mengoleksi [N:637 Poin].",
+    "text_berita_en": "In the Gameweek [N:10] standings, rank [N:15] [T:tendangan si madun] and rank [N:16] [T:Sidobig City] sit level on [N:637 Pts].",
     "gw": 10,
     "teams": [
       "tendangan si madun",
@@ -628,7 +648,7 @@
   },
   {
     "id": "CF_RIVALRY_DUEL_3_r19_r20",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -640,8 +660,8 @@
     "sub_kategori": "Rivalry Duel",
     "drama_score": 93,
     "poin_tayang": 0,
-    "text_berita": "Persaingan ketat terjadi di papan klasemen resmi Gameweek [N:10] antara peringkat [N:19] [T:Dom Football] dan peringkat [N:20] [T:Petrikor] yang sama-sama mengoleksi [N:633 Poin].",
-    "text_berita_en": "A tight battle in the official Gameweek [N:10] standings sees rank [N:19] [T:Dom Football] and rank [N:20] [T:Petrikor] locked level on [N:633 Pts].",
+    "text_berita": "Pada klasemen Gameweek [N:10], peringkat [N:19] [T:Dom Football] dan peringkat [N:20] [T:Petrikor] sama-sama mengoleksi [N:633 Poin].",
+    "text_berita_en": "In the Gameweek [N:10] standings, rank [N:19] [T:Dom Football] and rank [N:20] [T:Petrikor] sit level on [N:633 Pts].",
     "gw": 10,
     "teams": [
       "Dom Football",
@@ -651,7 +671,7 @@
   },
   {
     "id": "CF_BENCH_POINTS_1_muharemovic",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -663,8 +683,8 @@
     "sub_kategori": "Bench Regret",
     "drama_score": 91,
     "poin_tayang": 0,
-    "text_berita": "[T:Cikaso Fire], [T:De la Fuente], dan [N:6] tim lainnya sama-sama mencadangkan [P:Muharemović] ([C:Leeds]) yang resmi menyumbang [N:10 Poin] di bangku cadangan pada Gameweek [N:10].",
-    "text_berita_en": "[T:Cikaso Fire], [T:De la Fuente], and [N:6] other teams all left [P:Muharemović] ([C:Leeds]) on the bench despite officially scoring [N:10 Pts] in Gameweek [N:10].",
+    "text_berita": "[T:Cikaso Fire], [T:De la Fuente], dan [N:6] tim lainnya sama-sama menempatkan [P:Muharemović] ([C:Leeds]) di bangku cadangan saat ia mencetak [N:10 Poin] pada Gameweek [N:10].",
+    "text_berita_en": "[T:Cikaso Fire], [T:De la Fuente], and [N:6] other teams left [P:Muharemović] ([C:Leeds]) on the bench when he scored [N:10 Pts] in Gameweek [N:10].",
     "gw": 10,
     "teams": [
       "Cikaso Fire",
@@ -676,7 +696,7 @@
   },
   {
     "id": "CF_BENCH_POINTS_2_gro",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -688,8 +708,8 @@
     "sub_kategori": "Bench Regret",
     "drama_score": 91,
     "poin_tayang": 0,
-    "text_berita": "[T:BERCELANA], [T:Dom Football], dan [N:4] tim lainnya sama-sama mencadangkan [P:Groß] ([C:Brighton]) yang resmi menyumbang [N:10 Poin] di bangku cadangan pada Gameweek [N:10].",
-    "text_berita_en": "[T:BERCELANA], [T:Dom Football], and [N:4] other teams all left [P:Groß] ([C:Brighton]) on the bench despite officially scoring [N:10 Pts] in Gameweek [N:10].",
+    "text_berita": "[T:BERCELANA], [T:Dom Football], dan [N:4] tim lainnya sama-sama menempatkan [P:Groß] ([C:Brighton]) di bangku cadangan saat ia mencetak [N:10 Poin] pada Gameweek [N:10].",
+    "text_berita_en": "[T:BERCELANA], [T:Dom Football], and [N:4] other teams left [P:Groß] ([C:Brighton]) on the bench when he scored [N:10 Pts] in Gameweek [N:10].",
     "gw": 10,
     "teams": [
       "BERCELANA",
@@ -701,7 +721,7 @@
   },
   {
     "id": "CF_BENCH_POINTS_3_cherki",
-    "timestamp_produksi": "2026-11-13T19:30:53.433Z",
+    "timestamp_produksi": "2026-11-15T02:27:22.814Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -713,8 +733,8 @@
     "sub_kategori": "Bench Regret",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "[T:Bulu Ketek Zombie], [T:tendangan si madun], dan [N:3] tim lainnya sama-sama mencadangkan [P:Cherki] ([C:Man City]) yang resmi menyumbang [N:9 Poin] di bangku cadangan pada Gameweek [N:10].",
-    "text_berita_en": "[T:Bulu Ketek Zombie], [T:tendangan si madun], and [N:3] other teams all left [P:Cherki] ([C:Man City]) on the bench despite officially scoring [N:9 Pts] in Gameweek [N:10].",
+    "text_berita": "[T:Bulu Ketek Zombie], [T:tendangan si madun], dan [N:3] tim lainnya sama-sama menempatkan [P:Cherki] ([C:Man City]) di bangku cadangan saat ia mencetak [N:9 Poin] pada Gameweek [N:10].",
+    "text_berita_en": "[T:Bulu Ketek Zombie], [T:tendangan si madun], and [N:3] other teams left [P:Cherki] ([C:Man City]) on the bench when he scored [N:9 Pts] in Gameweek [N:10].",
     "gw": 10,
     "teams": [
       "Bulu Ketek Zombie",
@@ -725,8 +745,1174 @@
     ]
   },
   {
+    "id": "PV_TOP_RIVALRY",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Top Rivalry",
+    "drama_score": 93,
+    "poin_tayang": 0,
+    "text_berita": "Setelah seluruh laga Gameweek [N:10] usai, [T:Yuk Bisa Yuk FC] sementara memuncaki klasemen dengan [N:733 Poin], unggul [N:19 Poin] dari [T:PSIS FC] di peringkat kedua ([N:714 Poin]).",
+    "text_berita_en": "After all Gameweek [N:10] fixtures, [T:Yuk Bisa Yuk FC] provisionally tops the table with [N:733 Pts], [N:19 Pts] ahead of [T:PSIS FC] ([N:714 Pts]).",
+    "gw": 10,
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": []
+  },
+  {
+    "id": "PV_GW_LEADER",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Gameweek Leader",
+    "drama_score": 91,
+    "poin_tayang": 0,
+    "text_berita": "[T:Rajo's Team] memimpin perolehan poin sementara Gameweek [N:10] dengan [N:85 Poin], diikuti [T:Always Ready] ([N:81 Poin]) sebelum perhitungan akhir poin dan pergantian otomatis selesai.",
+    "text_berita_en": "[T:Rajo's Team] leads provisional Gameweek [N:10] scoring with [N:85 Pts], ahead of [T:Always Ready] ([N:81 Pts]).",
+    "gw": 10,
+    "teams": [
+      "Rajo's Team",
+      "Always Ready"
+    ],
+    "players": []
+  },
+  {
+    "id": "PV_TOP_SCORER_GW_1_barry",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Player",
+    "sub_kategori": "Top Performer",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "[P:Barry] ([C:Everton]) mencetak poin tertinggi sementara di Gameweek [N:10] dengan [N:16 Poin] ([N:2 Gol], [N:1 Assist]), dan tercatat dimiliki oleh [N:9] tim di liga.",
+    "text_berita_en": "[P:Barry] ([C:Everton]) leads provisional Gameweek [N:10] scoring with [N:16 Pts] ([N:2 Goals], [N:1 Assists]), owned by [N:9] teams.",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Barry"
+    ]
+  },
+  {
+    "id": "PV_TOP_SCORER_GW_2_alysson",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Player",
+    "sub_kategori": "Top Performer",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "[P:Alysson] ([C:Aston Villa]) mencetak poin tertinggi sementara di Gameweek [N:10] dengan [N:16 Poin] ([N:1 Gol], [N:2 Assist]), dan tercatat dimiliki oleh [N:0] tim di liga.",
+    "text_berita_en": "[P:Alysson] ([C:Aston Villa]) leads provisional Gameweek [N:10] scoring with [N:16 Pts] ([N:1 Goals], [N:2 Assists]), owned by [N:0] teams.",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Alysson"
+    ]
+  },
+  {
+    "id": "PV_CAPTAIN_RECAP",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Captain",
+    "sub_kategori": "Most Captained",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "Dua kapten paling banyak dipilih di Gameweek [N:10], [P:Haaland] ([N:65] tim) dan [P:Isak] ([N:9] tim), masing-masing menyumbang [N:4 Poin] dan [N:16 Poin] sementara.",
+    "text_berita_en": "Top Gameweek [N:10] captains [P:Haaland] ([N:65] teams) and [P:Isak] ([N:9] teams) delivered [N:4 Pts] and [N:16 Pts] provisionally.",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Haaland",
+      "Isak"
+    ]
+  },
+  {
+    "id": "PV_VICE_CAPTAIN_1_ehajrakab_fc",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Captain",
+    "sub_kategori": "Vice Captain",
+    "drama_score": 89,
+    "poin_tayang": 0,
+    "text_berita": "Ban kapten [T:ehajrakab fc] beralih kepada wakil kapten [P:Calafiori] yang meraih [N:6 Poin], karena kapten utama [P:Palmer] tidak bermain sama sekali.",
+    "text_berita_en": "[T:ehajrakab fc] saw the captaincy pass to vice-captain [P:Calafiori] ([N:6 Pts]) as [P:Palmer] did not play.",
+    "gw": 10,
+    "teams": [
+      "ehajrakab fc"
+    ],
+    "players": [
+      "Calafiori",
+      "Palmer"
+    ]
+  },
+  {
+    "id": "PV_VICE_CAPTAIN_2_ahay_jebret",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Captain",
+    "sub_kategori": "Vice Captain",
+    "drama_score": 89,
+    "poin_tayang": 0,
+    "text_berita": "Ban kapten [T:AHAY JEBRET] beralih kepada wakil kapten [P:Haaland] yang meraih [N:2 Poin], karena kapten utama [P:João Pedro] tidak bermain sama sekali.",
+    "text_berita_en": "[T:AHAY JEBRET] saw the captaincy pass to vice-captain [P:Haaland] ([N:2 Pts]) as [P:João Pedro] did not play.",
+    "gw": 10,
+    "teams": [
+      "AHAY JEBRET"
+    ],
+    "players": [
+      "Haaland",
+      "João Pedro"
+    ]
+  },
+  {
+    "id": "PV_AUTOSUB_PENDING_1_ahay_jebret",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Starting XI",
+    "sub_kategori": "Autosub Watch",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:AHAY JEBRET] menanti proses pergantian otomatis untuk memasukkan pemain cadangan [P:A.Becker] ([N:4 Poin]) menggantikan starter [P:João Pedro] yang absen bermain.",
+    "text_berita_en": "[T:AHAY JEBRET] awaits automatic substitution to bring [P:A.Becker] ([N:4 Pts]) on for [P:João Pedro].",
+    "gw": 10,
+    "teams": [
+      "AHAY JEBRET"
+    ],
+    "players": [
+      "A.Becker",
+      "João Pedro"
+    ]
+  },
+  {
+    "id": "PV_BENCH_POINTS_1_rdwndvsn",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Starting XI",
+    "sub_kategori": "Bench Points",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "Sebanyak [N:31 Poin] milik [T:rdwndvsn] tertahan di bangku cadangan pada Gameweek [N:10], termasuk kontribusi [P:E.Le Fée] yang mengemas [N:11 Poin].",
+    "text_berita_en": "[T:rdwndvsn] left [N:31 Pts] on the bench in Gameweek [N:10], led by [P:E.Le Fée] ([N:11 Pts]).",
+    "gw": 10,
+    "teams": [
+      "rdwndvsn"
+    ],
+    "players": [
+      "E.Le Fée"
+    ]
+  },
+  {
+    "id": "PV_BENCH_POINTS_2_mesin_fc",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Starting XI",
+    "sub_kategori": "Bench Points",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "Sebanyak [N:28 Poin] milik [T:Mesin FC] tertahan di bangku cadangan pada Gameweek [N:10], termasuk kontribusi [P:Vuskovic] yang mengemas [N:12 Poin].",
+    "text_berita_en": "[T:Mesin FC] left [N:28 Pts] on the bench in Gameweek [N:10], led by [P:Vuskovic] ([N:12 Pts]).",
+    "gw": 10,
+    "teams": [
+      "Mesin FC"
+    ],
+    "players": [
+      "Vuskovic"
+    ]
+  },
+  {
+    "id": "PV_BENCH_POINTS_3_mooy_pablo",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Starting XI",
+    "sub_kategori": "Bench Points",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "Sebanyak [N:23 Poin] milik [T:Mooy Pablo] tertahan di bangku cadangan pada Gameweek [N:10], termasuk kontribusi [P:E.Le Fée] yang mengemas [N:11 Poin].",
+    "text_berita_en": "[T:Mooy Pablo] left [N:23 Pts] on the bench in Gameweek [N:10], led by [P:E.Le Fée] ([N:11 Pts]).",
+    "gw": 10,
+    "teams": [
+      "Mooy Pablo"
+    ],
+    "players": [
+      "E.Le Fée"
+    ]
+  },
+  {
+    "id": "PV_CHIP_WILDCARD_1_blue_one",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Wildcard",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "Mengaktifkan [N:Wildcard] pada Gameweek [N:10], [T:blue one] meraih [N:72 Poin] sementara.",
+    "text_berita_en": "Activating [N:Wildcard] in Gameweek [N:10], [T:blue one] collected [N:72 Pts] provisionally.",
+    "gw": 10,
+    "teams": [
+      "blue one"
+    ],
+    "players": []
+  },
+  {
+    "id": "PV_CHIP_FREEHIT_1_tim_holland",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Free Hit",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "Mengaktifkan [N:Free Hit] pada Gameweek [N:10], [T:Tim Holland] meraih [N:61 Poin] sementara.",
+    "text_berita_en": "Activating [N:Free Hit] in Gameweek [N:10], [T:Tim Holland] collected [N:61 Pts] provisionally.",
+    "gw": 10,
+    "teams": [
+      "Tim Holland"
+    ],
+    "players": []
+  },
+  {
+    "id": "PV_CHIP_BENCH_BOOST_1_fornaspengawasan",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Bench Boost",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "Mengaktifkan [N:Bench Boost] pada Gameweek [N:10], [T:FornasPengawasan] meraup [N:19 Poin] tambahan sementara dari empat pemain cadangannya.",
+    "text_berita_en": "Activating [N:Bench Boost] in Gameweek [N:10], [T:FornasPengawasan] gained [N:19 Pts] provisionally from the bench.",
+    "gw": 10,
+    "teams": [
+      "FornasPengawasan"
+    ],
+    "players": []
+  },
+  {
+    "id": "PV_CHIP_BENCH_BOOST_2_telur_dadar",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Bench Boost",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "Mengaktifkan [N:Bench Boost] pada Gameweek [N:10], [T:TELUR DADAR] meraup [N:22 Poin] tambahan sementara dari empat pemain cadangannya.",
+    "text_berita_en": "Activating [N:Bench Boost] in Gameweek [N:10], [T:TELUR DADAR] gained [N:22 Pts] provisionally from the bench.",
+    "gw": 10,
+    "teams": [
+      "TELUR DADAR"
+    ],
+    "players": []
+  },
+  {
+    "id": "PV_CHIP_BENCH_BOOST_3_ehajrakab_fc",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Bench Boost",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "Mengaktifkan [N:Bench Boost] pada Gameweek [N:10], [T:ehajrakab fc] meraup [N:21 Poin] tambahan sementara dari empat pemain cadangannya.",
+    "text_berita_en": "Activating [N:Bench Boost] in Gameweek [N:10], [T:ehajrakab fc] gained [N:21 Pts] provisionally from the bench.",
+    "gw": 10,
+    "teams": [
+      "ehajrakab fc"
+    ],
+    "players": []
+  },
+  {
+    "id": "PV_CHIP_TRIPLE_CAPTAIN_1_anti_koruptor_laknat",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Triple Captain",
+    "drama_score": 89,
+    "poin_tayang": 0,
+    "text_berita": "Mengaktifkan [N:Triple Captain] pada Gameweek [N:10], [T:Anti Koruptor Laknat] mengumpulkan [N:24 Poin] sementara dari kapten [P:Isak].",
+    "text_berita_en": "Activating [N:Triple Captain] in Gameweek [N:10], [T:Anti Koruptor Laknat] collected [N:24 Pts] provisionally from [P:Isak].",
+    "gw": 10,
+    "teams": [
+      "Anti Koruptor Laknat"
+    ],
+    "players": [
+      "Isak"
+    ]
+  },
+  {
+    "id": "PV_CHIP_TRIPLE_CAPTAIN_2_rajo_s_team",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Triple Captain",
+    "drama_score": 89,
+    "poin_tayang": 0,
+    "text_berita": "Mengaktifkan [N:Triple Captain] pada Gameweek [N:10], [T:Rajo's Team] mengumpulkan [N:18 Poin] sementara dari kapten [P:De Cuyper].",
+    "text_berita_en": "Activating [N:Triple Captain] in Gameweek [N:10], [T:Rajo's Team] collected [N:18 Pts] provisionally from [P:De Cuyper].",
+    "gw": 10,
+    "teams": [
+      "Rajo's Team"
+    ],
+    "players": [
+      "De Cuyper"
+    ]
+  },
+  {
+    "id": "PV_HITS_EVALUATION_1_asoy_banget",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Hits",
+    "sub_kategori": "Most Hits",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:asoy banget] terkena pengurangan [N:-24 Poin] akibat transfer tambahan di Gameweek [N:10], sementara pemain baru [P:Araujo] menyumbang [N:7 Poin].",
+    "text_berita_en": "[T:asoy banget] faces a [N:-24 Pts] hit deduction in Gameweek [N:10], while new signing [P:Araujo] returned [N:7 Pts].",
+    "gw": 10,
+    "teams": [
+      "asoy banget"
+    ],
+    "players": [
+      "Araujo"
+    ]
+  },
+  {
+    "id": "PV_HITS_EVALUATION_2_fornaspengawasan",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Hits",
+    "sub_kategori": "Most Hits",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:FornasPengawasan] terkena pengurangan [N:-12 Poin] akibat transfer tambahan di Gameweek [N:10], sementara pemain baru [P:Raya] menyumbang [N:6 Poin].",
+    "text_berita_en": "[T:FornasPengawasan] faces a [N:-12 Pts] hit deduction in Gameweek [N:10], while new signing [P:Raya] returned [N:6 Pts].",
+    "gw": 10,
+    "teams": [
+      "FornasPengawasan"
+    ],
+    "players": [
+      "Raya"
+    ]
+  },
+  {
+    "id": "PV_HITS_EVALUATION_3_notyet",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Hits",
+    "sub_kategori": "Most Hits",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:notyet] terkena pengurangan [N:-12 Poin] akibat transfer tambahan di Gameweek [N:10], sementara pemain baru [P:Konsa] menyumbang [N:8 Poin].",
+    "text_berita_en": "[T:notyet] faces a [N:-12 Pts] hit deduction in Gameweek [N:10], while new signing [P:Konsa] returned [N:8 Pts].",
+    "gw": 10,
+    "teams": [
+      "notyet"
+    ],
+    "players": [
+      "Konsa"
+    ]
+  },
+  {
+    "id": "PV_CLEAN_SHEET_RECAP_leeds_muharemovi",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Leeds] menjaga gawang tetap clean sheet saat menang [N:1 - 0] atas [C:Spurs] di Gameweek [N:10], menyumbangkan poin bagi [N:16] tim pemilik [P:Muharemović].",
+    "text_berita_en": "[C:Leeds] kept a clean sheet in their [N:1 - 0] win over [C:Spurs] in Gameweek [N:10], rewarding [N:16] teams owning [P:Muharemović].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Muharemović"
+    ]
+  },
+  {
+    "id": "PV_CLEAN_SHEET_RECAP_arsenal_calafiori",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Arsenal] menjaga gawang tetap clean sheet saat menang [N:1 - 0] atas [C:Hull City] di Gameweek [N:10], menyumbangkan poin bagi [N:74] tim pemilik [P:Calafiori].",
+    "text_berita_en": "[C:Arsenal] kept a clean sheet in their [N:1 - 0] win over [C:Hull City] in Gameweek [N:10], rewarding [N:74] teams owning [P:Calafiori].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Calafiori"
+    ]
+  },
+  {
+    "id": "PV_CLEAN_SHEET_RECAP_brighton_de_cuyper",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Brighton] menjaga gawang tetap clean sheet saat menang [N:2 - 0] atas [C:Brentford] di Gameweek [N:10], menyumbangkan poin bagi [N:77] tim pemilik [P:De Cuyper].",
+    "text_berita_en": "[C:Brighton] kept a clean sheet in their [N:2 - 0] win over [C:Brentford] in Gameweek [N:10], rewarding [N:77] teams owning [P:De Cuyper].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "De Cuyper"
+    ]
+  },
+  {
+    "id": "PV_CLEAN_SHEET_RECAP_sunderland_roefs",
+    "timestamp_produksi": "2026-11-15T02:27:22.859Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
+    "fase": "Provisional",
+    "waktu_tayang": [
+      "Provisional"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Sunderland] menjaga gawang tetap clean sheet saat menang [N:1 - 0] atas [C:Chelsea] di Gameweek [N:10], menyumbangkan poin bagi [N:2] tim pemilik [P:Roefs].",
+    "text_berita_en": "[C:Sunderland] kept a clean sheet in their [N:1 - 0] win over [C:Chelsea] in Gameweek [N:10], rewarding [N:2] teams owning [P:Roefs].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Roefs"
+    ]
+  },
+  {
+    "id": "BM_MATCH_RESULT_m94",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Result",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "Hasil pertandingan di [N:Hill Dickinson Stadium], [C:Everton] mengalahkan [C:Coventry City] dengan skor [N:3] - [N:1], gol dicetak oleh [P:Dewsbury-Hall] ([N:5%]), [P:Barry] ([N:9%]) [N:(2 Gol)], dan [P:Gboho] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Hill Dickinson Stadium]: [C:Everton] defeats [C:Coventry City] [N:3] - [N:1], goals scored by [P:Dewsbury-Hall] ([N:5%]), [P:Barry] ([N:9%]) [N:(2 Goals)], and [P:Gboho] ([N:0%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Dewsbury-Hall",
+      "Barry",
+      "Gboho"
+    ]
+  },
+  {
+    "id": "BM_MATCH_RESULT_m97",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Result",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "Hasil pertandingan di [N:Elland Road], [C:Leeds] mengalahkan [C:Spurs] dengan skor [N:1] - [N:0], gol dicetak oleh [P:Okafor] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Elland Road]: [C:Leeds] defeats [C:Spurs] [N:1] - [N:0], goals scored by [P:Okafor] ([N:0%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Okafor"
+    ]
+  },
+  {
+    "id": "BM_MATCH_RESULT_m91",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Result",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "Hasil pertandingan di [N:Emirates Stadium], [C:Arsenal] mengalahkan [C:Hull City] dengan skor [N:1] - [N:0], gol dicetak oleh [P:Ødegaard] ([N:21%]).",
+    "text_berita_en": "Match result at [N:Emirates Stadium]: [C:Arsenal] defeats [C:Hull City] [N:1] - [N:0], goals scored by [P:Ødegaard] ([N:21%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Ødegaard"
+    ]
+  },
+  {
+    "id": "BM_MATCH_RESULT_m95",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Result",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "Hasil pertandingan di [N:Craven Cottage], [C:Fulham] dan [C:Newcastle] bermain imbang [N:1] - [N:1], gol dicetak oleh [P:Muniz] ([N:0%]) dan [P:J.Murphy] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Craven Cottage]: [C:Fulham] and [C:Newcastle] draw [N:1] - [N:1], goals scored by [P:Muniz] ([N:0%]) and [P:J.Murphy] ([N:0%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Muniz",
+      "J.Murphy"
+    ]
+  },
+  {
+    "id": "BM_MATCH_RESULT_m99",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Result",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "Hasil pertandingan di [N:The City Ground], [C:Nott'm Forest] mengalahkan [C:Man City] dengan skor [N:3] - [N:1], gol dicetak oleh [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Gol)], dan [P:Cherki] ([N:31%]).",
+    "text_berita_en": "Match result at [N:The City Ground]: [C:Nott'm Forest] defeats [C:Man City] [N:3] - [N:1], goals scored by [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Goals)], and [P:Cherki] ([N:31%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Jair Cunha",
+      "Delap",
+      "Cherki"
+    ]
+  },
+  {
+    "id": "BM_MATCH_CLEAN_SHEET_leeds_muharemovi",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Leeds] mencatat clean sheet kontra [C:Spurs], menyumbangkan [N:+4 Poin] bagi [P:Muharemović] ([N:17%]).",
+    "text_berita_en": "[C:Leeds] kept a clean sheet against [C:Spurs], earning [N:+4 Pts] for [P:Muharemović] ([N:17%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Muharemović"
+    ]
+  },
+  {
+    "id": "BM_MATCH_CLEAN_SHEET_arsenal_calafiori",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Arsenal] mencatat clean sheet kontra [C:Hull City], menyumbangkan [N:+4 Poin] bagi [P:Calafiori] ([N:76%]).",
+    "text_berita_en": "[C:Arsenal] kept a clean sheet against [C:Hull City], earning [N:+4 Pts] for [P:Calafiori] ([N:76%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Calafiori"
+    ]
+  },
+  {
+    "id": "BM_MATCH_CLEAN_SHEET_brighton_de_cuyper",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Brighton] mencatat clean sheet kontra [C:Brentford], menyumbangkan [N:+4 Poin] bagi [P:De Cuyper] ([N:79%]).",
+    "text_berita_en": "[C:Brighton] kept a clean sheet against [C:Brentford], earning [N:+4 Pts] for [P:De Cuyper] ([N:79%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "De Cuyper"
+    ]
+  },
+  {
+    "id": "BM_MATCH_CLEAN_SHEET_sunderland_roefs",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Sunderland] mencatat clean sheet kontra [C:Chelsea], menyumbangkan [N:+4 Poin] bagi [P:Roefs] ([N:2%]).",
+    "text_berita_en": "[C:Sunderland] kept a clean sheet against [C:Chelsea], earning [N:+4 Pts] for [P:Roefs] ([N:2%]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Roefs"
+    ]
+  },
+  {
+    "id": "BM_GOAL_CONTRIBUTORS_multi_barry",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Goal",
+    "drama_score": 91,
+    "poin_tayang": 0,
+    "text_berita": "[P:Barry] ([N:9%]) memborong [N:2 Gol] untuk [C:Everton] saat menghadapi [C:Coventry City].",
+    "text_berita_en": "[P:Barry] ([N:9%]) scored [N:2 Goals] for [C:Everton] against [C:Coventry City].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Barry"
+    ]
+  },
+  {
+    "id": "BM_GOAL_CONTRIBUTORS_multi_delap",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Goal",
+    "drama_score": 91,
+    "poin_tayang": 0,
+    "text_berita": "[P:Delap] ([N:0%]) memborong [N:2 Gol] untuk [C:Nott'm Forest] saat menghadapi [C:Man City].",
+    "text_berita_en": "[P:Delap] ([N:0%]) scored [N:2 Goals] for [C:Nott'm Forest] against [C:Man City].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Delap"
+    ]
+  },
+  {
+    "id": "BM_GOAL_CONTRIBUTORS_ga_delap_schlager",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Goal",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[P:Delap] ([N:0%]) mencetak gol untuk [C:Nott'm Forest] lewat assist [P:Schlager] ([N:0%]) saat menghadapi [C:Man City].",
+    "text_berita_en": "[P:Delap] ([N:0%]) scored for [C:Nott'm Forest] assisted by [P:Schlager] ([N:0%]) against [C:Man City].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Delap",
+      "Schlager"
+    ]
+  },
+  {
+    "id": "BM_GOAL_CONTRIBUTORS_ga_delap_gibbs_white",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Goal",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[P:Delap] ([N:0%]) mencetak gol untuk [C:Nott'm Forest] lewat assist [P:Gibbs-White] ([N:6%]) saat menghadapi [C:Man City].",
+    "text_berita_en": "[P:Delap] ([N:0%]) scored for [C:Nott'm Forest] assisted by [P:Gibbs-White] ([N:6%]) against [C:Man City].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Delap",
+      "Gibbs-White"
+    ]
+  },
+  {
+    "id": "BM_BONUS_POINTS_STAR_delap",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Bonus Points",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[P:Delap] ([N:0%]) meraih skor BPS tertinggi ([N:64 BPS]) dengan koleksi [N:13 Poin] pada laga [C:Nott'm Forest] kontra [C:Man City].",
+    "text_berita_en": "[P:Delap] ([N:0%]) topped the BPS chart ([N:64 BPS]) with [N:13 Pts] in [C:Nott'm Forest] vs [C:Man City].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Delap"
+    ]
+  },
+  {
+    "id": "BM_BONUS_POINTS_STAR_barry",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Bonus Points",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[P:Barry] ([N:9%]) meraih skor BPS tertinggi ([N:59 BPS]) dengan koleksi [N:16 Poin] pada laga [C:Everton] kontra [C:Coventry City].",
+    "text_berita_en": "[P:Barry] ([N:9%]) topped the BPS chart ([N:59 BPS]) with [N:16 Pts] in [C:Everton] vs [C:Coventry City].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Barry"
+    ]
+  },
+  {
+    "id": "BM_BONUS_POINTS_STAR_wirtz",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Bonus Points",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[P:Wirtz] ([N:1%]) meraih skor BPS tertinggi ([N:49 BPS]) dengan koleksi [N:13 Poin] pada laga [C:Liverpool] kontra [C:Crystal Palace].",
+    "text_berita_en": "[P:Wirtz] ([N:1%]) topped the BPS chart ([N:49 BPS]) with [N:13 Pts] in [C:Liverpool] vs [C:Crystal Palace].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Wirtz"
+    ]
+  },
+  {
+    "id": "BM_CARD_RED_m92_thiago",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Red Card",
+    "drama_score": 91,
+    "poin_tayang": 0,
+    "text_berita": "[P:Thiago] ([N:4%]) diganjar kartu merah dalam laga [C:Brentford] kontra [C:Brighton], berujung pengurangan [N:-3 Poin].",
+    "text_berita_en": "[P:Thiago] received a red card in [C:Brentford] vs [C:Brighton] ([N:-3 Pts]).",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Thiago"
+    ]
+  },
+  {
+    "id": "BM_INJURY_UPDATE_gvardiol",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Match Injury",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[P:Gvardiol] ([N:22%]) ditarik keluar pada menit [N:45] karena cedera saat membela [C:Man City] kontra [C:Nott'm Forest].",
+    "text_berita_en": "[P:Gvardiol] ([N:22%]) was forced off injured at minute [N:45] for [C:Man City] against [C:Nott'm Forest].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Gvardiol"
+    ]
+  },
+  {
+    "id": "BM_INJURY_UPDATE_gu_hi",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Match Injury",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[P:Guéhi] ([N:13%]) ditarik keluar pada menit [N:45] karena cedera saat membela [C:Man City] kontra [C:Nott'm Forest].",
+    "text_berita_en": "[P:Guéhi] ([N:13%]) was forced off injured at minute [N:45] for [C:Man City] against [C:Nott'm Forest].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Guéhi"
+    ]
+  },
+  {
+    "id": "BM_INJURY_UPDATE_maguire",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match Event",
+    "sub_kategori": "Match Injury",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[P:Maguire] ([N:3%]) ditarik keluar pada menit [N:45] karena cedera saat membela [C:Man Utd] kontra [C:Aston Villa].",
+    "text_berita_en": "[P:Maguire] ([N:3%]) was forced off injured at minute [N:45] for [C:Man Utd] against [C:Aston Villa].",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Maguire"
+    ]
+  },
+  {
+    "id": "BM_BENCH_REGRET_1_long_moo_long_fc",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Starting XI",
+    "sub_kategori": "Bench Regret",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:Long Moo Long FC] menempatkan [P:Barry] di bangku cadangan meski sang pemain meraih [N:16 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Long Moo Long FC] left [P:Barry] on the bench with [N:16 Pts] from a completed match.",
+    "gw": 10,
+    "teams": [
+      "Long Moo Long FC"
+    ],
+    "players": [
+      "Barry"
+    ]
+  },
+  {
+    "id": "BM_BENCH_REGRET_2_telur_dadar",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Starting XI",
+    "sub_kategori": "Bench Regret",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:TELUR DADAR] menempatkan [P:Barry] di bangku cadangan meski sang pemain meraih [N:16 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:TELUR DADAR] left [P:Barry] on the bench with [N:16 Pts] from a completed match.",
+    "gw": 10,
+    "teams": [
+      "TELUR DADAR"
+    ],
+    "players": [
+      "Barry"
+    ]
+  },
+  {
+    "id": "BM_BENCH_REGRET_3_prabu_belgeduwelbeh",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Starting XI",
+    "sub_kategori": "Bench Regret",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:Prabu Belgeduwelbeh] menempatkan [P:Vuskovic] di bangku cadangan meski sang pemain meraih [N:12 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Prabu Belgeduwelbeh] left [P:Vuskovic] on the bench with [N:12 Pts] from a completed match.",
+    "gw": 10,
+    "teams": [
+      "Prabu Belgeduwelbeh"
+    ],
+    "players": [
+      "Vuskovic"
+    ]
+  },
+  {
+    "id": "BM_AUTOSUB_WATCH_1_ahay_jebret",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Starting XI",
+    "sub_kategori": "Autosub Watch",
+    "drama_score": 84,
+    "poin_tayang": 0,
+    "text_berita": "Starter [P:João Pedro] absen bermain untuk [C:Chelsea] (0 menit), memicu pergantian otomatis pemain cadangan bagi [T:AHAY JEBRET].",
+    "text_berita_en": "Starter [P:João Pedro] ([C:Chelsea]) played 0 minutes, putting [T:AHAY JEBRET] on autosub watch.",
+    "gw": 10,
+    "teams": [
+      "AHAY JEBRET"
+    ],
+    "players": [
+      "João Pedro"
+    ]
+  },
+  {
+    "id": "BM_TOP_RIVALRY",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Top Rivalry",
+    "drama_score": 91,
+    "poin_tayang": 0,
+    "text_berita": "Di klasemen sementara Gameweek [N:10], [T:Yuk Bisa Yuk FC] menempati peringkat teratas dengan keunggulan [N:19 Poin] atas [T:PSIS FC] di peringkat 2.",
+    "text_berita_en": "In the provisional Gameweek [N:10] standings, [T:Yuk Bisa Yuk FC] leads [T:PSIS FC] in 2nd place by [N:19 Pts].",
+    "gw": 10,
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": []
+  },
+  {
+    "id": "BM_GW_LEADER",
+    "timestamp_produksi": "2026-11-15T02:27:22.845Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Gameweek Leader",
+    "drama_score": 89,
+    "poin_tayang": 0,
+    "text_berita": "[T:Rajo's Team] memimpin perolehan poin sementara Gameweek [N:10] dengan koleksi [N:85 Poin].",
+    "text_berita_en": "[T:Rajo's Team] leads the provisional Gameweek [N:10] points table with [N:85 Pts].",
+    "gw": 10,
+    "teams": [
+      "Rajo's Team"
+    ],
+    "players": []
+  },
+  {
     "id": "NS_MATCH_FIXTURE",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -738,15 +1924,15 @@
     "sub_kategori": "Fixture",
     "drama_score": 83,
     "poin_tayang": 2,
-    "text_berita": "Laga pembuka Gameweek [N:10] pada pukul [N:03:00 WIB] menyajikan duel antara [C:EVE] vs [C:COV].",
-    "text_berita_en": "Laga pembuka Gameweek [N:10] pada pukul [N:03:00 WIB] menyajikan duel antara [C:EVE] vs [C:COV].",
+    "text_berita": "Laga pembuka Gameweek [N:10] pada pukul [N:03:00 WIB] menyajikan duel antara [C:Everton] vs [C:Coventry City].",
+    "text_berita_en": "Laga pembuka Gameweek [N:10] pada pukul [N:03:00 WIB] menyajikan duel antara [C:Everton] vs [C:Coventry City].",
     "gw": 10,
     "teams": [],
     "players": []
   },
   {
     "id": "NS_TOP_RIVALRY",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -758,8 +1944,8 @@
     "sub_kategori": "Top Rivalry",
     "drama_score": 89,
     "poin_tayang": 2,
-    "text_berita": "Perebutan posisi puncak klasemen pada Gameweek [N:10]. [T:Yuk Bisa Yuk FC] berupaya menjaga keunggulan [N:15 Poin] dari kejaran [T:PSIS FC], saat kedua manajer sama-sama mempercayakan ban kapten kepada [P:Haaland]. Persaingan ditentukan oleh pembeda starting XI, bertumpu pada [P:Palmer] di kubu [T:Yuk Bisa Yuk FC] kontra [P:Mbeumo] di kubu [T:PSIS FC].",
-    "text_berita_en": "Perebutan posisi puncak klasemen pada Gameweek [N:10]. [T:Yuk Bisa Yuk FC] berupaya menjaga keunggulan [N:15 Poin] dari kejaran [T:PSIS FC], saat kedua manajer sama-sama mempercayakan ban kapten kepada [P:Haaland]. Persaingan ditentukan oleh pembeda starting XI, bertumpu pada [P:Palmer] di kubu [T:Yuk Bisa Yuk FC] kontra [P:Mbeumo] di kubu [T:PSIS FC].",
+    "text_berita": "Perebutan puncak klasemen pada Gameweek [N:10]. [T:Yuk Bisa Yuk FC] berupaya menjaga keunggulan [N:15 Poin] dari kejaran [T:PSIS FC], saat kedua tim sama-sama mempercayakan ban kapten kepada [P:Haaland]. Persaingan ditentukan oleh pembeda starting XI, bertumpu pada [P:Palmer] di kubu [T:Yuk Bisa Yuk FC] kontra [P:Mbeumo] di kubu [T:PSIS FC].",
+    "text_berita_en": "Perebutan puncak klasemen pada Gameweek [N:10]. [T:Yuk Bisa Yuk FC] berupaya menjaga keunggulan [N:15 Poin] dari kejaran [T:PSIS FC], saat kedua tim sama-sama mempercayakan ban kapten kepada [P:Haaland]. Persaingan ditentukan oleh pembeda starting XI, bertumpu pada [P:Palmer] di kubu [T:Yuk Bisa Yuk FC] kontra [P:Mbeumo] di kubu [T:PSIS FC].",
     "gw": 10,
     "teams": [
       "Yuk Bisa Yuk FC",
@@ -773,7 +1959,7 @@
   },
   {
     "id": "NS_CAPTAIN_RECAP",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -795,8 +1981,31 @@
     ]
   },
   {
+    "id": "NS_HITS_RECAP",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
+    "fase": "Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Hits",
+    "sub_kategori": "Most Hits",
+    "drama_score": 84,
+    "poin_tayang": 1,
+    "text_berita": "Langkah agresif di bursa transfer diambil [T:asoy banget] (-[N:24 Poin]), [T:Sunnah Rasul FC] (-[N:12 Poin]), dan [N:13] tim lainnya yang rela mengawali pekan ini dengan modal pengurangan poin.",
+    "text_berita_en": "Langkah agresif di bursa transfer diambil [T:asoy banget] (-[N:24 Poin]), [T:Sunnah Rasul FC] (-[N:12 Poin]), dan [N:13] tim lainnya yang rela mengawali pekan ini dengan modal pengurangan poin.",
+    "gw": 10,
+    "teams": [
+      "asoy banget",
+      "Sunnah Rasul FC"
+    ],
+    "players": []
+  },
+  {
     "id": "NS_CHIP_WILDCARD",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -821,7 +2030,7 @@
   },
   {
     "id": "NS_CHIP_FREEHIT",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -846,7 +2055,7 @@
   },
   {
     "id": "NS_TRANSFER_IN",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -869,7 +2078,7 @@
   },
   {
     "id": "NS_DIFFERENTIAL_CAPTAIN",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -892,8 +2101,8 @@
     ]
   },
   {
-    "id": "NS_INJURY_UPDATE_thomas",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "id": "NS_INJURY_UPDATE_virgil",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -905,17 +2114,17 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "Kekhawatiran melanda [N:11] tim pemilik [P:Thomas] ([C:COV]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:11] tim pemilik [P:Thomas] ([C:COV]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:4] tim pemilik [P:Virgil] ([C:Liverpool]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:4] tim pemilik [P:Virgil] ([C:Liverpool]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
-      "Thomas"
+      "Virgil"
     ]
   },
   {
     "id": "NS_MOST_GW_RIVALRY",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -942,7 +2151,7 @@
   },
   {
     "id": "NS_CHIP_TRIPLE_CAPTAIN",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -967,7 +2176,7 @@
   },
   {
     "id": "NS_CHIP_BENCH_BOOST",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -993,7 +2202,7 @@
   },
   {
     "id": "NS_TRANSFER_OUT",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1016,7 +2225,7 @@
   },
   {
     "id": "NS_DIFFERENTIAL_XI",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1040,8 +2249,31 @@
     ]
   },
   {
+    "id": "NS_MOST_OWNED",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
+    "fase": "Not started",
+    "waktu_tayang": [
+      "Not started"
+    ],
+    "kategori": "Player",
+    "sub_kategori": "Most Owned",
+    "drama_score": 85,
+    "poin_tayang": 1,
+    "text_berita": "[P:Haaland] menjadi pemain dengan kepemilikan tertinggi di FNB League saat ini dengan [N:96%] kepemilikan. Disusul oleh [P:De Cuyper] dengan [N:79%] kepemilikan.",
+    "text_berita_en": "[P:Haaland] menjadi pemain dengan kepemilikan tertinggi di FNB League saat ini dengan [N:96%] kepemilikan. Disusul oleh [P:De Cuyper] dengan [N:79%] kepemilikan.",
+    "gw": 10,
+    "teams": [],
+    "players": [
+      "Haaland",
+      "De Cuyper"
+    ]
+  },
+  {
     "id": "NS_CHIP_RECAP",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1060,30 +2292,8 @@
     "players": []
   },
   {
-    "id": "NS_INJURY_UPDATE_virgil",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
-    "fase": "Not started",
-    "waktu_tayang": [
-      "Not started"
-    ],
-    "kategori": "Player",
-    "sub_kategori": "Flagged Players",
-    "drama_score": 84,
-    "poin_tayang": 0,
-    "text_berita": "Kekhawatiran melanda [N:4] tim pemilik [P:Virgil] ([C:LIV]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:4] tim pemilik [P:Virgil] ([C:LIV]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
-    "gw": 10,
-    "teams": [],
-    "players": [
-      "Virgil"
-    ]
-  },
-  {
     "id": "NS_INJURY_UPDATE_brobbey",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1095,8 +2305,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "Kekhawatiran melanda [N:4] tim pemilik [P:Brobbey] ([C:SUN]). Sang pemain mengalami muscular injury dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:4] tim pemilik [P:Brobbey] ([C:SUN]). Sang pemain mengalami muscular injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:4] tim pemilik [P:Brobbey] ([C:Sunderland]). Sang pemain mengalami muscular injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:4] tim pemilik [P:Brobbey] ([C:Sunderland]). Sang pemain mengalami muscular injury dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1105,7 +2315,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_maguire",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1117,8 +2327,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "Kekhawatiran melanda [N:3] tim pemilik [P:Maguire] ([C:MUN]). Sang pemain mengalami back injury dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:3] tim pemilik [P:Maguire] ([C:MUN]). Sang pemain mengalami back injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:3] tim pemilik [P:Maguire] ([C:Man Utd]). Sang pemain mengalami back injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:3] tim pemilik [P:Maguire] ([C:Man Utd]). Sang pemain mengalami back injury dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1127,7 +2337,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_strand_larsen",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1139,8 +2349,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "Kekhawatiran melanda [N:1] tim pemilik [P:Strand Larsen] ([C:CRY]). Sang pemain mengalami cedera pergelangan kaki dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:1] tim pemilik [P:Strand Larsen] ([C:CRY]). Sang pemain mengalami cedera pergelangan kaki dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:1] tim pemilik [P:Strand Larsen] ([C:Crystal Palace]). Sang pemain mengalami cedera pergelangan kaki dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:1] tim pemilik [P:Strand Larsen] ([C:Crystal Palace]). Sang pemain mengalami cedera pergelangan kaki dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1149,7 +2359,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_xhaka",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1161,8 +2371,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "Kekhawatiran melanda [N:1] tim pemilik [P:Xhaka] ([C:SUN]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:1] tim pemilik [P:Xhaka] ([C:SUN]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:1] tim pemilik [P:Xhaka] ([C:Sunderland]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:1] tim pemilik [P:Xhaka] ([C:Sunderland]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1171,7 +2381,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_gu_hi",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1183,8 +2393,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 1,
-    "text_berita": "Kekhawatiran melanda [N:13] tim pemilik [P:Guéhi] ([C:MCI]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:13] tim pemilik [P:Guéhi] ([C:MCI]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:13] tim pemilik [P:Guéhi] ([C:Man City]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:13] tim pemilik [P:Guéhi] ([C:Man City]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1193,7 +2403,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_manzambi",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1205,8 +2415,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 1,
-    "text_berita": "Kekhawatiran melanda [N:12] tim pemilik [P:Manzambi] ([C:AVL]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:12] tim pemilik [P:Manzambi] ([C:AVL]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:12] tim pemilik [P:Manzambi] ([C:Aston Villa]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:12] tim pemilik [P:Manzambi] ([C:Aston Villa]). Sang pemain mengalami cedera betis dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1215,7 +2425,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_belloumi",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1227,8 +2437,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 1,
-    "text_berita": "Kekhawatiran melanda [N:10] tim pemilik [P:Belloumi] ([C:HUL]). Sang pemain mengalami cedera hamstring dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:10] tim pemilik [P:Belloumi] ([C:HUL]). Sang pemain mengalami cedera hamstring dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:10] tim pemilik [P:Belloumi] ([C:Hull City]). Sang pemain mengalami cedera hamstring dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:10] tim pemilik [P:Belloumi] ([C:Hull City]). Sang pemain mengalami cedera hamstring dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1237,7 +2447,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_tel",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1249,8 +2459,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 1,
-    "text_berita": "Kekhawatiran melanda [N:2] tim pemilik [P:Tel] ([C:TOT]). Sang pemain mengalami cedera pergelangan kaki dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:2] tim pemilik [P:Tel] ([C:TOT]). Sang pemain mengalami cedera pergelangan kaki dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:2] tim pemilik [P:Tel] ([C:Spurs]). Sang pemain mengalami cedera pergelangan kaki dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:2] tim pemilik [P:Tel] ([C:Spurs]). Sang pemain mengalami cedera pergelangan kaki dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1259,7 +2469,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_thiago",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1271,8 +2481,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 88,
     "poin_tayang": 1,
-    "text_berita": "Kabar buruk bagi [N:4] tim pemilik [P:Thiago] ([C:BRE]). Sang pemain dipastikan absen pada Gameweek [N:10] akibat sanksi larangan bertanding.",
-    "text_berita_en": "Kabar buruk bagi [N:4] tim pemilik [P:Thiago] ([C:BRE]). Sang pemain dipastikan absen pada Gameweek [N:10] akibat sanksi larangan bertanding.",
+    "text_berita": "Kabar buruk bagi [N:4] tim pemilik [P:Thiago] ([C:Brentford]). Sang pemain dipastikan absen pada Gameweek [N:10] akibat sanksi larangan bertanding.",
+    "text_berita_en": "Kabar buruk bagi [N:4] tim pemilik [P:Thiago] ([C:Brentford]). Sang pemain dipastikan absen pada Gameweek [N:10] akibat sanksi larangan bertanding.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1281,7 +2491,7 @@
   },
   {
     "id": "NS_INJURY_UPDATE_gvardiol",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
@@ -1293,8 +2503,8 @@
     "sub_kategori": "Flagged Players",
     "drama_score": 84,
     "poin_tayang": 2,
-    "text_berita": "Kekhawatiran melanda [N:21] tim pemilik [P:Gvardiol] ([C:MCI]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
-    "text_berita_en": "Kekhawatiran melanda [N:21] tim pemilik [P:Gvardiol] ([C:MCI]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita": "Kekhawatiran melanda [N:21] tim pemilik [P:Gvardiol] ([C:Man City]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
+    "text_berita_en": "Kekhawatiran melanda [N:21] tim pemilik [P:Gvardiol] ([C:Man City]). Sang pemain mengalami unspecified injury dan diragukan tampil pada Gameweek [N:10].",
     "gw": 10,
     "teams": [],
     "players": [
@@ -1302,30 +2512,8 @@
     ]
   },
   {
-    "id": "NS_INJURY_UPDATE_jo_o_pedro",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Not started",
-    "fase": "Not started",
-    "waktu_tayang": [
-      "Not started"
-    ],
-    "kategori": "Player",
-    "sub_kategori": "Flagged Players",
-    "drama_score": 88,
-    "poin_tayang": 2,
-    "text_berita": "Kabar buruk bagi [N:23] tim pemilik [P:João Pedro] ([C:CHE]). Sang pemain dipastikan absen pada Gameweek [N:10] akibat cedera paha.",
-    "text_berita_en": "Kabar buruk bagi [N:23] tim pemilik [P:João Pedro] ([C:CHE]). Sang pemain dipastikan absen pada Gameweek [N:10] akibat cedera paha.",
-    "gw": 10,
-    "teams": [],
-    "players": [
-      "João Pedro"
-    ]
-  },
-  {
     "id": "LM_PERIOD_START_pulse_129021_ps_1",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1337,18 +2525,18 @@
     "sub_kategori": "Period Start",
     "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[N:0'] Kickoff babak pertama. Pertandingan Gameweek [N:10] antara [C:Nottingham Forest] menghadapi [C:Manchester City] resmi dimulai di [N:The City Ground].",
-    "text_berita_en": "[N:0'] First half kicks off. Gameweek [N:10] match between [C:Nottingham Forest] vs [C:Manchester City] is underway at [N:The City Ground].",
+    "text_berita": "[N:0'] Kickoff babak pertama. Pertandingan Gameweek [N:10] antara [C:Nott'm Forest] menghadapi [C:Man City] resmi dimulai di [N:The City Ground].",
+    "text_berita_en": "[N:0'] First half kicks off. Gameweek [N:10] match between [C:Nott'm Forest] vs [C:Man City] is underway at [N:The City Ground].",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": []
   },
   {
     "id": "LM_GOAL_OPEN_PLAY_pulse_129021_goal_1_304238",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1360,12 +2548,12 @@
     "sub_kategori": "Goal",
     "drama_score": 95,
     "poin_tayang": 0,
-    "text_berita": "[N:6'] Gol untuk [C:Nottingham Forest]. [P:Jair Cunha] ([N:0%]) mencetak gol, mengubah skor menjadi [C:Nottingham Forest] [N:1] - [N:0] [C:Manchester City].",
-    "text_berita_en": "[N:6'] Goal for [C:Nottingham Forest]. [P:Jair Cunha] ([N:0%]) scores. Score: [C:Nottingham Forest] [N:1] - [N:0] [C:Manchester City].",
+    "text_berita": "[N:6'] Gol untuk [C:Nott'm Forest]. [P:Jair Cunha] ([N:0%]) mencetak gol, mengubah skor menjadi [C:Nott'm Forest] [N:1] - [N:0] [C:Man City].",
+    "text_berita_en": "[N:6'] Goal for [C:Nott'm Forest]. [P:Jair Cunha] ([N:0%]) scores. Score: [C:Nott'm Forest] [N:1] - [N:0] [C:Man City].",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Jair Cunha"
@@ -1373,7 +2561,7 @@
   },
   {
     "id": "LM_GOAL_OPEN_PLAY_pulse_129021_goal_2_51813",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1385,12 +2573,12 @@
     "sub_kategori": "Goal",
     "drama_score": 95,
     "poin_tayang": 0,
-    "text_berita": "[N:18'] Gol untuk [C:Nottingham Forest]. [P:Delap] ([N:0%]) mencetak gol setelah menerima umpan dari [P:Schlager] ([N:0%]), mengubah skor menjadi [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
-    "text_berita_en": "[N:18'] Goal for [C:Nottingham Forest]. [P:Delap] ([N:0%]) scores assisted by [P:Schlager] ([N:0%]). Score: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "text_berita": "[N:18'] Gol untuk [C:Nott'm Forest]. [P:Delap] ([N:0%]) mencetak gol setelah menerima umpan dari [P:Schlager] ([N:0%]), mengubah skor menjadi [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].",
+    "text_berita_en": "[N:18'] Goal for [C:Nott'm Forest]. [P:Delap] ([N:0%]) scores assisted by [P:Schlager] ([N:0%]). Score: [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Delap",
@@ -1399,7 +2587,7 @@
   },
   {
     "id": "LM_PERIOD_END_pulse_129021_pe_1",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1411,18 +2599,21 @@
     "sub_kategori": "Period End",
     "drama_score": 92,
     "poin_tayang": 0,
-    "text_berita": "[N:45+3'] Peluit jeda babak pertama di [N:The City Ground], kedudukan [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
-    "text_berita_en": "[N:45+3'] Half time at [N:The City Ground]. [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "text_berita": "[N:45+3'] Peluit jeda babak pertama di [N:The City Ground], kedudukan [C:Nott'm Forest] [N:2] - [N:0] [C:Man City], gol dicetak oleh [P:Jair Cunha] ([N:0%]) dan [P:Delap] ([N:0%]).",
+    "text_berita_en": "[N:45+3'] Half time at [N:The City Ground]. [C:Nott'm Forest] [N:2] - [N:0] [C:Man City], goals scored by [P:Jair Cunha] ([N:0%]) and [P:Delap] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
-    "players": []
+    "players": [
+      "Jair Cunha",
+      "Delap"
+    ]
   },
   {
     "id": "LM_SUBSTITUTION_pulse_129021_sub_4_112948",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1434,12 +2625,12 @@
     "sub_kategori": "Substitution",
     "drama_score": 70,
     "poin_tayang": 0,
-    "text_berita": "[N:45'] Pergantian pemain [C:Manchester City], [P:O'Reilly] ([N:2%]) masuk menggantikan [P:Gvardiol] ([N:22%]).",
-    "text_berita_en": "[N:45'] Substitution for [C:Manchester City]: [P:O'Reilly] ([N:2%]) comes on replacing [P:Gvardiol] ([N:22%]).",
+    "text_berita": "[N:45'] Pergantian pemain [C:Man City], [P:O'Reilly] ([N:2%]) masuk menggantikan [P:Gvardiol] ([N:22%]).",
+    "text_berita_en": "[N:45'] Substitution for [C:Man City]: [P:O'Reilly] ([N:2%]) comes on replacing [P:Gvardiol] ([N:22%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "O'Reilly",
@@ -1448,7 +2639,7 @@
   },
   {
     "id": "LM_SUBSTITUTION_pulse_129021_sub_6_76204",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1460,12 +2651,12 @@
     "sub_kategori": "Substitution",
     "drama_score": 70,
     "poin_tayang": 0,
-    "text_berita": "[N:45'] Pergantian pemain [C:Manchester City], [P:Matheus N.] ([N:0%]) masuk menggantikan [P:Guéhi] ([N:13%]).",
-    "text_berita_en": "[N:45'] Substitution for [C:Manchester City]: [P:Matheus N.] ([N:0%]) comes on replacing [P:Guéhi] ([N:13%]).",
+    "text_berita": "[N:45'] Pergantian pemain [C:Man City], [P:Matheus N.] ([N:0%]) masuk menggantikan [P:Guéhi] ([N:13%]).",
+    "text_berita_en": "[N:45'] Substitution for [C:Man City]: [P:Matheus N.] ([N:0%]) comes on replacing [P:Guéhi] ([N:13%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Matheus N.",
@@ -1474,7 +2665,7 @@
   },
   {
     "id": "LM_PERIOD_START_pulse_129021_ps_2",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1486,18 +2677,18 @@
     "sub_kategori": "Period Start",
     "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[N:45'] Kickoff babak kedua di [N:The City Ground], kedudukan [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
-    "text_berita_en": "[N:45'] Second half kicks off between [C:Nottingham Forest] vs [C:Manchester City] at [N:The City Ground]. Score: [C:Nottingham Forest] [N:2] - [N:0] [C:Manchester City].",
+    "text_berita": "[N:45'] Kickoff babak kedua di [N:The City Ground], kedudukan [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].",
+    "text_berita_en": "[N:45'] Second half kicks off between [C:Nott'm Forest] vs [C:Man City] at [N:The City Ground]. Score: [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": []
   },
   {
     "id": "LM_GOAL_OPEN_PLAY_pulse_129021_goal_9_68150",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1509,12 +2700,12 @@
     "sub_kategori": "Goal",
     "drama_score": 95,
     "poin_tayang": 0,
-    "text_berita": "[N:52'] Gol untuk [C:Manchester City]. [P:Cherki] ([N:31%]) mencetak gol, mengubah skor menjadi [C:Nottingham Forest] [N:2] - [N:1] [C:Manchester City].",
-    "text_berita_en": "[N:52'] Goal for [C:Manchester City]. [P:Cherki] ([N:31%]) scores. Score: [C:Nottingham Forest] [N:2] - [N:1] [C:Manchester City].",
+    "text_berita": "[N:52'] Gol untuk [C:Man City]. [P:Cherki] ([N:31%]) mencetak gol, mengubah skor menjadi [C:Nott'm Forest] [N:2] - [N:1] [C:Man City].",
+    "text_berita_en": "[N:52'] Goal for [C:Man City]. [P:Cherki] ([N:31%]) scores. Score: [C:Nott'm Forest] [N:2] - [N:1] [C:Man City].",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Cherki"
@@ -1522,7 +2713,7 @@
   },
   {
     "id": "LM_CARD_YELLOW_pulse_129021_card_b_10_49270",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1534,12 +2725,12 @@
     "sub_kategori": "Yellow Card",
     "drama_score": 75,
     "poin_tayang": 0,
-    "text_berita": "[N:64'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:McAtee] ([N:0%]).",
-    "text_berita_en": "[N:64'] Yellow card. The referee books [C:Nottingham Forest] player [P:McAtee] ([N:0%]).",
+    "text_berita": "[N:64'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nott'm Forest], [P:McAtee] ([N:0%]).",
+    "text_berita_en": "[N:64'] Yellow card. The referee books [C:Nott'm Forest] player [P:McAtee] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "McAtee"
@@ -1547,7 +2738,7 @@
   },
   {
     "id": "LM_SUBSTITUTION_pulse_129021_sub_11_50623",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1559,12 +2750,12 @@
     "sub_kategori": "Substitution",
     "drama_score": 70,
     "poin_tayang": 0,
-    "text_berita": "[N:65'] Pergantian pemain [C:Nottingham Forest], [P:Ndoye] ([N:0%]) masuk menggantikan [P:McAtee] ([N:0%]).",
-    "text_berita_en": "[N:65'] Substitution for [C:Nottingham Forest]: [P:Ndoye] ([N:0%]) comes on replacing [P:McAtee] ([N:0%]).",
+    "text_berita": "[N:65'] Pergantian pemain [C:Nott'm Forest], [P:Ndoye] ([N:0%]) masuk menggantikan [P:McAtee] ([N:0%]).",
+    "text_berita_en": "[N:65'] Substitution for [C:Nott'm Forest]: [P:Ndoye] ([N:0%]) comes on replacing [P:McAtee] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Ndoye",
@@ -1573,7 +2764,7 @@
   },
   {
     "id": "LM_SUBSTITUTION_pulse_129021_sub_13_76426",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1585,12 +2776,12 @@
     "sub_kategori": "Substitution",
     "drama_score": 70,
     "poin_tayang": 0,
-    "text_berita": "[N:65'] Pergantian pemain [C:Nottingham Forest], [P:Muñoz] ([N:1%]) ditarik keluar dan digantikan oleh [P:Netz] ([N:0%]) setelah mencatat 60 menit bermain tanpa kebobolan.",
-    "text_berita_en": "[N:65'] Substitution for [C:Nottingham Forest]: [P:Muñoz] ([N:1%]) is substituted for [P:Netz] ([N:0%]) with clean sheet locked.",
+    "text_berita": "[N:65'] Pergantian pemain [C:Nott'm Forest], [P:Muñoz] ([N:1%]) ditarik keluar dan digantikan oleh [P:Netz] ([N:0%]) setelah mencatat 60 menit bermain tanpa kebobolan.",
+    "text_berita_en": "[N:65'] Substitution for [C:Nott'm Forest]: [P:Muñoz] ([N:1%]) is substituted for [P:Netz] ([N:0%]) with clean sheet locked.",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Netz",
@@ -1599,7 +2790,7 @@
   },
   {
     "id": "LM_CARD_YELLOW_pulse_129021_card_b_15_50623",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1611,12 +2802,12 @@
     "sub_kategori": "Yellow Card",
     "drama_score": 75,
     "poin_tayang": 0,
-    "text_berita": "[N:69'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Ndoye] ([N:0%]).",
-    "text_berita_en": "[N:69'] Yellow card. The referee books [C:Nottingham Forest] player [P:Ndoye] ([N:0%]).",
+    "text_berita": "[N:69'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nott'm Forest], [P:Ndoye] ([N:0%]).",
+    "text_berita_en": "[N:69'] Yellow card. The referee books [C:Nott'm Forest] player [P:Ndoye] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Ndoye"
@@ -1624,7 +2815,7 @@
   },
   {
     "id": "LM_GOAL_OPEN_PLAY_pulse_129021_goal_16_51813",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1636,12 +2827,12 @@
     "sub_kategori": "Goal",
     "drama_score": 95,
     "poin_tayang": 0,
-    "text_berita": "[N:73'] Gol untuk [C:Nottingham Forest]. [P:Delap] ([N:0%]) mencetak gol setelah menerima umpan dari [P:Gibbs-White] ([N:6%]), mengubah skor menjadi [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City].",
-    "text_berita_en": "[N:73'] Goal for [C:Nottingham Forest]. [P:Delap] ([N:0%]) scores assisted by [P:Gibbs-White] ([N:6%]). Score: [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City].",
+    "text_berita": "[N:73'] Gol untuk [C:Nott'm Forest]. [P:Delap] ([N:0%]) mencetak gol setelah menerima umpan dari [P:Gibbs-White] ([N:6%]), mengubah skor menjadi [C:Nott'm Forest] [N:3] - [N:1] [C:Man City].",
+    "text_berita_en": "[N:73'] Goal for [C:Nott'm Forest]. [P:Delap] ([N:0%]) scores assisted by [P:Gibbs-White] ([N:6%]). Score: [C:Nott'm Forest] [N:3] - [N:1] [C:Man City].",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Delap",
@@ -1650,7 +2841,7 @@
   },
   {
     "id": "LM_SUBSTITUTION_pulse_129021_sub_17_14805",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1662,12 +2853,12 @@
     "sub_kategori": "Substitution",
     "drama_score": 70,
     "poin_tayang": 0,
-    "text_berita": "[N:78'] Pergantian pemain [C:Manchester City], [P:Foden] ([N:2%]) masuk menggantikan [P:Enzo] ([N:0%]).",
-    "text_berita_en": "[N:78'] Substitution for [C:Manchester City]: [P:Foden] ([N:2%]) comes on replacing [P:Enzo] ([N:0%]).",
+    "text_berita": "[N:78'] Pergantian pemain [C:Man City], [P:Foden] ([N:2%]) masuk menggantikan [P:Enzo] ([N:0%]).",
+    "text_berita_en": "[N:78'] Substitution for [C:Man City]: [P:Foden] ([N:2%]) comes on replacing [P:Enzo] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Foden",
@@ -1676,7 +2867,7 @@
   },
   {
     "id": "LM_SUBSTITUTION_pulse_129021_sub_19_108816",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1688,12 +2879,12 @@
     "sub_kategori": "Substitution",
     "drama_score": 70,
     "poin_tayang": 0,
-    "text_berita": "[N:79'] Pergantian pemain [C:Nottingham Forest], [P:I.Sangaré] ([N:1%]) masuk menggantikan [P:Yates] ([N:0%]).",
-    "text_berita_en": "[N:79'] Substitution for [C:Nottingham Forest]: [P:I.Sangaré] ([N:1%]) comes on replacing [P:Yates] ([N:0%]).",
+    "text_berita": "[N:79'] Pergantian pemain [C:Nott'm Forest], [P:I.Sangaré] ([N:1%]) masuk menggantikan [P:Yates] ([N:0%]).",
+    "text_berita_en": "[N:79'] Substitution for [C:Nott'm Forest]: [P:I.Sangaré] ([N:1%]) comes on replacing [P:Yates] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "I.Sangaré",
@@ -1702,7 +2893,7 @@
   },
   {
     "id": "LM_SUBSTITUTION_pulse_129021_sub_21_304123",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1714,12 +2905,12 @@
     "sub_kategori": "Substitution",
     "drama_score": 70,
     "poin_tayang": 0,
-    "text_berita": "[N:87'] Pergantian pemain [C:Nottingham Forest], [P:Igor Jesus] ([N:0%]) masuk menggantikan [P:Delap] ([N:0%]).",
-    "text_berita_en": "[N:87'] Substitution for [C:Nottingham Forest]: [P:Igor Jesus] ([N:0%]) comes on replacing [P:Delap] ([N:0%]).",
+    "text_berita": "[N:87'] Pergantian pemain [C:Nott'm Forest], [P:Igor Jesus] ([N:0%]) masuk menggantikan [P:Delap] ([N:0%]).",
+    "text_berita_en": "[N:87'] Substitution for [C:Nott'm Forest]: [P:Igor Jesus] ([N:0%]) comes on replacing [P:Delap] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Igor Jesus",
@@ -1728,7 +2919,7 @@
   },
   {
     "id": "LM_CARD_YELLOW_pulse_129021_card_b_23_76426",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1740,12 +2931,12 @@
     "sub_kategori": "Yellow Card",
     "drama_score": 75,
     "poin_tayang": 0,
-    "text_berita": "[N:90+4'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Netz] ([N:0%]).",
-    "text_berita_en": "[N:90+4'] Yellow card. The referee books [C:Nottingham Forest] player [P:Netz] ([N:0%]).",
+    "text_berita": "[N:90+4'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nott'm Forest], [P:Netz] ([N:0%]).",
+    "text_berita_en": "[N:90+4'] Yellow card. The referee books [C:Nott'm Forest] player [P:Netz] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Netz"
@@ -1753,7 +2944,7 @@
   },
   {
     "id": "LM_CARD_YELLOW_pulse_129021_card_b_24_304123",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1765,12 +2956,12 @@
     "sub_kategori": "Yellow Card",
     "drama_score": 75,
     "poin_tayang": 0,
-    "text_berita": "[N:90+5'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nottingham Forest], [P:Igor Jesus] ([N:0%]).",
-    "text_berita_en": "[N:90+5'] Yellow card. The referee books [C:Nottingham Forest] player [P:Igor Jesus] ([N:0%]).",
+    "text_berita": "[N:90+5'] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:Nott'm Forest], [P:Igor Jesus] ([N:0%]).",
+    "text_berita_en": "[N:90+5'] Yellow card. The referee books [C:Nott'm Forest] player [P:Igor Jesus] ([N:0%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Igor Jesus"
@@ -1778,7 +2969,7 @@
   },
   {
     "id": "LM_PERIOD_END_pulse_129021_pe_2",
-    "timestamp_produksi": "2026-11-13T19:30:51.814Z",
+    "timestamp_produksi": "2026-11-14T16:07:11.938Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Live Match",
@@ -1790,12 +2981,12 @@
     "sub_kategori": "Period End",
     "drama_score": 92,
     "poin_tayang": 0,
-    "text_berita": "[N:90+6'] Peluit panjang akhir laga di [N:The City Ground], dengan skor akhir [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City], gol dicetak oleh [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Gol)], [P:Cherki] ([N:31%]).",
-    "text_berita_en": "[N:90+6'] Full time at [N:The City Ground]. [C:Nottingham Forest] [N:3] - [N:1] [C:Manchester City]. Goalscorers: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Gol)], [P:Cherki] ([N:31%]).",
+    "text_berita": "[N:90+6'] Peluit panjang akhir laga di [N:The City Ground], dengan skor akhir [C:Nott'm Forest] [N:3] - [N:1] [C:Man City], gol dicetak oleh [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Gol)], dan [P:Cherki] ([N:31%]).",
+    "text_berita_en": "[N:90+6'] Full time at [N:The City Ground]. [C:Nott'm Forest] [N:3] - [N:1] [C:Man City]. Goalscorers: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%]) [N:(2 Goals)], and [P:Cherki] ([N:31%]).",
     "gw": 10,
     "teams": [
-      "Nottingham Forest",
-      "Manchester City"
+      "Nott'm Forest",
+      "Man City"
     ],
     "players": [
       "Jair Cunha",

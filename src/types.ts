@@ -503,6 +503,7 @@ export interface SyncStatus {
   last_checked?: string;
   next_sync_wib: string;
   next_deadline_time?: string;
+  deadlines?: Record<number, string>;
   is_matchday_live: boolean;
   active_fixtures: string[];
   gw_fixtures?: GwFixtureItem[];
@@ -651,6 +652,7 @@ export interface MatchCardItem {
   clock_label?: string;
   phase?: string;
   is_half_time?: boolean;
+  venue?: string;
   home_team: {
     id: number;
     name: string;
@@ -745,6 +747,10 @@ export interface OptimalFplDatabaseSchema {
     last_synced: string;
     next_sync_wib: string;
     is_live: boolean;
+    deadlines?: Record<number, string>;
+    sync_status?: SyncStatus;
+    gw_status?: GwEventStatus;
+    events_status?: Record<number, GwEventStatus>;
   };
   gw_snapshots: Record<number, GwSnapshot>;
   players: Record<number, OptimalPlayerEntry>;
@@ -754,7 +760,10 @@ export interface OptimalFplDatabaseSchema {
     fans_clubs: Record<string, FansClubGroup[]>;
     liga_minus: LigaMinusItem[];
     most_gameweek_champions: MostGWChampionLeader[];
+    gameweek_champions?: GWChampionRow[];
     all_transfers: TransferItem[];
+    transfers_in?: Record<string, MostTransferredItem[]>;
+    transfers_out?: Record<string, MostTransferredItem[]>;
   };
   table_counts: Record<string, number>;
 }

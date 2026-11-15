@@ -23,7 +23,6 @@ import type {
 } from '../types.ts';
 
 const DB_FILE_PATH = path.join(process.cwd(), 'src/data/fpl_database.json');
-const CACHE_FILE_PATH = path.join(process.cwd(), 'src/data/cachedLeagueData.json');
 
 // In-Memory Database and Ultra-Fast O(1) Lookup Indices
 let optimalDatabaseState: OptimalFplDatabaseSchema | null = null;
@@ -81,6 +80,20 @@ function populateMemoryIndices(optDb: OptimalFplDatabaseSchema) {
     indexedSnapshots.set(gw, snapshot);
     if (Array.isArray(snapshot.standings)) {
       indexedStandingsByGw.set(gw, snapshot.standings);
+    }
+    if (Array.isArray(snapshot.transfer_feed)) {
+      indexedTransfersByGw.set(gw, snapshot.transfer_feed as any);
+    }
+  }
+
+  // Ensure indexedTransfersByGw also covers all_transfers if transfer_feed was sparse
+  if (Array.isArray(optDb.league_analytics?.all_transfers)) {
+    for (const tr of optDb.league_analytics.all_transfers as any[]) {
+      const gw = Number(tr.event || tr.gw);
+      if (!gw) continue;
+      if (!indexedTransfersByGw.has(gw)) {
+        indexedTransfersByGw.set(gw, []);
+      }
     }
   }
 
@@ -397,10 +410,14 @@ export function transformToOptimalDbSchema(fplData: TransformedLeagueData): {
       league_name: fplData.league_name || 'FPL Nusantara BERHADIAH',
       current_gw: fplData.current_gw || 1,
       available_gws: availableGws,
-      total_teams: fplData.sync_status?.total_teams || Object.keys(managersDict).length || 97,
+      total_teams: fplData.sync_status?.total_teams || Object.keys(managersDict).length || 0,
       last_synced: fplData.sync_status?.last_synced || new Date().toISOString(),
-      next_sync_wib: fplData.sync_status?.next_sync_wib || '07:00 WIB',
-      is_live: !!fplData.sync_status?.is_matchday_live
+      next_sync_wib: fplData.sync_status?.next_sync_wib || '',
+      is_live: !!fplData.sync_status?.is_matchday_live,
+      deadlines: fplData.sync_status?.deadlines || {},
+      sync_status: fplData.sync_status,
+      gw_status: fplData.gw_status,
+      events_status: fplData.events_status
     },
     gw_snapshots: gwSnapshots,
     players: playersDict,
@@ -410,7 +427,10 @@ export function transformToOptimalDbSchema(fplData: TransformedLeagueData): {
       fans_clubs: fplData.fans_clubs || {},
       liga_minus: fplData.liga_minus || [],
       most_gameweek_champions: fplData.most_gameweek_champions || [],
-      all_transfers: fplData.all_transfers || []
+      gameweek_champions: fplData.gameweek_champions || [],
+      all_transfers: fplData.all_transfers || [],
+      transfers_in: fplData.transfers_in || {},
+      transfers_out: fplData.transfers_out || {}
     },
     table_counts: tableCounts
   };
@@ -468,8 +488,10 @@ export function executeSchemaSync(fplData: TransformedLeagueData): OptimalFplDat
 
   try {
     fs.mkdirSync(path.dirname(DB_FILE_PATH), { recursive: true });
-    // Write formatted JSON to database file
-    fs.writeFileSync(DB_FILE_PATH, JSON.stringify(optimal, null, 2), 'utf-8');
+    // Atomic write to single source of truth database file
+    const tempPath = `${DB_FILE_PATH}.tmp.${Date.now()}`;
+    fs.writeFileSync(tempPath, JSON.stringify(optimal, null, 2), 'utf-8');
+    fs.renameSync(tempPath, DB_FILE_PATH);
     console.log('[Database] Optimal DB Schema persisted to', DB_FILE_PATH);
   } catch (err: any) {
     console.error('[Database] Failed to write database to disk:', err.message);
@@ -479,14 +501,13 @@ export function executeSchemaSync(fplData: TransformedLeagueData): OptimalFplDat
 }
 
 /**
- * Initialize database on server startup
+ * Initialize database on server startup strictly from the single truth source (fpl_database.json)
  */
 export function initDatabase(): OptimalFplDatabaseSchema {
   if (optimalDatabaseState) {
     return optimalDatabaseState;
   }
 
-  // 1. Try reading fpl_database.json
   if (fs.existsSync(DB_FILE_PATH)) {
     try {
       const raw = fs.readFileSync(DB_FILE_PATH, 'utf-8');
@@ -498,27 +519,85 @@ export function initDatabase(): OptimalFplDatabaseSchema {
         return optimalDatabaseState;
       }
     } catch (err: any) {
-      console.warn('[Database] Error reading fpl_database.json, falling back to cache:', err.message);
+      console.warn('[Database] Error reading fpl_database.json:', err.message);
     }
   }
 
-  // 2. If database doesn't exist yet, seed it from cachedLeagueData.json
-  if (fs.existsSync(CACHE_FILE_PATH)) {
-    try {
-      const cacheRaw = fs.readFileSync(CACHE_FILE_PATH, 'utf-8');
-      const cached = JSON.parse(cacheRaw) as TransformedLeagueData;
-      console.log('[Database] Initializing and migrating database from cachedLeagueData.json...');
-      return executeSchemaSync(cached);
-    } catch (err: any) {
-      console.error('[Database] Failed to seed database from cached data:', err.message);
-    }
-  }
-
-  // 3. Fallback to empty database
-  console.log('[Database] Initializing fresh empty database.');
+  console.log('[Database] Initializing fresh empty database (Cold Start).');
   optimalDatabaseState = createEmptyOptimalDatabase();
   populateMemoryIndices(optimalDatabaseState);
   return optimalDatabaseState;
+}
+
+/**
+ * Reconstructs TransformedLeagueData directly from the single truth source (Optimal DB)
+ */
+export function getTransformedLeagueDataFromDb(): TransformedLeagueData | null {
+  const opt = getOptimalDatabase();
+  const snapshotEntries = Object.entries(opt.gw_snapshots || {});
+  if (snapshotEntries.length === 0 || Object.keys(opt.managers || {}).length === 0) {
+    return null;
+  }
+
+  const standings: Record<number, StandingsRow[]> = {};
+  const ownership_players: TransformedLeagueData['ownership_players'] = {};
+  const ownership_clubs: TransformedLeagueData['ownership_clubs'] = {};
+  const template_squads: TransformedLeagueData['template_squads'] = {};
+  const captain_players: TransformedLeagueData['captain_players'] = {};
+  const captain_clubs: TransformedLeagueData['captain_clubs'] = {};
+  const gameweekChampionsFromSnaps: TransformedLeagueData['gameweek_champions'] = [];
+  const transfersInFallback: Record<string, any[]> = {};
+  const transfersOutFallback: Record<string, any[]> = {};
+
+  for (const [gwStr, snap] of snapshotEntries) {
+    const gw = Number(gwStr);
+    standings[gw] = snap.standings || [];
+    ownership_players[gw] = snap.ownership_players || [];
+    ownership_clubs[gw] = snap.ownership_clubs || [];
+    if (snap.template_squad) template_squads[gw] = snap.template_squad;
+    captain_players[gw] = snap.top_captains || [];
+    captain_clubs[gw] = snap.captain_clubs || [];
+    if (snap.champion) gameweekChampionsFromSnaps.push(snap.champion);
+    if (Array.isArray(snap.transfers_in)) transfersInFallback[gwStr] = snap.transfers_in;
+    if (Array.isArray(snap.transfers_out)) transfersOutFallback[gwStr] = snap.transfers_out;
+  }
+
+  return {
+    league_id: opt.meta.league_id,
+    league_name: opt.meta.league_name,
+    current_gw: opt.meta.current_gw,
+    available_gws: opt.meta.available_gws,
+    sync_status: opt.meta.sync_status || {
+      last_synced: opt.meta.last_synced,
+      next_sync_wib: opt.meta.next_sync_wib,
+      deadlines: opt.meta.deadlines,
+      is_matchday_live: opt.meta.is_live,
+      active_fixtures: [],
+      gw_fixtures: [],
+      current_gw: opt.meta.current_gw,
+      max_gw: 38,
+      total_teams: opt.meta.total_teams,
+      league_name: opt.meta.league_name,
+      league_id: opt.meta.league_id
+    },
+    gw_status: opt.meta.gw_status,
+    events_status: opt.meta.events_status,
+    standings,
+    gameweek_champions: opt.league_analytics?.gameweek_champions || gameweekChampionsFromSnaps.sort((a, b) => b.event - a.event),
+    most_gameweek_champions: opt.league_analytics?.most_gameweek_champions || [],
+    ownership_players,
+    ownership_clubs,
+    fans_clubs: opt.league_analytics?.fans_clubs || {},
+    template_squads,
+    all_transfers: opt.league_analytics?.all_transfers || [],
+    transfers_in: opt.league_analytics?.transfers_in || transfersInFallback,
+    transfers_out: opt.league_analytics?.transfers_out || transfersOutFallback,
+    liga_minus: opt.league_analytics?.liga_minus || [],
+    captain_players,
+    captain_clubs,
+    all_chips_used: opt.league_analytics?.all_chips_used || [],
+    player_stats: Object.values(opt.players || {})
+  };
 }
 
 /**
@@ -607,54 +686,59 @@ export function getDbStandings(gw?: number): any[] {
   return all;
 }
 
-export function getDbGameweekChampions(gw?: number): DbGameweekChampion[] {
-  const db = getDatabase();
+export function getDbGameweekChampions(gw?: number): any[] {
+  const opt = getOptimalDatabase();
+  const champs = opt.league_analytics?.gameweek_champions
+    || Object.values(opt.gw_snapshots || {}).map(s => s.champion).filter(Boolean);
   if (gw !== undefined) {
-    return db.gameweekChampions.filter(c => c.gw === Number(gw));
+    return champs.filter((c: any) => Number(c.event ?? c.gw) === Number(gw));
   }
-  return db.gameweekChampions;
+  return champs;
 }
 
-export function getDbOwnershipPlayers(gw?: number): DbOwnershipPlayer[] {
-  if (gw !== undefined) {
-    const snap = getGwSnapshot(gw);
-    return snap ? (snap.ownership_players as any) : [];
-  }
-  const db = getDatabase();
-  return db.ownershipPlayers;
-}
-
-export function getDbOwnershipClubs(gw?: number): DbOwnershipClub[] {
+export function getDbOwnershipPlayers(gw?: number): any[] {
   if (gw !== undefined) {
     const snap = getGwSnapshot(gw);
-    return snap ? (snap.ownership_clubs as any) : [];
+    return snap ? (snap.ownership_players || []) : [];
   }
-  const db = getDatabase();
-  return db.ownershipClubs;
+  const opt = getOptimalDatabase();
+  return Object.values(opt.gw_snapshots || {}).flatMap(s => s.ownership_players || []);
 }
 
-export function getDbFansClubs(filter?: string): DbFansClub[] {
-  const db = getDatabase();
+export function getDbOwnershipClubs(gw?: number): any[] {
+  if (gw !== undefined) {
+    const snap = getGwSnapshot(gw);
+    return snap ? (snap.ownership_clubs || []) : [];
+  }
+  const opt = getOptimalDatabase();
+  return Object.values(opt.gw_snapshots || {}).flatMap(s => s.ownership_clubs || []);
+}
+
+export function getDbFansClubs(filter?: string): any[] {
+  const opt = getOptimalDatabase();
+  const fans = opt.league_analytics?.fans_clubs || {};
   if (filter !== undefined) {
-    return db.fansClubs.filter(f => String(f.gw) === String(filter));
+    return fans[String(filter)] || [];
   }
-  return db.fansClubs;
+  return Object.values(fans).flat();
 }
 
-export function getDbTemplateSquads(gw?: number): DbTemplateSquad[] {
+export function getDbTemplateSquads(gw?: number): any[] {
   if (gw !== undefined) {
     const snap = getGwSnapshot(gw);
-    return snap && snap.template_squad ? [(snap.template_squad as any)] : [];
+    return snap && snap.template_squad ? [snap.template_squad] : [];
   }
-  const db = getDatabase();
-  return db.templateSquads;
+  const opt = getOptimalDatabase();
+  return Object.values(opt.gw_snapshots || {}).map(s => s.template_squad).filter(Boolean);
 }
 
-export function getDbTransfers(gw?: number, entryId?: number): DbTransfer[] {
-  if (!optimalDatabaseState) initDatabase();
-  let list = gw !== undefined ? (indexedTransfersByGw.get(Number(gw)) || []) : getDatabase().transfers;
+export function getDbTransfers(gw?: number, entryId?: number): any[] {
+  const opt = getOptimalDatabase();
+  let list: any[] = gw !== undefined
+    ? (getGwSnapshot(gw)?.transfer_feed || (opt.league_analytics?.all_transfers || []).filter((t: any) => Number(t.event) === Number(gw)))
+    : (opt.league_analytics?.all_transfers || []);
   if (entryId !== undefined) {
-    list = list.filter(t => t.entryId === Number(entryId));
+    list = list.filter((t: any) => Number(t.entryId ?? t.entry_id) === Number(entryId));
   }
   return list;
 }
@@ -664,13 +748,13 @@ export function getDbLigaMinus(): DbLigaMinus[] {
   return (opt.league_analytics?.liga_minus as any) || [];
 }
 
-export function getDbCaptainStats(gw?: number): DbCaptainStat[] {
+export function getDbCaptainStats(gw?: number): any[] {
   if (gw !== undefined) {
     const snap = getGwSnapshot(gw);
-    return snap ? (snap.top_captains as any) : [];
+    return snap ? (snap.top_captains || []) : [];
   }
-  const db = getDatabase();
-  return db.captainStats;
+  const opt = getOptimalDatabase();
+  return Object.values(opt.gw_snapshots || {}).flatMap(s => s.top_captains || []);
 }
 
 export function getDbChipsUsed(entryId?: number): DbChipUsed[] {

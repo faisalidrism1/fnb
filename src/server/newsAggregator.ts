@@ -5,8 +5,6 @@
  * Enforces historical GW rank checking to deliver maximum contextual drama.
  */
 
-import fs from 'fs';
-import path from 'path';
 import {
   getOptimalDatabase,
   getDbStandings,
@@ -15,6 +13,7 @@ import {
   getDbLigaMinus,
 } from './db.ts';
 import { formatTeamList } from './teamExposureTracker.ts';
+import { resolveClubName } from '../utils/clubNameResolver.ts';
 
 export interface RawSquadPlayer {
   name: string;
@@ -216,25 +215,15 @@ export interface RawMatchdayPayload {
  */
 export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   const db = getOptimalDatabase();
-  const currentGw = targetGw || db.meta.current_gw || 8;
+  const currentGw = targetGw || db.meta.current_gw;
   const previousGw = Math.max(1, currentGw - 1);
   const nextGw = currentGw + 1;
   const standings = getDbStandings(currentGw);
   const snapshot = getGwSnapshot(currentGw);
   const allPlayers = Object.values(db.players || {});
 
-  // 1. Load 10 Gameweek Fixtures and map each club's exact match details first
-  const CACHE_FILE_PATH = path.join(process.cwd(), 'src/data/cachedLeagueData.json');
-  let rawCache: any = null;
-  let rawGwFixtures: any[] = [];
-  try {
-    if (fs.existsSync(CACHE_FILE_PATH)) {
-      rawCache = JSON.parse(fs.readFileSync(CACHE_FILE_PATH, 'utf-8'));
-      rawGwFixtures = rawCache?.sync_status?.gw_fixtures || [];
-    }
-  } catch (err: any) {
-    console.warn('[News Aggregator] Could not read gw_fixtures from cache:', err.message);
-  }
+  // 1. Read 10 Gameweek Fixtures strictly from Single Truth Source (db.ts)
+  const rawGwFixtures: any[] = db.meta?.sync_status?.gw_fixtures || [];
 
   const EPL_CLUB_NAMES: Record<string, string> = {
     ARS: 'Arsenal', AVL: 'Aston Villa', BOU: 'Bournemouth', BRE: 'Brentford',
@@ -253,10 +242,13 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   const clubDetailMap = new Map<string, ClubFixtureInfo>();
 
   const allMatches: RawFixtureMatchInfo[] = rawGwFixtures
-    .filter((f) => f.event === currentGw || !f.event)
+    .filter((f) => {
+      if (!(f.event === currentGw || !f.event)) return false;
+      return Boolean(resolveClubName(f.home_team) && resolveClubName(f.away_team));
+    })
     .map((fix) => {
-      const homeName = EPL_CLUB_NAMES[fix.home_team] || fix.home_team || 'Home';
-      const awayName = EPL_CLUB_NAMES[fix.away_team] || fix.away_team || 'Away';
+      const homeName = resolveClubName(fix.home_team);
+      const awayName = resolveClubName(fix.away_team);
       const isFt = Boolean(fix.finished || fix.finished_provisional || (fix.minutes && fix.minutes >= 90));
       const isStarted = Boolean(fix.started);
       const isLive = Boolean(isStarted && !isFt);
@@ -382,7 +374,7 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   const managerSquadMap: Record<number, RawTeamSquad> = {};
   for (const p of allPlayers) {
     const owners = p.league_ownership?.owners || [];
-    const clubName = p.teamName || p.teamShort;
+    const clubName = resolveClubName(p.teamName || p.teamShort, '');
     const matchInfo = getClubMatchInfo(clubName);
 
     for (const o of owners) {
@@ -479,7 +471,7 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
       toRank: s.rank,
       climbSteps: s.rankChange,
       gwPts: s.gwPts,
-      contextNote: `Perpindahan posisi: Peringkat ${s.lastRank} -> Peringkat ${s.rank} (selisih +${s.rankChange} posisi, ${s.gwPts} poin).`,
+      contextNote: `Perpindahan peringkat: Peringkat ${s.lastRank} -> Peringkat ${s.rank} (selisih +${s.rankChange} peringkat, ${s.gwPts} poin).`,
     }));
 
   const topRankFallers = [...standingsTable]
@@ -492,7 +484,7 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
       toRank: s.rank,
       fallSteps: Math.abs(s.rankChange),
       gwPts: s.gwPts,
-      contextNote: `Perpindahan posisi: Peringkat ${s.lastRank} -> Peringkat ${s.rank} (selisih ${s.rankChange} posisi, ${s.gwPts} poin).`,
+      contextNote: `Perpindahan peringkat: Peringkat ${s.lastRank} -> Peringkat ${s.rank} (selisih ${s.rankChange} peringkat, ${s.gwPts} poin).`,
     }));
 
   const standingsHistoricalContext: StandingsHistoricalContext = {
@@ -505,8 +497,8 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
         lastRank: rank1 ? rank1.lastRank : 1,
         pts: rank1 ? rank1.totalPts : 0,
         context: coupOccurred
-          ? `Pergantian posisi: menempati Peringkat 1 setelah berada di Peringkat ${rank1.lastRank} pada GW ${previousGw}.`
-          : `Konsistensi posisi: mempertahankan Peringkat 1 dari GW ${previousGw}.`,
+          ? `Pergantian peringkat: menempati Peringkat 1 setelah berada di Peringkat ${rank1.lastRank} pada GW ${previousGw}.`
+          : `Konsistensi peringkat: mempertahankan Peringkat 1 dari GW ${previousGw}.`,
       },
       rank2: {
         team: rank2 ? rank2.team : 'Unknown',
@@ -514,8 +506,8 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
         lastRank: rank2 ? rank2.lastRank : 2,
         pts: rank2 ? rank2.totalPts : 0,
         context: rank2 && rank2.lastRank === 1
-          ? `Pergantian posisi: menempati Peringkat 2 setelah memimpin di Peringkat 1 pada GW ${previousGw}.`
-          : `Posisi runner-up pada GW ${currentGw}.`,
+          ? `Pergantian peringkat: menempati Peringkat 2 setelah memimpin di Peringkat 1 pada GW ${previousGw}.`
+          : `Peringkat runner-up pada GW ${currentGw}.`,
       },
       rank3: {
         team: rank3 ? rank3.team : 'Unknown',
@@ -523,8 +515,8 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
         lastRank: rank3 ? rank3.lastRank : 3,
         pts: rank3 ? rank3.totalPts : 0,
         context: rank3 && rank3.rankChange === 0
-          ? `Konsistensi posisi: mempertahankan Peringkat 3 dari GW ${previousGw} ke GW ${currentGw}.`
-          : `Posisi Peringkat 3 (sebelumnya Peringkat ${rank3?.lastRank} pada GW ${previousGw}).`,
+          ? `Konsistensi peringkat: mempertahankan Peringkat 3 dari GW ${previousGw} ke GW ${currentGw}.`
+          : `Peringkat 3 (sebelumnya Peringkat ${rank3?.lastRank} pada GW ${previousGw}).`,
       },
       titleRaceGapPts,
       coupOccurred,
@@ -541,7 +533,7 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
     .filter((p) => (p.minutes || 0) > 0 || (p.league_ownership?.count || 0) > 0)
     .map((p) => {
       const count = p.league_ownership?.count || 0;
-      const clubName = p.teamName || p.teamShort || '';
+      const clubName = resolveClubName(p.teamName || p.teamShort, '');
       const matchInfo = getClubMatchInfo(clubName);
       return {
         name: p.webName,
@@ -634,16 +626,17 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   const isAllUpcoming = allMatches.length > 0 && finishedMatches.length === 0 && liveMatches.length === 0;
   const isAllFinished = allMatches.length > 0 && finishedMatches.length === allMatches.length;
 
-  if (rawCache?.gw_status?.status === 'Not started' || isAllUpcoming) {
+  const gwStatus = db.meta?.gw_status;
+  if (gwStatus?.status === 'Not started' || isAllUpcoming) {
     gameweekPhase = 'Not started';
-    phaseDescription = `GW Not started (Pra-Gameweek): Belum ada pertandingan yang dimainkan di pekan ini (seluruh ${upcomingMatches.length} laga berstatus Upcoming). Fokus berita adalah strategi susunan pemain manajer: transfer in/out terpopuler, aktivasi chip, pemilihan kapten, dan penalti hits sebelum kickoff pembuka.`;
+    phaseDescription = `GW Not started (Pra-Gameweek): Belum ada pertandingan yang dimainkan di pekan ini (seluruh ${upcomingMatches.length} laga berstatus Upcoming). Fokus berita adalah strategi susunan pemain tim: transfer in/out terpopuler, aktivasi chip, pemilihan kapten, dan penalti hits sebelum kickoff pembuka.`;
   } else if (liveMatches.length > 0) {
     gameweekPhase = 'Live';
     phaseDescription = `GW Live (Pertandingan Berlangsung): Ada ${liveMatches.length} laga sedang bergulir langsung di lapangan saat ini. Fokus berita adalah menit berjalan dan aksi langsung pemain yang sedang mengubah skor tim secara live.`;
   } else if (finishedMatches.length > 0 && upcomingMatches.length > 0) {
     gameweekPhase = 'Live';
     phaseDescription = `GW Live (Jeda Antar-Pertandingan / Inter-Match): ${finishedMatches.length} laga telah tuntas dan ${upcomingMatches.length} laga belum dimainkan, dengan 0 laga aktif di lapangan saat ini. Fokus berita adalah evaluasi hasil laga yang sudah usai (FT) vs tim-tim di bawah yang masih menyimpan amunisi pemain/kapten di laga berikutnya untuk melakukan kudeta tahta.`;
-  } else if (isAllFinished && (rawCache?.gw_status?.status === 'Provisional' || rawCache?.gw_status?.data_checked === false || rawCache?.gw_status?.leagues_status !== 'Updated')) {
+  } else if (isAllFinished && (gwStatus?.status === 'Provisional' || gwStatus?.data_checked === false || gwStatus?.leagues_status !== 'Updated')) {
     gameweekPhase = 'Provisional';
     phaseDescription = 'GW Provisional: Seluruh 10 laga pekan ini telah selesai 90 menit (FT). Poin masih bersifat sementara menunggu audit resmi Opta untuk BPS (3, 2, 1), kalkulasi autosub, dan pemotongan penalti hit transfer.';
   } else if (db.meta.is_live) {
@@ -654,14 +647,14 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   // 8. Transfers & Chips
   const transfersIn = (snapshot?.transfers_in || []).slice(0, 5).map((t: any) => ({
     player: t.web_name,
-    club: t.team_name || t.team_short_name,
+    club: resolveClubName(t.team_name || t.team_short_name, ''),
     count: t.transfer_count,
     gwPts: t.gw_points,
   }));
 
   const transfersOut = (snapshot?.transfers_out || []).slice(0, 5).map((t: any) => ({
     player: t.web_name,
-    club: t.team_name || t.team_short_name,
+    club: resolveClubName(t.team_name || t.team_short_name, ''),
     count: t.transfer_count,
     gwPts: t.gw_points,
   }));
@@ -750,7 +743,7 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
           team: tr.entry_name,
           category: 'Transfer',
           player: tr.element_out.name,
-          club: tr.element_out.club || '',
+          club: resolveClubName(tr.element_out.club, ''),
           realChoice: `Membeli ${tr.element_in.name} (${inPts} pts)`,
           realBasePts: inPts,
           alternativeChoice: `Mempertahankan ${tr.element_out.name} (${outPts} pts)`,

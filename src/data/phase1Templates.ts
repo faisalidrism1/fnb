@@ -95,6 +95,7 @@ export const DEFAULT_PHASE1_TEMPLATES: Phase1TemplateItem[] = [
     gw_phase: 'Not started',
     category: 'Match Event',
     subcategory: 'Fixture',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: 1 Laga]
 Laga pembuka Gameweek [N:{gw}] pada pukul [N:{kickoff_time}] menyajikan duel antara [C:{home_club}] vs [C:{away_club}].
 
@@ -128,7 +129,7 @@ return renderTemplate(template.multi, {
       home_club: 'Leicester',
       away_club: 'Nott\'m Forest',
       count: '5',
-      matches_list: '[C:Leicester] vs [C:Nott\'m Forest], [C:Aston Villa] vs [C:Bournemouth], [C:Brentford] vs [C:Ipswich], [C:Brighton] vs [C:Wolves], dan [C:Man City] vs [C:Southampton]',
+      matches_list: '[C:Leicester] vs [C:Nott\'m Forest], [C:Aston Villa] vs [C:Bournemouth], [C:Brentford] vs [C:Ipswich Town], [C:Brighton] vs [C:Wolves], dan [C:Man City] vs [C:Southampton]',
     },
   },
   {
@@ -137,6 +138,7 @@ return renderTemplate(template.multi, {
     gw_phase: 'Not started',
     category: 'Chip',
     subcategory: 'Wildcard',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: 1 Tim]
 [T:{team}] mengaktifkan [N:Wildcard] pada Gameweek [N:{gw}], dengan mendatangkan [P:{player_in}] dan melepas [P:{player_out}].
 
@@ -179,6 +181,7 @@ return renderTemplate(template.multi, {
     gw_phase: 'Not started',
     category: 'Chip',
     subcategory: 'Free Hit',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: 1 Tim]
 [T:{team}] mengaktifkan [N:Free Hit] pada Gameweek [N:{gw}], dengan memboyong [P:{player_in}] dan melepas [P:{player_out}].
 
@@ -221,6 +224,7 @@ return renderTemplate(template.multi, {
     gw_phase: 'Not started',
     category: 'Chip',
     subcategory: 'Bench Boost',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: 1 Tim]
 [T:{team}] mengaktifkan [N:Bench Boost] pada Gameweek [N:{gw}], dengan mengandalkan [P:{player_bench}] di bangku cadangan.
 
@@ -259,6 +263,7 @@ return renderTemplate(template.multi, {
     gw_phase: 'Not started',
     category: 'Chip',
     subcategory: 'Triple Captain',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: 1 Tim]
 [T:{team}] mengaktifkan [N:Triple Captain] pada Gameweek [N:{gw}], dengan mempercayakan ban kapten kepada [P:{captain}].
 
@@ -308,7 +313,8 @@ return renderTemplate(template.multi, {
     gw_phase: 'Not started',
     category: 'Chip',
     subcategory: 'Chip Recap',
-    template: 'Hingga Gameweek [N:{gw}], akumulasi penggunaan chip FNB League mencakup {chips_summary}.',
+    output: 'SINGLE-NEWS',
+    template: `Hingga Gameweek [N:{gw}], akumulasi penggunaan chip FNB League mencakup {chips_summary}.`,
     example: '',
     code: `const recap = getSeasonChipUsageStats(gw);
 const summary = buildChipAccumulationSummary(recap);
@@ -328,7 +334,8 @@ return renderTemplate(template, {
     gw_phase: 'Not started',
     category: 'Transfer',
     subcategory: 'Most Transferred In',
-    template: 'Aktivitas transfer masuk pada Gameweek [N:{gw}] didominasi oleh [P:{player1}] dengan [N:{count1}] pembelian, dan [P:{player2}] dengan [N:{count2}] pembelian.',
+    output: 'SINGLE-NEWS',
+    template: `Aktivitas transfer masuk pada Gameweek [N:{gw}] didominasi oleh [P:{player1}] dengan [N:{count1}] pembelian, dan [P:{player2}] dengan [N:{count2}] pembelian.`,
     example: 'Aktivitas transfer masuk pada Gameweek [N:9] didominasi oleh [P:Palmer] dengan [N:12] pembelian, dan [P:Saka] dengan [N:8] pembelian.',
     code: `const topIn = getTopTransferredInPlayers(gw, 2);
 if (topIn.length < 2) return null;
@@ -354,7 +361,8 @@ return renderTemplate(template, {
     gw_phase: 'Not started',
     category: 'Transfer',
     subcategory: 'Most Transferred Out',
-    template: 'Pelepasan pemain terbanyak pada Gameweek [N:{gw}] dialami oleh [P:{player1}] dan [P:{player2}], yang masing-masing dilepas oleh [N:{count1}] dan [N:{count2}] tim.',
+    output: 'SINGLE-NEWS',
+    template: `Pelepasan pemain terbanyak pada Gameweek [N:{gw}] dialami oleh [P:{player1}] dan [P:{player2}], yang masing-masing dilepas oleh [N:{count1}] dan [N:{count2}] tim.`,
     example: 'Pelepasan pemain terbanyak pada Gameweek [N:9] dialami oleh [P:Son] dan [P:Isak], yang masing-masing dilepas oleh [N:9] dan [N:7] tim.',
     code: `const topOut = getTopTransferredOutPlayers(gw, 2);
 if (topOut.length < 2) return null;
@@ -380,7 +388,8 @@ return renderTemplate(template, {
     gw_phase: 'Not started',
     category: 'Captain',
     subcategory: 'Most Captained',
-    template: '[P:{dominant_captain}] mengemban tanggung jawab besar pada ban kapten yang disematkan di lengannya oleh [N:{count1}] tim{second_clause}{others_clause}.',
+    output: 'SINGLE-NEWS',
+    template: `[P:{dominant_captain}] mengemban tanggung jawab besar pada ban kapten yang disematkan di lengannya oleh [N:{count1}] tim{second_clause}{others_clause}.`,
     example: '[P:Haaland] mengemban tanggung jawab besar pada ban kapten yang disematkan di lengannya oleh [N:10] tim, disusul [P:Saka] dengan [N:7] tim, sementara [N:4] tim lainnya memilih kapten alternatif.',
     code: `const capStats = getLeagueCaptaincyStats(gw);
 if (capStats.length === 0) return null;
@@ -413,7 +422,8 @@ return renderTemplate(template, {
     gw_phase: 'Not started',
     category: 'Hits',
     subcategory: 'Most Hits',
-    template: 'Langkah agresif di bursa transfer diambil {teams_with_hits} yang rela mengawali pekan ini dengan modal pengurangan poin.',
+    output: 'SINGLE-NEWS',
+    template: `Langkah agresif di bursa transfer diambil {teams_with_hits} yang rela mengawali pekan ini dengan modal pengurangan poin.`,
     example: 'Langkah agresif di bursa transfer diambil [T:Garuda FC] (-[N:8 Poin]), [T:Bintang Timur] (-[N:4 Poin]), dan [N:3] tim lainnya yang rela mengawali pekan ini dengan modal pengurangan poin.',
     code: `const teamsWithHits = getTeamsWithTransferHits(gw);
 if (teamsWithHits.length === 0) return null;
@@ -434,7 +444,8 @@ return renderTemplate(template, {
     gw_phase: 'Not started',
     category: 'Player',
     subcategory: 'Most Owned',
-    template: '[P:{player1}] menjadi pemain dengan kepemilikan tertinggi di FNB League saat ini dengan [N:{pct1}%] kepemilikan. Disusul oleh [P:{player2}] dengan [N:{pct2}%] kepemilikan.',
+    output: 'SINGLE-NEWS',
+    template: `[P:{player1}] menjadi pemain dengan kepemilikan tertinggi di FNB League saat ini dengan [N:{pct1}%] kepemilikan. Disusul oleh [P:{player2}] dengan [N:{pct2}%] kepemilikan.`,
     example: '[P:Haaland] menjadi pemain dengan kepemilikan tertinggi di FNB League saat ini dengan [N:88%] kepemilikan. Disusul oleh [P:Saka] dengan [N:74%] kepemilikan.',
     code: `const topOwned = getLeagueOwnershipList(gw, 2);
 if (topOwned.length < 2) return null;
@@ -458,6 +469,7 @@ return renderTemplate(template, {
     gw_phase: 'Not started',
     category: 'Starting XI',
     subcategory: 'Differential XI',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: 1 Pemain]
 Pilihan taktis diambil [T:{team}] pada Gameweek [N:{gw}] dengan menurunkan [P:{player1}] ([N:{pct1}%] kepemilikan) sebagai pembeda di starting XI.
 
@@ -504,6 +516,7 @@ return renderTemplate(template.multi, {
     gw_phase: 'Not started',
     category: 'Captain',
     subcategory: 'Differential Captain',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: Kapten Eksklusif (1 Tim)]
 Langkah berani diambil [T:{team}] di Gameweek [N:{gw}], dengan menjadi satu-satunya tim di liga yang mempercayakan ban kapten kepada [P:{captain}].
 
@@ -545,12 +558,13 @@ return renderTemplate(template.differential, {
     gw_phase: 'Not started',
     category: 'Player',
     subcategory: 'Flagged Players',
+    output: 'MULTI-NEWS',
     template: `[Kondisi: Dipastikan Absen]
 Kabar buruk bagi [N:{owners_count}] tim pemilik [P:{player}] ([C:{club}]). Sang pemain dipastikan absen pada Gameweek [N:{gw}] akibat {injury_desc}.
 
 [Kondisi: Meragukan]
 Kekhawatiran melanda [N:{owners_count}] tim pemilik [P:{player}] ([C:{club}]). Sang pemain mengalami {injury_desc} dan diragukan tampil pada Gameweek [N:{gw}].`,
-    example: 'Kabar buruk bagi [N:35] tim pemilik [P:João Pedro] ([C:CHE]). Sang pemain dipastikan absen pada Gameweek [N:9] akibat cedera paha.',
+    example: 'Kabar buruk bagi [N:35] tim pemilik [P:João Pedro] ([C:Chelsea]). Sang pemain dipastikan absen pada Gameweek [N:9] akibat cedera paha.',
     code: `const prevDeadline = getPreviousGwDeadline(gw);
 const flagged = getFlaggedPlayersUpdatedAfter(prevDeadline, gw);
 if (flagged.length === 0) return null;
@@ -568,7 +582,7 @@ return renderTemplate(isOut ? template.out : template.doubtful, {
     sample_data: {
       owners_count: '35',
       player: 'João Pedro',
-      club: 'CHE',
+      club: 'Chelsea',
       injury_desc: 'cedera paha',
       gw: '9',
     },
@@ -579,11 +593,12 @@ return renderTemplate(isOut ? template.out : template.doubtful, {
     gw_phase: 'Not started',
     category: 'Standings',
     subcategory: 'Top Rivalry',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: Kapten Berbeda]
 Persaingan di puncak klasemen pada Gameweek [N:{gw}]. Sang pemuncak [T:{team1}] memimpin dengan keunggulan [N:{margin} Poin] atas [T:{team2}], di mana duel taktis terjadi lewat perbedaan pilihan kapten antara [P:{captain1}] kontra [P:{captain2}].
 
 [Kondisi: Kapten Sama]
-Perebutan posisi puncak klasemen pada Gameweek [N:{gw}]. [T:{team1}] berupaya menjaga keunggulan [N:{margin} Poin] dari kejaran [T:{team2}], saat kedua manajer sama-sama mempercayakan ban kapten kepada [P:{captain}]. Persaingan ditentukan oleh pembeda starting XI, bertumpu pada [P:{diff_player1}] di kubu [T:{team1}] kontra [P:{diff_player2}] di kubu [T:{team2}].
+Perebutan puncak klasemen pada Gameweek [N:{gw}]. [T:{team1}] berupaya menjaga keunggulan [N:{margin} Poin] dari kejaran [T:{team2}], saat kedua tim sama-sama mempercayakan ban kapten kepada [P:{captain}]. Persaingan ditentukan oleh pembeda starting XI, bertumpu pada [P:{diff_player1}] di kubu [T:{team1}] kontra [P:{diff_player2}] di kubu [T:{team2}].
 
 [Kondisi: Manuver Chip]
 Manuver krusial perebutan tahta puncak klasemen pada Gameweek [N:{gw}]. [T:{team_chip}] mengaktifkan [N:{chip}] guna {target_clause} selisih [N:{margin} Poin] dengan [T:{team_rival}].`,
@@ -660,6 +675,7 @@ return renderTemplate(template.same_captain, {
     gw_phase: 'Not started',
     category: 'Standings',
     subcategory: 'Most GW Rivalry',
+    output: 'SINGLE-NEWS',
     template: `[Kondisi: Kapten Berbeda]
 Persaingan koleksi gelar juara mingguan pada Gameweek [N:{gw}]. [T:{team1}] ([N:{titles1} Gelar]) dan [T:{team2}] ([N:{titles2} Gelar]) mengadu strategi lewat perbedaan pilihan kapten antara [P:{captain1}] kontra [P:{captain2}].
 
@@ -752,6 +768,7 @@ return renderTemplate(template.same_captain, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Period Start',
+    output: 'MULTI-NEWS',
     template: `[Kondisi: Kickoff Babak 1]
 [N:{minute}] Kickoff babak pertama. Pertandingan Gameweek [N:{gw}] antara [C:{home_club}] menghadapi [C:{away_club}] resmi dimulai di [N:{venue}].
 
@@ -791,24 +808,33 @@ return renderTemplate(template.second_half, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Period End',
-    template: `[Kondisi: Half Time]
-[N:{minute}] Peluit jeda babak pertama di [N:{venue}], kedudukan [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
+    output: 'MULTI-NEWS',
+    template: `[Kondisi: Half Time (Dengan Gol)]
+[N:{minute}] Peluit jeda babak pertama di [N:{venue}], kedudukan [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}], gol dicetak oleh {goalscorers_list}.
 
-[Kondisi: Full Time]
-[N:{minute}] Peluit panjang akhir laga di [N:{venue}], dengan skor akhir [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}], gol dicetak oleh {goalscorers_list}.`,
+[Kondisi: Half Time (Tanpa Gol)]
+[N:{minute}] Peluit jeda babak pertama di [N:{venue}], kedudukan masih imbang tanpa gol [C:{home_club}] [N:0] - [N:0] [C:{away_club}].
+
+[Kondisi: Full Time (Dengan Gol)]
+[N:{minute}] Peluit panjang akhir laga di [N:{venue}], dengan skor akhir [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}], gol dicetak oleh {goalscorers_list}.
+
+[Kondisi: Full Time (Tanpa Gol)]
+[N:{minute}] Peluit panjang akhir laga di [N:{venue}], pertandingan berakhir imbang tanpa gol [C:{home_club}] [N:0] - [N:0] [C:{away_club}].`,
     example: '',
-    code: `if (event.period === '1') {
-  return renderTemplate(template.half_time, {
+    code: `const scorersStr = formatScorersWithLeaguePct(getMatchScorersUntilEvent(match.id, event));
+const hasGoals = (match.teams[0].score + match.teams[1].score) > 0 && Boolean(scorersStr);
+if (event.period === '1') {
+  return renderTemplate(hasGoals ? template.half_time_goals : template.half_time_zero, {
     minute: event.clock.label || "45+3'",
     venue: match.ground.name,
     home_club: match.homeTeam.name,
     home_score: match.teams[0].score,
     away_score: match.teams[1].score,
     away_club: match.awayTeam.name,
+    goalscorers_list: scorersStr,
   });
 }
-const scorersStr = formatScorersWithLeaguePct(getMatchScorers(match.id));
-return renderTemplate(template.full_time, {
+return renderTemplate(hasGoals ? template.full_time_goals : template.full_time_zero, {
   minute: event.clock.label || "90+6'",
   venue: match.ground.name,
   home_club: match.homeTeam.name,
@@ -835,6 +861,7 @@ return renderTemplate(template.full_time, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Goal',
+    output: 'MULTI-NEWS',
     template: `[Kondisi: Dengan Assist]
 [N:{minute}] Gol untuk [C:{club}]. [P:{scorer}] ([N:{scorer_pct}%]) mencetak gol setelah menerima umpan dari [P:{assister}] ([N:{assister_pct}%]), mengubah skor menjadi [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
 
@@ -890,6 +917,7 @@ return renderTemplate(template.solo, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Penalty Goal',
+    output: 'MULTI-NEWS',
     template: `[N:{minute}] Gol penalti untuk [C:{club}]. [P:{scorer}] ([N:{scorer_pct}%]) berhasil mengeksekusi tendangan penalti, mengubah skor menjadi [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].`,
     example: '',
     code: `const scorer = getPlayerFromPulse(event.personId);
@@ -922,6 +950,7 @@ return renderTemplate(template, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Own Goal',
+    output: 'MULTI-NEWS',
     template: `[N:{minute}] Gol bunuh diri. Bola masuk ke gawang sendiri setelah mengenai [P:{player}] ([N:{player_pct}%]), mengubah skor menjadi [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].`,
     example: '',
     code: `const player = getPlayerFromPulse(event.personId);
@@ -954,6 +983,7 @@ return renderTemplate(template, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Penalty Missed',
+    output: 'MULTI-NEWS',
     template: `[N:{minute}] Eksekusi penalti gagal. Tendangan penalti dari [P:{taker}] ([N:{taker_pct}%]) untuk [C:{club}] tidak menemui sasaran.`,
     example: '',
     code: `const taker = getPlayerFromPulse(event.personId);
@@ -977,6 +1007,7 @@ return renderTemplate(template, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Penalty Saved',
+    output: 'MULTI-NEWS',
     template: `[N:{minute}] Penalti digagalkan. Kiper [P:{keeper}] ([N:{keeper_pct}%]) menepis eksekusi tendangan penalti yang dilepaskan oleh [P:{taker}] ([N:{taker_pct}%]).`,
     example: '',
     code: `const keeper = getPlayerFromPulse(event.keeperId || event.personId);
@@ -1003,6 +1034,7 @@ return renderTemplate(template, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Penalty Awarded',
+    output: 'MULTI-NEWS',
     template: `[Kondisi: Hadiah Penalti]
 [N:{minute}] Hadiah penalti. Wasit menunjuk titik putih untuk [C:{club}] setelah pelanggaran terhadap [P:{fouled_player}] ([N:{fouled_player_pct}%]).
 
@@ -1037,6 +1069,7 @@ return renderTemplate(template.awarded, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Yellow Card',
+    output: 'MULTI-NEWS',
     template: `[N:{minute}] Kartu kuning. Wasit memberikan kartu kuning kepada pemain [C:{club}], [P:{player}] ([N:{player_pct}%]).`,
     example: '',
     code: `const player = getPlayerFromPulse(event.personId);
@@ -1060,6 +1093,7 @@ return renderTemplate(template, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Second Yellow',
+    output: 'MULTI-NEWS',
     template: `[N:{minute}] Kartu merah akumulasi. [P:{player}] ([N:{player_pct}%]) dari [C:{club}] menerima kartu kuning kedua dan harus meninggalkan lapangan.`,
     example: '',
     code: `const player = getPlayerFromPulse(event.personId);
@@ -1083,6 +1117,7 @@ return renderTemplate(template, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Straight Red Card',
+    output: 'MULTI-NEWS',
     template: `[N:{minute}] Kartu merah. [P:{player}] ([N:{player_pct}%]) dari [C:{club}] menerima kartu merah langsung dari wasit.`,
     example: '',
     code: `const player = getPlayerFromPulse(event.personId);
@@ -1108,6 +1143,7 @@ return renderTemplate(template, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'Substitution',
+    output: 'MULTI-NEWS',
     template: `[Kondisi: Pergantian Biasa]
 [N:{minute}] Pergantian pemain [C:{club}], [P:{player_on}] ([N:{player_on_pct}%]) masuk menggantikan [P:{player_off}] ([N:{player_off_pct}%]).
 
@@ -1155,6 +1191,7 @@ return renderTemplate(template.regular, {
     gw_phase: 'Live Match',
     category: 'Match Event',
     subcategory: 'VAR Decision',
+    output: 'MULTI-NEWS',
     template: `[Kondisi: Gol Dibatalkan]
 [N:{minute}] Gol dari [P:{player}] ([N:{player_pct}%]) untuk [C:{club}] dianulir VAR ({reason}), skor tetap [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
 
@@ -1304,10 +1341,10 @@ return defConPlayers.map(p => renderTemplate(template, {
     subcategory: 'Rank Shift',
     output: 'MULTI-NEWS',
     template: `[Kondisi: Naik Peringkat]
-[T:{team}] mengumpulkan [N:{gw_pts} Poin] sementara di Gameweek [N:{gw}], naik [N:+{rank_diff} Posisi] dari peringkat [N:{old_rank}] ke peringkat [N:{new_rank}] klasemen sementara dengan total [N:{total_pts} Poin].
+[T:{team}] mengumpulkan [N:{gw_pts} Poin] sementara di Gameweek [N:{gw}], naik [N:+{rank_diff} Peringkat] dari peringkat [N:{old_rank}] ke peringkat [N:{new_rank}] klasemen sementara dengan total [N:{total_pts} Poin].
 
 [Kondisi: Turun Peringkat]
-[T:{team}] mengumpulkan [N:{gw_pts} Poin] sementara di Gameweek [N:{gw}], turun [N:-{rank_diff} Posisi] dari peringkat [N:{old_rank}] ke peringkat [N:{new_rank}] klasemen sementara dengan total [N:{total_pts} Poin].
+[T:{team}] mengumpulkan [N:{gw_pts} Poin] sementara di Gameweek [N:{gw}], turun [N:-{rank_diff} Peringkat] dari peringkat [N:{old_rank}] ke peringkat [N:{new_rank}] klasemen sementara dengan total [N:{total_pts} Poin].
 
 [Kondisi: Bertahan Peringkat]
 [T:{team}] mengumpulkan [N:{gw_pts} Poin] sementara di Gameweek [N:{gw}] dan bertahan di peringkat [N:{new_rank}] klasemen sementara dengan total [N:{total_pts} Poin].`,
@@ -1383,19 +1420,23 @@ return renderTemplate(totalGoals === 0 || !scorersList ? template.live_zero : te
   // ============================================================================
   {
     no: 34,
-    id: 'BM_MATCH_FULL_TIME',
+    id: 'BM_MATCH_RESULT',
     gw_phase: 'Between Match',
     category: 'Match Event',
     subcategory: 'Result',
     output: 'MULTI-NEWS',
     template: `[Kondisi: Kemenangan]
-Full Time di [N:{venue}], [C:{winning_club}] menang [N:{home_score}] - [N:{away_score}] atas [C:{losing_club}], dengan gol dicetak oleh {goalscorers_list}.
+Hasil pertandingan di [N:{venue}], [C:{winning_club}] mengalahkan [C:{losing_club}] dengan skor [N:{winning_score}] - [N:{losing_score}], gol dicetak oleh {goalscorers_list}.
 
-[Kondisi: Imbang]
-Full Time di [N:{venue}], laga antara [C:{home_club}] kontra [C:{away_club}] berakhir imbang [N:{home_score}] - [N:{away_score}], dengan gol dicetak oleh {goalscorers_list}.`,
+[Kondisi: Imbang (Dengan Gol)]
+Hasil pertandingan di [N:{venue}], [C:{home_club}] dan [C:{away_club}] bermain imbang [N:{home_score}] - [N:{away_score}], gol dicetak oleh {goalscorers_list}.
+
+[Kondisi: Imbang (Tanpa Gol)]
+Hasil pertandingan di [N:{venue}], [C:{home_club}] dan [C:{away_club}] bermain imbang tanpa gol [N:0] - [N:0].`,
     example: '',
     code: `if (match.home_score === match.away_score) {
-  return renderTemplate(template.draw, {
+  const isZero = match.home_score === 0 && match.away_score === 0;
+  return renderTemplate(isZero ? template.draw_zero : template.draw_goals, {
     venue: match.ground,
     home_club: match.home_club,
     away_club: match.away_club,
@@ -1408,17 +1449,19 @@ return renderTemplate(template.win, {
   venue: match.ground,
   winning_club: match.winner,
   losing_club: match.loser,
-  home_score: match.home_score,
-  away_score: match.away_score,
+  winning_score: Math.max(match.home_score, match.away_score),
+  losing_score: Math.min(match.home_score, match.away_score),
   goalscorers_list: formatScorers(match.scorers),
 });`,
     sample_data: {
       venue: 'The City Ground',
       winning_club: 'Nott\'m Forest',
       losing_club: 'Man City',
+      winning_score: '3',
+      losing_score: '1',
       home_club: 'Nott\'m Forest',
       away_club: 'Man City',
-      home_score: '3',
+      home_score: '1',
       away_score: '1',
       goalscorers_list: '[P:Jair Cunha] ([N:2%]) dan [P:Delap] ([N:12%]) [N:(2 Gol)]',
     },
@@ -1431,16 +1474,16 @@ return renderTemplate(template.win, {
     subcategory: 'Fixture',
     output: 'SINGLE-NEWS',
     template: `[Kondisi: Jeda Pendek - 1 Laga]
-Laga berikutnya Gameweek [N:{gw}] bergulir pukul [N:{kickoff_time}], mempertemukan [C:{home_club}] kontra [C:{away_club}].
+Laga berikutnya di Gameweek [N:{gw}] mempertemukan [C:{home_club}] kontra [C:{away_club}] pada pukul [N:{kickoff_time}].
 
 [Kondisi: Jeda Pendek - Multi Laga]
-Gameweek [N:{gw}] berlanjut dengan {count} pertandingan serentak pukul [N:{kickoff_time}], mempertemukan {matches_list}.
+Gameweek [N:{gw}] berlanjut pada pukul [N:{kickoff_time}] dengan {count} laga serentak, yaitu {matches_list}.
 
 [Kondisi: Jeda Panjang - 1 Laga]
-Lanjutan Gameweek [N:{gw}] bergulir hari {wib_day} pukul [N:{kickoff_time}], mempertemukan [C:{home_club}] kontra [C:{away_club}].
+Lanjutan Gameweek [N:{gw}] digelar pada hari {wib_day} pukul [N:{kickoff_time}], mempertemukan [C:{home_club}] kontra [C:{away_club}].
 
 [Kondisi: Jeda Panjang - Multi Laga]
-Lanjutan Gameweek [N:{gw}] bergulir hari {wib_day} pukul [N:{kickoff_time}], menyajikan {count} pertandingan meliputi {matches_list}.`,
+Lanjutan Gameweek [N:{gw}] digelar pada hari {wib_day} pukul [N:{kickoff_time}] dengan {count} pertandingan, yaitu {matches_list}.`,
     example: '',
     code: `const isShortBreak = nextFixture.dateUK === lastFinishedMatch.dateUK;
 if (fixtures.length === 1) {
@@ -1477,7 +1520,7 @@ return renderTemplate(isShortBreak ? template.short_multi : template.long_multi,
     category: 'Match Event',
     subcategory: 'Clean Sheet',
     output: 'MULTI-NEWS',
-    template: `[C:{club}] mencatatkan clean sheet kontra [C:{opponent}], menghasilkan [N:+4 Poin] nirbobol bagi [P:{defender}] ([N:{ownership_pct}%]).`,
+    template: `[C:{club}] mencatat clean sheet kontra [C:{opponent}], menyumbangkan [N:+4 Poin] bagi [P:{defender}] ([N:{ownership_pct}%]).`,
     example: '',
     code: `return renderTemplate(template, {
   club: team.name,
@@ -1500,10 +1543,10 @@ return renderTemplate(isShortBreak ? template.short_multi : template.long_multi,
     subcategory: 'Goal',
     output: 'MULTI-NEWS',
     template: `[Kondisi: Gol & Assist]
-[P:{scorer}] ([N:{scorer_pct}%]) mencetak gol untuk [C:{club}] melalui assist [P:{assister}] ([N:{assister_pct}%]) pada laga kontra [C:{opponent}].
+[P:{scorer}] ([N:{scorer_pct}%]) mencetak gol untuk [C:{club}] lewat assist [P:{assister}] ([N:{assister_pct}%]) saat menghadapi [C:{opponent}].
 
 [Kondisi: Multi Gol]
-[P:{scorer}] ([N:{scorer_pct}%]) mencetak [N:{goals_count} Gol] untuk [C:{club}] pada laga kontra [C:{opponent}].`,
+[P:{scorer}] ([N:{scorer_pct}%]) memborong [N:{goals_count} Gol] untuk [C:{club}] saat menghadapi [C:{opponent}].`,
     example: '',
     code: `if (scorer.goals > 1) {
   return renderTemplate(template.multi_goals, {
@@ -1539,7 +1582,7 @@ return renderTemplate(template.goal_assist, {
     category: 'Match Event',
     subcategory: 'Bonus Points',
     output: 'MULTI-NEWS',
-    template: `[P:{player}] ([N:{ownership_pct}%]) mencatatkan skor BPS tertinggi ([N:{bps} BPS]) dan mengoleksi [N:{points} Poin] pada laga [C:{club}] kontra [C:{opponent}].`,
+    template: `[P:{player}] ([N:{ownership_pct}%]) meraih skor BPS tertinggi ([N:{bps} BPS]) dengan koleksi [N:{points} Poin] pada laga [C:{club}] kontra [C:{opponent}].`,
     example: '',
     code: `return renderTemplate(template, {
   player: topBpsPlayer.web_name,
@@ -1565,7 +1608,7 @@ return renderTemplate(template.goal_assist, {
     category: 'Match Event',
     subcategory: 'Penalty Saved',
     output: 'MULTI-NEWS',
-    template: `Kiper [P:{gk_name}] ([N:{gk_pct}%]) menepis tendangan penalti [P:{taker_name}] ([N:{taker_pct}%]) pada laga [C:{club}] kontra [C:{opponent}].`,
+    template: `Kiper [P:{gk_name}] ([N:{gk_pct}%]) menepis tendangan penalti [P:{taker_name}] ([N:{taker_pct}%]) dalam laga [C:{club}] kontra [C:{opponent}].`,
     example: '',
     code: `return renderTemplate(template, {
   gk_name: gk.web_name,
@@ -1591,7 +1634,7 @@ return renderTemplate(template.goal_assist, {
     category: 'Match Event',
     subcategory: 'Penalty Missed',
     output: 'MULTI-NEWS',
-    template: `Eksekusi penalti [P:{taker_name}] ([N:{taker_pct}%]) tidak membuahkan gol pada laga [C:{club}] kontra [C:{opponent}], tercatat penalti [N:-2 Poin].`,
+    template: `Eksekusi penalti [P:{taker_name}] ([N:{taker_pct}%]) gagal berbuah gol dalam laga [C:{club}] kontra [C:{opponent}] dan berujung pengurangan [N:-2 Poin].`,
     example: '',
     code: `return renderTemplate(template, {
   taker_name: taker.web_name,
@@ -1613,7 +1656,7 @@ return renderTemplate(template.goal_assist, {
     category: 'Match Event',
     subcategory: 'Red Card',
     output: 'MULTI-NEWS',
-    template: `[P:{player}] ([N:{player_pct}%]) menerima kartu merah pada laga [C:{club}] kontra [C:{opponent}], tercatat penalti [N:-3 Poin].`,
+    template: `[P:{player}] ([N:{player_pct}%]) diganjar kartu merah dalam laga [C:{club}] kontra [C:{opponent}], berujung pengurangan [N:-3 Poin].`,
     example: '',
     code: `return renderTemplate(template, {
   player: player.web_name,
@@ -1635,7 +1678,7 @@ return renderTemplate(template.goal_assist, {
     category: 'Match Event',
     subcategory: 'Match Injury',
     output: 'MULTI-NEWS',
-    template: `[P:{player}] ([N:{ownership_pct}%]) ditarik keluar lapangan pada menit [N:{minute}] akibat cedera saat memperkuat [C:{club}] kontra [C:{opponent}].`,
+    template: `[P:{player}] ([N:{ownership_pct}%]) ditarik keluar pada menit [N:{minute}] karena cedera saat membela [C:{club}] kontra [C:{opponent}].`,
     example: '',
     code: `return renderTemplate(template, {
   player: injuredPlayer.web_name,
@@ -1660,10 +1703,10 @@ return renderTemplate(template.goal_assist, {
     subcategory: 'Most Captained',
     output: 'SINGLE-NEWS',
     template: `[Kondisi: Jeda Pendek]
-Kapten [P:{captain}] yang dipilih oleh [N:{count}] tim menyumbang [N:{pts} Poin] di laga tadi, sementara rival menantikan pemainnya pada laga pukul [N:{kickoff_time}].
+Kapten [P:{captain}] yang dipilih [N:{count}] tim sudah menyumbang [N:{pts} Poin], sebelum laga berikutnya berlanjut pukul [N:{kickoff_time}].
 
 [Kondisi: Jeda Panjang]
-Sebanyak [N:{count}] tim mengandalkan kapten [P:{captain}] pada pertandingan lanjutan Gameweek [N:{gw}] hari {wib_day} pukul [N:{kickoff_time}].`,
+Sebanyak [N:{count}] tim mempercayakan ban kapten kepada [P:{captain}] pada lanjutan Gameweek [N:{gw}] hari {wib_day} pukul [N:{kickoff_time}].`,
     example: '',
     code: `const isShortBreak = nextFixture.dateUK === lastFinishedMatch.dateUK;
 if (isShortBreak) {
@@ -1697,7 +1740,7 @@ return renderTemplate(template.long, {
     category: 'Starting XI',
     subcategory: 'Bench Regret',
     output: 'MULTI-NEWS',
-    template: `[T:{team}] mencadangkan [P:{player}] yang mencetak [N:{bench_pts} Poin] di bangku cadangan pada laga yang telah selesai.`,
+    template: `[T:{team}] menempatkan [P:{player}] di bangku cadangan meski sang pemain meraih [N:{bench_pts} Poin] pada laga yang baru berakhir.`,
     example: '',
     code: `return renderTemplate(template, {
   team: regretManager.name,
@@ -1717,7 +1760,7 @@ return renderTemplate(template.long, {
     category: 'Starting XI',
     subcategory: 'Autosub Watch',
     output: 'MULTI-NEWS',
-    template: `Starter [P:{player_dnp}] tidak bermain (0 menit) untuk [C:{club}], membuka antrean pergantian otomatis pemain cadangan [T:{team}].`,
+    template: `Starter [P:{player_dnp}] absen bermain untuk [C:{club}] (0 menit), memicu pergantian otomatis pemain cadangan bagi [T:{team}].`,
     example: '',
     code: `return renderTemplate(template, {
   player_dnp: dnpPlayer.web_name,
@@ -1737,7 +1780,7 @@ return renderTemplate(template.long, {
     category: 'Standings',
     subcategory: 'Top Rivalry',
     output: 'SINGLE-NEWS',
-    template: `Pada klasemen sementara Gameweek [N:{gw}], [T:{team_1}] memimpin di peringkat 1 dengan keunggulan [N:{margin} Poin] atas [T:{team_2}] di peringkat 2.`,
+    template: `Di klasemen sementara Gameweek [N:{gw}], [T:{team_1}] menempati peringkat teratas dengan keunggulan [N:{margin} Poin] atas [T:{team_2}] di peringkat 2.`,
     example: '',
     code: `return renderTemplate(template, {
   gw,
@@ -1759,7 +1802,7 @@ return renderTemplate(template.long, {
     category: 'Standings',
     subcategory: 'Gameweek Leader',
     output: 'SINGLE-NEWS',
-    template: `Pada perolehan poin sementara Gameweek [N:{gw}], [T:{team}] memimpin perolehan poin pekan ini dengan koleksi [N:{gw_pts} Poin].`,
+    template: `[T:{team}] memimpin perolehan poin sementara Gameweek [N:{gw}] dengan koleksi [N:{gw_pts} Poin].`,
     example: '',
     code: `return renderTemplate(template, {
   gw,
@@ -1780,10 +1823,10 @@ return renderTemplate(template.long, {
     subcategory: 'Remaining Assets',
     output: 'MULTI-NEWS',
     template: `[Kondisi: Dengan Kapten Tersisa]
-Di jeda pertandingan Gameweek [N:{gw}], [T:{team}] masih memiliki [N:{remaining_count}] pemain tersisa yang belum bertanding, termasuk kapten [P:{captain}] ([C:{captain_club}]).
+Memasuki jeda Gameweek [N:{gw}], [T:{team}] masih menyisakan [N:{remaining_count}] pemain yang belum berlaga, termasuk kapten [P:{captain}] ([C:{captain_club}]).
 
 [Kondisi: Tanpa Kapten Tersisa]
-Di jeda pertandingan Gameweek [N:{gw}], [T:{team}] masih memiliki [N:{remaining_count}] pemain tersisa yang belum bertanding, antara lain [P:{player}] ([C:{club}]).`,
+Memasuki jeda Gameweek [N:{gw}], [T:{team}] masih menyisakan [N:{remaining_count}] pemain yang belum berlaga, di antaranya [P:{player}] ([C:{club}]).`,
     example: '',
     code: `const remaining = getRemainingStartingAssets(manager, fixtures);
 if (remaining.length === 0) return null;
@@ -1826,7 +1869,7 @@ return renderTemplate(template.without_captain, {
     category: 'Standings',
     subcategory: 'Top Rivalry',
     output: 'SINGLE-NEWS',
-    template: `Pada klasemen sementara Gameweek [N:{gw}] usai seluruh pertandingan selesai, [T:{team_1}] menempati peringkat 1 ([N:{pts_1} Poin]), unggul [N:{margin} Poin] atas [T:{team_2}] di peringkat 2 ([N:{pts_2} Poin]).`,
+    template: `Setelah seluruh laga Gameweek [N:{gw}] usai, [T:{team_1}] sementara memuncaki klasemen dengan [N:{pts_1} Poin], unggul [N:{margin} Poin] dari [T:{team_2}] di peringkat kedua ([N:{pts_2} Poin]).`,
     example: '',
     code: `return renderTemplate(template, {
   gw,
@@ -1852,7 +1895,7 @@ return renderTemplate(template.without_captain, {
     category: 'Standings',
     subcategory: 'Gameweek Leader',
     output: 'SINGLE-NEWS',
-    template: `Pada perolehan poin sementara Gameweek [N:{gw}], [T:{team}] memimpin dengan torehan [N:{gw_pts} Poin], disusul [T:{team_2}] dengan [N:{gw_pts_2} Poin] sebelum proses audit poin dan autosub tuntas.`,
+    template: `[T:{team}] memimpin perolehan poin sementara Gameweek [N:{gw}] dengan [N:{gw_pts} Poin], diikuti [T:{team_2}] ([N:{gw_pts_2} Poin]) sebelum perhitungan akhir poin dan pergantian otomatis selesai.`,
     example: '',
     code: `return renderTemplate(template, {
   gw,
@@ -1876,7 +1919,7 @@ return renderTemplate(template.without_captain, {
     category: 'Player',
     subcategory: 'Top Performer',
     output: 'MULTI-NEWS',
-    template: `[P:{player}] ([C:{club}]) menjadi pemain dengan perolehan poin tertinggi di Gameweek [N:{gw}] usai mencatatkan [N:{points} Poin] ([N:{goals} Gol], [N:{assists} Assist]), dimiliki oleh [N:{owners_count}] tim di liga.`,
+    template: `[P:{player}] ([C:{club}]) mencetak poin tertinggi sementara di Gameweek [N:{gw}] dengan [N:{points} Poin] ([N:{goals} Gol], [N:{assists} Assist]), dan tercatat dimiliki oleh [N:{owners_count}] tim di liga.`,
     example: '',
     code: `return renderTemplate(template, {
   gw,
@@ -1904,7 +1947,7 @@ return renderTemplate(template.without_captain, {
     category: 'Captain',
     subcategory: 'Most Captained',
     output: 'SINGLE-NEWS',
-    template: `Pada rekap poin kapten terpopuler Gameweek [N:{gw}], [P:{captain_1}] ([N:{count_1}] tim) menghasilkan [N:{pts_1} Poin], sedangkan [P:{captain_2}] ([N:{count_2}] tim) menghasilkan [N:{pts_2} Poin].`,
+    template: `Dua kapten paling banyak dipilih di Gameweek [N:{gw}], [P:{captain_1}] ([N:{count_1}] tim) dan [P:{captain_2}] ([N:{count_2}] tim), masing-masing menyumbang [N:{pts_1} Poin] dan [N:{pts_2} Poin] sementara.`,
     example: '',
     code: `return renderTemplate(template, {
   gw,
@@ -1932,7 +1975,7 @@ return renderTemplate(template.without_captain, {
     category: 'Captain',
     subcategory: 'Vice Captain',
     output: 'MULTI-NEWS',
-    template: `Ban kapten pada [T:{team}] dialihkan ke wakil kapten [P:{vice_captain}] yang mengoleksi [N:{vice_pts} Poin], setelah kapten utama [P:{captain_dnp}] tidak bermain (0 menit).`,
+    template: `Ban kapten [T:{team}] beralih kepada wakil kapten [P:{vice_captain}] yang meraih [N:{vice_pts} Poin], karena kapten utama [P:{captain_dnp}] tidak bermain sama sekali.`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -1954,7 +1997,7 @@ return renderTemplate(template.without_captain, {
     category: 'Starting XI',
     subcategory: 'Autosub Watch',
     output: 'MULTI-NEWS',
-    template: `Antrean pergantian otomatis [T:{team}] menunggu masuknya pemain cadangan pertama [P:{bench_player}] yang mengoleksi [N:{bench_pts} Poin], menggantikan starter [P:{player_dnp}] yang tidak bermain (0 menit).`,
+    template: `[T:{team}] menanti proses pergantian otomatis untuk memasukkan pemain cadangan [P:{bench_player}] ([N:{bench_pts} Poin]) menggantikan starter [P:{player_dnp}] yang absen bermain.`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -1976,7 +2019,7 @@ return renderTemplate(template.without_captain, {
     category: 'Starting XI',
     subcategory: 'Bench Points',
     output: 'MULTI-NEWS',
-    template: `[T:{team}] mencatatkan total [N:{total_bench_pts} Poin] tertahan di bangku cadangan pada Gameweek [N:{gw}], termasuk [P:{player}] yang mengemas [N:{player_pts} Poin].`,
+    template: `Sebanyak [N:{total_bench_pts} Poin] milik [T:{team}] tertahan di bangku cadangan pada Gameweek [N:{gw}], termasuk kontribusi [P:{player}] yang mengemas [N:{player_pts} Poin].`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2000,7 +2043,7 @@ return renderTemplate(template.without_captain, {
     category: 'Chip',
     subcategory: 'Wildcard',
     output: 'MULTI-NEWS',
-    template: `Aktivasi sementara Wildcard [T:{team}] pada Gameweek [N:{gw}] mengumpulkan total [N:{gw_pts} Poin].`,
+    template: `Mengaktifkan [N:Wildcard] pada Gameweek [N:{gw}], [T:{team}] meraih [N:{gw_pts} Poin] sementara.`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2020,7 +2063,7 @@ return renderTemplate(template.without_captain, {
     category: 'Chip',
     subcategory: 'Free Hit',
     output: 'MULTI-NEWS',
-    template: `Aktivasi sementara Free Hit [T:{team}] pada Gameweek [N:{gw}] mengumpulkan total [N:{gw_pts} Poin].`,
+    template: `Mengaktifkan [N:Free Hit] pada Gameweek [N:{gw}], [T:{team}] meraih [N:{gw_pts} Poin] sementara.`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2040,7 +2083,7 @@ return renderTemplate(template.without_captain, {
     category: 'Chip',
     subcategory: 'Bench Boost',
     output: 'MULTI-NEWS',
-    template: `Aktivasi Bench Boost [T:{team}] menghasilkan total [N:{bench_pts} Poin] tambahan dari empat pemain cadangan pada Gameweek [N:{gw}].`,
+    template: `Mengaktifkan [N:Bench Boost] pada Gameweek [N:{gw}], [T:{team}] meraup [N:{bench_pts} Poin] tambahan sementara dari empat pemain cadangannya.`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2060,7 +2103,7 @@ return renderTemplate(template.without_captain, {
     category: 'Chip',
     subcategory: 'Triple Captain',
     output: 'MULTI-NEWS',
-    template: `Aktivasi Triple Captain [T:{team}] menghasilkan total [N:{total_pts} Poin] lewat kapten [P:{captain}] pada Gameweek [N:{gw}].`,
+    template: `Mengaktifkan [N:Triple Captain] pada Gameweek [N:{gw}], [T:{team}] mengumpulkan [N:{total_pts} Poin] sementara dari kapten [P:{captain}].`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2082,7 +2125,7 @@ return renderTemplate(template.without_captain, {
     category: 'Hits',
     subcategory: 'Most Hits',
     output: 'MULTI-NEWS',
-    template: `[T:{team}] menanggung penalti [N:-{hits_pts} Poin] transfer di Gameweek [N:{gw}], dengan pemain baru yang didatangkan, [P:{player_in}], mencatatkan [N:{player_pts} Poin].`,
+    template: `[T:{team}] terkena pengurangan [N:-{hits_pts} Poin] akibat transfer tambahan di Gameweek [N:{gw}], sementara pemain baru [P:{player_in}] menyumbang [N:{player_pts} Poin].`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2106,7 +2149,7 @@ return renderTemplate(template.without_captain, {
     category: 'Match Event',
     subcategory: 'Clean Sheet',
     output: 'MULTI-NEWS',
-    template: `[C:{club}] mencatatkan clean sheet di Gameweek [N:{gw}] usai menang [N:{score}] kontra [C:{opponent}], menghasilkan poin nirbobol bagi [N:{owners_count}] pemilik [P:{defender}].`,
+    template: `[C:{club}] menjaga gawang tetap clean sheet saat menang [N:{score}] atas [C:{opponent}] di Gameweek [N:{gw}], menyumbangkan poin bagi [N:{owners_count}] tim pemilik [P:{defender}].`,
     example: '',
     code: `return renderTemplate(template, {
   club: team.name,
@@ -2131,45 +2174,12 @@ return renderTemplate(template.without_captain, {
   // ============================================================================
   {
     no: 62,
-    id: 'CF_FOUR_CHAMPS',
-    gw_phase: 'Confirmed',
-    category: 'Standings',
-    subcategory: 'Four Champions',
-    output: 'SINGLE-NEWS',
-    template: `Hasil resmi Gameweek [N:{gw}] menetapkan 4 juara pekan ini, yaitu Juara 1 [T:{champ_1}] ([N:{pts_1} Poin]), Juara 2 [T:{champ_2}] ([N:{pts_2} Poin]), Juara 3 [T:{champ_3}] ([N:{pts_3} Poin]), dan Juara 4 [T:{champ_4}] ([N:{pts_4} Poin]).`,
-    example: '',
-    code: `const champs = getOfficialGwChampions(gw);
-return renderTemplate(template, {
-  gw,
-  champ_1: champs[0].name,
-  pts_1: champs[0].points,
-  champ_2: champs[1].name,
-  pts_2: champs[1].points,
-  champ_3: champs[2].name,
-  pts_3: champs[2].points,
-  champ_4: champs[3].name,
-  pts_4: champs[3].points,
-});`,
-    sample_data: {
-      gw: '10',
-      champ_1: 'Elang Jawa',
-      pts_1: '82',
-      champ_2: 'Garuda FC',
-      pts_2: '79',
-      champ_3: 'Sunda Kelapa',
-      pts_3: '76',
-      champ_4: 'Bintang Timur',
-      pts_4: '75',
-    },
-  },
-  {
-    no: 63,
     id: 'CF_GW_CHAMPION',
     gw_phase: 'Confirmed',
     category: 'Standings',
     subcategory: 'Gameweek Leader',
     output: 'SINGLE-NEWS',
-    template: `[T:{team}] resmi keluar sebagai Juara Gameweek [N:{gw}] dengan torehan [N:{gw_pts} Poin], unggul [N:{margin} Poin] atas pesaing terdekatnya [T:{runner_up}].`,
+    template: `[T:{team}] menjadi juara Gameweek [N:{gw}] dengan perolehan [N:{gw_pts} Poin], unggul [N:{margin} Poin] atas [T:{runner_up}] di peringkat kedua.`,
     example: '',
     code: `const leader = getOfficialGwLeader(gw);
 const runnerUp = getOfficialGwRunnerUp(gw);
@@ -2189,13 +2199,13 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 64,
+    no: 63,
     id: 'CF_TOP_RIVALRY',
     gw_phase: 'Confirmed',
     category: 'Standings',
     subcategory: 'Top Rivalry',
     output: 'SINGLE-NEWS',
-    template: `Klasemen resmi Gameweek [N:{gw}] menempatkan [T:{team_1}] di puncak klasemen dengan total [N:{pts_1} Poin], memimpin keunggulan [N:{margin} Poin] dari [T:{team_2}] di peringkat 2.`,
+    template: `Hingga akhir Gameweek [N:{gw}], [T:{team_1}] memuncaki klasemen liga dengan total [N:{pts_1} Poin], unggul [N:{margin} Poin] atas [T:{team_2}] di peringkat kedua.`,
     example: '',
     code: `const standings = getOfficialStandings(gw);
 return renderTemplate(template, {
@@ -2214,46 +2224,91 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 65,
+    no: 64,
     id: 'CF_MOST_GW_RIVALRY',
     gw_phase: 'Confirmed',
     category: 'Standings',
     subcategory: 'Most GW Rivalry',
     output: 'SINGLE-NEWS',
-    template: `Hingga Gameweek [N:{gw}], daftar perolehan gelar juara mingguan dipimpin oleh [T:{team_1}] ([N:{titles_1} Gelar]), ditempel ketat oleh [T:{team_2}] ([N:{titles_2} Gelar]).`,
+    template: `[Kondisi: Pemimpin Tunggal]
+Hingga Gameweek [N:{gw}], [T:{team_1}] (peringkat [N:{rank_1}]) sementara memimpin perburuan gelar juara mingguan terbanyak dengan [N:{titles_1} Gelar], diikuti [T:{team_2}] (peringkat [N:{rank_2}]) dengan [N:{titles_2} Gelar].
+
+[Kondisi: Jumlah Kemenangan Sama]
+Hingga Gameweek [N:{gw}], [T:{team_1}] (peringkat [N:{rank_1}]) sementara memimpin perburuan gelar juara mingguan terbanyak dengan [N:{titles} Gelar], unggul peringkat klasemen atas {challengers} yang juga mengoleksi [N:{titles} Gelar].`,
     example: '',
-    code: `const leaders = getMostGwChampionsLeaders(gw);
-return renderTemplate(template, {
+    code: `// Kondisi sementara s.d. GW N untuk gelar Juara GW Terbanyak Semusim:
+// Peringkat 1 & 2 klasemen FNB League tidak berhak meraih gelar ini; jika win_count sama, peringkat klasemen lebih tinggi menang.
+const standings = getOfficialStandings(gw);
+const excludedIds = new Set([standings[0]?.id, standings[1]?.id]);
+const eligible = getMostGwChampionsLeaders(gw)
+  .filter(m => !excludedIds.has(m.id) && m.win_count > 0)
+  .sort((a, b) => (b.win_count - a.win_count) || (a.current_rank - b.current_rank));
+if (eligible.length === 0) return null;
+
+const leader = eligible[0];
+const maxWins = leader.win_count;
+const topTied = eligible.filter(m => m.win_count === maxWins);
+if (topTied.length > 1) {
+  const others = topTied.slice(1);
+  return renderTemplate(template.tied, {
+    gw,
+    team_1: leader.name,
+    rank_1: leader.current_rank,
+    titles: maxWins,
+    challengers: formatRankedChallengers(others),
+  });
+}
+
+const runnerUp = eligible[1];
+return renderTemplate(template.single, {
   gw,
-  team_1: leaders[0].name,
-  titles_1: leaders[0].titles,
-  team_2: leaders[1].name,
-  titles_2: leaders[1].titles,
+  team_1: leader.name,
+  rank_1: leader.current_rank,
+  titles_1: maxWins,
+  team_2: runnerUp.name,
+  rank_2: runnerUp.current_rank,
+  titles_2: runnerUp.win_count,
 });`,
     sample_data: {
       gw: '10',
       team_1: 'Blackswann',
+      rank_1: '4',
       titles_1: '3',
       team_2: 'rdwndvsn',
+      rank_2: '5',
       titles_2: '2',
+      titles: '1',
+      challengers: '[T:rdwndvsn] (peringkat [N:5]) dan [N:7] tim lainnya',
     },
   },
   {
-    no: 66,
+    no: 65,
     id: 'CF_RANK_CLIMBER',
     gw_phase: 'Confirmed',
     category: 'Standings',
     subcategory: 'Rank Climber',
-    output: 'MULTI-NEWS',
-    template: `[T:{team}] mencatatkan kenaikan peringkat tertinggi di Gameweek [N:{gw}], melesat naik [N:+{rank_climb} Posisi] dari peringkat [N:{old_rank}] ke peringkat [N:{new_rank}].`,
+    output: 'SINGLE-NEWS',
+    template: `[Kondisi: Tim Tunggal]
+[T:{team}] membukukan lonjakan peringkat tertinggi pada Gameweek [N:{gw}], naik [N:+{rank_climb} Peringkat] dari peringkat [N:{old_rank}] ke peringkat [N:{new_rank}].
+
+[Kondisi: Lonjakan Peringkat Sama]
+{teams_climbers} sama-sama membukukan lonjakan peringkat tertinggi pada Gameweek [N:{gw}] dengan naik [N:+{rank_climb} Peringkat].`,
     example: '',
-    code: `const climber = getTopRankClimber(gw);
-return renderTemplate(template, {
+    code: `const topClimbers = getTopRankClimbers(gw); // all teams tied at max rank_diff
+if (topClimbers.length === 1) {
+  const c = topClimbers[0];
+  return renderTemplate(template.single, {
+    gw,
+    team: c.name,
+    rank_climb: c.rank_diff,
+    old_rank: c.prev_rank,
+    new_rank: c.current_rank,
+  });
+}
+return renderTemplate(template.tied, {
   gw,
-  team: climber.name,
-  rank_climb: climber.rank_diff,
-  old_rank: climber.prev_rank,
-  new_rank: climber.current_rank,
+  teams_climbers: formatClimberList(topClimbers),
+  rank_climb: topClimbers[0].rank_diff,
 });`,
     sample_data: {
       gw: '10',
@@ -2261,26 +2316,39 @@ return renderTemplate(template, {
       rank_climb: '6',
       old_rank: '14',
       new_rank: '8',
+      teams_climbers: '[T:Garuda FC] ([N:14] ke [N:8]) dan [T:Bintang Timur] ([N:19] ke [N:13])',
     },
   },
   {
-    no: 67,
+    no: 66,
     id: 'CF_PLAYER_OF_THE_GW',
     gw_phase: 'Confirmed',
     category: 'Player',
     subcategory: 'Top Performer',
-    output: 'MULTI-NEWS',
-    template: `[P:{player}] ([C:{club}]) dinobatkan sebagai pemain terbaik resmi Gameweek [N:{gw}] dengan torehan [N:{points} Poin], berkat kontribusi [N:{goals} Gol], [N:{assists} Assist], dan [N:{bps_pts} Poin Bonus].`,
+    output: 'SINGLE-NEWS',
+    template: `[Kondisi: Pemain Tunggal]
+[P:{player}] ([C:{club}]) menjadi pemain dengan poin tertinggi di Gameweek [N:{gw}] setelah mengemas [N:{points} Poin] dari catatan [N:{goals} Gol], [N:{assists} Assist], dan [N:{bps_pts} Poin Bonus].
+
+[Kondisi: Poin Sama]
+{players_list} sama-sama menjadi pemain dengan poin tertinggi pada Gameweek [N:{gw}] setelah masing-masing mengoleksi [N:{points} Poin].`,
     example: '',
-    code: `const topPlayer = getOfficialTopPlayer(gw);
-return renderTemplate(template, {
+    code: `const topPlayers = getOfficialTopPlayers(gw); // all players tied at max points
+if (topPlayers.length === 1) {
+  const p = topPlayers[0];
+  return renderTemplate(template.single, {
+    gw,
+    player: p.web_name,
+    club: p.club,
+    points: p.total_points,
+    goals: p.goals,
+    assists: p.assists,
+    bps_pts: p.bonus,
+  });
+}
+return renderTemplate(template.tied, {
   gw,
-  player: topPlayer.web_name,
-  club: topPlayer.club,
-  points: topPlayer.total_points,
-  goals: topPlayer.goals,
-  assists: topPlayer.assists,
-  bps_pts: topPlayer.bonus,
+  players_list: formatPlayerClubList(topPlayers),
+  points: topPlayers[0].total_points,
 });`,
     sample_data: {
       gw: '10',
@@ -2290,16 +2358,17 @@ return renderTemplate(template, {
       goals: '2',
       assists: '1',
       bps_pts: '3',
+      players_list: '[P:Alysson] ([C:Aston Villa]) dan [P:Barry] ([C:Everton])',
     },
   },
   {
-    no: 68,
+    no: 67,
     id: 'CF_AUTOSUB_OFFICIAL',
     gw_phase: 'Confirmed',
     category: 'Starting XI',
     subcategory: 'Autosub Watch',
     output: 'MULTI-NEWS',
-    template: `Pergantian otomatis resmi Gameweek [N:{gw}] memasukkan [P:{bench_player}] ([N:+{bench_pts} Poin]) ke susunan pemain inti [T:{team}], menggantikan [P:{player_dnp}] yang tidak bermain.`,
+    template: `Pergantian otomatis pada Gameweek [N:{gw}] memasukkan [P:{bench_player}] ([N:+{bench_pts} Poin]) ke susunan inti [T:{team}], menggantikan [P:{player_dnp}] yang tidak bermain.`,
     example: '',
     code: `return renderTemplate(template, {
   gw,
@@ -2317,36 +2386,49 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 69,
+    no: 68,
     id: 'CF_CAPTAIN_OFFICIAL',
     gw_phase: 'Confirmed',
     category: 'Captain',
     subcategory: 'Most Captained',
     output: 'SINGLE-NEWS',
-    template: `Pilihan kapten terbanyak di liga pada Gameweek [N:{gw}], [P:{captain}] ([N:{count}] tim), menyumbangkan [N:{captain_pts} Poin] ganda usai pengesahan poin bonus.`,
+    template: `[Kondisi: Kapten Terbanyak Tunggal]
+Kapten paling banyak dipilih pada Gameweek [N:{gw}], [P:{captain}] ([N:{count}] tim), mengakhiri pekan dengan sumbangan [N:{captain_pts} Poin] setelah penambahan bonus.
+
+[Kondisi: Jumlah Pemilih Sama]
+{captains_list} sama-sama menjadi kapten yang paling banyak dipilih pada Gameweek [N:{gw}], dengan masing-masing dipercaya oleh [N:{count}] tim.`,
     example: '',
-    code: `const cap = getOfficialMostCaptained(gw);
-return renderTemplate(template, {
+    code: `const topCaptains = getOfficialMostCaptainedList(gw); // all players tied at max captain_count
+if (topCaptains.length === 1) {
+  const cap = topCaptains[0];
+  return renderTemplate(template.single, {
+    gw,
+    captain: cap.web_name,
+    count: cap.owners_count,
+    captain_pts: cap.points * 2,
+  });
+}
+return renderTemplate(template.tied, {
   gw,
-  captain: cap.web_name,
-  count: cap.owners_count,
-  captain_pts: cap.points * 2,
+  captains_list: formatCaptainListWithPts(topCaptains),
+  count: topCaptains[0].owners_count,
 });`,
     sample_data: {
       gw: '10',
       captain: 'Haaland',
       count: '10',
       captain_pts: '26',
+      captains_list: '[P:Haaland] ([N:4 Poin]) dan [P:Salah] ([N:24 Poin])',
     },
   },
   {
-    no: 70,
+    no: 69,
     id: 'CF_CHIP_WILDCARD',
     gw_phase: 'Confirmed',
     category: 'Chip',
     subcategory: 'Wildcard',
     output: 'MULTI-NEWS',
-    template: `Aktivasi resmi Wildcard [T:{team}] pada Gameweek [N:{gw}] menghasilkan total [N:{gw_pts} Poin].`,
+    template: `Mengaktifkan [N:Wildcard] pada Gameweek [N:{gw}], [T:{team}] menutup pekan ini dengan perolehan [N:{gw_pts} Poin].`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2360,13 +2442,13 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 71,
+    no: 70,
     id: 'CF_CHIP_FREEHIT',
     gw_phase: 'Confirmed',
     category: 'Chip',
     subcategory: 'Free Hit',
     output: 'MULTI-NEWS',
-    template: `Aktivasi resmi Free Hit [T:{team}] pada Gameweek [N:{gw}] menghasilkan total [N:{gw_pts} Poin].`,
+    template: `Mengaktifkan [N:Free Hit] pada Gameweek [N:{gw}], [T:{team}] menutup pekan ini dengan perolehan [N:{gw_pts} Poin].`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2380,13 +2462,13 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 72,
+    no: 71,
     id: 'CF_CHIP_BENCH_BOOST',
     gw_phase: 'Confirmed',
     category: 'Chip',
     subcategory: 'Bench Boost',
     output: 'MULTI-NEWS',
-    template: `Aktivasi resmi Bench Boost [T:{team}] pada Gameweek [N:{gw}] mendulang total [N:{bench_pts} Poin] dari kontribusi empat pemain bangku cadangan.`,
+    template: `Mengaktifkan [N:Bench Boost] pada Gameweek [N:{gw}], [T:{team}] mendapat tambahan [N:{bench_pts} Poin] dari keempat pemain di bangku cadangannya.`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2400,13 +2482,13 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 73,
+    no: 72,
     id: 'CF_CHIP_TRIPLE_CAPTAIN',
     gw_phase: 'Confirmed',
     category: 'Chip',
     subcategory: 'Triple Captain',
     output: 'MULTI-NEWS',
-    template: `Aktivasi resmi Triple Captain [T:{team}] pada Gameweek [N:{gw}] mendulang total [N:{total_pts} Poin] berkat performa kapten [P:{captain}].`,
+    template: `Mengaktifkan [N:Triple Captain] pada Gameweek [N:{gw}], [T:{team}] memperoleh [N:{total_pts} Poin] dari kapten [P:{captain}].`,
     example: '',
     code: `return renderTemplate(template, {
   team: manager.name,
@@ -2422,13 +2504,13 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 74,
+    no: 73,
     id: 'CF_HITS_DEDUCTED',
     gw_phase: 'Confirmed',
     category: 'Hits',
     subcategory: 'Most Hits',
     output: 'MULTI-NEWS',
-    template: `Pengurangan poin transfer resmi Gameweek [N:{gw}] memotong [N:-{hits_pts} Poin] dari total skor [T:{team}] usai melakukan [N:{transfers_count} Transfer].`,
+    template: `[T:{team}] mencatat pengurangan [N:-{hits_pts} Poin] pada Gameweek [N:{gw}] setelah melakukan [N:{transfers_count} Transfer].`,
     example: '',
     code: `return renderTemplate(template, {
   gw,
@@ -2444,17 +2526,17 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 75,
+    no: 74,
     id: 'CF_TRANSFER_KARMA',
     gw_phase: 'Confirmed',
     category: 'Transfer',
     subcategory: 'Transfer Karma',
     output: 'MULTI-NEWS',
     template: `[Kondisi: 1 Tim]
-[T:{team}] melepas [P:{player}] ([C:{club}]) yang resmi mengemas [N:{points} Poin] di Gameweek [N:{gw}], sementara penggantinya [P:{player_in}] hanya meraih [N:{in_points} Poin].
+[T:{team}] melepas [P:{player}] ([C:{club}]) yang mencetak [N:{points} Poin] di Gameweek [N:{gw}], sementara pemain penggantinya [P:{player_in}] meraih [N:{in_points} Poin].
 
 [Kondisi: Multi Tim]
-{teams} sama-sama melepas [P:{player}] ([C:{club}]) yang resmi menorehkan [N:{points} Poin] di Gameweek [N:{gw}].`,
+{teams} sama-sama melepas [P:{player}] ([C:{club}]) yang mengemas [N:{points} Poin] pada Gameweek [N:{gw}].`,
     example: '',
     code: `// Konsolidasi lintas-tim untuk pemain yang dijual di GW N (poin pemain tidak dikalikan jumlah tim)
 if (group.teamCount >= 2) {
@@ -2487,17 +2569,17 @@ return renderTemplate(template.single, {
     },
   },
   {
-    no: 76,
+    no: 75,
     id: 'CF_CAPTAIN_REGRET',
     gw_phase: 'Confirmed',
     category: 'Captain',
     subcategory: 'Captain Regret',
     output: 'MULTI-NEWS',
     template: `[Kondisi: 1 Tim]
-[T:{team}] mempercayakan ban kapten kepada [P:{actual_captain}] ([N:{captain_pts} Poin]) di Gameweek [N:{gw}], sedangkan [P:{player}] ([C:{club}]) di susunan pemain inti tim tersebut meraih [N:{points} Poin].
+[T:{team}] menunjuk [P:{actual_captain}] ([N:{captain_pts} Poin]) sebagai kapten pada Gameweek [N:{gw}], padahal [P:{player}] ([C:{club}]) di susunan inti mereka meraih [N:{points} Poin].
 
 [Kondisi: Multi Tim]
-{teams} tidak mengkaptenkan [P:{player}] ([C:{club}]) yang resmi mencetak [N:{points} Poin] pada Gameweek [N:{gw}].`,
+{teams} sama-sama memiliki [P:{player}] ([C:{club}]) yang mencetak [N:{points} Poin] pada Gameweek [N:{gw}], namun tidak menjadikannya kapten.`,
     example: '',
     code: `// Hanya membandingkan alternatif kapten dari posisi MID dan FWD (tidak pernah GKP/DEF)
 if (group.teamCount >= 2) {
@@ -2530,13 +2612,13 @@ return renderTemplate(template.single, {
     },
   },
   {
-    no: 77,
+    no: 76,
     id: 'CF_RANK_FALLER',
     gw_phase: 'Confirmed',
     category: 'Standings',
     subcategory: 'Rank Faller',
     output: 'MULTI-NEWS',
-    template: `[T:{team}] mencatatkan penurunan peringkat tajam di klasemen resmi Gameweek [N:{gw}], merosot [N:-{rank_drop} Posisi] dari peringkat [N:{old_rank}] ke peringkat [N:{new_rank}] setelah meraih [N:{gw_pts} Poin].`,
+    template: `[T:{team}] mengalami penurunan peringkat di Gameweek [N:{gw}], turun [N:-{rank_drop} Peringkat] dari peringkat [N:{old_rank}] ke peringkat [N:{new_rank}] usai meraih [N:{gw_pts} Poin].`,
     example: '',
     code: `const fallers = getTopRankFallers(gw).filter(f => f.rankDrop >= 5);
 return fallers.map(f => renderTemplate(template, {
@@ -2557,13 +2639,13 @@ return fallers.map(f => renderTemplate(template, {
     },
   },
   {
-    no: 78,
+    no: 77,
     id: 'CF_SUMMIT_COUP',
     gw_phase: 'Confirmed',
     category: 'Standings',
     subcategory: 'Summit Coup',
     output: 'SINGLE-NEWS',
-    template: `Kudeta puncak klasemen resmi terjadi pada Gameweek [N:{gw}] setelah [T:{new_leader}] naik dari peringkat [N:{old_rank}] ke peringkat 1, menggeser [T:{former_leader}] ke peringkat [N:{former_new_rank}] dengan selisih [N:{margin} Poin].`,
+    template: `Pergantian pemuncak klasemen terjadi pada Gameweek [N:{gw}] setelah [T:{new_leader}] naik dari peringkat [N:{old_rank}] ke peringkat pertama, menggeser [T:{former_leader}] ke peringkat [N:{former_new_rank}] dengan keunggulan [N:{margin} Poin].`,
     example: '',
     code: `if (!titleBattle.coupOccurred) return null;
 return renderTemplate(template, {
@@ -2584,17 +2666,17 @@ return renderTemplate(template, {
     },
   },
   {
-    no: 79,
+    no: 78,
     id: 'CF_RIVALRY_DUEL',
     gw_phase: 'Confirmed',
     category: 'Standings',
     subcategory: 'Rivalry Duel',
     output: 'MULTI-NEWS',
     template: `[Kondisi: Selisih Poin]
-Persaingan ketat terjadi di papan klasemen resmi Gameweek [N:{gw}] antara peringkat [N:{rank_1}] [T:{team_1}] ([N:{pts_1} Poin]) dan peringkat [N:{rank_2}] [T:{team_2}] ([N:{pts_2} Poin]) yang hanya terpaut [N:{gap} Poin].
+Pada klasemen Gameweek [N:{gw}], peringkat [N:{rank_1}] [T:{team_1}] ([N:{pts_1} Poin]) dan peringkat [N:{rank_2}] [T:{team_2}] ([N:{pts_2} Poin]) terpaut [N:{gap} Poin].
 
 [Kondisi: Poin Sama]
-Persaingan ketat terjadi di papan klasemen resmi Gameweek [N:{gw}] antara peringkat [N:{rank_1}] [T:{team_1}] dan peringkat [N:{rank_2}] [T:{team_2}] yang sama-sama mengoleksi [N:{pts_1} Poin].`,
+Pada klasemen Gameweek [N:{gw}], peringkat [N:{rank_1}] [T:{team_1}] dan peringkat [N:{rank_2}] [T:{team_2}] sama-sama mengoleksi [N:{pts_1} Poin].`,
     example: '',
     code: `const duels = getTightStandingDuels(gw, { maxRank: 20, maxGap: 3, excludeTop2Pair: true });
 return duels.map(d => renderTemplate(d.gap === 0 ? template.tied : template.gap, {
@@ -2619,17 +2701,17 @@ return duels.map(d => renderTemplate(d.gap === 0 ? template.tied : template.gap,
     },
   },
   {
-    no: 80,
+    no: 79,
     id: 'CF_BENCH_POINTS',
     gw_phase: 'Confirmed',
     category: 'Starting XI',
     subcategory: 'Bench Regret',
     output: 'MULTI-NEWS',
     template: `[Kondisi: 1 Tim]
-[T:{team}] menyimpan [P:{player}] ([C:{club}]) di bangku cadangan meski meraih [N:{points} Poin] pada laga resmi Gameweek [N:{gw}].
+[T:{team}] menaruh [P:{player}] ([C:{club}]) di bangku cadangan meski sang pemain meraih [N:{points} Poin] pada Gameweek [N:{gw}].
 
 [Kondisi: Multi Tim]
-{teams} sama-sama mencadangkan [P:{player}] ([C:{club}]) yang resmi menyumbang [N:{points} Poin] di bangku cadangan pada Gameweek [N:{gw}].`,
+{teams} sama-sama menempatkan [P:{player}] ([C:{club}]) di bangku cadangan saat ia mencetak [N:{points} Poin] pada Gameweek [N:{gw}].`,
     example: '',
     code: `if (group.teamCount >= 2) {
   return renderTemplate(template.multi, {
@@ -2681,22 +2763,28 @@ export function getPhase1Templates(): Phase1TemplateItem[] {
             const tmpl = custom.template || def.template;
             const gwPhase = custom.gw_phase || def.gw_phase;
             const isLive = (gwPhase || '').trim().toLowerCase() === 'live match';
-            const resolvedOutput = isLive
-              ? 'MULTI-NEWS'
-              : (custom.output || def.output || ((def.id === 'NS_INJURY_UPDATE' || def.subcategory === 'Flagged Players') ? 'MULTI-NEWS' : 'SINGLE-NEWS'));
+            const resolvedOutput = String(
+              custom.output ||
+              def.output ||
+              (isLive || def.id === 'NS_INJURY_UPDATE' || def.subcategory === 'Flagged Players'
+                ? 'MULTI-NEWS'
+                : 'SINGLE-NEWS')
+            ).trim();
 
             return {
               ...def,
               ...custom,
               id: def.id,
               no: def.no,
-              gw_phase: gwPhase,
+              gw_phase: String(gwPhase).trim(),
+              category: String(custom.category || def.category).trim(),
+              subcategory: String(custom.subcategory || def.subcategory).trim(),
               output: resolvedOutput,
               gw: Number(custom.gw) || def.gw || 10,
               timestamp: custom.timestamp || custom.updated_at || def.timestamp || defaultTimestamp,
               source: custom.source || def.source || 'Sys',
               template: tmpl,
-              example: custom.example || interpolateExample(tmpl, custom.sample_data || def.sample_data),
+              example: interpolateExample(tmpl, custom.sample_data || def.sample_data),
             };
           }
           return def;
@@ -2709,22 +2797,95 @@ export function getPhase1Templates(): Phase1TemplateItem[] {
   return baseDefaults;
 }
 
+function escapeTemplateLiteral(val: string): string {
+  return String(val || '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\\/g, '\\\\')
+    .replace(/`/g, '\\`')
+    .replace(/\$\{/g, '\\${');
+}
+
+function syncTemplatesToSourceTs(items: Phase1TemplateItem[]): void {
+  try {
+    const sourceTsPath = path.join(process.cwd(), 'src/data/phase1Templates.ts');
+    if (!fs.existsSync(sourceTsPath)) return;
+    let source = fs.readFileSync(sourceTsPath, 'utf-8');
+    if (!source.includes('export const DEFAULT_PHASE1_TEMPLATES')) return;
+
+    let changed = false;
+    for (const item of items) {
+      if (!item?.id) continue;
+      const escapedId = item.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const blockRegex = new RegExp(
+        `(\\{\\s*no:\\s*\\d+,\\s*id:\\s*'${escapedId}'[\\s\\S]*?\\n\\s*example:)`,
+        'm'
+      );
+      const match = blockRegex.exec(source);
+      if (!match) continue;
+
+      let block = match[1];
+      const origBlock = block;
+
+      block = block.replace(/(\bgw_phase:\s*)(['"`])[\s\S]*?\2/, `$1'${String(item.gw_phase || '').trim().replace(/'/g, "\\'")}'`);
+      block = block.replace(/(\bcategory:\s*)(['"`])[\s\S]*?\2/, `$1'${String(item.category || '').trim().replace(/'/g, "\\'")}'`);
+      block = block.replace(/(\bsubcategory:\s*)(['"`])[\s\S]*?\2/, `$1'${String(item.subcategory || '').trim().replace(/'/g, "\\'")}'`);
+
+      const outVal = String(item.output || 'SINGLE-NEWS').trim().replace(/'/g, "\\'");
+      if (/\boutput:\s*/.test(block)) {
+        block = block.replace(/(\boutput:\s*)(['"`])[\s\S]*?\2/, `$1'${outVal}'`);
+      } else {
+        block = block.replace(/(\bsubcategory:\s*[^\n]+,\n)/, `$1    output: '${outVal}',\n`);
+      }
+
+      const escapedTmpl = escapeTemplateLiteral(item.template || '');
+      block = block.replace(
+        /(\btemplate:\s*)(?:`(?:\\[\s\S]|[^`])*`|'(?:\\[\s\S]|[^'])*'|"(?:\\[\s\S]|[^"])*")/,
+        `$1\`${escapedTmpl}\``
+      );
+
+      if (block !== origBlock) {
+        source = source.slice(0, match.index) + block + source.slice(match.index + match[1].length);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      fs.writeFileSync(sourceTsPath, source, 'utf-8');
+    }
+  } catch (err: any) {
+    console.warn('[Phase1Templates] Could not sync edits to phase1Templates.ts:', err.message);
+  }
+}
+
 export function savePhase1Templates(items: Phase1TemplateItem[]): boolean {
   try {
     const saveTime = new Date().toISOString();
+    const defaultsById = new Map(DEFAULT_PHASE1_TEMPLATES.map((d) => [d.id, d]));
     const enriched = items.map((item) => {
-      const isLive = (item.gw_phase || '').trim().toLowerCase() === 'live match';
+      const def = defaultsById.get(item.id);
+      const gwPhase = String(item.gw_phase || def?.gw_phase || 'Not started').trim();
+      const isLive = gwPhase.toLowerCase() === 'live match';
+      const tmplText = String(item.template ?? def?.template ?? '').replace(/\r\n/g, '\n');
+      const sampleData = item.sample_data || def?.sample_data || {};
       return {
+        ...def,
         ...item,
-        output: isLive ? 'MULTI-NEWS' : (item.output || 'SINGLE-NEWS'),
-        gw: Number(item.gw) || 10,
+        gw_phase: gwPhase,
+        category: String(item.category || def?.category || '').trim(),
+        subcategory: String(item.subcategory || def?.subcategory || '').trim(),
+        output: String(item.output || def?.output || (isLive ? 'MULTI-NEWS' : 'SINGLE-NEWS')).trim(),
+        gw: Number(item.gw) || def?.gw || 10,
         timestamp: item.timestamp || item.updated_at || saveTime,
-        source: item.source || 'Sys',
+        source: item.source || def?.source || 'Sys',
+        template: tmplText,
+        example: interpolateExample(tmplText, sampleData),
+        sample_data: sampleData,
         updated_at: saveTime,
       };
     });
     fs.mkdirSync(path.dirname(TEMPLATES_FILE_PATH), { recursive: true });
     fs.writeFileSync(TEMPLATES_FILE_PATH, JSON.stringify(enriched, null, 2), 'utf-8');
+    syncTemplatesToSourceTs(enriched);
     return true;
   } catch (err: any) {
     console.error('[Phase1Templates] Failed to save templates:', err);

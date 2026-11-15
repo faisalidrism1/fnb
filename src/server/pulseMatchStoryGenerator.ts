@@ -2,10 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
 import { fetchMatchesForGw, getCachedMatchesForGw } from './matchesFetcher.ts';
-import { getDbStandings } from './db.ts';
+import { getDbStandings, getOptimalDatabase, getGwSnapshot } from './db.ts';
+import { resolveClubName } from '../utils/clubNameResolver.ts';
 import type { MatchCardItem, MatchPlayerItem } from '../types.ts';
 
-const DB_PATH = path.join(process.cwd(), 'src/data/fpl_database.json');
 const PULSE_BASE = 'https://footballapi.pulselive.com/football';
 const PULSE_HEADERS = {
   'Origin': 'https://www.premierleague.com',
@@ -66,7 +66,7 @@ function normalizeDiacritics(str: string): string {
 /**
  * Loads the FPL player database and ownership data for the target gameweek.
  */
-export function getFplPlayerDirectory(gw = 10): {
+export function getFplPlayerDirectory(gw: number): {
   playersById: Map<number, FplPlayerLookup>;
   allPlayers: FplPlayerLookup[];
 } {
@@ -74,11 +74,8 @@ export function getFplPlayerDirectory(gw = 10): {
   const allPlayers: FplPlayerLookup[] = [];
 
   try {
-    if (!fs.existsSync(DB_PATH)) return { playersById, allPlayers };
-    const raw = fs.readFileSync(DB_PATH, 'utf-8');
-    const db = JSON.parse(raw);
-
-    const snapshot = db.gw_snapshots?.[String(gw)] || db.gw_snapshots?.[gw];
+    const db = getOptimalDatabase();
+    const snapshot = getGwSnapshot(gw);
     const ownershipMap = new Map<number, { pct: number; count: number }>();
 
     if (snapshot && Array.isArray(snapshot.ownership_players)) {
@@ -98,15 +95,17 @@ export function getFplPlayerDirectory(gw = 10): {
         const own = ownershipMap.get(id);
         const entry: FplPlayerLookup = {
           id,
-          webName: p.webName || p.web_name || 'Player',
-          fullName: p.fullName || p.full_name || p.webName || 'Player',
+          webName: p.webName || p.web_name || '',
+          fullName: p.fullName || p.full_name || p.webName || '',
           teamShort: p.teamShort || p.team_short_name || '',
-          position: p.position || 'MID',
+          position: p.position || '',
           ownershipPct: own?.pct ?? 0,
           ownersCount: own?.count ?? 0,
         };
-        playersById.set(id, entry);
-        allPlayers.push(entry);
+        if (entry.webName) {
+          playersById.set(id, entry);
+          allPlayers.push(entry);
+        }
       }
     }
   } catch (err: any) {
@@ -205,6 +204,10 @@ function fillPlaceholders(template: string, vars: Record<string, string | number
  * [Kondisi: ConditionName]
  */
 function resolveConditionalBlock(template: string, conditionName: string, vars: Record<string, string | number>): string {
+  if (!template) return '';
+  if (!/\[Kondisi:\s*[^\]]+\]/i.test(template)) {
+    return fillPlaceholders(template, vars);
+  }
   const lines = template.split('\n');
   const sections: { header: string; lines: string[] }[] = [];
   let currentHeader = '';
@@ -227,8 +230,12 @@ function resolveConditionalBlock(template: string, conditionName: string, vars: 
     sections.push({ header: currentHeader, lines: currentLines });
   }
 
-  const matched = sections.find(s => s.header.toLowerCase() === conditionName.toLowerCase());
-  const body = matched ? matched.lines.join('\n') : (sections[0]?.lines.join('\n') || template);
+  const targetLower = conditionName.toLowerCase();
+  const matched =
+    sections.find((s) => s.header.toLowerCase() === targetLower) ||
+    sections.find((s) => s.header.toLowerCase().includes(targetLower));
+  if (!matched) return '';
+  const body = matched.lines.join('\n');
   return fillPlaceholders(body, vars);
 }
 
@@ -272,7 +279,9 @@ export async function fetchPulseMatch(matchId: number): Promise<any | null> {
  * Loads all active Live Match stories generated from the Subtab Editor Live Match templates.
  * Supports multi-match: scans all pulse_match_*.json files in src/data.
  */
-export async function getAllLiveMatchStories(gw = 10): Promise<LiveMatchStory[]> {
+export async function getAllLiveMatchStories(targetGw?: number): Promise<LiveMatchStory[]> {
+  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  if (!gw) return [];
   try {
     const dataDir = path.join(process.cwd(), 'src/data');
     const allStories: LiveMatchStory[] = [];
@@ -281,15 +290,11 @@ export async function getAllLiveMatchStories(gw = 10): Promise<LiveMatchStory[]>
       for (const file of matchFiles) {
         try {
           const content = JSON.parse(fs.readFileSync(path.join(dataDir, file), 'utf-8'));
-          const stories = generateStoriesFromPulseMatch(content, gw);
-          allStories.push(...stories);
+          if (Number(content?.gameweek?.gameweek) === gw) {
+            const stories = generateStoriesFromPulseMatch(content, gw);
+            allStories.push(...stories);
+          }
         } catch {}
-      }
-    }
-    if (allStories.length === 0) {
-      const pulseData = await fetchPulseMatch(129021);
-      if (pulseData) {
-        allStories.push(...generateStoriesFromPulseMatch(pulseData, gw));
       }
     }
 
@@ -324,9 +329,11 @@ export async function getAllLiveMatchStories(gw = 10): Promise<LiveMatchStory[]>
  */
 export function generateStoriesFromPulseMatch(
   pulseData: any,
-  gw = 10
+  targetGw?: number
 ): LiveMatchStory[] {
   if (!pulseData) return [];
+  const gw = targetGw || Number(pulseData?.gameweek?.gameweek) || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  if (!gw) return [];
 
   const templates = getPhase1Templates();
   const tmplMap = new Map<string, Phase1TemplateItem>();
@@ -338,12 +345,13 @@ export function generateStoriesFromPulseMatch(
 
   const homeTeamRaw = pulseData.teams?.[0]?.team;
   const awayTeamRaw = pulseData.teams?.[1]?.team;
-  const homeClub = homeTeamRaw?.name || 'Home Club';
-  const awayClub = awayTeamRaw?.name || 'Away Club';
-  const homeShort = homeTeamRaw?.club?.abbr || homeTeamRaw?.shortName || 'HOM';
-  const awayShort = awayTeamRaw?.club?.abbr || awayTeamRaw?.shortName || 'AWY';
+  const homeShort = homeTeamRaw?.club?.abbr || homeTeamRaw?.shortName || '';
+  const awayShort = awayTeamRaw?.club?.abbr || awayTeamRaw?.shortName || '';
+  const homeClub = resolveClubName(homeShort || homeTeamRaw?.name) || resolveClubName(homeTeamRaw?.name);
+  const awayClub = resolveClubName(awayShort || awayTeamRaw?.name) || resolveClubName(awayTeamRaw?.name);
+  if (!homeClub || !awayClub) return [];
 
-  const venueName = pulseData.ground?.name || 'The City Ground';
+  const venueName = pulseData.ground?.name || '';
 
   // Build person directory from teamLists
   const pulsePersons = new Map<number, { person: any; teamName: string; teamShort: string; teamId: number }>();
@@ -368,7 +376,7 @@ export function generateStoriesFromPulseMatch(
     fpl: FplPlayerLookup | null;
   } => {
     if (!personId) {
-      return { name: 'Player', pct: 0, club: '', fpl: null };
+      return { name: '', pct: 0, club: '', fpl: null };
     }
     const pInfo = pulsePersons.get(personId);
     const matchedFpl = matchPulsePersonToFpl(pInfo?.person, allPlayers, pInfo?.teamShort);
@@ -376,13 +384,13 @@ export function generateStoriesFromPulseMatch(
       return {
         name: matchedFpl.webName,
         pct: matchedFpl.ownershipPct,
-        club: pInfo?.teamName || matchedFpl.teamShort,
+        club: pInfo?.teamName || resolveClubName(matchedFpl.teamShort),
         fpl: matchedFpl,
       };
     }
-    const fallbackName = pInfo?.person?.name?.display || pInfo?.person?.name?.last || 'Player';
+    const pulseName = pInfo?.person?.name?.last || pInfo?.person?.name?.display || '';
     return {
-      name: fallbackName,
+      name: pulseName,
       pct: 0,
       club: pInfo?.teamName || '',
       fpl: null,
@@ -391,10 +399,36 @@ export function generateStoriesFromPulseMatch(
 
   const stories: LiveMatchStory[] = [];
   const events = Array.isArray(pulseData.events) ? pulseData.events : [];
-  const matchId = pulseData.id || 129021;
+  const matchId = pulseData.id;
+  if (!matchId) return [];
 
-  // Track scorers for Full Time summary
-  const allScorersList: Array<{ name: string; pct: number; count: number }> = [];
+  // Track scorers up to current event (used for both Half Time and Full Time)
+  const allScorersList: Array<{ name: string; pct: number; count: number; ogCount: number }> = [];
+
+  const formatPeriodScorersList = (lang: 'id' | 'en'): string => {
+    if (allScorersList.length === 0) return '';
+    const tokens = allScorersList.map((s) => {
+      if (s.ogCount > 0 && s.count === 0) {
+        return lang === 'id'
+          ? `[P:${s.name}] ([N:${s.pct}%]) [N:(GBD)]`
+          : `[P:${s.name}] ([N:${s.pct}%]) [N:(OG)]`;
+      }
+      const totalG = s.count + s.ogCount;
+      const countSuffix =
+        totalG > 1
+          ? lang === 'id'
+            ? ` [N:(${totalG} Gol)]`
+            : ` [N:(${totalG} Goals)]`
+          : '';
+      return `[P:${s.name}] ([N:${s.pct}%])${countSuffix}`;
+    });
+    const n = tokens.length;
+    if (n === 1) return tokens[0];
+    if (n === 2) return lang === 'id' ? `${tokens[0]} dan ${tokens[1]}` : `${tokens[0]} and ${tokens[1]}`;
+    return lang === 'id'
+      ? `${tokens.slice(0, -1).join(', ')}, dan ${tokens[n - 1]}`
+      : `${tokens.slice(0, -1).join(', ')}, and ${tokens[n - 1]}`;
+  };
 
   for (let idx = 0; idx < events.length; idx++) {
     const ev = events[idx];
@@ -476,18 +510,17 @@ export function generateStoriesFromPulseMatch(
       const tmpl = tmplMap.get('LM_PERIOD_END');
       if (tmpl) {
         const isFt = ev.phase === '2' || ev.phase === '2H' || (ev.clock?.secs && ev.clock.secs >= 5400);
-        const cond = isFt ? 'Full Time' : 'Half Time';
-        
-        // Format scorers string for FT
-        let scorersStr = '';
-        if (allScorersList.length > 0) {
-          scorersStr = allScorersList.map(s => {
-            const countSuffix = s.count > 1 ? ` [N:(${s.count} Gol)]` : '';
-            return `[P:${s.name}] ([N:${s.pct}%])${countSuffix}`;
-          }).join(', ');
-        } else {
-          scorersStr = 'Tidak ada';
-        }
+        const scorersStrId = formatPeriodScorersList('id');
+        const scorersStrEn = formatPeriodScorersList('en');
+        const hasGoals = (Number(homeScore) + Number(awayScore)) > 0 && Boolean(scorersStrId);
+
+        const cond = isFt
+          ? hasGoals
+            ? 'Full Time (Dengan Gol)'
+            : 'Full Time (Tanpa Gol)'
+          : hasGoals
+          ? 'Half Time (Dengan Gol)'
+          : 'Half Time (Tanpa Gol)';
 
         const vars = {
           minute: minuteStr,
@@ -496,12 +529,19 @@ export function generateStoriesFromPulseMatch(
           away_club: awayClub,
           home_score: homeScore,
           away_score: awayScore,
-          goalscorers_list: scorersStr,
+          goalscorers_list: scorersStrId || 'tidak ada',
         };
-        const text = resolveConditionalBlock(tmpl.template, cond, vars);
+        const text =
+          resolveConditionalBlock(tmpl.template, cond, vars) ||
+          resolveConditionalBlock(tmpl.template, isFt ? 'Full Time' : 'Half Time', vars);
+
         const headlineEn = isFt
-          ? `[N:${minuteStr}] Full time at [N:${venueName}]. [C:${homeClub}] [N:${homeScore}] - [N:${awayScore}] [C:${awayClub}]. Goalscorers: ${scorersStr}.`
-          : `[N:${minuteStr}] Half time at [N:${venueName}]. [C:${homeClub}] [N:${homeScore}] - [N:${awayScore}] [C:${awayClub}].`;
+          ? hasGoals
+            ? `[N:${minuteStr}] Full time at [N:${venueName}]. [C:${homeClub}] [N:${homeScore}] - [N:${awayScore}] [C:${awayClub}]. Goalscorers: ${scorersStrEn}.`
+            : `[N:${minuteStr}] Full time at [N:${venueName}]. Goalless draw between [C:${homeClub}] [N:0] - [N:0] [C:${awayClub}].`
+          : hasGoals
+          ? `[N:${minuteStr}] Half time at [N:${venueName}]. [C:${homeClub}] [N:${homeScore}] - [N:${awayScore}] [C:${awayClub}], goals scored by ${scorersStrEn}.`
+          : `[N:${minuteStr}] Half time at [N:${venueName}]. Goalless first half between [C:${homeClub}] [N:0] - [N:0] [C:${awayClub}].`;
 
         stories.push(
           createLiveStory(
@@ -511,8 +551,8 @@ export function generateStoriesFromPulseMatch(
             headlineEn,
             92,
             [homeClub, awayClub],
-            [],
-            ev.clock?.secs ?? 5400
+            allScorersList.map((s) => s.name).filter(Boolean),
+            ev.clock?.secs ?? (isFt ? 5400 : 2700)
           )
         );
       }
@@ -528,9 +568,9 @@ export function generateStoriesFromPulseMatch(
         if (tmpl) {
           const scorer = resolvePlayer(ev.personId);
           // Track scorer
-          const existingScorer = allScorersList.find(s => s.name === scorer.name);
+          const existingScorer = allScorersList.find((s) => s.name === scorer.name);
           if (existingScorer) existingScorer.count++;
-          else allScorersList.push({ name: scorer.name, pct: scorer.pct, count: 1 });
+          else if (scorer.name) allScorersList.push({ name: scorer.name, pct: scorer.pct, count: 1, ogCount: 0 });
 
           const vars = {
             player: scorer.name,
@@ -558,8 +598,12 @@ export function generateStoriesFromPulseMatch(
         }
       } else if (isOwnGoal) {
         const tmpl = tmplMap.get('LM_OWN_GOAL');
+        const scorer = resolvePlayer(ev.personId);
+        const existingScorer = allScorersList.find((s) => s.name === scorer.name);
+        if (existingScorer) existingScorer.ogCount++;
+        else if (scorer.name) allScorersList.push({ name: scorer.name, pct: scorer.pct, count: 0, ogCount: 1 });
+
         if (tmpl) {
-          const scorer = resolvePlayer(ev.personId);
           const vars = {
             player: scorer.name,
             player_pct: scorer.pct,
@@ -593,9 +637,9 @@ export function generateStoriesFromPulseMatch(
           const cond = hasAssist ? 'Dengan Assist' : 'Tanpa Assist';
 
           // Track scorer
-          const existingScorer = allScorersList.find(s => s.name === scorer.name);
+          const existingScorer = allScorersList.find((s) => s.name === scorer.name);
           if (existingScorer) existingScorer.count++;
-          else allScorersList.push({ name: scorer.name, pct: scorer.pct, count: 1 });
+          else if (scorer.name) allScorersList.push({ name: scorer.name, pct: scorer.pct, count: 1, ogCount: 0 });
 
           const vars = {
             club: scorer.club || eventTeamName,
@@ -804,9 +848,12 @@ export function generateStoriesFromPulseMatch(
  * from MatchCardItem data (cached or provided).
  */
 export function generateLiveMatchStatStories(
-  gw = 10,
+  targetGw?: number,
   options?: { includeFinished?: boolean; matchesOverride?: MatchCardItem[] }
 ): LiveMatchStory[] {
+  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  if (!gw) return [];
+
   const matches = options?.matchesOverride ?? getCachedMatchesForGw(gw) ?? [];
   if (!Array.isArray(matches) || matches.length === 0) return [];
 
@@ -824,8 +871,9 @@ export function generateLiveMatchStatStories(
     const isEligibleMatch = m.started && (includeFinished || (!m.finished && !m.finished_provisional));
     if (!isEligibleMatch) continue;
 
-    const homeClub = m.home_team?.name || 'Home';
-    const awayClub = m.away_team?.name || 'Away';
+    const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
+    const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
+    if (!homeClub || !awayClub) continue;
     const minuteStr = m.clock_label || (m.minutes ? `${m.minutes}'` : 'Live');
     const clockSecs = (m.minutes || 0) * 60;
 
@@ -840,7 +888,8 @@ export function generateLiveMatchStatStories(
 
         const dirPlayer = playersById.get(p.id);
         const playerPct = dirPlayer?.ownershipPct ?? 0;
-        const playerName = dirPlayer?.webName || p.web_name || 'Player';
+        const playerName = dirPlayer?.webName || p.web_name;
+        if (!playerName) continue;
 
         // 1. LM_GK_SAVES (Goalkeeper saves >= 3 -> +1 pt per 3 saves)
         if (tmplSaves && p.position === 'GKP') {
@@ -933,9 +982,11 @@ export function generateLiveMatchStatStories(
  * Async wrapper that ensures matches for the target GW are loaded before generating stat stories.
  */
 export async function fetchAndGenerateLiveMatchStatStories(
-  gw = 10,
+  targetGw?: number,
   includeFinished = false
 ): Promise<LiveMatchStory[]> {
+  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  if (!gw) return [];
   try {
     let matches = getCachedMatchesForGw(gw);
     if (!matches || matches.length === 0) {
@@ -956,9 +1007,11 @@ export async function fetchAndGenerateLiveMatchStatStories(
  * from provisional/live standings while matches are in progress.
  */
 export function generateLiveTeamRankShiftStories(
-  gw = 10,
+  targetGw?: number,
   options?: { requireLiveMatch?: boolean; matchesOverride?: MatchCardItem[] }
 ): LiveMatchStory[] {
+  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  if (!gw) return [];
   const templates = getPhase1Templates();
   const tmpl = templates.find((t) => t.id === 'LM_TEAM_RANK_SHIFT');
   if (!tmpl) return [];
@@ -1033,9 +1086,11 @@ export function generateLiveTeamRankShiftStories(
  * for matches currently in progress (including 0-0 and Half Time states).
  */
 export function generateLiveMatchScoreStories(
-  gw = 10,
+  targetGw?: number,
   options?: { includeFinished?: boolean; matchesOverride?: MatchCardItem[] }
 ): LiveMatchStory[] {
+  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  if (!gw) return [];
   const templates = getPhase1Templates();
   const tmpl = templates.find((t) => t.id === 'LM_MATCH_SCORE');
   if (!tmpl) return [];
@@ -1052,8 +1107,9 @@ export function generateLiveMatchScoreStories(
     const isEligible = m.started && (includeFinished || (!m.finished && !m.finished_provisional));
     if (!isEligible) continue;
 
-    const homeClub = m.home_team?.name || 'Home';
-    const awayClub = m.away_team?.name || 'Away';
+    const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
+    const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
+    if (!homeClub || !awayClub) continue;
     const homeScore = m.team_h_score ?? 0;
     const awayScore = m.team_a_score ?? 0;
     const totalGoals = homeScore + awayScore;
@@ -1084,7 +1140,8 @@ export function generateLiveMatchScoreStories(
       seenScorerIds.add(p.id);
 
       const dirPlayer = playersById.get(p.id);
-      const name = dirPlayer?.webName || p.web_name || 'Player';
+      const name = dirPlayer?.webName || p.web_name;
+      if (!name) continue;
       const pct = dirPlayer?.ownershipPct ?? 0;
       scorerNames.push(name);
 

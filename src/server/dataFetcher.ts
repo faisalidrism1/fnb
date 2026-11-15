@@ -1562,14 +1562,21 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
     };
   });
 
-  // Calculate next sync time in WIB
+  // Calculate next sync time in WIB & extract official GW deadlines map
   const nextSyncWIB = computeNextSyncWIB(isMatchdayLive, gwFixtures);
   const nextDeadlineTime = nextEventObj?.deadline_time || currentEventObj?.deadline_time || undefined;
+  const deadlines: Record<number, string> = {};
+  for (const ev of bootstrap.events || []) {
+    if (ev?.id && ev?.deadline_time) {
+      deadlines[Number(ev.id)] = String(ev.deadline_time);
+    }
+  }
 
   const syncStatus: SyncStatus = {
     last_synced: new Date().toISOString(),
     next_sync_wib: nextSyncWIB,
     next_deadline_time: nextDeadlineTime,
+    deadlines,
     is_matchday_live: isMatchdayLive,
     active_fixtures: activeFixtures,
     gw_fixtures: gwFixtures,

@@ -4,7 +4,9 @@ import { generatePhase1Stories } from './phase1StoryGenerator.ts';
 import { generateStoriesFromPulseMatch, generateLiveMatchStatStories, generateLiveTeamRankShiftStories, generateLiveMatchScoreStories } from './pulseMatchStoryGenerator.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
 import { generateConfirmedStories } from './confirmedStoryGenerator.ts';
+import { generateBetweenMatchStories, generateProvisionalStories } from './betweenMatchAndProvisionalGenerator.ts';
 import { getPhase1Templates } from '../data/phase1Templates.ts';
+import { getOptimalDatabase } from './db.ts';
 
 export interface NewsTickerDbRow {
   id: string;
@@ -257,7 +259,7 @@ export function classifyNewsItem(
     };
   }
 
-  // 5. WHAT-IF & KEPUTUSAN MANAJER (Bench, Captaincy, Transfer Karma, Lost Points)
+  // 5. WHAT-IF & KEPUTUSAN TIM (Bench, Captaincy, Transfer Karma, Lost Points)
   if (
     id.startsWith('fb_bench_') ||
     id.startsWith('what_if_bench_') ||
@@ -268,7 +270,7 @@ export function classifyNewsItem(
     t.includes('bench')
   ) {
     return {
-      kategori: 'Keputusan Manajer',
+      kategori: 'Keputusan Tim',
       sub_kategori: 'Bangku Cadangan',
       waktu_tayang: ['Live Match', 'Between Match', 'Provisional', 'Confirmed'],
     };
@@ -284,7 +286,7 @@ export function classifyNewsItem(
     t.includes('captaining')
   ) {
     return {
-      kategori: 'Keputusan Manajer',
+      kategori: 'Keputusan Tim',
       sub_kategori: 'Pilihan Kapten',
       waktu_tayang: ['Live Match', 'Between Match', 'Provisional', 'Confirmed'],
     };
@@ -297,7 +299,7 @@ export function classifyNewsItem(
     t.includes('sold')
   ) {
     return {
-      kategori: 'Keputusan Manajer',
+      kategori: 'Keputusan Tim',
       sub_kategori: 'Transfer Karma',
       waktu_tayang: ['Live Match', 'Between Match', 'Provisional', 'Confirmed'],
     };
@@ -311,7 +313,7 @@ export function classifyNewsItem(
     id.startsWith('what_if_')
   ) {
     return {
-      kategori: 'Keputusan Manajer',
+      kategori: 'Keputusan Tim',
       sub_kategori: 'Peluang Poin Hilang',
       waktu_tayang: ['Live Match', 'Between Match', 'Provisional', 'Confirmed'],
     };
@@ -440,49 +442,29 @@ export function classifyNewsItem(
   };
 }
 
-let cachedLeagueDataMem: any = null;
-let cachedLeagueDataTime = 0;
-
-function getCachedLeagueDataFast(): any {
-  const now = Date.now();
-  if (cachedLeagueDataMem && now - cachedLeagueDataTime < 5000) {
-    return cachedLeagueDataMem;
-  }
-  try {
-    const CACHE_PATH = path.join(process.cwd(), 'src/data/cachedLeagueData.json');
-    if (fs.existsSync(CACHE_PATH)) {
-      cachedLeagueDataMem = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf-8'));
-      cachedLeagueDataTime = now;
-      return cachedLeagueDataMem;
-    }
-  } catch {}
-  return null;
-}
-
 export function getCurrentGw(): number {
-  const d = getCachedLeagueDataFast();
-  if (d && d.current_gw) return Number(d.current_gw);
-  return 9;
+  const db = getOptimalDatabase();
+  return Number(db?.meta?.current_gw) || 0;
 }
 
 export type GameweekPhase = 'Not started' | 'Live' | 'Provisional' | 'Confirmed';
 
 /**
- * Returns the deterministic Gameweek phase based on RULE[AGENTS_md]
+ * Returns the deterministic Gameweek phase based on RULE[AGENTS_md] strictly from db.ts
  */
 export function getGameweekPhase(targetGw?: number): GameweekPhase {
   try {
-    const d = getCachedLeagueDataFast();
-    if (!d) return 'Confirmed';
-    const currentGw = Number(d.current_gw) || 9;
+    const db = getOptimalDatabase();
+    const currentGw = Number(db?.meta?.current_gw) || 0;
     const gw = targetGw || currentGw;
+    if (!currentGw || !gw) return 'Not started';
 
     // Past Gameweeks (gw < currentGw) are 100% final and confirmed
     if (gw < currentGw) return 'Confirmed';
     // Future Gameweeks (gw > currentGw) are not started
     if (gw > currentGw) return 'Not started';
 
-    const statusObj = d.gw_status;
+    const statusObj = db.meta?.gw_status;
     const isDataChecked = Boolean(statusObj?.data_checked);
     const isLeaguesUpdated = statusObj?.leagues_status === 'Updated';
     const statusStr = statusObj?.status || '';
@@ -496,8 +478,8 @@ export function getGameweekPhase(targetGw?: number): GameweekPhase {
       return 'Not started';
     }
 
-    // Check fixtures
-    const gwFixtures = (d.sync_status?.gw_fixtures || []).filter((f: any) => f.event === gw);
+    // Check fixtures stored in Single Truth Source
+    const gwFixtures = (db.meta?.sync_status?.gw_fixtures || []).filter((f: any) => f.event === gw);
     if (gwFixtures.length > 0) {
       const allUpcoming = gwFixtures.every((f: any) => !f.started);
       if (allUpcoming) return 'Not started';
@@ -514,7 +496,7 @@ export function getGameweekPhase(targetGw?: number): GameweekPhase {
     }
 
     if (statusStr === 'Provisional') return 'Provisional';
-    if (statusStr === 'Live' || d.sync_status?.is_matchday_live) return 'Live';
+    if (statusStr === 'Live' || db.meta?.sync_status?.is_matchday_live || db.meta?.is_live) return 'Live';
 
     return 'Provisional';
   } catch {
@@ -585,10 +567,6 @@ export function formatPointsAndRankStatus(
       .replace(/\bprovisional\s+result\b/gi, 'officially confirmed result')
       .replace(/\bprovisional\s+FNB\s+League\s+table\b/gi, 'official FNB League table')
       .replace(/\bleads\s+the\s+provisional\s+Gameweek\b/gi, 'is officially crowned Gameweek');
-
-    if (/Juara\s+Gameweek\s+\[N:\d+\]/i.test(id) && !/\bresmi\b/i.test(id)) {
-      id = id.replace(/(Juara\s+Gameweek\s+\[N:\d+\])/gi, 'resmi sebagai $1 (hasil resmi)');
-    }
   } else if (phase === 'Live' || phase === 'Provisional') {
     // 2. Live / Provisional ("Selain itu"): Provisional results
     id = id
@@ -619,8 +597,8 @@ export function formatPointsAndRankStatus(
       .replace(/\bofficially\s+holds\s+rank\b/gi, 'holds provisional rank')
       .replace(/\bofficially\s+secures\s+rank\b/gi, 'provisionally holds rank');
 
-    if (id.includes('posisi puncak klasemen') && !id.includes('posisi puncak klasemen sementara')) {
-      id = id.replace(/posisi puncak klasemen/gi, 'posisi puncak klasemen sementara');
+    if (id.includes('peringkat teratas klasemen') && !id.includes('peringkat teratas klasemen sementara')) {
+      id = id.replace(/peringkat teratas klasemen/gi, 'peringkat teratas klasemen sementara');
     }
     if (id.includes('peringkat [N:1] klasemen') && !id.includes('peringkat [N:1] klasemen sementara')) {
       id = id.replace(/peringkat \[N:1\] klasemen/gi, 'peringkat [N:1] klasemen sementara');
@@ -631,8 +609,8 @@ export function formatPointsAndRankStatus(
     if (id.includes('peringkat [N:3] klasemen') && !id.includes('peringkat [N:3] klasemen sementara')) {
       id = id.replace(/peringkat \[N:3\] klasemen/gi, 'peringkat [N:3] klasemen sementara');
     }
-    if (/ke\s+posisi\s+\[N:\d+\]\s+klasemen\./i.test(id) && !id.includes('sementara')) {
-      id = id.replace(/ke\s+posisi\s+(\[N:\d+\])\s+klasemen\./gi, 'ke posisi $1 klasemen sementara.');
+    if (/ke\s+peringkat\s+\[N:\d+\]\s+klasemen\./i.test(id) && !id.includes('sementara')) {
+      id = id.replace(/ke\s+peringkat\s+(\[N:\d+\])\s+klasemen\./gi, 'ke peringkat $1 klasemen sementara.');
     }
   }
 
@@ -848,8 +826,6 @@ export function extractGwFromStory(headlineId: string, headlineEn: string, id: s
 export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[] {
   try {
     invalidateEditorTemplateIdCache();
-    cachedLeagueDataMem = null;
-    cachedLeagueDataTime = 0;
     const tableRows: NewsTickerDbRow[] = [];
     const seenIds = new Set<string>();
 
@@ -871,6 +847,7 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       P1_TOP_RIVALRY: 'NS_TOP_RIVALRY',
       P1_MOST_GW_RIVALRY: 'NS_MOST_GW_RIVALRY',
       LM_BOOKING_YELLOW: 'LM_CARD_YELLOW',
+      BM_MATCH_FULL_TIME: 'BM_MATCH_RESULT',
       BM_DISCIPLINARY_RED: 'BM_CARD_RED',
       BM_CHAMP_RIVALRY: 'BM_TOP_RIVALRY',
       PROV_CHAMP_RIVALRY: 'PV_TOP_RIVALRY',
@@ -886,7 +863,6 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       PROV_CLEAN_SHEET_RECAP: 'PV_CLEAN_SHEET_RECAP',
       CONF_TABLE_SUMMIT: 'CF_TOP_RIVALRY',
       CONF_MOST_GW_TITLES: 'CF_MOST_GW_RIVALRY',
-      CONF_FOUR_CHAMPS: 'CF_FOUR_CHAMPS',
       CONF_GW_CHAMPION: 'CF_GW_CHAMPION',
       CONF_TOP_RIVALRY: 'CF_TOP_RIVALRY',
       CONF_MOST_GW_RIVALRY: 'CF_MOST_GW_RIVALRY',
@@ -1066,6 +1042,36 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       }
     } catch (err: any) {
       console.warn('[News Table Service] Warning generating Confirmed stories:', err.message);
+    }
+
+    // 3d. Inject Between Match template stories produced from Editor templates (BM_*)
+    try {
+      const bmStories = generateBetweenMatchStories(feedGw);
+      for (const bm of bmStories) {
+        const records = createStoryRecordsForPhases({
+          ...bm,
+          sumber: (bm.sumber as any) || 'Sys',
+          gw: bm.gw || feedGw,
+        }, bm.gw || feedGw, currentActivePhase);
+        addRows(records);
+      }
+    } catch (err: any) {
+      console.warn('[News Table Service] Warning generating Between Match stories:', err.message);
+    }
+
+    // 3e. Inject Provisional template stories produced from Editor templates (PV_*)
+    try {
+      const pvStories = generateProvisionalStories(feedGw);
+      for (const pv of pvStories) {
+        const records = createStoryRecordsForPhases({
+          ...pv,
+          sumber: (pv.sumber as any) || 'Sys',
+          gw: pv.gw || feedGw,
+        }, pv.gw || feedGw, currentActivePhase);
+        addRows(records);
+      }
+    } catch (err: any) {
+      console.warn('[News Table Service] Warning generating Provisional stories:', err.message);
     }
 
     // Sort by: status_tayang 'Y' first, then timestamp descending

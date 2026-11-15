@@ -70,7 +70,6 @@ const TabAdminNewsTable: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('ALL');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
-  const [selectedSource, setSelectedSource] = useState<string>('ALL');
   const [displayLanguage, setDisplayLanguage] = useState<'id' | 'en'>('id');
 
   // Sorting state
@@ -98,12 +97,13 @@ const TabAdminNewsTable: React.FC = () => {
 
     while (attempt <= maxRetries) {
       try {
-        const url = `/api/admin/news-ticker${isManualRefresh ? '?refresh=1' : ''}`;
+        const url = `/api/admin/news-ticker?${isManualRefresh ? 'refresh=1&' : ''}_t=${Date.now()}`;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 12000);
 
         const res = await fetch(url, {
           signal: controller.signal,
+          cache: 'no-store',
           headers: {
             Accept: 'application/json',
           },
@@ -173,6 +173,16 @@ const TabAdminNewsTable: React.FC = () => {
 
   useEffect(() => {
     fetchTableData();
+    const handleTickerUpdated = () => {
+      try {
+        sessionStorage.removeItem('fnb_news_ticker_admin_cache');
+      } catch {}
+      fetchTableData(false);
+    };
+    window.addEventListener('fnb:news-ticker-updated', handleTickerUpdated);
+    return () => {
+      window.removeEventListener('fnb:news-ticker-updated', handleTickerUpdated);
+    };
   }, [fetchTableData]);
 
   // Copy text helper
@@ -268,15 +278,6 @@ const TabAdminNewsTable: React.FC = () => {
     return { total, active, inactive, sys };
   }, [newsRows]);
 
-  // Unique categories for dropdown filter
-  const categoriesList = useMemo(() => {
-    const set = new Set<string>();
-    newsRows.forEach((r) => {
-      if (r.kategori) set.add(r.kategori);
-    });
-    return Array.from(set).sort();
-  }, [newsRows]);
-
   // Unique GWs for dropdown filter
   const gwsList = useMemo(() => {
     const set = new Set<number>();
@@ -287,27 +288,91 @@ const TabAdminNewsTable: React.FC = () => {
     return Array.from(set).sort((a, b) => a - b);
   }, [newsRows]);
 
-  // Unique Subcategories for dropdown filter (context-aware: filtered by chosen category if selected)
+  // Mutually bound Phases list (constrained by active Category & Subcategory)
+  const phasesList = useMemo(() => {
+    const phaseOrder = ['Not started', 'Live Match', 'Between Match', 'Provisional', 'Confirmed'];
+    const set = new Set<string>();
+    newsRows.forEach((r) => {
+      if (selectedCategory !== 'ALL' && r.kategori !== selectedCategory) return;
+      if (selectedSubcategory !== 'ALL' && r.sub_kategori !== selectedSubcategory) return;
+      if (r.fase) set.add(r.fase);
+    });
+    return Array.from(set).sort((a, b) => {
+      const idxA = phaseOrder.findIndex((p) => p.toLowerCase() === a.toLowerCase());
+      const idxB = phaseOrder.findIndex((p) => p.toLowerCase() === b.toLowerCase());
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return a.localeCompare(b);
+    });
+  }, [newsRows, selectedCategory, selectedSubcategory]);
+
+  // Mutually bound Categories list (constrained by active Phase & Subcategory)
+  const categoriesList = useMemo(() => {
+    const set = new Set<string>();
+    newsRows.forEach((r) => {
+      if (selectedPhase !== 'ALL' && (r.fase || '').toLowerCase() !== selectedPhase.toLowerCase()) return;
+      if (selectedSubcategory !== 'ALL' && r.sub_kategori !== selectedSubcategory) return;
+      if (r.kategori) set.add(r.kategori);
+    });
+    return Array.from(set).sort();
+  }, [newsRows, selectedPhase, selectedSubcategory]);
+
+  // Mutually bound Subcategories list (constrained by active Phase & Category)
   const subcategoriesList = useMemo(() => {
     const set = new Set<string>();
     newsRows.forEach((r) => {
-      if (selectedCategory !== 'ALL' && r.kategori !== selectedCategory) {
-        return;
-      }
+      if (selectedPhase !== 'ALL' && (r.fase || '').toLowerCase() !== selectedPhase.toLowerCase()) return;
+      if (selectedCategory !== 'ALL' && r.kategori !== selectedCategory) return;
       if (r.sub_kategori) set.add(r.sub_kategori);
     });
     return Array.from(set).sort();
-  }, [newsRows, selectedCategory]);
+  }, [newsRows, selectedPhase, selectedCategory]);
 
-  // Unique Phases for dropdown filter
-  const phasesList = useMemo(() => {
-    const defaultPhases = ['Not started', 'Live Match', 'Between Match', 'Provisional', 'Confirmed'];
-    const set = new Set<string>(defaultPhases);
-    newsRows.forEach((r) => {
-      if (r.fase) set.add(r.fase);
-    });
-    return Array.from(set);
-  }, [newsRows]);
+  // Handlers for mutually bound Phase, Category, Subcategory dropdowns
+  const handlePhaseFilterChange = (newPhase: string) => {
+    setSelectedPhase(newPhase);
+    let nextCategory = selectedCategory;
+    if (newPhase !== 'ALL' && selectedCategory !== 'ALL') {
+      const catValid = newsRows.some(
+        (r) => (r.fase || '').toLowerCase() === newPhase.toLowerCase() && r.kategori === selectedCategory
+      );
+      if (!catValid) {
+        nextCategory = 'ALL';
+        setSelectedCategory('ALL');
+      }
+    }
+    if (selectedSubcategory !== 'ALL') {
+      const subValid = newsRows.some(
+        (r) =>
+          (newPhase === 'ALL' || (r.fase || '').toLowerCase() === newPhase.toLowerCase()) &&
+          (nextCategory === 'ALL' || r.kategori === nextCategory) &&
+          r.sub_kategori === selectedSubcategory
+      );
+      if (!subValid) {
+        setSelectedSubcategory('ALL');
+      }
+    }
+  };
+
+  const handleCategoryFilterChange = (newCategory: string) => {
+    setSelectedCategory(newCategory);
+    if (selectedSubcategory !== 'ALL') {
+      const subValid = newsRows.some(
+        (r) =>
+          (selectedPhase === 'ALL' || (r.fase || '').toLowerCase() === selectedPhase.toLowerCase()) &&
+          (newCategory === 'ALL' || r.kategori === newCategory) &&
+          r.sub_kategori === selectedSubcategory
+      );
+      if (!subValid) {
+        setSelectedSubcategory('ALL');
+      }
+    }
+  };
+
+  const handleSubcategoryFilterChange = (newSubcategory: string) => {
+    setSelectedSubcategory(newSubcategory);
+  };
 
   // Badge classes for Gameweek Phase
   const getPhaseBadgeClasses = (phase?: string) => {
@@ -385,11 +450,6 @@ const TabAdminNewsTable: React.FC = () => {
         return false;
       }
 
-      // 6. Source filter
-      if (selectedSource !== 'ALL' && row.sumber !== selectedSource) {
-        return false;
-      }
-
       // 7. Search filter
       if (searchTerm.trim()) {
         const q = searchTerm.toLowerCase().trim();
@@ -461,12 +521,12 @@ const TabAdminNewsTable: React.FC = () => {
 
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [newsRows, selectedGw, selectedPhase, selectedCategory, selectedSubcategory, selectedStatus, selectedSource, searchTerm, sortColumn, sortDirection, displayLanguage]);
+  }, [newsRows, selectedGw, selectedPhase, selectedCategory, selectedSubcategory, selectedStatus, searchTerm, sortColumn, sortDirection, displayLanguage]);
 
   // Reset pagination on filter change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedGw, selectedPhase, selectedCategory, selectedSubcategory, selectedStatus, selectedSource, searchTerm, pageSize, sortColumn, sortDirection]);
+  }, [selectedGw, selectedPhase, selectedCategory, selectedSubcategory, selectedStatus, searchTerm, pageSize, sortColumn, sortDirection]);
 
   // Paginated rows
   const paginatedRows = useMemo(() => {
@@ -612,7 +672,7 @@ const TabAdminNewsTable: React.FC = () => {
           {/* Phase Filter */}
           <select
             value={selectedPhase}
-            onChange={(e) => setSelectedPhase(e.target.value)}
+            onChange={(e) => handlePhaseFilterChange(e.target.value)}
             className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
           >
             <option value="ALL">All Phases</option>
@@ -626,10 +686,7 @@ const TabAdminNewsTable: React.FC = () => {
           {/* Category Filter */}
           <select
             value={selectedCategory}
-            onChange={(e) => {
-              setSelectedCategory(e.target.value);
-              setSelectedSubcategory('ALL');
-            }}
+            onChange={(e) => handleCategoryFilterChange(e.target.value)}
             className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
           >
             <option value="ALL">All Categories</option>
@@ -643,7 +700,7 @@ const TabAdminNewsTable: React.FC = () => {
           {/* Subcategory Filter */}
           <select
             value={selectedSubcategory}
-            onChange={(e) => setSelectedSubcategory(e.target.value)}
+            onChange={(e) => handleSubcategoryFilterChange(e.target.value)}
             className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
           >
             <option value="ALL">All Subcategories</option>
@@ -665,16 +722,6 @@ const TabAdminNewsTable: React.FC = () => {
             <option value="N">Off Air (N)</option>
           </select>
 
-          {/* Source Filter */}
-          <select
-            value={selectedSource}
-            onChange={(e) => setSelectedSource(e.target.value)}
-            className="w-full sm:w-auto px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-[#10051e] border border-slate-300 dark:border-purple-900/60 font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
-          >
-            <option value="ALL">All Sources</option>
-            <option value="Sys">Sys (Editor Template)</option>
-          </select>
-
           {/* Page size select */}
           <select
             value={pageSize}
@@ -689,7 +736,7 @@ const TabAdminNewsTable: React.FC = () => {
           </select>
 
           {/* Reset Filters button */}
-          {(searchTerm || selectedGw !== 'ALL' || selectedPhase !== 'ALL' || selectedCategory !== 'ALL' || selectedSubcategory !== 'ALL' || selectedStatus !== 'ALL' || selectedSource !== 'ALL') && (
+          {(searchTerm || selectedGw !== 'ALL' || selectedPhase !== 'ALL' || selectedCategory !== 'ALL' || selectedSubcategory !== 'ALL' || selectedStatus !== 'ALL') && (
             <button
               type="button"
               onClick={() => {
@@ -699,7 +746,6 @@ const TabAdminNewsTable: React.FC = () => {
                 setSelectedCategory('ALL');
                 setSelectedSubcategory('ALL');
                 setSelectedStatus('ALL');
-                setSelectedSource('ALL');
               }}
               className="text-[#37003c] dark:text-[#00ff87] font-bold hover:underline cursor-pointer whitespace-nowrap px-1"
             >
