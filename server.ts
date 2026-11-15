@@ -1273,9 +1273,10 @@ import {
   resetPhase1Templates,
   Phase1TemplateItem
 } from './src/data/phase1Templates.ts';
-import { generatePhase1Stories } from './src/server/phase1StoryGenerator.ts';
+import { generatePhase1Stories } from './src/server/notStartedStoryGenerator.ts';
 import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.ts';
-import { generateBetweenMatchStories, generateProvisionalStories } from './src/server/betweenMatchAndProvisionalGenerator.ts';
+import { generateBetweenMatchStories } from './src/server/betweenMatchStoryGenerator.ts';
+import { generateProvisionalStories } from './src/server/provisionalStoryGenerator.ts';
 
 // ================= PHASE 1 TEMPLATES API =================
 // 1. Get all Phase 1 templates
@@ -1299,13 +1300,14 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
     const currentGw = getCurrentGw();
     const stories = generatePhase1Stories(currentGw);
     
-    // Also include live match preview stories from Pulse API + live stats (LM_GK_SAVES, LM_DEFCON_BONUS)
+    // Also include live match preview stories from Pulse API + live stats (LM_MATCH_SAVES_GOALKEEPER, LM_MATCH_DEFENSIVE_CONTRIBUTION)
     try {
       const {
         fetchPulseMatch,
         generateStoriesFromPulseMatch,
         fetchAndGenerateLiveMatchStatStories,
-      } = await import('./src/server/pulseMatchStoryGenerator.ts');
+        generateLiveLineupSurpriseStories,
+      } = await import('./src/server/liveMatchStoryGenerator.ts');
       const pulseData = await fetchPulseMatch(129021);
       if (pulseData) {
         const liveStories = generateStoriesFromPulseMatch(pulseData, currentGw);
@@ -1344,6 +1346,25 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
           sumber: ss.sumber,
           status_tayang: ss.status_tayang,
           keterangan_tidak_tayang: ss.keterangan_tidak_tayang,
+        } as any);
+      }
+
+      const liveLineupStories = generateLiveLineupSurpriseStories(currentGw, { includeFinished: true });
+      for (const lls of liveLineupStories) {
+        stories.push({
+          id: lls.id,
+          headline_id: lls.headline_id,
+          headline_en: lls.headline_en,
+          kategori: lls.kategori,
+          sub_kategori: lls.sub_kategori,
+          drama_score: lls.drama_score,
+          waktu_tayang: lls.waktu_tayang,
+          gw: lls.gw,
+          teams: lls.teams,
+          players: lls.players,
+          sumber: lls.sumber,
+          status_tayang: lls.status_tayang,
+          keterangan_tidak_tayang: lls.keterangan_tidak_tayang,
         } as any);
       }
     } catch (err: any) {
@@ -1390,7 +1411,7 @@ app.get('/api/admin/phase1-templates/pulse-live', async (req, res) => {
   try {
     const matchId = req.query.matchId ? Number(req.query.matchId) : 129021;
     const gw = req.query.gw ? Number(req.query.gw) : 10;
-    const { fetchPulseMatch, generateStoriesFromPulseMatch } = await import('./src/server/pulseMatchStoryGenerator.ts');
+    const { fetchPulseMatch, generateStoriesFromPulseMatch } = await import('./src/server/liveMatchStoryGenerator.ts');
     const pulseData = await fetchPulseMatch(matchId);
     if (!pulseData) {
       return res.status(404).json({ success: false, error: `Match ${matchId} not found in Pulse API` });

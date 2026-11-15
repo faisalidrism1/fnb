@@ -203,9 +203,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
       switch (tmpl.id) {
 
         // ====================================================================
-        // CF_GW_CHAMPION (Championship | Gameweek Leader)
+        // CF_STANDINGS_GAMEWEEK_WINNER (Standings | Gameweek | GW Winner)
         // ====================================================================
-        case 'CF_GW_CHAMPION': {
+        case 'CF_STANDINGS_GAMEWEEK_WINNER': {
           if (standings.length >= 2) {
             const sortedByGwPts = [...standings].sort((a, b) => (b.event_points || 0) - (a.event_points || 0));
             const winner = sortedByGwPts[0];
@@ -231,9 +231,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_TOP_RIVALRY (Championship | Top Rivalry)
+        // CF_STANDINGS_TITLE_RACE (Standings | Title Race | Title Race)
         // ====================================================================
-        case 'CF_TOP_RIVALRY': {
+        case 'CF_STANDINGS_TITLE_RACE': {
           if (standings.length >= 2) {
             const sortedStandings = [...standings].sort((a, b) => (a.rank || 0) - (b.rank || 0));
             const leader = sortedStandings[0];
@@ -250,7 +250,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   margin,
                   team_2: chaser.entry_name,
                 }),
-                headlineEn: `At the end of Gameweek [N:${currentGw}], [T:${leader.entry_name}] tops the league standings with [N:${leader.total_points} Pts], holding a [N:${margin} Pts] lead over [T:${chaser.entry_name}] in 2nd place.`,
+                headlineEn: `[T:${leader.entry_name}] leads the league table after Gameweek [N:${currentGw}] with [N:${leader.total_points} Pts], [N:${margin} Pts] ahead of [T:${chaser.entry_name}] in 2nd place.`,
                 dramaScore: 93,
               });
             }
@@ -259,12 +259,12 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_MOST_GW_RIVALRY (Championship | Most GW Rivalry | SINGLE-NEWS)
+        // CF_STANDINGS_WEEKLY_WINS_MOST (Standings | Weekly Wins | Most GW Wins | SINGLE-NEWS)
         // Kondisi sementara s.d. GW N untuk gelar Juara GW Terbanyak Semusim:
         // - Peringkat 1 dan 2 klasemen FNB League dikecualikan
         // - Jika win_count sama, pemenang sementara adalah yang peringkatnya lebih tinggi (rank lebih kecil)
         // ====================================================================
-        case 'CF_MOST_GW_RIVALRY': {
+        case 'CF_STANDINGS_WEEKLY_WINS_MOST': {
           const sortedStandings = [...standings].sort(
             (a, b) => (a.rank || 0) - (b.rank || 0) || (b.total_points || 0) - (a.total_points || 0)
           );
@@ -346,7 +346,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   titles: maxWins,
                   challengers: challengersId,
                 }),
-                headlineEn: `Through Gameweek [N:${currentGw}], [T:${leader.entry_name}] (rank [N:${leader.standingRank}]) leads the race for most weekly titles with [N:${maxWins} Titles], edging ${challengersEn} on league standing.`,
+                headlineEn: `[T:${leader.entry_name}] (rank [N:${leader.standingRank}]) leads the race for most weekly titles through Gameweek [N:${currentGw}] with [N:${maxWins} Titles], edging ${challengersEn} on league standing.`,
                 dramaScore: 90,
               });
             } else if (eligibleTeams.length >= 2) {
@@ -362,14 +362,14 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   rank_2: runnerUp.standingRank,
                   titles_2: runnerUp.win_count,
                 }),
-                headlineEn: `Through Gameweek [N:${currentGw}], [T:${leader.entry_name}] (rank [N:${leader.standingRank}]) leads the race for most weekly titles with [N:${maxWins} Titles], followed by [T:${runnerUp.entry_name}] (rank [N:${runnerUp.standingRank}]) with [N:${runnerUp.win_count} Titles].`,
+                headlineEn: `[T:${leader.entry_name}] (rank [N:${leader.standingRank}]) leads the race for most weekly titles through Gameweek [N:${currentGw}] with [N:${maxWins} Titles], followed by [T:${runnerUp.entry_name}] (rank [N:${runnerUp.standingRank}], [N:${runnerUp.win_count} Titles]).`,
                 dramaScore: 90,
               });
             } else {
               produced.push({
                 id: tmpl.id,
-                headlineId: `Hingga Gameweek [N:${currentGw}], [T:${leader.entry_name}] (peringkat [N:${leader.standingRank}]) sementara memimpin perburuan gelar juara mingguan terbanyak dengan [N:${maxWins} Gelar].`,
-                headlineEn: `Through Gameweek [N:${currentGw}], [T:${leader.entry_name}] (rank [N:${leader.standingRank}]) leads the race for most weekly titles with [N:${maxWins} Titles].`,
+                headlineId: `[T:${leader.entry_name}] (peringkat [N:${leader.standingRank}]) memuncaki perburuan gelar juara mingguan hingga Gameweek [N:${currentGw}] dengan [N:${maxWins} Gelar].`,
+                headlineEn: `[T:${leader.entry_name}] (rank [N:${leader.standingRank}]) leads the race for most weekly titles through Gameweek [N:${currentGw}] with [N:${maxWins} Titles].`,
                 dramaScore: 90,
               });
             }
@@ -378,9 +378,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_RANK_CLIMBER (Championship | Rank Climber | SINGLE-NEWS)
+        // CF_STANDINGS_RANK_BIGGEST_RISE (Standings | Rank | Biggest Rise | SINGLE-NEWS)
         // ====================================================================
-        case 'CF_RANK_CLIMBER': {
+        case 'CF_STANDINGS_RANK_BIGGEST_RISE': {
           const climbers = standings
             .map((s) => ({
               team: s.entry_name,
@@ -405,7 +405,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   old_rank: topClimber.oldRank,
                   new_rank: topClimber.newRank,
                 }),
-                headlineEn: `[T:${topClimber.team}] recorded the highest rank climb in Gameweek [N:${currentGw}], leaping [N:+${topClimber.rankDiff} Places] from rank [N:${topClimber.oldRank}] to rank [N:${topClimber.newRank}].`,
+                headlineEn: `[T:${topClimber.team}] recorded the highest rank climb, leaping [N:+${topClimber.rankDiff} Places] from rank [N:${topClimber.oldRank}] to [N:${topClimber.newRank}].`,
                 dramaScore: 88,
               });
             } else {
@@ -418,7 +418,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   teams_climbers: climbersId,
                   rank_climb: maxClimb,
                 }),
-                headlineEn: `${climbersEn} shared the highest rank climb in Gameweek [N:${currentGw}], each leaping [N:+${maxClimb} Places].`,
+                headlineEn: `${climbersEn} shared the highest rank climb, each leaping [N:+${maxClimb} Places].`,
                 dramaScore: 88,
               });
             }
@@ -427,9 +427,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_PLAYER_OF_THE_GW (Scoring Events | Top Performer | SINGLE-NEWS)
+        // CF_PLAYER_TOP_PERFORMER_GW_SCORER (Player | Top Performer | GW Top Scorer | SINGLE-NEWS)
         // ====================================================================
-        case 'CF_PLAYER_OF_THE_GW': {
+        case 'CF_PLAYER_TOP_PERFORMER_GW_SCORER': {
           const scoredPlayers = Array.from(playerMinutesMap.values())
             .filter((p) => p.points > 0)
             .sort((a, b) => b.points - a.points || b.bonus - a.bonus || b.goals - a.goals || b.assists - a.assists);
@@ -472,9 +472,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_AUTOSUB_OFFICIAL (Starting XI | Autosub Watch | MULTI-NEWS)
+        // CF_LINEUP_AUTOSUB_CONFIRMED (Lineup | Autosub | Confirmed Autosubs | MULTI-NEWS)
         // ====================================================================
-        case 'CF_AUTOSUB_OFFICIAL': {
+        case 'CF_LINEUP_AUTOSUB_CONFIRMED': {
           const foundSubs: { team: string; dnp: string; bench: string; benchPts: number }[] = [];
           const ownershipList: any[] = Array.isArray(snap?.ownership_players) ? snap.ownership_players : [];
 
@@ -535,7 +535,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   team: sub.team,
                   player_dnp: sub.dnp,
                 }),
-                headlineEn: `Automatic substitutions in Gameweek [N:${currentGw}] brought [P:${sub.bench}] ([N:+${sub.benchPts} Pts]) into [T:${sub.team}] starting XI, replacing [P:${sub.dnp}] who did not play.`,
+                headlineEn: `[T:${sub.team}] gained [N:+${sub.benchPts} Pts] via an autosub as [P:${sub.bench}] replaced [P:${sub.dnp}].`,
                 dramaScore: Math.min(92, 84 + Math.floor(sub.benchPts / 2)),
               });
             });
@@ -543,9 +543,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_CAPTAIN_OFFICIAL (Captain | Most Captained | SINGLE-NEWS)
+        // CF_CAPTAIN_POPULAR_MOST_CAPTAINED (Captain | Popular | Most Captained | SINGLE-NEWS)
         // ====================================================================
-        case 'CF_CAPTAIN_OFFICIAL': {
+        case 'CF_CAPTAIN_POPULAR_MOST_CAPTAINED': {
           const validCaps = topCaptains
             .map((cap: any) => {
               const capName = cap.web_name || cap.name;
@@ -576,7 +576,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   count: cap.count,
                   captain_pts: cap.captainPts,
                 }),
-                headlineEn: `The most captained player in the league for Gameweek [N:${currentGw}], [P:${cap.name}] ([N:${cap.count}] teams), finished the week with [N:${cap.captainPts} Pts] after bonus points were added.`,
+                headlineEn: `[P:${cap.name}] was the most captained player ([N:${cap.count}] teams) and finished the week with [N:${cap.captainPts} Pts].`,
                 dramaScore: 87,
               });
             } else {
@@ -589,7 +589,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   captains_list: listId,
                   count: maxCount,
                 }),
-                headlineEn: `${listEn} tied as the most captained players in Gameweek [N:${currentGw}], each backed by [N:${maxCount}] teams.`,
+                headlineEn: `${listEn} tied as the most captained players, each backed by [N:${maxCount}] teams.`,
                 dramaScore: 87,
               });
             }
@@ -626,7 +626,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   total_pts: capTotalPts,
                   captain: capName,
                 }),
-                headlineEn: `Activating [N:Triple Captain] in Gameweek [N:${currentGw}], [T:${teamName}] collected [N:${capTotalPts} Pts] from captain [P:${capName}].`,
+                headlineEn: `[T:${teamName}] collected [N:${capTotalPts} Pts] from captain [P:${capName}] via [N:Triple Captain].`,
                 dramaScore: 91,
               });
             }
@@ -658,7 +658,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   team: teamName,
                   bench_pts: realBenchPts,
                 }),
-                headlineEn: `Activating [N:Bench Boost] in Gameweek [N:${currentGw}], [T:${teamName}] added [N:${realBenchPts} Pts] from all four bench players.`,
+                headlineEn: `[T:${teamName}] added [N:${realBenchPts} Pts] from the bench via [N:Bench Boost].`,
                 dramaScore: 90,
               });
             }
@@ -691,7 +691,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   team: teamName,
                   gw_pts: gwPts,
                 }),
-                headlineEn: `Activating [N:Wildcard] in Gameweek [N:${currentGw}], [T:${teamName}] finished the week with [N:${gwPts} Pts].`,
+                headlineEn: `[T:${teamName}] finished the week with [N:${gwPts} Pts] via [N:Wildcard].`,
                 dramaScore: 88,
               });
             }
@@ -700,9 +700,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_CHIP_FREEHIT (Chip | Free Hit | MULTI-NEWS)
+        // CF_CHIP_FREE_HIT (Chip | Free Hit | MULTI-NEWS)
         // ====================================================================
-        case 'CF_CHIP_FREEHIT': {
+        case 'CF_CHIP_FREE_HIT': {
           const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
             ? dbData.league_analytics.all_chips_used
             : [];
@@ -724,7 +724,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   team: teamName,
                   gw_pts: gwPts,
                 }),
-                headlineEn: `Activating [N:Free Hit] in Gameweek [N:${currentGw}], [T:${teamName}] finished the week with [N:${gwPts} Pts].`,
+                headlineEn: `[T:${teamName}] finished the week with [N:${gwPts} Pts] via [N:Free Hit].`,
                 dramaScore: 88,
               });
             }
@@ -733,9 +733,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_HITS_DEDUCTED (Hits | Most Hits | MULTI-NEWS)
+        // CF_TRANSFER_HITS_DEDUCTED (Transfer | Hits | Hits Deducted | MULTI-NEWS)
         // ====================================================================
-        case 'CF_HITS_DEDUCTED': {
+        case 'CF_TRANSFER_HITS_DEDUCTED': {
           const hitsTeams = standings
             .filter((s) => (s.event_transfers_cost || 0) > 0)
             .sort((a, b) => (b.event_transfers_cost || 0) - (a.event_transfers_cost || 0))
@@ -751,7 +751,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                 team: topHit.entry_name,
                 transfers_count: transfersEstimated,
               }),
-              headlineEn: `[T:${topHit.entry_name}] had [N:-${topHit.event_transfers_cost} Pts] deducted in Gameweek [N:${currentGw}] after making [N:${transfersEstimated} Transfers].`,
+              headlineEn: `[T:${topHit.entry_name}] had [N:-${topHit.event_transfers_cost} Pts] deducted after making [N:${transfersEstimated} Transfers].`,
               dramaScore: Math.max(82, 87 - idx),
             });
           });
@@ -759,9 +759,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_TRANSFER_KARMA (Transfer | Transfer Karma | MULTI-NEWS)
+        // CF_TRANSFER_OUT_SOLD_HAULERS (Transfer | Transfers Out | Sold Haulers | MULTI-NEWS)
         // ====================================================================
-        case 'CF_TRANSFER_KARMA': {
+        case 'CF_TRANSFER_OUT_SOLD_HAULERS': {
           if (!rawPayload) break;
           const multiGroups = (rawPayload.crossTeamPlayerDrama || [])
             .filter((d) => d.category === 'Transfer' && d.teamCount >= 2)
@@ -781,7 +781,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                 points: grp.playerPts,
                 gw: currentGw,
               }),
-              headlineEn: `${teamsEn} all sold [P:${grp.player}] ([C:${clubResolved}]), who went on to score [N:${grp.playerPts} Pts] in Gameweek [N:${currentGw}].`,
+              headlineEn: `${teamsEn} sold [P:${grp.player}] ([C:${clubResolved}]), who went on to score [N:${grp.playerPts} Pts].`,
               dramaScore: Math.min(96, 84 + Math.min(8, grp.teamCount) + Math.min(4, Math.floor(grp.playerPts / 3))),
             });
           });
@@ -821,7 +821,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   player_in: c.playerIn,
                   in_points: c.inPts,
                 }),
-                headlineEn: `[T:${c.team}] sold [P:${c.playerOut}] ([C:${c.club}]) who scored [N:${c.outPts} Pts] in Gameweek [N:${currentGw}], while replacement [P:${c.playerIn}] earned [N:${c.inPts} Pts].`,
+                headlineEn: `[T:${c.team}] sold [P:${c.playerOut}] ([C:${c.club}]) who scored [N:${c.outPts} Pts], while replacement [P:${c.playerIn}] earned [N:${c.inPts} Pts].`,
                 dramaScore: Math.min(92, 82 + Math.floor(c.delta / 2)),
               });
             }
@@ -830,10 +830,10 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_CAPTAIN_REGRET (Captain | Captain Regret | MULTI-NEWS)
+        // CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL (Captain | Alternative | Missed Captain Haul | MULTI-NEWS)
         // Strictly compares MID/FWD alternatives only (enforced by newsAggregator)
         // ====================================================================
-        case 'CF_CAPTAIN_REGRET': {
+        case 'CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL': {
           if (!rawPayload) break;
           const multiGroups = (rawPayload.crossTeamPlayerDrama || [])
             .filter((d) => d.category === 'Captaincy' && d.teamCount >= 2)
@@ -853,7 +853,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                 points: grp.playerPts,
                 gw: currentGw,
               }),
-              headlineEn: `${teamsEn} owned [P:${grp.player}] ([C:${clubResolved}]) who scored [N:${grp.playerPts} Pts] in Gameweek [N:${currentGw}], but opted not to captain him.`,
+              headlineEn: `${teamsEn} fielded [P:${grp.player}] ([C:${clubResolved}]) who scored [N:${grp.playerPts} Pts], without captaining him.`,
               dramaScore: Math.min(96, 84 + Math.min(8, Math.floor(grp.teamCount / 3)) + Math.min(4, Math.floor(grp.playerPts / 3))),
             });
           });
@@ -887,7 +887,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   club: clubResolved,
                   points: w.alternativePts,
                 }),
-                headlineEn: `[T:${w.team}] entrusted the captaincy to [P:${actualCaptainName}] ([N:${actualCaptainBasePts} Pts]) in Gameweek [N:${currentGw}], while [P:${w.player}] ([C:${clubResolved}]) in their starting lineup scored [N:${w.alternativePts} Pts].`,
+                headlineEn: `[T:${w.team}] captained [P:${actualCaptainName}] ([N:${actualCaptainBasePts} Pts]) instead of [P:${w.player}] ([C:${clubResolved}]) who scored [N:${w.alternativePts} Pts].`,
                 dramaScore: Math.min(91, 82 + Math.floor(w.netDeltaPts / 2)),
               });
             }
@@ -896,9 +896,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_RANK_FALLER (Championship | Rank Faller | MULTI-NEWS)
+        // CF_STANDINGS_RANK_BIGGEST_DROP (Standings | Rank | Biggest Drop | MULTI-NEWS)
         // ====================================================================
-        case 'CF_RANK_FALLER': {
+        case 'CF_STANDINGS_RANK_BIGGEST_DROP': {
           const fallers = [...standings]
             .map((s) => ({
               team: s.entry_name,
@@ -922,7 +922,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                 new_rank: f.toRank,
                 gw_pts: f.gwPts,
               }),
-              headlineEn: `[T:${f.team}] dropped [N:-${f.fallSteps} Places] in the Gameweek [N:${currentGw}] standings, sliding from rank [N:${f.fromRank}] to rank [N:${f.toRank}] after scoring [N:${f.gwPts} Pts].`,
+              headlineEn: `[T:${f.team}] dropped [N:-${f.fallSteps} Places] from rank [N:${f.fromRank}] to [N:${f.toRank}] after scoring [N:${f.gwPts} Pts].`,
               dramaScore: Math.min(92, 82 + Math.floor(f.fallSteps / 3)),
             });
           });
@@ -930,10 +930,10 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_SUMMIT_COUP (Championship | Summit Coup | SINGLE-NEWS)
+        // CF_STANDINGS_TITLE_RACE_LEAD_CHANGE (Standings | Title Race | Lead Change | SINGLE-NEWS)
         // Emitted ONLY if rank 1 actually changed hands (coupOccurred === true)
         // ====================================================================
-        case 'CF_SUMMIT_COUP': {
+        case 'CF_STANDINGS_TITLE_RACE_LEAD_CHANGE': {
           const sortedStandings = [...standings].sort((a, b) => (a.rank || 0) - (b.rank || 0));
           const rank1 = sortedStandings[0];
           const rank2 = sortedStandings[1];
@@ -955,7 +955,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                 former_new_rank: formerLeader.rank,
                 margin,
               }),
-              headlineEn: `The league summit changed hands in Gameweek [N:${currentGw}] as [T:${rank1.entry_name}] climbed from rank [N:${r1LastRank}] to 1st place, overtaking [T:${formerLeader.entry_name}] (now rank [N:${formerLeader.rank}]) by [N:${margin} Pts].`,
+              headlineEn: `[T:${rank1.entry_name}] climbed from rank [N:${r1LastRank}] to claim 1st place, overtaking [T:${formerLeader.entry_name}] (now rank [N:${formerLeader.rank}]) by [N:${margin} Pts].`,
               dramaScore: 98,
             });
           }
@@ -963,10 +963,10 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_RIVALRY_DUEL (Championship | Rivalry Duel | MULTI-NEWS)
+        // CF_STANDINGS_TITLE_RACE_POINTS_GAP (Standings | Title Race | Points Gap | MULTI-NEWS)
         // Tight battles (gap <= 3 pts) among top 20, excluding #1 vs #2 pair
         // ====================================================================
-        case 'CF_RIVALRY_DUEL': {
+        case 'CF_STANDINGS_TITLE_RACE_POINTS_GAP': {
           const sortedTop20 = [...standings]
             .sort((a, b) => (a.rank || 0) - (b.rank || 0))
             .slice(0, 20);
@@ -986,7 +986,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
             const t2 = sortedTop20[i + 1];
             const r1 = Number(t1.rank || i + 1);
             const r2 = Number(t2.rank || i + 2);
-            // Exclude #1 vs #2 which is dedicated to CF_TOP_RIVALRY
+            // Exclude #1 vs #2 which is dedicated to CF_STANDINGS_TITLE_RACE
             if (r1 === 1 && r2 === 2) continue;
 
             const pts1 = Number(t1.total_points || 0);
@@ -1021,8 +1021,8 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                 gap: d.gap,
               }),
               headlineEn: isTied
-                ? `In the Gameweek [N:${currentGw}] standings, rank [N:${d.rank1}] [T:${d.team1}] and rank [N:${d.rank2}] [T:${d.team2}] sit level on [N:${d.pts1} Pts].`
-                : `In the Gameweek [N:${currentGw}] standings, rank [N:${d.rank1}] [T:${d.team1}] ([N:${d.pts1} Pts]) and rank [N:${d.rank2}] [T:${d.team2}] ([N:${d.pts2} Pts]) are separated by [N:${d.gap} Pts].`,
+                ? `[T:${d.team1}] (rank [N:${d.rank1}]) and [T:${d.team2}] (rank [N:${d.rank2}]) sit level on [N:${d.pts1} Pts].`
+                : `[T:${d.team1}] (rank [N:${d.rank1}], [N:${d.pts1} Pts]) leads [T:${d.team2}] (rank [N:${d.rank2}], [N:${d.pts2} Pts]) by [N:${d.gap} Pts].`,
               dramaScore: isTied ? 93 : Math.max(85, 92 - d.gap * 2),
             });
           });
@@ -1030,9 +1030,9 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         }
 
         // ====================================================================
-        // CF_BENCH_POINTS (Starting XI | Bench Points | MULTI-NEWS)
+        // CF_LINEUP_BENCH_POINTS (Lineup | Bench | Points on Bench | MULTI-NEWS)
         // ====================================================================
-        case 'CF_BENCH_POINTS': {
+        case 'CF_LINEUP_BENCH_POINTS': {
           if (!rawPayload) break;
           const multiGroups = (rawPayload.crossTeamPlayerDrama || [])
             .filter((d) => d.category === 'Bench' && d.teamCount >= 2)
@@ -1052,7 +1052,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                 points: grp.playerPts,
                 gw: currentGw,
               }),
-              headlineEn: `${teamsEn} left [P:${grp.player}] ([C:${clubResolved}]) on the bench when he scored [N:${grp.playerPts} Pts] in Gameweek [N:${currentGw}].`,
+              headlineEn: `${teamsEn} benched [P:${grp.player}] ([C:${clubResolved}]) as he scored [N:${grp.playerPts} Pts].`,
               dramaScore: Math.min(93, 82 + Math.min(6, grp.teamCount) + Math.min(4, Math.floor(grp.playerPts / 3))),
             });
           });
@@ -1078,7 +1078,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   points: w.alternativePts,
                   gw: currentGw,
                 }),
-                headlineEn: `[T:${w.team}] kept [P:${w.player}] ([C:${clubResolved}]) on the bench despite his [N:${w.alternativePts} Pts] in Gameweek [N:${currentGw}].`,
+                headlineEn: `[T:${w.team}] benched [P:${w.player}] ([C:${clubResolved}]) as he scored [N:${w.alternativePts} Pts].`,
                 dramaScore: Math.min(89, 80 + Math.floor(w.netDeltaPts / 2)),
               });
             }

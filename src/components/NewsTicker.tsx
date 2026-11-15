@@ -134,18 +134,6 @@ const getSavedPoolIdx = (): number => {
 
       if (!raw) return '';
 
-      // Look for a title prefix before colon (e.g. "Kudeta Tahta: ...")
-      // Ensure colon is early and prefix does not contain tags or opening parenthesis
-      const colonIdx = raw.indexOf(': ');
-      if (colonIdx !== -1 && colonIdx <= 35) {
-        const prefix = raw.substring(0, colonIdx);
-        const openBrackets = (prefix.match(/\[/g) || []).length;
-        const closeBrackets = (prefix.match(/\]/g) || []).length;
-        if (openBrackets === closeBrackets && !prefix.includes('[T:') && !prefix.includes('[P:') && !prefix.includes('(')) {
-          raw = raw.substring(colonIdx + 2).trim();
-        }
-      }
-
       // Replace all exclamation marks with period
       raw = raw.replace(/!+/g, '.');
 

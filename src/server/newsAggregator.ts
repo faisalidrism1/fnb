@@ -800,13 +800,13 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
       let consolidatedInsight = '';
 
       if (grp.category === 'Captaincy') {
-        consolidatedInsight = `${teamsTagged} sama-sama kehilangan potensi poin karena tidak memilih ${playerStr} yang meraih [N:${actualIndividualPts}] poin sebagai kapten di pekan ini.`;
+        consolidatedInsight = `${teamsTagged} kehilangan potensi poin karena tidak memilih ${playerStr} yang meraih [N:${actualIndividualPts}] poin sebagai kapten di Gameweek ini.`;
       } else if (grp.category === 'Bench') {
-        consolidatedInsight = `${teamsTagged} sama-sama menyesali keputusan mencadangkan ${playerStr} yang menyumbang [N:${actualIndividualPts}] poin dari bangku cadangan.`;
+        consolidatedInsight = `${teamsTagged} mencadangkan ${playerStr} yang mengemas [N:${actualIndividualPts}] poin di bangku cadangan.`;
       } else {
-        // KARMA TRANSFER:
-        // Poin pemain tetap ditampilkan sesuai poin pemain tanpa dikalikan jumlah tim yang kena karma!
-        consolidatedInsight = `${teamsTagged} sama-sama merugi setelah menjual ${playerStr} yang meraih [N:${actualIndividualPts}] poin di pekan ini.`;
+        // TRANSFER OUT HAULER:
+        // Poin pemain tetap ditampilkan sesuai poin pemain tanpa dikalikan jumlah tim!
+        consolidatedInsight = `${teamsTagged} melepas ${playerStr} sebelum sang pemain meraih [N:${actualIndividualPts}] poin di Gameweek ini.`;
       }
 
       crossTeamPlayerDrama.push({

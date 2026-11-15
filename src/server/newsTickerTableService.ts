@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { generatePhase1Stories } from './phase1StoryGenerator.ts';
-import { generateStoriesFromPulseMatch, generateLiveMatchStatStories, generateLiveTeamRankShiftStories, generateLiveMatchScoreStories } from './pulseMatchStoryGenerator.ts';
+import { generatePhase1Stories } from './notStartedStoryGenerator.ts';
+import { generateStoriesFromPulseMatch, generateLiveMatchStatStories, generateLiveTeamRankShiftStories, generateLiveMatchScoreStories, generateLiveLineupSurpriseStories } from './liveMatchStoryGenerator.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
 import { generateConfirmedStories } from './confirmedStoryGenerator.ts';
-import { generateBetweenMatchStories, generateProvisionalStories } from './betweenMatchAndProvisionalGenerator.ts';
+import { generateBetweenMatchStories } from './betweenMatchStoryGenerator.ts';
+import { generateProvisionalStories } from './provisionalStoryGenerator.ts';
 import { getPhase1Templates } from '../data/phase1Templates.ts';
 import { getOptimalDatabase } from './db.ts';
 
@@ -300,7 +301,7 @@ export function classifyNewsItem(
   ) {
     return {
       kategori: 'Keputusan Tim',
-      sub_kategori: 'Transfer Karma',
+      sub_kategori: 'Sold Haulers',
       waktu_tayang: ['Live Match', 'Between Match', 'Provisional', 'Confirmed'],
     };
   }
@@ -830,52 +831,127 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
     const seenIds = new Set<string>();
 
     const LEGACY_TEMPLATE_ID_MAP: Record<string, string> = {
-      P1_MATCH_FIXTURES: 'NS_MATCH_FIXTURE',
+      // Very old P1_* / PROV_* / CONF_* prefixes
+      P1_MATCH_FIXTURES: 'NS_MATCH_FIXTURE_OPENING',
       P1_CHIP_WILDCARD: 'NS_CHIP_WILDCARD',
-      P1_CHIP_FREEHIT: 'NS_CHIP_FREEHIT',
+      P1_CHIP_FREEHIT: 'NS_CHIP_FREE_HIT',
       P1_CHIP_BENCH_BOOST: 'NS_CHIP_BENCH_BOOST',
       P1_CHIP_TRIPLE_CAPTAIN: 'NS_CHIP_TRIPLE_CAPTAIN',
-      P1_CHIP_RECAP: 'NS_CHIP_RECAP',
-      P1_TRANSFER_IN: 'NS_TRANSFER_IN',
-      P1_TRANSFER_OUT: 'NS_TRANSFER_OUT',
-      P1_CAPTAINCY_RECAP: 'NS_CAPTAIN_RECAP',
-      P1_HITS_RECAP: 'NS_HITS_RECAP',
-      P1_OWNERSHIP_MOST_OWNED: 'NS_MOST_OWNED',
-      P1_DIFFERENTIAL_XI: 'NS_DIFFERENTIAL_XI',
-      P1_DIFFERENTIAL_CAPTAIN: 'NS_DIFFERENTIAL_CAPTAIN',
-      P1_INJURY_UPDATE: 'NS_INJURY_UPDATE',
-      P1_TOP_RIVALRY: 'NS_TOP_RIVALRY',
-      P1_MOST_GW_RIVALRY: 'NS_MOST_GW_RIVALRY',
-      LM_BOOKING_YELLOW: 'LM_CARD_YELLOW',
-      BM_MATCH_FULL_TIME: 'BM_MATCH_RESULT',
-      BM_DISCIPLINARY_RED: 'BM_CARD_RED',
-      BM_CHAMP_RIVALRY: 'BM_TOP_RIVALRY',
-      PROV_CHAMP_RIVALRY: 'PV_TOP_RIVALRY',
-      PROV_TOP_RIVALRY: 'PV_TOP_RIVALRY',
-      PROV_GW_LEADER: 'PV_GW_LEADER',
-      PROV_TOP_SCORER_GW: 'PV_TOP_SCORER_GW',
-      PROV_CAPTAIN_RECAP: 'PV_CAPTAIN_RECAP',
-      PROV_VICE_CAPTAIN: 'PV_VICE_CAPTAIN',
-      PROV_AUTOSUB_PENDING: 'PV_AUTOSUB_PENDING',
-      PROV_BENCH_POINTS: 'PV_BENCH_POINTS',
+      P1_CHIP_RECAP: 'NS_CHIP_SUMMARY_USAGE',
+      P1_TRANSFER_IN: 'NS_TRANSFER_IN_MOST_BOUGHT',
+      P1_TRANSFER_OUT: 'NS_TRANSFER_OUT_MOST_SOLD',
+      P1_CAPTAINCY_RECAP: 'NS_CAPTAIN_POPULAR_MOST_CAPTAINED',
+      P1_HITS_RECAP: 'NS_TRANSFER_HITS_MOST',
+      P1_OWNERSHIP_MOST_OWNED: 'NS_PLAYER_OWNERSHIP_MOST_OWNED',
+      P1_DIFFERENTIAL_XI: 'NS_LINEUP_DIFFERENTIAL_XI',
+      P1_DIFFERENTIAL_CAPTAIN: 'NS_CAPTAIN_DIFFERENTIAL',
+      P1_INJURY_UPDATE: 'NS_PLAYER_AVAILABILITY_FLAGGED',
+      P1_TOP_RIVALRY: 'NS_STANDINGS_TITLE_RACE',
+      P1_MOST_GW_RIVALRY: 'NS_STANDINGS_WEEKLY_WINS_MOST',
+      LM_BOOKING_YELLOW: 'LM_MATCH_CARD_YELLOW',
+      BM_MATCH_FULL_TIME: 'BM_MATCH_SCORE_RESULT',
+      BM_DISCIPLINARY_RED: 'BM_MATCH_CARD_RED',
+      BM_CHAMP_RIVALRY: 'BM_STANDINGS_TITLE_RACE',
+      PROV_CHAMP_RIVALRY: 'PV_STANDINGS_TITLE_RACE',
+      PROV_TOP_RIVALRY: 'PV_STANDINGS_TITLE_RACE',
+      PROV_GW_LEADER: 'PV_STANDINGS_GAMEWEEK_LEADER',
+      PROV_TOP_SCORER_GW: 'PV_PLAYER_TOP_PERFORMER',
+      PROV_CAPTAIN_RECAP: 'PV_CAPTAIN_POPULAR_MOST_CAPTAINED',
+      PROV_VICE_CAPTAIN: 'PV_CAPTAIN_VICE_CAPTAIN',
+      PROV_AUTOSUB_PENDING: 'PV_LINEUP_AUTOSUB_PENDING',
+      PROV_BENCH_POINTS: 'PV_LINEUP_BENCH_TOTAL',
       PROV_CHIP_RETURN: 'PV_CHIP_RETURN',
-      PROV_HITS_EVALUATION: 'PV_HITS_EVALUATION',
-      PROV_CLEAN_SHEET_RECAP: 'PV_CLEAN_SHEET_RECAP',
-      CONF_TABLE_SUMMIT: 'CF_TOP_RIVALRY',
-      CONF_MOST_GW_TITLES: 'CF_MOST_GW_RIVALRY',
-      CONF_GW_CHAMPION: 'CF_GW_CHAMPION',
-      CONF_TOP_RIVALRY: 'CF_TOP_RIVALRY',
-      CONF_MOST_GW_RIVALRY: 'CF_MOST_GW_RIVALRY',
-      CONF_RANK_CLIMBER: 'CF_RANK_CLIMBER',
-      CONF_PLAYER_OF_THE_GW: 'CF_PLAYER_OF_THE_GW',
-      CONF_AUTOSUB_OFFICIAL: 'CF_AUTOSUB_OFFICIAL',
-      CONF_CAPTAIN_OFFICIAL: 'CF_CAPTAIN_OFFICIAL',
-      CONF_CHIP_OFFICIAL: 'CF_CHIP_OFFICIAL',
-      CONF_HITS_DEDUCTED: 'CF_HITS_DEDUCTED',
+      PROV_HITS_EVALUATION: 'PV_TRANSFER_HITS_EVALUATION',
+      PROV_CLEAN_SHEET_RECAP: 'PV_MATCH_CLEAN_SHEET',
+      CONF_TABLE_SUMMIT: 'CF_STANDINGS_TITLE_RACE',
+      CONF_MOST_GW_TITLES: 'CF_STANDINGS_WEEKLY_WINS_MOST',
+      CONF_GW_CHAMPION: 'CF_STANDINGS_GAMEWEEK_WINNER',
+      CONF_TOP_RIVALRY: 'CF_STANDINGS_TITLE_RACE',
+      CONF_MOST_GW_RIVALRY: 'CF_STANDINGS_WEEKLY_WINS_MOST',
+      CONF_RANK_CLIMBER: 'CF_STANDINGS_RANK_BIGGEST_RISE',
+      CONF_PLAYER_OF_THE_GW: 'CF_PLAYER_TOP_PERFORMER_GW_SCORER',
+      CONF_AUTOSUB_OFFICIAL: 'CF_LINEUP_AUTOSUB_CONFIRMED',
+      CONF_CAPTAIN_OFFICIAL: 'CF_CAPTAIN_POPULAR_MOST_CAPTAINED',
+      CONF_CHIP_OFFICIAL: 'CONF_CHIP_OFFICIAL',
+      CONF_HITS_DEDUCTED: 'CF_TRANSFER_HITS_DEDUCTED',
+      // Pre-alignment template IDs -> aligned Category/Subcategory/Title IDs
+      NS_MATCH_FIXTURE: 'NS_MATCH_FIXTURE_OPENING',
+      NS_CHIP_FREEHIT: 'NS_CHIP_FREE_HIT',
+      NS_CHIP_RECAP: 'NS_CHIP_SUMMARY_USAGE',
+      NS_TRANSFER_IN: 'NS_TRANSFER_IN_MOST_BOUGHT',
+      NS_TRANSFER_OUT: 'NS_TRANSFER_OUT_MOST_SOLD',
+      NS_CAPTAIN_RECAP: 'NS_CAPTAIN_POPULAR_MOST_CAPTAINED',
+      NS_HITS_RECAP: 'NS_TRANSFER_HITS_MOST',
+      NS_MOST_OWNED: 'NS_PLAYER_OWNERSHIP_MOST_OWNED',
+      NS_DIFFERENTIAL_XI: 'NS_LINEUP_DIFFERENTIAL_XI',
+      NS_DIFFERENTIAL_CAPTAIN: 'NS_CAPTAIN_DIFFERENTIAL',
+      NS_INJURY_UPDATE: 'NS_PLAYER_AVAILABILITY_FLAGGED',
+      NS_TOP_RIVALRY: 'NS_STANDINGS_TITLE_RACE',
+      NS_MOST_GW_RIVALRY: 'NS_STANDINGS_WEEKLY_WINS_MOST',
+      LM_PERIOD_START: 'LM_MATCH_PERIOD_START',
+      LM_PERIOD_END: 'LM_MATCH_PERIOD_END',
+      LM_GOAL_OPEN_PLAY: 'LM_MATCH_GOAL_OPEN_PLAY',
+      LM_GOAL_PENALTY: 'LM_MATCH_PENALTY_GOAL',
+      LM_OWN_GOAL: 'LM_MATCH_GOAL_OWN',
+      LM_PENALTY_MISSED: 'LM_MATCH_PENALTY_MISSED',
+      LM_PENALTY_SAVED: 'LM_MATCH_PENALTY_SAVED',
+      LM_PENALTY_AWARDED: 'LM_MATCH_PENALTY_AWARDED',
+      LM_CARD_YELLOW: 'LM_MATCH_CARD_YELLOW',
+      LM_CARD_SECOND_YELLOW: 'LM_MATCH_CARD_SECOND_YELLOW',
+      LM_CARD_RED_STRAIGHT: 'LM_MATCH_CARD_STRAIGHT_RED',
+      LM_SUBSTITUTION: 'LM_MATCH_SUBSTITUTION',
+      LM_VAR_REVIEW: 'LM_MATCH_VAR_REVIEW',
+      LM_GK_SAVES: 'LM_MATCH_SAVES_GOALKEEPER',
+      LM_DEFCON_BONUS: 'LM_MATCH_DEFENSIVE_CONTRIBUTION',
+      LM_TEAM_RANK_SHIFT: 'LM_STANDINGS_RANK_MOVEMENT',
+      LM_MATCH_SCORE: 'LM_MATCH_SCORE_LIVE',
+      BM_MATCH_RESULT: 'BM_MATCH_SCORE_RESULT',
+      BM_MATCH_FIXTURE: 'BM_MATCH_FIXTURE_NEXT',
+      BM_GOAL_CONTRIBUTORS: 'BM_MATCH_GOAL_CONTRIBUTORS',
+      BM_BONUS_POINTS_STAR: 'BM_MATCH_BONUS_POINTS',
+      BM_PENALTY_SAVED: 'BM_MATCH_PENALTY_SAVED',
+      BM_PENALTY_MISSED: 'BM_MATCH_PENALTY_MISSED',
+      BM_CARD_RED: 'BM_MATCH_CARD_RED',
+      BM_INJURY_UPDATE: 'BM_MATCH_INJURY',
+      BM_CAPTAIN_RETURN: 'BM_CAPTAIN_POPULAR_RETURN',
+      BM_BENCH_REGRET: 'BM_LINEUP_BENCH_POINTS',
+      BM_AUTOSUB_WATCH: 'BM_LINEUP_AUTOSUB_ALERT',
+      BM_TOP_RIVALRY: 'BM_STANDINGS_TITLE_RACE',
+      BM_GW_LEADER: 'BM_STANDINGS_GAMEWEEK_LEADER',
+      BM_REMAINING_ASSETS: 'BM_LINEUP_REMAINING_ASSETS',
+      PV_TOP_RIVALRY: 'PV_STANDINGS_TITLE_RACE',
+      PV_GW_LEADER: 'PV_STANDINGS_GAMEWEEK_LEADER',
+      PV_TOP_SCORER_GW: 'PV_PLAYER_TOP_PERFORMER',
+      PV_CAPTAIN_RECAP: 'PV_CAPTAIN_POPULAR_MOST_CAPTAINED',
+      PV_VICE_CAPTAIN: 'PV_CAPTAIN_VICE_CAPTAIN',
+      PV_AUTOSUB_PENDING: 'PV_LINEUP_AUTOSUB_PENDING',
+      PV_BENCH_POINTS: 'PV_LINEUP_BENCH_TOTAL',
+      PV_CHIP_FREEHIT: 'PV_CHIP_FREE_HIT',
+      PV_HITS_EVALUATION: 'PV_TRANSFER_HITS_EVALUATION',
+      PV_CLEAN_SHEET_RECAP: 'PV_MATCH_CLEAN_SHEET',
+      CF_GW_CHAMPION: 'CF_STANDINGS_GAMEWEEK_WINNER',
+      CF_TOP_RIVALRY: 'CF_STANDINGS_TITLE_RACE',
+      CF_MOST_GW_RIVALRY: 'CF_STANDINGS_WEEKLY_WINS_MOST',
+      CF_RANK_CLIMBER: 'CF_STANDINGS_RANK_BIGGEST_RISE',
+      CF_PLAYER_OF_THE_GW: 'CF_PLAYER_TOP_PERFORMER_GW_SCORER',
+      CF_AUTOSUB_OFFICIAL: 'CF_LINEUP_AUTOSUB_CONFIRMED',
+      CF_CAPTAIN_OFFICIAL: 'CF_CAPTAIN_POPULAR_MOST_CAPTAINED',
+      CF_CHIP_FREEHIT: 'CF_CHIP_FREE_HIT',
+      CF_HITS_DEDUCTED: 'CF_TRANSFER_HITS_DEDUCTED',
+      CF_TRANSFER_KARMA: 'CF_TRANSFER_OUT_SOLD_HAULERS',
+      CF_CAPTAIN_REGRET: 'CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL',
+      CF_RANK_FALLER: 'CF_STANDINGS_RANK_BIGGEST_DROP',
+      CF_SUMMIT_COUP: 'CF_STANDINGS_TITLE_RACE_LEAD_CHANGE',
+      CF_RIVALRY_DUEL: 'CF_STANDINGS_TITLE_RACE_POINTS_GAP',
+      CF_BENCH_POINTS: 'CF_LINEUP_BENCH_POINTS',
     };
 
+    const sortedLegacyEntries = Object.entries(LEGACY_TEMPLATE_ID_MAP).sort(
+      (a, b) => b[0].length - a[0].length
+    );
+
     const normalizeLegacyRowId = (rawId: string): string => {
-      for (const [legacyPrefix, canonicalPrefix] of Object.entries(LEGACY_TEMPLATE_ID_MAP)) {
+      for (const [legacyPrefix, canonicalPrefix] of sortedLegacyEntries) {
         if (rawId === legacyPrefix) return canonicalPrefix;
         if (rawId.startsWith(`${legacyPrefix}_`) || rawId.startsWith(`${legacyPrefix}__`)) {
           return canonicalPrefix + rawId.slice(legacyPrefix.length);
@@ -1017,6 +1093,19 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
           matchesOverride: cachedMatches,
         });
         for (const ls of liveScoreStories) {
+          const records = createStoryRecordsForPhases({
+            ...ls,
+            sumber: (ls.sumber as any) || 'Sys',
+            gw: ls.gw || feedGw,
+          }, ls.gw || feedGw, currentActivePhase);
+          addRows(records);
+        }
+
+        const liveLineupStories = generateLiveLineupSurpriseStories(feedGw, {
+          includeFinished: false,
+          matchesOverride: cachedMatches,
+        });
+        for (const ls of liveLineupStories) {
           const records = createStoryRecordsForPhases({
             ...ls,
             sumber: (ls.sumber as any) || 'Sys',

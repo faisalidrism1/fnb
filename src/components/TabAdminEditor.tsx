@@ -20,6 +20,7 @@ export interface Phase1TemplateItem {
   gw_phase: string;
   category: string;
   subcategory: string;
+  title?: string;
   output?: 'SINGLE-NEWS' | 'MULTI-NEWS' | string;
   source?: 'Bukan' | 'Sys' | string;
   template: string;
@@ -567,7 +568,7 @@ export const TabAdminEditor: React.FC = () => {
   // Metadata cell change handler
   const handleMetaChange = (
     index: number,
-    field: 'gw_phase' | 'category' | 'subcategory' | 'output',
+    field: 'gw_phase' | 'category' | 'subcategory' | 'title' | 'output',
     val: string
   ) => {
     setEditableRows((prev) => {
@@ -614,7 +615,7 @@ export const TabAdminEditor: React.FC = () => {
     } else {
       newTemplate = newTemplate ? `${newTemplate} ${tagString}` : tagString;
       handleTemplateChange(targetIndex, newTemplate);
-      showToast(`Disisipkan ke Baris #${targetIndex + 1} (${currentRow.subcategory || currentRow.id})`);
+      showToast(`Disisipkan ke Baris #${targetIndex + 1} (${currentRow.title || currentRow.subcategory || currentRow.id})`);
     }
   };
 
@@ -1040,7 +1041,7 @@ export const TabAdminEditor: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto scrollbar-thin">
-            <table className="table-fixed text-left border-collapse text-xs w-full min-w-[1700px]">
+            <table className="table-fixed text-left border-collapse text-xs w-full min-w-[1840px]">
               <thead>
                 <tr className="bg-slate-100 dark:bg-[#10051e] border-b-2 border-slate-200 dark:border-purple-900/80 text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black text-[11px]">
                   {/* 1. ID: Identifier (~140px) */}
@@ -1059,7 +1060,11 @@ export const TabAdminEditor: React.FC = () => {
                   <th className="py-3 px-2.5 w-[130px] min-w-[130px] max-w-[130px] border-r border-slate-200 dark:border-purple-900/50 break-words">
                     Sub Categories
                   </th>
-                  {/* 5. Output: Dedicated Column (~120px) */}
+                  {/* 5. Title: Editable Story Title (~140px) */}
+                  <th className="py-3 px-2.5 w-[140px] min-w-[140px] max-w-[140px] border-r border-slate-200 dark:border-purple-900/50 break-words">
+                    Title
+                  </th>
+                  {/* 6. Output: Dedicated Column (~120px) */}
                   <th className="py-3 px-2.5 w-[120px] min-w-[120px] max-w-[120px] border-r border-slate-200 dark:border-purple-900/50 break-words">
                     Output
                   </th>
@@ -1091,7 +1096,7 @@ export const TabAdminEditor: React.FC = () => {
                   const isLiveMatch = (row.gw_phase || '').trim().toLowerCase() === 'live match';
                   const resolvedOutput = isLiveMatch
                     ? 'MULTI-NEWS'
-                    : (row.output || (row.id === 'NS_INJURY_UPDATE' || row.subcategory === 'Flagged Players' ? 'MULTI-NEWS' : 'SINGLE-NEWS'));
+                    : (row.output || (row.id === 'NS_PLAYER_AVAILABILITY_FLAGGED' || row.title === 'Flagged Players' || row.subcategory === 'Flagged Players' ? 'MULTI-NEWS' : 'SINGLE-NEWS'));
 
                   return (
                     <tr
@@ -1151,7 +1156,17 @@ export const TabAdminEditor: React.FC = () => {
                         />
                       </td>
 
-                      {/* 5. Output (Editable text matching GW Phase / Categories / Sub Categories) */}
+                      {/* 5. Title (Editable) */}
+                      <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[140px] max-w-[140px] align-top">
+                        <textarea
+                          value={row.title ?? ''}
+                          onChange={(e) => handleMetaChange(actualIndex, 'title', e.target.value)}
+                          className="w-full h-[96px] min-h-[96px] max-h-[96px] px-1.5 py-2 rounded-md bg-transparent hover:bg-slate-100 dark:hover:bg-[#120522] focus:bg-white dark:focus:bg-[#10051e] border border-transparent focus:border-[#00ff87] text-[11px] font-bold text-slate-800 dark:text-slate-100 outline-none transition-all resize-none leading-snug break-words overflow-y-auto scrollbar-thin"
+                          placeholder="Title"
+                        />
+                      </td>
+
+                      {/* 6. Output (Editable text matching GW Phase / Categories / Sub Categories) */}
                       <td className="py-2.5 px-2 border-r border-slate-200 dark:border-purple-900/30 w-[120px] min-w-[120px] max-w-[120px] align-top">
                         <textarea
                           value={row.output ?? resolvedOutput}

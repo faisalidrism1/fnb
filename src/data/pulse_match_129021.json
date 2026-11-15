@@ -2261,5 +2261,1133 @@
     "opta": "g2645293"
   },
   "metadata": {},
-  "_source": "s3"
+  "_source": "s3",
+  "textstreamEvents": [
+    {
+      "id": 2904557,
+      "type": "lineup",
+      "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2904835,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2904851,
+      "time": {
+        "secs": 122,
+        "label": "03"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Jair Cunha (Nottingham Forest) header from the right side of the box is saved in the top right corner by Gianluigi Donnarumma (Manchester City). Assisted by Daniel Muñoz.",
+      "playerIds": [
+        304238,
+        76353
+      ]
+    },
+    {
+      "id": 2904846,
+      "time": {
+        "secs": 302,
+        "label": "06"
+      },
+      "type": "goal",
+      "text": "Goal! Nottingham Forest 1, Manchester City 0. Jair Cunha (Nottingham Forest) left footed shot from the centre of the box to the bottom left corner.",
+      "playerIds": [
+        304238
+      ]
+    },
+    {
+      "id": 2904850,
+      "time": {
+        "secs": 411,
+        "label": "07"
+      },
+      "type": "free kick won",
+      "text": "Marc Guéhi (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        14569
+      ]
+    },
+    {
+      "id": 2904852,
+      "time": {
+        "secs": 411,
+        "label": "07"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Daniel Muñoz (Nottingham Forest).",
+      "playerIds": [
+        76353
+      ]
+    },
+    {
+      "id": 2904859,
+      "time": {
+        "secs": 465,
+        "label": "08"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Nikola Milenkovic.",
+      "playerIds": [
+        16035
+      ]
+    },
+    {
+      "id": 2904860,
+      "time": {
+        "secs": 465,
+        "label": "08"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Jérémy Doku (Manchester City) left footed shot from the centre of the box is blocked. Assisted by Iliman Ndiaye.",
+      "playerIds": [
+        54156,
+        31936
+      ]
+    },
+    {
+      "id": 2904904,
+      "time": {
+        "secs": 872,
+        "label": "15"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Daniel Muñoz (Nottingham Forest) right footed shot from a difficult angle on the right is blocked.",
+      "playerIds": [
+        76353
+      ]
+    },
+    {
+      "id": 2904878,
+      "time": {
+        "secs": 873,
+        "label": "15"
+      },
+      "type": "corner",
+      "text": "Corner, Nottingham Forest. Conceded by Rúben Dias.",
+      "playerIds": [
+        16431
+      ]
+    },
+    {
+      "id": 2904897,
+      "time": {
+        "secs": 948,
+        "label": "16"
+      },
+      "type": "offside",
+      "text": "Offside, Nottingham Forest. Morgan Gibbs-White is caught offside.",
+      "playerIds": [
+        14238,
+        15259
+      ]
+    },
+    {
+      "id": 2904887,
+      "time": {
+        "secs": 1022,
+        "label": "18"
+      },
+      "type": "goal",
+      "text": "Goal! Nottingham Forest 2, Manchester City 0. Liam Delap (Nottingham Forest) right footed shot from the centre of the box to the high centre of the goal. Assisted by Xaver Schlager following a fast break.",
+      "playerIds": [
+        51813,
+        20335
+      ]
+    },
+    {
+      "id": 2904894,
+      "time": {
+        "secs": 1154,
+        "label": "20"
+      },
+      "type": "miss",
+      "text": "Attempt missed. James McAtee (Nottingham Forest) left footed shot from the centre of the box is too high. Assisted by Morgan Gibbs-White following a fast break.",
+      "playerIds": [
+        49270,
+        15259
+      ]
+    },
+    {
+      "id": 2904903,
+      "time": {
+        "secs": 1320,
+        "label": "23"
+      },
+      "type": "corner",
+      "text": "Corner, Nottingham Forest. Conceded by Abdukodir Khusanov.",
+      "playerIds": [
+        137371
+      ]
+    },
+    {
+      "id": 2904910,
+      "time": {
+        "secs": 1364,
+        "label": "23"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Murillo (Nottingham Forest) left footed shot from outside the box is saved in the centre of the goal by Gianluigi Donnarumma (Manchester City).",
+      "playerIds": [
+        139648
+      ]
+    },
+    {
+      "id": 2904909,
+      "time": {
+        "secs": 1418,
+        "label": "24"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Enzo Fernández (Manchester City) header from very close range is just a bit too high. Assisted by Marc Guéhi with a cross.",
+      "playerIds": [
+        63741,
+        14569
+      ]
+    },
+    {
+      "id": 2904915,
+      "time": {
+        "secs": 1540,
+        "label": "26"
+      },
+      "type": "free kick won",
+      "text": "Enzo Fernández (Manchester City) wins a free kick in the attacking half.",
+      "playerIds": [
+        63741
+      ]
+    },
+    {
+      "id": 2904916,
+      "time": {
+        "secs": 1540,
+        "label": "26"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Murillo (Nottingham Forest).",
+      "playerIds": [
+        139648
+      ]
+    },
+    {
+      "id": 2904921,
+      "time": {
+        "secs": 1575,
+        "label": "27"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Marc Guéhi (Manchester City).",
+      "playerIds": [
+        14569
+      ]
+    },
+    {
+      "id": 2904922,
+      "time": {
+        "secs": 1575,
+        "label": "27"
+      },
+      "type": "free kick won",
+      "text": "Liam Delap (Nottingham Forest) wins a free kick on the right wing.",
+      "playerIds": [
+        51813
+      ]
+    },
+    {
+      "id": 2904927,
+      "time": {
+        "secs": 1629,
+        "label": "28"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jair Cunha (Nottingham Forest) left footed shot from the centre of the box misses to the left. Assisted by Murillo following a set piece situation.",
+      "playerIds": [
+        304238,
+        139648
+      ]
+    },
+    {
+      "id": 2904930,
+      "time": {
+        "secs": 1791,
+        "label": "30"
+      },
+      "type": "free kick won",
+      "text": "Rayan Cherki (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        68150
+      ]
+    },
+    {
+      "id": 2904933,
+      "time": {
+        "secs": 1791,
+        "label": "30"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Neco Williams (Nottingham Forest).",
+      "playerIds": [
+        23811
+      ]
+    },
+    {
+      "id": 2904936,
+      "time": {
+        "secs": 1886,
+        "label": "32"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Erling Haaland (Manchester City) left footed shot from the left side of the box is saved in the centre of the goal by Matz Sels (Nottingham Forest). Assisted by Marc Guéhi.",
+      "playerIds": [
+        65970,
+        14569
+      ]
+    },
+    {
+      "id": 2904939,
+      "time": {
+        "secs": 2159,
+        "label": "36"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Nikola Milenkovic.",
+      "playerIds": [
+        16035
+      ]
+    },
+    {
+      "id": 2904942,
+      "time": {
+        "secs": 2227,
+        "label": "38"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Elliot Anderson (Manchester City).",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2904943,
+      "time": {
+        "secs": 2227,
+        "label": "38"
+      },
+      "type": "free kick won",
+      "text": "James McAtee (Nottingham Forest) wins a free kick in the attacking half.",
+      "playerIds": [
+        49270
+      ]
+    },
+    {
+      "id": 2904951,
+      "time": {
+        "secs": 2288,
+        "label": "39"
+      },
+      "type": "offside",
+      "text": "Offside, Nottingham Forest. Nikola Milenkovic is caught offside.",
+      "playerIds": [
+        15259,
+        16035
+      ]
+    },
+    {
+      "id": 2904955,
+      "time": {
+        "secs": 2446,
+        "label": "41"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Erling Haaland (Manchester City) left footed shot from a difficult angle on the left is blocked. Assisted by Abdukodir Khusanov.",
+      "playerIds": [
+        65970,
+        137371
+      ]
+    },
+    {
+      "id": 2904956,
+      "time": {
+        "secs": 2449,
+        "label": "41"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Jair Cunha.",
+      "playerIds": [
+        304238
+      ]
+    },
+    {
+      "id": 2904954,
+      "time": {
+        "secs": 2479,
+        "label": "42"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Elliot Anderson (Manchester City) right footed shot from the centre of the box is saved in the top centre of the goal by Matz Sels (Nottingham Forest).",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2904963,
+      "time": {
+        "secs": 2648,
+        "label": "45"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Neco Williams (Nottingham Forest).",
+      "playerIds": [
+        23811
+      ]
+    },
+    {
+      "id": 2904964,
+      "time": {
+        "secs": 2648,
+        "label": "45"
+      },
+      "type": "free kick won",
+      "text": "Enzo Fernández (Manchester City) wins a free kick in the attacking half.",
+      "playerIds": [
+        63741
+      ]
+    },
+    {
+      "id": 2904975,
+      "time": {
+        "secs": 2700,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 2 minutes of added time."
+    },
+    {
+      "id": 2904969,
+      "time": {
+        "secs": 2710,
+        "label": "45+1"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Murillo.",
+      "playerIds": [
+        139648
+      ]
+    },
+    {
+      "id": 2904973,
+      "time": {
+        "secs": 2739,
+        "label": "45+1"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Erling Haaland (Manchester City) left footed shot from the right side of the box is high and wide to the right. Assisted by Enzo Fernández with a cross following a corner.",
+      "playerIds": [
+        65970,
+        63741
+      ]
+    },
+    {
+      "id": 2904972,
+      "time": {
+        "secs": 2778,
+        "label": "45+2"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Elliot Anderson (Manchester City).",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2904974,
+      "time": {
+        "secs": 2778,
+        "label": "45+2"
+      },
+      "type": "free kick won",
+      "text": "James McAtee (Nottingham Forest) wins a free kick on the right wing.",
+      "playerIds": [
+        49270
+      ]
+    },
+    {
+      "id": 2904984,
+      "time": {
+        "secs": 2837,
+        "label": "45+3"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Nottingham Forest 2, Manchester City 0."
+    },
+    {
+      "id": 2904987,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester City. Nico O'Reilly replaces Josko Gvardiol.",
+      "playerIds": [
+        112948,
+        67178
+      ]
+    },
+    {
+      "id": 2904990,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester City. Matheus Nunes replaces Marc Guéhi.",
+      "playerIds": [
+        76204,
+        14569
+      ]
+    },
+    {
+      "id": 2904991,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Nottingham Forest 2, Manchester City 0."
+    },
+    {
+      "id": 2904996,
+      "time": {
+        "secs": 2713,
+        "label": "46"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Rayan Cherki (Manchester City).",
+      "playerIds": [
+        68150
+      ]
+    },
+    {
+      "id": 2904997,
+      "time": {
+        "secs": 2713,
+        "label": "46"
+      },
+      "type": "free kick won",
+      "text": "Ryan Yates (Nottingham Forest) wins a free kick in the defensive half.",
+      "playerIds": [
+        14238
+      ]
+    },
+    {
+      "id": 2905002,
+      "time": {
+        "secs": 2852,
+        "label": "48"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Liam Delap (Nottingham Forest).",
+      "playerIds": [
+        51813
+      ]
+    },
+    {
+      "id": 2905003,
+      "time": {
+        "secs": 2852,
+        "label": "48"
+      },
+      "type": "free kick won",
+      "text": "Abdukodir Khusanov (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        137371
+      ]
+    },
+    {
+      "id": 2905021,
+      "time": {
+        "secs": 2914,
+        "label": "49"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Nico O'Reilly (Manchester City) header from the right side of the six yard box misses to the left. Assisted by Matheus Nunes.",
+      "playerIds": [
+        112948,
+        76204
+      ]
+    },
+    {
+      "id": 2905008,
+      "time": {
+        "secs": 2959,
+        "label": "50"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Rúben Dias (Manchester City).",
+      "playerIds": [
+        16431
+      ]
+    },
+    {
+      "id": 2905009,
+      "time": {
+        "secs": 2959,
+        "label": "50"
+      },
+      "type": "free kick won",
+      "text": "Liam Delap (Nottingham Forest) wins a free kick in the defensive half.",
+      "playerIds": [
+        51813
+      ]
+    },
+    {
+      "id": 2905014,
+      "time": {
+        "secs": 3050,
+        "label": "51"
+      },
+      "type": "free kick won",
+      "text": "Enzo Fernández (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        63741
+      ]
+    },
+    {
+      "id": 2905015,
+      "time": {
+        "secs": 3050,
+        "label": "51"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Murillo (Nottingham Forest).",
+      "playerIds": [
+        139648
+      ]
+    },
+    {
+      "id": 2905020,
+      "time": {
+        "secs": 3081,
+        "label": "52"
+      },
+      "type": "goal",
+      "text": "Goal! Nottingham Forest 2, Manchester City 1. Rayan Cherki (Manchester City) left footed shot from the centre of the box to the top left corner.",
+      "playerIds": [
+        68150
+      ]
+    },
+    {
+      "id": 2905026,
+      "time": {
+        "secs": 3202,
+        "label": "54"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Nikola Milenkovic.",
+      "playerIds": [
+        16035
+      ]
+    },
+    {
+      "id": 2905029,
+      "time": {
+        "secs": 3323,
+        "label": "56"
+      },
+      "type": "free kick won",
+      "text": "Neco Williams (Nottingham Forest) wins a free kick in the defensive half.",
+      "playerIds": [
+        23811
+      ]
+    },
+    {
+      "id": 2905030,
+      "time": {
+        "secs": 3323,
+        "label": "56"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Enzo Fernández (Manchester City).",
+      "playerIds": [
+        63741
+      ]
+    },
+    {
+      "id": 2905035,
+      "time": {
+        "secs": 3399,
+        "label": "57"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Erling Haaland (Manchester City) right footed shot from the centre of the box is close, but misses the top right corner. Assisted by Matheus Nunes with a cross.",
+      "playerIds": [
+        65970,
+        76204
+      ]
+    },
+    {
+      "id": 2905038,
+      "time": {
+        "secs": 3525,
+        "label": "59"
+      },
+      "type": "free kick won",
+      "text": "Elliot Anderson (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2905042,
+      "time": {
+        "secs": 3525,
+        "label": "59"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Morgan Gibbs-White (Nottingham Forest).",
+      "playerIds": [
+        15259
+      ]
+    },
+    {
+      "id": 2905041,
+      "time": {
+        "secs": 3570,
+        "label": "60"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Murillo.",
+      "playerIds": [
+        139648
+      ]
+    },
+    {
+      "id": 2905047,
+      "time": {
+        "secs": 3649,
+        "label": "61"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Liam Delap (Nottingham Forest) right footed shot from outside the box is blocked. Assisted by Morgan Gibbs-White.",
+      "playerIds": [
+        51813,
+        15259
+      ]
+    },
+    {
+      "id": 2905050,
+      "time": {
+        "secs": 3786,
+        "label": "64"
+      },
+      "type": "free kick won",
+      "text": "Elliot Anderson (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2905053,
+      "time": {
+        "secs": 3786,
+        "label": "64"
+      },
+      "type": "free kick lost",
+      "text": "Foul by James McAtee (Nottingham Forest).",
+      "playerIds": [
+        49270
+      ]
+    },
+    {
+      "id": 2905055,
+      "time": {
+        "secs": 3790,
+        "label": "64"
+      },
+      "type": "yellow card",
+      "text": "James McAtee (Nottingham Forest) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        49270
+      ]
+    },
+    {
+      "id": 2905054,
+      "time": {
+        "secs": 3855,
+        "label": "65"
+      },
+      "type": "substitution",
+      "text": "Substitution, Nottingham Forest. Dan Ndoye replaces James McAtee.",
+      "playerIds": [
+        50623,
+        49270
+      ]
+    },
+    {
+      "id": 2905062,
+      "time": {
+        "secs": 3865,
+        "label": "65"
+      },
+      "type": "substitution",
+      "text": "Substitution, Nottingham Forest. Luca Netz replaces Daniel Muñoz.",
+      "playerIds": [
+        76426,
+        76353
+      ]
+    },
+    {
+      "id": 2905065,
+      "time": {
+        "secs": 4010,
+        "label": "67"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Ryan Yates (Nottingham Forest) right footed shot from outside the box is blocked. Assisted by Murillo.",
+      "playerIds": [
+        14238,
+        139648
+      ]
+    },
+    {
+      "id": 2905072,
+      "time": {
+        "secs": 4012,
+        "label": "67"
+      },
+      "type": "corner",
+      "text": "Corner, Nottingham Forest. Conceded by Elliot Anderson.",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2905068,
+      "time": {
+        "secs": 4078,
+        "label": "68"
+      },
+      "type": "free kick won",
+      "text": "Iliman Ndiaye (Manchester City) wins a free kick in the attacking half.",
+      "playerIds": [
+        31936
+      ]
+    },
+    {
+      "id": 2905071,
+      "time": {
+        "secs": 4078,
+        "label": "68"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dan Ndoye (Nottingham Forest).",
+      "playerIds": [
+        50623
+      ]
+    },
+    {
+      "id": 2905073,
+      "time": {
+        "secs": 4081,
+        "label": "69"
+      },
+      "type": "yellow card",
+      "text": "Dan Ndoye (Nottingham Forest) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        50623
+      ]
+    },
+    {
+      "id": 2905080,
+      "time": {
+        "secs": 4184,
+        "label": "70"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Murillo (Nottingham Forest) left footed shot from more than 40 yards on the left wing misses to the left following a fast break.",
+      "playerIds": [
+        139648
+      ]
+    },
+    {
+      "id": 2905083,
+      "time": {
+        "secs": 4352,
+        "label": "73"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Enzo Fernández (Manchester City) left footed shot from the centre of the box is blocked. Assisted by Rayan Cherki.",
+      "playerIds": [
+        63741,
+        68150
+      ]
+    },
+    {
+      "id": 2905086,
+      "time": {
+        "secs": 4377,
+        "label": "73"
+      },
+      "type": "goal",
+      "text": "Goal! Nottingham Forest 3, Manchester City 1. Liam Delap (Nottingham Forest) left footed shot from the left side of the box to the top right corner. Assisted by Morgan Gibbs-White following a fast break.",
+      "playerIds": [
+        51813,
+        15259
+      ]
+    },
+    {
+      "id": 2905089,
+      "time": {
+        "secs": 4575,
+        "label": "77"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Nikola Milenkovic.",
+      "playerIds": [
+        16035
+      ]
+    },
+    {
+      "id": 2905092,
+      "time": {
+        "secs": 4645,
+        "label": "78"
+      },
+      "type": "free kick won",
+      "text": "Enzo Fernández (Manchester City) wins a free kick in the attacking half.",
+      "playerIds": [
+        63741
+      ]
+    },
+    {
+      "id": 2905095,
+      "time": {
+        "secs": 4645,
+        "label": "78"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Murillo (Nottingham Forest).",
+      "playerIds": [
+        139648
+      ]
+    },
+    {
+      "id": 2905097,
+      "time": {
+        "secs": 4678,
+        "label": "78"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester City. Phil Foden replaces Enzo Fernández.",
+      "playerIds": [
+        14805,
+        63741
+      ]
+    },
+    {
+      "id": 2905096,
+      "time": {
+        "secs": 4695,
+        "label": "79"
+      },
+      "type": "substitution",
+      "text": "Substitution, Nottingham Forest. Ibrahim Sangaré replaces Ryan Yates.",
+      "playerIds": [
+        108816,
+        14238
+      ]
+    },
+    {
+      "id": 2905104,
+      "time": {
+        "secs": 4724,
+        "label": "79"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Phil Foden (Manchester City) left footed shot from outside the box is blocked. Assisted by Rayan Cherki.",
+      "playerIds": [
+        14805,
+        68150
+      ]
+    },
+    {
+      "id": 2905107,
+      "time": {
+        "secs": 4868,
+        "label": "82"
+      },
+      "type": "free kick won",
+      "text": "Nico O'Reilly (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        112948
+      ]
+    },
+    {
+      "id": 2905108,
+      "time": {
+        "secs": 4868,
+        "label": "82"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ibrahim Sangaré (Nottingham Forest).",
+      "playerIds": [
+        108816
+      ]
+    },
+    {
+      "id": 2905113,
+      "time": {
+        "secs": 4933,
+        "label": "83"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Matheus Nunes (Manchester City).",
+      "playerIds": [
+        76204
+      ]
+    },
+    {
+      "id": 2905114,
+      "time": {
+        "secs": 4933,
+        "label": "83"
+      },
+      "type": "free kick won",
+      "text": "Liam Delap (Nottingham Forest) wins a free kick on the left wing.",
+      "playerIds": [
+        51813
+      ]
+    },
+    {
+      "id": 2905125,
+      "time": {
+        "secs": 5191,
+        "label": "87"
+      },
+      "type": "substitution",
+      "text": "Substitution, Nottingham Forest. Igor Jesus replaces Liam Delap.",
+      "playerIds": [
+        304123,
+        51813
+      ]
+    },
+    {
+      "id": 2905128,
+      "time": {
+        "secs": 5346,
+        "label": "90"
+      },
+      "type": "free kick won",
+      "text": "Phil Foden (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        14805
+      ]
+    },
+    {
+      "id": 2905131,
+      "time": {
+        "secs": 5346,
+        "label": "90"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Morgan Gibbs-White (Nottingham Forest).",
+      "playerIds": [
+        15259
+      ]
+    },
+    {
+      "id": 2905132,
+      "time": {
+        "secs": 5400,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 4 minutes of added time."
+    },
+    {
+      "id": 2905137,
+      "time": {
+        "secs": 5418,
+        "label": "90+1"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Phil Foden (Manchester City) left footed shot from outside the box is blocked. Assisted by Iliman Ndiaye.",
+      "playerIds": [
+        14805,
+        31936
+      ]
+    },
+    {
+      "id": 2905140,
+      "time": {
+        "secs": 5634,
+        "label": "90+4"
+      },
+      "type": "free kick won",
+      "text": "Phil Foden (Manchester City) wins a free kick in the attacking half.",
+      "playerIds": [
+        14805
+      ]
+    },
+    {
+      "id": 2905143,
+      "time": {
+        "secs": 5634,
+        "label": "90+4"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Luca Netz (Nottingham Forest).",
+      "playerIds": [
+        76426
+      ]
+    },
+    {
+      "id": 2905145,
+      "time": {
+        "secs": 5637,
+        "label": "90+4"
+      },
+      "type": "yellow card",
+      "text": "Luca Netz (Nottingham Forest) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        76426
+      ]
+    },
+    {
+      "id": 2905144,
+      "time": {
+        "secs": 5668,
+        "label": "90+5"
+      },
+      "type": "yellow card",
+      "text": "Igor Jesus (Nottingham Forest) is shown the yellow card.",
+      "playerIds": [
+        304123
+      ]
+    },
+    {
+      "id": 2905146,
+      "time": {
+        "secs": 5717,
+        "label": "90+6"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Nottingham Forest 3, Manchester City 1."
+    },
+    {
+      "id": 2905155,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Nottingham Forest 3, Manchester City 1."
+    }
+  ]
 }

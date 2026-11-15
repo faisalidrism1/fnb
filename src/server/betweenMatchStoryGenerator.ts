@@ -4,7 +4,12 @@ import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.
 import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
 import { buildRawMatchdayPayload } from './newsAggregator.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
-import { getFplPlayerDirectory, matchPulsePersonToFpl } from './pulseMatchStoryGenerator.ts';
+import {
+  getFplPlayerDirectory,
+  matchPulsePersonToFpl,
+  detectSurpriseLineupForClub,
+  normalizeDiacritics,
+} from './liveMatchStoryGenerator.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 
 export interface GeneratedPhaseStory {
@@ -123,11 +128,11 @@ function formatWibDay(isoString?: string): string {
   }
 }
 
-function isSameWibDate(isoA?: string, isoB?: string): boolean {
+function isSameUkDate(isoA?: string, isoB?: string): boolean {
   if (!isoA || !isoB) return false;
   try {
     const fmt = (s: string) =>
-      new Date(s).toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+      new Date(s).toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
     return fmt(isoA) === fmt(isoB);
   } catch {
     return false;
@@ -151,7 +156,7 @@ interface IndexedPlayerGwStat {
   newsAdded: string;
 }
 
-function loadContextData(targetGw?: number) {
+function loadBetweenMatchContext(targetGw?: number) {
   const dbData = getOptimalDatabase();
   const currentGw = targetGw || Number(dbData?.meta?.current_gw) || 0;
   const standings = currentGw ? getDbStandings(currentGw) : [];
@@ -219,11 +224,10 @@ function loadContextData(targetGw?: number) {
   };
 }
 
-function finalizeStories(
+function finalizeBetweenMatchStories(
   tmpl: Phase1TemplateItem,
   produced: EmittedStoryDraft[],
   gw: number,
-  targetPhase: 'Between Match' | 'Provisional',
   nowIso: string
 ): GeneratedPhaseStory[] {
   const out: GeneratedPhaseStory[] = [];
@@ -236,7 +240,7 @@ function finalizeStories(
       kategori: tmpl.category,
       sub_kategori: tmpl.subcategory,
       drama_score: item.dramaScore ?? 86,
-      waktu_tayang: [targetPhase],
+      waktu_tayang: ['Between Match'],
       gw,
       teams: extractTagNames(item.headlineId, 'T'),
       players: extractTagNames(item.headlineId, 'P'),
@@ -258,8 +262,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
   );
   if (templates.length === 0) return [];
 
-  const ctx = loadContextData(targetGw);
-  const { currentGw, dbData, standings, rawPayload, playerMap, ownershipList, fixtures, deadlines } = ctx;
+  const ctx = loadBetweenMatchContext(targetGw);
+  const { currentGw, dbData, standings, snap, rawPayload, playerMap, ownershipList, fixtures, deadlines } = ctx;
   if (!currentGw) return [];
   const nowIso = new Date().toISOString();
   const stories: GeneratedPhaseStory[] = [];
@@ -316,8 +320,16 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
     }
   } catch {}
 
-  const cachedMatches = (getCachedMatchesForGw(currentGw) || []).filter(
+  const allCachedMatches = getCachedMatchesForGw(currentGw) || [];
+  const cachedMatches = allCachedMatches.filter(
     (m) => m.finished || m.finished_provisional
+  );
+  const upcomingLineupMatches = allCachedMatches.filter(
+    (m) =>
+      !m.started &&
+      m.has_lineup &&
+      (m.home_lineup?.length || 0) >= 10 &&
+      (m.away_lineup?.length || 0) >= 10
   );
 
   const { allPlayers: fplDirPlayers } = getFplPlayerDirectory(currentGw);
@@ -327,8 +339,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
       const produced: EmittedStoryDraft[] = [];
 
       switch (tmpl.id) {
-        // 34. BM_MATCH_RESULT (Match Result)
-        case 'BM_MATCH_RESULT': {
+        // 34. BM_MATCH_SCORE_RESULT (Match Result)
+        case 'BM_MATCH_SCORE_RESULT': {
           for (const m of cachedMatches.slice(0, 5)) {
             const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
             const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
@@ -423,8 +435,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 35. BM_MATCH_FIXTURE
-        case 'BM_MATCH_FIXTURE': {
+        // 35. BM_MATCH_FIXTURE_NEXT
+        case 'BM_MATCH_FIXTURE_NEXT': {
           if (upcomingFixtures.length > 0) {
             const sortedUp = [...upcomingFixtures].sort(
               (a: any, b: any) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime()
@@ -434,7 +446,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
             const lastFinished = [...finishedFixtures].sort(
               (a: any, b: any) => new Date(b.kickoff_time).getTime() - new Date(a.kickoff_time).getTime()
             )[0];
-            const isShortBreak = lastFinished ? isSameWibDate(lastFinished.kickoff_time, nextKickoff) : false;
+            const isShortBreak = lastFinished ? isSameUkDate(lastFinished.kickoff_time, nextKickoff) : false;
             const wibTime = formatWibTime(nextKickoff);
             const wibDay = formatWibDay(nextKickoff);
 
@@ -521,8 +533,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 37. BM_GOAL_CONTRIBUTORS
-        case 'BM_GOAL_CONTRIBUTORS': {
+        // 37. BM_MATCH_GOAL_CONTRIBUTORS
+        case 'BM_MATCH_GOAL_CONTRIBUTORS': {
           const seenPair = new Set<string>();
           // Condition 1: Multi Gol from GW stats
           const multiScorers = Array.from(playerMap.values())
@@ -602,8 +614,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 38. BM_BONUS_POINTS_STAR
-        case 'BM_BONUS_POINTS_STAR': {
+        // 38. BM_MATCH_BONUS_POINTS
+        case 'BM_MATCH_BONUS_POINTS': {
           const topBps = Array.from(playerMap.values())
             .filter((p) => p.minutes > 0 && p.bps > 0 && finishedClubFixtureMap.has(p.club))
             .sort((a, b) => b.bps - a.bps || b.points - a.points)
@@ -628,8 +640,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 39. BM_PENALTY_SAVED
-        case 'BM_PENALTY_SAVED': {
+        // 39. BM_MATCH_PENALTY_SAVED
+        case 'BM_MATCH_PENALTY_SAVED': {
           for (const m of cachedMatches) {
             const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
             const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
@@ -664,8 +676,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 40. BM_PENALTY_MISSED
-        case 'BM_PENALTY_MISSED': {
+        // 40. BM_MATCH_PENALTY_MISSED
+        case 'BM_MATCH_PENALTY_MISSED': {
           for (const m of cachedMatches) {
             const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
             const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
@@ -697,8 +709,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 41. BM_CARD_RED
-        case 'BM_CARD_RED': {
+        // 41. BM_MATCH_CARD_RED
+        case 'BM_MATCH_CARD_RED': {
           for (const m of cachedMatches) {
             const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
             const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
@@ -730,8 +742,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 42. BM_INJURY_UPDATE
-        case 'BM_INJURY_UPDATE': {
+        // 42. BM_MATCH_INJURY
+        case 'BM_MATCH_INJURY': {
           const prevDeadline = deadlines[String(currentGw - 1)] || '';
           const flaggedSubbed = Array.from(playerMap.values())
             .filter(
@@ -764,8 +776,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 43. BM_CAPTAIN_RETURN
-        case 'BM_CAPTAIN_RETURN': {
+        // 43. BM_CAPTAIN_POPULAR_RETURN
+        case 'BM_CAPTAIN_POPULAR_RETURN': {
           if (upcomingFixtures.length > 0) {
             const sortedUp = [...upcomingFixtures].sort(
               (a: any, b: any) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime()
@@ -774,10 +786,19 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
             const lastFinished = [...finishedFixtures].sort(
               (a: any, b: any) => new Date(b.kickoff_time).getTime() - new Date(a.kickoff_time).getTime()
             )[0];
-            const isShortBreak = lastFinished ? isSameWibDate(lastFinished.kickoff_time, nextKickoff) : false;
-            const wibDay = formatWibDay(nextKickoff);
-            const wibTime = formatWibTime(nextKickoff);
-            if (!wibDay || !wibTime) break;
+
+            const upcomingClubFixtureMap = new Map<string, { club: string; opponent: string; kickoffTime: string }>();
+            for (const f of sortedUp) {
+              const home = resolveClubName(f.home_team);
+              const away = resolveClubName(f.away_team);
+              if (!home || !away) continue;
+              if (!upcomingClubFixtureMap.has(home)) {
+                upcomingClubFixtureMap.set(home, { club: home, opponent: away, kickoffTime: f.kickoff_time || '' });
+              }
+              if (!upcomingClubFixtureMap.has(away)) {
+                upcomingClubFixtureMap.set(away, { club: away, opponent: home, kickoffTime: f.kickoff_time || '' });
+              }
+            }
 
             const capPlayers: any[] = Array.isArray(ctx.snap?.top_captains) ? ctx.snap.top_captains : [];
             if (capPlayers.length > 0) {
@@ -786,19 +807,43 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
               if (!capName) break;
               const capCount = topCap.captain_count || topCap.count || 0;
               const capStats = topCap.id ? playerMap.get(topCap.id) : null;
+              const capClub = capStats?.club || resolveClubName(topCap.team_short_name || topCap.team_name) || '';
+              const finishedCapMatch = capClub ? finishedClubFixtureMap.get(capClub) : undefined;
+              const upcomingCapMatch = capClub ? upcomingClubFixtureMap.get(capClub) : undefined;
+              const hasCaptainPlayed = Boolean(finishedCapMatch || (capStats && capStats.minutes > 0));
               const capPts = capStats?.points ?? topCap.gw_points ?? 0;
+
+              if (!hasCaptainPlayed && (!capClub || !upcomingCapMatch?.opponent)) break;
+
+              const targetKickoff = hasCaptainPlayed
+                ? nextKickoff
+                : (upcomingCapMatch?.kickoffTime || nextKickoff);
+              const isShortBreak = lastFinished ? isSameUkDate(lastFinished.kickoff_time, targetKickoff) : false;
+              const wibDay = formatWibDay(targetKickoff);
+              const wibTime = formatWibTime(targetKickoff);
+              if (!wibDay || !wibTime) break;
+
+              const cond = hasCaptainPlayed
+                ? (isShortBreak ? 'Jeda Pendek - Sudah Main' : 'Jeda Panjang - Sudah Main')
+                : (isShortBreak ? 'Jeda Pendek - Belum Main' : 'Jeda Panjang - Belum Main');
+
+              const headlineEn = hasCaptainPlayed
+                ? `[P:${capName}] (captained by [N:${capCount}] teams) returned [N:${capPts * 2} Pts] ahead of upcoming fixtures.`
+                : `[N:${capCount}] teams await captain [P:${capName}] ([C:${capClub}]) against [C:${upcomingCapMatch!.opponent}] at [N:${wibTime}].`;
 
               produced.push({
                 id: tmpl.id,
-                headlineId: renderTemplateBranch(tmpl.template, isShortBreak ? 'Jeda Pendek' : 'Jeda Panjang', {
+                headlineId: renderTemplateBranch(tmpl.template, cond, {
                   captain: capName,
                   count: capCount,
                   pts: capPts * 2,
                   gw: currentGw,
                   wib_day: wibDay,
                   kickoff_time: wibTime,
+                  club: capClub,
+                  opponent: upcomingCapMatch?.opponent || finishedCapMatch?.opponent || '',
                 }),
-                headlineEn: `Captain [P:${capName}] ([N:${capCount}] teams) returned [N:${capPts * 2} Pts] ahead of upcoming Gameweek [N:${currentGw}] fixtures.`,
+                headlineEn,
                 dramaScore: 88,
               });
             }
@@ -806,8 +851,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 44. BM_BENCH_REGRET
-        case 'BM_BENCH_REGRET': {
+        // 44. BM_LINEUP_BENCH_POINTS
+        case 'BM_LINEUP_BENCH_POINTS': {
           if (rawPayload) {
             const benchAlerts: { team: string; player: string; pts: number }[] = [];
             for (const s of rawPayload.standingsTable) {
@@ -837,8 +882,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 45. BM_AUTOSUB_WATCH
-        case 'BM_AUTOSUB_WATCH': {
+        // 45. BM_LINEUP_AUTOSUB_ALERT
+        case 'BM_LINEUP_AUTOSUB_ALERT': {
           const watches: { playerDnp: string; club: string; team: string; ownersCount: number }[] = [];
           const teamDnpSeen = new Set<string>();
           for (const op of ownershipList) {
@@ -866,15 +911,15 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                   club: w.club,
                   team: w.team,
                 }),
-                headlineEn: `Starter [P:${w.playerDnp}] ([C:${w.club}]) played 0 minutes, putting [T:${w.team}] on autosub watch.`,
+                headlineEn: `[T:${w.team}] awaits an autosub after starter [P:${w.playerDnp}] ([C:${w.club}]) played 0 minutes.`,
                 dramaScore: 84,
               });
             });
           break;
         }
 
-        // 46. BM_TOP_RIVALRY
-        case 'BM_TOP_RIVALRY': {
+        // 46. BM_STANDINGS_TITLE_RACE
+        case 'BM_STANDINGS_TITLE_RACE': {
           if (standings.length >= 2) {
             const sorted = [...standings].sort((a, b) => (a.rank || 0) - (b.rank || 0));
             const r1 = sorted[0];
@@ -888,15 +933,15 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                 margin,
                 team_2: r2.entry_name,
               }),
-              headlineEn: `In the provisional Gameweek [N:${currentGw}] standings, [T:${r1.entry_name}] leads [T:${r2.entry_name}] in 2nd place by [N:${margin} Pts].`,
+              headlineEn: `[T:${r1.entry_name}] leads the live standings by [N:${margin} Pts] over [T:${r2.entry_name}] in 2nd place.`,
               dramaScore: 91,
             });
           }
           break;
         }
 
-        // 47. BM_GW_LEADER
-        case 'BM_GW_LEADER': {
+        // 47. BM_STANDINGS_GAMEWEEK_LEADER
+        case 'BM_STANDINGS_GAMEWEEK_LEADER': {
           if (standings.length > 0) {
             const gwTop = [...standings].sort((a, b) => (b.event_points || 0) - (a.event_points || 0))[0];
             if (gwTop && gwTop.event_points > 0) {
@@ -907,7 +952,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                   team: gwTop.entry_name,
                   gw_pts: gwTop.event_points,
                 }),
-                headlineEn: `[T:${gwTop.entry_name}] leads the provisional Gameweek [N:${currentGw}] points table with [N:${gwTop.event_points} Pts].`,
+                headlineEn: `[T:${gwTop.entry_name}] leads the live scoring table with [N:${gwTop.event_points} Pts].`,
                 dramaScore: 89,
               });
             }
@@ -915,8 +960,8 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           break;
         }
 
-        // 48. BM_REMAINING_ASSETS
-        case 'BM_REMAINING_ASSETS': {
+        // 48. BM_LINEUP_REMAINING_ASSETS
+        case 'BM_LINEUP_REMAINING_ASSETS': {
           if (upcomingFixtures.length > 0 && rawPayload) {
             const upcomingClubSet = new Set<string>();
             for (const f of upcomingFixtures) {
@@ -960,189 +1005,200 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                     player: c.featured.name,
                     club: c.featured.club,
                   }),
-                  headlineEn: `[T:${c.team}] still has [N:${c.remainingCount}] players yet to play in Gameweek [N:${currentGw}].`,
+                  headlineEn: `[T:${c.team}] still has [N:${c.remainingCount}] players yet to play.`,
                   dramaScore: 86,
                 });
               });
           }
           break;
         }
-      }
 
-      stories.push(...finalizeStories(tmpl, produced, currentGw, 'Between Match', nowIso));
-    } catch (err: any) {
-      console.warn(`[BetweenMatchGenerator] Error rendering ${tmpl.id}:`, err.message);
-    }
-  }
+        // 82. BM_LINEUP_SURPRISE_BENCHED
+        case 'BM_LINEUP_SURPRISE_BENCHED': {
+          for (const m of upcomingLineupMatches) {
+            const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
+            const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
+            if (!homeClub || !awayClub) continue;
 
-  return stories;
-}
+            const sides = [
+              { club: homeClub, opponent: awayClub, lineup: m.home_lineup, bench: m.home_bench },
+              { club: awayClub, opponent: homeClub, lineup: m.away_lineup, bench: m.away_bench },
+            ];
 
-/**
- * Generates real factual stories for all 13 Provisional templates (PV_*)
- */
-export function generateProvisionalStories(targetGw?: number): GeneratedPhaseStory[] {
-  const templates = getPhase1Templates().filter(
-    (t) => (t.gw_phase || '').trim().toLowerCase() === 'provisional'
-  );
-  if (templates.length === 0) return [];
+            for (const side of sides) {
+              const starterFplIds = new Set<number>(side.lineup.filter((p) => p.id > 0).map((p) => p.id));
+              const benchFplIds = new Set<number>(side.bench.filter((p) => p.id > 0).map((p) => p.id));
+              const starterNamesNorm = new Set<string>(side.lineup.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
+              const benchNamesNorm = new Set<string>(side.bench.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
 
-  const ctx = loadContextData(targetGw);
-  const { currentGw, dbData, standings, snap, rawPayload, playerMap, ownershipList, fixtures } = ctx;
-  if (!currentGw) return [];
-  const nowIso = new Date().toISOString();
-  const stories: GeneratedPhaseStory[] = [];
+              const surprise = detectSurpriseLineupForClub(
+                side.club,
+                side.opponent,
+                starterFplIds,
+                benchFplIds,
+                side.lineup.length,
+                fplDirPlayers,
+                starterNamesNorm,
+                benchNamesNorm
+              );
+              if (!surprise) continue;
 
-  const topCaptains: any[] = Array.isArray(snap?.top_captains) ? snap.top_captains : [];
+              const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
+              const headlineId = renderTemplateBranch(tmpl.template, cond, {
+                club: surprise.club,
+                player: surprise.player.webName,
+                starter_pct: surprise.player.starterPct,
+                opponent: surprise.opponent,
+              });
+              if (!headlineId) continue;
 
-  for (const tmpl of templates) {
-    try {
-      const produced: EmittedStoryDraft[] = [];
+              const headlineEn = surprise.isBenched
+                ? `[C:${surprise.club}] benches [P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) against [C:${surprise.opponent}].`
+                : `[P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) misses out from [C:${surprise.club}]'s matchday squad against [C:${surprise.opponent}].`;
 
-      switch (tmpl.id) {
-        // 49. PV_TOP_RIVALRY
-        case 'PV_TOP_RIVALRY': {
-          if (standings.length >= 2) {
-            const sorted = [...standings].sort((a, b) => (a.rank || 0) - (b.rank || 0));
-            const r1 = sorted[0];
-            const r2 = sorted[1];
-            const margin = (r1.total_points || 0) - (r2.total_points || 0);
-            produced.push({
-              id: tmpl.id,
-              headlineId: renderTemplate(tmpl.template, {
-                gw: currentGw,
-                team_1: r1.entry_name,
-                pts_1: r1.total_points,
-                margin,
-                team_2: r2.entry_name,
-                pts_2: r2.total_points,
-              }),
-              headlineEn: `After all Gameweek [N:${currentGw}] fixtures, [T:${r1.entry_name}] provisionally tops the table with [N:${r1.total_points} Pts], [N:${margin} Pts] ahead of [T:${r2.entry_name}] ([N:${r2.total_points} Pts]).`,
-              dramaScore: 93,
-            });
-          }
-          break;
-        }
-
-        // 50. PV_GW_LEADER
-        case 'PV_GW_LEADER': {
-          if (standings.length >= 2) {
-            const byGw = [...standings].sort((a, b) => (b.event_points || 0) - (a.event_points || 0));
-            const l1 = byGw[0];
-            const l2 = byGw[1];
-            if (l1 && l2 && l1.event_points > 0) {
               produced.push({
-                id: tmpl.id,
-                headlineId: renderTemplate(tmpl.template, {
-                  gw: currentGw,
-                  team: l1.entry_name,
-                  gw_pts: l1.event_points,
-                  team_2: l2.entry_name,
-                  gw_pts_2: l2.event_points,
-                }),
-                headlineEn: `[T:${l1.entry_name}] leads provisional Gameweek [N:${currentGw}] scoring with [N:${l1.event_points} Pts], ahead of [T:${l2.entry_name}] ([N:${l2.event_points} Pts]).`,
-                dramaScore: 91,
+                id: `${tmpl.id}_${toStorySlug(surprise.club)}_${toStorySlug(surprise.player.webName)}`,
+                headlineId,
+                headlineEn,
+                dramaScore: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
               });
             }
           }
           break;
         }
 
-        // 51. PV_TOP_SCORER_GW
-        case 'PV_TOP_SCORER_GW': {
-          const scored = Array.from(playerMap.values())
-            .filter((p) => p.points > 0)
-            .sort((a, b) => b.points - a.points || b.ownersCount - a.ownersCount);
-          if (scored.length > 0) {
-            const maxPts = scored[0].points;
-            scored
-              .filter((p) => p.points === maxPts)
-              .slice(0, 3)
-              .forEach((tp, idx, arr) => {
-                produced.push({
-                  id: arr.length === 1 ? tmpl.id : `${tmpl.id}_${idx + 1}_${toStorySlug(tp.name)}`,
-                  headlineId: renderTemplate(tmpl.template, {
-                    gw: currentGw,
-                    player: tp.name,
-                    club: tp.club,
-                    points: tp.points,
-                    goals: tp.goals,
-                    assists: tp.assists,
-                    owners_count: tp.ownersCount,
-                  }),
-                  headlineEn: `[P:${tp.name}] ([C:${tp.club}]) leads provisional Gameweek [N:${currentGw}] scoring with [N:${tp.points} Pts] ([N:${tp.goals} Goals], [N:${tp.assists} Assists]), owned by [N:${tp.ownersCount}] teams.`,
-                  dramaScore: 90,
-                });
+        // 85. BM_STANDINGS_RANK_MOVEMENT
+        case 'BM_STANDINGS_RANK_MOVEMENT': {
+          if (finishedFixtures.length > 0 && standings.length > 0) {
+            const valid = standings.filter(
+              (s: any) => Number(s.last_rank || 0) > 0 && Number(s.rank || 0) > 0
+            );
+            const climbers = valid
+              .map((s: any) => ({ s, diff: Number(s.last_rank) - Number(s.rank) }))
+              .filter((x) => x.diff >= 3)
+              .sort((a, b) => b.diff - a.diff || (b.s.event_points || 0) - (a.s.event_points || 0))
+              .slice(0, 2);
+
+            const fallers = valid
+              .map((s: any) => ({ s, diff: Number(s.rank) - Number(s.last_rank) }))
+              .filter((x) => x.diff >= 3)
+              .sort((a, b) => b.diff - a.diff || (a.s.event_points || 0) - (b.s.event_points || 0))
+              .slice(0, 2);
+
+            for (const c of climbers) {
+              const headlineId = renderTemplateBranch(tmpl.template, 'Naik Peringkat', {
+                team: c.s.entry_name,
+                rank_diff: c.diff,
+                old_rank: c.s.last_rank,
+                new_rank: c.s.rank,
+                gw_pts: c.s.event_points || 0,
               });
+              if (!headlineId) continue;
+              produced.push({
+                id: `${tmpl.id}_up_${toStorySlug(c.s.entry_name)}`,
+                headlineId,
+                headlineEn: `[T:${c.s.entry_name}] climbs [N:+${c.diff} Places] provisionally from [N:${c.s.last_rank}] to [N:${c.s.rank}] on [N:${c.s.event_points || 0} Pts].`,
+                dramaScore: Math.min(90, 82 + Math.floor(c.diff / 3)),
+              });
+            }
+
+            for (const f of fallers) {
+              const headlineId = renderTemplateBranch(tmpl.template, 'Turun Peringkat', {
+                team: f.s.entry_name,
+                rank_diff: f.diff,
+                old_rank: f.s.last_rank,
+                new_rank: f.s.rank,
+                gw_pts: f.s.event_points || 0,
+              });
+              if (!headlineId) continue;
+              produced.push({
+                id: `${tmpl.id}_down_${toStorySlug(f.s.entry_name)}`,
+                headlineId,
+                headlineEn: `[T:${f.s.entry_name}] drops [N:-${f.diff} Places] provisionally from [N:${f.s.last_rank}] to [N:${f.s.rank}] on [N:${f.s.event_points || 0} Pts] so far.`,
+                dramaScore: Math.min(89, 81 + Math.floor(f.diff / 3)),
+              });
+            }
           }
           break;
         }
 
-        // 52. PV_CAPTAIN_RECAP
-        case 'PV_CAPTAIN_RECAP': {
-          if (topCaptains.length >= 2) {
-            const c1 = topCaptains[0];
-            const c2 = topCaptains[1];
-            const c1Info = c1.id ? playerMap.get(c1.id) : null;
-            const c2Info = c2.id ? playerMap.get(c2.id) : null;
-            const pts1 = c1Info?.points ?? c1.gw_points ?? 0;
-            const pts2 = c2Info?.points ?? c2.gw_points ?? 0;
-            produced.push({
-              id: tmpl.id,
-              headlineId: renderTemplate(tmpl.template, {
-                gw: currentGw,
-                captain_1: c1.web_name || c1.name,
-                count_1: c1.captain_count || c1.count || 0,
-                pts_1: pts1 * 2,
-                captain_2: c2.web_name || c2.name,
-                count_2: c2.captain_count || c2.count || 0,
-                pts_2: pts2 * 2,
-              }),
-              headlineEn: `Top Gameweek [N:${currentGw}] captains [P:${c1.web_name || c1.name}] ([N:${c1.captain_count || c1.count || 0}] teams) and [P:${c2.web_name || c2.name}] ([N:${c2.captain_count || c2.count || 0}] teams) delivered [N:${pts1 * 2} Pts] and [N:${pts2 * 2} Pts] provisionally.`,
-              dramaScore: 87,
-            });
-          }
-          break;
-        }
-
-        // 53. PV_VICE_CAPTAIN
-        case 'PV_VICE_CAPTAIN': {
+        // 86. BM_CAPTAIN_VICE_CAPTAIN
+        case 'BM_CAPTAIN_VICE_CAPTAIN': {
           if (rawPayload) {
-            const vcSwaps: { team: string; dnpCap: string; vcName: string; vcPts: number }[] = [];
-            const nameIdMap = new Map<string, IndexedPlayerGwStat>();
-            for (const p of playerMap.values()) {
-              nameIdMap.set(p.name.toLowerCase(), p);
-            }
+            const findPlayerStat = (name: string, clubRaw?: string): IndexedPlayerGwStat | undefined => {
+              const lower = (name || '').toLowerCase();
+              const club = clubRaw ? resolveClubName(clubRaw, '') : '';
+              for (const p of playerMap.values()) {
+                if (p.name.toLowerCase() === lower && (!club || p.club === club)) return p;
+              }
+              for (const p of playerMap.values()) {
+                if (p.name.toLowerCase() === lower) return p;
+              }
+              return undefined;
+            };
+
+            const vcCases: {
+              team: string;
+              dnpCap: string;
+              vcName: string;
+              vcClub: string;
+              vcPts: number;
+              vcPlayed: boolean;
+              rank: number;
+            }[] = [];
 
             for (const s of rawPayload.standingsTable) {
               const capStarter = (s.starters || []).find((st) => st.isC);
               const vcStarter = (s.starters || []).find((st) => st.isVC);
               if (!capStarter || !vcStarter) continue;
-              const capStat = nameIdMap.get(capStarter.name.toLowerCase());
-              const vcStat = nameIdMap.get(vcStarter.name.toLowerCase());
-              if (capStat && capStat.minutes === 0 && vcStat && vcStat.minutes > 0) {
-                vcSwaps.push({
-                  team: s.team,
-                  dnpCap: capStarter.name,
-                  vcName: vcStarter.name,
-                  vcPts: vcStat.points,
-                });
-              }
+
+              const capStat = findPlayerStat(capStarter.name, capStarter.club);
+              const vcStat = findPlayerStat(vcStarter.name, vcStarter.club);
+              if (!capStat || !vcStat) continue;
+
+              // Trigger only when captain's club has already finished with 0 minutes played
+              if (!finishedClubFixtureMap.has(capStat.club) || capStat.minutes > 0) continue;
+
+              const vcPlayed = finishedClubFixtureMap.has(vcStat.club) && vcStat.minutes > 0;
+              // Skip if VC also finished with 0 minutes
+              if (finishedClubFixtureMap.has(vcStat.club) && vcStat.minutes === 0) continue;
+
+              vcCases.push({
+                team: s.team,
+                dnpCap: capStat.name,
+                vcName: vcStat.name,
+                vcClub: vcStat.club,
+                vcPts: vcStat.points,
+                vcPlayed,
+                rank: s.rank || 999,
+              });
             }
 
-            vcSwaps
-              .sort((a, b) => b.vcPts - a.vcPts)
+            vcCases
+              .sort((a, b) => {
+                if (a.vcPlayed !== b.vcPlayed) return a.vcPlayed ? -1 : 1;
+                if (b.vcPts !== a.vcPts) return b.vcPts - a.vcPts;
+                return a.rank - b.rank;
+              })
               .slice(0, 3)
               .forEach((v, idx) => {
+                const cond = v.vcPlayed ? 'Wakil Kapten Sudah Main' : 'Menanti Wakil Kapten';
+                const headlineId = renderTemplateBranch(tmpl.template, cond, {
+                  team: v.team,
+                  vice_captain: v.vcName,
+                  vice_pts: v.vcPts,
+                  vice_club: v.vcClub,
+                  captain_dnp: v.dnpCap,
+                });
+                if (!headlineId) return;
+                const headlineEn = v.vcPlayed
+                  ? `[T:${v.team}] turns to vice-captain [P:${v.vcName}] ([N:${v.vcPts} Pts]) after captain [P:${v.dnpCap}] missed out.`
+                  : `[T:${v.team}] now relies on vice-captain [P:${v.vcName}] ([C:${v.vcClub}]) after captain [P:${v.dnpCap}] played 0 minutes.`;
+
                 produced.push({
                   id: `${tmpl.id}_${idx + 1}_${toStorySlug(v.team)}`,
-                  headlineId: renderTemplate(tmpl.template, {
-                    team: v.team,
-                    vice_captain: v.vcName,
-                    vice_pts: v.vcPts,
-                    captain_dnp: v.dnpCap,
-                  }),
-                  headlineEn: `[T:${v.team}] saw the captaincy pass to vice-captain [P:${v.vcName}] ([N:${v.vcPts} Pts]) as [P:${v.dnpCap}] did not play.`,
+                  headlineId,
+                  headlineEn,
                   dramaScore: 89,
                 });
               });
@@ -1150,283 +1206,242 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
           break;
         }
 
-        // 54. PV_AUTOSUB_PENDING
-        case 'PV_AUTOSUB_PENDING': {
-          const pendingSubs: { team: string; dnp: string; bench: string; benchPts: number }[] = [];
-          if (ownershipList.length > 0) {
-            const teamStarters = new Map<string, { name: string; minutes: number }[]>();
-            const teamBench = new Map<string, { name: string; minutes: number; points: number }[]>();
-
-            for (const op of ownershipList) {
-              const pInfo = playerMap.get(op.id);
-              for (const o of op.owners || []) {
-                if (o.is_starter) {
-                  if (!teamStarters.has(o.entry_name)) teamStarters.set(o.entry_name, []);
-                  teamStarters.get(o.entry_name)!.push({
-                    name: op.web_name,
-                    minutes: pInfo?.minutes || 0,
-                  });
-                } else {
-                  if (!teamBench.has(o.entry_name)) teamBench.set(o.entry_name, []);
-                  teamBench.get(o.entry_name)!.push({
-                    name: op.web_name,
-                    minutes: pInfo?.minutes || 0,
-                    points: pInfo?.points || 0,
-                  });
-                }
-              }
-            }
-
-            for (const [team, starters] of teamStarters.entries()) {
-              const dnp = starters.find((s) => s.minutes === 0);
-              const bench = (teamBench.get(team) || [])
-                .filter((b) => b.minutes > 0 && b.points > 0)
-                .sort((a, b) => b.points - a.points)[0];
-              if (dnp && bench) {
-                pendingSubs.push({ team, dnp: dnp.name, bench: bench.name, benchPts: bench.points });
-              }
-            }
-          }
-
-          pendingSubs
-            .sort((a, b) => b.benchPts - a.benchPts)
-            .slice(0, 3)
-            .forEach((sub, idx) => {
-              produced.push({
-                id: `${tmpl.id}_${idx + 1}_${toStorySlug(sub.team)}`,
-                headlineId: renderTemplate(tmpl.template, {
-                  team: sub.team,
-                  bench_player: sub.bench,
-                  bench_pts: sub.benchPts,
-                  player_dnp: sub.dnp,
-                }),
-                headlineEn: `[T:${sub.team}] awaits automatic substitution to bring [P:${sub.bench}] ([N:${sub.benchPts} Pts]) on for [P:${sub.dnp}].`,
-                dramaScore: 86,
-              });
-            });
-          break;
-        }
-
-        // 55. PV_BENCH_POINTS
-        case 'PV_BENCH_POINTS': {
-          if (rawPayload) {
-            const topBenches = [...rawPayload.standingsTable]
-              .filter((s) => s.benchPts > 0 && (s.bench || []).some((b) => b.pts > 0))
-              .sort((a, b) => b.benchPts - a.benchPts)
-              .slice(0, 3);
-
-            topBenches.forEach((tb, idx) => {
-              const topPlayer = [...tb.bench].sort((a, b) => b.pts - a.pts)[0];
-              produced.push({
-                id: `${tmpl.id}_${idx + 1}_${toStorySlug(tb.team)}`,
-                headlineId: renderTemplate(tmpl.template, {
-                  total_bench_pts: tb.benchPts,
-                  team: tb.team,
-                  gw: currentGw,
-                  player: topPlayer.name,
-                  player_pts: topPlayer.pts,
-                }),
-                headlineEn: `[T:${tb.team}] left [N:${tb.benchPts} Pts] on the bench in Gameweek [N:${currentGw}], led by [P:${topPlayer.name}] ([N:${topPlayer.pts} Pts]).`,
-                dramaScore: 86,
-              });
-            });
-          }
-          break;
-        }
-
-        // 56. PV_CHIP_WILDCARD
-        case 'PV_CHIP_WILDCARD': {
+        // 87. BM_CHIP_PROGRESS
+        case 'BM_CHIP_PROGRESS': {
           const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
             ? dbData.league_analytics.all_chips_used
             : [];
-          let idx = 0;
-          for (const entry of allChips) {
-            const wc = entry.wc1?.gw === currentGw ? entry.wc1 : (entry.wc2?.gw === currentGw ? entry.wc2 : null);
-            if (!wc) continue;
-            idx++;
-            const st = standings.find((s) => s.entry_name === entry.entry_name);
-            const gwPts = wc.points ?? st?.event_points ?? 0;
-            produced.push({
-              id: `${tmpl.id}_${idx}_${toStorySlug(entry.entry_name)}`,
-              headlineId: renderTemplate(tmpl.template, {
-                gw: currentGw,
-                team: entry.entry_name,
-                gw_pts: gwPts,
-              }),
-              headlineEn: `Activating [N:Wildcard] in Gameweek [N:${currentGw}], [T:${entry.entry_name}] collected [N:${gwPts} Pts] provisionally.`,
-              dramaScore: 86,
-            });
-          }
-          break;
-        }
+          const chipActivations = new Map<string, 'TC' | 'BB' | 'WC' | 'FH'>();
 
-        // 57. PV_CHIP_FREEHIT
-        case 'PV_CHIP_FREEHIT': {
-          const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
-            ? dbData.league_analytics.all_chips_used
-            : [];
-          let idx = 0;
           for (const entry of allChips) {
-            const fh = entry.fh1?.gw === currentGw ? entry.fh1 : (entry.fh2?.gw === currentGw ? entry.fh2 : null);
-            if (!fh) continue;
-            idx++;
-            const st = standings.find((s) => s.entry_name === entry.entry_name);
-            const gwPts = fh.points ?? st?.event_points ?? 0;
-            produced.push({
-              id: `${tmpl.id}_${idx}_${toStorySlug(entry.entry_name)}`,
-              headlineId: renderTemplate(tmpl.template, {
-                gw: currentGw,
-                team: entry.entry_name,
-                gw_pts: gwPts,
-              }),
-              headlineEn: `Activating [N:Free Hit] in Gameweek [N:${currentGw}], [T:${entry.entry_name}] collected [N:${gwPts} Pts] provisionally.`,
-              dramaScore: 86,
-            });
+            if (!entry?.entry_name) continue;
+            if (entry.tc1?.gw === currentGw || entry.tc2?.gw === currentGw) chipActivations.set(entry.entry_name, 'TC');
+            else if (entry.bb1?.gw === currentGw || entry.bb2?.gw === currentGw) chipActivations.set(entry.entry_name, 'BB');
+            else if (entry.wc1?.gw === currentGw || entry.wc2?.gw === currentGw) chipActivations.set(entry.entry_name, 'WC');
+            else if (entry.fh1?.gw === currentGw || entry.fh2?.gw === currentGw) chipActivations.set(entry.entry_name, 'FH');
           }
-          break;
-        }
-
-        // 58. PV_CHIP_BENCH_BOOST
-        case 'PV_CHIP_BENCH_BOOST': {
-          const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
-            ? dbData.league_analytics.all_chips_used
-            : [];
-          let idx = 0;
-          for (const entry of allChips) {
-            const bb = entry.bb1?.gw === currentGw ? entry.bb1 : (entry.bb2?.gw === currentGw ? entry.bb2 : null);
-            if (!bb) continue;
-            idx++;
-            const teamRow = rawPayload?.standingsTable?.find((s) => s.team === entry.entry_name);
-            const benchPts = typeof teamRow?.benchPts === 'number' ? teamRow.benchPts : (bb.points ?? 0);
-            produced.push({
-              id: `${tmpl.id}_${idx}_${toStorySlug(entry.entry_name)}`,
-              headlineId: renderTemplate(tmpl.template, {
-                gw: currentGw,
-                team: entry.entry_name,
-                bench_pts: benchPts,
-              }),
-              headlineEn: `Activating [N:Bench Boost] in Gameweek [N:${currentGw}], [T:${entry.entry_name}] gained [N:${benchPts} Pts] provisionally from the bench.`,
-              dramaScore: 88,
-            });
+          for (const s of standings as any[]) {
+            if (!s?.entry_name || !s?.active_chip || chipActivations.has(s.entry_name)) continue;
+            const c = String(s.active_chip).toLowerCase();
+            if (c === 'tc' || c === '3xc') chipActivations.set(s.entry_name, 'TC');
+            else if (c === 'bb' || c === 'bboost') chipActivations.set(s.entry_name, 'BB');
+            else if (c === 'wc' || c === 'wildcard') chipActivations.set(s.entry_name, 'WC');
+            else if (c === 'fh' || c === 'freehit') chipActivations.set(s.entry_name, 'FH');
           }
-          break;
-        }
 
-        // 59. PV_CHIP_TRIPLE_CAPTAIN
-        case 'PV_CHIP_TRIPLE_CAPTAIN': {
-          const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
-            ? dbData.league_analytics.all_chips_used
-            : [];
-          let idx = 0;
-          for (const entry of allChips) {
-            const tc = entry.tc1?.gw === currentGw ? entry.tc1 : (entry.tc2?.gw === currentGw ? entry.tc2 : null);
-            if (!tc) continue;
-            const teamRow = rawPayload?.standingsTable?.find((s) => s.team === entry.entry_name);
-            const teamStanding = standings.find((s) => s.entry_name === entry.entry_name);
-            const capStarter = teamRow?.starters?.find((st) => st.isC);
-            const capName = capStarter?.name || teamStanding?.captain?.name;
-            if (!capName) continue;
-            idx++;
-            const totalPts = capStarter ? capStarter.pts : (tc.points ?? teamStanding?.event_points ?? 0);
-            produced.push({
-              id: `${tmpl.id}_${idx}_${toStorySlug(entry.entry_name)}`,
-              headlineId: renderTemplate(tmpl.template, {
-                gw: currentGw,
-                team: entry.entry_name,
+          const upcomingClubSet = new Set<string>();
+          for (const f of upcomingFixtures) {
+            const h = resolveClubName(f.home_team, '');
+            const a = resolveClubName(f.away_team, '');
+            if (h) upcomingClubSet.add(h);
+            if (a) upcomingClubSet.add(a);
+          }
+
+          let chipIdx = 0;
+          for (const [teamName, chipCode] of chipActivations.entries()) {
+            const teamRow = rawPayload?.standingsTable?.find((s) => s.team === teamName);
+            const teamStanding = standings.find((s: any) => s.entry_name === teamName);
+
+            if (chipCode === 'TC') {
+              const capStarter = teamRow?.starters?.find((st) => st.isC);
+              const capClub = capStarter ? resolveClubName(capStarter.club, '') : '';
+              if (!capStarter || !capClub || !finishedClubFixtureMap.has(capClub)) continue;
+              chipIdx++;
+              const totalPts = capStarter.pts;
+              const headlineId = renderTemplateBranch(tmpl.template, 'Triple Captain', {
+                team: teamName,
+                captain: capStarter.name,
                 total_pts: totalPts,
-                captain: capName,
-              }),
-              headlineEn: `Activating [N:Triple Captain] in Gameweek [N:${currentGw}], [T:${entry.entry_name}] collected [N:${totalPts} Pts] provisionally from [P:${capName}].`,
-              dramaScore: 89,
-            });
+              });
+              if (headlineId) {
+                produced.push({
+                  id: `${tmpl.id}_tc_${chipIdx}_${toStorySlug(teamName)}`,
+                  headlineId,
+                  headlineEn: `[T:${teamName}] provisionally holds [N:${totalPts} Pts] from captain [P:${capStarter.name}] via [N:Triple Captain].`,
+                  dramaScore: 89,
+                });
+              }
+            } else if (chipCode === 'BB') {
+              if (!teamRow) continue;
+              const finishedBench = (teamRow.bench || []).filter((b) =>
+                finishedClubFixtureMap.has(resolveClubName(b.club, ''))
+              );
+              if (finishedBench.length === 0) continue;
+              chipIdx++;
+              const benchPts = finishedBench.reduce((sum, b) => sum + (Number(b.pts) || 0), 0);
+              const headlineId = renderTemplateBranch(tmpl.template, 'Bench Boost', {
+                team: teamName,
+                bench_pts: benchPts,
+              });
+              if (headlineId) {
+                produced.push({
+                  id: `${tmpl.id}_bb_${chipIdx}_${toStorySlug(teamName)}`,
+                  headlineId,
+                  headlineEn: `[T:${teamName}] has collected [N:${benchPts} Pts] from the bench via [N:Bench Boost] so far.`,
+                  dramaScore: 87,
+                });
+              }
+            } else if (chipCode === 'WC' || chipCode === 'FH') {
+              if (!teamRow) continue;
+              const finishedStarters = (teamRow.starters || []).filter((st) =>
+                finishedClubFixtureMap.has(resolveClubName(st.club, ''))
+              );
+              const remainingStarters = (teamRow.starters || []).filter((st) =>
+                upcomingClubSet.has(resolveClubName(st.club, ''))
+              );
+              if (finishedStarters.length === 0 || remainingStarters.length === 0) continue;
+              chipIdx++;
+              const gwPts = teamStanding?.event_points ?? teamRow.gwPts ?? 0;
+              const condName = chipCode === 'WC' ? 'Wildcard' : 'Free Hit';
+              const headlineId = renderTemplateBranch(tmpl.template, condName, {
+                team: teamName,
+                gw_pts: gwPts,
+                remaining_count: remainingStarters.length,
+              });
+              if (headlineId) {
+                produced.push({
+                  id: `${tmpl.id}_${chipCode.toLowerCase()}_${chipIdx}_${toStorySlug(teamName)}`,
+                  headlineId,
+                  headlineEn: `[T:${teamName}] sits on [N:${gwPts} Pts] provisionally via [N:${condName}] with [N:${remainingStarters.length}] players remaining.`,
+                  dramaScore: 86,
+                });
+              }
+            }
           }
           break;
         }
 
-        // 60. PV_HITS_EVALUATION
-        case 'PV_HITS_EVALUATION': {
-          const hitTeams = standings
-            .filter((s) => (s.event_transfers_cost || 0) > 0)
-            .sort((a, b) => (b.event_transfers_cost || 0) - (a.event_transfers_cost || 0))
-            .slice(0, 3);
-
+        // 88. BM_TRANSFER_HITS_EVALUATION
+        case 'BM_TRANSFER_HITS_EVALUATION': {
           const allGwTransfers = (dbData?.league_analytics?.all_transfers || []).filter(
             (tr: any) => Number(tr.event) === currentGw && tr.element_in?.name
           );
+          const hitTeams = standings
+            .filter((s: any) => (s.event_transfers_cost || 0) > 0)
+            .sort((a: any, b: any) => (b.event_transfers_cost || 0) - (a.event_transfers_cost || 0));
 
-          hitTeams.forEach((ht, idx) => {
-            const teamTransfers = allGwTransfers
+          const evaluated: {
+            team: string;
+            hitsPts: number;
+            playerIn: string;
+            club: string;
+            playerPts: number;
+          }[] = [];
+
+          for (const ht of hitTeams) {
+            const finishedSignings = allGwTransfers
               .filter((tr: any) => tr.entry_id === ht.entry_id || tr.entry_name === ht.entry_name)
-              .sort((a: any, b: any) => (b.element_in?.gw_points || 0) - (a.element_in?.gw_points || 0));
-            const bestIn = teamTransfers[0]?.element_in;
-            if (!bestIn) return;
+              .map((tr: any) => {
+                const stat = tr.element_in?.id ? playerMap.get(Number(tr.element_in.id)) : undefined;
+                const club = stat?.club || resolveClubName(tr.element_in.club, '');
+                const pts = stat?.points ?? (Number(tr.element_in.gw_points) || 0);
+                return {
+                  name: stat?.name || tr.element_in.name,
+                  club,
+                  pts,
+                };
+              })
+              .filter((x: any) => x.name && x.club && finishedClubFixtureMap.has(x.club))
+              .sort((a: any, b: any) => b.pts - a.pts);
 
+            if (finishedSignings.length === 0) continue;
+            const bestIn = finishedSignings[0];
+            evaluated.push({
+              team: ht.entry_name,
+              hitsPts: Number(ht.event_transfers_cost) || 0,
+              playerIn: bestIn.name,
+              club: bestIn.club,
+              playerPts: bestIn.pts,
+            });
+          }
+
+          evaluated.slice(0, 3).forEach((evItem, idx) => {
+            const headlineId = renderTemplate(tmpl.template, {
+              team: evItem.team,
+              hits_pts: evItem.hitsPts,
+              player_in: evItem.playerIn,
+              club: evItem.club,
+              player_pts: evItem.playerPts,
+            });
+            if (!headlineId) return;
             produced.push({
-              id: `${tmpl.id}_${idx + 1}_${toStorySlug(ht.entry_name)}`,
-              headlineId: renderTemplate(tmpl.template, {
-                team: ht.entry_name,
-                hits_pts: ht.event_transfers_cost,
-                gw: currentGw,
-                player_in: bestIn.name,
-                player_pts: Number(bestIn.gw_points) || 0,
-              }),
-              headlineEn: `[T:${ht.entry_name}] faces a [N:-${ht.event_transfers_cost} Pts] hit deduction in Gameweek [N:${currentGw}], while new signing [P:${bestIn.name}] returned [N:${Number(bestIn.gw_points) || 0} Pts].`,
+              id: `${tmpl.id}_${idx + 1}_${toStorySlug(evItem.team)}`,
+              headlineId,
+              headlineEn: `[T:${evItem.team}] took a [N:-${evItem.hitsPts} Pts] hit while new signing [P:${evItem.playerIn}] ([C:${evItem.club}]) recorded [N:${evItem.playerPts} Pts] in a completed match.`,
               dramaScore: 86,
             });
           });
           break;
         }
 
-        // 61. PV_CLEAN_SHEET_RECAP
-        case 'PV_CLEAN_SHEET_RECAP': {
-          const csWins: { club: string; opponent: string; score: string }[] = [];
-          for (const f of fixtures) {
-            if (!f.finished && !f.finished_provisional) continue;
-            const hs = Number(f.team_h_score ?? 0);
-            const as = Number(f.team_a_score ?? 0);
-            const home = resolveClubName(f.home_team);
-            const away = resolveClubName(f.away_team);
-            if (!home || !away) continue;
-            if (hs > as && as === 0) {
-              csWins.push({ club: home, opponent: away, score: `${hs} - ${as}` });
-            } else if (as > hs && hs === 0) {
-              csWins.push({ club: away, opponent: home, score: `${as} - ${hs}` });
+        // 89. BM_CAPTAIN_DIFFERENTIAL_RETURN
+        case 'BM_CAPTAIN_DIFFERENTIAL_RETURN': {
+          const capPlayers: any[] = Array.isArray(snap?.top_captains) ? snap.top_captains : [];
+          const diffCaps = capPlayers.filter(
+            (c: any) =>
+              (c.captain_percentage != null && c.captain_percentage < 5) ||
+              (c.captain_count != null && c.captain_count <= 2)
+          );
+
+          const diffStories: {
+            team: string;
+            pts: number;
+            captain: string;
+            club: string;
+            opponent: string;
+            pickersCount: number;
+          }[] = [];
+
+          for (const dc of diffCaps) {
+            const stat = dc.id ? playerMap.get(Number(dc.id)) : undefined;
+            if (!stat || stat.points < 8) continue;
+            const fixInfo = finishedClubFixtureMap.get(stat.club);
+            if (!fixInfo) continue;
+
+            const pickers = standings.filter(
+              (s: any) => s.captain?.id === stat.id || s.captain?.name === stat.name
+            );
+            for (const picker of pickers) {
+              const isTc =
+                String(picker.active_chip || '').toLowerCase() === 'tc' ||
+                String(picker.active_chip || '').toLowerCase() === '3xc';
+              diffStories.push({
+                team: picker.entry_name,
+                pts: stat.points * (isTc ? 3 : 2),
+                captain: stat.name,
+                club: stat.club,
+                opponent: fixInfo.opponent,
+                pickersCount: Number(dc.captain_count ?? pickers.length) || 1,
+              });
             }
           }
 
-          for (const cw of csWins) {
-            const topDef = Array.from(playerMap.values())
-              .filter(
-                (p) =>
-                  p.club === cw.club &&
-                  (p.position === 'DEF' || p.position === 'GKP') &&
-                  p.minutes >= 60 &&
-                  p.ownersCount > 0
-              )
-              .sort((a, b) => b.ownersCount - a.ownersCount || b.points - a.points)[0];
-
-            if (!topDef) continue;
-            produced.push({
-              id: `${tmpl.id}_${toStorySlug(cw.club)}_${toStorySlug(topDef.name)}`,
-              headlineId: renderTemplate(tmpl.template, {
-                club: cw.club,
-                score: cw.score,
-                opponent: cw.opponent,
-                gw: currentGw,
-                owners_count: topDef.ownersCount,
-                defender: topDef.name,
-              }),
-              headlineEn: `[C:${cw.club}] kept a clean sheet in their [N:${cw.score}] win over [C:${cw.opponent}] in Gameweek [N:${currentGw}], rewarding [N:${topDef.ownersCount}] teams owning [P:${topDef.name}].`,
-              dramaScore: 85,
+          diffStories
+            .sort((a, b) => b.pts - a.pts || a.pickersCount - b.pickersCount)
+            .slice(0, 3)
+            .forEach((ds, idx) => {
+              const headlineId = renderTemplate(tmpl.template, {
+                team: ds.team,
+                pts: ds.pts,
+                captain: ds.captain,
+                club: ds.club,
+                opponent: ds.opponent,
+              });
+              if (!headlineId) return;
+              produced.push({
+                id: `${tmpl.id}_${idx + 1}_${toStorySlug(ds.team)}`,
+                headlineId,
+                headlineEn: `[T:${ds.team}] collected [N:${ds.pts} Pts] from differential captain [P:${ds.captain}] ([C:${ds.club}]) after facing [C:${ds.opponent}].`,
+                dramaScore: 88,
+              });
             });
-          }
           break;
         }
       }
 
-      stories.push(...finalizeStories(tmpl, produced, currentGw, 'Provisional', nowIso));
+      stories.push(...finalizeBetweenMatchStories(tmpl, produced, currentGw, nowIso));
     } catch (err: any) {
-      console.warn(`[ProvisionalGenerator] Error rendering ${tmpl.id}:`, err.message);
+      console.warn(`[BetweenMatchGenerator] Error rendering ${tmpl.id}:`, err.message);
     }
   }
 

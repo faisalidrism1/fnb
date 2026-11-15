@@ -195,3 +195,48 @@ Aturan baku berikut wajib diterapkan pada seluruh template di Tabel Editor maupu
 4. **Istilah Klasemen ("Peringkat", Bukan "Posisi"):**
    - Selalu gunakan kata **`peringkat`** untuk penyebutan urutan/posisi di klasemen, **DILARANG** menggunakan kata **`posisi`**.
    - Istilah deskriptif seperti **`pemuncak`**, **`papan atas`**, **`papan tengah`**, **`10 besar`**, **`dasar klasemen`**, dan sejenisnya tetap dapat digunakan.
+
+---
+
+## 9. Standar Baku Redaksional & Gaya Bahasa Berita FPL (International FPL Media Standard)
+
+Seluruh template narasi (`phase1_templates.json`, `phase1Templates.ts`) serta generator berita mengacu pada standar gaya redaksional media FPL internasional (**Official FPL Scout**, **Fantasy Football Scout**, **The Athletic FPL**) yang diadaptasi ke bahasa Indonesia jurnalistik-fantasy modern:
+
+### A. Prinsip Utama Kalimat & Struktur
+1. **Subject-First (S-P-O) & Piramida Terbalik:** Pelaku utama (`[T:...]`, `[P:...]`, atau `[C:...]`) dan aksi/dampak FPL langsung diletakkan di awal kalimat. **Hindari pembuka lambat / keterangan waktu di depan** (*"Seluruh laga tuntas; ..."*, *"Usai Gameweek N, ..."*, *"Hingga Gameweek N, ..."*, *"Mengaktifkan Wildcard..., [T:...]"*, *"Persaingan ketat:"*).
+2. **Konsistensi Struktur Lintas Fase:** Topik sejenis (Chip, Autosub, Kapten Terpopuler, Title Race, Bench Points) wajib memakai pola S-P-O yang seragam antar-fase (`Not started` $\rightarrow$ `Provisional` $\rightarrow$ `Confirmed`).
+3. **Kalimat Aktif & Lugas:** Subjek pelaku langsung melakukan aksi. Hindari konstruksi pasif birokratis (*"dialami oleh"*, *"diambil oleh"*, *"terjadi lewat"*, *"diaktifkan oleh"*).
+4. **Padat & Headline-Ready (1–2 Fakta Inti):** Maksimal 1–2 klausa singkat (hindari menumpuk 4–5 metrik dalam satu item ticker), tanpa kata pengisi (*filler*) dan tanpa pengulangan kata dalam satu kalimat.
+5. **Penyebutan Gameweek (`GW`) Selektif:** Pada *news ticker*, seluruh berita berasal dari GW aktif sehingga angka `Gameweek [N:{gw}]` **TIDAK diulang** pada berita mikro/taktikal dalam pekan berjalan (chip individual, transfer/hit, differential, cedera, autosub, poin bangku cadangan, pergerakan peringkat harian). Penyebutan `Gameweek [N:{gw}]` **hanya dipertahankan** pada:
+   - Berita pembuka/lanjutan fase pekan (`NS_MATCH_FIXTURE_OPENING`, `LM_MATCH_PERIOD_START` Babak 1, `BM_MATCH_FIXTURE_NEXT`, `BM_CAPTAIN_POPULAR_RETURN` jeda panjang).
+   - Ringkasan akumulatif lintas pekan (`NS_CHIP_SUMMARY_USAGE`, `CF_STANDINGS_WEEKLY_WINS_MOST`).
+   - Penobatan/hasil resmi akhir pekan (`CF_STANDINGS_GAMEWEEK_WINNER`, `CF_STANDINGS_TITLE_RACE`, `CF_PLAYER_TOP_PERFORMER_GW_SCORER`).
+6. **Fantasy-First Impact:** Event laga berdampak poin langsung (gol bunuh diri `-2 Poin`, penalti gagal `-2 Poin`, penalti ditepis `+5 Poin` vs `-2 Poin`, kartu merah `-3 Poin`, sub bertahan `60+` menit mengunci *clean sheet*) harus menonjolkan implikasi poin FPL-nya.
+7. **Netral Terhadap Haul vs Blank:** Untuk metrik poin kapten/rekrutan yang bisa bernilai tinggi maupun rendah, gunakan verba faktual netral seperti **`membukukan`**, **`mengoleksi`**, atau **`meraih`** (hindari kata *"menyumbang"* bila pemain berpotensi blank).
+8. **Presisi Bench Boost:** Gunakan frasa *"dari bangku cadangannya"* (jangan mengunci jumlah *"keempat pemain"* karena ada kemungkinan pemain cadangan berstatus DNP).
+9. **Pelestarian Tag & Variabel:** Perubahan redaksional **WAJIB mempertahankan seluruh tag entitas** (`[T:...]`, `[P:...]`, `[C:...]`, `[N:...]`), variabel `{...}`, dan header `[Kondisi: ...]` yang ada di masing-masing template.
+10. **Hindari Kata Penyama & Kualifikasi Janggal:** Jangan gunakan **`sama-sama`**, **`kompak`**, atau frasa klise seperti **"poin bonus final"** (aneh jika pemain hanya meraih `4 Poin` tanpa bonus). Gunakan konstruksi langsung seperti *"masing-masing dipilih [N:...]"*, *"mengoleksi poin identik"*, atau *"menutup pekan dengan [N:{captain_pts} Poin]"*.
+11. **Kontras Langsung (`alih-alih`):** Untuk perbandingan kapten aktual vs kapten alternatif dengan poin lebih tinggi, gunakan konjungsi **`alih-alih`** tanpa filler *"di starting XI mereka"*.
+
+### B. Daftar Kata/Frasa Terlarang & Padanan Bakunya
+
+| Dihindari (Non-FPL / Tabloid / Pasif / Bertele-tele) | Padanan Baku Media FPL |
+|---|---|
+| `kontra` | **`vs`** (jadwal, skor, duel head-to-head: `[C:Arsenal] vs [C:Chelsea]`, `[P:Haaland] vs [P:Salah]`) atau **`melawan` / `menghadapi`** (kalimat aksi dalam laga) |
+| `kubu` | Sebut langsung nama tim/klub (`[T:{team}]`, `[C:{club}]`) |
+| `tahta`, `sang pemuncak` | **`puncak klasemen`**, **`pemuncak klasemen`** |
+| `mempercayakan / memercayakan ban kapten`, `mengemban tanggung jawab besar pada ban kapten yang disematkan di lengannya` | **`mengapteni`**, **`memilih [P:...] sebagai kapten`**, **`menunjuk [P:...] sebagai kapten`** |
+| `dialami oleh`, `diambil oleh` | Kalimat aktif: **`paling banyak dijual`**, **`memasang`**, **`mengambil langkah`** |
+| `bertumpu pada`, `berambisi menambah` | **`menjadikan ... sebagai penentu`**, **`demi menambah`** |
+| `berujung pengurangan` | **`dan terkena [N:-2 Poin]` / `[N:-3 Poin]`** |
+| `mengawali pekan ini dengan modal pengurangan poin` | **`mengambil transfer hit dan memulai pekan dengan penalti poin`** |
+| `tidak menemui sasaran` (untuk penalti gagal) | **`gagal berbuah gol ([N:-2 Poin])`** |
+| `berhasil mengeksekusi tendangan penalti` | **`menuntaskan eksekusi dari titik putih`** |
+| `menerima umpan dari` | **`dari assist [P:...]`** |
+| `sama-sama` / `kompak` / `poin bonus final` | **`masing-masing dipilih`**, **`poin identik`**, **`menutup pekan dengan [N:...]`** |
+| `(+N pekan ini)` pada ringkasan chip | **`(+N)`** (`Penggunaan chip hingga Gameweek [N:{gw}]: ...`) |
+| `memainkan` (untuk chip: Wildcard, Free Hit, Bench Boost, Triple Captain) | **`mengaktifkan`** atau **`menggunakan`** |
+
+### C. Terminologi FPL Baku (Dipertahankan dalam Bentuk Asli)
+Gunakan istilah internasional FPL tanpa terjemahan kaku: **`Gameweek`**, **`Wildcard`**, **`Free Hit`**, **`Bench Boost`**, **`Triple Captain`**, **`Clean sheet`**, **`Assist`**, **`BPS`**, **`Poin Bonus`**, **`Differential`**, **`Starting XI`**, **`Autosub`**, **`Transfer hit`**, **`Defensive Contribution`**.
+

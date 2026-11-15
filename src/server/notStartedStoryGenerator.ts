@@ -4,6 +4,12 @@ import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.
 import { formatTeamList, getTeamAppearanceCounts } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
+import { getCachedMatchesForGw } from './matchesFetcher.ts';
+import {
+  getFplPlayerDirectory,
+  detectSurpriseLineupForClub,
+  normalizeDiacritics,
+} from './liveMatchStoryGenerator.ts';
 
 /**
  * ============================================================================
@@ -504,6 +510,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
 
   const storiesByTemplateId = new Map<string, GeneratedPhase1Story>();
   let flaggedAscStories: GeneratedPhase1Story[] = [];
+  const surpriseLineupStories: GeneratedPhase1Story[] = [];
 
   for (const tmpl of templates) {
     try {
@@ -683,7 +690,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                   gw: currentGw,
                   others_clause:
                     rawTcTeams.length > 2
-                      ? `, sementara [N:${rawTcTeams.length - 2}] tim lainnya memilih opsi kapten berbeda`
+                      ? `, sementara [N:${rawTcTeams.length - 2}] tim memilih kapten berbeda`
                       : '',
                 });
               }
@@ -707,10 +714,10 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               if (row.tc1 && Number(row.tc1.gw) <= currentGw) { tcCount++; if (Number(row.tc1.gw) === currentGw) tcNew++; }
               if (row.tc2 && Number(row.tc2.gw) <= currentGw) { tcCount++; if (Number(row.tc2.gw) === currentGw) tcNew++; }
             }
-            const wcStr = `[N:Wildcard] [N:${wcCount}]${wcNew > 0 ? ` (+[N:${wcNew}] pekan ini)` : ''}`;
-            const fhStr = `[N:Free Hit] [N:${fhCount}]${fhNew > 0 ? ` (+[N:${fhNew}] pekan ini)` : ''}`;
-            const bbStr = `[N:Bench Boost] [N:${bbCount}]${bbNew > 0 ? ` (+[N:${bbNew}] pekan ini)` : ''}`;
-            const tcStr = `[N:Triple Captain] [N:${tcCount}]${tcNew > 0 ? ` (+[N:${tcNew}] pekan ini)` : ''}`;
+            const wcStr = `[N:Wildcard] [N:${wcCount}]${wcNew > 0 ? ` (+[N:${wcNew}])` : ''}`;
+            const fhStr = `[N:Free Hit] [N:${fhCount}]${fhNew > 0 ? ` (+[N:${fhNew}])` : ''}`;
+            const bbStr = `[N:Bench Boost] [N:${bbCount}]${bbNew > 0 ? ` (+[N:${bbNew}])` : ''}`;
+            const tcStr = `[N:Triple Captain] [N:${tcCount}]${tcNew > 0 ? ` (+[N:${tcNew}])` : ''}`;
             const summary = `${wcStr}, ${fhStr}, ${bbStr}, dan ${tcStr}`;
 
             filledHeadline = renderTemplateBranch(tmpl.template, '', {
@@ -789,9 +796,9 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 count2: secondCount,
                 count_others: othersCount,
                 others_count: othersCount,
-                second_clause: `, disusul [P:${secondName}] dengan [N:${secondCount}] tim`,
+                second_clause: `, diikuti [P:${secondName}] ([N:${secondCount}] tim)`,
                 others_clause:
-                  othersCount > 0 ? `, sementara [N:${othersCount}] tim lainnya memilih kapten alternatif` : '',
+                  othersCount > 0 ? `, sementara [N:${othersCount}] tim memilih kapten lain` : '',
               });
             }
           }
@@ -1167,6 +1174,78 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
           break;
         }
 
+        // 81. Surprise Lineup (Upcoming Match Lineup Released in NS)
+        case 81: {
+          const cachedMatches = getCachedMatchesForGw(currentGw) || [];
+          const preKickoffWithLineups = cachedMatches.filter(
+            (m) =>
+              !m.started &&
+              m.has_lineup &&
+              (m.home_lineup?.length || 0) >= 10 &&
+              (m.away_lineup?.length || 0) >= 10
+          );
+          if (preKickoffWithLineups.length > 0) {
+            const { allPlayers } = getFplPlayerDirectory(currentGw);
+            for (const m of preKickoffWithLineups) {
+              const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
+              const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
+              if (!homeClub || !awayClub) continue;
+
+              const sides = [
+                { club: homeClub, opponent: awayClub, lineup: m.home_lineup, bench: m.home_bench },
+                { club: awayClub, opponent: homeClub, lineup: m.away_lineup, bench: m.away_bench },
+              ];
+              for (const side of sides) {
+                const starterFplIds = new Set<number>(side.lineup.filter((p) => p.id > 0).map((p) => p.id));
+                const benchFplIds = new Set<number>(side.bench.filter((p) => p.id > 0).map((p) => p.id));
+                const starterNamesNorm = new Set<string>(side.lineup.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
+                const benchNamesNorm = new Set<string>(side.bench.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
+
+                const surprise = detectSurpriseLineupForClub(
+                  side.club,
+                  side.opponent,
+                  starterFplIds,
+                  benchFplIds,
+                  side.lineup.length,
+                  allPlayers,
+                  starterNamesNorm,
+                  benchNamesNorm
+                );
+                if (!surprise) continue;
+
+                const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
+                const headline = renderTemplateBranch(tmpl.template, cond, {
+                  club: surprise.club,
+                  player: surprise.player.webName,
+                  starter_pct: surprise.player.starterPct,
+                  opponent: surprise.opponent,
+                });
+                if (!headline) continue;
+
+                const clubSlug = surprise.club.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                const playerSlug = surprise.player.webName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                surpriseLineupStories.push({
+                  id: `${tmpl.id}_${clubSlug}_${playerSlug}`,
+                  headline_id: headline,
+                  headline_en: headline,
+                  kategori: tmpl.category,
+                  sub_kategori: tmpl.subcategory,
+                  drama_score: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
+                  waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
+                  gw: Number(tmpl.gw) || currentGw,
+                  teams: extractTagNames(headline, 'T'),
+                  players: [surprise.player.webName],
+                  sumber: 'Sys',
+                  status_tayang: isGwNotStarted ? 'Y' : 'N',
+                  keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+                  timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
+                });
+              }
+            }
+          }
+          break;
+        }
+
         default:
           filledHeadline = '';
           break;
@@ -1297,35 +1376,35 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   }
 
   const wave1 = [
-    storiesByTemplateId.get('NS_MATCH_FIXTURE'),
-    storiesByTemplateId.get('NS_TOP_RIVALRY'),
-    storiesByTemplateId.get('NS_CAPTAIN_RECAP'),
+    storiesByTemplateId.get('NS_MATCH_FIXTURE_OPENING'),
+    storiesByTemplateId.get('NS_STANDINGS_TITLE_RACE'),
+    storiesByTemplateId.get('NS_CAPTAIN_POPULAR_MOST_CAPTAINED'),
   ].filter(Boolean) as GeneratedPhase1Story[];
 
   const wave2 = [
-    storiesByTemplateId.get('NS_HITS_RECAP'),
+    storiesByTemplateId.get('NS_TRANSFER_HITS_MOST'),
     storiesByTemplateId.get('NS_CHIP_WILDCARD'),
-    storiesByTemplateId.get('NS_CHIP_FREEHIT'),
-    storiesByTemplateId.get('NS_TRANSFER_IN'),
-    storiesByTemplateId.get('NS_DIFFERENTIAL_CAPTAIN'),
+    storiesByTemplateId.get('NS_CHIP_FREE_HIT'),
+    storiesByTemplateId.get('NS_TRANSFER_IN_MOST_BOUGHT'),
+    storiesByTemplateId.get('NS_CAPTAIN_DIFFERENTIAL'),
     pickedAscStory,
   ].filter(Boolean) as GeneratedPhase1Story[];
 
   const wave3 = [
-    storiesByTemplateId.get('NS_MOST_GW_RIVALRY'),
+    storiesByTemplateId.get('NS_STANDINGS_WEEKLY_WINS_MOST'),
     storiesByTemplateId.get('NS_CHIP_TRIPLE_CAPTAIN'),
     storiesByTemplateId.get('NS_CHIP_BENCH_BOOST'),
-    storiesByTemplateId.get('NS_TRANSFER_OUT'),
-    storiesByTemplateId.get('NS_DIFFERENTIAL_XI'),
+    storiesByTemplateId.get('NS_TRANSFER_OUT_MOST_SOLD'),
+    storiesByTemplateId.get('NS_LINEUP_DIFFERENTIAL_XI'),
   ].filter(Boolean) as GeneratedPhase1Story[];
 
   const wave4 = [
-    storiesByTemplateId.get('NS_MOST_OWNED'),
-    storiesByTemplateId.get('NS_CHIP_RECAP'),
+    storiesByTemplateId.get('NS_PLAYER_OWNERSHIP_MOST_OWNED'),
+    storiesByTemplateId.get('NS_CHIP_SUMMARY_USAGE'),
     pickedDescStory,
   ].filter(Boolean) as GeneratedPhase1Story[];
 
-  const activeCycleItems = [...wave1, ...wave2, ...wave3, ...wave4];
+  const activeCycleItems = [...wave1, ...surpriseLineupStories, ...wave2, ...wave3, ...wave4];
   const orderedStories: GeneratedPhase1Story[] = [];
 
   for (const item of activeCycleItems) {
