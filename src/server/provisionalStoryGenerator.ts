@@ -1,6 +1,7 @@
 import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
 import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
 import { buildRawMatchdayPayload } from './newsAggregator.ts';
+import { formatTeamList } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 
 export interface GeneratedPhaseStory {
@@ -206,7 +207,7 @@ function finalizeProvisionalStories(
 }
 
 /**
- * Generates real factual stories for all 13 Provisional templates (PV_*)
+ * Generates real factual stories for all 17 Provisional templates (PV_*)
  */
 export function generateProvisionalStories(targetGw?: number): GeneratedPhaseStory[] {
   const templates = getPhase1Templates().filter(
@@ -234,9 +235,10 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
             const r1 = sorted[0];
             const r2 = sorted[1];
             const margin = (r1.total_points || 0) - (r2.total_points || 0);
+            const isTied = margin === 0;
             produced.push({
               id: tmpl.id,
-              headlineId: renderTemplate(tmpl.template, {
+              headlineId: renderTemplateBranch(tmpl.template, isTied ? 'Poin Sama' : 'Unggul Poin', {
                 gw: currentGw,
                 team_1: r1.entry_name,
                 pts_1: r1.total_points,
@@ -244,7 +246,9 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
                 team_2: r2.entry_name,
                 pts_2: r2.total_points,
               }),
-              headlineEn: `[T:${r1.entry_name}] provisionally tops the table with [N:${r1.total_points} Pts], [N:${margin} Pts] ahead of [T:${r2.entry_name}] ([N:${r2.total_points} Pts]) after all fixtures.`,
+              headlineEn: isTied
+                ? `[T:${r1.entry_name}] and [T:${r2.entry_name}] are tied provisionally on [N:${r1.total_points} Pts] at the top after all fixtures.`
+                : `[T:${r1.entry_name}] provisionally tops the table with [N:${r1.total_points} Pts], [N:${margin} Pts] ahead of [T:${r2.entry_name}] ([N:${r2.total_points} Pts]) after all fixtures.`,
               dramaScore: 93,
             });
           }
@@ -258,18 +262,35 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
             const l1 = byGw[0];
             const l2 = byGw[1];
             if (l1 && l2 && l1.event_points > 0) {
-              produced.push({
-                id: tmpl.id,
-                headlineId: renderTemplate(tmpl.template, {
-                  gw: currentGw,
-                  team: l1.entry_name,
-                  gw_pts: l1.event_points,
-                  team_2: l2.entry_name,
-                  gw_pts_2: l2.event_points,
-                }),
-                headlineEn: `[T:${l1.entry_name}] leads provisional scoring with [N:${l1.event_points} Pts], ahead of [T:${l2.entry_name}] ([N:${l2.event_points} Pts]).`,
-                dramaScore: 91,
-              });
+              const maxPts = l1.event_points;
+              const tiedLeaders = byGw.filter((s) => (s.event_points || 0) === maxPts);
+              if (tiedLeaders.length > 1) {
+                const teamsId = formatTeamList(tiedLeaders.map((t) => t.entry_name), 'id', false);
+                const teamsEn = formatTeamList(tiedLeaders.map((t) => t.entry_name), 'en', false);
+                produced.push({
+                  id: tmpl.id,
+                  headlineId: renderTemplateBranch(tmpl.template, 'Poin Sama', {
+                    gw: currentGw,
+                    teams_list: teamsId,
+                    gw_pts: maxPts,
+                  }),
+                  headlineEn: `${teamsEn} share the provisional Gameweek scoring lead with [N:${maxPts} Pts].`,
+                  dramaScore: 91,
+                });
+              } else {
+                produced.push({
+                  id: tmpl.id,
+                  headlineId: renderTemplateBranch(tmpl.template, 'Pemimpin Tunggal', {
+                    gw: currentGw,
+                    team: l1.entry_name,
+                    gw_pts: l1.event_points,
+                    team_2: l2.entry_name,
+                    gw_pts_2: l2.event_points,
+                  }),
+                  headlineEn: `[T:${l1.entry_name}] leads provisional scoring with [N:${l1.event_points} Pts], ahead of [T:${l2.entry_name}] ([N:${l2.event_points} Pts]).`,
+                  dramaScore: 91,
+                });
+              }
             }
           }
           break;
@@ -347,24 +368,34 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
         // 53. PV_CAPTAIN_VICE_CAPTAIN
         case 'PV_CAPTAIN_VICE_CAPTAIN': {
           if (rawPayload) {
-            const vcSwaps: { team: string; dnpCap: string; vcName: string; vcPts: number }[] = [];
-            const nameIdMap = new Map<string, IndexedPlayerGwStat>();
-            for (const p of playerMap.values()) {
-              nameIdMap.set(p.name.toLowerCase(), p);
-            }
+            const findPlayerStatByNameClub = (name: string, clubRaw?: string): IndexedPlayerGwStat | undefined => {
+              const lower = (name || '').trim().toLowerCase();
+              const club = clubRaw ? resolveClubName(clubRaw, '') : '';
+              for (const p of playerMap.values()) {
+                if (p.name.toLowerCase() === lower && (!club || p.club === club)) return p;
+              }
+              for (const p of playerMap.values()) {
+                if (p.name.toLowerCase() === lower) return p;
+              }
+              return undefined;
+            };
 
+            const vcSwaps: { team: string; dnpCap: string; vcName: string; vcPts: number }[] = [];
             for (const s of rawPayload.standingsTable) {
               const capStarter = (s.starters || []).find((st) => st.isC);
               const vcStarter = (s.starters || []).find((st) => st.isVC);
               if (!capStarter || !vcStarter) continue;
-              const capStat = nameIdMap.get(capStarter.name.toLowerCase());
-              const vcStat = nameIdMap.get(vcStarter.name.toLowerCase());
+              const capStat = findPlayerStatByNameClub(capStarter.name, capStarter.club);
+              const vcStat = findPlayerStatByNameClub(vcStarter.name, vcStarter.club);
               if (capStat && capStat.minutes === 0 && vcStat && vcStat.minutes > 0) {
+                const stMatch = standings.find((st: any) => st.entry_name === s.team);
+                const chipLower = String(s.chip || stMatch?.active_chip || '').toLowerCase();
+                const isTc = chipLower === 'tc' || chipLower === '3xc' || chipLower.includes('triple');
                 vcSwaps.push({
                   team: s.team,
-                  dnpCap: capStarter.name,
-                  vcName: vcStarter.name,
-                  vcPts: vcStat.points,
+                  dnpCap: capStat.name,
+                  vcName: vcStat.name,
+                  vcPts: vcStat.points * (isTc ? 3 : 2),
                 });
               }
             }
@@ -626,9 +657,10 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
             const home = resolveClubName(f.home_team);
             const away = resolveClubName(f.away_team);
             if (!home || !away) continue;
-            if (hs > as && as === 0) {
+            if (as === 0) {
               csWins.push({ club: home, opponent: away, score: `${hs} - ${as}` });
-            } else if (as > hs && hs === 0) {
+            }
+            if (hs === 0) {
               csWins.push({ club: away, opponent: home, score: `${as} - ${hs}` });
             }
           }
@@ -655,9 +687,229 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
                 owners_count: topDef.ownersCount,
                 defender: topDef.name,
               }),
-              headlineEn: `[C:${cw.club}] kept a clean sheet in their [N:${cw.score}] win over [C:${cw.opponent}], rewarding [N:${topDef.ownersCount}] owners of [P:${topDef.name}].`,
+              headlineEn: `[C:${cw.club}] locked in a clean sheet against [C:${cw.opponent}] ([N:${cw.score}]), delivering provisional points for [N:${topDef.ownersCount}] owners of [P:${topDef.name}].`,
               dramaScore: 85,
             });
+          }
+          break;
+        }
+
+        // 90. PV_STANDINGS_RANK_MOVEMENT
+        case 'PV_STANDINGS_RANK_MOVEMENT': {
+          if (standings.length > 0) {
+            const valid = standings.filter(
+              (s: any) => Number(s.last_rank || 0) > 0 && Number(s.rank || 0) > 0
+            );
+            const climbers = valid
+              .map((s: any) => ({ s, diff: Number(s.last_rank) - Number(s.rank) }))
+              .filter((x) => x.diff >= 3)
+              .sort((a, b) => b.diff - a.diff || (b.s.event_points || 0) - (a.s.event_points || 0))
+              .slice(0, 2);
+
+            const fallers = valid
+              .map((s: any) => ({ s, diff: Number(s.rank) - Number(s.last_rank) }))
+              .filter((x) => x.diff >= 3)
+              .sort((a, b) => b.diff - a.diff || (a.s.event_points || 0) - (b.s.event_points || 0))
+              .slice(0, 2);
+
+            for (const c of climbers) {
+              const headlineId = renderTemplateBranch(tmpl.template, 'Naik Peringkat', {
+                team: c.s.entry_name,
+                rank_diff: c.diff,
+                old_rank: c.s.last_rank,
+                new_rank: c.s.rank,
+                gw_pts: c.s.event_points || 0,
+              });
+              if (!headlineId) continue;
+              produced.push({
+                id: `${tmpl.id}_up_${toStorySlug(c.s.entry_name)}`,
+                headlineId,
+                headlineEn: `[T:${c.s.entry_name}] climbed [N:+${c.diff} Places] provisionally from [N:${c.s.last_rank}] to [N:${c.s.rank}] after scoring [N:${c.s.event_points || 0} Pts].`,
+                dramaScore: Math.min(91, 83 + Math.floor(c.diff / 3)),
+              });
+            }
+
+            for (const f of fallers) {
+              const headlineId = renderTemplateBranch(tmpl.template, 'Turun Peringkat', {
+                team: f.s.entry_name,
+                rank_diff: f.diff,
+                old_rank: f.s.last_rank,
+                new_rank: f.s.rank,
+                gw_pts: f.s.event_points || 0,
+              });
+              if (!headlineId) continue;
+              produced.push({
+                id: `${tmpl.id}_down_${toStorySlug(f.s.entry_name)}`,
+                headlineId,
+                headlineEn: `[T:${f.s.entry_name}] dropped [N:-${f.diff} Places] provisionally from [N:${f.s.last_rank}] to [N:${f.s.rank}] on [N:${f.s.event_points || 0} Pts].`,
+                dramaScore: Math.min(90, 82 + Math.floor(f.diff / 3)),
+              });
+            }
+          }
+          break;
+        }
+
+        // 91. PV_STANDINGS_TITLE_RACE_LEAD_CHANGE
+        case 'PV_STANDINGS_TITLE_RACE_LEAD_CHANGE': {
+          const sortedStandings = [...standings].sort((a, b) => (a.rank || 0) - (b.rank || 0));
+          const rank1 = sortedStandings[0];
+          const rank2 = sortedStandings[1];
+          const r1LastRank = rank1 ? Number(rank1.last_rank || rank1.rank || 1) : 1;
+          const coupOccurred = Boolean(rank1 && r1LastRank > 1);
+
+          if (coupOccurred && rank1 && rank2) {
+            const formerLeader =
+              sortedStandings.find((s) => Number(s.last_rank) === 1 && s.entry_name !== rank1.entry_name) || rank2;
+            const margin = (rank1.total_points || 0) - (rank2.total_points || 0);
+            const isTied = margin === 0;
+
+            produced.push({
+              id: tmpl.id,
+              headlineId: renderTemplateBranch(tmpl.template, isTied ? 'Poin Sama' : 'Unggul Poin', {
+                gw: currentGw,
+                new_leader: rank1.entry_name,
+                old_rank: r1LastRank,
+                former_leader: formerLeader.entry_name,
+                former_new_rank: formerLeader.rank,
+                margin,
+                total_pts: rank1.total_points || 0,
+              }),
+              headlineEn: isTied
+                ? `[T:${rank1.entry_name}] climbed from rank [N:${r1LastRank}] to join the provisional top spot on [N:${rank1.total_points || 0} Pts], displacing [T:${formerLeader.entry_name}] to rank [N:${formerLeader.rank}].`
+                : `[T:${rank1.entry_name}] climbed from rank [N:${r1LastRank}] to take the provisional lead, overtaking [T:${formerLeader.entry_name}] (now rank [N:${formerLeader.rank}]) by [N:${margin} Pts].`,
+              dramaScore: 97,
+            });
+          }
+          break;
+        }
+
+        // 92. PV_TRANSFER_OUT_SOLD_HAULERS
+        case 'PV_TRANSFER_OUT_SOLD_HAULERS': {
+          if (!rawPayload) break;
+          const multiGroups = (rawPayload.crossTeamPlayerDrama || [])
+            .filter((d) => d.category === 'Transfer' && d.teamCount >= 2)
+            .slice(0, 3);
+          const coveredPlayers = new Set(multiGroups.map((g) => g.player.toLowerCase()));
+
+          multiGroups.forEach((grp, idx) => {
+            const teamsId = formatTeamList(grp.teams, 'id');
+            const teamsEn = formatTeamList(grp.teams, 'en');
+            const clubResolved = resolveClubName(grp.club);
+            produced.push({
+              id: `${tmpl.id}_${idx + 1}_${toStorySlug(grp.player)}`,
+              headlineId: renderTemplateBranch(tmpl.template, 'Multi Tim', {
+                teams: teamsId,
+                player: grp.player,
+                club: clubResolved,
+                points: grp.playerPts,
+                gw: currentGw,
+              }),
+              headlineEn: `${teamsEn} sold [P:${grp.player}] ([C:${clubResolved}]), who went on to score [N:${grp.playerPts} Pts] provisionally.`,
+              dramaScore: Math.min(95, 84 + Math.min(8, grp.teamCount) + Math.min(4, Math.floor(grp.playerPts / 3))),
+            });
+          });
+
+          if (produced.length < 3) {
+            const allGwTransfers = (dbData?.league_analytics?.all_transfers || []).filter(
+              (tr: any) => Number(tr.event) === currentGw && tr.element_out && tr.element_in
+            );
+            const singleCandidates = allGwTransfers
+              .map((tr: any) => ({
+                team: tr.entry_name,
+                playerOut: tr.element_out.name,
+                club: resolveClubName(tr.element_out.club),
+                outPts: Number(tr.element_out.gw_points) || 0,
+                playerIn: tr.element_in.name,
+                inPts: Number(tr.element_in.gw_points) || 0,
+                delta: (Number(tr.element_out.gw_points) || 0) - (Number(tr.element_in.gw_points) || 0),
+              }))
+              .filter((c: any) => c.delta >= 6 && !coveredPlayers.has(String(c.playerOut || '').toLowerCase()))
+              .sort((a: any, b: any) => b.delta - a.delta);
+
+            const seenSingleKey = new Set<string>();
+            for (const c of singleCandidates) {
+              if (produced.length >= 3) break;
+              const k = `${c.team}::${c.playerOut}`;
+              if (seenSingleKey.has(k)) continue;
+              seenSingleKey.add(k);
+              produced.push({
+                id: `${tmpl.id}_s_${produced.length + 1}_${toStorySlug(c.playerOut)}`,
+                headlineId: renderTemplateBranch(tmpl.template, '1 Tim', {
+                  team: c.team,
+                  player: c.playerOut,
+                  club: c.club,
+                  points: c.outPts,
+                  gw: currentGw,
+                  player_in: c.playerIn,
+                  in_points: c.inPts,
+                }),
+                headlineEn: `[T:${c.team}] sold [P:${c.playerOut}] ([C:${c.club}]) who scored [N:${c.outPts} Pts] provisionally, while replacement [P:${c.playerIn}] earned [N:${c.inPts} Pts].`,
+                dramaScore: Math.min(91, 82 + Math.floor(c.delta / 2)),
+              });
+            }
+          }
+          break;
+        }
+
+        // 93. PV_CAPTAIN_ALTERNATIVE_MISSED_HAUL
+        case 'PV_CAPTAIN_ALTERNATIVE_MISSED_HAUL': {
+          if (!rawPayload) break;
+          const multiGroups = (rawPayload.crossTeamPlayerDrama || [])
+            .filter((d) => d.category === 'Captaincy' && d.teamCount >= 2)
+            .slice(0, 3);
+          const coveredPlayers = new Set(multiGroups.map((g) => g.player.toLowerCase()));
+
+          multiGroups.forEach((grp, idx) => {
+            const teamsId = formatTeamList(grp.teams, 'id');
+            const teamsEn = formatTeamList(grp.teams, 'en');
+            const clubResolved = resolveClubName(grp.club);
+            produced.push({
+              id: `${tmpl.id}_${idx + 1}_${toStorySlug(grp.player)}`,
+              headlineId: renderTemplateBranch(tmpl.template, 'Multi Tim', {
+                teams: teamsId,
+                player: grp.player,
+                club: clubResolved,
+                points: grp.playerPts,
+                gw: currentGw,
+              }),
+              headlineEn: `${teamsEn} fielded [P:${grp.player}] ([C:${clubResolved}]) who scored [N:${grp.playerPts} Pts] provisionally, without captaining him.`,
+              dramaScore: Math.min(95, 84 + Math.min(8, Math.floor(grp.teamCount / 3)) + Math.min(4, Math.floor(grp.playerPts / 3))),
+            });
+          });
+
+          if (produced.length < 3) {
+            const singleRegrets = (rawPayload.whatIfOpportunities || [])
+              .filter(
+                (w) =>
+                  w.category === 'Captaincy' &&
+                  w.netDeltaPts >= 6 &&
+                  !coveredPlayers.has(String(w.player || '').toLowerCase())
+              )
+              .slice(0, 3 - produced.length);
+
+            for (const w of singleRegrets) {
+              const teamEntry = rawPayload.standingsTable.find((s) => s.team === w.team);
+              const capStarter = teamEntry?.starters?.find((st) => st.isC);
+              const actualCaptainName = capStarter?.name || w.realChoice.split(' (')[0];
+              const actualCaptainBasePts = w.realBasePts;
+              const clubResolved = resolveClubName(w.club);
+              if (!actualCaptainName || !clubResolved) continue;
+
+              produced.push({
+                id: `${tmpl.id}_s_${produced.length + 1}_${toStorySlug(w.team)}`,
+                headlineId: renderTemplateBranch(tmpl.template, '1 Tim', {
+                  team: w.team,
+                  actual_captain: actualCaptainName,
+                  captain_pts: actualCaptainBasePts,
+                  gw: currentGw,
+                  player: w.player,
+                  club: clubResolved,
+                  points: w.alternativePts,
+                }),
+                headlineEn: `[T:${w.team}] captained [P:${actualCaptainName}] ([N:${actualCaptainBasePts} Pts]) instead of [P:${w.player}] ([C:${clubResolved}]) who scored [N:${w.alternativePts} Pts] provisionally.`,
+                dramaScore: Math.min(90, 82 + Math.floor(w.netDeltaPts / 2)),
+              });
+            }
           }
           break;
         }

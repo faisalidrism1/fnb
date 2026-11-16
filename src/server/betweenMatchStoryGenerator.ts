@@ -368,19 +368,19 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
 
             const formatBMList = (lang: 'id' | 'en') => {
               if (scorers.length === 0) return '';
-              const tokens = scorers.map((s) =>
-                `[P:${s.name}] ([N:${s.pct}%])${
-                  s.goals > 1
-                    ? lang === 'id'
-                      ? ` [N:(${s.goals} Gol)]`
-                      : ` [N:(${s.goals} Goals)]`
-                    : s.og
-                    ? lang === 'id'
-                      ? ' [N:(GBD)]'
-                      : ' [N:(OG)]'
-                    : ''
-                }`
-              );
+              const tokens = scorers.map((s) => {
+                if (s.goals > 1) {
+                  return lang === 'id'
+                    ? `[P:${s.name}] ([N:${s.pct}%], [N:${s.goals} Gol])`
+                    : `[P:${s.name}] ([N:${s.pct}%], [N:${s.goals} Goals])`;
+                }
+                if (s.og) {
+                  return lang === 'id'
+                    ? `[P:${s.name}] ([N:${s.pct}%], GBD)`
+                    : `[P:${s.name}] ([N:${s.pct}%], OG)`;
+                }
+                return `[P:${s.name}] ([N:${s.pct}%])`;
+              });
               if (tokens.length === 1) return tokens[0];
               if (tokens.length === 2) return lang === 'id' ? `${tokens[0]} dan ${tokens[1]}` : `${tokens[0]} and ${tokens[1]}`;
               return lang === 'id'
@@ -426,9 +426,9 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
               headlineId,
               headlineEn: isDraw
                 ? hasGoals
-                  ? `Match result at [N:${venue}]: [C:${homeClub}] and [C:${awayClub}] draw [N:${hs}] - [N:${as}], goals scored by ${scorersStrEn}.`
+                  ? `Match result at [N:${venue}]: [C:${homeClub}] and [C:${awayClub}] draw [N:${hs}] - [N:${as}] — goalscorers: ${scorersStrEn}.`
                   : `Match result at [N:${venue}]: [C:${homeClub}] and [C:${awayClub}] play out a goalless draw [N:0] - [N:0].`
-                : `Match result at [N:${venue}]: [C:${winClub}] defeats [C:${loseClub}] [N:${winScore}] - [N:${loseScore}], goals scored by ${scorersStrEn}.`,
+                : `Match result at [N:${venue}]: [C:${winClub}] defeats [C:${loseClub}] [N:${winScore}] - [N:${loseScore}] — goalscorers: ${scorersStrEn}.`,
               dramaScore: 90,
             });
           }
@@ -925,15 +925,18 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
             const r1 = sorted[0];
             const r2 = sorted[1];
             const margin = (r1.total_points || 0) - (r2.total_points || 0);
+            const isTied = margin === 0;
             produced.push({
               id: tmpl.id,
-              headlineId: renderTemplate(tmpl.template, {
+              headlineId: renderTemplateBranch(tmpl.template, isTied ? 'Poin Sama' : 'Unggul Poin', {
                 gw: currentGw,
                 team_1: r1.entry_name,
                 margin,
                 team_2: r2.entry_name,
               }),
-              headlineEn: `[T:${r1.entry_name}] leads the live standings by [N:${margin} Pts] over [T:${r2.entry_name}] in 2nd place.`,
+              headlineEn: isTied
+                ? `[T:${r1.entry_name}] and [T:${r2.entry_name}] are level on provisional points at the top of the table.`
+                : `[T:${r1.entry_name}] leads the live standings by [N:${margin} Pts] over [T:${r2.entry_name}] in 2nd place.`,
               dramaScore: 91,
             });
           }
@@ -994,18 +997,22 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
               .slice(0, 3)
               .forEach((c, idx) => {
                 const cond = c.captain ? 'Dengan Kapten Tersisa' : 'Tanpa Kapten Tersisa';
+                let headlineId = renderTemplateBranch(tmpl.template, cond, {
+                  gw: currentGw,
+                  team: c.team,
+                  remaining_count: c.remainingCount,
+                  captain: c.captain?.name || c.featured.name,
+                  captain_club: c.captain?.club || c.featured.club,
+                  player: c.featured.name,
+                  club: c.featured.club,
+                });
+                if (c.remainingCount === 1) {
+                  headlineId = headlineId.replace(', termasuk ', ', yakni ');
+                }
                 produced.push({
                   id: `${tmpl.id}_${idx + 1}_${toStorySlug(c.team)}`,
-                  headlineId: renderTemplateBranch(tmpl.template, cond, {
-                    gw: currentGw,
-                    team: c.team,
-                    remaining_count: c.remainingCount,
-                    captain: c.captain?.name || c.featured.name,
-                    captain_club: c.captain?.club || c.featured.club,
-                    player: c.featured.name,
-                    club: c.featured.club,
-                  }),
-                  headlineEn: `[T:${c.team}] still has [N:${c.remainingCount}] players yet to play.`,
+                  headlineId,
+                  headlineEn: `[T:${c.team}] still has [N:${c.remainingCount}] ${c.remainingCount === 1 ? 'player' : 'players'} yet to play.`,
                   dramaScore: 86,
                 });
               });
@@ -1163,12 +1170,17 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
               // Skip if VC also finished with 0 minutes
               if (finishedClubFixtureMap.has(vcStat.club) && vcStat.minutes === 0) continue;
 
+              const stMatch = standings.find((st: any) => st.entry_name === s.team);
+              const chipLower = String(s.chip || stMatch?.active_chip || '').toLowerCase();
+              const isTc = chipLower === 'tc' || chipLower === '3xc' || chipLower.includes('triple');
+              const vcCaptainPts = vcStat.points * (isTc ? 3 : 2);
+
               vcCases.push({
                 team: s.team,
                 dnpCap: capStat.name,
                 vcName: vcStat.name,
                 vcClub: vcStat.club,
-                vcPts: vcStat.points,
+                vcPts: vcCaptainPts,
                 vcPlayed,
                 rank: s.rank || 999,
               });

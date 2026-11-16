@@ -417,17 +417,36 @@ function getHistoricalMostGwLeaders(
 function formatInjuryDescription(news?: string): string {
   if (!news) return 'masalah kebugaran';
   const lower = news.toLowerCase();
-  if (lower.includes('thigh')) return 'cedera paha';
+  if (lower.includes('unspecified injury')) return 'cedera yang belum dirinci';
+  if (lower.includes('muscular') || lower.includes('muscle')) return 'cedera otot';
   if (lower.includes('hamstring')) return 'cedera hamstring';
+  if (lower.includes('thigh')) return 'cedera paha';
   if (lower.includes('knee')) return 'cedera lutut';
   if (lower.includes('ankle')) return 'cedera pergelangan kaki';
+  if (lower.includes('achilles')) return 'cedera tendon achilles';
   if (lower.includes('calf')) return 'cedera betis';
+  if (lower.includes('shin')) return 'cedera tulang kering';
   if (lower.includes('groin')) return 'cedera pangkal paha';
-  if (lower.includes('foot')) return 'cedera kaki';
-  if (lower.includes('head') || lower.includes('concussion')) return 'cedera kepala';
-  if (lower.includes('illness')) return 'kondisi sakit';
-  if (lower.includes('suspended')) return 'sanksi larangan bertanding';
-  return news.split(' - ')[0].toLowerCase();
+  if (lower.includes('hip')) return 'cedera pinggul';
+  if (lower.includes('back')) return 'cedera punggung';
+  if (lower.includes('shoulder')) return 'cedera bahu';
+  if (lower.includes('collarbone')) return 'cedera tulang selangka';
+  if (lower.includes('neck')) return 'cedera leher';
+  if (lower.includes('ribs') || lower.includes('rib') || lower.includes('chest')) return 'cedera rusuk';
+  if (lower.includes('abdominal') || lower.includes('stomach')) return 'cedera perut';
+  if (lower.includes('wrist') || lower.includes('hand') || lower.includes('finger') || lower.includes('thumb')) return 'cedera tangan';
+  if (lower.includes('arm') || lower.includes('elbow')) return 'cedera lengan';
+  if (lower.includes('foot') || lower.includes('toe')) return 'cedera kaki';
+  if (lower.includes('head') || lower.includes('concussion') || lower.includes('facial') || lower.includes('nose')) return 'cedera kepala';
+  if (lower.includes('knock')) return 'benturan fisik';
+  if (lower.includes('illness') || lower.includes('virus') || lower.includes('flu')) return 'kondisi sakit';
+  if (lower.includes('suspended') || lower.includes('suspension') || lower.includes('red card') || lower.includes('yellow card')) return 'sanksi larangan bertanding';
+  if (lower.includes('ineligible') || lower.includes('loan')) return 'tidak memenuhi syarat bertanding';
+  if (lower.includes('personal')) return 'alasan pribadi';
+  if (lower.includes('lack of match fitness') || lower.includes('fitness')) return 'masalah kebugaran';
+  if (lower.includes('international')) return 'tugas internasional';
+  if (lower.includes('injury')) return 'cedera';
+  return 'masalah kebugaran';
 }
 
 /**
@@ -661,39 +680,56 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
 
         // 5. Chip Triple Captain
         case 5: {
-          const rawTcTeams: { name: string; id: number }[] = [];
+          const rawTcTeams: { name: string; id: number; captain: string }[] = [];
           for (const row of allChipsUsed) {
             if ((row.tc1 && Number(row.tc1.gw) === currentGw) || (row.tc2 && Number(row.tc2.gw) === currentGw)) {
-              rawTcTeams.push({ name: row.entry_name, id: row.entry_id });
+              const tcEntry = currentStandings.find((s: any) => s.entry_id === row.entry_id);
+              const capName = tcEntry?.captain?.name || '';
+              if (capName) {
+                rawTcTeams.push({ name: row.entry_name, id: row.entry_id, captain: capName });
+              }
             }
           }
           if (rawTcTeams.length > 0) {
-            const tcEntry = currentStandings.find((s: any) => s.entry_id === rawTcTeams[0].id);
-            const dynamicCaptain = tcEntry?.captain?.name;
-            if (dynamicCaptain) {
-              if (rawTcTeams.length === 1) {
-                filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
-                  team: rawTcTeams[0].name,
-                  teams: `[T:${rawTcTeams[0].name}]`,
-                  captain: dynamicCaptain,
-                  dominant_captain: dynamicCaptain,
-                  gw: currentGw,
-                  others_clause: '',
-                });
-              } else {
-                const teamsStr = formatTeamList(rawTcTeams.map((t) => t.name), 'id', false);
-                filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
-                  teams: teamsStr,
-                  team: rawTcTeams[0].name,
-                  captain: dynamicCaptain,
-                  dominant_captain: dynamicCaptain,
-                  gw: currentGw,
-                  others_clause:
-                    rawTcTeams.length > 2
-                      ? `, sementara [N:${rawTcTeams.length - 2}] tim memilih kapten berbeda`
-                      : '',
-                });
+            if (rawTcTeams.length === 1) {
+              const single = rawTcTeams[0];
+              filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
+                team: single.name,
+                teams: `[T:${single.name}]`,
+                captain: single.captain,
+                dominant_captain: single.captain,
+                gw: currentGw,
+                others_clause: '',
+              });
+            } else {
+              const byCaptain = new Map<string, { captain: string; teams: { name: string; id: number; captain: string }[] }>();
+              for (const t of rawTcTeams) {
+                const key = t.captain.trim().toLowerCase();
+                if (!byCaptain.has(key)) byCaptain.set(key, { captain: t.captain, teams: [] });
+                byCaptain.get(key)!.teams.push(t);
               }
+              const groups = Array.from(byCaptain.values()).sort((a, b) => b.teams.length - a.teams.length);
+              const dominantGroup = groups[0];
+              const otherTeams = rawTcTeams.filter(
+                (t) => t.captain.trim().toLowerCase() !== dominantGroup.captain.trim().toLowerCase()
+              );
+
+              const teamsStr = formatTeamList(dominantGroup.teams.map((t) => t.name), 'id', false);
+              let othersClause = '';
+              if (otherTeams.length === 1) {
+                othersClause = `, sementara [T:${otherTeams[0].name}] mengapteni [P:${otherTeams[0].captain}]`;
+              } else if (otherTeams.length > 1) {
+                othersClause = `, sementara [N:${otherTeams.length}] tim memilih target berbeda`;
+              }
+
+              filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
+                teams: teamsStr,
+                team: dominantGroup.teams[0].name,
+                captain: dominantGroup.captain,
+                dominant_captain: dominantGroup.captain,
+                gw: currentGw,
+                others_clause: othersClause,
+              });
             }
           }
           break;
@@ -825,7 +861,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
             });
 
             const minusTeams = sortedRows.map(
-              (t: any) => `[T:${t.entry_name}] (-[N:${t.event_transfers_cost} Poin])`
+              (t: any) => `[T:${t.entry_name}] ([N:-${t.event_transfers_cost} Poin])`
             );
             let formatted = '';
             if (minusTeams.length === 1) {
@@ -1065,7 +1101,12 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               const chipTeam = chip1 ? team1.entry_name : team2.entry_name;
               const rivalTeam = chip1 ? team2.entry_name : team1.entry_name;
               const chipName = chip1 || chip2;
-              const targetClause = chip1 ? 'memperlebar' : 'memangkas';
+              const targetClause =
+                margin === 0
+                  ? 'memecah kebuntuan poin identik melawan'
+                  : chip1
+                    ? `memperlebar jarak [N:${margin} Poin] atas`
+                    : `memangkas jarak [N:${margin} Poin] dari`;
               filledHeadline = renderTemplateBranch(tmpl.template, 'manuver chip', {
                 gw: currentGw,
                 team_chip: chipTeam,
@@ -1075,28 +1116,36 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 team_rival: rivalTeam,
               });
             } else if (cap1 && cap2 && cap1 !== cap2) {
-              filledHeadline = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
-                gw: currentGw,
-                team1: team1.entry_name,
-                margin,
-                team2: team2.entry_name,
-                captain1: cap1,
-                captain2: cap2,
-              });
-            } else if (cap1 && cap2 && cap1 === cap2) {
-              const diffStarters = getTopDifferingStarters(team1.entry_id, team2.entry_id);
-              if (diffStarters) {
-                filledHeadline = renderTemplateBranch(tmpl.template, 'kapten sama', {
+              if (margin === 0) {
+                filledHeadline = `[T:${team1.entry_name}] dan [T:${team2.entry_name}] mengoleksi poin identik di puncak klasemen, dengan duel kapten [P:${cap1}] vs [P:${cap2}].`;
+              } else {
+                filledHeadline = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
                   gw: currentGw,
                   team1: team1.entry_name,
                   margin,
                   team2: team2.entry_name,
-                  captain: cap1,
-                  diff_player1: diffStarters.player1,
-                  diff_player2: diffStarters.player2,
-                  diff_players1: diffStarters.players1Str,
-                  diff_players2: diffStarters.players2Str,
+                  captain1: cap1,
+                  captain2: cap2,
                 });
+              }
+            } else if (cap1 && cap2 && cap1 === cap2) {
+              const diffStarters = getTopDifferingStarters(team1.entry_id, team2.entry_id);
+              if (diffStarters) {
+                if (margin === 0) {
+                  filledHeadline = `[T:${team1.entry_name}] dan [T:${team2.entry_name}] mengoleksi poin identik di puncak klasemen; keduanya mengapteni [P:${cap1}], sehingga pembeda beralih ke [P:${diffStarters.player1}] vs [P:${diffStarters.player2}].`;
+                } else {
+                  filledHeadline = renderTemplateBranch(tmpl.template, 'kapten sama', {
+                    gw: currentGw,
+                    team1: team1.entry_name,
+                    margin,
+                    team2: team2.entry_name,
+                    captain: cap1,
+                    diff_player1: diffStarters.player1,
+                    diff_player2: diffStarters.player2,
+                    diff_players1: diffStarters.players1Str,
+                    diff_players2: diffStarters.players2Str,
+                  });
+                }
               }
             }
           }

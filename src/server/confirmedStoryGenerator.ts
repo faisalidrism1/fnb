@@ -3,6 +3,7 @@ import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
 import { buildRawMatchdayPayload } from './newsAggregator.ts';
 import { formatTeamList } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
+import { getCachedMatchesForGw } from './matchesFetcher.ts';
 
 export interface GeneratedConfirmedStory {
   id: string;
@@ -174,27 +175,96 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
   const stories: GeneratedConfirmedStory[] = [];
   const nowIso = new Date().toISOString();
 
-  // Pre-index player statistics strictly from SSOT (dbData.players)
+  // Pre-index player statistics strictly from SSOT (dbData.players + gw snapshot ownership)
+  const ownershipList: any[] = Array.isArray(snap?.ownership_players) ? snap.ownership_players : [];
+  const ownershipById = new Map<number, { pct: number; count: number }>();
+  for (const op of ownershipList) {
+    if (op?.id) {
+      const rawPct = Number(op.owned_percentage ?? op.ownership ?? 0);
+      const count = Number(op.owned_count ?? 0);
+      ownershipById.set(op.id, {
+        pct: Math.round(rawPct) || (rawPct > 0 ? Number(rawPct.toFixed(1)) : 0),
+        count,
+      });
+    }
+  }
+
+  const totalTeams = standings.length || Number(dbData?.meta?.total_teams) || 0;
   const playerStatsList: any[] = Object.values(dbData?.players || {});
   const playerMinutesMap = new Map<
     number,
-    { name: string; club: string; minutes: number; points: number; goals: number; assists: number; bonus: number }
+    {
+      id: number;
+      name: string;
+      club: string;
+      position: string;
+      minutes: number;
+      points: number;
+      goals: number;
+      assists: number;
+      bps: number;
+      bonus: number;
+      ownersCount: number;
+      ownershipPct: number;
+      status: string;
+      newsAdded: string;
+      redCards: number;
+    }
   >();
   for (const p of playerStatsList) {
     const h = (p.gwHistory || []).find((x: any) => Number(x.round) === currentGw);
     const name = p.webName || p.web_name;
     const club = resolveClubName(p.teamName || p.team_name || p.teamShort || p.team_short_name);
     if (!p?.id || !name || !club) continue;
+
+    const ownFromList = ownershipById.get(p.id);
+    const ownersCount = ownFromList?.count ?? (p.league_ownership?.count || 0);
+    const fallbackPct = totalTeams > 0 ? (ownersCount / totalTeams) * 100 : 0;
+    const ownershipPct = ownFromList?.pct ?? (Math.round(fallbackPct) || (fallbackPct > 0 ? Number(fallbackPct.toFixed(1)) : 0));
+
     playerMinutesMap.set(p.id, {
+      id: p.id,
       name,
       club,
+      position: p.position || 'MID',
       minutes: h?.minutes || 0,
       points: h?.points || 0,
       goals: h?.goalsScored ?? h?.goals ?? 0,
       assists: h?.assists || 0,
+      bps: h?.bps || 0,
       bonus: h?.bonus || 0,
+      ownersCount,
+      ownershipPct,
+      status: p.status || 'a',
+      newsAdded: p.newsAdded || '',
+      redCards: Number(p.redCards || 0),
     });
   }
+
+  const fixtures = (dbData?.meta?.sync_status?.gw_fixtures || []).filter(
+    (f: any) => Number(f.event) === currentGw
+  );
+  const clubOpponentMap = new Map<string, string>();
+  for (const f of fixtures) {
+    const home = resolveClubName(f.home_team);
+    const away = resolveClubName(f.away_team);
+    if (home && away) {
+      if (!clubOpponentMap.has(home)) clubOpponentMap.set(home, away);
+      if (!clubOpponentMap.has(away)) clubOpponentMap.set(away, home);
+    }
+  }
+
+  const findPlayerStatByNameClub = (name: string, clubRaw?: string) => {
+    const lower = (name || '').trim().toLowerCase();
+    const club = clubRaw ? resolveClubName(clubRaw, '') : '';
+    for (const p of playerMinutesMap.values()) {
+      if (p.name.toLowerCase() === lower && (!club || p.club === club)) return p;
+    }
+    for (const p of playerMinutesMap.values()) {
+      if (p.name.toLowerCase() === lower) return p;
+    }
+    return undefined;
+  };
 
   for (const tmpl of confirmedTemplates) {
     try {
@@ -213,18 +283,35 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
             const margin = (winner.event_points || 0) - (runnerUp.event_points || 0);
 
             if (winner && runnerUp && winner.event_points > 0) {
-              produced.push({
-                id: tmpl.id,
-                headlineId: renderTemplate(tmpl.template, {
-                  gw: currentGw,
-                  team: winner.entry_name,
-                  gw_pts: winner.event_points,
-                  margin,
-                  runner_up: runnerUp.entry_name,
-                }),
-                headlineEn: `[T:${winner.entry_name}] wins Gameweek [N:${currentGw}] with [N:${winner.event_points} Pts], finishing [N:${margin} Pts] ahead of [T:${runnerUp.entry_name}].`,
-                dramaScore: 94,
-              });
+              const maxPts = winner.event_points;
+              const tiedWinners = sortedByGwPts.filter((s) => (s.event_points || 0) === maxPts);
+              if (tiedWinners.length > 1) {
+                const teamsId = formatTeamList(tiedWinners.map((t) => t.entry_name), 'id', false);
+                const teamsEn = formatTeamList(tiedWinners.map((t) => t.entry_name), 'en', false);
+                produced.push({
+                  id: tmpl.id,
+                  headlineId: renderTemplateBranch(tmpl.template, 'Poin Sama', {
+                    gw: currentGw,
+                    teams_list: teamsId,
+                    gw_pts: maxPts,
+                  }),
+                  headlineEn: `${teamsEn} share the Gameweek [N:${currentGw}] crown with [N:${maxPts} Pts].`,
+                  dramaScore: 94,
+                });
+              } else {
+                produced.push({
+                  id: tmpl.id,
+                  headlineId: renderTemplateBranch(tmpl.template, 'Pemenang Tunggal', {
+                    gw: currentGw,
+                    team: winner.entry_name,
+                    gw_pts: winner.event_points,
+                    margin,
+                    runner_up: runnerUp.entry_name,
+                  }),
+                  headlineEn: `[T:${winner.entry_name}] wins Gameweek [N:${currentGw}] with [N:${winner.event_points} Pts], finishing [N:${margin} Pts] ahead of [T:${runnerUp.entry_name}].`,
+                  dramaScore: 94,
+                });
+              }
             }
           }
           break;
@@ -239,18 +326,21 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
             const leader = sortedStandings[0];
             const chaser = sortedStandings[1];
             const margin = (leader.total_points || 0) - (chaser.total_points || 0);
+            const isTied = margin === 0;
 
             if (leader && chaser && leader.total_points > 0) {
               produced.push({
                 id: tmpl.id,
-                headlineId: renderTemplate(tmpl.template, {
+                headlineId: renderTemplateBranch(tmpl.template, isTied ? 'Poin Sama' : 'Unggul Poin', {
                   gw: currentGw,
                   team_1: leader.entry_name,
                   pts_1: leader.total_points,
                   margin,
                   team_2: chaser.entry_name,
                 }),
-                headlineEn: `[T:${leader.entry_name}] leads the league table after Gameweek [N:${currentGw}] with [N:${leader.total_points} Pts], [N:${margin} Pts] ahead of [T:${chaser.entry_name}] in 2nd place.`,
+                headlineEn: isTied
+                  ? `[T:${leader.entry_name}] and [T:${chaser.entry_name}] sit level on [N:${leader.total_points} Pts] at the top after Gameweek [N:${currentGw}].`
+                  : `[T:${leader.entry_name}] leads the league table after Gameweek [N:${currentGw}] with [N:${leader.total_points} Pts], [N:${margin} Pts] ahead of [T:${chaser.entry_name}] in 2nd place.`,
                 dramaScore: 93,
               });
             }
@@ -742,16 +832,14 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
             .slice(0, 3);
 
           hitsTeams.forEach((topHit, idx) => {
-            const transfersEstimated = Math.floor(topHit.event_transfers_cost / 4) + 1;
             produced.push({
               id: hitsTeams.length === 1 ? tmpl.id : `${tmpl.id}_${idx + 1}_${toStorySlug(topHit.entry_name)}`,
               headlineId: renderTemplate(tmpl.template, {
                 gw: currentGw,
                 hits_pts: topHit.event_transfers_cost,
                 team: topHit.entry_name,
-                transfers_count: transfersEstimated,
               }),
-              headlineEn: `[T:${topHit.entry_name}] had [N:-${topHit.event_transfers_cost} Pts] deducted after making [N:${transfersEstimated} Transfers].`,
+              headlineEn: `[T:${topHit.entry_name}] received a [N:-${topHit.event_transfers_cost} Pts] transfer hit deduction.`,
               dramaScore: Math.max(82, 87 - idx),
             });
           });
@@ -944,18 +1032,22 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
             const formerLeader =
               sortedStandings.find((s) => Number(s.last_rank) === 1 && s.entry_name !== rank1.entry_name) || rank2;
             const margin = (rank1.total_points || 0) - (rank2.total_points || 0);
+            const isTied = margin === 0;
 
             produced.push({
               id: tmpl.id,
-              headlineId: renderTemplate(tmpl.template, {
+              headlineId: renderTemplateBranch(tmpl.template, isTied ? 'Poin Sama' : 'Unggul Poin', {
                 gw: currentGw,
                 new_leader: rank1.entry_name,
                 old_rank: r1LastRank,
                 former_leader: formerLeader.entry_name,
                 former_new_rank: formerLeader.rank,
                 margin,
+                total_pts: rank1.total_points || 0,
               }),
-              headlineEn: `[T:${rank1.entry_name}] climbed from rank [N:${r1LastRank}] to claim 1st place, overtaking [T:${formerLeader.entry_name}] (now rank [N:${formerLeader.rank}]) by [N:${margin} Pts].`,
+              headlineEn: isTied
+                ? `[T:${rank1.entry_name}] climbed from rank [N:${r1LastRank}] to share 1st place on [N:${rank1.total_points || 0} Pts], displacing [T:${formerLeader.entry_name}] to rank [N:${formerLeader.rank}].`
+                : `[T:${rank1.entry_name}] climbed from rank [N:${r1LastRank}] to claim 1st place, overtaking [T:${formerLeader.entry_name}] (now rank [N:${formerLeader.rank}]) by [N:${margin} Pts].`,
               dramaScore: 98,
             });
           }
@@ -1083,6 +1175,488 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
               });
             }
           }
+          break;
+        }
+
+        // ====================================================================
+        // CF_CAPTAIN_VICE_CAPTAIN (Captain | Vice-Captain | MULTI-NEWS)
+        // ====================================================================
+        case 'CF_CAPTAIN_VICE_CAPTAIN': {
+          if (rawPayload) {
+            const vcSwaps: { team: string; dnpCap: string; vcName: string; vcPts: number }[] = [];
+            for (const s of rawPayload.standingsTable) {
+              const capStarter = (s.starters || []).find((st) => st.isC);
+              const vcStarter = (s.starters || []).find((st) => st.isVC);
+              if (!capStarter || !vcStarter) continue;
+
+              const capStat = findPlayerStatByNameClub(capStarter.name, capStarter.club);
+              const vcStat = findPlayerStatByNameClub(vcStarter.name, vcStarter.club);
+              if (!capStat || capStat.minutes > 0 || !vcStat || vcStat.minutes <= 0) continue;
+
+              const chipLower = String(s.chip || '').toLowerCase();
+              const isTc = chipLower === 'tc' || chipLower === '3xc' || chipLower.includes('triple');
+              const vcCaptainPts = vcStat.points * (isTc ? 3 : 2);
+              vcSwaps.push({
+                team: s.team,
+                dnpCap: capStat.name,
+                vcName: vcStat.name,
+                vcPts: vcCaptainPts,
+              });
+            }
+
+            vcSwaps
+              .sort((a, b) => b.vcPts - a.vcPts)
+              .slice(0, 3)
+              .forEach((v, idx) => {
+                produced.push({
+                  id: `${tmpl.id}_${idx + 1}_${toStorySlug(v.team)}`,
+                  headlineId: renderTemplate(tmpl.template, {
+                    team: v.team,
+                    vice_captain: v.vcName,
+                    vice_pts: v.vcPts,
+                    captain_dnp: v.dnpCap,
+                  }),
+                  headlineEn: `[T:${v.team}] officially received captaincy points from vice-captain [P:${v.vcName}] ([N:${v.vcPts} Pts]) after [P:${v.dnpCap}] missed out.`,
+                  dramaScore: Math.min(92, 85 + Math.floor(v.vcPts / 4)),
+                });
+              });
+          }
+          break;
+        }
+
+        // ====================================================================
+        // CF_CAPTAIN_DIFFERENTIAL_RETURN (Captain | Differential | MULTI-NEWS)
+        // ====================================================================
+        case 'CF_CAPTAIN_DIFFERENTIAL_RETURN': {
+          const diffCaps = topCaptains.filter(
+            (c: any) =>
+              (c.captain_percentage != null && c.captain_percentage < 5) ||
+              (c.captain_count != null && c.captain_count <= 2)
+          );
+
+          const diffStories: {
+            team: string;
+            pts: number;
+            captain: string;
+            club: string;
+            pickersCount: number;
+          }[] = [];
+
+          for (const dc of diffCaps) {
+            const stat = dc.id ? playerMinutesMap.get(Number(dc.id)) : findPlayerStatByNameClub(dc.web_name || dc.name);
+            if (!stat || stat.points < 8) continue;
+
+            const pickers = standings.filter(
+              (s: any) => s.captain?.id === stat.id || (s.captain?.name === stat.name && (!s.captain?.club || resolveClubName(s.captain.club, '') === stat.club))
+            );
+            const pickersCount = Number(dc.captain_count ?? pickers.length) || pickers.length || 1;
+            for (const picker of pickers) {
+              const chipLower = String(picker.active_chip || '').toLowerCase();
+              const isTc = chipLower === 'tc' || chipLower === '3xc';
+              diffStories.push({
+                team: picker.entry_name,
+                pts: stat.points * (isTc ? 3 : 2),
+                captain: stat.name,
+                club: stat.club,
+                pickersCount,
+              });
+            }
+          }
+
+          diffStories
+            .sort((a, b) => b.pts - a.pts || a.pickersCount - b.pickersCount)
+            .slice(0, 3)
+            .forEach((ds, idx) => {
+              const cond = ds.pickersCount === 1 ? 'Kapten Eksklusif' : 'Kapten Differential';
+              const headlineId = renderTemplateBranch(tmpl.template, cond, {
+                team: ds.team,
+                pts: ds.pts,
+                captain: ds.captain,
+                club: ds.club,
+                pickers_count: ds.pickersCount,
+              });
+              if (!headlineId) return;
+              produced.push({
+                id: `${tmpl.id}_${idx + 1}_${toStorySlug(ds.team)}`,
+                headlineId,
+                headlineEn:
+                  ds.pickersCount === 1
+                    ? `[T:${ds.team}] collected [N:${ds.pts} Pts] from [P:${ds.captain}] ([C:${ds.club}]) as the sole team to captain him.`
+                    : `[T:${ds.team}] collected [N:${ds.pts} Pts] from differential captain [P:${ds.captain}] ([C:${ds.club}]), backed by just [N:${ds.pickersCount}] teams.`,
+                dramaScore: Math.min(93, 86 + Math.floor(ds.pts / 6)),
+              });
+            });
+          break;
+        }
+
+        // ====================================================================
+        // CF_TRANSFER_IN_MOST_BOUGHT (Transfer | Transfers In | Most Bought | SINGLE-NEWS)
+        // ====================================================================
+        case 'CF_TRANSFER_IN_MOST_BOUGHT': {
+          const topIn: any[] = Array.isArray(snap?.transfers_in) ? snap.transfers_in : [];
+          if (topIn.length >= 2) {
+            const p1 = topIn[0];
+            const p2 = topIn[1];
+            const stat1 = p1.id ? playerMinutesMap.get(Number(p1.id)) : findPlayerStatByNameClub(p1.web_name || p1.name);
+            const stat2 = p2.id ? playerMinutesMap.get(Number(p2.id)) : findPlayerStatByNameClub(p2.web_name || p2.name);
+            const name1 = stat1?.name || p1.web_name || p1.name;
+            const name2 = stat2?.name || p2.web_name || p2.name;
+            const count1 = Number(p1.transfer_count ?? p1.count ?? 0);
+            const count2 = Number(p2.transfer_count ?? p2.count ?? 0);
+            const pts1 = stat1?.points ?? Number(p1.gw_points ?? 0);
+            const pts2 = stat2?.points ?? Number(p2.gw_points ?? 0);
+
+            if (name1 && name2 && count1 > 0 && count2 > 0) {
+              produced.push({
+                id: tmpl.id,
+                headlineId: renderTemplate(tmpl.template, {
+                  player1: name1,
+                  count1,
+                  pts1,
+                  player2: name2,
+                  count2,
+                  pts2,
+                }),
+                headlineEn: `[P:${name1}] ([N:${count1}] transfers in) finished the week with [N:${pts1} Pts], while second-most bought [P:${name2}] ([N:${count2}] transfers in) scored [N:${pts2} Pts].`,
+                dramaScore: 86,
+              });
+            }
+          }
+          break;
+        }
+
+        // ====================================================================
+        // CF_MATCH_CLEAN_SHEET (Match | Clean Sheet | MULTI-NEWS)
+        // ====================================================================
+        case 'CF_MATCH_CLEAN_SHEET': {
+          const csMatches: { club: string; opponent: string; score: string }[] = [];
+          for (const f of fixtures) {
+            if (!f.finished && !f.finished_provisional) continue;
+            const hs = Number(f.team_h_score ?? 0);
+            const as = Number(f.team_a_score ?? 0);
+            const home = resolveClubName(f.home_team);
+            const away = resolveClubName(f.away_team);
+            if (!home || !away) continue;
+            if (as === 0) {
+              csMatches.push({ club: home, opponent: away, score: `${hs} - ${as}` });
+            }
+            if (hs === 0) {
+              csMatches.push({ club: away, opponent: home, score: `${as} - ${hs}` });
+            }
+          }
+
+          const csStories: {
+            club: string;
+            opponent: string;
+            score: string;
+            ownersCount: number;
+            defender: string;
+          }[] = [];
+
+          for (const cm of csMatches) {
+            const topDef = Array.from(playerMinutesMap.values())
+              .filter(
+                (p) =>
+                  p.club === cm.club &&
+                  (p.position === 'DEF' || p.position === 'GKP') &&
+                  p.minutes >= 60 &&
+                  p.ownersCount > 0
+              )
+              .sort((a, b) => b.ownersCount - a.ownersCount || b.points - a.points)[0];
+            if (!topDef) continue;
+            csStories.push({
+              club: cm.club,
+              opponent: cm.opponent,
+              score: cm.score,
+              ownersCount: topDef.ownersCount,
+              defender: topDef.name,
+            });
+          }
+
+          csStories
+            .sort((a, b) => b.ownersCount - a.ownersCount)
+            .slice(0, 4)
+            .forEach((cs) => {
+              produced.push({
+                id: `${tmpl.id}_${toStorySlug(cs.club)}_${toStorySlug(cs.defender)}`,
+                headlineId: renderTemplate(tmpl.template, {
+                  club: cs.club,
+                  opponent: cs.opponent,
+                  score: cs.score,
+                  owners_count: cs.ownersCount,
+                  defender: cs.defender,
+                }),
+                headlineEn: `[C:${cs.club}] locked in a clean sheet against [C:${cs.opponent}] ([N:${cs.score}]), delivering official points for [N:${cs.ownersCount}] owners of [P:${cs.defender}].`,
+                dramaScore: Math.min(89, 82 + Math.floor(cs.ownersCount / 6)),
+              });
+            });
+          break;
+        }
+
+        // ====================================================================
+        // CF_LINEUP_DIFFERENTIAL_RETURN (Lineup | Differential | MULTI-NEWS)
+        // ====================================================================
+        case 'CF_LINEUP_DIFFERENTIAL_RETURN': {
+          const diffPlayers: {
+            name: string;
+            club: string;
+            points: number;
+            ownershipPct: number;
+            starterTeams: string[];
+          }[] = [];
+
+          for (const op of ownershipList) {
+            const pStat = op?.id ? playerMinutesMap.get(Number(op.id)) : undefined;
+            if (!pStat || pStat.points < 8) continue;
+            const rawPct = Number(op.owned_percentage ?? op.ownership ?? 100);
+            if (rawPct >= 5) continue;
+
+            const starterTeams = (op.owners || [])
+              .filter((o: any) => o.is_starter === true)
+              .map((o: any) => String(o.entry_name || '').trim())
+              .filter(Boolean);
+            if (starterTeams.length === 0) continue;
+
+            diffPlayers.push({
+              name: pStat.name,
+              club: pStat.club,
+              points: pStat.points,
+              ownershipPct: pStat.ownershipPct,
+              starterTeams,
+            });
+          }
+
+          diffPlayers
+            .sort((a, b) => b.points - a.points || b.starterTeams.length - a.starterTeams.length)
+            .slice(0, 3)
+            .forEach((dp, idx) => {
+              const isMulti = dp.starterTeams.length >= 2;
+              const headlineId = renderTemplateBranch(tmpl.template, isMulti ? 'Multi Tim' : '1 Tim', {
+                team: dp.starterTeams[0],
+                teams: isMulti ? formatTeamList(dp.starterTeams, 'id') : `[T:${dp.starterTeams[0]}]`,
+                points: dp.points,
+                player: dp.name,
+                club: dp.club,
+                ownership_pct: dp.ownershipPct,
+              });
+              if (!headlineId) return;
+              const teamsEn = isMulti ? formatTeamList(dp.starterTeams, 'en') : `[T:${dp.starterTeams[0]}]`;
+              produced.push({
+                id: `${tmpl.id}_${idx + 1}_${toStorySlug(dp.name)}`,
+                headlineId,
+                headlineEn: `${teamsEn} reaped [N:${dp.points} Pts] from differential starter [P:${dp.name}] ([C:${dp.club}], [N:${dp.ownershipPct}%] ownership).`,
+                dramaScore: Math.min(91, 83 + Math.floor(dp.points / 3)),
+              });
+            });
+          break;
+        }
+
+        // ====================================================================
+        // CF_MATCH_BONUS_POINTS (Match | Bonus | Bonus Points | SINGLE-NEWS)
+        // ====================================================================
+        case 'CF_MATCH_BONUS_POINTS': {
+          const topBps = Array.from(playerMinutesMap.values())
+            .filter((p) => p.minutes > 0 && p.bonus >= 3 && p.bps > 0 && p.ownersCount > 0)
+            .sort((a, b) => b.bps - a.bps || b.points - a.points || b.ownersCount - a.ownersCount)[0];
+
+          if (topBps) {
+            produced.push({
+              id: tmpl.id,
+              headlineId: renderTemplate(tmpl.template, {
+                player: topBps.name,
+                club: topBps.club,
+                bps: topBps.bps,
+                gw: currentGw,
+                points: topBps.points,
+                owners_count: topBps.ownersCount,
+              }),
+              headlineEn: `[P:${topBps.name}] ([C:${topBps.club}]) recorded a Gameweek [N:${currentGw}] high [N:${topBps.bps} BPS] to secure [N:+3 Bonus Pts] ([N:${topBps.points} Pts]) for [N:${topBps.ownersCount}] teams.`,
+              dramaScore: 88,
+            });
+          }
+          break;
+        }
+
+        // ====================================================================
+        // CF_MATCH_DEFENSIVE_CONTRIBUTION (Match | Defensive | SINGLE-NEWS)
+        // ====================================================================
+        case 'CF_MATCH_DEFENSIVE_CONTRIBUTION': {
+          const cachedMatches = getCachedMatchesForGw(currentGw) || [];
+          const dcQualifiers: { name: string; club: string; dcCount: number; ownersCount: number }[] = [];
+          const seenDcIds = new Set<number>();
+
+          for (const m of cachedMatches) {
+            const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
+            const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
+            const sides = [
+              { players: [...(m.home_lineup || []), ...(m.home_bench || [])], club: homeClub },
+              { players: [...(m.away_lineup || []), ...(m.away_bench || [])], club: awayClub },
+            ];
+            for (const side of sides) {
+              for (const mp of side.players) {
+                if (!mp?.id || seenDcIds.has(mp.id)) continue;
+                const dc = Number(mp.stats?.defensive_contribution || 0);
+                const pos = mp.position || playerMinutesMap.get(mp.id)?.position || 'MID';
+                const qualified = (pos === 'DEF' && dc >= 10) || ((pos === 'MID' || pos === 'FWD') && dc >= 12);
+                if (!qualified) continue;
+                seenDcIds.add(mp.id);
+                const pStat = playerMinutesMap.get(mp.id);
+                const ownersCount = pStat?.ownersCount ?? 0;
+                if (ownersCount <= 0) continue;
+                dcQualifiers.push({
+                  name: pStat?.name || mp.web_name,
+                  club: pStat?.club || side.club,
+                  dcCount: dc,
+                  ownersCount,
+                });
+              }
+            }
+          }
+
+          if (dcQualifiers.length > 0) {
+            dcQualifiers.sort((a, b) => b.dcCount - a.dcCount || b.ownersCount - a.ownersCount);
+            const leader = dcQualifiers[0];
+            const isSingle = dcQualifiers.length === 1;
+            const headlineId = renderTemplateBranch(tmpl.template, isSingle ? '1 Pemain' : 'Multi Pemain', {
+              player: leader.name,
+              club: leader.club,
+              dc_count: leader.dcCount,
+              owners_count: leader.ownersCount,
+              count: dcQualifiers.length,
+              gw: currentGw,
+            });
+            if (headlineId) {
+              produced.push({
+                id: tmpl.id,
+                headlineId,
+                headlineEn: isSingle
+                  ? `[P:${leader.name}] ([C:${leader.club}]) secured [N:+2 Pts] Defensive Contribution via [N:${leader.dcCount} Defensive Actions] for [N:${leader.ownersCount}] owners.`
+                  : `[N:${dcQualifiers.length}] players, led by [P:${leader.name}] ([C:${leader.club}], [N:${leader.dcCount} Defensive Actions]), earned [N:+2 Pts] Defensive Contribution in Gameweek [N:${currentGw}].`,
+                dramaScore: 86,
+              });
+            }
+          }
+          break;
+        }
+
+        // ====================================================================
+        // CF_PLAYER_AVAILABILITY_IMPACT (Player | Availability | MULTI-NEWS)
+        // ====================================================================
+        case 'CF_PLAYER_AVAILABILITY_IMPACT': {
+          const cachedMatches = getCachedMatchesForGw(currentGw) || [];
+          const currDeadline = String(
+            dbData?.meta?.sync_status?.deadlines?.[String(currentGw)] ||
+              dbData?.meta?.deadlines?.[currentGw] ||
+              dbData?.meta?.deadlines?.[String(currentGw)] ||
+              ''
+          );
+          const emittedPlayerIds = new Set<number>();
+          const incidents: {
+            id: number;
+            type: 'red' | 'injury';
+            name: string;
+            club: string;
+            opponent: string;
+            ownersCount: number;
+          }[] = [];
+
+          // 1. Exact GW red cards from cachedMatches when available
+          for (const m of cachedMatches) {
+            const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
+            const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
+            if (!homeClub || !awayClub) continue;
+            for (const side of [
+              { list: [...(m.home_lineup || []), ...(m.home_bench || [])], club: homeClub, opp: awayClub },
+              { list: [...(m.away_lineup || []), ...(m.away_bench || [])], club: awayClub, opp: homeClub },
+            ]) {
+              for (const mp of side.list) {
+                if (!mp?.id || Number(mp.stats?.red_cards || 0) <= 0 || emittedPlayerIds.has(mp.id)) continue;
+                const pStat = playerMinutesMap.get(mp.id);
+                const ownersCount = pStat?.ownersCount ?? 0;
+                if (ownersCount <= 0) continue;
+                emittedPlayerIds.add(mp.id);
+                incidents.push({
+                  id: mp.id,
+                  type: 'red',
+                  name: pStat?.name || mp.web_name,
+                  club: pStat?.club || side.club,
+                  opponent: side.opp,
+                  ownersCount,
+                });
+              }
+            }
+          }
+
+          // 2. SSOT fallback for GW red-card suspension + injuries updated after GW N deadline
+          const fallbackRed = Array.from(playerMinutesMap.values())
+            .filter(
+              (p) =>
+                !emittedPlayerIds.has(p.id) &&
+                p.minutes > 0 &&
+                p.status === 's' &&
+                p.redCards > 0 &&
+                p.ownersCount > 0 &&
+                (!currDeadline || (p.newsAdded && p.newsAdded >= currDeadline)) &&
+                clubOpponentMap.has(p.club)
+            )
+            .sort((a, b) => b.ownersCount - a.ownersCount);
+
+          for (const rp of fallbackRed) {
+            emittedPlayerIds.add(rp.id);
+            incidents.push({
+              id: rp.id,
+              type: 'red',
+              name: rp.name,
+              club: rp.club,
+              opponent: clubOpponentMap.get(rp.club)!,
+              ownersCount: rp.ownersCount,
+            });
+          }
+
+          const injuredPlayers = Array.from(playerMinutesMap.values())
+            .filter(
+              (p) =>
+                !emittedPlayerIds.has(p.id) &&
+                p.minutes > 0 &&
+                (p.status === 'i' || p.status === 'd') &&
+                p.ownersCount > 0 &&
+                (!currDeadline || (p.newsAdded && p.newsAdded >= currDeadline)) &&
+                clubOpponentMap.has(p.club)
+            )
+            .sort((a, b) => b.ownersCount - a.ownersCount)
+            .slice(0, Math.max(0, 3 - incidents.length));
+
+          for (const ip of injuredPlayers) {
+            emittedPlayerIds.add(ip.id);
+            incidents.push({
+              id: ip.id,
+              type: 'injury',
+              name: ip.name,
+              club: ip.club,
+              opponent: clubOpponentMap.get(ip.club)!,
+              ownersCount: ip.ownersCount,
+            });
+          }
+
+          incidents.slice(0, 3).forEach((inc) => {
+            const cond = inc.type === 'red' ? 'Kartu Merah' : 'Cedera';
+            const headlineId = renderTemplateBranch(tmpl.template, cond, {
+              player: inc.name,
+              club: inc.club,
+              opponent: inc.opponent,
+              owners_count: inc.ownersCount,
+            });
+            if (!headlineId) return;
+            produced.push({
+              id: `${tmpl.id}_${inc.type}_${toStorySlug(inc.name)}`,
+              headlineId,
+              headlineEn:
+                inc.type === 'red'
+                  ? `[P:${inc.name}] ([C:${inc.club}]) received a red card ([N:-3 Pts]) against [C:${inc.opponent}] and faces suspension for [N:${inc.ownersCount}] owners.`
+                  : `[P:${inc.name}] ([C:${inc.club}]) suffered an injury against [C:${inc.opponent}], impacting [N:${inc.ownersCount}] owners ahead of next week.`,
+              dramaScore: inc.type === 'red' ? 91 : 88,
+            });
+          });
           break;
         }
       }

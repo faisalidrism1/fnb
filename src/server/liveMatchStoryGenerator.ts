@@ -582,17 +582,16 @@ export function generateStoriesFromPulseMatch(
     const tokens = allScorersList.map((s) => {
       if (s.ogCount > 0 && s.count === 0) {
         return lang === 'id'
-          ? `[P:${s.name}] ([N:${s.pct}%]) [N:(GBD)]`
-          : `[P:${s.name}] ([N:${s.pct}%]) [N:(OG)]`;
+          ? `[P:${s.name}] ([N:${s.pct}%], GBD)`
+          : `[P:${s.name}] ([N:${s.pct}%], OG)`;
       }
       const totalG = s.count + s.ogCount;
-      const countSuffix =
-        totalG > 1
-          ? lang === 'id'
-            ? ` [N:(${totalG} Gol)]`
-            : ` [N:(${totalG} Goals)]`
-          : '';
-      return `[P:${s.name}] ([N:${s.pct}%])${countSuffix}`;
+      if (totalG > 1) {
+        return lang === 'id'
+          ? `[P:${s.name}] ([N:${s.pct}%], [N:${totalG} Gol])`
+          : `[P:${s.name}] ([N:${s.pct}%], [N:${totalG} Goals])`;
+      }
+      return `[P:${s.name}] ([N:${s.pct}%])`;
     });
     const n = tokens.length;
     if (n === 1) return tokens[0];
@@ -1365,12 +1364,21 @@ export function generateStoriesFromPulseMatch(
         else if (subType === 'RED_CARD_OVERTURNED') cond = 'Kartu Merah Dibatalkan';
 
         const player = resolvePlayer(ev.personId);
+        const rawReason = String(ev.reason || '').toLowerCase();
+        const reason =
+          rawReason.includes('hand')
+            ? 'handball'
+            : rawReason.includes('foul')
+              ? 'pelanggaran'
+              : rawReason.includes('offside')
+                ? 'offside'
+                : rawReason || 'offside';
         const vars = {
           minute: minuteStr,
           player: player.name,
           player_pct: player.pct,
           club: player.club || eventTeamName,
-          reason: ev.reason || 'Offside',
+          reason,
           home_club: homeClub,
           home_score: homeScore,
           away_score: awayScore,
@@ -1548,9 +1556,9 @@ export function generateStoriesFromPulseMatch(
       seenVarKeys.add(varKey);
 
       const { h: hScore, a: aScore } = getScoreForVar(tvSecs, cond, tvText);
-      let reason = 'Offside';
-      if (/handball/i.test(tvText)) reason = 'Handball';
-      else if (/foul/i.test(tvText)) reason = 'Pelanggaran';
+      let reason = 'offside';
+      if (/handball/i.test(tvText)) reason = 'handball';
+      else if (/foul/i.test(tvText)) reason = 'pelanggaran';
 
       const vars = {
         minute: minuteStr,
@@ -1894,13 +1902,11 @@ export function generateLiveMatchScoreStories(
       scorerNames.push(name);
 
       if (goals > 0) {
-        const suffixId = goals > 1 ? ` [N:(${goals} Gol)]` : '';
-        const suffixEn = goals > 1 ? ` [N:(${goals} Goals)]` : '';
-        scorerItemsId.push(`[P:${name}] ([N:${pct}%])${suffixId}`);
-        scorerItemsEn.push(`[P:${name}] ([N:${pct}%])${suffixEn}`);
+        scorerItemsId.push(goals > 1 ? `[P:${name}] ([N:${pct}%], [N:${goals} Gol])` : `[P:${name}] ([N:${pct}%])`);
+        scorerItemsEn.push(goals > 1 ? `[P:${name}] ([N:${pct}%], [N:${goals} Goals])` : `[P:${name}] ([N:${pct}%])`);
       } else if (ownGoals > 0) {
-        scorerItemsId.push(`[P:${name}] ([N:${pct}%]) [N:(GBD)]`);
-        scorerItemsEn.push(`[P:${name}] ([N:${pct}%]) [N:(OG)]`);
+        scorerItemsId.push(`[P:${name}] ([N:${pct}%], GBD)`);
+        scorerItemsEn.push(`[P:${name}] ([N:${pct}%], OG)`);
       }
     }
 
