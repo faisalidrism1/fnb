@@ -7,16 +7,16 @@
     "subcategory": "Fixture",
     "title": "Opening Fixture",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: 1 Laga]\n[C:{home_club}] vs [C:{away_club}] membuka Gameweek [N:{gw}] pukul [N:{kickoff_time}].\n\n[Kondisi: Multi Laga]\nSebanyak [N:{count}] laga membuka Gameweek [N:{gw}] serentak pukul [N:{kickoff_time}]: {matches_list}.",
-    "example": "[Kondisi: 1 Laga]\n[C:Leicester] vs [C:Nott'm Forest] membuka Gameweek [N:9] pukul [N:18:30 WIB].\n\n[Kondisi: Multi Laga]\nSebanyak [N:5] laga membuka Gameweek [N:9] serentak pukul [N:18:30 WIB]: [C:Leicester] vs [C:Nott'm Forest], [C:Aston Villa] vs [C:Bournemouth], [C:Brentford] vs [C:Ipswich Town], [C:Brighton] vs [C:Wolves], dan [C:Man City] vs [C:Southampton].",
-    "code": "const fixtures = getUpcomingOpeningFixtures(gw);\nif (fixtures.length === 1) {\n  const f = fixtures[0];\n  return renderTemplate(template.single, {\n    gw,\n    kickoff_time: f.kickoffTime,\n    home_club: f.homeClub,\n    away_club: f.awayClub,\n  });\n}\nconst listStr = fixtures.map((f, i) => {\n  const pair = `[C:${f.homeClub}] vs [C:${f.awayClub}]`;\n  return i === fixtures.length - 1 ? `dan ${pair}` : pair;\n}).join(', ');\n\nreturn renderTemplate(template.multi, {\n  gw,\n  count: fixtures.length,\n  kickoff_time: fixtures[0].kickoffTime,\n  matches_list: listStr,\n});",
+    "template": "[Kondisi: 1 Laga]\nGameweek [N:{gw}] diawali oleh pertandingan antara [C:{home_club}] dan [C:{away_club}] pada pukul [N:{kickoff_time}].\n\n[Kondisi: Multi Laga]\nGameweek [N:{gw}] diawali oleh [N:{count}] pertandingan serentak pada pukul [N:{kickoff_time}]: {matches_list}.",
+    "example": "[Kondisi: 1 Laga]\nGameweek [N:9] diawali oleh pertandingan antara [C:Leicester] dan [C:Nott'm Forest] pada pukul [N:18:30 WIB].\n\n[Kondisi: Multi Laga]\nGameweek [N:9] diawali oleh [N:5] pertandingan serentak pada pukul [N:18:30 WIB]: [C:Leicester] vs [C:Nott'm Forest], [C:Aston Villa] vs [C:Bournemouth], [C:Brentford] vs [C:Ipswich Town], [C:Brighton] vs [C:Wolves] dan [C:Man City] vs [C:Southampton].",
+    "code": "const fixtures = getUpcomingOpeningFixtures(gw)\n  .sort((a, b) => new Date(a.kickoffTimeRaw).getTime() - new Date(b.kickoffTimeRaw).getTime());\nif (fixtures.length === 1) {\n  const f = fixtures[0];\n  return renderTemplate(template.single, {\n    gw,\n    kickoff_time: f.kickoffTime,\n    home_club: f.homeClub,\n    away_club: f.awayClub,\n  });\n}\nconst pairs = fixtures.map((f) => `[C:${f.homeClub}] vs [C:${f.awayClub}]`);\nconst listStr = pairs.length > 1\n  ? `${pairs.slice(0, -1).join(', ')} dan ${pairs[pairs.length - 1]}`\n  : (pairs[0] || '');\n\nreturn renderTemplate(template.multi, {\n  gw,\n  count: fixtures.length,\n  kickoff_time: fixtures[0].kickoffTime,\n  matches_list: listStr,\n});",
     "sample_data": {
       "gw": "9",
       "kickoff_time": "18:30 WIB",
       "home_club": "Leicester",
       "away_club": "Nott'm Forest",
       "count": "5",
-      "matches_list": "[C:Leicester] vs [C:Nott'm Forest], [C:Aston Villa] vs [C:Bournemouth], [C:Brentford] vs [C:Ipswich Town], [C:Brighton] vs [C:Wolves], dan [C:Man City] vs [C:Southampton]"
+      "matches_list": "[C:Leicester] vs [C:Nott'm Forest], [C:Aston Villa] vs [C:Bournemouth], [C:Brentford] vs [C:Ipswich Town], [C:Brighton] vs [C:Wolves] dan [C:Man City] vs [C:Southampton]"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
@@ -31,15 +31,14 @@
     "subcategory": "Wildcard",
     "title": "Wildcard",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: 1 Tim]\n[T:{team}] mengaktifkan [N:Wildcard], mendatangkan [P:{player_in}] dan melepas [P:{player_out}].\n\n[Kondisi: Multi Tim]\n{teams} mengaktifkan [N:Wildcard]; [P:{player_in}] paling banyak dibeli dan [P:{player_out}] paling banyak dilepas.",
-    "example": "[Kondisi: 1 Tim]\n[T:Thor] mengaktifkan [N:Wildcard], mendatangkan [P:Isak] dan melepas [P:João Pedro].\n\n[Kondisi: Multi Tim]\n[T:Garuda FC] dan [T:Bintang Timur] mengaktifkan [N:Wildcard]; [P:Isak] paling banyak dibeli dan [P:João Pedro] paling banyak dilepas.",
-    "code": "const wcTeams = getManagersUsingChip(gw, 'wildcard');\nif (wcTeams.length === 0) return null;\n\nconst topIn = getMostTransferredInByTeams(wcTeams, gw);\nconst topOut = getMostTransferredOutByTeams(wcTeams, gw);\n\nif (wcTeams.length === 1) {\n  return renderTemplate(template.single, {\n    team: wcTeams[0].name,\n    gw,\n    player_in: topIn.name,\n    player_out: topOut.name,\n  });\n}\n\nconst teamsStr = formatTeamList(wcTeams.map(t => t.name));\nreturn renderTemplate(template.multi, {\n  teams: teamsStr,\n  gw,\n  player_in: topIn.name,\n  player_out: topOut.name,\n});",
+    "template": "[Kondisi: 1 Tim]\n[T:{team}] mengaktifkan [N:Wildcard] dengan merekrut [P:{player_in}] dan melepas [P:{player_out}].\n\n[Kondisi: Multi Tim]\n{teams} mengaktifkan [N:Wildcard], dengan [P:{player_in}] menjadi rekrutan terbanyak dan [P:{player_out}] paling banyak dilepas.",
+    "example": "[Kondisi: 1 Tim]\n[T:blue one] mengaktifkan [N:Wildcard] dengan merekrut [P:Isak] dan melepas [P:Cherki].\n\n[Kondisi: Multi Tim]\n[T:Garuda FC] dan [T:Bintang Timur] mengaktifkan [N:Wildcard], dengan [P:Isak] menjadi rekrutan terbanyak dan [P:Cherki] paling banyak dilepas.",
+    "code": "const wcTeams = getManagersUsingChip(gw, 'wildcard');\nif (wcTeams.length === 0) return null;\n\nconst netTransfers = getNetTransfersSummary(wcTeams, gw);\nif (!netTransfers) return null;\n\nif (wcTeams.length === 1) {\n  return renderTemplate(template.single, {\n    team: wcTeams[0].name,\n    player_in: netTransfers.player_in,\n    player_out: netTransfers.player_out,\n  });\n}\n\nconst teamsStr = formatTeamList(wcTeams.map(t => t.name));\nreturn renderTemplate(template.multi, {\n  teams: teamsStr,\n  player_in: netTransfers.player_in,\n  player_out: netTransfers.player_out,\n});",
     "sample_data": {
-      "team": "Thor",
+      "team": "blue one",
       "teams": "[T:Garuda FC] dan [T:Bintang Timur]",
-      "gw": "9",
       "player_in": "Isak",
-      "player_out": "João Pedro"
+      "player_out": "Cherki"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
@@ -54,15 +53,14 @@
     "subcategory": "Free Hit",
     "title": "Free Hit",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: 1 Tim]\n[T:{team}] mengaktifkan [N:Free Hit], mendatangkan [P:{player_in}] dan melepas [P:{player_out}].\n\n[Kondisi: Multi Tim]\n{teams} mengaktifkan [N:Free Hit]; [P:{player_in}] paling banyak dibeli dan [P:{player_out}] paling banyak dilepas.",
-    "example": "[Kondisi: 1 Tim]\n[T:Singa FC] mengaktifkan [N:Free Hit], mendatangkan [P:Salah] dan melepas [P:Son].\n\n[Kondisi: Multi Tim]\n[T:Singa FC] dan [T:Harimau Jaya] mengaktifkan [N:Free Hit]; [P:Salah] paling banyak dibeli dan [P:Son] paling banyak dilepas.",
-    "code": "const fhTeams = getManagersUsingChip(gw, 'freehit');\nif (fhTeams.length === 0) return null;\n\nconst topIn = getMostTransferredInByTeams(fhTeams, gw);\nconst topOut = getMostTransferredOutByTeams(fhTeams, gw);\n\nif (fhTeams.length === 1) {\n  return renderTemplate(template.single, {\n    team: fhTeams[0].name,\n    gw,\n    player_in: topIn.name,\n    player_out: topOut.name,\n  });\n}\n\nconst teamsStr = formatTeamList(fhTeams.map(t => t.name));\nreturn renderTemplate(template.multi, {\n  teams: teamsStr,\n  gw,\n  player_in: topIn.name,\n  player_out: topOut.name,\n});",
+    "template": "[Kondisi: 1 Tim]\n[T:{team}] mengaktifkan [N:Free Hit] dengan mendatangkan [P:{player_in}] serta melepas [P:{player_out}].\n\n[Kondisi: Multi Tim]\n{teams} mengaktifkan [N:Free Hit], dengan [P:{player_in}] paling banyak didatangkan dan [P:{player_out}] paling banyak dilepas.",
+    "example": "[Kondisi: 1 Tim]\n[T:Tim Holland] mengaktifkan [N:Free Hit] dengan mendatangkan [P:Isak] serta melepas [P:Cherki].\n\n[Kondisi: Multi Tim]\n[T:Singa FC] dan [T:Harimau Jaya] mengaktifkan [N:Free Hit], dengan [P:Isak] paling banyak didatangkan dan [P:Cherki] paling banyak dilepas.",
+    "code": "const fhTeams = getManagersUsingChip(gw, 'freehit');\nif (fhTeams.length === 0) return null;\n\nconst netTransfers = getNetTransfersSummary(fhTeams, gw);\nif (!netTransfers) return null;\n\nif (fhTeams.length === 1) {\n  return renderTemplate(template.single, {\n    team: fhTeams[0].name,\n    player_in: netTransfers.player_in,\n    player_out: netTransfers.player_out,\n  });\n}\n\nconst teamsStr = formatTeamList(fhTeams.map(t => t.name));\nreturn renderTemplate(template.multi, {\n  teams: teamsStr,\n  player_in: netTransfers.player_in,\n  player_out: netTransfers.player_out,\n});",
     "sample_data": {
-      "team": "Singa FC",
+      "team": "Tim Holland",
       "teams": "[T:Singa FC] dan [T:Harimau Jaya]",
-      "gw": "9",
-      "player_in": "Salah",
-      "player_out": "Son"
+      "player_in": "Isak",
+      "player_out": "Cherki"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
@@ -77,19 +75,19 @@
     "subcategory": "Bench Boost",
     "title": "Bench Boost",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: 1 Tim]\n[T:{team}] mengaktifkan [N:Bench Boost] dengan [P:{player_bench}] sebagai andalan di bangku cadangan.\n\n[Kondisi: Multi Tim]\n{teams} mengaktifkan [N:Bench Boost], dengan [P:{player_bench}] paling banyak mengisi bangku cadangan.",
-    "example": "[Kondisi: 1 Tim]\n[T:Sumber Bahagia Motor] mengaktifkan [N:Bench Boost] dengan [P:Groß] sebagai andalan di bangku cadangan.\n\n[Kondisi: Multi Tim]\n[T:Sumber Bahagia Motor] dan [T:Petrikor] mengaktifkan [N:Bench Boost], dengan [P:Groß] paling banyak mengisi bangku cadangan.",
-    "code": "const bbTeams = getManagersUsingChip(gw, 'bboost');\nif (bbTeams.length === 0) return null;\n\nif (bbTeams.length === 1) {\n  const topBench = getTopBenchPlayer(bbTeams[0], gw, ['cost', 'total_points', 'form']);\n  return renderTemplate(template.single, {\n    team: bbTeams[0].name,\n    gw,\n    player_bench: topBench.name,\n  });\n}\n\nconst teamsStr = formatTeamList(bbTeams.map(t => t.name));\nconst topBenchPlayer = getMostBenchedPlayerAcrossTeams(bbTeams, gw);\nreturn renderTemplate(template.multi, {\n  teams: teamsStr,\n  gw,\n  player_bench: topBenchPlayer.name,\n});",
+    "template": "[Kondisi: 1 Tim]\n[T:{team}] mengaktifkan [N:Bench Boost] dengan menempatkan {bench_players} di bangku cadangan.\n\n[Kondisi: Multi Tim - Pemain Sama]\n{teams} mengaktifkan [N:Bench Boost], dengan [P:{player_bench}] paling banyak ditempatkan di bangku cadangan.\n\n[Kondisi: Multi Tim - Semua Berbeda]\n{teams} mengaktifkan [N:Bench Boost], dengan [P:{player_bench}] menjadi sorotan utama di bangku cadangan.",
+    "example": "[Kondisi: 1 Tim]\n[T:Sumber Bahagia Motor] mengaktifkan [N:Bench Boost] dengan menempatkan [P:Verbruggen], [P:Calafiori], [P:Gakpo] dan [P:Van Hecke] di bangku cadangan.\n\n[Kondisi: Multi Tim - Pemain Sama]\n[T:FornasPengawasan], [T:TELUR DADAR] dan [T:ehajrakab fc] mengaktifkan [N:Bench Boost], dengan [P:Van Hecke] paling banyak ditempatkan di bangku cadangan.\n\n[Kondisi: Multi Tim - Semua Berbeda]\n[T:FornasPengawasan], [T:TELUR DADAR] dan [T:ehajrakab fc] mengaktifkan [N:Bench Boost], dengan [P:Van Hecke] menjadi sorotan utama di bangku cadangan.",
+    "code": "const bbTeams = getManagersUsingChip(gw, 'bboost');\nif (bbTeams.length === 0) return null;\n\nconst bbSummary = getBenchBoostSummaryForTeams(bbTeams.map(t => t.id));\nif (!bbSummary) return null;\n\nif (bbTeams.length === 1) {\n  return renderTemplate(template.single, {\n    team: bbTeams[0].name,\n    bench_players: bbSummary.benchPlayersList,\n  });\n}\n\nconst teamsStr = formatTeamList(bbTeams.map(t => t.name));\nif (!teamsStr) return null;\n\nif (bbSummary.maxCount >= 2) {\n  return renderTemplate(template.multiSame, {\n    teams: teamsStr,\n    player_bench: bbSummary.topPlayer,\n  });\n}\n\nreturn renderTemplate(template.multiDiff, {\n  teams: teamsStr,\n  player_bench: bbSummary.topPlayer,\n});",
     "sample_data": {
       "team": "Sumber Bahagia Motor",
-      "teams": "[T:Sumber Bahagia Motor] dan [T:Petrikor]",
-      "gw": "9",
-      "player_bench": "Groß"
+      "bench_players": "[P:Verbruggen], [P:Calafiori], [P:Gakpo] dan [P:Van Hecke]",
+      "teams": "[T:FornasPengawasan], [T:TELUR DADAR] dan [T:ehajrakab fc]",
+      "player_bench": "Van Hecke"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T09:58:00.000Z"
   },
   {
     "no": 5,
@@ -99,21 +97,20 @@
     "subcategory": "Triple Captain",
     "title": "Triple Captain",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: 1 Tim]\n[T:{team}] mengaktifkan [N:Triple Captain] untuk [P:{captain}].\n\n[Kondisi: Multi Tim]\n{teams} mengaktifkan [N:Triple Captain] dengan menunjuk [P:{dominant_captain}] sebagai kapten{others_clause}.",
-    "example": "[Kondisi: 1 Tim]\n[T:cilukba] mengaktifkan [N:Triple Captain] untuk [P:Haaland].\n\n[Kondisi: Multi Tim]\n[T:Elang Jawa] dan [T:Badak Perkasa] mengaktifkan [N:Triple Captain] dengan menunjuk [P:Haaland] sebagai kapten, sementara [N:1] tim memilih target berbeda.",
-    "code": "const tcTeams = getManagersUsingChip(gw, '3xc');\nif (tcTeams.length === 0) return null;\n\nif (tcTeams.length === 1) {\n  const cap = getTeamCaptain(tcTeams[0].id, gw);\n  return renderTemplate(template.single, {\n    team: tcTeams[0].name,\n    captain: cap.name,\n    gw,\n  });\n}\n\nconst captainDistribution = getCaptainDistribution(tcTeams, gw);\nconst dominant = captainDistribution[0];\nconst dominantTeams = tcTeams.filter(t => t.captainId === dominant.playerId);\nconst othersCount = tcTeams.length - dominantTeams.length;\n\nconst teamsStr = formatTeamList(dominantTeams.map(t => t.name));\nconst othersClause = othersCount > 0 \n  ? formatOthersCaptainSummary(othersCount) \n  : '';\n\nreturn renderTemplate(template.multi, {\n  teams: teamsStr,\n  dominant_captain: dominant.playerName,\n  gw,\n  others_clause: othersClause,\n});",
+    "template": "[Kondisi: 1 Tim]\n[T:{team}] mengaktifkan [N:Triple Captain] dengan menunjuk [P:{captain}] sebagai kapten.\n\n[Kondisi: Multi Tim]\n{teams} mengaktifkan [N:Triple Captain] dengan menunjuk [P:{dominant_captain}] sebagai kapten{others_clause}.",
+    "example": "[Kondisi: 1 Tim]\n[T:cilukba] mengaktifkan [N:Triple Captain] dengan menunjuk [P:Haaland] sebagai kapten.\n\n[Kondisi: Multi Tim]\n[T:Anti Koruptor Laknat] mengaktifkan [N:Triple Captain] dengan menunjuk [P:Isak] sebagai kapten, sementara [T:Rajo's Team] mengapteni [P:De Cuyper].",
+    "code": "const tcTeams = getManagersUsingChip(gw, '3xc');\nif (tcTeams.length === 0) return null;\n\nif (tcTeams.length === 1) {\n  const cap = getTeamCaptain(tcTeams[0].id, gw);\n  if (!cap?.name) return null;\n  return renderTemplate(template.single, {\n    team: tcTeams[0].name,\n    captain: cap.name,\n  });\n}\n\nconst captainDistribution = getCaptainDistribution(tcTeams, gw);\nif (captainDistribution.length === 0) return null;\nconst dominant = captainDistribution[0];\nconst dominantTeams = tcTeams.filter(t => t.captainId === dominant.playerId);\nconst othersCount = tcTeams.length - dominantTeams.length;\n\nconst teamsStr = formatTeamList(dominantTeams.map(t => t.name));\nif (!teamsStr) return null;\nconst othersClause = othersCount > 0 \n  ? formatOthersCaptainSummary(othersCount) \n  : '';\n\nreturn renderTemplate(template.multi, {\n  teams: teamsStr,\n  dominant_captain: dominant.playerName,\n  others_clause: othersClause,\n});",
     "sample_data": {
       "team": "cilukba",
       "captain": "Haaland",
-      "teams": "[T:Elang Jawa] dan [T:Badak Perkasa]",
-      "dominant_captain": "Haaland",
-      "gw": "9",
-      "others_clause": ", sementara [N:1] tim memilih target berbeda"
+      "teams": "[T:Anti Koruptor Laknat]",
+      "dominant_captain": "Isak",
+      "others_clause": ", sementara [T:Rajo's Team] mengapteni [P:De Cuyper]"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T10:06:00.000Z"
   },
   {
     "no": 6,
@@ -123,17 +120,17 @@
     "subcategory": "Summary",
     "title": "Chip Usage Summary",
     "output": "SINGLE-NEWS",
-    "template": "Penggunaan chip hingga Gameweek [N:{gw}]: {chips_summary}.",
-    "example": "Penggunaan chip hingga Gameweek [N:10]: [N:Wildcard] [N:59] (+[N:1]), [N:Free Hit] [N:16] (+[N:1]), [N:Bench Boost] [N:30] (+[N:3]), dan [N:Triple Captain] [N:31] (+[N:2]).",
-    "code": "const recap = getSeasonChipUsageStats(gw);\nconst summary = buildChipAccumulationSummary(recap);\n\nreturn renderTemplate(template, {\n  gw,\n  chips_summary: summary,\n});",
+    "template": "Total penggunaan chip di FNB League hingga Gameweek [N:{gw}]: {chips_summary}.",
+    "example": "Total penggunaan chip di FNB League hingga Gameweek [N:10]: [N:Wildcard] [N:59] ([N:+1]), [N:Free Hit] [N:16] ([N:+1]), [N:Bench Boost] [N:30] ([N:+3]) dan [N:Triple Captain] [N:31] ([N:+2]).",
+    "code": "const recap = getSeasonChipUsageStats(gw);\nif (!recap || recap.total === 0) return null;\nconst summary = buildChipAccumulationSummary(recap);\nif (!summary) return null;\n\nreturn renderTemplate(template, {\n  gw,\n  chips_summary: summary,\n});",
     "sample_data": {
       "gw": "10",
-      "chips_summary": "[N:Wildcard] [N:59] (+[N:1]), [N:Free Hit] [N:16] (+[N:1]), [N:Bench Boost] [N:30] (+[N:3]), dan [N:Triple Captain] [N:31] (+[N:2])"
+      "chips_summary": "[N:Wildcard] [N:59] ([N:+1]), [N:Free Hit] [N:16] ([N:+1]), [N:Bench Boost] [N:30] ([N:+3]) dan [N:Triple Captain] [N:31] ([N:+2])"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T10:10:00.000Z"
   },
   {
     "no": 7,
@@ -143,20 +140,19 @@
     "subcategory": "Transfers In",
     "title": "Most Bought",
     "output": "SINGLE-NEWS",
-    "template": "[P:{player1}] memuncaki transfer masuk dengan [N:{count1}] pembelian, diikuti [P:{player2}] ([N:{count2}] pembelian).",
-    "example": "[P:Palmer] memuncaki transfer masuk dengan [N:12] pembelian, diikuti [P:Saka] ([N:8] pembelian).",
-    "code": "const topIn = getTopTransferredInPlayers(gw, 2);\nif (topIn.length < 2) return null;\n\nreturn renderTemplate(template, {\n  gw,\n  player1: topIn[0].name,\n  count1: topIn[0].count,\n  player2: topIn[1].name,\n  count2: topIn[1].count,\n});",
+    "template": "[P:{player1}] memuncaki daftar transfer masuk setelah direkrut [N:{count1}] tim, diikuti [P:{player2}] ([N:{count2}] tim).",
+    "example": "[P:Van Hecke] memuncaki daftar transfer masuk setelah direkrut [N:15] tim, diikuti [P:Evanilson] ([N:14] tim).",
+    "code": "const topIn = getTopTransferredInPlayers(gw, 2);\nif (topIn.length < 2) return null;\n\nreturn renderTemplate(template, {\n  player1: topIn[0].name,\n  count1: topIn[0].count,\n  player2: topIn[1].name,\n  count2: topIn[1].count,\n});",
     "sample_data": {
-      "gw": "9",
-      "player1": "Palmer",
-      "count1": "12",
-      "player2": "Saka",
-      "count2": "8"
+      "player1": "Van Hecke",
+      "count1": "15",
+      "player2": "Evanilson",
+      "count2": "14"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T10:16:00.000Z"
   },
   {
     "no": 8,

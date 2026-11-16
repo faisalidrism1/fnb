@@ -83,7 +83,7 @@ export function formatTeamList(
   }
   if (n === 3) {
     return lang === 'id'
-      ? `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], dan [T:${cleanTeams[2]}]`
+      ? `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}] dan [T:${cleanTeams[2]}]`
       : `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], and [T:${cleanTeams[2]}]`;
   }
   if (!isChampionshipRivalry) {
@@ -91,6 +91,6 @@ export function formatTeamList(
   }
   const remaining = n - 2;
   return lang === 'id'
-    ? `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], dan [N:${remaining}] tim lainnya`
+    ? `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}] dan [N:${remaining}] tim lainnya`
     : `[T:${cleanTeams[0]}], [T:${cleanTeams[1]}], and [N:${remaining}] other teams`;
 }

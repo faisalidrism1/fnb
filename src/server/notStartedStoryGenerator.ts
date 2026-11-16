@@ -168,50 +168,74 @@ function getTopTransfersForTeams(
     return null;
   }
 
-  const inFrequency: Record<string, number> = {};
-  const outFrequency: Record<string, number> = {};
+  const netByTeam = new Map<number, Map<string, number>>();
   const inCosts: Record<string, number> = {};
   const outCosts: Record<string, number> = {};
 
   for (const tr of relevantTransfers) {
+    const eid = Number(tr.entry_id);
+    if (!netByTeam.has(eid)) {
+      netByTeam.set(eid, new Map());
+    }
+    const playerNet = netByTeam.get(eid)!;
+
     const pIn = tr.element_in?.name;
     const pOut = tr.element_out?.name;
     if (pIn) {
-      inFrequency[pIn] = (inFrequency[pIn] || 0) + 1;
+      playerNet.set(pIn, (playerNet.get(pIn) || 0) + 1);
       inCosts[pIn] = Math.max(inCosts[pIn] || 0, tr.element_in?.cost || 0);
     }
     if (pOut) {
-      outFrequency[pOut] = (outFrequency[pOut] || 0) + 1;
+      playerNet.set(pOut, (playerNet.get(pOut) || 0) - 1);
       outCosts[pOut] = Math.max(outCosts[pOut] || 0, tr.element_out?.cost || 0);
+    }
+  }
+
+  const inFrequency: Record<string, number> = {};
+  const outFrequency: Record<string, number> = {};
+
+  for (const playerNet of netByTeam.values()) {
+    for (const [name, net] of playerNet.entries()) {
+      if (net > 0) {
+        inFrequency[name] = (inFrequency[name] || 0) + 1;
+      } else if (net < 0) {
+        outFrequency[name] = (outFrequency[name] || 0) + 1;
+      }
     }
   }
 
   const sortedIn = Object.keys(inFrequency).sort((a, b) => {
     if (inFrequency[b] !== inFrequency[a]) return inFrequency[b] - inFrequency[a];
-    return (inCosts[b] || 0) - (inCosts[a] || 0);
+    if ((inCosts[b] || 0) !== (inCosts[a] || 0)) return (inCosts[b] || 0) - (inCosts[a] || 0);
+    return a.localeCompare(b);
   });
 
   const sortedOut = Object.keys(outFrequency).sort((a, b) => {
     if (outFrequency[b] !== outFrequency[a]) return outFrequency[b] - outFrequency[a];
-    return (outCosts[b] || 0) - (outCosts[a] || 0);
+    if ((outCosts[b] || 0) !== (outCosts[a] || 0)) return (outCosts[b] || 0) - (outCosts[a] || 0);
+    return a.localeCompare(b);
   });
 
-  if (!sortedIn[0] || !sortedOut[0]) return null;
+  const bestIn = sortedIn[0];
+  if (!bestIn) return null;
+  const bestOut = sortedOut.find((name) => name !== bestIn);
+  if (!bestOut) return null;
+
   return {
-    player_in: sortedIn[0],
-    player_out: sortedOut[0],
+    player_in: bestIn,
+    player_out: bestOut,
   };
 }
 
 /**
- * Resolves the top bench player across teams using Bench Boost for Phase 1 (Not started)
- * Hierarki:
- * 1. Frekuensi pemain di bangku cadangan antar tim (kondisi Multi-Tim)
- * 2. Harga pemain tertinggi di bangku cadangan (nowCost)
- * 3. Jika harga sama: Total poin musim berjalan (totalPoints)
- * 4. Jika total poin sama: Form pemain (form)
+ * Resolves Bench Boost summary for Phase 1 (Not started) without fallback.
+ * - 1 Tim: daftar seluruh pemain bangku cadangan terurut posisi skuad (`{bench_players}`)
+ * - Multi Tim: pemain cadangan teratas berdasarkan frekuensi -> harga -> total poin -> form -> abjad,
+ *   beserta `maxCount` untuk membedakan kondisi "Pemain Sama" (maxCount >= 2) vs "Semua Berbeda" (maxCount === 1).
  */
-function getTopBenchPlayerForTeams(teamIds: number[]): string | null {
+function getBenchBoostSummaryForTeams(
+  teamIds: number[]
+): { benchPlayersList: string; topPlayer: string; maxCount: number } | null {
   if (!teamIds || teamIds.length === 0) return null;
 
   try {
@@ -223,6 +247,7 @@ function getTopBenchPlayerForTeams(teamIds: number[]): string | null {
     const benchCosts: Record<string, number> = {};
     const benchTotalPts: Record<string, number> = {};
     const benchForm: Record<string, number> = {};
+    const singleTeamBench: { name: string; pos: number; cost: number }[] = [];
 
     for (const p of playersArr as any[]) {
       const owners = p.league_ownership?.owners || [];
@@ -232,14 +257,22 @@ function getTopBenchPlayerForTeams(teamIds: number[]): string | null {
           if (isBench) {
             const name = p.webName || p.web_name || p.name;
             if (!name) continue;
-            benchCounts[name] = (benchCounts[name] || 0) + 1;
             const cost = Number(p.nowCost || p.cost || 0);
             const totalPts = Number(p.totalPoints || 0);
             const formVal = parseFloat(String(p.form || '0')) || 0;
 
+            benchCounts[name] = (benchCounts[name] || 0) + 1;
             benchCosts[name] = Math.max(benchCosts[name] || 0, cost);
             benchTotalPts[name] = Math.max(benchTotalPts[name] || 0, totalPts);
             benchForm[name] = Math.max(benchForm[name] || 0, formVal);
+
+            if (teamIds.length === 1) {
+              singleTeamBench.push({
+                name,
+                pos: Number(o.position_in_squad || 99),
+                cost,
+              });
+            }
           }
         }
       }
@@ -249,10 +282,36 @@ function getTopBenchPlayerForTeams(teamIds: number[]): string | null {
       if (benchCounts[b] !== benchCounts[a]) return benchCounts[b] - benchCounts[a];
       if (benchCosts[b] !== benchCosts[a]) return (benchCosts[b] || 0) - (benchCosts[a] || 0);
       if (benchTotalPts[b] !== benchTotalPts[a]) return (benchTotalPts[b] || 0) - (benchTotalPts[a] || 0);
-      return (benchForm[b] || 0) - (benchForm[a] || 0);
+      if ((benchForm[b] || 0) !== (benchForm[a] || 0)) return (benchForm[b] || 0) - (benchForm[a] || 0);
+      return a.localeCompare(b);
     });
 
-    return sorted[0] || null;
+    const topPlayer = sorted[0];
+    if (!topPlayer) return null;
+
+    let benchPlayersList = '';
+    if (teamIds.length === 1) {
+      singleTeamBench.sort((a, b) => {
+        if (a.pos !== b.pos) return a.pos - b.pos;
+        if (b.cost !== a.cost) return b.cost - a.cost;
+        return a.name.localeCompare(b.name);
+      });
+      const tagged = singleTeamBench.map((x) => `[P:${x.name}]`);
+      if (tagged.length === 0) return null;
+      if (tagged.length === 1) {
+        benchPlayersList = tagged[0];
+      } else if (tagged.length === 2) {
+        benchPlayersList = `${tagged[0]} dan ${tagged[1]}`;
+      } else {
+        benchPlayersList = `${tagged.slice(0, -1).join(', ')} dan ${tagged[tagged.length - 1]}`;
+      }
+    }
+
+    return {
+      benchPlayersList,
+      topPlayer,
+      maxCount: benchCounts[topPlayer] || 0,
+    };
   } catch {
     return null;
   }
@@ -539,40 +598,44 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
         // 1. Match Fixtures
         case 1: {
           if (currentFixtures.length > 0) {
-            const earliestTime = currentFixtures[0].kickoff_time;
-            const opening = currentFixtures.filter((f: any) => f.kickoff_time === earliestTime);
-            const wibTime = formatWibTime(earliestTime);
+            const sortedFixtures = [...currentFixtures]
+              .filter((f: any) => Boolean(f.kickoff_time))
+              .sort((a: any, b: any) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime());
 
-            if (wibTime && opening.length === 1) {
-              const f = opening[0];
-              const homeClub = resolveClubName(f.home_team);
-              const awayClub = resolveClubName(f.away_team);
-              if (homeClub && awayClub) {
-                filledHeadline = renderTemplateBranch(tmpl.template, '1 laga', {
-                  gw: currentGw,
-                  kickoff_time: wibTime,
-                  home_club: homeClub,
-                  away_club: awayClub,
-                });
-              }
-            } else if (wibTime && opening.length > 1) {
-              const pairs = opening
-                .map((f: any) => {
-                  const homeName = resolveClubName(f.home_team || f.homeClub);
-                  const awayName = resolveClubName(f.away_team || f.awayClub);
-                  return homeName && awayName ? `[C:${homeName}] vs [C:${awayName}]` : '';
-                })
-                .filter(Boolean);
-              if (pairs.length > 1) {
-                const listStr = pairs
-                  .map((p, i) => (i === pairs.length - 1 ? `dan ${p}` : p))
-                  .join(', ');
-                filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
-                  gw: currentGw,
-                  count: pairs.length,
-                  kickoff_time: wibTime,
-                  matches_list: listStr,
-                });
+            if (sortedFixtures.length > 0) {
+              const earliestTime = sortedFixtures[0].kickoff_time;
+              const opening = sortedFixtures.filter((f: any) => f.kickoff_time === earliestTime);
+              const wibTime = formatWibTime(earliestTime);
+
+              if (wibTime && opening.length === 1) {
+                const f = opening[0];
+                const homeClub = resolveClubName(f.home_team || (f as any).homeClub);
+                const awayClub = resolveClubName(f.away_team || (f as any).awayClub);
+                if (homeClub && awayClub) {
+                  filledHeadline = renderTemplateBranch(tmpl.template, '1 laga', {
+                    gw: currentGw,
+                    kickoff_time: wibTime,
+                    home_club: homeClub,
+                    away_club: awayClub,
+                  });
+                }
+              } else if (wibTime && opening.length > 1) {
+                const pairs = opening
+                  .map((f: any) => {
+                    const homeName = resolveClubName(f.home_team || f.homeClub);
+                    const awayName = resolveClubName(f.away_team || f.awayClub);
+                    return homeName && awayName ? `[C:${homeName}] vs [C:${awayName}]` : '';
+                  })
+                  .filter(Boolean);
+                if (pairs.length > 1) {
+                  const listStr = `${pairs.slice(0, -1).join(', ')} dan ${pairs[pairs.length - 1]}`;
+                  filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
+                    gw: currentGw,
+                    count: pairs.length,
+                    kickoff_time: wibTime,
+                    matches_list: listStr,
+                  });
+                }
               }
             }
           }
@@ -583,7 +646,10 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
         case 2: {
           const rawWcTeams: { name: string; id: number }[] = [];
           for (const row of allChipsUsed) {
-            if ((row.wc1 && Number(row.wc1.gw) === currentGw) || (row.wc2 && Number(row.wc2.gw) === currentGw)) {
+            if (
+              row.entry_name &&
+              ((row.wc1 && Number(row.wc1.gw) === currentGw) || (row.wc2 && Number(row.wc2.gw) === currentGw))
+            ) {
               rawWcTeams.push({ name: row.entry_name, id: row.entry_id });
             }
           }
@@ -597,19 +663,19 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
             filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
               team: rawWcTeams[0].name,
               teams: `[T:${rawWcTeams[0].name}]`,
-              gw: currentGw,
               player_in: wcTransfers.player_in,
               player_out: wcTransfers.player_out,
             });
           } else if (wcTransfers && rawWcTeams.length > 1) {
             const teamsStr = formatTeamList(rawWcTeams.map((t) => t.name), 'id', false);
-            filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
-              teams: teamsStr,
-              team: rawWcTeams[0].name,
-              gw: currentGw,
-              player_in: wcTransfers.player_in,
-              player_out: wcTransfers.player_out,
-            });
+            if (teamsStr) {
+              filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
+                teams: teamsStr,
+                team: rawWcTeams[0].name,
+                player_in: wcTransfers.player_in,
+                player_out: wcTransfers.player_out,
+              });
+            }
           }
           break;
         }
@@ -618,7 +684,10 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
         case 3: {
           const rawFhTeams: { name: string; id: number }[] = [];
           for (const row of allChipsUsed) {
-            if ((row.fh1 && Number(row.fh1.gw) === currentGw) || (row.fh2 && Number(row.fh2.gw) === currentGw)) {
+            if (
+              row.entry_name &&
+              ((row.fh1 && Number(row.fh1.gw) === currentGw) || (row.fh2 && Number(row.fh2.gw) === currentGw))
+            ) {
               rawFhTeams.push({ name: row.entry_name, id: row.entry_id });
             }
           }
@@ -632,19 +701,19 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
             filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
               team: rawFhTeams[0].name,
               teams: `[T:${rawFhTeams[0].name}]`,
-              gw: currentGw,
               player_in: fhTransfers.player_in,
               player_out: fhTransfers.player_out,
             });
           } else if (fhTransfers && rawFhTeams.length > 1) {
             const teamsStr = formatTeamList(rawFhTeams.map((t) => t.name), 'id', false);
-            filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
-              teams: teamsStr,
-              team: rawFhTeams[0].name,
-              gw: currentGw,
-              player_in: fhTransfers.player_in,
-              player_out: fhTransfers.player_out,
-            });
+            if (teamsStr) {
+              filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
+                teams: teamsStr,
+                team: rawFhTeams[0].name,
+                player_in: fhTransfers.player_in,
+                player_out: fhTransfers.player_out,
+              });
+            }
           }
           break;
         }
@@ -653,27 +722,29 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
         case 4: {
           const rawBbTeams: { name: string; id: number }[] = [];
           for (const row of allChipsUsed) {
-            if ((row.bb1 && Number(row.bb1.gw) === currentGw) || (row.bb2 && Number(row.bb2.gw) === currentGw)) {
+            if (
+              row.entry_name &&
+              ((row.bb1 && Number(row.bb1.gw) === currentGw) || (row.bb2 && Number(row.bb2.gw) === currentGw))
+            ) {
               rawBbTeams.push({ name: row.entry_name, id: row.entry_id });
             }
           }
-          const bbBenchPlayer = getTopBenchPlayerForTeams(rawBbTeams.map((t) => t.id));
+          const bbSummary = getBenchBoostSummaryForTeams(rawBbTeams.map((t) => t.id));
 
-          if (bbBenchPlayer && rawBbTeams.length === 1) {
+          if (bbSummary && rawBbTeams.length === 1 && bbSummary.benchPlayersList) {
             filledHeadline = renderTemplateBranch(tmpl.template, '1 tim', {
               team: rawBbTeams[0].name,
-              teams: `[T:${rawBbTeams[0].name}]`,
-              gw: currentGw,
-              player_bench: bbBenchPlayer,
+              bench_players: bbSummary.benchPlayersList,
             });
-          } else if (bbBenchPlayer && rawBbTeams.length > 1) {
+          } else if (bbSummary && rawBbTeams.length > 1) {
             const teamsStr = formatTeamList(rawBbTeams.map((t) => t.name), 'id', false);
-            filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
-              teams: teamsStr,
-              team: rawBbTeams[0].name,
-              gw: currentGw,
-              player_bench: bbBenchPlayer,
-            });
+            if (teamsStr) {
+              const condKeyword = bbSummary.maxCount >= 2 ? 'pemain sama' : 'semua berbeda';
+              filledHeadline = renderTemplateBranch(tmpl.template, condKeyword, {
+                teams: teamsStr,
+                player_bench: bbSummary.topPlayer,
+              });
+            }
           }
           break;
         }
@@ -682,7 +753,10 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
         case 5: {
           const rawTcTeams: { name: string; id: number; captain: string }[] = [];
           for (const row of allChipsUsed) {
-            if ((row.tc1 && Number(row.tc1.gw) === currentGw) || (row.tc2 && Number(row.tc2.gw) === currentGw)) {
+            if (
+              row.entry_name &&
+              ((row.tc1 && Number(row.tc1.gw) === currentGw) || (row.tc2 && Number(row.tc2.gw) === currentGw))
+            ) {
               const tcEntry = currentStandings.find((s: any) => s.entry_id === row.entry_id);
               const capName = tcEntry?.captain?.name || '';
               if (capName) {
@@ -698,7 +772,6 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 teams: `[T:${single.name}]`,
                 captain: single.captain,
                 dominant_captain: single.captain,
-                gw: currentGw,
                 others_clause: '',
               });
             } else {
@@ -715,21 +788,22 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               );
 
               const teamsStr = formatTeamList(dominantGroup.teams.map((t) => t.name), 'id', false);
-              let othersClause = '';
-              if (otherTeams.length === 1) {
-                othersClause = `, sementara [T:${otherTeams[0].name}] mengapteni [P:${otherTeams[0].captain}]`;
-              } else if (otherTeams.length > 1) {
-                othersClause = `, sementara [N:${otherTeams.length}] tim memilih target berbeda`;
-              }
+              if (teamsStr) {
+                let othersClause = '';
+                if (otherTeams.length === 1) {
+                  othersClause = `, sementara [T:${otherTeams[0].name}] mengapteni [P:${otherTeams[0].captain}]`;
+                } else if (otherTeams.length > 1) {
+                  othersClause = `, sementara [N:${otherTeams.length}] tim memilih target berbeda`;
+                }
 
-              filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
-                teams: teamsStr,
-                team: dominantGroup.teams[0].name,
-                captain: dominantGroup.captain,
-                dominant_captain: dominantGroup.captain,
-                gw: currentGw,
-                others_clause: othersClause,
-              });
+                filledHeadline = renderTemplateBranch(tmpl.template, 'multi', {
+                  teams: teamsStr,
+                  team: dominantGroup.teams[0].name,
+                  captain: dominantGroup.captain,
+                  dominant_captain: dominantGroup.captain,
+                  others_clause: othersClause,
+                });
+              }
             }
           }
           break;
@@ -750,37 +824,46 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               if (row.tc1 && Number(row.tc1.gw) <= currentGw) { tcCount++; if (Number(row.tc1.gw) === currentGw) tcNew++; }
               if (row.tc2 && Number(row.tc2.gw) <= currentGw) { tcCount++; if (Number(row.tc2.gw) === currentGw) tcNew++; }
             }
-            const wcStr = `[N:Wildcard] [N:${wcCount}]${wcNew > 0 ? ` (+[N:${wcNew}])` : ''}`;
-            const fhStr = `[N:Free Hit] [N:${fhCount}]${fhNew > 0 ? ` (+[N:${fhNew}])` : ''}`;
-            const bbStr = `[N:Bench Boost] [N:${bbCount}]${bbNew > 0 ? ` (+[N:${bbNew}])` : ''}`;
-            const tcStr = `[N:Triple Captain] [N:${tcCount}]${tcNew > 0 ? ` (+[N:${tcNew}])` : ''}`;
-            const summary = `${wcStr}, ${fhStr}, ${bbStr}, dan ${tcStr}`;
+            if (wcCount + fhCount + bbCount + tcCount > 0) {
+              const wcStr = `[N:Wildcard] [N:${wcCount}]${wcNew > 0 ? ` ([N:+${wcNew}])` : ''}`;
+              const fhStr = `[N:Free Hit] [N:${fhCount}]${fhNew > 0 ? ` ([N:+${fhNew}])` : ''}`;
+              const bbStr = `[N:Bench Boost] [N:${bbCount}]${bbNew > 0 ? ` ([N:+${bbNew}])` : ''}`;
+              const tcStr = `[N:Triple Captain] [N:${tcCount}]${tcNew > 0 ? ` ([N:+${tcNew}])` : ''}`;
+              const summary = `${wcStr}, ${fhStr}, ${bbStr} dan ${tcStr}`;
 
-            filledHeadline = renderTemplateBranch(tmpl.template, '', {
-              gw: currentGw,
-              chips_summary: summary,
-            });
+              filledHeadline = renderTemplateBranch(tmpl.template, '', {
+                gw: currentGw,
+                chips_summary: summary,
+              });
+            }
           }
           break;
         }
 
         // 7. Most Transferred In
         case 7: {
-          const transfersInMap = new Map<string, number>();
+          const transfersInMap = new Map<string, { count: number; cost: number }>();
           for (const tr of allTransfers) {
             if (Number(tr.event) === currentGw && tr.element_in?.name) {
               const name = tr.element_in.name;
-              transfersInMap.set(name, (transfersInMap.get(name) || 0) + 1);
+              const prev = transfersInMap.get(name) || { count: 0, cost: 0 };
+              transfersInMap.set(name, {
+                count: prev.count + 1,
+                cost: Math.max(prev.cost, Number(tr.element_in?.cost || 0)),
+              });
             }
           }
-          const sortedIn = Array.from(transfersInMap.entries()).sort((a, b) => b[1] - a[1]);
+          const sortedIn = Array.from(transfersInMap.entries()).sort((a, b) => {
+            if (b[1].count !== a[1].count) return b[1].count - a[1].count;
+            if (b[1].cost !== a[1].cost) return b[1].cost - a[1].cost;
+            return a[0].localeCompare(b[0]);
+          });
           if (sortedIn.length >= 2) {
             filledHeadline = renderTemplateBranch(tmpl.template, '', {
-              gw: currentGw,
               player1: sortedIn[0][0],
-              count1: sortedIn[0][1],
+              count1: sortedIn[0][1].count,
               player2: sortedIn[1][0],
-              count2: sortedIn[1][1],
+              count2: sortedIn[1][1].count,
             });
           }
           break;

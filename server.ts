@@ -38,7 +38,9 @@ import {
   getGameweekPhase,
   isPhaseActive,
   isEditorTemplateId,
-  clearNewsTickerMemoryCache
+  clearNewsTickerMemoryCache,
+  checkLiveBetweenMatchPhase,
+  ensureLiveMatchesAndCheckPhase
 } from './src/server/newsTickerTableService.ts';
 
 const app = express();
@@ -135,8 +137,9 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
         console.warn('[Server] Error clearing live caches:', cErr.message);
       }
 
-      // Refresh News Ticker table immediately after FPL sync completes
+      // Refresh live match status (if GW status is Live) and rebuild News Ticker table immediately
       try {
+        await ensureLiveMatchesAndCheckPhase(targetGW || getCurrentGw()).catch(() => null);
         rebuildNewsTickerTable();
       } catch (ntErr: any) {
         console.warn('[Server] Error rebuilding news ticker table after sync:', ntErr.message);
@@ -1137,12 +1140,46 @@ const handleDbSync = async (req: express.Request, res: express.Response) => {
 app.post('/api/db/sync', handleDbSync);
 app.get('/api/db/sync', handleDbSync);
 
+// Dedicated Checker Endpoint: Live Match (LM) vs Between Match (BM) when GW status is Live
+// NOTE: Strictly inspects whether any match is currently running for News Ticker phase resolution;
+// does NOT mutate application GW status.
+app.get('/api/news-ticker/phase-check', async (req, res) => {
+  try {
+    const force = req.query.refresh === '1' || req.query.force === '1';
+    const currentGw = getCurrentGw();
+    if (force) {
+      invalidateMatchesCache(currentGw);
+    }
+    const checkResult = await ensureLiveMatchesAndCheckPhase(currentGw);
+    const newsTickerPhase = getGameweekPhase(currentGw);
+
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
+    res.json({
+      success: true,
+      newsTickerPhase,
+      ...checkResult,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Endpoint News Ticker Feed (Directly served from database container)
 app.get('/api/news-ticker/feed', async (req, res) => {
   try {
     const force = req.query.refresh === '1' || req.query.force === '1';
     const phase = req.query.phase ? String(req.query.phase) : undefined;
     const currentGw = getCurrentGw();
+
+    // When GW status is Live (or fixtures are mid-GW), run the dedicated LM vs BM checker
+    // with fresh match states BEFORE resolving News Ticker phase and reading the container table.
+    const liveMatchCheck = await ensureLiveMatchesAndCheckPhase(currentGw).catch(() =>
+      checkLiveBetweenMatchPhase(currentGw)
+    );
     const currentPhase = phase || getGameweekPhase(currentGw);
 
     if (
@@ -1206,6 +1243,7 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       success: true,
       gameweek: currentGw,
       gameweekPhase: currentPhase,
+      liveMatchCheck,
       lastUpdated: new Date().toISOString(),
       count: stories.length,
       data: stories,
@@ -1216,10 +1254,13 @@ app.get('/api/news-ticker/feed', async (req, res) => {
 });
 
 // Endpoint Admin: News Ticker Database Table in Container
-app.get('/api/admin/news-ticker', (req, res) => {
+app.get('/api/admin/news-ticker', async (req, res) => {
   try {
     const forceRefresh = req.query.refresh === '1';
     const phase = req.query.phase ? String(req.query.phase) : undefined;
+    if (!phase) {
+      await ensureLiveMatchesAndCheckPhase(getCurrentGw()).catch(() => null);
+    }
     if (forceRefresh || phase) {
       rebuildNewsTickerTable(phase);
     }
@@ -1515,6 +1556,8 @@ async function startServer() {
       server: {
         middlewareMode: true,
         hmr: false,
+        ws: false,
+        allowedHosts: true,
         watch: {
           ignored: ['**/*'],
         },

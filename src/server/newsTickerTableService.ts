@@ -8,6 +8,10 @@ import { generateBetweenMatchStories } from './betweenMatchStoryGenerator.ts';
 import { generateProvisionalStories } from './provisionalStoryGenerator.ts';
 import { getPhase1Templates } from '../data/phase1Templates.ts';
 import { getOptimalDatabase } from './db.ts';
+import { checkLiveBetweenMatchPhase } from './liveBetweenMatchChecker.ts';
+import type { MatchCardItem } from '../types.ts';
+
+export { checkLiveBetweenMatchPhase, ensureLiveMatchesAndCheckPhase } from './liveBetweenMatchChecker.ts';
 
 export interface NewsTickerDbRow {
   id: string;
@@ -448,14 +452,19 @@ export function getCurrentGw(): number {
   return Number(db?.meta?.current_gw) || 0;
 }
 
-export type GameweekPhase = 'Not started' | 'Live' | 'Provisional' | 'Confirmed';
+export type GameweekPhase = 'Not started' | 'Live Match' | 'Between Match' | 'Live' | 'Provisional' | 'Confirmed';
 
 /**
- * Returns the deterministic Gameweek phase based on RULE[AGENTS_md] strictly from db.ts
+ * Returns the deterministic News Ticker phase based on RULE[AGENTS_md] strictly from db.ts
+ * and the dedicated Live Match (LM) vs Between Match (BM) running-match checker.
+ * NOTE: Never alters application GW status (db.meta.gw_status).
  */
-export function getGameweekPhase(targetGw?: number): GameweekPhase {
+export function getGameweekPhase(
+  targetGw?: number,
+  options?: { matchesOverride?: MatchCardItem[] | null; dbOverride?: any }
+): GameweekPhase {
   try {
-    const db = getOptimalDatabase();
+    const db = options?.dbOverride || getOptimalDatabase();
     const currentGw = Number(db?.meta?.current_gw) || 0;
     const gw = targetGw || currentGw;
     if (!currentGw || !gw) return 'Not started';
@@ -479,25 +488,29 @@ export function getGameweekPhase(targetGw?: number): GameweekPhase {
       return 'Not started';
     }
 
-    // Check fixtures stored in Single Truth Source
-    const gwFixtures = (db.meta?.sync_status?.gw_fixtures || []).filter((f: any) => f.event === gw);
-    if (gwFixtures.length > 0) {
-      const allUpcoming = gwFixtures.every((f: any) => !f.started);
-      if (allUpcoming) return 'Not started';
-
-      const anyLive = gwFixtures.some((f: any) => f.started && !f.finished && !f.finished_provisional);
-      if (anyLive) return 'Live';
-
-      const allFinished = gwFixtures.every((f: any) => f.finished || f.finished_provisional);
-      if (allFinished) {
-        if (isDataChecked && isLeaguesUpdated) return 'Confirmed';
-        return 'Provisional';
-      }
-      return 'Live';
+    if (statusStr === 'Provisional') {
+      return 'Provisional';
     }
 
-    if (statusStr === 'Provisional') return 'Provisional';
-    if (statusStr === 'Live' || db.meta?.sync_status?.is_matchday_live || db.meta?.is_live) return 'Live';
+    // Dedicated LM vs BM checker when GW status is 'Live' (or fixtures are in progress):
+    // Checks whether any match in the active GW is currently running.
+    const lmBmCheck = checkLiveBetweenMatchPhase(gw, {
+      matchesOverride: options?.matchesOverride,
+      dbOverride: db,
+    });
+
+    if (lmBmCheck.allMatchesFinished) {
+      if (isDataChecked && isLeaguesUpdated) return 'Confirmed';
+      return 'Provisional';
+    }
+
+    if (lmBmCheck.allMatchesUpcoming && statusStr !== 'Live') {
+      return 'Not started';
+    }
+
+    if (lmBmCheck.isGwStatusLive && lmBmCheck.resolvedTickerPhase) {
+      return lmBmCheck.resolvedTickerPhase;
+    }
 
     return 'Provisional';
   } catch {
@@ -568,7 +581,7 @@ export function formatPointsAndRankStatus(
       .replace(/\bprovisional\s+result\b/gi, 'officially confirmed result')
       .replace(/\bprovisional\s+FNB\s+League\s+table\b/gi, 'official FNB League table')
       .replace(/\bleads\s+the\s+provisional\s+Gameweek\b/gi, 'is officially crowned Gameweek');
-  } else if (phase === 'Live' || phase === 'Provisional') {
+  } else if (phase === 'Live' || phase === 'Live Match' || phase === 'Between Match' || phase === 'Provisional') {
     // 2. Live / Provisional ("Selain itu"): Provisional results
     id = id
       .replace(/\bresmi\s+dinobatkan\s+sebagai\s+Juara\s+Gameweek\b/gi, 'memimpin perolehan poin sementara Juara Gameweek')
@@ -736,7 +749,7 @@ export function createStoryRecordsForPhases(
     if (hasPointsOrRank) {
       const phaseEnum: GameweekPhase = targetPhase === 'Confirmed'
         ? 'Confirmed'
-        : (targetPhase === 'Live Match' ? 'Live' : (targetPhase === 'Not started' ? 'Not started' : 'Provisional'));
+        : (targetPhase === 'Live Match' ? 'Live Match' : (targetPhase === 'Between Match' ? 'Between Match' : (targetPhase === 'Not started' ? 'Not started' : 'Provisional')));
       const formatted = formatPointsAndRankStatus(phaseTextId, phaseTextEn, phaseEnum);
       phaseTextId = formatted.headlineId;
       phaseTextEn = formatted.headlineEn;

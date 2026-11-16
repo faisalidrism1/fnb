@@ -13,6 +13,8 @@ export default defineConfig(() => {
     },
     server: {
       hmr: false,
+      ws: false as const,
+      allowedHosts: true as const,
       watch: {
         ignored: ['**/*'],
       },
