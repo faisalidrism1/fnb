@@ -140,19 +140,20 @@
     "subcategory": "Transfers In",
     "title": "Most Bought",
     "output": "SINGLE-NEWS",
-    "template": "[P:{player1}] memuncaki daftar transfer masuk setelah direkrut [N:{count1}] tim, diikuti [P:{player2}] ([N:{count2}] tim).",
-    "example": "[P:Van Hecke] memuncaki daftar transfer masuk setelah direkrut [N:15] tim, diikuti [P:Evanilson] ([N:14] tim).",
-    "code": "const topIn = getTopTransferredInPlayers(gw, 2);\nif (topIn.length < 2) return null;\n\nreturn renderTemplate(template, {\n  player1: topIn[0].name,\n  count1: topIn[0].count,\n  player2: topIn[1].name,\n  count2: topIn[1].count,\n});",
+    "template": "[Kondisi: Terbanyak Tunggal]\n[P:{player1}] memuncaki daftar transfer masuk setelah direkrut [N:{count1}] tim, diikuti [P:{player2}] ([N:{count2}] tim).\n\n[Kondisi: Seri di Puncak]\n[P:{player1}] dan [P:{player2}] memuncaki daftar transfer masuk setelah {keduanya} direkrut [N:{count1}] tim.",
+    "example": "[Kondisi: Terbanyak Tunggal]\n[P:Van Hecke] memuncaki daftar transfer masuk setelah direkrut [N:15] tim, diikuti [P:Evanilson] ([N:14] tim).\n\n[Kondisi: Seri di Puncak]\n[P:Van Hecke] dan [P:Evanilson] memuncaki daftar transfer masuk setelah keduanya direkrut [N:15] tim.",
+    "code": "// Bruto transfer masuk GW N: grouping pakai element_in.id, tampilkan element_in.name (web_name)\nconst topIn = getTopTransferredInPlayersByElementId(gw, 2);\nif (topIn.length < 2) return null;\n\nif (topIn[0].count === topIn[1].count) {\n  return renderTemplate(template.tied, {\n    player1: topIn[0].name,\n    player2: topIn[1].name,\n    count1: topIn[0].count,\n    keduanya: 'keduanya',\n  });\n}\n\nreturn renderTemplate(template.single, {\n  player1: topIn[0].name,\n  count1: topIn[0].count,\n  player2: topIn[1].name,\n  count2: topIn[1].count,\n});",
     "sample_data": {
       "player1": "Van Hecke",
       "count1": "15",
       "player2": "Evanilson",
-      "count2": "14"
+      "count2": "14",
+      "keduanya": "keduanya"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-16T10:16:00.000Z"
+    "updated_at": "2026-11-16T10:33:00.000Z"
   },
   {
     "no": 8,
@@ -162,20 +163,20 @@
     "subcategory": "Transfers Out",
     "title": "Most Sold",
     "output": "SINGLE-NEWS",
-    "template": "[P:{player1}] paling banyak dilepas oleh [N:{count1}] tim, disusul [P:{player2}] ([N:{count2}] tim).",
-    "example": "[P:Son] paling banyak dilepas oleh [N:9] tim, disusul [P:Isak] ([N:7] tim).",
-    "code": "const topOut = getTopTransferredOutPlayers(gw, 2);\nif (topOut.length < 2) return null;\n\nreturn renderTemplate(template, {\n  gw,\n  player1: topOut[0].name,\n  count1: topOut[0].count,\n  player2: topOut[1].name,\n  count2: topOut[1].count,\n});",
+    "template": "[Kondisi: Terbanyak Tunggal]\n[P:{player1}] menempati urutan teratas transfer keluar setelah dilepas [N:{count1}] tim, diikuti [P:{player2}] ([N:{count2}] tim).\n\n[Kondisi: Seri di Puncak]\n[P:{player1}] dan [P:{player2}] menempati urutan teratas transfer keluar setelah {keduanya} dilepas [N:{count1}] tim.",
+    "example": "[Kondisi: Terbanyak Tunggal]\n[P:João Pedro] menempati urutan teratas transfer keluar setelah dilepas [N:14] tim, diikuti [P:Cherki] ([N:11] tim).\n\n[Kondisi: Seri di Puncak]\n[P:João Pedro] dan [P:Cherki] menempati urutan teratas transfer keluar setelah keduanya dilepas [N:14] tim.",
+    "code": "// Bruto transfer keluar GW N: grouping pakai element_out.id, tampilkan element_out.name (web_name)\nconst topOut = getTopTransferredOutPlayersByElementId(gw, 2);\nif (topOut.length < 2) return null;\n\nif (topOut[0].count === topOut[1].count) {\n  return renderTemplate(template.tied, {\n    player1: topOut[0].name,\n    player2: topOut[1].name,\n    count1: topOut[0].count,\n    keduanya: 'keduanya',\n  });\n}\n\nreturn renderTemplate(template.single, {\n  player1: topOut[0].name,\n  count1: topOut[0].count,\n  player2: topOut[1].name,\n  count2: topOut[1].count,\n});",
     "sample_data": {
-      "gw": "9",
-      "player1": "Son",
-      "count1": "9",
-      "player2": "Isak",
-      "count2": "7"
+      "player1": "João Pedro",
+      "count1": "14",
+      "player2": "Cherki",
+      "count2": "11",
+      "keduanya": "keduanya"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T10:40:00.000Z"
   },
   {
     "no": 9,
@@ -185,23 +186,19 @@
     "subcategory": "Popular",
     "title": "Most Captained",
     "output": "SINGLE-NEWS",
-    "template": "[P:{dominant_captain}] menjadi kapten terpopuler di liga setelah dipilih [N:{count1}] tim{second_clause}{others_clause}.",
-    "example": "[P:Haaland] menjadi kapten terpopuler di liga setelah dipilih [N:10] tim, diikuti [P:Saka] ([N:7] tim), sementara [N:4] tim memilih kapten lain.",
-    "code": "const capStats = getLeagueCaptaincyStats(gw);\nif (capStats.length === 0) return null;\n\nconst dominant = capStats[0];\nconst second = capStats[1];\nconst othersCount = capStats.slice(2).reduce((sum, item) => sum + item.count, 0);\n\nreturn renderTemplate(template, {\n  gw,\n  dominant_captain: dominant.playerName,\n  count1: dominant.count,\n  second_clause: second ? `, diikuti [P:${second.playerName}] ([N:${second.count}] tim)` : '',\n  others_clause: othersCount > 0 ? `, sementara [N:${othersCount}] tim memilih kapten lain` : '',\n});",
+    "template": "[P:{dominant_captain}] memuncaki daftar kapten terpopuler setelah dipilih [N:{count1}] tim{second_clause}{others_clause}.",
+    "example": "[P:Haaland] memuncaki daftar kapten terpopuler setelah dipilih [N:65] tim, diikuti [P:Isak] ([N:9] tim), sementara [N:23] tim memilih kapten lain.",
+    "code": "const capStats = getLeagueCaptaincyStats(gw);\nif (capStats.length === 0) return null;\n\nconst dominant = capStats[0];\nconst second = capStats[1];\nconst othersCount = capStats.slice(2).reduce((sum, item) => sum + item.count, 0);\n\nreturn renderTemplate(template, {\n  dominant_captain: dominant.playerName,\n  count1: dominant.count,\n  second_clause: second ? `, diikuti [P:${second.playerName}] ([N:${second.count}] tim)` : '',\n  others_clause: othersCount > 0 ? `, sementara [N:${othersCount}] tim memilih kapten lain` : '',\n});",
     "sample_data": {
-      "gw": "9",
       "dominant_captain": "Haaland",
-      "count1": "10",
-      "player2": "Saka",
-      "count2": "7",
-      "count_others": "4",
-      "second_clause": ", diikuti [P:Saka] ([N:7] tim)",
-      "others_clause": ", sementara [N:4] tim memilih kapten lain"
+      "count1": "65",
+      "second_clause": ", diikuti [P:Isak] ([N:9] tim)",
+      "others_clause": ", sementara [N:23] tim memilih kapten lain"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T14:50:00.000Z"
   },
   {
     "no": 10,
@@ -211,16 +208,16 @@
     "subcategory": "Hits",
     "title": "Most Hits",
     "output": "SINGLE-NEWS",
-    "template": "{teams_with_hits} mengambil transfer hit dan memulai pekan dengan penalti poin.",
-    "example": "[T:Garuda FC] ([N:-8 Poin]), [T:Bintang Timur] ([N:-4 Poin]), dan [N:3] tim lainnya mengambil transfer hit dan memulai pekan dengan penalti poin.",
-    "code": "const teamsWithHits = getTeamsWithTransferHits(gw);\nif (teamsWithHits.length === 0) return null;\n\n// Format daftar tim dengan penalti minus poin masing-masing (serta diganti dan)\nconst teamsFormatted = formatTeamsListWithPointsDeduction(teamsWithHits);\n\nreturn renderTemplate(template, {\n  teams_with_hits: teamsFormatted,\n});",
+    "template": "{teams_with_hits} memulai pekan dengan penalti poin akibat aktivitas transfer berlebih.",
+    "example": "[T:asoy banget] ([N:-24 Poin]), [T:Sunnah Rasul FC] ([N:-12 Poin]) dan [N:13] tim lainnya memulai pekan dengan penalti poin akibat aktivitas transfer berlebih.",
+    "code": "const teamsWithHits = getTeamsWithTransferHits(gw);\nif (teamsWithHits.length === 0) return null;\n\n// Format daftar tim dengan penalti minus poin masing-masing (tanpa koma sebelum dan)\nconst teamsFormatted = formatTeamsListWithPointsDeduction(teamsWithHits);\n\nreturn renderTemplate(template, {\n  teams_with_hits: teamsFormatted,\n});",
     "sample_data": {
-      "teams_with_hits": "[T:Garuda FC] ([N:-8 Poin]), [T:Bintang Timur] ([N:-4 Poin]), dan [N:3] tim lainnya"
+      "teams_with_hits": "[T:asoy banget] ([N:-24 Poin]), [T:Sunnah Rasul FC] ([N:-12 Poin]) dan [N:13] tim lainnya"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T14:52:00.000Z"
   },
   {
     "no": 11,
@@ -230,19 +227,20 @@
     "subcategory": "Ownership",
     "title": "Most Owned",
     "output": "SINGLE-NEWS",
-    "template": "[P:{player1}] mencatat kepemilikan tertinggi di FNB League sebesar [N:{pct1}%], diikuti [P:{player2}] dengan [N:{pct2}%].",
-    "example": "[P:Haaland] mencatat kepemilikan tertinggi di FNB League sebesar [N:88%], diikuti [P:Saka] dengan [N:74%].",
-    "code": "const topOwned = getLeagueOwnershipList(gw, 2);\nif (topOwned.length < 2) return null;\n\nreturn renderTemplate(template, {\n  player1: topOwned[0].name,\n  pct1: topOwned[0].ownershipPercentage,\n  player2: topOwned[1].name,\n  pct2: topOwned[1].ownershipPercentage,\n});",
+    "template": "[Kondisi: Terbanyak Tunggal]\n[P:{player1}] menjadi pemain dengan kepemilikan tertinggi sebesar [N:{pct1}%], mengungguli [P:{player2}] ([N:{pct2}%]).\n\n[Kondisi: Seri di Puncak]\n[P:{player1}] dan [P:{player2}] menjadi pemain dengan kepemilikan tertinggi setelah {keduanya} mencatat [N:{pct1}%].",
+    "example": "[Kondisi: Terbanyak Tunggal]\n[P:Haaland] menjadi pemain dengan kepemilikan tertinggi sebesar [N:96%], mengungguli [P:De Cuyper] ([N:79%]).\n\n[Kondisi: Seri di Puncak]\n[P:Haaland] dan [P:De Cuyper] menjadi pemain dengan kepemilikan tertinggi setelah keduanya mencatat [N:96%].",
+    "code": "const topOwned = getLeagueOwnershipList(gw, 2);\nif (topOwned.length < 2) return null;\n\nconst pct1 = Math.round(topOwned[0].ownershipPercentage);\nconst pct2 = Math.round(topOwned[1].ownershipPercentage);\n\nif (pct1 === pct2) {\n  return renderTemplate(template.tied, {\n    player1: topOwned[0].name,\n    player2: topOwned[1].name,\n    pct1,\n    keduanya: 'keduanya',\n  });\n}\n\nreturn renderTemplate(template.single, {\n  player1: topOwned[0].name,\n  pct1,\n  player2: topOwned[1].name,\n  pct2,\n});",
     "sample_data": {
       "player1": "Haaland",
-      "pct1": "88",
-      "player2": "Saka",
-      "pct2": "74"
+      "pct1": "96",
+      "player2": "De Cuyper",
+      "pct2": "79",
+      "keduanya": "keduanya"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T14:55:00.000Z"
   },
   {
     "no": 12,
@@ -252,21 +250,20 @@
     "subcategory": "Differential",
     "title": "Differential XI",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: 1 Pemain]\n[T:{team}] memasang [P:{player1}] ([N:{pct1}%]) sebagai kartu differential di starting XI.\n\n[Kondisi: 2 Pemain]\n[T:{team}] memasang duo differential [P:{player1}] ([N:{pct1}%]) dan [P:{player2}] ([N:{pct2}%]) di starting XI.",
-    "example": "[Kondisi: 1 Pemain]\n[T:Kuda Hitam] memasang [P:Kluivert] ([N:3%]) sebagai kartu differential di starting XI.\n\n[Kondisi: 2 Pemain]\n[T:Kuda Hitam] memasang duo differential [P:Kluivert] ([N:3%]) dan [P:Welbeck] ([N:4%]) di starting XI.",
-    "code": "// Single News: Pilih 1 tim dengan starting XI paling unik (< 5%), seleksi via Opsi B (Least Featured)\nconst candidates = getTeamsWithDifferentialStarters(gw, 0.05);\nif (candidates.length === 0) return null;\n\n// Sort by count differential desc, lalu Opsi B\nconst sortedTeams = sortByLeastFeaturedTeam(candidates);\nconst topTeam = sortedTeams[0];\nconst topDiffs = pickTop2ByPointForm(topTeam.diffStarters);\n\nif (topDiffs.length === 1) {\n  return renderTemplate(template.single, {\n    team: topTeam.name,\n    gw,\n    player1: topDiffs[0].name,\n    pct1: topDiffs[0].ownershipPct,\n  });\n}\nreturn renderTemplate(template.multi, {\n  team: topTeam.name,\n  gw,\n  player1: topDiffs[0].name,\n  pct1: topDiffs[0].ownershipPct,\n  player2: topDiffs[1].name,\n  pct2: topDiffs[1].ownershipPct,\n});",
+    "template": "[Kondisi: 1 Pemain]\n[T:{team}] mengandalkan [P:{player1}] ([N:{pct1}%]) sebagai differential di susunan pemain inti.\n\n[Kondisi: 2 Pemain]\n[T:{team}] menyertakan dua pemain differential, [P:{player1}] ([N:{pct1}%]) dan [P:{player2}] ([N:{pct2}%]), di susunan pemain inti.",
+    "example": "[Kondisi: 1 Pemain]\n[T:Wayolo FC] mengandalkan [P:Wirtz] ([N:1%]) sebagai differential di susunan pemain inti.\n\n[Kondisi: 2 Pemain]\n[T:Wayolo FC] menyertakan dua pemain differential, [P:Wirtz] ([N:1%]) dan [P:Jacquet] ([N:4%]), di susunan pemain inti.",
+    "code": "// Single News: Pilih 1 tim dengan starting XI paling unik (< 5%), seleksi via Opsi B (Least Featured)\nconst candidates = getTeamsWithDifferentialStarters(gw, 0.05);\nif (candidates.length === 0) return null;\n\n// Sort by count differential desc, lalu Opsi B\nconst sortedTeams = sortByLeastFeaturedTeam(candidates);\nconst topTeam = sortedTeams[0];\nconst topDiffs = pickTop2ByPointForm(topTeam.diffStarters);\n\nif (topDiffs.length === 1) {\n  return renderTemplate(template.single, {\n    team: topTeam.name,\n    player1: topDiffs[0].name,\n    pct1: topDiffs[0].ownershipPct,\n  });\n}\nreturn renderTemplate(template.multi, {\n  team: topTeam.name,\n  player1: topDiffs[0].name,\n  pct1: topDiffs[0].ownershipPct,\n  player2: topDiffs[1].name,\n  pct2: topDiffs[1].ownershipPct,\n});",
     "sample_data": {
-      "team": "Kuda Hitam",
-      "gw": "9",
-      "player1": "Kluivert",
-      "pct1": "3",
-      "player2": "Welbeck",
+      "team": "Wayolo FC",
+      "player1": "Wirtz",
+      "pct1": "1",
+      "player2": "Jacquet",
       "pct2": "4"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T15:05:00.000Z"
   },
   {
     "no": 13,
@@ -276,19 +273,19 @@
     "subcategory": "Differential",
     "title": "Differential Captain",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: Kapten Eksklusif (1 Tim)]\n[T:{team}] menjadi satu-satunya tim yang mengapteni [P:{captain}].\n\n[Kondisi: Kapten Differential (< 5%)]\n[T:{team}] mengapteni [P:{captain}] sebagai opsi differential yang hanya dipilih [N:{pickers_count}] tim.",
-    "example": "[Kondisi: Kapten Eksklusif (1 Tim)]\n[T:Sunda Kelapa] menjadi satu-satunya tim yang mengapteni [P:Bowen].\n\n[Kondisi: Kapten Differential (< 5%)]\n[T:Sunda Kelapa] mengapteni [P:Bowen] sebagai opsi differential yang hanya dipilih [N:2] tim.",
-    "code": "// Single News: Pilih 1 tim dengan kapten paling langka (< 5%), seleksi via Opsi B (Least Featured)\nconst diffCaptains = getDifferentialCaptains(gw, 0.05);\nif (diffCaptains.length === 0) return null;\n\n// Urutkan kapten terlangka (count terkecil, cost termahal)\nconst topCap = diffCaptains[0];\nconst candidateTeams = getTeamsCaptainPickers(topCap.id, gw);\nconst selectedTeam = sortByLeastFeaturedTeam(candidateTeams)[0];\n\nif (topCap.pickersCount === 1) {\n  return renderTemplate(template.exclusive, {\n    team: selectedTeam.name,\n    captain: topCap.name,\n    gw,\n  });\n}\nreturn renderTemplate(template.differential, {\n  team: selectedTeam.name,\n  captain: topCap.name,\n  pickers_count: topCap.pickersCount,\n  gw,\n});",
+    "template": "[Kondisi: Kapten Eksklusif (1 Tim)]\n[T:{team}] menjadi satu-satunya tim yang menunjuk [P:{captain}] sebagai kapten.\n\n[Kondisi: Kapten Differential (< 5%)]\n{teams} menunjuk [P:{captain}] sebagai kapten differential dengan total hanya [N:{pickers_count}] pemilih.",
+    "example": "[Kondisi: Kapten Eksklusif (1 Tim)]\n[T:BERCELANA] menjadi satu-satunya tim yang menunjuk [P:B.Fernandes] sebagai kapten.\n\n[Kondisi: Kapten Differential (< 5%)]\n[T:Persigundul] dan [T:Tolyam074] menunjuk [P:B.Fernandes] sebagai kapten differential dengan total hanya [N:2] pemilih.",
+    "code": "// Single News: Pilih kapten terlangka (< 5%), cocokkan tim via captain.id\nconst diffCaptains = getDifferentialCaptains(gw, 0.05);\nif (diffCaptains.length === 0) return null;\n\n// Urutkan kapten terlangka (count terkecil, cost termahal)\nconst topCap = diffCaptains[0];\nconst candidateTeams = sortByLeastFeaturedTeam(getTeamsCaptainPickers(topCap.id, gw));\n\nif (topCap.pickersCount === 1) {\n  return renderTemplate(template.exclusive, {\n    team: candidateTeams[0].name,\n    captain: topCap.name,\n  });\n}\n\nconst teamsStr = formatTeamList(candidateTeams.map(t => t.name));\nreturn renderTemplate(template.differential, {\n  teams: teamsStr,\n  captain: topCap.name,\n  pickers_count: topCap.pickersCount,\n});",
     "sample_data": {
-      "team": "Sunda Kelapa",
-      "captain": "Bowen",
-      "gw": "9",
+      "team": "BERCELANA",
+      "teams": "[T:Persigundul] dan [T:Tolyam074]",
+      "captain": "B.Fernandes",
       "pickers_count": "2"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T16:33:00.000Z"
   },
   {
     "no": 14,
@@ -298,20 +295,19 @@
     "subcategory": "Availability",
     "title": "Flagged Players",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Dipastikan Absen]\n[P:{player}] ([C:{club}]) dipastikan absen akibat {injury_desc} — pukulan bagi [N:{owners_count}] pemilik.\n\n[Kondisi: Meragukan]\n[P:{player}] ([C:{club}]) diragukan tampil karena {injury_desc} — berdampak ke [N:{owners_count}] pemilik.",
-    "example": "[Kondisi: Dipastikan Absen]\n[P:João Pedro] ([C:Chelsea]) dipastikan absen akibat cedera paha — pukulan bagi [N:35] pemilik.\n\n[Kondisi: Meragukan]\n[P:João Pedro] ([C:Chelsea]) diragukan tampil karena cedera paha — berdampak ke [N:35] pemilik.",
-    "code": "const prevDeadline = getPreviousGwDeadline(gw);\nconst flagged = getFlaggedPlayersUpdatedAfter(prevDeadline, gw);\nif (flagged.length === 0) return null;\n\nconst top = flagged[0];\nconst isOut = top.status === 'i' || top.chanceOfPlaying === 0;\n\nreturn renderTemplate(isOut ? template.out : template.doubtful, {\n  owners_count: top.ownersCount,\n  player: top.name,\n  club: top.club,\n  injury_desc: top.injuryDesc,\n  gw,\n});",
+    "template": "[Kondisi: Dipastikan Absen]\n[P:{player}] ([C:{club}]) dipastikan absen akibat {injury_desc} sehingga berdampak bagi [N:{owners_count}] pemiliknya.\n\n[Kondisi: Meragukan]\n[P:{player}] ([C:{club}]) diragukan tampil akibat {injury_desc} sehingga menimbulkan tanda tanya bagi [N:{owners_count}] pemiliknya.",
+    "example": "[Kondisi: Dipastikan Absen]\n[P:Manzambi] ([C:Aston Villa]) dipastikan absen akibat cedera betis sehingga berdampak bagi [N:12] pemiliknya.\n\n[Kondisi: Meragukan]\n[P:Manzambi] ([C:Aston Villa]) diragukan tampil akibat cedera betis sehingga menimbulkan tanda tanya bagi [N:12] pemiliknya.",
+    "code": "const prevDeadline = getPreviousGwDeadline(gw);\nconst flagged = getFlaggedPlayersUpdatedAfter(prevDeadline, gw);\nif (flagged.length === 0) return null;\n\nconst top = flagged[0];\nconst isOut = top.status === 'i' || top.chanceOfPlaying === 0;\n\nreturn renderTemplate(isOut ? template.out : template.doubtful, {\n  owners_count: top.ownersCount,\n  player: top.name,\n  club: top.club,\n  injury_desc: top.injuryDesc,\n});",
     "sample_data": {
-      "owners_count": "35",
-      "player": "João Pedro",
-      "club": "Chelsea",
-      "injury_desc": "cedera paha",
-      "gw": "9"
+      "owners_count": "12",
+      "player": "Manzambi",
+      "club": "Aston Villa",
+      "injury_desc": "cedera betis"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T16:36:00.000Z"
   },
   {
     "no": 15,
@@ -321,28 +317,30 @@
     "subcategory": "Title Race",
     "title": "Title Race",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: Kapten Berbeda]\nPemuncak klasemen [T:{team1}] unggul [N:{margin} Poin] atas [T:{team2}], dengan duel kapten [P:{captain1}] vs [P:{captain2}].\n\n[Kondisi: Kapten Sama]\n[T:{team1}] mempertahankan keunggulan [N:{margin} Poin] atas [T:{team2}]; keduanya mengapteni [P:{captain}], sehingga pembeda beralih ke [P:{diff_player1}] vs [P:{diff_player2}].\n\n[Kondisi: Manuver Chip]\n[T:{team_chip}] mengaktifkan [N:{chip}] untuk {target_clause} [T:{team_rival}] dalam perebutan puncak klasemen.",
-    "example": "[Kondisi: Kapten Berbeda]\nPemuncak klasemen [T:Sunda Kelapa] unggul [N:14 Poin] atas [T:Bintang Timur], dengan duel kapten [P:Haaland] vs [P:Salah].\n\n[Kondisi: Kapten Sama]\n[T:Sunda Kelapa] mempertahankan keunggulan [N:14 Poin] atas [T:Bintang Timur]; keduanya mengapteni [P:Haaland], sehingga pembeda beralih ke [P:Palmer] vs [P:Mbeumo].\n\n[Kondisi: Manuver Chip]\n[T:Bintang Timur] mengaktifkan [N:Free Hit] untuk memangkas jarak [N:14 Poin] dari [T:Sunda Kelapa] dalam perebutan puncak klasemen.",
-    "code": "const standings = getStandings(gw > 1 ? gw - 1 : gw);\nif (standings.length < 2) return null;\n\nconst leader = standings[0];\nconst chaser = standings[1];\nconst margin = Math.abs(leader.totalPoints - chaser.totalPoints);\n\nconst chipLeader = getActiveChip(leader.id, gw);\nconst chipChaser = getActiveChip(chaser.id, gw);\n\nif (chipLeader || chipChaser) {\n  const isLeaderChip = !!chipLeader;\n  const chipTeam = isLeaderChip ? leader : chaser;\n  const rivalTeam = isLeaderChip ? chaser : leader;\n  const chipName = chipLeader || chipChaser;\n  const targetClause = margin === 0\n    ? 'memecah kebuntuan poin identik melawan'\n    : isLeaderChip\n      ? `memperlebar jarak [N:${margin} Poin] atas`\n      : `memangkas jarak [N:${margin} Poin] dari`;\n  return renderTemplate(template.chip, {\n    gw,\n    team_chip: chipTeam.name,\n    chip: chipName,\n    target_clause: targetClause,\n    margin,\n    team_rival: rivalTeam.name,\n  });\n}\n\nconst capLeader = getTeamCaptain(leader.id, gw);\nconst capChaser = getTeamCaptain(chaser.id, gw);\n\nif (capLeader.name !== capChaser.name) {\n  return renderTemplate(template.different_captains, {\n    gw,\n    team1: leader.name,\n    margin,\n    team2: chaser.name,\n    captain1: capLeader.name,\n    captain2: capChaser.name,\n  });\n}\n\nconst diffStarters = getTopDifferingStarters(leader.id, chaser.id, gw);\n\nreturn renderTemplate(template.same_captain, {\n  gw,\n  team1: leader.name,\n  margin,\n  team2: chaser.name,\n  captain: capLeader.name,\n  diff_player1: diffStarters.player1,\n  diff_player2: diffStarters.player2,\n});",
+    "template": "[Kondisi: Kapten Berbeda]\nPemuncak klasemen [T:{team1}] unggul [N:{margin} Poin] atas [T:{team2}] di peringkat kedua, dengan [T:{team1}] menunjuk [P:{captain1}] sebagai kapten sementara [T:{team2}] memilih [P:{captain2}].\n\n[Kondisi: Kapten Sama]\nPemuncak klasemen [T:{team1}] unggul [N:{margin} Poin] atas [T:{team2}] dengan keduanya menunjuk [P:{captain}] sebagai kapten, sehingga penentu selisih poin beralih ke [P:{diff_player1}] dan [P:{diff_player2}].\n\n[Kondisi: Duel Chip Berbeda]\n[T:{team1}] mengaktifkan [N:{chip1}] sementara [T:{team2}] mengaktifkan [N:{chip2}] dalam persaingan puncak klasemen{margin_clause}.\n\n[Kondisi: Chip Sama]\n[T:{team1}] dan [T:{team2}] mengaktifkan [N:{chip}] dalam persaingan puncak klasemen{margin_clause}.\n\n[Kondisi: Manuver Chip]\n[T:{team_chip}] mengaktifkan [N:{chip}] untuk {target_clause} [T:{team_rival}] dalam persaingan puncak klasemen.",
+    "example": "[Kondisi: Kapten Berbeda]\nPemuncak klasemen [T:Yuk Bisa Yuk FC] unggul [N:15 Poin] atas [T:PSIS FC] di peringkat kedua, dengan [T:Yuk Bisa Yuk FC] menunjuk [P:Haaland] sebagai kapten sementara [T:PSIS FC] memilih [P:Isak].\n\n[Kondisi: Kapten Sama]\nPemuncak klasemen [T:Yuk Bisa Yuk FC] unggul [N:15 Poin] atas [T:PSIS FC] dengan keduanya menunjuk [P:Haaland] sebagai kapten, sehingga penentu selisih poin beralih ke [P:Palmer] dan [P:Mbeumo].\n\n[Kondisi: Duel Chip Berbeda]\n[T:Yuk Bisa Yuk FC] mengaktifkan [N:Free Hit] sementara [T:PSIS FC] mengaktifkan [N:Wildcard] dalam persaingan puncak klasemen dengan keduanya terpaut [N:15 Poin].\n\n[Kondisi: Chip Sama]\n[T:Yuk Bisa Yuk FC] dan [T:PSIS FC] mengaktifkan [N:Free Hit] dalam persaingan puncak klasemen dengan keduanya terpaut [N:15 Poin].\n\n[Kondisi: Manuver Chip]\n[T:PSIS FC] mengaktifkan [N:Free Hit] untuk memangkas jarak [N:15 Poin] dari [T:Yuk Bisa Yuk FC] dalam persaingan puncak klasemen.",
+    "code": "const standings = getStandings(gw > 1 ? gw - 1 : gw);\nif (standings.length < 2) return null;\n\nconst leader = standings[0];\nconst chaser = standings[1];\nconst margin = Math.abs(leader.totalPoints - chaser.totalPoints);\n\nconst chipLeader = getActiveChip(leader.id, gw);\nconst chipChaser = getActiveChip(chaser.id, gw);\nconst marginClause = margin === 0\n  ? ' dengan poin identik'\n  : ` dengan keduanya terpaut [N:${margin} Poin]`;\n\nif (chipLeader && chipChaser) {\n  if (chipLeader === chipChaser) {\n    return renderTemplate(template.same_chip, {\n      team1: leader.name,\n      team2: chaser.name,\n      chip: chipLeader,\n      margin_clause: marginClause,\n    });\n  }\n  return renderTemplate(template.dual_chips, {\n    team1: leader.name,\n    team2: chaser.name,\n    chip1: chipLeader,\n    chip2: chipChaser,\n    margin_clause: marginClause,\n  });\n}\n\nif (chipLeader || chipChaser) {\n  const isLeaderChip = !!chipLeader;\n  const chipTeam = isLeaderChip ? leader : chaser;\n  const rivalTeam = isLeaderChip ? chaser : leader;\n  const chipName = chipLeader || chipChaser;\n  const targetClause = margin === 0\n    ? 'memecah kebuntuan poin identik melawan'\n    : isLeaderChip\n      ? `memperlebar keunggulan [N:${margin} Poin] atas`\n      : `memangkas jarak [N:${margin} Poin] dari`;\n  return renderTemplate(template.chip, {\n    team_chip: chipTeam.name,\n    chip: chipName,\n    target_clause: targetClause,\n    team_rival: rivalTeam.name,\n  });\n}\n\nconst capLeader = getTeamCaptain(leader.id, gw);\nconst capChaser = getTeamCaptain(chaser.id, gw);\n\nif (capLeader.name !== capChaser.name) {\n  return renderTemplate(template.different_captains, {\n    team1: leader.name,\n    margin,\n    team2: chaser.name,\n    captain1: capLeader.name,\n    captain2: capChaser.name,\n  });\n}\n\nconst diffStarters = getTopDifferingStarters(leader.id, chaser.id, gw);\n\nreturn renderTemplate(template.same_captain, {\n  team1: leader.name,\n  margin,\n  team2: chaser.name,\n  captain: capLeader.name,\n  diff_player1: diffStarters.player1,\n  diff_player2: diffStarters.player2,\n});",
     "sample_data": {
-      "gw": "9",
-      "team1": "Sunda Kelapa",
-      "team2": "Bintang Timur",
-      "margin": "14",
+      "team1": "Yuk Bisa Yuk FC",
+      "team2": "PSIS FC",
+      "margin": "15",
       "captain1": "Haaland",
-      "captain2": "Salah",
+      "captain2": "Isak",
       "captain": "Haaland",
       "diff_player1": "Palmer",
       "diff_player2": "Mbeumo",
-      "team_chip": "Bintang Timur",
+      "chip1": "Free Hit",
+      "chip2": "Wildcard",
+      "margin_clause": " dengan keduanya terpaut [N:15 Poin]",
+      "team_chip": "PSIS FC",
       "chip": "Free Hit",
-      "target_clause": "memangkas jarak [N:14 Poin] dari",
-      "team_rival": "Sunda Kelapa"
+      "target_clause": "memangkas jarak [N:15 Poin] dari",
+      "team_rival": "Yuk Bisa Yuk FC"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T17:09:00.000Z"
   },
   {
     "no": 16,
@@ -352,11 +350,10 @@
     "subcategory": "Weekly Wins",
     "title": "Most GW Wins",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: Kapten Berbeda]\n[T:{team1}] ([N:{titles1} Gelar]) dan [T:{team2}] ([N:{titles2} Gelar]) beradu strategi kapten [P:{captain1}] vs [P:{captain2}] dalam perburuan gelar mingguan.\n\n[Kondisi: Kapten Sama]\n[T:{team1}] ([N:{titles1} Gelar]) dan [T:{team2}] ([N:{titles2} Gelar]) mengapteni [P:{captain}], menjadikan duel [P:{diff_player1}] vs [P:{diff_player2}] sebagai penentu gelar mingguan.\n\n[Kondisi: Manuver Chip]\n[T:{team_chip}] mengaktifkan [N:{chip}] demi menambah koleksi gelar juara mingguan.",
-    "example": "[Kondisi: Kapten Berbeda]\n[T:Blackswann] ([N:1 Gelar]) dan [T:rdwndvsn] ([N:1 Gelar]) beradu strategi kapten [P:Haaland] vs [P:Salah] dalam perburuan gelar mingguan.\n\n[Kondisi: Kapten Sama]\n[T:Blackswann] ([N:1 Gelar]) dan [T:rdwndvsn] ([N:1 Gelar]) mengapteni [P:Haaland], menjadikan duel [P:Mbeumo] vs [P:Palmer] sebagai penentu gelar mingguan.\n\n[Kondisi: Manuver Chip]\n[T:Blackswann] mengaktifkan [N:Free Hit] demi menambah koleksi gelar juara mingguan.",
-    "code": "// Khusus tampilan news: gelar juara GW dihitung dari GW 1 s.d. GW n-1.\n// Peringkat 1 dan 2 klasemen akhir GW n-1 wajib dikecualikan agar tidak bentrok dengan Top Rivalry.\nconst standingsPrev = getStandings(gw - 1);\nconst excludedIds = [standingsPrev[0]?.id, standingsPrev[1]?.id];\nconst leaders = getMostGwChampionsLeaders(gw - 1).filter(t => !excludedIds.includes(t.id));\nif (leaders.length < 2) return null;\n\nconst leader = leaders[0];\nconst chaser = leaders[1];\n\nconst chipLeader = getActiveChip(leader.id, gw);\nconst chipChaser = getActiveChip(chaser.id, gw);\n\nif (chipLeader || chipChaser) {\n  const chipTeam = chipLeader ? leader : chaser;\n  const rivalTeam = chipLeader ? chaser : leader;\n  const chipName = chipLeader || chipChaser;\n  return renderTemplate(template.chip, {\n    gw,\n    team_chip: chipTeam.name,\n    chip: chipName,\n    team_rival: rivalTeam.name,\n  });\n}\n\nconst capLeader = getTeamCaptain(leader.id, gw);\nconst capChaser = getTeamCaptain(chaser.id, gw);\n\nif (capLeader.name !== capChaser.name) {\n  return renderTemplate(template.different_captains, {\n    gw,\n    team1: leader.name,\n    titles1: leader.titles,\n    team2: chaser.name,\n    titles2: chaser.titles,\n    captain1: capLeader.name,\n    captain2: capChaser.name,\n  });\n}\n\nconst diffStarters = getTopDifferingStarters(leader.id, chaser.id, gw);\n\nreturn renderTemplate(template.same_captain, {\n  gw,\n  team1: leader.name,\n  titles1: leader.titles,\n  team2: chaser.name,\n  titles2: chaser.titles,\n  captain: capLeader.name,\n  diff_player1: diffStarters.player1,\n  diff_player2: diffStarters.player2,\n});",
+    "template": "[Kondisi: Kapten Berbeda]\n[T:{team1}] ([N:{titles1}] kali juara) dan [T:{team2}] ([N:{titles2}] kali juara) bersaing memperebutkan status peraih juara Gameweek terbanyak, dengan [T:{team1}] menunjuk [P:{captain1}] sebagai kapten sementara [T:{team2}] memilih [P:{captain2}].\n\n[Kondisi: Kapten Sama]\n[T:{team1}] ([N:{titles1}] kali juara) dan [T:{team2}] ([N:{titles2}] kali juara) keduanya menunjuk [P:{captain}] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin beralih ke [P:{diff_player1}] dan [P:{diff_player2}].\n\n[Kondisi: Duel Chip Berbeda]\n[T:{team1}] ([N:{titles1}] kali juara) mengaktifkan [N:{chip1}] sementara [T:{team2}] ([N:{titles2}] kali juara) mengaktifkan [N:{chip2}] dalam persaingan juara Gameweek terbanyak.\n\n[Kondisi: Chip Sama]\n[T:{team1}] ([N:{titles1}] kali juara) dan [T:{team2}] ([N:{titles2}] kali juara) mengaktifkan [N:{chip}] dalam persaingan juara Gameweek terbanyak.\n\n[Kondisi: Manuver Chip]\n[T:{team_chip}] mengaktifkan [N:{chip}] untuk mengejar status peraih juara Gameweek terbanyak.",
+    "example": "[Kondisi: Kapten Berbeda]\n[T:Blackswann] ([N:1] kali juara) dan [T:rdwndvsn] ([N:1] kali juara) bersaing memperebutkan status peraih juara Gameweek terbanyak, dengan [T:Blackswann] menunjuk [P:Haaland] sebagai kapten sementara [T:rdwndvsn] memilih [P:Salah].\n\n[Kondisi: Kapten Sama]\n[T:Blackswann] ([N:1] kali juara) dan [T:rdwndvsn] ([N:1] kali juara) keduanya menunjuk [P:Haaland] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin beralih ke [P:Kudus] dan [P:Raya].\n\n[Kondisi: Duel Chip Berbeda]\n[T:Blackswann] ([N:1] kali juara) mengaktifkan [N:Free Hit] sementara [T:rdwndvsn] ([N:1] kali juara) mengaktifkan [N:Wildcard] dalam persaingan juara Gameweek terbanyak.\n\n[Kondisi: Chip Sama]\n[T:Blackswann] ([N:1] kali juara) dan [T:rdwndvsn] ([N:1] kali juara) mengaktifkan [N:Free Hit] dalam persaingan juara Gameweek terbanyak.\n\n[Kondisi: Manuver Chip]\n[T:Blackswann] mengaktifkan [N:Free Hit] untuk mengejar status peraih juara Gameweek terbanyak.",
+    "code": "// Khusus tampilan news: gelar juara GW dihitung dari GW 1 s.d. GW n-1.\n// Peringkat 1 dan 2 klasemen akhir GW n-1 wajib dikecualikan agar tidak bentrok dengan Top Rivalry.\nconst standingsPrev = getStandings(gw - 1);\nconst excludedIds = [standingsPrev[0]?.id, standingsPrev[1]?.id];\nconst leaders = getMostGwChampionsLeaders(gw - 1).filter(t => !excludedIds.includes(t.id));\nif (leaders.length < 2) return null;\n\nconst leader = leaders[0];\nconst chaser = leaders[1];\n\nconst chipLeader = getActiveChip(leader.id, gw);\nconst chipChaser = getActiveChip(chaser.id, gw);\n\nif (chipLeader && chipChaser) {\n  if (chipLeader === chipChaser) {\n    return renderTemplate(template.same_chip, {\n      team1: leader.name,\n      titles1: leader.titles,\n      team2: chaser.name,\n      titles2: chaser.titles,\n      chip: chipLeader,\n    });\n  }\n  return renderTemplate(template.dual_chips, {\n    team1: leader.name,\n    titles1: leader.titles,\n    team2: chaser.name,\n    titles2: chaser.titles,\n    chip1: chipLeader,\n    chip2: chipChaser,\n  });\n}\n\nif (chipLeader || chipChaser) {\n  const chipTeam = chipLeader ? leader : chaser;\n  const chipName = chipLeader || chipChaser;\n  return renderTemplate(template.chip, {\n    team_chip: chipTeam.name,\n    chip: chipName,\n  });\n}\n\nconst capLeader = getTeamCaptain(leader.id, gw);\nconst capChaser = getTeamCaptain(chaser.id, gw);\n\nif (capLeader.name !== capChaser.name) {\n  return renderTemplate(template.different_captains, {\n    team1: leader.name,\n    titles1: leader.titles,\n    team2: chaser.name,\n    titles2: chaser.titles,\n    captain1: capLeader.name,\n    captain2: capChaser.name,\n  });\n}\n\nconst diffStarters = getTopDifferingStarters(leader.id, chaser.id, gw);\n\nreturn renderTemplate(template.same_captain, {\n  team1: leader.name,\n  titles1: leader.titles,\n  team2: chaser.name,\n  titles2: chaser.titles,\n  captain: capLeader.name,\n  diff_player1: diffStarters.player1,\n  diff_player2: diffStarters.player2,\n});",
     "sample_data": {
-      "gw": "9",
       "team1": "Blackswann",
       "team2": "rdwndvsn",
       "titles1": "1",
@@ -364,16 +361,17 @@
       "captain1": "Haaland",
       "captain2": "Salah",
       "captain": "Haaland",
-      "diff_player1": "Mbeumo",
-      "diff_player2": "Palmer",
+      "diff_player1": "Kudus",
+      "diff_player2": "Raya",
+      "chip1": "Free Hit",
+      "chip2": "Wildcard",
       "team_chip": "Blackswann",
-      "chip": "Free Hit",
-      "team_rival": "rdwndvsn"
+      "chip": "Free Hit"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T17:15:00.000Z"
   },
   {
     "no": 81,
@@ -405,12 +403,11 @@
     "subcategory": "Period",
     "title": "Period Start",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Kickoff Babak 1]\n[N:{minute}] Kickoff babak pertama di [N:{venue}]: [C:{home_club}] vs [C:{away_club}] resmi dimulai pada Gameweek [N:{gw}].\n\n[Kondisi: Kickoff Babak 2]\n[N:{minute}] Babak kedua dimulai di [N:{venue}], skor sementara [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].",
-    "example": "[Kondisi: Kickoff Babak 1]\n[N:0'] Kickoff babak pertama di [N:The City Ground]: [C:Nott'm Forest] vs [C:Man City] resmi dimulai pada Gameweek [N:10].\n\n[Kondisi: Kickoff Babak 2]\n[N:0'] Babak kedua dimulai di [N:The City Ground], skor sementara [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].",
-    "code": "if (event.period === '1') {\n  return renderTemplate(template.first_half, {\n    minute: \"0'\",\n    gw,\n    home_club: match.homeTeam.name,\n    away_club: match.awayTeam.name,\n    venue: match.ground.name,\n  });\n}\nreturn renderTemplate(template.second_half, {\n  minute: \"45'\",\n  venue: match.ground.name,\n  home_club: match.homeTeam.name,\n  home_score: match.teams[0].score,\n  away_score: match.teams[1].score,\n  away_club: match.awayTeam.name,\n});",
+    "template": "[Kondisi: Kickoff Babak 1]\n[N:{minute}] Babak pertama dimulai di [N:{venue}]: [C:{home_club}] vs [C:{away_club}].\n\n[Kondisi: Kickoff Babak 2]\n[N:45'] Babak kedua dimulai di [N:{venue}], skor sementara [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].",
+    "example": "[Kondisi: Kickoff Babak 1]\n[N:0'] Babak pertama dimulai di [N:The City Ground]: [C:Nott'm Forest] vs [C:Man City].\n\n[Kondisi: Kickoff Babak 2]\n[N:45'] Babak kedua dimulai di [N:The City Ground], skor sementara [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].",
+    "code": "if (event.period === '1') {\n  return renderTemplate(template.first_half, {\n    minute: \"0'\",\n    home_club: match.homeTeam.name,\n    away_club: match.awayTeam.name,\n    venue: match.ground.name,\n  });\n}\nreturn renderTemplate(template.second_half, {\n  venue: match.ground.name,\n  home_club: match.homeTeam.name,\n  home_score: match.teams[0].score,\n  away_score: match.teams[1].score,\n  away_club: match.awayTeam.name,\n});",
     "sample_data": {
       "minute": "0'",
-      "gw": "10",
       "home_club": "Nott'm Forest",
       "away_club": "Man City",
       "venue": "The City Ground",
@@ -430,17 +427,18 @@
     "subcategory": "Period",
     "title": "Period End",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Half Time (Dengan Gol)]\n[N:{minute}] Jeda babak pertama di [N:{venue}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {goalscorers_list}.\n\n[Kondisi: Half Time (Tanpa Gol)]\n[N:{minute}] Jeda babak pertama di [N:{venue}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}].\n\n[Kondisi: Full Time (Dengan Gol)]\n[N:{minute}] Laga usai di [N:{venue}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {goalscorers_list}.\n\n[Kondisi: Full Time (Tanpa Gol)]\n[N:{minute}] Laga usai di [N:{venue}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}].",
-    "example": "[Kondisi: Half Time (Dengan Gol)]\n[N:90+6'] Jeda babak pertama di [N:The City Ground]: [C:Nott'm Forest] [N:3] - [N:1] [C:Man City] — pencetak gol: [P:Jair Cunha] ([N:2%]), [P:Delap] ([N:12%], [N:2 Gol]), dan [P:Cherki] ([N:4%]).\n\n[Kondisi: Half Time (Tanpa Gol)]\n[N:90+6'] Jeda babak pertama di [N:The City Ground]: [C:Nott'm Forest] [N:0] - [N:0] [C:Man City].\n\n[Kondisi: Full Time (Dengan Gol)]\n[N:90+6'] Laga usai di [N:The City Ground]: [C:Nott'm Forest] [N:3] - [N:1] [C:Man City] — pencetak gol: [P:Jair Cunha] ([N:2%]), [P:Delap] ([N:12%], [N:2 Gol]), dan [P:Cherki] ([N:4%]).\n\n[Kondisi: Full Time (Tanpa Gol)]\n[N:90+6'] Laga usai di [N:The City Ground]: [C:Nott'm Forest] [N:0] - [N:0] [C:Man City].",
-    "code": "const scorersStr = formatScorersWithLeaguePct(getMatchScorersUntilEvent(match.id, event));\nconst hasGoals = (match.teams[0].score + match.teams[1].score) > 0 && Boolean(scorersStr);\nif (event.period === '1') {\n  return renderTemplate(hasGoals ? template.half_time_goals : template.half_time_zero, {\n    minute: event.clock.label || \"45+3'\",\n    venue: match.ground.name,\n    home_club: match.homeTeam.name,\n    home_score: match.teams[0].score,\n    away_score: match.teams[1].score,\n    away_club: match.awayTeam.name,\n    goalscorers_list: scorersStr,\n  });\n}\nreturn renderTemplate(hasGoals ? template.full_time_goals : template.full_time_zero, {\n  minute: event.clock.label || \"90+6'\",\n  venue: match.ground.name,\n  home_club: match.homeTeam.name,\n  home_score: match.teams[0].score,\n  away_score: match.teams[1].score,\n  away_club: match.awayTeam.name,\n  goalscorers_list: scorersStr,\n});",
+    "template": "[Kondisi: Half Time (Dengan Gol)]\n[N:{ht_minute}] Jeda babak pertama di [N:{venue}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {goalscorers_list}.\n\n[Kondisi: Half Time (Tanpa Gol)]\n[N:{ht_minute}] Jeda babak pertama di [N:{venue}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}].\n\n[Kondisi: Full Time (Dengan Gol)]\n[N:{ft_minute}] Laga usai di [N:{venue}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {goalscorers_list}.\n\n[Kondisi: Full Time (Tanpa Gol)]\n[N:{ft_minute}] Laga usai di [N:{venue}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}].",
+    "example": "[Kondisi: Half Time (Dengan Gol)]\n[N:45+3'] Jeda babak pertama di [N:The City Ground]: [C:Nott'm Forest] [N:3] - [N:1] [C:Man City] — pencetak gol: [P:Jair Cunha] ([N:2%]), [P:Delap] ([N:12%], [N:2 Gol]) dan [P:Cherki] ([N:4%]).\n\n[Kondisi: Half Time (Tanpa Gol)]\n[N:45+3'] Jeda babak pertama di [N:The City Ground]: [C:Nott'm Forest] [N:0] - [N:0] [C:Man City].\n\n[Kondisi: Full Time (Dengan Gol)]\n[N:90+6'] Laga usai di [N:The City Ground]: [C:Nott'm Forest] [N:3] - [N:1] [C:Man City] — pencetak gol: [P:Jair Cunha] ([N:2%]), [P:Delap] ([N:12%], [N:2 Gol]) dan [P:Cherki] ([N:4%]).\n\n[Kondisi: Full Time (Tanpa Gol)]\n[N:90+6'] Laga usai di [N:The City Ground]: [C:Nott'm Forest] [N:0] - [N:0] [C:Man City].",
+    "code": "const scorersStr = formatScorersWithLeaguePct(getMatchScorersUntilEvent(match.id, event));\nconst hasGoals = (match.teams[0].score + match.teams[1].score) > 0 && Boolean(scorersStr);\nif (event.period === '1') {\n  return renderTemplate(hasGoals ? template.half_time_goals : template.half_time_zero, {\n    ht_minute: event.clock.label || \"45+3'\",\n    venue: match.ground.name,\n    home_club: match.homeTeam.name,\n    home_score: match.teams[0].score,\n    away_score: match.teams[1].score,\n    away_club: match.awayTeam.name,\n    goalscorers_list: scorersStr,\n  });\n}\nreturn renderTemplate(hasGoals ? template.full_time_goals : template.full_time_zero, {\n  ft_minute: event.clock.label || \"90+6'\",\n  venue: match.ground.name,\n  home_club: match.homeTeam.name,\n  home_score: match.teams[0].score,\n  away_score: match.teams[1].score,\n  away_club: match.awayTeam.name,\n  goalscorers_list: scorersStr,\n});",
     "sample_data": {
-      "minute": "90+6'",
+      "ht_minute": "45+3'",
+      "ft_minute": "90+6'",
       "venue": "The City Ground",
       "home_club": "Nott'm Forest",
       "home_score": "3",
       "away_score": "1",
       "away_club": "Man City",
-      "goalscorers_list": "[P:Jair Cunha] ([N:2%]), [P:Delap] ([N:12%], [N:2 Gol]), dan [P:Cherki] ([N:4%])"
+      "goalscorers_list": "[P:Jair Cunha] ([N:2%]), [P:Delap] ([N:12%], [N:2 Gol]) dan [P:Cherki] ([N:4%])"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
@@ -579,9 +577,9 @@
     "subcategory": "Penalty",
     "title": "Penalty Awarded",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Hadiah Penalti]\n[N:{minute}] PENALTI untuk [C:{club}] setelah pelanggaran terhadap [P:{fouled_player}] ([N:{fouled_player_pct}%]) di kotak terlarang.\n\n[Kondisi: Penalti Dibatalkan]\n[N:{minute}] PENALTI DIBATALKAN! Wasit mencabut hadiah penalti untuk [C:{club}].",
-    "example": "[Kondisi: Hadiah Penalti]\n[N:33'] PENALTI untuk [C:Man City] setelah pelanggaran terhadap [P:Doku] ([N:18%]) di kotak terlarang.\n\n[Kondisi: Penalti Dibatalkan]\n[N:33'] PENALTI DIBATALKAN! Wasit mencabut hadiah penalti untuk [C:Man City].",
-    "code": "if (event.isOverturned) {\n  return renderTemplate(template.overturned, {\n    minute: event.clock.label,\n    club: event.team.name,\n  });\n}\nconst fouled = getPlayerFromPulse(event.fouledPersonId);\nreturn renderTemplate(template.awarded, {\n  minute: event.clock.label,\n  club: event.team.name,\n  fouled_player: fouled.web_name,\n  fouled_player_pct: getLeagueOwnershipPct(fouled.id),\n});",
+    "template": "[Kondisi: Hadiah Penalti]\n[N:{minute}] PENALTI untuk [C:{club}] setelah pelanggaran terhadap [P:{fouled_player}] ([N:{fouled_player_pct}%]) di kotak terlarang.\n\n[Kondisi: Hadiah Penalti (Umum)]\n[N:{minute}] PENALTI untuk [C:{club}] setelah wasit menunjuk titik putih di kotak terlarang.\n\n[Kondisi: Penalti Dibatalkan]\n[N:{minute}] PENALTI DIBATALKAN! Wasit mencabut hadiah penalti untuk [C:{club}].",
+    "example": "[Kondisi: Hadiah Penalti]\n[N:33'] PENALTI untuk [C:Man City] setelah pelanggaran terhadap [P:Doku] ([N:18%]) di kotak terlarang.\n\n[Kondisi: Hadiah Penalti (Umum)]\n[N:33'] PENALTI untuk [C:Man City] setelah wasit menunjuk titik putih di kotak terlarang.\n\n[Kondisi: Penalti Dibatalkan]\n[N:33'] PENALTI DIBATALKAN! Wasit mencabut hadiah penalti untuk [C:Man City].",
+    "code": "if (event.isOverturned) {\n  return renderTemplate(template.overturned, {\n    minute: event.clock.label,\n    club: event.team.name,\n  });\n}\nconst fouled = event.fouledPersonId ? getPlayerFromPulse(event.fouledPersonId) : null;\nif (!fouled?.web_name) {\n  return renderTemplate(template.awarded_general, {\n    minute: event.clock.label,\n    club: event.team.name,\n  });\n}\nreturn renderTemplate(template.awarded, {\n  minute: event.clock.label,\n  club: event.team.name,\n  fouled_player: fouled.web_name,\n  fouled_player_pct: getLeagueOwnershipPct(fouled.id),\n});",
     "sample_data": {
       "minute": "33'",
       "club": "Man City",
@@ -667,9 +665,9 @@
     "subcategory": "Substitution",
     "title": "Substitution",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Pergantian Biasa]\n[N:{minute}] Pergantian [C:{club}]: [P:{player_on}] ([N:{player_on_pct}%]) masuk menggantikan [P:{player_off}] ([N:{player_off_pct}%]).\n\n[Kondisi: Pemain Bertahan Keluar Menit >= 60 Saat Belum Kebobolan]\n[N:{minute}] Clean sheet aman! [P:{player_off}] ([N:{player_off_pct}%]) ditarik keluar setelah 60+ menit nirbobol bagi [C:{club}], digantikan [P:{player_on}] ([N:{player_on_pct}%]).",
-    "example": "[Kondisi: Pergantian Biasa]\n[N:65'] Pergantian [C:Nott'm Forest]: [P:Ndoye] ([N:3%]) masuk menggantikan [P:McAtee] ([N:2%]).\n\n[Kondisi: Pemain Bertahan Keluar Menit >= 60 Saat Belum Kebobolan]\n[N:65'] Clean sheet aman! [P:McAtee] ([N:2%]) ditarik keluar setelah 60+ menit nirbobol bagi [C:Nott'm Forest], digantikan [P:Ndoye] ([N:3%]).",
-    "code": "const pOn = getPlayerFromPulse(event.personIdOn);\nconst pOff = getPlayerFromPulse(event.personIdOff);\nconst isDefenderOrGk = ['DEF', 'GKP'].includes(pOff.element_type);\nconst isCleanSheetLocked = isDefenderOrGk && event.clock.min >= 60 && match.concededBeforeSub === 0;\n\nif (isCleanSheetLocked) {\n  return renderTemplate(template.cs_locked, {\n    minute: event.clock.label,\n    club: event.team.name,\n    player_off: pOff.web_name,\n    player_off_pct: getLeagueOwnershipPct(pOff.id),\n    player_on: pOn.web_name,\n    player_on_pct: getLeagueOwnershipPct(pOn.id),\n  });\n}\n\nreturn renderTemplate(template.regular, {\n  minute: event.clock.label,\n  club: event.team.name,\n  player_on: pOn.web_name,\n  player_on_pct: getLeagueOwnershipPct(pOn.id),\n  player_off: pOff.web_name,\n  player_off_pct: getLeagueOwnershipPct(pOff.id),\n});",
+    "template": "[Kondisi: Pergantian Biasa]\n[N:{minute}] Pergantian [C:{club}]: [P:{player_on}] ([N:{player_on_pct}%]) masuk menggantikan [P:{player_off}] ([N:{player_off_pct}%]).\n\n[Kondisi: Pemain Bertahan Keluar Menit >= 60 Saat Belum Kebobolan]\n[N:{minute}] Clean sheet aman! [P:{player_off}] ([N:{player_off_pct}%]) ditarik keluar setelah 60+ menit nirbobol bagi [C:{club}], digantikan [P:{player_on}] ([N:{player_on_pct}%]).\n\n[Kondisi: Pemain Bertahan Keluar < 60 Menit]\n[N:{minute}] [P:{player_off}] ([N:{player_off_pct}%]) ditarik keluar sebelum menit ke-60 sehingga gagal mengunci clean sheet [C:{club}], digantikan [P:{player_on}] ([N:{player_on_pct}%]).",
+    "example": "[Kondisi: Pergantian Biasa]\n[N:65'] Pergantian [C:Nott'm Forest]: [P:Ndoye] ([N:3%]) masuk menggantikan [P:McAtee] ([N:2%]).\n\n[Kondisi: Pemain Bertahan Keluar Menit >= 60 Saat Belum Kebobolan]\n[N:65'] Clean sheet aman! [P:McAtee] ([N:2%]) ditarik keluar setelah 60+ menit nirbobol bagi [C:Nott'm Forest], digantikan [P:Ndoye] ([N:3%]).\n\n[Kondisi: Pemain Bertahan Keluar < 60 Menit]\n[N:65'] [P:McAtee] ([N:2%]) ditarik keluar sebelum menit ke-60 sehingga gagal mengunci clean sheet [C:Nott'm Forest], digantikan [P:Ndoye] ([N:3%]).",
+    "code": "const pOn = getPlayerFromPulse(event.personIdOn);\nconst pOff = getPlayerFromPulse(event.personIdOff);\nconst isDefenderOrGk = ['DEF', 'GKP'].includes(pOff.element_type);\nconst baseMin = parseInt(String(event.clock.label || '').split('+')[0], 10) || 0;\nconst offPct = getLeagueOwnershipPct(pOff.id);\n\nif (isDefenderOrGk && baseMin >= 60 && match.concededBeforeSub === 0) {\n  return renderTemplate(template.cs_locked, {\n    minute: event.clock.label,\n    club: event.team.name,\n    player_off: pOff.web_name,\n    player_off_pct: offPct,\n    player_on: pOn.web_name,\n    player_on_pct: getLeagueOwnershipPct(pOn.id),\n  });\n}\n\nif (isDefenderOrGk && baseMin < 60 && match.concededBeforeSub === 0 && offPct >= 10) {\n  return renderTemplate(template.cs_missed_early, {\n    minute: event.clock.label,\n    club: event.team.name,\n    player_off: pOff.web_name,\n    player_off_pct: offPct,\n    player_on: pOn.web_name,\n    player_on_pct: getLeagueOwnershipPct(pOn.id),\n  });\n}\n\nreturn renderTemplate(template.regular, {\n  minute: event.clock.label,\n  club: event.team.name,\n  player_on: pOn.web_name,\n  player_on_pct: getLeagueOwnershipPct(pOn.id),\n  player_off: pOff.web_name,\n  player_off_pct: offPct,\n});",
     "sample_data": {
       "minute": "65'",
       "club": "Nott'm Forest",
@@ -691,8 +689,8 @@
     "subcategory": "VAR",
     "title": "VAR Review",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Gol Dibatalkan]\n[N:{minute}] VAR ANULIR GOL! Gol [P:{player}] ([N:{player_pct}%]) untuk [C:{club}] dibatalkan ({reason}) — skor tetap [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].\n\n[Kondisi: Gol Dinyatakan Sah]\n[N:{minute}] VAR SAHKAN GOL! Gol [P:{player}] ([N:{player_pct}%]) untuk [C:{club}] dinyatakan sah — skor [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].\n\n[Kondisi: Penalti Diberikan]\n[N:{minute}] VAR BERI PENALTI! [C:{club}] mendapat hadiah penalti usai tinjauan insiden di kotak terlarang.\n\n[Kondisi: Penalti Dibatalkan]\n[N:{minute}] VAR BATALKAN PENALTI! Hadiah penalti untuk [C:{club}] resmi dicabut.\n\n[Kondisi: Kartu Merah Diberikan]\n[N:{minute}] VAR KARTU MERAH! Wasit mengusir [P:{player}] ([C:{club}], [N:{player_pct}%]) setelah tinjauan pelanggaran serius ([N:-3 Poin]).\n\n[Kondisi: Kartu Merah Dibatalkan]\n[N:{minute}] VAR BATALKAN KARTU MERAH! Hukuman kartu merah [P:{player}] ([C:{club}], [N:{player_pct}%]) resmi dicabut.",
-    "example": "[Kondisi: Gol Dibatalkan]\n[N:38'] VAR ANULIR GOL! Gol [P:Haaland] ([N:74%]) untuk [C:Man City] dibatalkan (offside) — skor tetap [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].\n\n[Kondisi: Gol Dinyatakan Sah]\n[N:38'] VAR SAHKAN GOL! Gol [P:Haaland] ([N:74%]) untuk [C:Man City] dinyatakan sah — skor [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].\n\n[Kondisi: Penalti Diberikan]\n[N:38'] VAR BERI PENALTI! [C:Man City] mendapat hadiah penalti usai tinjauan insiden di kotak terlarang.\n\n[Kondisi: Penalti Dibatalkan]\n[N:38'] VAR BATALKAN PENALTI! Hadiah penalti untuk [C:Man City] resmi dicabut.\n\n[Kondisi: Kartu Merah Diberikan]\n[N:38'] VAR KARTU MERAH! Wasit mengusir [P:Haaland] ([C:Man City], [N:74%]) setelah tinjauan pelanggaran serius ([N:-3 Poin]).\n\n[Kondisi: Kartu Merah Dibatalkan]\n[N:38'] VAR BATALKAN KARTU MERAH! Hukuman kartu merah [P:Haaland] ([C:Man City], [N:74%]) resmi dicabut.",
+    "template": "[Kondisi: Gol Dibatalkan]\n[N:{minute}] VAR ANULIR GOL! Gol [P:{player}] ([N:{player_pct}%]) untuk [C:{club}] dibatalkan ({reason}) — skor tetap [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].\n\n[Kondisi: Gol Dibatalkan (Tanpa Nama Pemain)]\n[N:{minute}] VAR ANULIR GOL! Gol [C:{club}] dibatalkan ({reason}) — skor tetap [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].\n\n[Kondisi: Gol Dinyatakan Sah]\n[N:{minute}] VAR SAHKAN GOL! Gol [P:{player}] ([N:{player_pct}%]) untuk [C:{club}] dinyatakan sah — skor [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].\n\n[Kondisi: Gol Dinyatakan Sah (Tanpa Nama Pemain)]\n[N:{minute}] VAR SAHKAN GOL! Gol [C:{club}] dinyatakan sah — skor [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].\n\n[Kondisi: Penalti Diberikan]\n[N:{minute}] VAR BERI PENALTI! [C:{club}] mendapat hadiah penalti usai tinjauan insiden di kotak terlarang.\n\n[Kondisi: Penalti Dibatalkan]\n[N:{minute}] VAR BATALKAN PENALTI! Hadiah penalti untuk [C:{club}] dicabut.\n\n[Kondisi: Kartu Merah Diberikan]\n[N:{minute}] VAR KARTU MERAH! Wasit mengusir [P:{player}] ([C:{club}], [N:{player_pct}%]) setelah tinjauan pelanggaran serius ([N:-3 Poin]).\n\n[Kondisi: Kartu Merah Diberikan (Tanpa Nama Pemain)]\n[N:{minute}] VAR KARTU MERAH! Pemain [C:{club}] diusir wasit setelah tinjauan pelanggaran serius ([N:-3 Poin]).\n\n[Kondisi: Kartu Merah Dibatalkan]\n[N:{minute}] VAR BATALKAN KARTU MERAH! Hukuman kartu merah [P:{player}] ([C:{club}], [N:{player_pct}%]) dicabut.\n\n[Kondisi: Kartu Merah Dibatalkan (Tanpa Nama Pemain)]\n[N:{minute}] VAR BATALKAN KARTU MERAH! Hukuman kartu merah pemain [C:{club}] dicabut.",
+    "example": "[Kondisi: Gol Dibatalkan]\n[N:38'] VAR ANULIR GOL! Gol [P:Haaland] ([N:74%]) untuk [C:Man City] dibatalkan (offside) — skor tetap [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].\n\n[Kondisi: Gol Dibatalkan (Tanpa Nama Pemain)]\n[N:38'] VAR ANULIR GOL! Gol [C:Man City] dibatalkan (offside) — skor tetap [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].\n\n[Kondisi: Gol Dinyatakan Sah]\n[N:38'] VAR SAHKAN GOL! Gol [P:Haaland] ([N:74%]) untuk [C:Man City] dinyatakan sah — skor [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].\n\n[Kondisi: Gol Dinyatakan Sah (Tanpa Nama Pemain)]\n[N:38'] VAR SAHKAN GOL! Gol [C:Man City] dinyatakan sah — skor [C:Nott'm Forest] [N:2] - [N:0] [C:Man City].\n\n[Kondisi: Penalti Diberikan]\n[N:38'] VAR BERI PENALTI! [C:Man City] mendapat hadiah penalti usai tinjauan insiden di kotak terlarang.\n\n[Kondisi: Penalti Dibatalkan]\n[N:38'] VAR BATALKAN PENALTI! Hadiah penalti untuk [C:Man City] dicabut.\n\n[Kondisi: Kartu Merah Diberikan]\n[N:38'] VAR KARTU MERAH! Wasit mengusir [P:Haaland] ([C:Man City], [N:74%]) setelah tinjauan pelanggaran serius ([N:-3 Poin]).\n\n[Kondisi: Kartu Merah Diberikan (Tanpa Nama Pemain)]\n[N:38'] VAR KARTU MERAH! Pemain [C:Man City] diusir wasit setelah tinjauan pelanggaran serius ([N:-3 Poin]).\n\n[Kondisi: Kartu Merah Dibatalkan]\n[N:38'] VAR BATALKAN KARTU MERAH! Hukuman kartu merah [P:Haaland] ([C:Man City], [N:74%]) dicabut.\n\n[Kondisi: Kartu Merah Dibatalkan (Tanpa Nama Pemain)]\n[N:38'] VAR BATALKAN KARTU MERAH! Hukuman kartu merah pemain [C:Man City] dicabut.",
     "code": "const player = event.personId ? getPlayerFromPulse(event.personId) : null;\nconst playerPct = player ? getLeagueOwnershipPct(player.id) : 0;\n\nswitch (event.subType) {\n  case 'GOAL_DISALLOWED':\n    return renderTemplate(template.goal_disallowed, {\n      minute: event.clock.label,\n      player: player?.web_name,\n      player_pct: playerPct,\n      club: event.team.name,\n      reason: event.reason || 'offside',\n      home_club: match.homeTeam.name,\n      home_score: match.teams[0].score,\n      away_score: match.teams[1].score,\n      away_club: match.awayTeam.name,\n    });\n  case 'GOAL_AWARDED':\n    return renderTemplate(template.goal_awarded, {\n      minute: event.clock.label,\n      player: player?.web_name,\n      player_pct: playerPct,\n      club: event.team.name,\n      home_club: match.homeTeam.name,\n      home_score: match.teams[0].score,\n      away_score: match.teams[1].score,\n      away_club: match.awayTeam.name,\n    });\n  case 'PENALTY_AWARDED':\n    return renderTemplate(template.penalty_awarded, {\n      minute: event.clock.label,\n      club: event.team.name,\n    });\n  case 'PENALTY_CANCELLED':\n    return renderTemplate(template.penalty_cancelled, {\n      minute: event.clock.label,\n      club: event.team.name,\n    });\n  case 'RED_CARD_GIVEN':\n    return renderTemplate(template.red_card_given, {\n      minute: event.clock.label,\n      player: player?.web_name,\n      player_pct: playerPct,\n      club: event.team.name,\n    });\n  case 'RED_CARD_OVERTURNED':\n    return renderTemplate(template.red_card_overturned, {\n      minute: event.clock.label,\n      player: player?.web_name,\n      player_pct: playerPct,\n      club: event.team.name,\n    });\n  default:\n    return null;\n}",
     "sample_data": {
       "minute": "38'",
@@ -765,9 +763,9 @@
     "subcategory": "Rank",
     "title": "Rank Movement",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Naik Peringkat]\n[T:{team}] naik [N:+{rank_diff} Peringkat] dari [N:{old_rank}] ke [N:{new_rank}] klasemen sementara berkat [N:{gw_pts} Poin].\n\n[Kondisi: Turun Peringkat]\n[T:{team}] turun [N:-{rank_diff} Peringkat] dari [N:{old_rank}] ke [N:{new_rank}] klasemen sementara dengan [N:{gw_pts} Poin].\n\n[Kondisi: Bertahan Peringkat]\n[T:{team}] bertahan di peringkat [N:{new_rank}] klasemen sementara dengan [N:{gw_pts} Poin].",
-    "example": "[Kondisi: Naik Peringkat]\n[T:Garuda FC] naik [N:+5 Peringkat] dari [N:11] ke [N:6] klasemen sementara berkat [N:48 Poin].\n\n[Kondisi: Turun Peringkat]\n[T:Garuda FC] turun [N:-5 Peringkat] dari [N:11] ke [N:6] klasemen sementara dengan [N:48 Poin].\n\n[Kondisi: Bertahan Peringkat]\n[T:Garuda FC] bertahan di peringkat [N:6] klasemen sementara dengan [N:48 Poin].",
-    "code": "const rankChange = team.rank_change || 0;\nconst vars = {\n  team: team.entry_name,\n  gw_pts: team.event_points,\n  gw,\n  rank_diff: Math.abs(rankChange),\n  old_rank: team.last_rank || team.rank,\n  new_rank: team.rank,\n  total_pts: team.total_points,\n};\nif (rankChange > 0) return renderTemplate(template.up, vars);\nif (rankChange < 0) return renderTemplate(template.down, vars);\nreturn renderTemplate(template.hold, vars);",
+    "template": "[Kondisi: Merebut Puncak Klasemen]\n[T:{team}] merebut puncak klasemen sementara usai naik [N:+{rank_diff} Peringkat] ke peringkat [N:1] berkat [N:{gw_pts} Poin].\n\n[Kondisi: Naik Peringkat]\n[T:{team}] naik [N:+{rank_diff} Peringkat] dari [N:{old_rank}] ke [N:{new_rank}] klasemen sementara berkat [N:{gw_pts} Poin].\n\n[Kondisi: Turun Peringkat]\n[T:{team}] turun [N:-{rank_diff} Peringkat] dari [N:{old_rank}] ke [N:{new_rank}] klasemen sementara dengan [N:{gw_pts} Poin].\n\n[Kondisi: Bertahan Peringkat]\n[T:{team}] bertahan di peringkat [N:{new_rank}] klasemen sementara dengan [N:{gw_pts} Poin].",
+    "example": "[Kondisi: Merebut Puncak Klasemen]\n[T:Garuda FC] merebut puncak klasemen sementara usai naik [N:+5 Peringkat] ke peringkat [N:1] berkat [N:48 Poin].\n\n[Kondisi: Naik Peringkat]\n[T:Garuda FC] naik [N:+5 Peringkat] dari [N:11] ke [N:6] klasemen sementara berkat [N:48 Poin].\n\n[Kondisi: Turun Peringkat]\n[T:Garuda FC] turun [N:-5 Peringkat] dari [N:11] ke [N:6] klasemen sementara dengan [N:48 Poin].\n\n[Kondisi: Bertahan Peringkat]\n[T:Garuda FC] bertahan di peringkat [N:6] klasemen sementara dengan [N:48 Poin].",
+    "code": "const rankChange = team.rank_change || 0;\nconst vars = {\n  team: team.entry_name,\n  gw_pts: team.event_points,\n  gw,\n  rank_diff: Math.abs(rankChange),\n  old_rank: team.last_rank || team.rank,\n  new_rank: team.rank,\n  total_pts: team.total_points,\n};\nif (team.rank === 1 && rankChange > 0) return renderTemplate(template.take_lead, vars);\nif (rankChange > 0) return renderTemplate(template.up, vars);\nif (rankChange < 0) return renderTemplate(template.down, vars);\nreturn renderTemplate(template.hold, vars);",
     "sample_data": {
       "team": "Garuda FC",
       "gw_pts": "48",
@@ -790,9 +788,9 @@
     "subcategory": "Score",
     "title": "Live Score",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Skor 0-0 Berjalan]\nLive menit [N:{minute}]: [C:{home_club}] vs [C:{away_club}] masih imbang [N:0 - 0].\n\n[Kondisi: Dengan Gol Berjalan]\nLive menit [N:{minute}]: [C:{home_club}] vs [C:{away_club}] sementara [N:{home_score} - {away_score}] — pencetak gol: {scorers_list}.\n\n[Kondisi: Skor 0-0 Half Time]\nHalf Time: [C:{home_club}] vs [C:{away_club}] masih imbang [N:0 - 0].\n\n[Kondisi: Dengan Gol Half Time]\nHalf Time: [C:{home_club}] vs [C:{away_club}] sementara [N:{home_score} - {away_score}] — pencetak gol: {scorers_list}.",
-    "example": "[Kondisi: Skor 0-0 Berjalan]\nLive menit [N:74']: [C:Arsenal] vs [C:Chelsea] masih imbang [N:0 - 0].\n\n[Kondisi: Dengan Gol Berjalan]\nLive menit [N:74']: [C:Arsenal] vs [C:Chelsea] sementara [N:2 - 1] — pencetak gol: [P:Saka] ([N:68%], [N:2 Gol]) dan [P:Palmer] ([N:45%]).\n\n[Kondisi: Skor 0-0 Half Time]\nHalf Time: [C:Arsenal] vs [C:Chelsea] masih imbang [N:0 - 0].\n\n[Kondisi: Dengan Gol Half Time]\nHalf Time: [C:Arsenal] vs [C:Chelsea] sementara [N:2 - 1] — pencetak gol: [P:Saka] ([N:68%], [N:2 Gol]) dan [P:Palmer] ([N:45%]).",
-    "code": "const scorersList = formatLiveMatchScorers(match);\nconst totalGoals = (match.team_h_score ?? 0) + (match.team_a_score ?? 0);\nconst vars = {\n  home_club: match.home_team.name,\n  away_club: match.away_team.name,\n  minute: match.clock_label || `${match.minutes}'`,\n  home_score: match.team_h_score ?? 0,\n  away_score: match.team_a_score ?? 0,\n  scorers_list: scorersList,\n};\nif (match.is_half_time) {\n  return renderTemplate(totalGoals === 0 || !scorersList ? template.ht_zero : template.ht_goals, vars);\n}\nreturn renderTemplate(totalGoals === 0 || !scorersList ? template.live_zero : template.live_goals, vars);",
+    "template": "[Kondisi: Skor 0-0 Berjalan]\nLive menit [N:{minute}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}] masih imbang tanpa gol.\n\n[Kondisi: Dengan Gol Berjalan]\nLive menit [N:{minute}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {scorers_list}.\n\n[Kondisi: Dengan Gol Berjalan (Tanpa Pencetak)]\nLive menit [N:{minute}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].\n\n[Kondisi: Skor 0-0 Half Time]\nHalf Time: [C:{home_club}] [N:0] - [N:0] [C:{away_club}] masih imbang tanpa gol.\n\n[Kondisi: Dengan Gol Half Time]\nHalf Time: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {scorers_list}.\n\n[Kondisi: Dengan Gol Half Time (Tanpa Pencetak)]\nHalf Time: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].",
+    "example": "[Kondisi: Skor 0-0 Berjalan]\nLive menit [N:74']: [C:Arsenal] [N:0] - [N:0] [C:Chelsea] masih imbang tanpa gol.\n\n[Kondisi: Dengan Gol Berjalan]\nLive menit [N:74']: [C:Arsenal] [N:2] - [N:1] [C:Chelsea] — pencetak gol: [P:Saka] ([N:68%], [N:2 Gol]) dan [P:Palmer] ([N:45%]).\n\n[Kondisi: Dengan Gol Berjalan (Tanpa Pencetak)]\nLive menit [N:74']: [C:Arsenal] [N:2] - [N:1] [C:Chelsea].\n\n[Kondisi: Skor 0-0 Half Time]\nHalf Time: [C:Arsenal] [N:0] - [N:0] [C:Chelsea] masih imbang tanpa gol.\n\n[Kondisi: Dengan Gol Half Time]\nHalf Time: [C:Arsenal] [N:2] - [N:1] [C:Chelsea] — pencetak gol: [P:Saka] ([N:68%], [N:2 Gol]) dan [P:Palmer] ([N:45%]).\n\n[Kondisi: Dengan Gol Half Time (Tanpa Pencetak)]\nHalf Time: [C:Arsenal] [N:2] - [N:1] [C:Chelsea].",
+    "code": "const scorersList = formatLiveMatchScorers(match);\nconst totalGoals = (match.team_h_score ?? 0) + (match.team_a_score ?? 0);\nconst vars = {\n  home_club: match.home_team.name,\n  away_club: match.away_team.name,\n  minute: match.clock_label || `${match.minutes}'`,\n  home_score: match.team_h_score ?? 0,\n  away_score: match.team_a_score ?? 0,\n  scorers_list: scorersList,\n};\nif (match.is_half_time) {\n  if (totalGoals === 0) return renderTemplate(template.ht_zero, vars);\n  return renderTemplate(scorersList ? template.ht_goals : template.ht_goals_plain, vars);\n}\nif (totalGoals === 0) return renderTemplate(template.live_zero, vars);\nreturn renderTemplate(scorersList ? template.live_goals : template.live_goals_plain, vars);",
     "sample_data": {
       "home_club": "Arsenal",
       "away_club": "Chelsea",
@@ -881,6 +879,62 @@
     "updated_at": "2026-11-15T14:05:19.925Z"
   },
   {
+    "no": 104,
+    "id": "LM_STANDINGS_TITLE_RACE",
+    "gw_phase": "Live Match",
+    "category": "Standings",
+    "subcategory": "Title Race",
+    "title": "Title Race",
+    "output": "SINGLE-NEWS",
+    "template": "[Kondisi: Kapten Berbeda]\nPemuncak klasemen sementara [T:{team1}] unggul [N:{margin} Poin] atas [T:{team2}] di peringkat kedua, dengan [T:{team1}] menunjuk [P:{captain1}] sebagai kapten sementara [T:{team2}] memilih [P:{captain2}].\n\n[Kondisi: Kapten Sama]\nPemuncak klasemen sementara [T:{team1}] unggul [N:{margin} Poin] atas [T:{team2}] dengan keduanya menunjuk [P:{captain}] sebagai kapten, sehingga penentu selisih poin sementara beralih ke [P:{diff_player1}] dan [P:{diff_player2}].\n\n[Kondisi: Duel Chip Berbeda]\n[T:{team1}] mengaktifkan [N:{chip1}] sementara [T:{team2}] mengaktifkan [N:{chip2}] dalam persaingan puncak klasemen sementara{margin_clause}.\n\n[Kondisi: Chip Sama]\n[T:{team1}] dan [T:{team2}] mengaktifkan [N:{chip}] dalam persaingan puncak klasemen sementara{margin_clause}.\n\n[Kondisi: Manuver Chip]\n[T:{team_chip}] mengaktifkan [N:{chip}] untuk {target_clause} [T:{team_rival}] dalam persaingan puncak klasemen sementara.\n\n[Kondisi: Poin Sama]\n[T:{team1}] dan [T:{team2}] mengoleksi poin sementara identik di dua teratas klasemen.",
+    "example": "[Kondisi: Kapten Berbeda]\nPemuncak klasemen sementara [T:Sunda Kelapa] unggul [N:4 Poin] atas [T:Bintang Timur] di peringkat kedua, dengan [T:Sunda Kelapa] menunjuk [P:Haaland] sebagai kapten sementara [T:Bintang Timur] memilih [P:Isak].\n\n[Kondisi: Kapten Sama]\nPemuncak klasemen sementara [T:Sunda Kelapa] unggul [N:4 Poin] atas [T:Bintang Timur] dengan keduanya menunjuk [P:Haaland] sebagai kapten, sehingga penentu selisih poin sementara beralih ke [P:Palmer] dan [P:Mbeumo].\n\n[Kondisi: Duel Chip Berbeda]\n[T:Sunda Kelapa] mengaktifkan [N:Free Hit] sementara [T:Bintang Timur] mengaktifkan [N:Wildcard] dalam persaingan puncak klasemen sementara dengan keduanya terpaut [N:4 Poin].\n\n[Kondisi: Chip Sama]\n[T:Sunda Kelapa] dan [T:Bintang Timur] mengaktifkan [N:Free Hit] dalam persaingan puncak klasemen sementara dengan keduanya terpaut [N:4 Poin].\n\n[Kondisi: Manuver Chip]\n[T:Bintang Timur] mengaktifkan [N:Free Hit] untuk memangkas jarak [N:4 Poin] dari [T:Sunda Kelapa] dalam persaingan puncak klasemen sementara.\n\n[Kondisi: Poin Sama]\n[T:Sunda Kelapa] dan [T:Bintang Timur] mengoleksi poin sementara identik di dua teratas klasemen.",
+    "code": "// Sorot duel peringkat 1 vs 2 klasemen sementara selama ada laga Live Match berlangsung.\nconst margin = Math.abs(rank1.total_points - rank2.total_points);\nconst marginClause = margin === 0 ? ' dengan poin identik' : ` dengan keduanya terpaut [N:${margin} Poin]`;\nif (chipLeader && chipChaser) {\n  if (chipLeader === chipChaser) {\n    return renderTemplate(template.same_chip, {\n      team1: rank1.name,\n      team2: rank2.name,\n      chip: chipLeader,\n      margin_clause: marginClause,\n    });\n  }\n  return renderTemplate(template.dual_chips, {\n    team1: rank1.name,\n    team2: rank2.name,\n    chip1: chipLeader,\n    chip2: chipChaser,\n    margin_clause: marginClause,\n  });\n}\nif (chipLeader || chipChaser) {\n  const isLeaderChip = !!chipLeader;\n  const chipTeam = isLeaderChip ? rank1 : rank2;\n  const rivalTeam = isLeaderChip ? rank2 : rank1;\n  const chipName = chipLeader || chipChaser;\n  const targetClause = margin === 0\n    ? 'memecah kebuntuan poin identik melawan'\n    : isLeaderChip\n      ? `memperlebar keunggulan [N:${margin} Poin] atas`\n      : `memangkas jarak [N:${margin} Poin] dari`;\n  return renderTemplate(template.chip, {\n    team_chip: chipTeam.name,\n    chip: chipName,\n    target_clause: targetClause,\n    team_rival: rivalTeam.name,\n  });\n}\nif (margin === 0) {\n  return renderTemplate(template.tied, {\n    team1: rank1.name,\n    team2: rank2.name,\n  });\n}\nif (capLeader.name !== capChaser.name) {\n  return renderTemplate(template.different_captains, {\n    team1: rank1.name,\n    margin,\n    team2: rank2.name,\n    captain1: capLeader.name,\n    captain2: capChaser.name,\n  });\n}\nconst diffStarters = getTopDifferingStarters(rank1.id, rank2.id);\nreturn renderTemplate(template.same_captain, {\n  team1: rank1.name,\n  margin,\n  team2: rank2.name,\n  captain: capLeader.name,\n  diff_player1: diffStarters.player1,\n  diff_player2: diffStarters.player2,\n});",
+    "sample_data": {
+      "team1": "Sunda Kelapa",
+      "margin": "4",
+      "team2": "Bintang Timur",
+      "captain1": "Haaland",
+      "captain2": "Isak",
+      "captain": "Haaland",
+      "diff_player1": "Palmer",
+      "diff_player2": "Mbeumo",
+      "chip1": "Free Hit",
+      "chip2": "Wildcard",
+      "chip": "Free Hit",
+      "margin_clause": " dengan keduanya terpaut [N:4 Poin]",
+      "team_chip": "Bintang Timur",
+      "target_clause": "memangkas jarak [N:4 Poin] dari",
+      "team_rival": "Sunda Kelapa"
+    },
+    "gw": 10,
+    "timestamp": "2026-11-17T17:20:00.000Z",
+    "source": "Sys",
+    "updated_at": "2026-11-17T17:20:00.000Z"
+  },
+  {
+    "no": 105,
+    "id": "LM_CAPTAIN_POPULAR_LIVE",
+    "gw_phase": "Live Match",
+    "category": "Captain",
+    "subcategory": "Popular",
+    "title": "Live Captain Action",
+    "output": "MULTI-NEWS",
+    "template": "[Kondisi: Cetak Gol]\n[N:{minute}] Kapten populer [P:{captain}] (dipilih [N:{count}] tim) mencetak gol bagi [C:{club}] — sudah membukukan [N:{pts} Poin] bagi pemilihnya.\n\n[Kondisi: Assist]\n[N:{minute}] Kapten populer [P:{captain}] (dipilih [N:{count}] tim) mencatat assist bagi [C:{club}] — kini mengoleksi [N:{pts} Poin] bagi pemilihnya.\n\n[Kondisi: Penalti Gagal]\n[N:{minute}] Kapten populer [P:{captain}] (dipilih [N:{count}] tim) gagal menuntaskan penalti untuk [C:{club}] dan terkena penalti kapten ([N:-4 Poin]).\n\n[Kondisi: Kartu Merah]\n[N:{minute}] Kapten populer [P:{captain}] (dipilih [N:{count}] tim) menerima kartu merah untuk [C:{club}] dan terkena penalti kapten ([N:-6 Poin]).",
+    "example": "[Kondisi: Cetak Gol]\n[N:23'] Kapten populer [P:Haaland] (dipilih [N:42] tim) mencetak gol bagi [C:Man City] — sudah membukukan [N:14 Poin] bagi pemilihnya.\n\n[Kondisi: Assist]\n[N:23'] Kapten populer [P:Haaland] (dipilih [N:42] tim) mencatat assist bagi [C:Man City] — kini mengoleksi [N:14 Poin] bagi pemilihnya.\n\n[Kondisi: Penalti Gagal]\n[N:23'] Kapten populer [P:Haaland] (dipilih [N:42] tim) gagal menuntaskan penalti untuk [C:Man City] dan terkena penalti kapten ([N:-4 Poin]).\n\n[Kondisi: Kartu Merah]\n[N:23'] Kapten populer [P:Haaland] (dipilih [N:42] tim) menerima kartu merah untuk [C:Man City] dan terkena penalti kapten ([N:-6 Poin]).",
+    "code": "// Terpicu saat pemain yang dikapteni >= 5 tim (atau 3 kapten terpopuler liga dengan >= 3 pemilih) mencetak gol, assist, gagal penalti, atau kartu merah pada laga berjalan.\nif (!isPopularCaptain(player.id, gw)) return null;\nreturn renderTemplate(cond, {\n  minute: event.clock.label,\n  captain: player.web_name,\n  count: player.captainCount,\n  club: event.team.name,\n  pts: livePlayerPoints * 2,\n});",
+    "sample_data": {
+      "minute": "23'",
+      "captain": "Haaland",
+      "count": "42",
+      "club": "Man City",
+      "pts": "14"
+    },
+    "gw": 10,
+    "timestamp": "2026-11-17T17:20:00.000Z",
+    "source": "Sys",
+    "updated_at": "2026-11-17T17:20:00.000Z"
+  },
+  {
     "no": 34,
     "id": "BM_MATCH_SCORE_RESULT",
     "gw_phase": "Between Match",
@@ -916,8 +970,8 @@
     "subcategory": "Fixture",
     "title": "Next Fixture",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: Jeda Pendek - 1 Laga]\nLaga berikutnya di Gameweek [N:{gw}]: [C:{home_club}] vs [C:{away_club}] pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Pendek - Multi Laga]\nGameweek [N:{gw}] berlanjut pukul [N:{kickoff_time}] lewat [N:{count}] laga serentak: {matches_list}.\n\n[Kondisi: Jeda Panjang - 1 Laga]\nGameweek [N:{gw}] berlanjut hari {wib_day} pukul [N:{kickoff_time}]: [C:{home_club}] vs [C:{away_club}].\n\n[Kondisi: Jeda Panjang - Multi Laga]\nGameweek [N:{gw}] berlanjut hari {wib_day} pukul [N:{kickoff_time}] lewat [N:{count}] laga: {matches_list}.",
-    "example": "[Kondisi: Jeda Pendek - 1 Laga]\nLaga berikutnya di Gameweek [N:10]: [C:Arsenal] vs [C:Chelsea] pukul [N:21:00 WIB].\n\n[Kondisi: Jeda Pendek - Multi Laga]\nGameweek [N:10] berlanjut pukul [N:21:00 WIB] lewat [N:2] laga serentak: [C:Arsenal] vs [C:Chelsea] dan [C:Liverpool] vs [C:Aston Villa].\n\n[Kondisi: Jeda Panjang - 1 Laga]\nGameweek [N:10] berlanjut hari Minggu pukul [N:21:00 WIB]: [C:Arsenal] vs [C:Chelsea].\n\n[Kondisi: Jeda Panjang - Multi Laga]\nGameweek [N:10] berlanjut hari Minggu pukul [N:21:00 WIB] lewat [N:2] laga: [C:Arsenal] vs [C:Chelsea] dan [C:Liverpool] vs [C:Aston Villa].",
+    "template": "[Kondisi: Jeda Pendek - 1 Laga]\nGameweek [N:{gw}] berlanjut lewat pertandingan antara [C:{home_club}] dan [C:{away_club}] pada pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Pendek - Multi Laga]\nGameweek [N:{gw}] berlanjut lewat [N:{count}] pertandingan serentak pada pukul [N:{kickoff_time}]: {matches_list}.\n\n[Kondisi: Jeda Panjang - 1 Laga]\nGameweek [N:{gw}] berlanjut hari {wib_day} lewat pertandingan antara [C:{home_club}] dan [C:{away_club}] pada pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Panjang - Multi Laga]\nGameweek [N:{gw}] berlanjut hari {wib_day} lewat [N:{count}] pertandingan serentak pada pukul [N:{kickoff_time}]: {matches_list}.",
+    "example": "[Kondisi: Jeda Pendek - 1 Laga]\nGameweek [N:10] berlanjut lewat pertandingan antara [C:Arsenal] dan [C:Chelsea] pada pukul [N:21:00 WIB].\n\n[Kondisi: Jeda Pendek - Multi Laga]\nGameweek [N:10] berlanjut lewat [N:2] pertandingan serentak pada pukul [N:21:00 WIB]: [C:Arsenal] vs [C:Chelsea] dan [C:Liverpool] vs [C:Aston Villa].\n\n[Kondisi: Jeda Panjang - 1 Laga]\nGameweek [N:10] berlanjut hari Minggu lewat pertandingan antara [C:Arsenal] dan [C:Chelsea] pada pukul [N:21:00 WIB].\n\n[Kondisi: Jeda Panjang - Multi Laga]\nGameweek [N:10] berlanjut hari Minggu lewat [N:2] pertandingan serentak pada pukul [N:21:00 WIB]: [C:Arsenal] vs [C:Chelsea] dan [C:Liverpool] vs [C:Aston Villa].",
     "code": "const isShortBreak = nextFixture.dateUK === lastFinishedMatch.dateUK;\nif (fixtures.length === 1) {\n  const f = fixtures[0];\n  return renderTemplate(isShortBreak ? template.short_single : template.long_single, {\n    gw,\n    wib_day: f.wibDay,\n    kickoff_time: f.kickoffWIB,\n    home_club: f.homeClub,\n    away_club: f.awayClub,\n  });\n}\nreturn renderTemplate(isShortBreak ? template.short_multi : template.long_multi, {\n  gw,\n  wib_day: fixtures[0].wibDay,\n  count: fixtures.length,\n  kickoff_time: fixtures[0].kickoffWIB,\n  matches_list: formatMatches(fixtures),\n});",
     "sample_data": {
       "gw": "10",
@@ -931,7 +985,7 @@
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T17:25:00.000Z"
   },
   {
     "no": 36,
@@ -1103,8 +1157,8 @@
     "subcategory": "Popular",
     "title": "Captain Return",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: Jeda Pendek - Sudah Main]\n[P:{captain}] (kapten [N:{count}] tim) membukukan [N:{pts} Poin] sebelum laga berikutnya dimulai pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Panjang - Sudah Main]\n[P:{captain}] (kapten [N:{count}] tim) membukukan [N:{pts} Poin] sebelum Gameweek [N:{gw}] berlanjut hari {wib_day} pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Pendek - Belum Main]\n[N:{count}] tim menantikan aksi kapten [P:{captain}] ([C:{club}]) melawan [C:{opponent}] pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Panjang - Belum Main]\n[N:{count}] tim menantikan aksi kapten [P:{captain}] ([C:{club}]) melawan [C:{opponent}] pada hari {wib_day} pukul [N:{kickoff_time}].",
-    "example": "[Kondisi: Jeda Pendek - Sudah Main]\n[P:Haaland] (kapten [N:10] tim) membukukan [N:26 Poin] sebelum laga berikutnya dimulai pukul [N:23:30 WIB].\n\n[Kondisi: Jeda Panjang - Sudah Main]\n[P:Haaland] (kapten [N:10] tim) membukukan [N:26 Poin] sebelum Gameweek [N:10] berlanjut hari Minggu pukul [N:23:30 WIB].\n\n[Kondisi: Jeda Pendek - Belum Main]\n[N:10] tim menantikan aksi kapten [P:Haaland] ([C:Man City]) melawan [C:Arsenal] pukul [N:23:30 WIB].\n\n[Kondisi: Jeda Panjang - Belum Main]\n[N:10] tim menantikan aksi kapten [P:Haaland] ([C:Man City]) melawan [C:Arsenal] pada hari Minggu pukul [N:23:30 WIB].",
+    "template": "[Kondisi: Jeda Pendek - Sudah Main]\n[P:{captain}], kapten terpopuler yang dipilih [N:{count}] tim, membukukan [N:{pts} Poin] sebelum laga berikutnya dimulai pada pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Panjang - Sudah Main]\n[P:{captain}], kapten terpopuler yang dipilih [N:{count}] tim, membukukan [N:{pts} Poin] sebelum Gameweek [N:{gw}] berlanjut hari {wib_day} pada pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Pendek - Belum Main]\n[P:{captain}], kapten terpopuler yang dipilih [N:{count}] tim, bersiap membela [C:{club}] melawan [C:{opponent}] pada pukul [N:{kickoff_time}].\n\n[Kondisi: Jeda Panjang - Belum Main]\n[P:{captain}], kapten terpopuler yang dipilih [N:{count}] tim, bersiap membela [C:{club}] melawan [C:{opponent}] pada hari {wib_day} pukul [N:{kickoff_time}].",
+    "example": "[Kondisi: Jeda Pendek - Sudah Main]\n[P:Haaland], kapten terpopuler yang dipilih [N:10] tim, membukukan [N:26 Poin] sebelum laga berikutnya dimulai pada pukul [N:23:30 WIB].\n\n[Kondisi: Jeda Panjang - Sudah Main]\n[P:Haaland], kapten terpopuler yang dipilih [N:10] tim, membukukan [N:26 Poin] sebelum Gameweek [N:10] berlanjut hari Minggu pada pukul [N:23:30 WIB].\n\n[Kondisi: Jeda Pendek - Belum Main]\n[P:Haaland], kapten terpopuler yang dipilih [N:10] tim, bersiap membela [C:Man City] melawan [C:Arsenal] pada pukul [N:23:30 WIB].\n\n[Kondisi: Jeda Panjang - Belum Main]\n[P:Haaland], kapten terpopuler yang dipilih [N:10] tim, bersiap membela [C:Man City] melawan [C:Arsenal] pada hari Minggu pukul [N:23:30 WIB].",
     "code": "const targetFixture = hasCaptainPlayed ? nextFixture : captainUpcomingFixture;\nconst isShortBreak = targetFixture.dateUK === lastFinishedMatch.dateUK;\nconst cond = hasCaptainPlayed\n  ? (isShortBreak ? 'Jeda Pendek - Sudah Main' : 'Jeda Panjang - Sudah Main')\n  : (isShortBreak ? 'Jeda Pendek - Belum Main' : 'Jeda Panjang - Belum Main');\nreturn renderTemplate(template[cond], {\n  captain: dominantCaptain.web_name,\n  count: dominantCaptain.pickers_count,\n  pts: dominantCaptain.points * 2,\n  gw,\n  wib_day: targetFixture.wibDay,\n  kickoff_time: targetFixture.kickoffWIB,\n  club: dominantCaptain.club,\n  opponent: dominantCaptain.opponent,\n});",
     "sample_data": {
       "captain": "Haaland",
@@ -1119,7 +1173,7 @@
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T17:25:00.000Z"
   },
   {
     "no": 44,
@@ -1171,19 +1225,30 @@
     "subcategory": "Title Race",
     "title": "Title Race",
     "output": "SINGLE-NEWS",
-    "template": "[Kondisi: Unggul Poin]\n[T:{team_1}] memimpin klasemen sementara dengan keunggulan [N:{margin} Poin] atas [T:{team_2}] di peringkat kedua.\n\n[Kondisi: Poin Sama]\n[T:{team_1}] dan [T:{team_2}] mengoleksi poin sementara identik di dua teratas klasemen.",
-    "example": "[Kondisi: Unggul Poin]\n[T:Sunda Kelapa] memimpin klasemen sementara dengan keunggulan [N:4 Poin] atas [T:Bintang Timur] di peringkat kedua.\n\n[Kondisi: Poin Sama]\n[T:Sunda Kelapa] dan [T:Bintang Timur] mengoleksi poin sementara identik di dua teratas klasemen.",
-    "code": "const margin = rank1.total_points - rank2.total_points;\nreturn renderTemplate(margin === 0 ? template.tied : template.lead, {\n  gw,\n  team_1: rank1.name,\n  margin,\n  team_2: rank2.name,\n});",
+    "template": "[Kondisi: Kapten Berbeda]\nPemuncak klasemen sementara [T:{team1}] unggul [N:{margin} Poin] atas [T:{team2}] di peringkat kedua, dengan [T:{team1}] menunjuk [P:{captain1}] sebagai kapten sementara [T:{team2}] memilih [P:{captain2}].\n\n[Kondisi: Kapten Sama]\nPemuncak klasemen sementara [T:{team1}] unggul [N:{margin} Poin] atas [T:{team2}] dengan keduanya menunjuk [P:{captain}] sebagai kapten, sehingga penentu selisih poin sementara beralih ke [P:{diff_player1}] dan [P:{diff_player2}].\n\n[Kondisi: Duel Chip Berbeda]\n[T:{team1}] mengaktifkan [N:{chip1}] sementara [T:{team2}] mengaktifkan [N:{chip2}] dalam persaingan puncak klasemen sementara{margin_clause}.\n\n[Kondisi: Chip Sama]\n[T:{team1}] dan [T:{team2}] mengaktifkan [N:{chip}] dalam persaingan puncak klasemen sementara{margin_clause}.\n\n[Kondisi: Manuver Chip]\n[T:{team_chip}] mengaktifkan [N:{chip}] untuk {target_clause} [T:{team_rival}] dalam persaingan puncak klasemen sementara.\n\n[Kondisi: Poin Sama]\n[T:{team1}] dan [T:{team2}] mengoleksi poin sementara identik di dua teratas klasemen.",
+    "example": "[Kondisi: Kapten Berbeda]\nPemuncak klasemen sementara [T:Sunda Kelapa] unggul [N:4 Poin] atas [T:Bintang Timur] di peringkat kedua, dengan [T:Sunda Kelapa] menunjuk [P:Haaland] sebagai kapten sementara [T:Bintang Timur] memilih [P:Isak].\n\n[Kondisi: Kapten Sama]\nPemuncak klasemen sementara [T:Sunda Kelapa] unggul [N:4 Poin] atas [T:Bintang Timur] dengan keduanya menunjuk [P:Haaland] sebagai kapten, sehingga penentu selisih poin sementara beralih ke [P:Palmer] dan [P:Mbeumo].\n\n[Kondisi: Duel Chip Berbeda]\n[T:Sunda Kelapa] mengaktifkan [N:Free Hit] sementara [T:Bintang Timur] mengaktifkan [N:Wildcard] dalam persaingan puncak klasemen sementara dengan keduanya terpaut [N:4 Poin].\n\n[Kondisi: Chip Sama]\n[T:Sunda Kelapa] dan [T:Bintang Timur] mengaktifkan [N:Free Hit] dalam persaingan puncak klasemen sementara dengan keduanya terpaut [N:4 Poin].\n\n[Kondisi: Manuver Chip]\n[T:Bintang Timur] mengaktifkan [N:Free Hit] untuk memangkas jarak [N:4 Poin] dari [T:Sunda Kelapa] dalam persaingan puncak klasemen sementara.\n\n[Kondisi: Poin Sama]\n[T:Sunda Kelapa] dan [T:Bintang Timur] mengoleksi poin sementara identik di dua teratas klasemen.",
+    "code": "const margin = Math.abs(rank1.total_points - rank2.total_points);\nconst chipLeader = getActiveChip(rank1.id, gw);\nconst chipChaser = getActiveChip(rank2.id, gw);\nconst marginClause = margin === 0\n  ? ' dengan poin identik'\n  : ` dengan keduanya terpaut [N:${margin} Poin]`;\n\nif (chipLeader && chipChaser) {\n  if (chipLeader === chipChaser) {\n    return renderTemplate(template.same_chip, {\n      team1: rank1.name,\n      team2: rank2.name,\n      chip: chipLeader,\n      margin_clause: marginClause,\n    });\n  }\n  return renderTemplate(template.dual_chips, {\n    team1: rank1.name,\n    team2: rank2.name,\n    chip1: chipLeader,\n    chip2: chipChaser,\n    margin_clause: marginClause,\n  });\n}\n\nif (chipLeader || chipChaser) {\n  const isLeaderChip = !!chipLeader;\n  const chipTeam = isLeaderChip ? rank1 : rank2;\n  const rivalTeam = isLeaderChip ? rank2 : rank1;\n  const chipName = chipLeader || chipChaser;\n  const targetClause = margin === 0\n    ? 'memecah kebuntuan poin identik melawan'\n    : isLeaderChip\n      ? `memperlebar keunggulan [N:${margin} Poin] atas`\n      : `memangkas jarak [N:${margin} Poin] dari`;\n  return renderTemplate(template.chip, {\n    team_chip: chipTeam.name,\n    chip: chipName,\n    target_clause: targetClause,\n    team_rival: rivalTeam.name,\n  });\n}\n\nif (margin === 0) {\n  return renderTemplate(template.tied, {\n    team1: rank1.name,\n    team2: rank2.name,\n  });\n}\n\nif (capLeader.name !== capChaser.name) {\n  return renderTemplate(template.different_captains, {\n    team1: rank1.name,\n    margin,\n    team2: rank2.name,\n    captain1: capLeader.name,\n    captain2: capChaser.name,\n  });\n}\n\nconst diffStarters = getTopDifferingStarters(rank1.id, rank2.id);\nreturn renderTemplate(template.same_captain, {\n  team1: rank1.name,\n  margin,\n  team2: rank2.name,\n  captain: capLeader.name,\n  diff_player1: diffStarters.player1,\n  diff_player2: diffStarters.player2,\n});",
     "sample_data": {
-      "gw": "10",
-      "team_1": "Sunda Kelapa",
+      "team1": "Sunda Kelapa",
+      "team2": "Bintang Timur",
       "margin": "4",
-      "team_2": "Bintang Timur"
+      "captain1": "Haaland",
+      "captain2": "Isak",
+      "captain": "Haaland",
+      "diff_player1": "Palmer",
+      "diff_player2": "Mbeumo",
+      "chip1": "Free Hit",
+      "chip2": "Wildcard",
+      "margin_clause": " dengan keduanya terpaut [N:4 Poin]",
+      "team_chip": "Bintang Timur",
+      "chip": "Free Hit",
+      "target_clause": "memangkas jarak [N:4 Poin] dari",
+      "team_rival": "Sunda Kelapa"
     },
     "gw": 10,
     "timestamp": "2026-11-14T16:07:11.938Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T17:25:00.000Z"
   },
   {
     "no": 47,
@@ -1307,8 +1372,8 @@
     "subcategory": "Chip Progress",
     "title": "Chip Progress",
     "output": "MULTI-NEWS",
-    "template": "[Kondisi: Triple Captain]\n[T:{team}] mengantongi [N:{total_pts} Poin] sementara dari kapten [P:{captain}] lewat [N:Triple Captain].\n\n[Kondisi: Bench Boost]\n[T:{team}] mengoleksi [N:{bench_pts} Poin] dari bangku cadangannya lewat [N:Bench Boost] sejauh ini.\n\n[Kondisi: Wildcard]\n[T:{team}] mengoleksi [N:{gw_pts} Poin] sementara lewat [N:Wildcard] dengan [N:{remaining_count}] pemain tersisa.\n\n[Kondisi: Free Hit]\n[T:{team}] mengoleksi [N:{gw_pts} Poin] sementara lewat [N:Free Hit] dengan [N:{remaining_count}] pemain tersisa.",
-    "example": "[Kondisi: Triple Captain]\n[T:Kuda Hitam] mengantongi [N:39 Poin] sementara dari kapten [P:Haaland] lewat [N:Triple Captain].\n\n[Kondisi: Bench Boost]\n[T:Kuda Hitam] mengoleksi [N:18 Poin] dari bangku cadangannya lewat [N:Bench Boost] sejauh ini.\n\n[Kondisi: Wildcard]\n[T:Kuda Hitam] mengoleksi [N:56 Poin] sementara lewat [N:Wildcard] dengan [N:4] pemain tersisa.\n\n[Kondisi: Free Hit]\n[T:Kuda Hitam] mengoleksi [N:56 Poin] sementara lewat [N:Free Hit] dengan [N:4] pemain tersisa.",
+    "template": "[Kondisi: Triple Captain]\n[T:{team}] mengaktifkan [N:Triple Captain] dan membukukan [N:{total_pts} Poin] sementara dari kapten [P:{captain}].\n\n[Kondisi: Bench Boost]\n[T:{team}] mengaktifkan [N:Bench Boost] dan mengoleksi [N:{bench_pts} Poin] sementara dari bangku cadangannya.\n\n[Kondisi: Wildcard]\n[T:{team}] mengaktifkan [N:Wildcard] dan mengoleksi [N:{gw_pts} Poin] sementara dengan [N:{remaining_count}] pemain tersisa.\n\n[Kondisi: Free Hit]\n[T:{team}] mengaktifkan [N:Free Hit] dan mengoleksi [N:{gw_pts} Poin] sementara dengan [N:{remaining_count}] pemain tersisa.",
+    "example": "[Kondisi: Triple Captain]\n[T:Kuda Hitam] mengaktifkan [N:Triple Captain] dan membukukan [N:39 Poin] sementara dari kapten [P:Haaland].\n\n[Kondisi: Bench Boost]\n[T:Kuda Hitam] mengaktifkan [N:Bench Boost] dan mengoleksi [N:18 Poin] sementara dari bangku cadangannya.\n\n[Kondisi: Wildcard]\n[T:Kuda Hitam] mengaktifkan [N:Wildcard] dan mengoleksi [N:56 Poin] sementara dengan [N:4] pemain tersisa.\n\n[Kondisi: Free Hit]\n[T:Kuda Hitam] mengaktifkan [N:Free Hit] dan mengoleksi [N:56 Poin] sementara dengan [N:4] pemain tersisa.",
     "code": "// Terpicu hanya jika pemain/kapten terkait chip sudah selesai bertanding di GW berjalan.\nif (chip === 'TC' && capClubFinished) return renderTemplate(template.tc, { team, captain, total_pts });\nif (chip === 'BB' && finishedBenchCount > 0) return renderTemplate(template.bb, { team, bench_pts });\nif ((chip === 'WC' || chip === 'FH') && finishedStarterCount > 0 && remainingCount > 0) {\n  return renderTemplate(chip === 'WC' ? template.wc : template.fh, { team, gw_pts, remaining_count });\n}",
     "sample_data": {
       "team": "Kuda Hitam",
@@ -1321,7 +1386,7 @@
     "gw": 10,
     "timestamp": "2026-11-15T11:26:23.402Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T17:25:00.000Z"
   },
   {
     "no": 88,
@@ -1331,8 +1396,8 @@
     "subcategory": "Hits",
     "title": "Hits Evaluation",
     "output": "MULTI-NEWS",
-    "template": "[T:{team}] menanggung penalti hit [N:-{hits_pts} Poin], sementara rekrutan barunya [P:{player_in}] ([C:{club}]) membukukan [N:{player_pts} Poin] pada laga yang sudah tuntas.",
-    "example": "[T:Bintang Timur] menanggung penalti hit [N:-4 Poin], sementara rekrutan barunya [P:Cunha] ([C:Wolves]) membukukan [N:9 Poin] pada laga yang sudah tuntas.",
+    "template": "[T:{team}] memulai pekan dengan penalti poin [N:-{hits_pts} Poin], sementara rekrutan barunya [P:{player_in}] ([C:{club}]) membukukan [N:{player_pts} Poin] pada laga yang sudah tuntas.",
+    "example": "[T:Bintang Timur] memulai pekan dengan penalti poin [N:-4 Poin], sementara rekrutan barunya [P:Cunha] ([C:Wolves]) membukukan [N:9 Poin] pada laga yang sudah tuntas.",
     "code": "// Ambil tim dengan penalti hit (> 0) yang rekrutan barunya sudah menyelesaikan laga di GW berjalan.\nif (manager.event_transfers_cost > 0 && finishedSignings.length > 0) {\n  const bestIn = finishedSignings[0];\n  return renderTemplate(template, {\n    team: manager.entry_name,\n    hits_pts: manager.event_transfers_cost,\n    player_in: bestIn.name,\n    club: bestIn.club,\n    player_pts: bestIn.points,\n  });\n}",
     "sample_data": {
       "team": "Bintang Timur",
@@ -1344,7 +1409,7 @@
     "gw": 10,
     "timestamp": "2026-11-15T11:26:23.402Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T17:25:00.000Z"
   },
   {
     "no": 89,
@@ -1354,9 +1419,9 @@
     "subcategory": "Differential",
     "title": "Differential Captain Return",
     "output": "MULTI-NEWS",
-    "template": "[T:{team}] mengoleksi [N:{pts} Poin] dari kapten differential [P:{captain}] ([C:{club}]) usai laga melawan [C:{opponent}].",
-    "example": "[T:Garuda FC] mengoleksi [N:22 Poin] dari kapten differential [P:Palmer] ([C:Chelsea]) usai laga melawan [C:Arsenal].",
-    "code": "// Sorot kapten differential (< 5% atau <= 2 pemilih) yang sudah selesai main dengan >= 8 poin dasar.\nif (cap.isDiff && capClubFinished && capStat.points >= 8) {\n  return renderTemplate(template, {\n    team: manager.entry_name,\n    pts: capStat.points * (chip === 'TC' ? 3 : 2),\n    captain: capStat.name,\n    club: capStat.club,\n    opponent: fixInfo.opponent,\n  });\n}",
+    "template": "[Kondisi: Kapten Eksklusif (1 Tim)]\n[T:{team}] sebagai satu-satunya tim yang menunjuk [P:{captain}] ([C:{club}]) sebagai kapten membukukan [N:{pts} Poin] usai laga melawan [C:{opponent}].\n\n[Kondisi: Kapten Differential (< 5%)]\n[T:{team}] yang menunjuk [P:{captain}] ([C:{club}]) sebagai kapten differential membukukan [N:{pts} Poin] usai laga melawan [C:{opponent}].",
+    "example": "[Kondisi: Kapten Eksklusif (1 Tim)]\n[T:Garuda FC] sebagai satu-satunya tim yang menunjuk [P:Palmer] ([C:Chelsea]) sebagai kapten membukukan [N:22 Poin] usai laga melawan [C:Arsenal].\n\n[Kondisi: Kapten Differential (< 5%)]\n[T:Garuda FC] yang menunjuk [P:Palmer] ([C:Chelsea]) sebagai kapten differential membukukan [N:22 Poin] usai laga melawan [C:Arsenal].",
+    "code": "// Sorot kapten differential (< 5% atau <= 2 pemilih) yang sudah selesai main dengan >= 8 poin dasar.\nif (cap.isDiff && capClubFinished && capStat.points >= 8) {\n  const cond = cap.pickersCount === 1 ? template.exclusive : template.differential;\n  return renderTemplate(cond, {\n    team: manager.entry_name,\n    pts: capStat.points * (chip === 'TC' ? 3 : 2),\n    captain: capStat.name,\n    club: capStat.club,\n    opponent: fixInfo.opponent,\n  });\n}",
     "sample_data": {
       "team": "Garuda FC",
       "pts": "22",
@@ -1367,7 +1432,65 @@
     "gw": 10,
     "timestamp": "2026-11-15T11:26:23.402Z",
     "source": "Sys",
-    "updated_at": "2026-11-15T14:05:19.925Z"
+    "updated_at": "2026-11-16T17:25:00.000Z"
+  },
+  {
+    "no": 102,
+    "id": "BM_PLAYER_AVAILABILITY_FLAGGED",
+    "gw_phase": "Between Match",
+    "category": "Player",
+    "subcategory": "Availability",
+    "title": "Flagged Players",
+    "output": "MULTI-NEWS",
+    "template": "[Kondisi: Dipastikan Absen]\n[P:{player}] ([C:{club}]) dipastikan absen melawan [C:{opponent}] akibat {injury_desc} sehingga berdampak bagi [N:{owners_count}] pemiliknya.\n\n[Kondisi: Meragukan]\n[P:{player}] ([C:{club}]) diragukan tampil melawan [C:{opponent}] akibat {injury_desc} sehingga menimbulkan tanda tanya bagi [N:{owners_count}] pemiliknya.",
+    "example": "[Kondisi: Dipastikan Absen]\n[P:Manzambi] ([C:Aston Villa]) dipastikan absen melawan [C:Bournemouth] akibat cedera betis sehingga berdampak bagi [N:12] pemiliknya.\n\n[Kondisi: Meragukan]\n[P:Manzambi] ([C:Aston Villa]) diragukan tampil melawan [C:Bournemouth] akibat cedera betis sehingga menimbulkan tanda tanya bagi [N:12] pemiliknya.",
+    "code": "// Pemain berstatus flagged (status !== 'a', newsAdded >= deadline sebelumnya) yang klubnya belum kickoff di GW berjalan.\nconst flaggedUpcoming = getFlaggedPlayersForUpcomingMatches(gw);\nreturn flaggedUpcoming.map(item => renderTemplate(item.isOut ? template.out : template.doubt, {\n  player: item.web_name,\n  club: item.club,\n  opponent: item.opponent,\n  injury_desc: item.injury_desc,\n  owners_count: item.owners_count,\n}));",
+    "sample_data": {
+      "player": "Manzambi",
+      "club": "Aston Villa",
+      "opponent": "Bournemouth",
+      "injury_desc": "cedera betis",
+      "owners_count": "12"
+    },
+    "gw": 10,
+    "timestamp": "2026-11-16T17:25:00.000Z",
+    "source": "Sys",
+    "updated_at": "2026-11-16T17:25:00.000Z"
+  },
+  {
+    "no": 103,
+    "id": "BM_STANDINGS_WEEKLY_WINS_MOST",
+    "gw_phase": "Between Match",
+    "category": "Standings",
+    "subcategory": "Weekly Wins",
+    "title": "Most GW Wins",
+    "output": "SINGLE-NEWS",
+    "template": "[Kondisi: Kapten Berbeda]\n[T:{team1}] ([N:{titles1}] kali juara, [N:{gw_pts1} Poin] sementara) dan [T:{team2}] ([N:{titles2}] kali juara, [N:{gw_pts2} Poin] sementara) bersaing memperebutkan status peraih juara Gameweek terbanyak, dengan [T:{team1}] menunjuk [P:{captain1}] sebagai kapten sementara [T:{team2}] memilih [P:{captain2}].\n\n[Kondisi: Kapten Sama]\n[T:{team1}] ([N:{titles1}] kali juara, [N:{gw_pts1} Poin] sementara) dan [T:{team2}] ([N:{titles2}] kali juara, [N:{gw_pts2} Poin] sementara) keduanya menunjuk [P:{captain}] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin sementara beralih ke [P:{diff_player1}] dan [P:{diff_player2}].\n\n[Kondisi: Duel Chip Berbeda]\n[T:{team1}] ([N:{titles1}] kali juara, [N:{gw_pts1} Poin] sementara) mengaktifkan [N:{chip1}] sementara [T:{team2}] ([N:{titles2}] kali juara, [N:{gw_pts2} Poin] sementara) mengaktifkan [N:{chip2}] dalam persaingan juara Gameweek terbanyak.\n\n[Kondisi: Chip Sama]\n[T:{team1}] ([N:{titles1}] kali juara, [N:{gw_pts1} Poin] sementara) dan [T:{team2}] ([N:{titles2}] kali juara, [N:{gw_pts2} Poin] sementara) mengaktifkan [N:{chip}] dalam persaingan juara Gameweek terbanyak.\n\n[Kondisi: Manuver Chip]\n[T:{team_chip}] ([N:{titles_chip}] kali juara, [N:{gw_pts_chip} Poin] sementara) mengaktifkan [N:{chip}] untuk mengejar status peraih juara Gameweek terbanyak.",
+    "example": "[Kondisi: Kapten Berbeda]\n[T:Blackswann] ([N:1] kali juara, [N:48 Poin] sementara) dan [T:rdwndvsn] ([N:1] kali juara, [N:44 Poin] sementara) bersaing memperebutkan status peraih juara Gameweek terbanyak, dengan [T:Blackswann] menunjuk [P:Haaland] sebagai kapten sementara [T:rdwndvsn] memilih [P:Salah].\n\n[Kondisi: Kapten Sama]\n[T:Blackswann] ([N:1] kali juara, [N:48 Poin] sementara) dan [T:rdwndvsn] ([N:1] kali juara, [N:44 Poin] sementara) keduanya menunjuk [P:Haaland] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin sementara beralih ke [P:Kudus] dan [P:Raya].\n\n[Kondisi: Duel Chip Berbeda]\n[T:Blackswann] ([N:1] kali juara, [N:48 Poin] sementara) mengaktifkan [N:Free Hit] sementara [T:rdwndvsn] ([N:1] kali juara, [N:44 Poin] sementara) mengaktifkan [N:Wildcard] dalam persaingan juara Gameweek terbanyak.\n\n[Kondisi: Chip Sama]\n[T:Blackswann] ([N:1] kali juara, [N:48 Poin] sementara) dan [T:rdwndvsn] ([N:1] kali juara, [N:44 Poin] sementara) mengaktifkan [N:Free Hit] dalam persaingan juara Gameweek terbanyak.\n\n[Kondisi: Manuver Chip]\n[T:Blackswann] ([N:1] kali juara, [N:48 Poin] sementara) mengaktifkan [N:Free Hit] untuk mengejar status peraih juara Gameweek terbanyak.",
+    "code": "// Gelar juara GW dihitung dari GW 1 s.d. GW n-1; peringkat 1 & 2 klasemen sementara dikecualikan agar tidak bentrok dengan Title Race.\nconst excludedIds = [standings[0]?.id, standings[1]?.id];\nconst leaders = getMostGwChampionsLeaders(gw - 1).filter(t => !excludedIds.includes(t.id));\nif (leaders.length < 2) return null;\n\nconst leader = leaders[0];\nconst chaser = leaders[1];\nconst chipLeader = getActiveChip(leader.id, gw);\nconst chipChaser = getActiveChip(chaser.id, gw);\n\nif (chipLeader && chipChaser) {\n  if (chipLeader === chipChaser) {\n    return renderTemplate(template.same_chip, {\n      team1: leader.name,\n      titles1: leader.titles,\n      gw_pts1: leader.gw_points,\n      team2: chaser.name,\n      titles2: chaser.titles,\n      gw_pts2: chaser.gw_points,\n      chip: chipLeader,\n    });\n  }\n  return renderTemplate(template.dual_chips, {\n    team1: leader.name,\n    titles1: leader.titles,\n    gw_pts1: leader.gw_points,\n    team2: chaser.name,\n    titles2: chaser.titles,\n    gw_pts2: chaser.gw_points,\n    chip1: chipLeader,\n    chip2: chipChaser,\n  });\n}\n\nif (chipLeader || chipChaser) {\n  const chipTeam = chipLeader ? leader : chaser;\n  const chipName = chipLeader || chipChaser;\n  return renderTemplate(template.chip, {\n    team_chip: chipTeam.name,\n    titles_chip: chipTeam.titles,\n    gw_pts_chip: chipTeam.gw_points,\n    chip: chipName,\n  });\n}",
+    "sample_data": {
+      "team1": "Blackswann",
+      "team2": "rdwndvsn",
+      "titles1": "1",
+      "titles2": "1",
+      "gw_pts1": "48",
+      "gw_pts2": "44",
+      "captain1": "Haaland",
+      "captain2": "Salah",
+      "captain": "Haaland",
+      "diff_player1": "Kudus",
+      "diff_player2": "Raya",
+      "chip1": "Free Hit",
+      "chip2": "Wildcard",
+      "team_chip": "Blackswann",
+      "titles_chip": "1",
+      "gw_pts_chip": "48",
+      "chip": "Free Hit"
+    },
+    "gw": 10,
+    "timestamp": "2026-11-16T17:25:00.000Z",
+    "source": "Sys",
+    "updated_at": "2026-11-16T17:25:00.000Z"
   },
   {
     "no": 49,

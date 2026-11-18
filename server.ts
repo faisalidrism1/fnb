@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { createServer as createViteServer } from 'vite';
 import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle } from './src/server/dataFetcher.ts';
 import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache } from './src/server/matchesFetcher.ts';
 import { TransformedLeagueData } from './src/types.ts';
@@ -42,24 +41,37 @@ import {
   checkLiveBetweenMatchPhase,
   ensureLiveMatchesAndCheckPhase
 } from './src/server/newsTickerTableService.ts';
+import {
+  syncPulseMatchesForActiveGw,
+  loadPulseMatchesForGw,
+  migrateLegacyPulseMatchFiles,
+} from './src/server/pulseMatchSync.ts';
+import {
+  getPhase1Templates,
+  savePhase1Templates,
+  resetPhase1Templates,
+  Phase1TemplateItem
+} from './src/data/phase1Templates.ts';
+import { generatePhase1Stories } from './src/server/notStartedStoryGenerator.ts';
+import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.ts';
+import { generateBetweenMatchStories } from './src/server/betweenMatchStoryGenerator.ts';
+import { generateProvisionalStories } from './src/server/provisionalStoryGenerator.ts';
 
 const app = express();
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
+// Instant healthcheck endpoint (responds immediately even while background DB/Vite init completes)
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, timestamp: new Date().toISOString() });
+});
+
 const LEAGUE_PAST_SEASONS_PATH = path.join(process.cwd(), 'src/data/league_past_seasons.json');
 
 let leaguePastSeasonsData: Record<string, Array<{ season_name: string; total_points: number; rank: number }>> = {};
-if (fs.existsSync(LEAGUE_PAST_SEASONS_PATH)) {
-  try {
-    leaguePastSeasonsData = JSON.parse(fs.readFileSync(LEAGUE_PAST_SEASONS_PATH, 'utf-8'));
-  } catch (err: any) {
-    console.warn('[Server] Error reading league_past_seasons.json:', err.message);
-  }
-}
 
 function calculateFnbRank(seasonName: string, globalRank: number): number {
   const ranksInSeason: number[] = [];
@@ -77,18 +89,47 @@ function calculateFnbRank(seasonName: string, globalRank: number): number {
   return pos >= 0 ? pos + 1 : 1;
 }
 
-// Initialize the Single Truth Source Database (src/data/fpl_database.json)
-initDatabase();
-
-// In-Memory view hydrated strictly from the Single Truth Source (db.ts)
-let cachedData: TransformedLeagueData | null = getTransformedLeagueDataFromDb();
-if (cachedData) {
-  console.log('[Server] Hydrated view directly from Single Truth Source (fpl_database.json) for instant sub-5ms boot response');
-} else {
-  console.log('[Server] Container started with EMPTY database (Cold Start state). Waiting for first user request to trigger Action A.');
-}
+// In-Memory view hydrated asynchronously right after server port binds
+let cachedData: TransformedLeagueData | null = null;
 let isSyncing = false;
-console.log('[Server] Initialized with Single Truth Source (Optimal DB Schema) & Deterministic Orchestrator (Action A, B, C)');
+
+let resolveDbReady!: () => void;
+const dbReadyPromise = new Promise<void>((resolve) => {
+  resolveDbReady = resolve;
+});
+
+function initializeDatabaseState() {
+  try {
+    if (fs.existsSync(LEAGUE_PAST_SEASONS_PATH)) {
+      try {
+        leaguePastSeasonsData = JSON.parse(fs.readFileSync(LEAGUE_PAST_SEASONS_PATH, 'utf-8'));
+      } catch (err: any) {
+        console.warn('[Server] Error reading league_past_seasons.json:', err.message);
+      }
+    }
+
+    initDatabase();
+    migrateLegacyPulseMatchFiles();
+
+    cachedData = getTransformedLeagueDataFromDb();
+    if (cachedData) {
+      console.log('[Server] Hydrated view directly from Single Truth Source (fpl_database.json) for instant sub-5ms boot response');
+    } else {
+      console.log('[Server] Container started with EMPTY database (Cold Start state). Waiting for first user request to trigger Action A.');
+    }
+    console.log('[Server] Initialized with Single Truth Source (Optimal DB Schema) & Deterministic Orchestrator (Action A, B, C)');
+  } catch (err: any) {
+    console.error('[Server] Database initialization warning:', err?.message || err);
+  } finally {
+    resolveDbReady();
+  }
+}
+
+// Ensure every API route waits for initial DB hydration (takes ~0ms once hydrated)
+app.use('/api', async (_req, _res, next) => {
+  await dbReadyPromise;
+  next();
+});
 
 // Background sync runner with promise deduplication
 let currentSyncPromise: Promise<TransformedLeagueData> | null = null;
@@ -137,9 +178,16 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
         console.warn('[Server] Error clearing live caches:', cErr.message);
       }
 
-      // Refresh live match status (if GW status is Live) and rebuild News Ticker table immediately
+      // Refresh live match status, sync Pulse match event files (Action A/B), and rebuild News Ticker table
       try {
-        await ensureLiveMatchesAndCheckPhase(targetGW || getCurrentGw()).catch(() => null);
+        const activeGwForPulse = targetGW || getCurrentGw();
+        await Promise.all([
+          ensureLiveMatchesAndCheckPhase(activeGwForPulse).catch(() => null),
+          syncPulseMatchesForActiveGw(activeGwForPulse, { cleanOldGws: action === 'A_FULL' }).catch((pErr: any) => {
+            console.warn('[Server] Warning syncing Pulse match files:', pErr.message);
+            return null;
+          }),
+        ]);
         rebuildNewsTickerTable();
       } catch (ntErr: any) {
         console.warn('[Server] Error rebuilding news ticker table after sync:', ntErr.message);
@@ -628,46 +676,49 @@ app.get('/api/fpl-shirt/:code', async (req, res) => {
   }
 });
 
-// Pre-warm all 20 Premier League club jerseys in RAM for instant 0ms modal opening
+// Pre-warm all 20 Premier League club jerseys in RAM in small batches with request timeouts
 async function prewarmShirtCache() {
   const codes = [0, 1, 2, 3, 4, 6, 7, 8, 9, 11, 14, 17, 31, 36, 40, 43, 54, 56, 88, 91, 94];
-  const tasks: Promise<void>[] = [];
-  
+  const jobs: Array<{ key: string; url: string }> = [];
+
   for (const c of codes) {
     const outfieldKey = String(c);
     if (!shirtImageCache.has(outfieldKey)) {
-      tasks.push((async () => {
-        try {
-          const resp = await fetch(`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${c}-220.webp`, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-          });
-          if (resp.ok) {
-            const buf = Buffer.from(await resp.arrayBuffer());
-            shirtImageCache.set(outfieldKey, { buffer: buf, contentType: 'image/webp' });
-          }
-        } catch {}
-      })());
+      jobs.push({
+        key: outfieldKey,
+        url: `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${c}-220.webp`,
+      });
     }
 
     if (c !== 0) {
       const gkKey = `${c}_1`;
       if (!shirtImageCache.has(gkKey)) {
-        tasks.push((async () => {
-          try {
-            const resp = await fetch(`https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${c}_1-220.webp`, {
-              headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-            });
-            if (resp.ok) {
-              const buf = Buffer.from(await resp.arrayBuffer());
-              shirtImageCache.set(gkKey, { buffer: buf, contentType: 'image/webp' });
-            }
-          } catch {}
-        })());
+        jobs.push({
+          key: gkKey,
+          url: `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${c}_1-220.webp`,
+        });
       }
     }
   }
 
-  await Promise.all(tasks);
+  const CONCURRENCY = 6;
+  for (let i = 0; i < jobs.length; i += CONCURRENCY) {
+    const batch = jobs.slice(i, i + CONCURRENCY);
+    await Promise.all(
+      batch.map(async (job) => {
+        try {
+          const resp = await fetch(job.url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+            signal: AbortSignal.timeout(8000),
+          });
+          if (resp.ok) {
+            const buf = Buffer.from(await resp.arrayBuffer());
+            shirtImageCache.set(job.key, { buffer: buf, contentType: 'image/webp' });
+          }
+        } catch {}
+      })
+    );
+  }
   console.log(`[Server] Pre-warmed ${shirtImageCache.size} jerseys into RAM memory for instant 0ms team modal opening!`);
 }
 
@@ -1190,16 +1241,21 @@ app.get('/api/news-ticker/feed', async (req, res) => {
     }
 
     let containerRows = getNewsTickerTable();
-    if (force || phase || containerRows.length === 0) {
+    if (
+      force ||
+      phase ||
+      containerRows.length === 0 ||
+      containerRows.some((r) => !r.gw || Number(r.gw) !== currentGw)
+    ) {
       containerRows = rebuildNewsTickerTable(phase);
     }
 
     // Active airing stories from db container:
-    // ATURAN MUTLAK: Jangan tayangkan apapun selain yang bersumber dari tabel editor
+    // ATURAN MUTLAK: Jangan tayangkan apapun selain yang bersumber dari tabel editor & strictly GW aktif
     const activeRows = containerRows.filter((r) => {
       if (r.status_tayang !== 'Y') return false;
       if (r.sumber !== 'Sys' || !isEditorTemplateId(r.id)) return false;
-      if (r.gw && Number(r.gw) !== currentGw) return false;
+      if (!r.gw || Number(r.gw) !== currentGw) return false;
       if (!r.fase || r.fase.trim() === '' || r.fase === '-') return false;
       return isPhaseActive(r.fase, currentPhase);
     });
@@ -1308,17 +1364,6 @@ app.post('/api/admin/news-ticker/increment-point', (req, res) => {
   }
 });
 
-import {
-  getPhase1Templates,
-  savePhase1Templates,
-  resetPhase1Templates,
-  Phase1TemplateItem
-} from './src/data/phase1Templates.ts';
-import { generatePhase1Stories } from './src/server/notStartedStoryGenerator.ts';
-import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.ts';
-import { generateBetweenMatchStories } from './src/server/betweenMatchStoryGenerator.ts';
-import { generateProvisionalStories } from './src/server/provisionalStoryGenerator.ts';
-
 // ================= PHASE 1 TEMPLATES API =================
 // 1. Get all Phase 1 templates
 app.get('/api/admin/phase1-templates', (req, res) => {
@@ -1344,13 +1389,12 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
     // Also include live match preview stories from Pulse API + live stats (LM_MATCH_SAVES_GOALKEEPER, LM_MATCH_DEFENSIVE_CONTRIBUTION)
     try {
       const {
-        fetchPulseMatch,
         generateStoriesFromPulseMatch,
         fetchAndGenerateLiveMatchStatStories,
         generateLiveLineupSurpriseStories,
       } = await import('./src/server/liveMatchStoryGenerator.ts');
-      const pulseData = await fetchPulseMatch(129021);
-      if (pulseData) {
+      const pulseList = loadPulseMatchesForGw(currentGw);
+      for (const pulseData of pulseList) {
         const liveStories = generateStoriesFromPulseMatch(pulseData, currentGw);
         for (const ls of liveStories) {
           stories.push({
@@ -1450,12 +1494,22 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
 // 1c. Live Pulse Match Events Generator Endpoint
 app.get('/api/admin/phase1-templates/pulse-live', async (req, res) => {
   try {
-    const matchId = req.query.matchId ? Number(req.query.matchId) : 129021;
-    const gw = req.query.gw ? Number(req.query.gw) : 10;
+    const gw = req.query.gw ? Number(req.query.gw) : getCurrentGw();
+    const gwPulseMatches = loadPulseMatchesForGw(gw);
+    const matchId = req.query.matchId
+      ? Number(req.query.matchId)
+      : Number(gwPulseMatches[0]?.id || 0);
+    if (!matchId) {
+      return res.status(404).json({ success: false, error: `No Pulse match found for GW ${gw}` });
+    }
     const { fetchPulseMatch, generateStoriesFromPulseMatch } = await import('./src/server/liveMatchStoryGenerator.ts');
     const pulseData = await fetchPulseMatch(matchId);
     if (!pulseData) {
       return res.status(404).json({ success: false, error: `Match ${matchId} not found in Pulse API` });
+    }
+    const pulseGw = Number(pulseData?.gameweek?.gameweek || gw);
+    if (pulseGw !== gw) {
+      return res.status(400).json({ success: false, error: `Match ${matchId} belongs to GW ${pulseGw}, not GW ${gw}` });
     }
     const stories = generateStoriesFromPulseMatch(pulseData, gw);
     res.json({
@@ -1549,40 +1603,63 @@ app.get('/api/container/status', (req, res) => {
 
 
 
-// Vite / static file serving
+// Vite / static file serving — bind port 3000 immediately so dev server readiness succeeds quickly,
+// while incoming frontend/API requests cleanly await initialization promises if they arrive during boot.
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: {
-        middlewareMode: true,
-        hmr: false,
-        ws: false,
-        allowedHosts: true,
-        watch: {
-          ignored: ['**/*'],
+    const viteMiddlewarePromise = (async () => {
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: {
+          middlewareMode: true,
+          hmr: false,
+          ws: false,
+          allowedHosts: true,
+          watch: {
+            ignored: ['**/*'],
+          },
         },
-      },
-      appType: 'spa',
+        appType: 'spa',
+      });
+      return vite.middlewares;
+    })();
+
+    app.use(async (req, res, next) => {
+      try {
+        const mw = await viteMiddlewarePromise;
+        mw(req, res, next);
+      } catch (err) {
+        next(err);
+      }
     });
-    app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[Server] FPL Nusantara BERHADIAH running on port ${PORT}`);
-    prewarmShirtCache().catch(() => {});
+
     setImmediate(() => {
-      try {
-        rebuildNewsTickerTable();
-      } catch (err: any) {
-        console.warn('[Server] Initial Editor news table build warning:', err.message);
-      }
+      initializeDatabaseState();
     });
+
+    setTimeout(() => {
+      dbReadyPromise.then(() => {
+        try {
+          getNewsTickerTable();
+        } catch (err: any) {
+          console.warn('[Server] Initial Editor news table warm warning:', err.message);
+        }
+      });
+    }, 1500);
+
+    setTimeout(() => {
+      prewarmShirtCache().catch(() => {});
+    }, 2500);
   });
 }
 

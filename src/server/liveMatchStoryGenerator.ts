@@ -1,18 +1,13 @@
-import fs from 'fs';
-import path from 'path';
 import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
 import { fetchMatchesForGw, getCachedMatchesForGw } from './matchesFetcher.ts';
 import { getDbStandings, getOptimalDatabase, getGwSnapshot } from './db.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
+import {
+  fetchPulseMatchTextstream as fetchPulseMatchTextstreamShared,
+  fetchAndCachePulseMatch,
+  loadPulseMatchesForGw,
+} from './pulseMatchSync.ts';
 import type { MatchCardItem, MatchPlayerItem } from '../types.ts';
-
-const PULSE_BASE = 'https://footballapi.pulselive.com/football';
-const PULSE_HEADERS = {
-  'Origin': 'https://www.premierleague.com',
-  'Referer': 'https://www.premierleague.com/',
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-  'Accept': '*/*'
-};
 
 export interface LiveMatchStory {
   id: string;
@@ -354,109 +349,32 @@ function resolveConditionalBlock(template: string, conditionName: string, vars: 
  * Fetches match commentary textstream (EN) from Pulse API to capture VAR decisions and Penalty Won events.
  */
 export async function fetchPulseMatchTextstream(matchId: number): Promise<any[]> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
-  try {
-    const res = await fetch(`${PULSE_BASE}/fixtures/${matchId}/textstream/EN?pageSize=250`, {
-      headers: PULSE_HEADERS,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data?.events?.content)) {
-        return data.events.content;
-      }
-      if (Array.isArray(data?.content)) {
-        return data.content;
-      }
-    }
-    return [];
-  } catch (err: any) {
-    clearTimeout(timeoutId);
-    console.warn(`[Pulse Match Generator] Failed to fetch textstream for match ${matchId}:`, err.message);
-    return [];
-  }
+  return fetchPulseMatchTextstreamShared(matchId);
 }
 
 /**
- * Fetches match data from Pulse API by match ID, with disk cache fallback,
- * and enriches it with textstreamEvents (VAR & penalty won) when available.
+ * Fetches match data from Pulse API by match ID, using the centralized
+ * `src/data/pulse_matches/gw{GW}_{HOME}_vs_{AWAY}_{ID}.json` disk cache.
  */
 export async function fetchPulseMatch(matchId: number): Promise<any | null> {
-  const localCachePath = path.join(process.cwd(), `src/data/pulse_match_${matchId}.json`);
-  if (fs.existsSync(localCachePath)) {
-    try {
-      const cached = fs.readFileSync(localCachePath, 'utf-8');
-      const parsed = JSON.parse(cached);
-      if (parsed && parsed.id) {
-        if (!Array.isArray(parsed.textstreamEvents)) {
-          const tsEvents = await fetchPulseMatchTextstream(matchId);
-          parsed.textstreamEvents = tsEvents;
-          try {
-            fs.writeFileSync(localCachePath, JSON.stringify(parsed, null, 2), 'utf-8');
-          } catch {}
-        }
-        return parsed;
-      }
-    } catch {}
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
-  try {
-    const res = await fetch(`${PULSE_BASE}/fixtures/${matchId}`, {
-      headers: PULSE_HEADERS,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const data = await res.json();
-      const tsEvents = await fetchPulseMatchTextstream(matchId);
-      if (tsEvents.length > 0) {
-        data.textstreamEvents = tsEvents;
-      }
-      try {
-        fs.writeFileSync(localCachePath, JSON.stringify(data, null, 2), 'utf-8');
-      } catch {}
-      return data;
-    }
-    return null;
-  } catch (err: any) {
-    clearTimeout(timeoutId);
-    console.warn(`[Pulse Match Generator] Failed to fetch match ${matchId}:`, err.message);
-    return null;
-  }
+  return fetchAndCachePulseMatch(matchId);
 }
 
 /**
  * Loads all active Live Match stories generated from the Subtab Editor Live Match templates.
- * Supports multi-match: scans all pulse_match_*.json files in src/data.
+ * Supports multi-match: loads all GW-scoped files from `src/data/pulse_matches/`.
  */
 export async function getAllLiveMatchStories(targetGw?: number): Promise<LiveMatchStory[]> {
   const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
   try {
-    const dataDir = path.join(process.cwd(), 'src/data');
     const allStories: LiveMatchStory[] = [];
-    if (fs.existsSync(dataDir)) {
-      const matchFiles = fs.readdirSync(dataDir).filter(f => f.startsWith('pulse_match_') && f.endsWith('.json'));
-      for (const file of matchFiles) {
-        try {
-          const filePath = path.join(dataDir, file);
-          const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-          if (Number(content?.gameweek?.gameweek) === gw) {
-            if (!Array.isArray(content.textstreamEvents) && content.id) {
-              content.textstreamEvents = await fetchPulseMatchTextstream(Number(content.id));
-              try {
-                fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8');
-              } catch {}
-            }
-            const stories = generateStoriesFromPulseMatch(content, gw);
-            allStories.push(...stories);
-          }
-        } catch {}
-      }
+    const pulseMatches = loadPulseMatchesForGw(gw);
+    for (const content of pulseMatches) {
+      try {
+        const stories = generateStoriesFromPulseMatch(content, gw);
+        allStories.push(...stories);
+      } catch {}
     }
 
     // Include live match statistical threshold events (LM_MATCH_SAVES_GOALKEEPER & LM_MATCH_DEFENSIVE_CONTRIBUTION)
@@ -486,6 +404,12 @@ export async function getAllLiveMatchStories(targetGw?: number): Promise<LiveMat
           allStories.push(ls);
         }
       }
+    } catch {}
+
+    // Include live title race duel (LM_STANDINGS_TITLE_RACE)
+    try {
+      const titleRaceStories = generateLiveTitleRaceStories(gw, { requireLiveMatch: true });
+      allStories.push(...titleRaceStories);
     } catch {}
 
     return allStories;
@@ -597,7 +521,7 @@ export function generateStoriesFromPulseMatch(
     if (n === 1) return tokens[0];
     if (n === 2) return lang === 'id' ? `${tokens[0]} dan ${tokens[1]}` : `${tokens[0]} and ${tokens[1]}`;
     return lang === 'id'
-      ? `${tokens.slice(0, -1).join(', ')}, dan ${tokens[n - 1]}`
+      ? `${tokens.slice(0, -1).join(', ')} dan ${tokens[n - 1]}`
       : `${tokens.slice(0, -1).join(', ')}, and ${tokens[n - 1]}`;
   };
 
@@ -606,6 +530,52 @@ export function generateStoriesFromPulseMatch(
   const awayTeamId = awayTeamRaw?.id;
   const homeActivePitchIds = new Set<number>();
   const awayActivePitchIds = new Set<number>();
+
+  // Build popular captain index for LM_CAPTAIN_POPULAR_LIVE (#105)
+  // Qualifies if captainCount >= 5 OR in top 3 most-captained league-wide with captainCount >= 3
+  const snapForCaptains = getGwSnapshot(gw);
+  const captainCountByFplId = new Map<number, number>();
+  for (const p of allPlayers) {
+    if (p.captainCount > 0) captainCountByFplId.set(p.id, p.captainCount);
+  }
+  if (Array.isArray(snapForCaptains?.top_captains)) {
+    for (const tc of snapForCaptains.top_captains) {
+      const pid = Number(tc?.id || 0);
+      const cnt = Number(tc?.captain_count || 0);
+      if (pid && cnt > (captainCountByFplId.get(pid) || 0)) {
+        captainCountByFplId.set(pid, cnt);
+      }
+    }
+  }
+  const rankedCaptains = Array.from(captainCountByFplId.entries()).sort((a, b) => b[1] - a[1]);
+  const top3CaptainIds = new Set<number>(rankedCaptains.slice(0, 3).map(([pid]) => pid));
+  const popularCaptainIds = new Set<number>();
+  for (const [pid, cnt] of rankedCaptains) {
+    if (cnt >= 5 || (top3CaptainIds.has(pid) && cnt >= 3)) {
+      popularCaptainIds.add(pid);
+    }
+  }
+
+  // Track running FPL points per FPL player ID for LM_CAPTAIN_POPULAR_LIVE
+  const starterFplIdsAll = new Set<number>();
+  const subOnBaseMinByFplId = new Map<number, number>();
+  const eventDeltaPtsByFplId = new Map<number, number>();
+  const yellowCardedFplIds = new Set<number>();
+  const addDeltaPts = (fplId: number | undefined, delta: number) => {
+    if (!fplId || !delta) return;
+    eventDeltaPtsByFplId.set(fplId, (eventDeltaPtsByFplId.get(fplId) || 0) + delta);
+  };
+  const getRunningFplPts = (fplId: number | undefined, currentBaseMin: number): number => {
+    if (!fplId) return 0;
+    let appPts = 1;
+    if (starterFplIdsAll.has(fplId)) {
+      appPts = currentBaseMin >= 60 ? 2 : 1;
+    } else if (subOnBaseMinByFplId.has(fplId)) {
+      const played = Math.max(0, currentBaseMin - (subOnBaseMinByFplId.get(fplId) || 0));
+      appPts = played >= 60 ? 2 : 1;
+    }
+    return appPts + (eventDeltaPtsByFplId.get(fplId) || 0);
+  };
 
   if (Array.isArray(pulseData.teamLists)) {
     for (const tl of pulseData.teamLists) {
@@ -622,7 +592,10 @@ export function generateStoriesFromPulseMatch(
       for (const p of tl.lineup || []) {
         if (p?.id) targetSet.add(p.id);
         const fpl = matchPulsePersonToFpl(p, allPlayers, teamShortHint);
-        if (fpl) starterFplIds.add(fpl.id);
+        if (fpl) {
+          starterFplIds.add(fpl.id);
+          starterFplIdsAll.add(fpl.id);
+        }
         const dn = normalizeDiacritics(p?.name?.display || '');
         const ln = normalizeDiacritics(p?.name?.last || '');
         if (dn) starterNamesNorm.add(dn);
@@ -694,9 +667,10 @@ export function generateStoriesFromPulseMatch(
     const ev = events[idx];
     const clockLabel = formatPulseClockLabel(ev.clock?.label || ev.time?.label);
     const minuteStr = clockLabel ? `${clockLabel}` : "0'";
+    const baseMin = parseInt(minuteStr.split('+')[0].replace(/\D/g, ''), 10) || 0;
     const homeScore = ev.score?.homeScore ?? pulseData.teams?.[0]?.score ?? 0;
     const awayScore = ev.score?.awayScore ?? pulseData.teams?.[1]?.score ?? 0;
-    
+
     // Determine player's actual club from teamLists directory
     const pInfo = ev.personId ? pulsePersons.get(ev.personId) : null;
     const eventTeamName = pInfo?.teamName || (ev.teamId === awayTeamRaw?.id ? awayClub : homeClub);
@@ -730,25 +704,72 @@ export function generateStoriesFromPulseMatch(
       clockSecs,
     });
 
+    const emitPopularCaptainAction = (
+      capPlayer: { name: string; club: string; fpl: FplPlayerLookup | null },
+      actionCond: 'Cetak Gol' | 'Assist' | 'Penalti Gagal' | 'Kartu Merah',
+      actionSuffix: string
+    ) => {
+      const fplId = capPlayer.fpl?.id;
+      if (!fplId || !popularCaptainIds.has(fplId)) return;
+      const tmplCap = tmplMap.get('LM_CAPTAIN_POPULAR_LIVE');
+      if (!tmplCap) return;
+      const capCount = captainCountByFplId.get(fplId) || capPlayer.fpl?.captainCount || 0;
+      if (capCount < 3) return;
+      const capClub = capPlayer.club || eventTeamName;
+      const liveCapPts = getRunningFplPts(fplId, baseMin) * 2;
+      const headlineId = resolveConditionalBlock(tmplCap.template, actionCond, {
+        minute: minuteStr,
+        captain: capPlayer.name,
+        count: capCount,
+        club: capClub,
+        pts: liveCapPts,
+      });
+      if (!headlineId) return;
+      let headlineEn = `[N:${minuteStr}] Popular captain [P:${capPlayer.name}] (captained by [N:${capCount}] teams) delivers for [C:${capClub}].`;
+      if (actionCond === 'Cetak Gol') {
+        headlineEn = `[N:${minuteStr}] Popular captain [P:${capPlayer.name}] (captained by [N:${capCount}] teams) scores for [C:${capClub}] — now on [N:${liveCapPts} Pts] for backers.`;
+      } else if (actionCond === 'Assist') {
+        headlineEn = `[N:${minuteStr}] Popular captain [P:${capPlayer.name}] (captained by [N:${capCount}] teams) provides an assist for [C:${capClub}] — now on [N:${liveCapPts} Pts].`;
+      } else if (actionCond === 'Penalti Gagal') {
+        headlineEn = `[N:${minuteStr}] Popular captain [P:${capPlayer.name}] (captained by [N:${capCount}] teams) misses a penalty for [C:${capClub}] ([N:-4 Pts] captain hit).`;
+      } else if (actionCond === 'Kartu Merah') {
+        headlineEn = `[N:${minuteStr}] Popular captain [P:${capPlayer.name}] (captained by [N:${capCount}] teams) is sent off for [C:${capClub}] ([N:-6 Pts] captain hit).`;
+      }
+      stories.push(
+        createLiveStory(
+          tmplCap,
+          `pulse_${matchId}_${actionSuffix}_${idx}_${fplId}`,
+          headlineId,
+          headlineEn,
+          96,
+          [homeClub, awayClub],
+          [capPlayer.name],
+          ev.clock?.secs ?? 0
+        )
+      );
+    };
+
     // A. Period Start (PS)
     if (ev.type === 'PS') {
       const tmpl = tmplMap.get('LM_MATCH_PERIOD_START');
       if (tmpl) {
         const isSecondHalf = ev.phase === '2' || ev.phase === '2H';
         const cond = isSecondHalf ? 'Kickoff Babak 2' : 'Kickoff Babak 1';
+        const psHomeScore = ev.score?.homeScore ?? runningHomeGoals;
+        const psAwayScore = ev.score?.awayScore ?? runningAwayGoals;
         const vars = {
           minute: minuteStr,
           gw,
           venue: venueName,
           home_club: homeClub,
           away_club: awayClub,
-          home_score: homeScore,
-          away_score: awayScore,
+          home_score: psHomeScore,
+          away_score: psAwayScore,
         };
         const text = resolveConditionalBlock(tmpl.template, cond, vars);
         const headlineEn = isSecondHalf
-          ? `[N:${minuteStr}] Second half kicks off between [C:${homeClub}] vs [C:${awayClub}] at [N:${venueName}]. Score: [C:${homeClub}] [N:${homeScore}] - [N:${awayScore}] [C:${awayClub}].`
-          : `[N:${minuteStr}] First half kicks off. Gameweek [N:${gw}] match between [C:${homeClub}] vs [C:${awayClub}] is underway at [N:${venueName}].`;
+          ? `[N:45'] Second half kicks off between [C:${homeClub}] vs [C:${awayClub}] at [N:${venueName}]. Score: [C:${homeClub}] [N:${psHomeScore}] - [N:${psAwayScore}] [C:${awayClub}].`
+          : `[N:${minuteStr}] First half kicks off at [N:${venueName}]: [C:${homeClub}] vs [C:${awayClub}].`;
         
         stories.push(
           createLiveStory(
@@ -770,9 +791,11 @@ export function generateStoriesFromPulseMatch(
       const tmpl = tmplMap.get('LM_MATCH_PERIOD_END');
       if (tmpl) {
         const isFt = ev.phase === '2' || ev.phase === '2H' || (ev.clock?.secs && ev.clock.secs >= 5400);
+        const peHomeScore = ev.score?.homeScore ?? runningHomeGoals;
+        const peAwayScore = ev.score?.awayScore ?? runningAwayGoals;
         const scorersStrId = formatPeriodScorersList('id');
         const scorersStrEn = formatPeriodScorersList('en');
-        const hasGoals = (Number(homeScore) + Number(awayScore)) > 0 && Boolean(scorersStrId);
+        const hasGoals = (Number(peHomeScore) + Number(peAwayScore)) > 0 && Boolean(scorersStrId);
 
         const cond = isFt
           ? hasGoals
@@ -784,11 +807,13 @@ export function generateStoriesFromPulseMatch(
 
         const vars = {
           minute: minuteStr,
+          ht_minute: minuteStr,
+          ft_minute: minuteStr,
           venue: venueName,
           home_club: homeClub,
           away_club: awayClub,
-          home_score: homeScore,
-          away_score: awayScore,
+          home_score: peHomeScore,
+          away_score: peAwayScore,
           goalscorers_list: scorersStrId || 'tidak ada',
         };
         const text =
@@ -797,10 +822,10 @@ export function generateStoriesFromPulseMatch(
 
         const headlineEn = isFt
           ? hasGoals
-            ? `[N:${minuteStr}] Full time at [N:${venueName}]. [C:${homeClub}] [N:${homeScore}] - [N:${awayScore}] [C:${awayClub}]. Goalscorers: ${scorersStrEn}.`
+            ? `[N:${minuteStr}] Full time at [N:${venueName}]. [C:${homeClub}] [N:${peHomeScore}] - [N:${peAwayScore}] [C:${awayClub}]. Goalscorers: ${scorersStrEn}.`
             : `[N:${minuteStr}] Full time at [N:${venueName}]. Goalless draw between [C:${homeClub}] [N:0] - [N:0] [C:${awayClub}].`
           : hasGoals
-          ? `[N:${minuteStr}] Half time at [N:${venueName}]. [C:${homeClub}] [N:${homeScore}] - [N:${awayScore}] [C:${awayClub}], goals scored by ${scorersStrEn}.`
+          ? `[N:${minuteStr}] Half time at [N:${venueName}]. [C:${homeClub}] [N:${peHomeScore}] - [N:${peAwayScore}] [C:${awayClub}], goals scored by ${scorersStrEn}.`
           : `[N:${minuteStr}] Half time at [N:${venueName}]. Goalless first half between [C:${homeClub}] [N:0] - [N:0] [C:${awayClub}].`;
 
         stories.push(
@@ -827,6 +852,15 @@ export function generateStoriesFromPulseMatch(
         const tmplPen = tmplMap.get('LM_MATCH_PENALTY_GOAL');
         const tmplMile = tmplMap.get('LM_MATCH_GOAL_MILESTONE');
         const scorer = resolvePlayer(ev.personId);
+        const goalPts =
+          scorer.fpl?.position === 'GKP' || scorer.fpl?.position === 'DEF'
+            ? 6
+            : scorer.fpl?.position === 'MID'
+              ? 5
+              : 4;
+        addDeltaPts(scorer.fpl?.id, goalPts);
+        emitPopularCaptainAction(scorer, 'Cetak Gol', 'cap_goal_pen');
+
         // Track scorer
         let goalsCount = 1;
         const existingScorer = allScorersList.find((s) => s.name === scorer.name);
@@ -889,6 +923,7 @@ export function generateStoriesFromPulseMatch(
       } else if (isOwnGoal) {
         const tmpl = tmplMap.get('LM_MATCH_GOAL_OWN');
         const scorer = resolvePlayer(ev.personId);
+        addDeltaPts(scorer.fpl?.id, -2);
         const existingScorer = allScorersList.find((s) => s.name === scorer.name);
         if (existingScorer) existingScorer.ogCount++;
         else if (scorer.name) allScorersList.push({ name: scorer.name, pct: scorer.pct, count: 0, ogCount: 1 });
@@ -925,6 +960,19 @@ export function generateStoriesFromPulseMatch(
         const hasAssist = Boolean(ev.assistId);
         const assister = hasAssist ? resolvePlayer(ev.assistId) : null;
         const cond = hasAssist ? 'Dengan Assist' : 'Tanpa Assist';
+
+        const goalPts =
+          scorer.fpl?.position === 'GKP' || scorer.fpl?.position === 'DEF'
+            ? 6
+            : scorer.fpl?.position === 'MID'
+              ? 5
+              : 4;
+        addDeltaPts(scorer.fpl?.id, goalPts);
+        emitPopularCaptainAction(scorer, 'Cetak Gol', 'cap_goal');
+        if (assister?.fpl?.id) {
+          addDeltaPts(assister.fpl.id, 3);
+          emitPopularCaptainAction(assister, 'Assist', 'cap_assist');
+        }
 
         // Track scorer
         let goalsCount = 1;
@@ -1074,18 +1122,22 @@ export function generateStoriesFromPulseMatch(
       (ev.type === 'MP' && Boolean(ev.keeperId || ev.description === 'SP' || ev.subType === 'PENALTY_SAVED'))
     ) {
       const tmpl = tmplMap.get('LM_MATCH_PENALTY_SAVED');
+      const takerId = ev.takerId || ev.personId;
+      let keeperId = ev.keeperId || ev.opponentPersonId;
+      if (!keeperId && Array.isArray(pulseData.teamLists)) {
+        const takerTeamId = ev.teamId || pulsePersons.get(takerId)?.teamId;
+        const oppTeamList = pulseData.teamLists.find((tl: any) => tl.teamId !== takerTeamId);
+        const oppGk = (oppTeamList?.lineup || []).find((p: any) => p.info?.position === 'G' || p.matchPosition === 'G');
+        if (oppGk?.id) keeperId = oppGk.id;
+      }
+      const keeper = resolvePlayer(keeperId);
+      const taker = resolvePlayer(takerId);
+      addDeltaPts(keeper.fpl?.id, 5);
+      addDeltaPts(taker.fpl?.id, -2);
+      emitPopularCaptainAction(taker, 'Penalti Gagal', 'cap_pen_miss');
+
       if (tmpl) {
         // In real Pulse API, SP event's personId is the penalty taker; find opposing GK from teamLists if keeperId absent
-        const takerId = ev.takerId || ev.personId;
-        let keeperId = ev.keeperId || ev.opponentPersonId;
-        if (!keeperId && Array.isArray(pulseData.teamLists)) {
-          const takerTeamId = ev.teamId || pulsePersons.get(takerId)?.teamId;
-          const oppTeamList = pulseData.teamLists.find((tl: any) => tl.teamId !== takerTeamId);
-          const oppGk = (oppTeamList?.lineup || []).find((p: any) => p.info?.position === 'G' || p.matchPosition === 'G');
-          if (oppGk?.id) keeperId = oppGk.id;
-        }
-        const keeper = resolvePlayer(keeperId);
-        const taker = resolvePlayer(takerId);
         const vars = {
           minute: minuteStr,
           keeper: keeper.name || 'Kiper',
@@ -1109,8 +1161,10 @@ export function generateStoriesFromPulseMatch(
       }
     } else if (ev.type === 'MP') {
       const tmpl = tmplMap.get('LM_MATCH_PENALTY_MISSED');
+      const taker = resolvePlayer(ev.personId || ev.takerId);
+      addDeltaPts(taker.fpl?.id, -2);
+      emitPopularCaptainAction(taker, 'Penalti Gagal', 'cap_pen_miss');
       if (tmpl) {
-        const taker = resolvePlayer(ev.personId || ev.takerId);
         const clubName = taker.club || eventTeamName;
         const vars = {
           minute: minuteStr,
@@ -1140,19 +1194,25 @@ export function generateStoriesFromPulseMatch(
           ev.description === 'CANCELLED' ||
           ev.subType === 'PENALTY_CANCELLED'
         );
-        const cond = isCancelled ? 'Penalti Dibatalkan' : 'Hadiah Penalti';
         const fouled = resolvePlayer(ev.fouledPersonId || ev.personId);
         const clubName = fouled.club || eventTeamName;
+        const cond = isCancelled
+          ? 'Penalti Dibatalkan'
+          : fouled.name
+            ? 'Hadiah Penalti'
+            : 'Hadiah Penalti (Umum)';
         const vars = {
           minute: minuteStr,
           club: clubName,
-          fouled_player: fouled.name || 'Pemain',
+          fouled_player: fouled.name,
           fouled_player_pct: fouled.pct,
         };
         const text = resolveConditionalBlock(tmpl.template, cond, vars);
         const enText = isCancelled
           ? `[N:${minuteStr}] Penalty overturned. The spot-kick decision for [C:${clubName}] is cancelled by the referee.`
-          : `[N:${minuteStr}] Penalty awarded to [C:${clubName}] after a foul on [P:${vars.fouled_player}] ([N:${vars.fouled_player_pct}%]).`;
+          : fouled.name
+            ? `[N:${minuteStr}] Penalty awarded to [C:${clubName}] after a foul on [P:${fouled.name}] ([N:${fouled.pct}%]).`
+            : `[N:${minuteStr}] Penalty awarded to [C:${clubName}] after the referee points to the spot.`;
         stories.push(
           createLiveStory(
             tmpl,
@@ -1171,8 +1231,12 @@ export function generateStoriesFromPulseMatch(
     // D. Disciplinary: Yellow Card (B:Y), Second Yellow (SY / B:YR), Straight Red (R / B:R)
     else if (ev.type === 'B' && ev.description === 'YR') {
       const tmpl = tmplMap.get('LM_MATCH_CARD_SECOND_YELLOW');
+      const player = resolvePlayer(ev.personId);
+      if (player.fpl?.id) {
+        addDeltaPts(player.fpl.id, yellowCardedFplIds.has(player.fpl.id) ? -2 : -3);
+      }
+      emitPopularCaptainAction(player, 'Kartu Merah', 'cap_red_sy');
       if (tmpl) {
-        const player = resolvePlayer(ev.personId);
         const vars = {
           club: player.club || eventTeamName,
           player: player.name,
@@ -1195,8 +1259,10 @@ export function generateStoriesFromPulseMatch(
       }
     } else if (ev.type === 'B' && ev.description === 'R') {
       const tmpl = tmplMap.get('LM_MATCH_CARD_STRAIGHT_RED');
+      const player = resolvePlayer(ev.personId);
+      addDeltaPts(player.fpl?.id, -3);
+      emitPopularCaptainAction(player, 'Kartu Merah', 'cap_red');
       if (tmpl) {
-        const player = resolvePlayer(ev.personId);
         const vars = {
           club: player.club || eventTeamName,
           player: player.name,
@@ -1219,8 +1285,12 @@ export function generateStoriesFromPulseMatch(
       }
     } else if (ev.type === 'B') {
       const tmpl = tmplMap.get('LM_MATCH_CARD_YELLOW');
+      const player = resolvePlayer(ev.personId);
+      if (player.fpl?.id) {
+        yellowCardedFplIds.add(player.fpl.id);
+        addDeltaPts(player.fpl.id, -1);
+      }
       if (tmpl) {
-        const player = resolvePlayer(ev.personId);
         const vars = {
           club: player.club || eventTeamName,
           player: player.name,
@@ -1243,8 +1313,12 @@ export function generateStoriesFromPulseMatch(
       }
     } else if (ev.type === 'SY') {
       const tmpl = tmplMap.get('LM_MATCH_CARD_SECOND_YELLOW');
+      const player = resolvePlayer(ev.personId);
+      if (player.fpl?.id) {
+        addDeltaPts(player.fpl.id, yellowCardedFplIds.has(player.fpl.id) ? -2 : -3);
+      }
+      emitPopularCaptainAction(player, 'Kartu Merah', 'cap_red_sy');
       if (tmpl) {
-        const player = resolvePlayer(ev.personId);
         const vars = {
           club: player.club || eventTeamName,
           player: player.name,
@@ -1267,8 +1341,10 @@ export function generateStoriesFromPulseMatch(
       }
     } else if (ev.type === 'R') {
       const tmpl = tmplMap.get('LM_MATCH_CARD_STRAIGHT_RED');
+      const player = resolvePlayer(ev.personId);
+      addDeltaPts(player.fpl?.id, -3);
+      emitPopularCaptainAction(player, 'Kartu Merah', 'cap_red');
       if (tmpl) {
-        const player = resolvePlayer(ev.personId);
         const vars = {
           club: player.club || eventTeamName,
           player: player.name,
@@ -1301,6 +1377,9 @@ export function generateStoriesFromPulseMatch(
       }
       const playerIn = resolvePlayer(ev.personId);
       const playerOut = resolvePlayer(offEv?.personId);
+      if (playerIn.fpl?.id && !subOnBaseMinByFplId.has(playerIn.fpl.id)) {
+        subOnBaseMinByFplId.set(playerIn.fpl.id, baseMin);
+      }
 
       // Update active pitch sets for Clean Sheet / Goals Conceded tracking
       const subTeamId = ev.teamId || pInfo?.teamId || (offEv?.personId ? pulsePersons.get(offEv.personId)?.teamId : undefined);
@@ -1312,15 +1391,22 @@ export function generateStoriesFromPulseMatch(
       const tmpl = tmplMap.get('LM_MATCH_SUBSTITUTION');
       if (tmpl) {
         const isDefenderOrGk = playerOut.fpl?.position === 'DEF' || playerOut.fpl?.position === 'GKP';
-        const mins = parseInt(minuteStr.replace(/\D/g, ''), 10) || 0;
         const concededBeforeSub = isAwaySub
           ? Number(ev.score?.homeScore ?? runningHomeGoals)
           : Number(ev.score?.awayScore ?? runningAwayGoals);
-        const isCleanSheetLocked = isDefenderOrGk && mins >= 60 && concededBeforeSub === 0;
+        const isCleanSheetLocked = isDefenderOrGk && baseMin >= 60 && concededBeforeSub === 0;
+        const isEarlySubMissedCs =
+          isDefenderOrGk &&
+          baseMin > 0 &&
+          baseMin < 60 &&
+          concededBeforeSub === 0 &&
+          (playerOut.pct >= 10 || (playerOut.fpl?.starterPct ?? 0) >= 10);
 
         const cond = isCleanSheetLocked
           ? 'Pemain Bertahan Keluar Menit >= 60 Saat Belum Kebobolan'
-          : 'Pergantian Biasa';
+          : isEarlySubMissedCs
+            ? 'Pemain Bertahan Keluar < 60 Menit'
+            : 'Pergantian Biasa';
 
         const vars = {
           club: playerIn.club || playerOut.club || eventTeamName,
@@ -1333,7 +1419,9 @@ export function generateStoriesFromPulseMatch(
         const text = resolveConditionalBlock(tmpl.template, cond, vars);
         const enText = isCleanSheetLocked
           ? `[N:${minuteStr}] Substitution for [C:${vars.club}]: [P:${playerOut.name}] ([N:${playerOut.pct}%]) is substituted for [P:${playerIn.name}] ([N:${playerIn.pct}%]) with clean sheet locked.`
-          : `[N:${minuteStr}] Substitution for [C:${vars.club}]: [P:${playerIn.name}] ([N:${playerIn.pct}%]) comes on replacing [P:${playerOut.name}] ([N:${playerOut.pct}%]).`;
+          : isEarlySubMissedCs
+            ? `[N:${minuteStr}] [P:${playerOut.name}] ([N:${playerOut.pct}%]) is substituted before 60 minutes, missing out on [C:${vars.club}]'s clean sheet, replaced by [P:${playerIn.name}] ([N:${playerIn.pct}%]).`
+            : `[N:${minuteStr}] Substitution for [C:${vars.club}]: [P:${playerIn.name}] ([N:${playerIn.pct}%]) comes on replacing [P:${playerOut.name}] ([N:${playerOut.pct}%]).`;
 
         stories.push(
           createLiveStory(
@@ -1341,9 +1429,9 @@ export function generateStoriesFromPulseMatch(
             `pulse_${matchId}_sub_${idx}_${ev.personId}`,
             text,
             enText,
-            70,
+            isEarlySubMissedCs ? 82 : isCleanSheetLocked ? 80 : 70,
             [homeClub, awayClub],
-            [playerIn.name, playerOut.name].filter(p => p !== 'Player'),
+            [playerIn.name, playerOut.name].filter((p) => p && p !== 'Player'),
             ev.clock?.secs ?? 0
           )
         );
@@ -1364,6 +1452,15 @@ export function generateStoriesFromPulseMatch(
         else if (subType === 'RED_CARD_OVERTURNED') cond = 'Kartu Merah Dibatalkan';
 
         const player = resolvePlayer(ev.personId);
+        const hasPlayerName = Boolean(player.name && player.name !== 'Player');
+        const playerBoundConds = new Set([
+          'Gol Dibatalkan',
+          'Gol Dinyatakan Sah',
+          'Kartu Merah Diberikan',
+          'Kartu Merah Dibatalkan',
+        ]);
+        const resolvedCond = !hasPlayerName && playerBoundConds.has(cond) ? `${cond} (Tanpa Nama Pemain)` : cond;
+
         const rawReason = String(ev.reason || '').toLowerCase();
         const reason =
           rawReason.includes('hand')
@@ -1375,7 +1472,7 @@ export function generateStoriesFromPulseMatch(
                 : rawReason || 'offside';
         const vars = {
           minute: minuteStr,
-          player: player.name,
+          player: hasPlayerName ? player.name : '',
           player_pct: player.pct,
           club: player.club || eventTeamName,
           reason,
@@ -1384,16 +1481,16 @@ export function generateStoriesFromPulseMatch(
           away_score: awayScore,
           away_club: awayClub,
         };
-        const text = resolveConditionalBlock(tmpl.template, cond, vars);
+        const text = resolveConditionalBlock(tmpl.template, resolvedCond, vars);
         stories.push(
           createLiveStory(
             tmpl,
             `pulse_${matchId}_var_${idx}_${ev.subType || 'rev'}`,
             text,
-            `[N:${minuteStr}] VAR review: Decision ${cond} for [C:${vars.club}].`,
+            `[N:${minuteStr}] VAR review: ${cond} for [C:${vars.club}].`,
             95,
             [homeClub, awayClub],
-            player.name !== 'Player' ? [player.name] : [],
+            hasPlayerName ? [player.name] : [],
             ev.clock?.secs ?? 0
           )
         );
@@ -1467,7 +1564,7 @@ export function generateStoriesFromPulseMatch(
         resolvedClub = resolvedPlayer.club === homeClub ? awayClub : homeClub;
       }
 
-      // 1. Penalty Won -> LM_MATCH_PENALTY_AWARDED (Hadiah Penalti)
+      // 1. Penalty Won -> LM_MATCH_PENALTY_AWARDED (Hadiah Penalti / Umum)
       if (tvType === 'penalty won') {
         const tmplPen = tmplMap.get('LM_MATCH_PENALTY_AWARDED');
         if (tmplPen) {
@@ -1475,14 +1572,18 @@ export function generateStoriesFromPulseMatch(
           if (seenPenAwardKeys.has(dedupKey)) continue;
           seenPenAwardKeys.add(dedupKey);
 
+          const hasFouledName = Boolean(resolvedPlayer.name);
+          const cond = hasFouledName ? 'Hadiah Penalti' : 'Hadiah Penalti (Umum)';
           const vars = {
             minute: minuteStr,
             club: resolvedClub,
-            fouled_player: resolvedPlayer.name || 'Pemain',
+            fouled_player: resolvedPlayer.name,
             fouled_player_pct: resolvedPlayer.pct,
           };
-          const text = resolveConditionalBlock(tmplPen.template, 'Hadiah Penalti', vars);
-          const enText = `[N:${minuteStr}] Penalty awarded to [C:${resolvedClub}] after a foul on [P:${vars.fouled_player}] ([N:${vars.fouled_player_pct}%]).`;
+          const text = resolveConditionalBlock(tmplPen.template, cond, vars);
+          const enText = hasFouledName
+            ? `[N:${minuteStr}] Penalty awarded to [C:${resolvedClub}] after a foul on [P:${resolvedPlayer.name}] ([N:${resolvedPlayer.pct}%]).`
+            : `[N:${minuteStr}] Penalty awarded to [C:${resolvedClub}] after the referee points to the spot.`;
 
           stories.push({
             id: `${tmplPen.id}_pulse_${matchId}_ts_pen_${tv.id || tIdx}`,
@@ -1494,7 +1595,7 @@ export function generateStoriesFromPulseMatch(
             waktu_tayang: tmplPen.gw_phase ? [tmplPen.gw_phase] : ['Live Match'],
             gw: Number(tmplPen.gw) || gw,
             teams: [homeClub, awayClub],
-            players: resolvedPlayer.name ? [resolvedPlayer.name] : [],
+            players: hasFouledName ? [resolvedPlayer.name] : [],
             sumber: (tmplPen.source as any) || 'Sys',
             status_tayang: 'Y',
             keterangan_tidak_tayang: '',
@@ -1560,9 +1661,18 @@ export function generateStoriesFromPulseMatch(
       if (/handball/i.test(tvText)) reason = 'handball';
       else if (/foul/i.test(tvText)) reason = 'pelanggaran';
 
+      const hasVarPlayer = Boolean(resolvedPlayer.name && resolvedPlayer.name !== 'Player');
+      const playerBoundVarConds = new Set([
+        'Gol Dibatalkan',
+        'Gol Dinyatakan Sah',
+        'Kartu Merah Diberikan',
+        'Kartu Merah Dibatalkan',
+      ]);
+      const resolvedVarCond = !hasVarPlayer && playerBoundVarConds.has(cond) ? `${cond} (Tanpa Nama Pemain)` : cond;
+
       const vars = {
         minute: minuteStr,
-        player: resolvedPlayer.name || 'Pemain',
+        player: hasVarPlayer ? resolvedPlayer.name : '',
         player_pct: resolvedPlayer.pct,
         club: resolvedClub,
         reason,
@@ -1571,7 +1681,7 @@ export function generateStoriesFromPulseMatch(
         away_score: aScore,
         away_club: awayClub,
       };
-      const text = resolveConditionalBlock(tmplVar.template, cond, vars);
+      const text = resolveConditionalBlock(tmplVar.template, resolvedVarCond, vars);
       if (!text) continue;
 
       stories.push({
@@ -1584,7 +1694,7 @@ export function generateStoriesFromPulseMatch(
         waktu_tayang: tmplVar.gw_phase ? [tmplVar.gw_phase] : ['Live Match'],
         gw: Number(tmplVar.gw) || gw,
         teams: [homeClub, awayClub],
-        players: resolvedPlayer.name ? [resolvedPlayer.name] : [],
+        players: hasVarPlayer ? [resolvedPlayer.name] : [],
         sumber: (tmplVar.source as any) || 'Sys',
         status_tayang: 'Y',
         keterangan_tidak_tayang: '',
@@ -1783,7 +1893,15 @@ export function generateLiveTeamRankShiftStories(
 
   const movers = standings
     .filter((s) => Math.abs(s.rank_change || 0) >= 1 || s.rank <= 3)
-    .slice(0, 30);
+    .sort((a, b) => {
+      const aTakeLead = a.rank === 1 && (a.rank_change || 0) > 0 ? 1 : 0;
+      const bTakeLead = b.rank === 1 && (b.rank_change || 0) > 0 ? 1 : 0;
+      if (bTakeLead !== aTakeLead) return bTakeLead - aTakeLead;
+      const diffDelta = Math.abs(b.rank_change || 0) - Math.abs(a.rank_change || 0);
+      if (diffDelta !== 0) return diffDelta;
+      return (a.rank || 999) - (b.rank || 999);
+    })
+    .slice(0, 12);
 
   const nowIso = new Date().toISOString();
   const stories: LiveMatchStory[] = [];
@@ -1798,7 +1916,10 @@ export function generateLiveTeamRankShiftStories(
 
     let cond = 'Bertahan Peringkat';
     let headlineEn = `[T:${team.entry_name}] held rank [N:${currentRank}] on the live table with [N:${gwPts} Pts].`;
-    if (rankChange > 0) {
+    if (currentRank === 1 && rankChange > 0) {
+      cond = 'Merebut Puncak Klasemen';
+      headlineEn = `[T:${team.entry_name}] moves to the top of the live table after climbing [N:+${rankDiff} Places] to rank [N:1] with [N:${gwPts} Pts].`;
+    } else if (rankChange > 0) {
       cond = 'Naik Peringkat';
       headlineEn = `[T:${team.entry_name}] climbed [N:+${rankDiff} Places] from rank [N:${lastRank}] to [N:${currentRank}] on the live table with [N:${gwPts} Pts].`;
     } else if (rankChange < 0) {
@@ -1822,7 +1943,7 @@ export function generateLiveTeamRankShiftStories(
       headline_en: headlineEn,
       kategori: tmpl.category,
       sub_kategori: tmpl.subcategory,
-      drama_score: rankDiff >= 5 ? 90 : currentRank <= 3 ? 89 : 84,
+      drama_score: currentRank === 1 && rankChange > 0 ? 94 : rankDiff >= 5 ? 90 : currentRank <= 3 ? 89 : 84,
       waktu_tayang: ['Live Match'],
       gw: Number(tmpl.gw) || gw,
       teams: [team.entry_name],
@@ -1914,7 +2035,8 @@ export function generateLiveMatchScoreStories(
       if (items.length === 0) return '';
       if (items.length === 1) return items[0];
       if (items.length === 2) return `${items[0]} ${conj} ${items[1]}`;
-      return `${items.slice(0, -1).join(', ')}, ${conj} ${items[items.length - 1]}`;
+      const sep = conj === 'dan' ? ` ${conj} ` : `, ${conj} `;
+      return `${items.slice(0, -1).join(', ')}${sep}${items[items.length - 1]}`;
     };
 
     const scorersListId = joinHuman(scorerItemsId, 'dan');
@@ -1925,16 +2047,25 @@ export function generateLiveMatchScoreStories(
     let headlineEn = `[C:${homeClub}] vs [C:${awayClub}] is underway at minute [N:${minuteStr}] with the score at [N:0 - 0].`;
 
     if (isHT) {
-      if (hasScorers) {
+      if (totalGoals === 0) {
+        cond = 'Skor 0-0 Half Time';
+        headlineEn = `[C:${homeClub}] vs [C:${awayClub}] reaches Half Time with the score at [N:0 - 0].`;
+      } else if (hasScorers) {
         cond = 'Dengan Gol Half Time';
         headlineEn = `[C:${homeClub}] vs [C:${awayClub}] reaches Half Time with the score at [N:${homeScore} - ${awayScore}], goals scored by ${scorersListEn}.`;
       } else {
-        cond = 'Skor 0-0 Half Time';
-        headlineEn = `[C:${homeClub}] vs [C:${awayClub}] reaches Half Time with the score at [N:0 - 0].`;
+        cond = 'Dengan Gol Half Time (Tanpa Pencetak)';
+        headlineEn = `[C:${homeClub}] vs [C:${awayClub}] reaches Half Time with the score at [N:${homeScore} - ${awayScore}].`;
       }
+    } else if (totalGoals === 0) {
+      cond = 'Skor 0-0 Berjalan';
+      headlineEn = `[C:${homeClub}] vs [C:${awayClub}] is underway at minute [N:${minuteStr}] with the score at [N:0 - 0].`;
     } else if (hasScorers) {
       cond = 'Dengan Gol Berjalan';
       headlineEn = `[C:${homeClub}] vs [C:${awayClub}] is underway at minute [N:${minuteStr}] with the score at [N:${homeScore} - ${awayScore}], goals scored by ${scorersListEn}.`;
+    } else {
+      cond = 'Dengan Gol Berjalan (Tanpa Pencetak)';
+      headlineEn = `[C:${homeClub}] vs [C:${awayClub}] is underway at minute [N:${minuteStr}] with the score at [N:${homeScore} - ${awayScore}].`;
     }
 
     const headlineId = resolveConditionalBlock(tmpl.template, cond, {
@@ -2060,6 +2191,206 @@ export function generateLiveLineupSurpriseStories(
   }
 
   return stories;
+}
+
+/**
+ * Generates live title race stories (`LM_STANDINGS_TITLE_RACE`, No. 104)
+ * highlighting the 1st vs 2nd live standings duel while matches are running.
+ */
+export function generateLiveTitleRaceStories(
+  targetGw?: number,
+  options?: { requireLiveMatch?: boolean; matchesOverride?: MatchCardItem[] }
+): LiveMatchStory[] {
+  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  if (!gw) return [];
+  const templates = getPhase1Templates();
+  const tmpl = templates.find((t) => t.id === 'LM_STANDINGS_TITLE_RACE');
+  if (!tmpl) return [];
+
+  if (options?.requireLiveMatch !== false) {
+    const matches = options?.matchesOverride ?? getCachedMatchesForGw(gw) ?? [];
+    const hasLiveMatch = matches.some((m) => m.started && !m.finished && !m.finished_provisional);
+    if (!hasLiveMatch) return [];
+  }
+
+  const standings = getDbStandings(gw);
+  if (!Array.isArray(standings) || standings.length < 2) return [];
+
+  const sorted = [...standings].sort((a, b) => (a.rank || 0) - (b.rank || 0));
+  const r1 = sorted[0];
+  const r2 = sorted[1];
+  const margin = Math.abs((r1.total_points || 0) - (r2.total_points || 0));
+
+  const dbData = getOptimalDatabase();
+  const snap = getGwSnapshot(gw);
+  const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
+    ? dbData.league_analytics.all_chips_used
+    : [];
+
+  const resolveTeamChip = (entryId: number, activeChipRaw?: string): string => {
+    const row = allChips.find((c: any) => Number(c.entry_id) === Number(entryId));
+    if (row) {
+      if ((row.wc1 && Number(row.wc1.gw) === gw) || (row.wc2 && Number(row.wc2.gw) === gw)) return 'Wildcard';
+      if ((row.fh1 && Number(row.fh1.gw) === gw) || (row.fh2 && Number(row.fh2.gw) === gw)) return 'Free Hit';
+      if ((row.bb1 && Number(row.bb1.gw) === gw) || (row.bb2 && Number(row.bb2.gw) === gw)) return 'Bench Boost';
+      if ((row.tc1 && Number(row.tc1.gw) === gw) || (row.tc2 && Number(row.tc2.gw) === gw)) return 'Triple Captain';
+    }
+    const c = String(activeChipRaw || '').toLowerCase();
+    if (c === 'wc' || c === 'wildcard') return 'Wildcard';
+    if (c === 'fh' || c === 'freehit') return 'Free Hit';
+    if (c === 'bb' || c === 'bboost') return 'Bench Boost';
+    if (c === 'tc' || c === '3xc') return 'Triple Captain';
+    return '';
+  };
+
+  const playersArr: any[] = Object.values(dbData?.players || {});
+  const resolveTeamCaptain = (entryObj: any): string => {
+    if (entryObj?.captain?.name) return entryObj.captain.name;
+    const entryId = Number(entryObj?.entry_id);
+    if (!entryId) return '';
+    if (Array.isArray(snap?.ownership_players)) {
+      for (const op of snap.ownership_players) {
+        if ((op.owners || []).some((o: any) => Number(o.entry_id) === entryId && Boolean(o.is_captain))) {
+          return op.web_name || '';
+        }
+      }
+    }
+    const matched = playersArr.find((p: any) =>
+      (p.league_ownership?.owners || []).some((o: any) => Number(o.entry_id) === entryId && Boolean(o.is_captain))
+    );
+    return matched?.webName || matched?.web_name || '';
+  };
+
+  const getTopDiffStarters = (team1Id: number, team2Id: number): { player1: string; player2: string } | null => {
+    const getStarters = (entryId: number) =>
+      playersArr
+        .filter((p) =>
+          (p.league_ownership?.owners || []).some(
+            (o: any) =>
+              Number(o.entry_id) === Number(entryId) &&
+              (o.is_starter === true || (o.position_in_squad != null && Number(o.position_in_squad) <= 11))
+          )
+        )
+        .map((p) => ({
+          id: Number(p.id),
+          name: p.webName || p.web_name || '',
+          cost: Number(p.nowCost || p.cost || 0),
+          totalPoints: Number(p.totalPoints || 0),
+          form: parseFloat(String(p.form || '0')) || 0,
+        }))
+        .filter((p) => p.name);
+
+    const s1 = getStarters(team1Id);
+    const s2 = getStarters(team2Id);
+    const s1Ids = new Set(s1.map((p) => p.id));
+    const s2Ids = new Set(s2.map((p) => p.id));
+    const byWeight = (a: any, b: any) =>
+      b.cost - a.cost || b.totalPoints - a.totalPoints || b.form - a.form;
+    const diff1 = s1.filter((p) => !s2Ids.has(p.id)).sort(byWeight);
+    const diff2 = s2.filter((p) => !s1Ids.has(p.id)).sort(byWeight);
+    if (diff1.length === 0 || diff2.length === 0) return null;
+    return { player1: diff1[0].name, player2: diff2[0].name };
+  };
+
+  const chip1 = resolveTeamChip(r1.entry_id, r1.active_chip);
+  const chip2 = resolveTeamChip(r2.entry_id, r2.active_chip);
+  const cap1 = resolveTeamCaptain(r1);
+  const cap2 = resolveTeamCaptain(r2);
+  const marginClause =
+    margin === 0 ? ' dengan poin identik' : ` dengan keduanya terpaut [N:${margin} Poin]`;
+
+  let headlineId = '';
+  let headlineEn = '';
+  const involvedPlayers: string[] = [];
+
+  if (chip1 && chip2) {
+    if (chip1 === chip2) {
+      headlineId = resolveConditionalBlock(tmpl.template, 'Chip Sama', {
+        team1: r1.entry_name,
+        team2: r2.entry_name,
+        chip: chip1,
+        margin_clause: marginClause,
+      });
+      headlineEn = `[T:${r1.entry_name}] and [T:${r2.entry_name}] both activated [N:${chip1}] in the live title race${margin === 0 ? ' level on points' : ` separated by [N:${margin} Pts]`}.`;
+    } else {
+      headlineId = resolveConditionalBlock(tmpl.template, 'Duel Chip Berbeda', {
+        team1: r1.entry_name,
+        team2: r2.entry_name,
+        chip1,
+        chip2,
+        margin_clause: marginClause,
+      });
+      headlineEn = `[T:${r1.entry_name}] activated [N:${chip1}] while [T:${r2.entry_name}] activated [N:${chip2}] in the live title race.`;
+    }
+  } else if (chip1 || chip2) {
+    const chipTeam = chip1 ? r1.entry_name : r2.entry_name;
+    const rivalTeam = chip1 ? r2.entry_name : r1.entry_name;
+    const chipName = chip1 || chip2;
+    const targetClause =
+      margin === 0
+        ? 'memecah kebuntuan poin identik melawan'
+        : chip1
+          ? `memperlebar keunggulan [N:${margin} Poin] atas`
+          : `memangkas jarak [N:${margin} Poin] dari`;
+    headlineId = resolveConditionalBlock(tmpl.template, 'Manuver Chip', {
+      team_chip: chipTeam,
+      chip: chipName,
+      target_clause: targetClause,
+      team_rival: rivalTeam,
+    });
+    headlineEn = `[T:${chipTeam}] activated [N:${chipName}] against [T:${rivalTeam}] in the live title race.`;
+  } else if (margin === 0) {
+    headlineId = resolveConditionalBlock(tmpl.template, 'Poin Sama', {
+      team1: r1.entry_name,
+      team2: r2.entry_name,
+    });
+    headlineEn = `[T:${r1.entry_name}] and [T:${r2.entry_name}] are level on live points at the top of the table.`;
+  } else if (cap1 && cap2 && cap1 !== cap2) {
+    headlineId = resolveConditionalBlock(tmpl.template, 'Kapten Berbeda', {
+      team1: r1.entry_name,
+      margin,
+      team2: r2.entry_name,
+      captain1: cap1,
+      captain2: cap2,
+    });
+    headlineEn = `Live leader [T:${r1.entry_name}] leads [T:${r2.entry_name}] by [N:${margin} Pts], with [P:${cap1}] captained vs [P:${cap2}].`;
+    involvedPlayers.push(cap1, cap2);
+  } else if (cap1 && cap2 && cap1 === cap2) {
+    const diffStarters = getTopDiffStarters(r1.entry_id, r2.entry_id);
+    if (diffStarters) {
+      headlineId = resolveConditionalBlock(tmpl.template, 'Kapten Sama', {
+        team1: r1.entry_name,
+        margin,
+        team2: r2.entry_name,
+        captain: cap1,
+        diff_player1: diffStarters.player1,
+        diff_player2: diffStarters.player2,
+      });
+      headlineEn = `Live leader [T:${r1.entry_name}] leads [T:${r2.entry_name}] by [N:${margin} Pts] with both captaining [P:${cap1}]; differentials turn to [P:${diffStarters.player1}] and [P:${diffStarters.player2}].`;
+      involvedPlayers.push(cap1, diffStarters.player1, diffStarters.player2);
+    }
+  }
+
+  if (!headlineId) return [];
+
+  return [
+    {
+      id: tmpl.id,
+      headline_id: headlineId,
+      headline_en: headlineEn,
+      kategori: tmpl.category,
+      sub_kategori: tmpl.subcategory,
+      drama_score: 92,
+      waktu_tayang: ['Live Match'],
+      gw: Number(tmpl.gw) || gw,
+      teams: [r1.entry_name, r2.entry_name],
+      players: involvedPlayers,
+      sumber: (tmpl.source as any) || 'Sys',
+      status_tayang: 'Y',
+      keterangan_tidak_tayang: '',
+      timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
+    },
+  ];
 }
 
 

@@ -4,6 +4,7 @@ import { buildRawMatchdayPayload } from './newsAggregator.ts';
 import { formatTeamList } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
+import { computeValidFplAutosubs } from './fplAutosub.ts';
 
 export interface GeneratedConfirmedStory {
   id: string;
@@ -565,52 +566,21 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
         // CF_LINEUP_AUTOSUB_CONFIRMED (Lineup | Autosub | Confirmed Autosubs | MULTI-NEWS)
         // ====================================================================
         case 'CF_LINEUP_AUTOSUB_CONFIRMED': {
-          const foundSubs: { team: string; dnp: string; bench: string; benchPts: number }[] = [];
           const ownershipList: any[] = Array.isArray(snap?.ownership_players) ? snap.ownership_players : [];
-
-          if (ownershipList.length > 0) {
-            const teamStarters = new Map<string, { id: number; name: string; minutes: number; points: number }[]>();
-            const teamBench = new Map<string, { id: number; name: string; minutes: number; points: number }[]>();
-
-            for (const op of ownershipList) {
-              const pInfo = playerMinutesMap.get(op.id);
-              for (const o of op.owners || []) {
-                if (o.is_starter) {
-                  if (!teamStarters.has(o.entry_name)) teamStarters.set(o.entry_name, []);
-                  teamStarters.get(o.entry_name)!.push({
-                    id: op.id,
-                    name: op.web_name,
-                    minutes: pInfo?.minutes || 0,
-                    points: pInfo?.points || 0,
-                  });
-                } else {
-                  if (!teamBench.has(o.entry_name)) teamBench.set(o.entry_name, []);
-                  teamBench.get(o.entry_name)!.push({
-                    id: op.id,
-                    name: op.web_name,
-                    minutes: pInfo?.minutes || 0,
-                    points: pInfo?.points || 0,
-                  });
-                }
-              }
-            }
-
-            for (const [team, starters] of teamStarters.entries()) {
-              const dnpStarter = starters.find((s) => s.minutes === 0);
-              const bench = teamBench.get(team) || [];
-              const scoringBench = [...bench]
-                .filter((b) => b.minutes > 0 && b.points > 0)
-                .sort((a, b) => b.points - a.points)[0];
-              if (dnpStarter && scoringBench) {
-                foundSubs.push({
-                  team,
-                  dnp: dnpStarter.name,
-                  bench: scoringBench.name,
-                  benchPts: scoringBench.points,
-                });
-              }
-            }
-          }
+          const foundSubs = ownershipList.length > 0
+            ? computeValidFplAutosubs(ownershipList, standings, (id, op) => {
+                const pInfo = playerMinutesMap.get(id);
+                if (!pInfo) return undefined;
+                return {
+                  id,
+                  name: op.web_name || pInfo.name,
+                  club: pInfo.club,
+                  position: op.position || pInfo.position,
+                  minutes: pInfo.minutes,
+                  points: pInfo.points,
+                };
+              })
+            : [];
 
           foundSubs
             .sort((a, b) => b.benchPts - a.benchPts)

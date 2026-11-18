@@ -3,6 +3,7 @@ import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
 import { buildRawMatchdayPayload } from './newsAggregator.ts';
 import { formatTeamList } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
+import { computeValidFplAutosubs } from './fplAutosub.ts';
 
 export interface GeneratedPhaseStory {
   id: string;
@@ -422,41 +423,20 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
 
         // 54. PV_LINEUP_AUTOSUB_PENDING
         case 'PV_LINEUP_AUTOSUB_PENDING': {
-          const pendingSubs: { team: string; dnp: string; bench: string; benchPts: number }[] = [];
-          if (ownershipList.length > 0) {
-            const teamStarters = new Map<string, { name: string; minutes: number }[]>();
-            const teamBench = new Map<string, { name: string; minutes: number; points: number }[]>();
-
-            for (const op of ownershipList) {
-              const pInfo = playerMap.get(op.id);
-              for (const o of op.owners || []) {
-                if (o.is_starter) {
-                  if (!teamStarters.has(o.entry_name)) teamStarters.set(o.entry_name, []);
-                  teamStarters.get(o.entry_name)!.push({
-                    name: op.web_name,
-                    minutes: pInfo?.minutes || 0,
-                  });
-                } else {
-                  if (!teamBench.has(o.entry_name)) teamBench.set(o.entry_name, []);
-                  teamBench.get(o.entry_name)!.push({
-                    name: op.web_name,
-                    minutes: pInfo?.minutes || 0,
-                    points: pInfo?.points || 0,
-                  });
-                }
-              }
-            }
-
-            for (const [team, starters] of teamStarters.entries()) {
-              const dnp = starters.find((s) => s.minutes === 0);
-              const bench = (teamBench.get(team) || [])
-                .filter((b) => b.minutes > 0 && b.points > 0)
-                .sort((a, b) => b.points - a.points)[0];
-              if (dnp && bench) {
-                pendingSubs.push({ team, dnp: dnp.name, bench: bench.name, benchPts: bench.points });
-              }
-            }
-          }
+          const pendingSubs = ownershipList.length > 0
+            ? computeValidFplAutosubs(ownershipList, standings, (id, op) => {
+                const pInfo = playerMap.get(id);
+                if (!pInfo) return undefined;
+                return {
+                  id,
+                  name: op.web_name || pInfo.name,
+                  club: pInfo.club,
+                  position: op.position || pInfo.position,
+                  minutes: pInfo.minutes,
+                  points: pInfo.points,
+                };
+              })
+            : [];
 
           pendingSubs
             .sort((a, b) => b.benchPts - a.benchPts)

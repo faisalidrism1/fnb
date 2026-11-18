@@ -9,9 +9,18 @@ export interface NewsTickerStory {
   drama_score: number;
   sumber?: string;
   status_tayang?: 'Y' | 'N';
+  fase?: string;
+  gw?: number;
 }
 
 const EDITOR_TEMPLATE_PREFIXES = ['NS_', 'LM_', 'BM_', 'PV_', 'CF_'];
+
+function normalizePhaseName(phase?: string | null): string {
+  const p = (phase || '').trim().toLowerCase();
+  if (p === 'live') return 'live match';
+  if (p === 'pre-deadline') return 'not started';
+  return p;
+}
 
 function isEditorSourcedStory(story: any): boolean {
   if (!story || typeof story.id !== 'string') return false;
@@ -19,6 +28,18 @@ function isEditorSourcedStory(story: any): boolean {
   if (story.sumber !== 'Sys') return false;
   const upperId = story.id.trim().toUpperCase();
   return EDITOR_TEMPLATE_PREFIXES.some((prefix) => upperId.startsWith(prefix));
+}
+
+function isStoryMatchingPhase(story: NewsTickerStory, activePhase?: string | null): boolean {
+  if (!activePhase) return true;
+  if (!story.fase || !story.fase.trim()) return false;
+  return normalizePhaseName(story.fase) === normalizePhaseName(activePhase);
+}
+
+function isStoryMatchingGw(story: NewsTickerStory, activeGw?: number | null): boolean {
+  if (!activeGw) return true;
+  const storyGw = Number(story.gw);
+  return Number.isFinite(storyGw) && storyGw === activeGw;
 }
 
 interface NewsTickerProps {
@@ -57,7 +78,9 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
   const [stories, setStories] = useState<NewsTickerStory[]>([]);
   const storiesRef = useRef<NewsTickerStory[]>([]);
   storiesRef.current = stories;
-  const handleIncomingStoriesRef = useRef<(newStories: NewsTickerStory[]) => void>(() => {});
+  const activePhaseRef = useRef<string | null>(null);
+  const activeGwRef = useRef<number | null>(null);
+  const handleIncomingStoriesRef = useRef<(newStories: NewsTickerStory[], incomingPhase?: string | null, incomingGw?: number | null) => void>(() => {});
 
   // Fetch news feed from backend
   useEffect(() => {
@@ -70,8 +93,14 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         if (res.ok) {
           const json = await res.json();
           if (json.success && Array.isArray(json.data) && isMounted) {
-            const editorOnly = json.data.filter(isEditorSourcedStory);
-            handleIncomingStoriesRef.current(editorOnly);
+            const incomingPhase = typeof json.gameweekPhase === 'string' ? json.gameweekPhase.trim() : null;
+            const parsedGw = Number(json.gameweek ?? leagueData?.current_gw);
+            const incomingGw = Number.isFinite(parsedGw) && parsedGw > 0 ? parsedGw : null;
+            const editorOnly = json.data
+              .filter(isEditorSourcedStory)
+              .filter((s: NewsTickerStory) => isStoryMatchingGw(s, incomingGw))
+              .filter((s: NewsTickerStory) => isStoryMatchingPhase(s, incomingPhase));
+            handleIncomingStoriesRef.current(editorOnly, incomingPhase, incomingGw);
           }
         }
       } catch (err) {
@@ -100,7 +129,12 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
       window.removeEventListener('fnb:news-ticker-updated', handleTickerUpdated);
       clearInterval(intervalId);
     };
-  }, [leagueData?.current_gw, leagueData?.gw_status?.status, leagueData?.sync_status?.is_matchday_live]);
+  }, [
+    leagueData?.current_gw,
+    leagueData?.gw_status?.status,
+    leagueData?.sync_status?.is_matchday_live,
+    leagueData?.sync_status?.last_synced,
+  ]);
 
 const POOL_IDX_STORAGE_KEY = 'fnb_news_ticker_pool_index';
 
@@ -481,20 +515,59 @@ const getSavedPoolIdx = (): number => {
   const fillTrackInitialRef = useRef(fillTrackInitial);
   fillTrackInitialRef.current = fillTrackInitial;
 
-  // Seamless transition when newly produced news arrives:
+  // Seamless transition when newly produced news arrives or phase changes:
   // "Habiskan dulu tampilan 1 berita yang sedang tampil di layar. News baru tersebut tampil sebagai berita berikutnya tepat setelahnya."
   const handleIncomingStories = useCallback(
-    (newStories: NewsTickerStory[]) => {
+    (newStories: NewsTickerStory[], incomingPhase?: string | null, incomingGw?: number | null) => {
       const track = trackRef.current;
       const container = containerRef.current;
+      const prevPhase = activePhaseRef.current;
+      const prevGw = activeGwRef.current;
+      const isGwChanged = Boolean(
+        prevGw !== null &&
+        incomingGw !== null &&
+        incomingGw !== undefined &&
+        prevGw !== incomingGw
+      );
+      const isPhaseChanged = Boolean(
+        prevPhase &&
+        incomingPhase &&
+        normalizePhaseName(prevPhase) !== normalizePhaseName(incomingPhase)
+      );
+      if (incomingPhase) {
+        activePhaseRef.current = incomingPhase;
+      }
+      if (incomingGw !== null && incomingGw !== undefined) {
+        activeGwRef.current = incomingGw;
+      }
 
       if (!Array.isArray(newStories) || newStories.length === 0) {
         storiesRef.current = [];
         setStories([]);
+        if (isPhaseChanged || isGwChanged) {
+          poolIdxRef.current = 0;
+          try {
+            sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
+          } catch {}
+        }
         if (track) {
           track.innerHTML = '';
           currentXRef.current = 0;
           track.style.transform = 'translate3d(0, 0, 0)';
+        }
+        return;
+      }
+
+      // On Gameweek transition, purge all previous-GW items immediately so zero old-GW news leaks
+      if (isGwChanged) {
+        storiesRef.current = newStories;
+        setStories(newStories);
+        poolIdxRef.current = 0;
+        try {
+          sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
+        } catch {}
+        if (track && container) {
+          fillTrackInitial();
         }
         return;
       }
@@ -505,6 +578,12 @@ const getSavedPoolIdx = (): number => {
       if (currentList.length === 0) {
         storiesRef.current = newStories;
         setStories(newStories);
+        if (isPhaseChanged) {
+          poolIdxRef.current = 0;
+          try {
+            sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
+          } catch {}
+        }
         if (track && container) {
           fillTrackInitial();
         }
@@ -528,15 +607,15 @@ const getSavedPoolIdx = (): number => {
       storiesRef.current = newStories;
       setStories(newStories);
 
-      // If neither new IDs, text updates, nor removals occurred:
+      // If neither phase change, new IDs, text updates, nor removals occurred:
       // DO NOT reset queue or playback position! Let the continuous conveyor keep scrolling uninterrupted.
-      if (freshStories.length === 0 && updatedStories.length === 0 && !hasRemovals) {
+      if (!isPhaseChanged && freshStories.length === 0 && updatedStories.length === 0 && !hasRemovals) {
         return;
       }
 
-      // Genuinely fresh or edited stories arrived:
-      // Keep whatever story is currently visible on screen, remove off-screen queue elements,
-      // and append the fresh/updated stories directly behind the visible story.
+      // Genuinely fresh/edited stories arrived or phase changed:
+      // On phase change or removals, keep STRICTLY 1 currently-airing leading news item on screen
+      // so old-phase items cannot leak behind it, then queue new-phase items immediately after it.
       if (!track || !container) return;
 
       const containerWidth = container.clientWidth || window.innerWidth || 1200;
@@ -559,9 +638,13 @@ const getSavedPoolIdx = (): number => {
       }
 
       const activeChildren =
-        visibleChildren.length > 0
-          ? visibleChildren
-          : [track.firstElementChild as HTMLElement].filter(Boolean);
+        isPhaseChanged || hasRemovals
+          ? (visibleChildren.length > 0
+              ? [visibleChildren[0]]
+              : [track.firstElementChild as HTMLElement].filter(Boolean))
+          : (visibleChildren.length > 0
+              ? visibleChildren
+              : [track.firstElementChild as HTMLElement].filter(Boolean));
 
       const keepSet = new Set(activeChildren);
       const toRemove: HTMLElement[] = [];
@@ -573,14 +656,21 @@ const getSavedPoolIdx = (): number => {
       }
       toRemove.forEach((el) => track.removeChild(el));
 
-      // Append brand new and newly edited stories first so changes appear immediately
-      const priorityQueue = [...freshStories, ...updatedStories];
-      for (const storyItem of priorityQueue) {
-        const el = createStoryElement(storyItem, nextUidRef.current++);
-        track.appendChild(el);
+      if (isPhaseChanged) {
+        poolIdxRef.current = 0;
+        try {
+          sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
+        } catch {}
+      } else {
+        // Same phase: prioritize genuinely fresh / edited stories right after the active item
+        const priorityQueue = [...freshStories, ...updatedStories];
+        for (const storyItem of priorityQueue) {
+          const el = createStoryElement(storyItem, nextUidRef.current++);
+          track.appendChild(el);
+        }
       }
 
-      // Then fill any remaining off-screen gap continuing from ongoing round-robin poolIdx
+      // Fill track buffer up to minWidth continuing round-robin from newStories pool
       const minWidth = containerWidth + 1200;
       let totalWidth = currentXRef.current;
       for (let i = 0; i < track.children.length; i++) {
@@ -598,7 +688,7 @@ const getSavedPoolIdx = (): number => {
       }
 
       console.log(
-        `[News Ticker] Scheduled ${priorityQueue.length} fresh/updated stories; continuing round-robin at #${poolIdxRef.current} of ${newStories.length}.`
+        `[News Ticker] ${isPhaseChanged ? `Phase transition (${prevPhase} -> ${incomingPhase})` : 'Stories updated'}; kept ${activeChildren.length} airing item(s), queued ${newStories.length} items for phase "${incomingPhase || 'current'}".`
       );
     },
     [createStoryElement, fillTrackInitial, getNextStory]

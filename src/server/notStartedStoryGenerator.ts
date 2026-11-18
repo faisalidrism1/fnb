@@ -171,6 +171,7 @@ function getTopTransfersForTeams(
   const netByTeam = new Map<number, Map<string, number>>();
   const inCosts: Record<string, number> = {};
   const outCosts: Record<string, number> = {};
+  const playerNames: Record<string, string> = {};
 
   for (const tr of relevantTransfers) {
     const eid = Number(tr.entry_id);
@@ -179,15 +180,17 @@ function getTopTransfersForTeams(
     }
     const playerNet = netByTeam.get(eid)!;
 
-    const pIn = tr.element_in?.name;
-    const pOut = tr.element_out?.name;
-    if (pIn) {
-      playerNet.set(pIn, (playerNet.get(pIn) || 0) + 1);
-      inCosts[pIn] = Math.max(inCosts[pIn] || 0, tr.element_in?.cost || 0);
+    if (tr.element_in?.name) {
+      const inId = tr.element_in.id != null ? String(tr.element_in.id) : `name:${tr.element_in.name}`;
+      playerNet.set(inId, (playerNet.get(inId) || 0) + 1);
+      playerNames[inId] = tr.element_in.name;
+      inCosts[inId] = Math.max(inCosts[inId] || 0, tr.element_in?.cost || 0);
     }
-    if (pOut) {
-      playerNet.set(pOut, (playerNet.get(pOut) || 0) - 1);
-      outCosts[pOut] = Math.max(outCosts[pOut] || 0, tr.element_out?.cost || 0);
+    if (tr.element_out?.name) {
+      const outId = tr.element_out.id != null ? String(tr.element_out.id) : `name:${tr.element_out.name}`;
+      playerNet.set(outId, (playerNet.get(outId) || 0) - 1);
+      playerNames[outId] = tr.element_out.name;
+      outCosts[outId] = Math.max(outCosts[outId] || 0, tr.element_out?.cost || 0);
     }
   }
 
@@ -195,11 +198,11 @@ function getTopTransfersForTeams(
   const outFrequency: Record<string, number> = {};
 
   for (const playerNet of netByTeam.values()) {
-    for (const [name, net] of playerNet.entries()) {
+    for (const [idKey, net] of playerNet.entries()) {
       if (net > 0) {
-        inFrequency[name] = (inFrequency[name] || 0) + 1;
+        inFrequency[idKey] = (inFrequency[idKey] || 0) + 1;
       } else if (net < 0) {
-        outFrequency[name] = (outFrequency[name] || 0) + 1;
+        outFrequency[idKey] = (outFrequency[idKey] || 0) + 1;
       }
     }
   }
@@ -207,23 +210,23 @@ function getTopTransfersForTeams(
   const sortedIn = Object.keys(inFrequency).sort((a, b) => {
     if (inFrequency[b] !== inFrequency[a]) return inFrequency[b] - inFrequency[a];
     if ((inCosts[b] || 0) !== (inCosts[a] || 0)) return (inCosts[b] || 0) - (inCosts[a] || 0);
-    return a.localeCompare(b);
+    return (playerNames[a] || a).localeCompare(playerNames[b] || b);
   });
 
   const sortedOut = Object.keys(outFrequency).sort((a, b) => {
     if (outFrequency[b] !== outFrequency[a]) return outFrequency[b] - outFrequency[a];
     if ((outCosts[b] || 0) !== (outCosts[a] || 0)) return (outCosts[b] || 0) - (outCosts[a] || 0);
-    return a.localeCompare(b);
+    return (playerNames[a] || a).localeCompare(playerNames[b] || b);
   });
 
   const bestIn = sortedIn[0];
   if (!bestIn) return null;
-  const bestOut = sortedOut.find((name) => name !== bestIn);
+  const bestOut = sortedOut.find((idKey) => idKey !== bestIn);
   if (!bestOut) return null;
 
   return {
-    player_in: bestIn,
-    player_out: bestOut,
+    player_in: playerNames[bestIn] || bestIn,
+    player_out: playerNames[bestOut] || bestOut,
   };
 }
 
@@ -321,7 +324,7 @@ function getBenchBoostSummaryForTeams(
  * Resolves the top differing starting XI players between two teams strictly from db.ts.
  * Prioritizes: cost (nowCost) -> total points -> form.
  */
-function getTopDifferingStarters(
+export function getTopDifferingStarters(
   team1Id: number,
   team2Id: number
 ): {
@@ -392,7 +395,7 @@ function getTopDifferingStarters(
 /**
  * Resolves teams with most gameweek champion titles from GW 1 up to GW (n - 1) strictly from db.ts.
  */
-function getHistoricalMostGwLeaders(
+export function getHistoricalMostGwLeaders(
   currentGw: number
 ): {
   entry_id: number;
@@ -473,10 +476,10 @@ function getHistoricalMostGwLeaders(
 /**
  * Formats FPL English injury/suspension news into concise Indonesian news phrasing
  */
-function formatInjuryDescription(news?: string): string {
+export function formatInjuryDescription(news?: string): string {
   if (!news) return 'masalah kebugaran';
   const lower = news.toLowerCase();
-  if (lower.includes('unspecified injury')) return 'cedera yang belum dirinci';
+  if (lower.includes('unspecified injury')) return 'masalah cedera';
   if (lower.includes('muscular') || lower.includes('muscle')) return 'cedera otot';
   if (lower.includes('hamstring')) return 'cedera hamstring';
   if (lower.includes('thigh')) return 'cedera paha';
@@ -497,9 +500,10 @@ function formatInjuryDescription(news?: string): string {
   if (lower.includes('arm') || lower.includes('elbow')) return 'cedera lengan';
   if (lower.includes('foot') || lower.includes('toe')) return 'cedera kaki';
   if (lower.includes('head') || lower.includes('concussion') || lower.includes('facial') || lower.includes('nose')) return 'cedera kepala';
-  if (lower.includes('knock')) return 'benturan fisik';
+  if (lower.includes('knock')) return 'benturan';
   if (lower.includes('illness') || lower.includes('virus') || lower.includes('flu')) return 'kondisi sakit';
   if (lower.includes('suspended') || lower.includes('suspension') || lower.includes('red card') || lower.includes('yellow card')) return 'sanksi larangan bertanding';
+  if (lower.includes('not included in squad') || lower.includes('left out') || lower.includes('not registered')) return 'tidak masuk skuad';
   if (lower.includes('ineligible') || lower.includes('loan')) return 'tidak memenuhi syarat bertanding';
   if (lower.includes('personal')) return 'alasan pribadi';
   if (lower.includes('lack of match fitness') || lower.includes('fitness')) return 'masalah kebugaran';
@@ -530,11 +534,14 @@ function getAllFlaggedPlayersPostDeadline(gw: number): FlaggedPlayerItem[] {
     const playersArr = Object.values(db.players || {});
     const deadlines = db.meta?.deadlines || {};
     const prevDeadline = gw > 1 ? deadlines[gw - 1] ?? (deadlines as any)[String(gw - 1)] : undefined;
-    if (!prevDeadline) return [];
+    const prevDeadlineMs = prevDeadline ? new Date(prevDeadline).getTime() : NaN;
+    if (!Number.isFinite(prevDeadlineMs)) return [];
 
     const candidates: FlaggedPlayerItem[] = [];
     for (const p of playersArr as any[]) {
-      if (p.news && p.newsAdded && p.newsAdded >= prevDeadline) {
+      if (p.status && p.status !== 'a' && p.news && p.newsAdded) {
+        const newsAddedMs = new Date(p.newsAdded).getTime();
+        if (!Number.isFinite(newsAddedMs) || newsAddedMs < prevDeadlineMs) continue;
         const ownersCount = p.league_ownership?.count || 0;
         if (ownersCount > 0) {
           const club = resolveClubName(p.teamName || p.teamShort);
@@ -577,9 +584,6 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
 
   const gwFixturesAll = db.meta?.sync_status?.gw_fixtures || [];
   const currentFixtures = gwFixturesAll.filter((f: any) => Number(f.event) === currentGw);
-  const isGwNotStarted =
-    db.meta?.gw_status?.status === 'Not started' ||
-    (currentFixtures.length > 0 && currentFixtures.every((f: any) => !f.started));
 
   const currentStandings = getDbStandings(currentGw);
   const currentSnap = getGwSnapshot(currentGw);
@@ -840,53 +844,84 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
           break;
         }
 
-        // 7. Most Transferred In
+        // 7. Most Transferred In (Bruto, grouping pakai element_in.id, tampilkan element_in.name / web_name)
         case 7: {
-          const transfersInMap = new Map<string, { count: number; cost: number }>();
+          const transfersInMap = new Map<string, { name: string; count: number; cost: number }>();
           for (const tr of allTransfers) {
             if (Number(tr.event) === currentGw && tr.element_in?.name) {
-              const name = tr.element_in.name;
-              const prev = transfersInMap.get(name) || { count: 0, cost: 0 };
-              transfersInMap.set(name, {
+              const idKey = tr.element_in.id != null ? String(tr.element_in.id) : `name:${tr.element_in.name}`;
+              const prev = transfersInMap.get(idKey) || { name: tr.element_in.name, count: 0, cost: 0 };
+              transfersInMap.set(idKey, {
+                name: tr.element_in.name,
                 count: prev.count + 1,
                 cost: Math.max(prev.cost, Number(tr.element_in?.cost || 0)),
               });
             }
           }
-          const sortedIn = Array.from(transfersInMap.entries()).sort((a, b) => {
-            if (b[1].count !== a[1].count) return b[1].count - a[1].count;
-            if (b[1].cost !== a[1].cost) return b[1].cost - a[1].cost;
-            return a[0].localeCompare(b[0]);
+          const sortedIn = Array.from(transfersInMap.values()).sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            if (b.cost !== a.cost) return b.cost - a.cost;
+            return a.name.localeCompare(b.name);
           });
           if (sortedIn.length >= 2) {
-            filledHeadline = renderTemplateBranch(tmpl.template, '', {
-              player1: sortedIn[0][0],
-              count1: sortedIn[0][1].count,
-              player2: sortedIn[1][0],
-              count2: sortedIn[1][1].count,
-            });
+            const top1 = sortedIn[0];
+            const top2 = sortedIn[1];
+            if (top1.count === top2.count) {
+              filledHeadline = renderTemplateBranch(tmpl.template, 'Seri di Puncak', {
+                player1: top1.name,
+                player2: top2.name,
+                count1: top1.count,
+                keduanya: 'keduanya',
+              });
+            } else {
+              filledHeadline = renderTemplateBranch(tmpl.template, 'Terbanyak Tunggal', {
+                player1: top1.name,
+                count1: top1.count,
+                player2: top2.name,
+                count2: top2.count,
+              });
+            }
           }
           break;
         }
 
-        // 8. Most Transferred Out
+        // 8. Most Transferred Out (Bruto, grouping pakai element_out.id, tampilkan element_out.name / web_name)
         case 8: {
-          const transfersOutMap = new Map<string, number>();
+          const transfersOutMap = new Map<string, { name: string; count: number; cost: number }>();
           for (const tr of allTransfers) {
             if (Number(tr.event) === currentGw && tr.element_out?.name) {
-              const name = tr.element_out.name;
-              transfersOutMap.set(name, (transfersOutMap.get(name) || 0) + 1);
+              const idKey = tr.element_out.id != null ? String(tr.element_out.id) : `name:${tr.element_out.name}`;
+              const prev = transfersOutMap.get(idKey) || { name: tr.element_out.name, count: 0, cost: 0 };
+              transfersOutMap.set(idKey, {
+                name: tr.element_out.name,
+                count: prev.count + 1,
+                cost: Math.max(prev.cost, Number(tr.element_out?.cost || 0)),
+              });
             }
           }
-          const sortedOut = Array.from(transfersOutMap.entries()).sort((a, b) => b[1] - a[1]);
+          const sortedOut = Array.from(transfersOutMap.values()).sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            if (b.cost !== a.cost) return b.cost - a.cost;
+            return a.name.localeCompare(b.name);
+          });
           if (sortedOut.length >= 2) {
-            filledHeadline = renderTemplateBranch(tmpl.template, '', {
-              gw: currentGw,
-              player1: sortedOut[0][0],
-              count1: sortedOut[0][1],
-              player2: sortedOut[1][0],
-              count2: sortedOut[1][1],
-            });
+            const top1 = sortedOut[0];
+            const top2 = sortedOut[1];
+            if (top1.count === top2.count) {
+              filledHeadline = renderTemplateBranch(tmpl.template, 'Seri di Puncak', {
+                player1: top1.name,
+                player2: top2.name,
+                count1: top1.count,
+                keduanya: 'keduanya',
+              });
+            } else {
+              filledHeadline = renderTemplateBranch(tmpl.template, 'Terbanyak Tunggal', {
+                player1: top1.name,
+                count1: top1.count,
+                player2: top2.name,
+                count2: top2.count,
+              });
+            }
           }
           break;
         }
@@ -894,28 +929,25 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
         // 9. Captaincy Recap
         case 9: {
           const capPlayers = currentSnap?.top_captains || [];
-          if (capPlayers.length >= 2) {
+          if (capPlayers.length >= 1) {
             const dominant = capPlayers[0];
             const second = capPlayers[1];
-            const dominantName = dominant.web_name;
-            const dominantCount = dominant.captain_count;
-            const secondName = second.web_name;
-            const secondCount = second.captain_count;
-            if (dominantName && dominantCount != null && secondName && secondCount != null) {
+            const dominantName = dominant?.web_name;
+            const dominantCount = dominant?.captain_count;
+            const secondName = second?.web_name;
+            const secondCount = second?.captain_count;
+            if (dominantName && dominantCount != null) {
               const othersCount = capPlayers
                 .slice(2)
                 .reduce((acc: number, c: any) => acc + (c.captain_count || 0), 0);
 
               filledHeadline = renderTemplateBranch(tmpl.template, '', {
-                gw: currentGw,
                 dominant_captain: dominantName,
                 count1: dominantCount,
-                player2: secondName,
-                second_captain: secondName,
-                count2: secondCount,
-                count_others: othersCount,
-                others_count: othersCount,
-                second_clause: `, diikuti [P:${secondName}] ([N:${secondCount}] tim)`,
+                second_clause:
+                  secondName && secondCount != null
+                    ? `, diikuti [P:${secondName}] ([N:${secondCount}] tim)`
+                    : '',
                 others_clause:
                   othersCount > 0 ? `, sementara [N:${othersCount}] tim memilih kapten lain` : '',
               });
@@ -952,9 +984,9 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
             } else if (minusTeams.length === 2) {
               formatted = `${minusTeams[0]} dan ${minusTeams[1]}`;
             } else if (minusTeams.length === 3) {
-              formatted = `${minusTeams[0]}, ${minusTeams[1]}, dan ${minusTeams[2]}`;
+              formatted = `${minusTeams[0]}, ${minusTeams[1]} dan ${minusTeams[2]}`;
             } else {
-              formatted = `${minusTeams[0]}, ${minusTeams[1]}, dan [N:${minusTeams.length - 2}] tim lainnya`;
+              formatted = `${minusTeams[0]}, ${minusTeams[1]} dan [N:${minusTeams.length - 2}] tim lainnya`;
             }
             filledHeadline = renderTemplateBranch(tmpl.template, '', {
               teams_with_hits: formatted,
@@ -970,12 +1002,23 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
             const p1 = ownPlayers[0];
             const p2 = ownPlayers[1];
             if (p1.web_name && p1.owned_percentage != null && p2.web_name && p2.owned_percentage != null) {
-              filledHeadline = renderTemplateBranch(tmpl.template, '', {
-                player1: p1.web_name,
-                pct1: Math.round(Number(p1.owned_percentage)),
-                player2: p2.web_name,
-                pct2: Math.round(Number(p2.owned_percentage)),
-              });
+              const pct1 = Math.round(Number(p1.owned_percentage));
+              const pct2 = Math.round(Number(p2.owned_percentage));
+              if (pct1 === pct2) {
+                filledHeadline = renderTemplateBranch(tmpl.template, 'Seri di Puncak', {
+                  player1: p1.web_name,
+                  player2: p2.web_name,
+                  pct1,
+                  keduanya: 'keduanya',
+                });
+              } else {
+                filledHeadline = renderTemplateBranch(tmpl.template, 'Terbanyak Tunggal', {
+                  player1: p1.web_name,
+                  pct1,
+                  player2: p2.web_name,
+                  pct2,
+                });
+              }
             }
           }
           break;
@@ -989,8 +1032,9 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
             const diffPlayersMap = new Map<number, { name: string; pct: number; form: number; cost: number }>();
             for (const p of playersArr as any[]) {
               const count = p.league_ownership?.count || 0;
-              const pct = Math.round((count / totalLeagueTeams) * 100);
-              if (count > 0 && pct < 5 && (p.webName || p.web_name)) {
+              const rawPct = (count / totalLeagueTeams) * 100;
+              const pct = Math.round(rawPct);
+              if (count > 0 && rawPct < 5 && (p.webName || p.web_name)) {
                 diffPlayersMap.set(p.id, {
                   name: p.webName || p.web_name,
                   pct: pct || 1,
@@ -1039,14 +1083,12 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               if (topDiffs.length === 1) {
                 filledHeadline = renderTemplateBranch(tmpl.template, '1 pemain', {
                   team: picked.team.entry_name,
-                  gw: currentGw,
                   player1: topDiffs[0].name,
                   pct1: topDiffs[0].pct,
                 });
               } else {
                 filledHeadline = renderTemplateBranch(tmpl.template, '2 pemain', {
                   team: picked.team.entry_name,
-                  gw: currentGw,
                   player1: topDiffs[0].name,
                   pct1: topDiffs[0].pct,
                   player2: topDiffs[1].name,
@@ -1058,14 +1100,17 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
           break;
         }
 
-        // 13. Differential Captain (Single News: 1 tim kapten langka via Opsi B)
+        // 13. Differential Captain (Single News: kapten terlangka < 5%, Opsi B pada daftar tim)
         case 13: {
           const capPlayers = currentSnap?.top_captains || [];
-          const diffCaptains = capPlayers.filter(
-            (c: any) =>
-              (c.captain_percentage != null && c.captain_percentage < 5) ||
-              (c.captain_count != null && c.captain_count <= 2)
-          );
+          const totalLeagueTeams = currentStandings.length;
+          const diffCaptains = capPlayers.filter((c: any) => {
+            const rawPct =
+              totalLeagueTeams > 0 && c.captain_count != null
+                ? (Number(c.captain_count) / totalLeagueTeams) * 100
+                : Number(c.captain_percentage ?? 100);
+            return rawPct < 5;
+          });
 
           if (diffCaptains.length > 0 && currentStandings.length > 0) {
             diffCaptains.sort((a: any, b: any) => {
@@ -1076,10 +1121,10 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
 
             const counts = getTeamAppearanceCounts();
             const targetCap = diffCaptains[0];
-            const pickingTeams = currentStandings.filter(
-              (s: any) =>
-                s.captain?.id === targetCap.id ||
-                s.captain?.name === targetCap.web_name
+            const pickingTeams = currentStandings.filter((s: any) =>
+              s.captain?.id != null && targetCap.id != null
+                ? Number(s.captain.id) === Number(targetCap.id)
+                : s.captain?.name === targetCap.web_name
             );
 
             if (pickingTeams.length > 0 && targetCap.web_name) {
@@ -1092,17 +1137,24 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 return cleanA.localeCompare(cleanB);
               });
 
-              const selectedTeam = pickingTeams[0];
               const pickersCount = targetCap.captain_count ?? pickingTeams.length;
               const isExclusive = pickersCount === 1;
-              const cond = isExclusive ? 'kapten eksklusif' : 'kapten differential';
 
-              filledHeadline = renderTemplateBranch(tmpl.template, cond, {
-                team: selectedTeam.entry_name,
-                captain: targetCap.web_name,
-                gw: currentGw,
-                pickers_count: pickersCount,
-              });
+              if (isExclusive) {
+                filledHeadline = renderTemplateBranch(tmpl.template, 'kapten eksklusif', {
+                  team: pickingTeams[0].entry_name,
+                  captain: targetCap.web_name,
+                });
+              } else {
+                const teamsStr = formatTeamList(pickingTeams.map((t: any) => t.entry_name));
+                if (teamsStr) {
+                  filledHeadline = renderTemplateBranch(tmpl.template, 'kapten differential', {
+                    teams: teamsStr,
+                    captain: targetCap.web_name,
+                    pickers_count: pickersCount,
+                  });
+                }
+              }
             }
           }
           break;
@@ -1119,7 +1171,6 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 player: item.name,
                 club: item.club,
                 injury_desc: item.injuryDesc,
-                gw: currentGw,
               });
               const slug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
               return {
@@ -1134,8 +1185,8 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 teams: extractTagNames(headline, 'T'),
                 players: extractTagNames(headline, 'P'),
                 sumber: 'Sys',
-                status_tayang: isGwNotStarted ? 'Y' : 'N',
-                keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+                status_tayang: 'Y',
+                keterangan_tidak_tayang: '',
                 timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
                 _flaggedMeta: {
                   id: item.id,
@@ -1180,7 +1231,27 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
             const cap1 = curr1?.captain?.name;
             const cap2 = curr2?.captain?.name;
 
-            if (chip1 || chip2) {
+            const marginClause =
+              margin === 0 ? ' dengan poin identik' : ` dengan keduanya terpaut [N:${margin} Poin]`;
+
+            if (chip1 && chip2) {
+              if (chip1 === chip2) {
+                filledHeadline = renderTemplateBranch(tmpl.template, 'chip sama', {
+                  team1: team1.entry_name,
+                  team2: team2.entry_name,
+                  chip: chip1,
+                  margin_clause: marginClause,
+                });
+              } else {
+                filledHeadline = renderTemplateBranch(tmpl.template, 'duel chip berbeda', {
+                  team1: team1.entry_name,
+                  team2: team2.entry_name,
+                  chip1,
+                  chip2,
+                  margin_clause: marginClause,
+                });
+              }
+            } else if (chip1 || chip2) {
               const chipTeam = chip1 ? team1.entry_name : team2.entry_name;
               const rivalTeam = chip1 ? team2.entry_name : team1.entry_name;
               const chipName = chip1 || chip2;
@@ -1188,14 +1259,12 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 margin === 0
                   ? 'memecah kebuntuan poin identik melawan'
                   : chip1
-                    ? `memperlebar jarak [N:${margin} Poin] atas`
+                    ? `memperlebar keunggulan [N:${margin} Poin] atas`
                     : `memangkas jarak [N:${margin} Poin] dari`;
               filledHeadline = renderTemplateBranch(tmpl.template, 'manuver chip', {
-                gw: currentGw,
                 team_chip: chipTeam,
                 chip: chipName,
                 target_clause: targetClause,
-                margin,
                 team_rival: rivalTeam,
               });
             } else if (cap1 && cap2 && cap1 !== cap2) {
@@ -1203,7 +1272,6 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 filledHeadline = `[T:${team1.entry_name}] dan [T:${team2.entry_name}] mengoleksi poin identik di puncak klasemen, dengan duel kapten [P:${cap1}] vs [P:${cap2}].`;
               } else {
                 filledHeadline = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
-                  gw: currentGw,
                   team1: team1.entry_name,
                   margin,
                   team2: team2.entry_name,
@@ -1215,10 +1283,9 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               const diffStarters = getTopDifferingStarters(team1.entry_id, team2.entry_id);
               if (diffStarters) {
                 if (margin === 0) {
-                  filledHeadline = `[T:${team1.entry_name}] dan [T:${team2.entry_name}] mengoleksi poin identik di puncak klasemen; keduanya mengapteni [P:${cap1}], sehingga pembeda beralih ke [P:${diffStarters.player1}] vs [P:${diffStarters.player2}].`;
+                  filledHeadline = `[T:${team1.entry_name}] dan [T:${team2.entry_name}] mengoleksi poin identik di puncak klasemen; keduanya mengapteni [P:${cap1}], sehingga penentu selisih poin beralih ke [P:${diffStarters.player1}] dan [P:${diffStarters.player2}].`;
                 } else {
                   filledHeadline = renderTemplateBranch(tmpl.template, 'kapten sama', {
-                    gw: currentGw,
                     team1: team1.entry_name,
                     margin,
                     team2: team2.entry_name,
@@ -1265,19 +1332,34 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
             const cap1 = curr1?.captain?.name;
             const cap2 = curr2?.captain?.name;
 
-            if (chip1 || chip2) {
+            if (chip1 && chip2) {
+              if (chip1 === chip2) {
+                filledHeadline = renderTemplateBranch(tmpl.template, 'chip sama', {
+                  team1: team1.entry_name,
+                  titles1: team1.titles,
+                  team2: team2.entry_name,
+                  titles2: team2.titles,
+                  chip: chip1,
+                });
+              } else {
+                filledHeadline = renderTemplateBranch(tmpl.template, 'duel chip berbeda', {
+                  team1: team1.entry_name,
+                  titles1: team1.titles,
+                  team2: team2.entry_name,
+                  titles2: team2.titles,
+                  chip1,
+                  chip2,
+                });
+              }
+            } else if (chip1 || chip2) {
               const chipTeam = chip1 ? team1.entry_name : team2.entry_name;
-              const rivalTeam = chip1 ? team2.entry_name : team1.entry_name;
               const chipName = chip1 || chip2;
               filledHeadline = renderTemplateBranch(tmpl.template, 'manuver chip', {
-                gw: currentGw,
                 team_chip: chipTeam,
                 chip: chipName,
-                team_rival: rivalTeam,
               });
             } else if (cap1 && cap2 && cap1 !== cap2) {
               filledHeadline = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
-                gw: currentGw,
                 team1: team1.entry_name,
                 titles1: team1.titles,
                 team2: team2.entry_name,
@@ -1289,7 +1371,6 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               const diffStarters = getTopDifferingStarters(team1.entry_id, team2.entry_id);
               if (diffStarters) {
                 filledHeadline = renderTemplateBranch(tmpl.template, 'kapten sama', {
-                  gw: currentGw,
                   team1: team1.entry_name,
                   titles1: team1.titles,
                   team2: team2.entry_name,
@@ -1297,8 +1378,6 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                   captain: cap1,
                   diff_player1: diffStarters.player1,
                   diff_player2: diffStarters.player2,
-                  diff_players1: diffStarters.players1Str,
-                  diff_players2: diffStarters.players2Str,
                 });
               }
             }
@@ -1368,8 +1447,8 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                   teams: extractTagNames(headline, 'T'),
                   players: [surprise.player.webName],
                   sumber: 'Sys',
-                  status_tayang: isGwNotStarted ? 'Y' : 'N',
-                  keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+                  status_tayang: 'Y',
+                  keterangan_tidak_tayang: '',
                   timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
                 });
               }
@@ -1399,8 +1478,8 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
           teams,
           players,
           sumber: 'Sys',
-          status_tayang: isGwNotStarted ? 'Y' : 'N',
-          keterangan_tidak_tayang: isGwNotStarted ? '' : 'Fase saat ini bukan Not started',
+          status_tayang: 'Y',
+          keterangan_tidak_tayang: '',
           timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
         });
       }

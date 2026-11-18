@@ -216,6 +216,7 @@ export interface Translations {
   modal_plyr_tab_overview: string;
   modal_plyr_tab_owners: string;
   modal_plyr_tab_history: string;
+  modal_plyr_tab_fixtures: string;
   tooltip_close_player_modal: string;
   modal_plyr_match_result: string;
   modal_plyr_match_points: string;
@@ -502,6 +503,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_plyr_tab_overview: 'GW Overview',
     modal_plyr_tab_owners: 'Owners ({N})',
     modal_plyr_tab_history: 'History',
+    modal_plyr_tab_fixtures: 'Fixtures',
     tooltip_close_player_modal: 'Close',
     modal_plyr_match_result: 'Result • Points',
     modal_plyr_match_points: 'Points',
@@ -787,6 +789,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_plyr_tab_overview: 'GW Overview',
     modal_plyr_tab_owners: 'Owners ({N})',
     modal_plyr_tab_history: 'History',
+    modal_plyr_tab_fixtures: 'Fixtures',
     tooltip_close_player_modal: 'Close',
     modal_plyr_match_result: 'Result • Points',
     modal_plyr_match_points: 'Points',
@@ -1072,6 +1075,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     modal_plyr_tab_overview: 'Ringkasan GW',
     modal_plyr_tab_owners: 'Pemilik ({N})',
     modal_plyr_tab_history: 'Riwayat',
+    modal_plyr_tab_fixtures: 'Jadwal',
     tooltip_close_player_modal: 'Tutup',
     modal_plyr_match_result: 'Hasil • Poin',
     modal_plyr_match_points: 'Poin',

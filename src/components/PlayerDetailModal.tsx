@@ -48,7 +48,7 @@ interface PlayerDetailModalProps {
   syncStatus?: SyncStatus;
 }
 
-type ModalTab = 'overview' | 'owners' | 'history';
+type ModalTab = 'overview' | 'owners' | 'history' | 'fixtures';
 type OwnerSortField = 'team' | 'squad' | 'captain';
 type SortDirection = 'asc' | 'desc';
 
@@ -750,6 +750,58 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     if (!summaryData?.history_past) return [];
     return [...summaryData.history_past].sort((a, b) => b.season_name.localeCompare(a.season_name));
   }, [summaryData?.history_past]);
+
+  // Upcoming fixtures sorted ascending by Gameweek (and kickoff time for double GWs)
+  const sortedFixtures = useMemo(() => {
+    if (!summaryData?.fixtures || summaryData.fixtures.length === 0) return [];
+    return [...summaryData.fixtures].sort((a, b) => {
+      const evA = a.event != null ? Number(a.event) : 999;
+      const evB = b.event != null ? Number(b.event) : 999;
+      if (evA !== evB) return evA - evB;
+      const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+      const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+      return tA - tB;
+    });
+  }, [summaryData?.fixtures]);
+
+  const getFdrBadgeClass = useCallback((difficulty?: number | null) => {
+    switch (Number(difficulty)) {
+      case 1:
+        return 'bg-[#257d5a] text-white';
+      case 2:
+        return 'bg-[#01fc7a] text-[#37003c]';
+      case 3:
+        return 'bg-[#e7e7e7] text-[#37003c]';
+      case 4:
+        return 'bg-[#ff1751] text-white';
+      case 5:
+        return 'bg-[#80072d] text-white';
+      default:
+        return 'bg-slate-200 dark:bg-purple-900/50 text-slate-700 dark:text-purple-200';
+    }
+  }, []);
+
+  const formatFixtureKickoff = useCallback(
+    (kickoffTime?: string | null) => {
+      if (!kickoffTime) return '-';
+      const d = new Date(kickoffTime);
+      if (isNaN(d.getTime())) return '-';
+      const locale = language === 'id' ? 'id-ID' : 'en-GB';
+      const dateStr = d.toLocaleDateString(locale, {
+        day: 'numeric',
+        month: 'short',
+        timeZone: 'Asia/Jakarta',
+      });
+      const timeStr = d.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Jakarta',
+      });
+      return `${dateStr} • ${timeStr} WIB`;
+    },
+    [language]
+  );
 
   // Dynamic positioning for clicked header tooltips to prevent edge clipping
   const getHeaderTooltipClasses = (key: string) => {
@@ -1650,12 +1702,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
           </div>
 
           {/* Subtab Navigation (styled like main application subtab, seamlessly attached without border) */}
-          <div className="flex items-center px-1 mt-1 sm:mt-1.5 relative z-20">
-            <nav className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center px-1 mt-1 sm:mt-1.5 relative z-20 overflow-x-auto no-scrollbar">
+            <nav className="flex items-center gap-1 sm:gap-4 whitespace-nowrap">
               <button
                 type="button"
                 onClick={() => setActiveTab('overview')}
-                className={`relative py-1.5 px-3 sm:px-4 flex items-center justify-center transition-colors cursor-pointer select-none text-xs sm:text-[13px] leading-none ${
+                className={`relative py-1.5 px-2.5 sm:px-4 flex items-center justify-center transition-colors cursor-pointer select-none text-xs sm:text-[13px] leading-none ${
                   activeTab === 'overview'
                     ? 'text-white font-bold'
                     : 'text-purple-300/80 hover:text-white font-medium'
@@ -1670,7 +1722,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
               <button
                 type="button"
                 onClick={() => setActiveTab('owners')}
-                className={`relative py-1.5 px-3 sm:px-4 flex items-center justify-center transition-colors cursor-pointer select-none text-xs sm:text-[13px] leading-none ${
+                className={`relative py-1.5 px-2.5 sm:px-4 flex items-center justify-center transition-colors cursor-pointer select-none text-xs sm:text-[13px] leading-none ${
                   activeTab === 'owners'
                     ? 'text-white font-bold'
                     : 'text-purple-300/80 hover:text-white font-medium'
@@ -1685,7 +1737,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
               <button
                 type="button"
                 onClick={() => setActiveTab('history')}
-                className={`relative py-1.5 px-3 sm:px-4 flex items-center justify-center transition-colors cursor-pointer select-none text-xs sm:text-[13px] leading-none ${
+                className={`relative py-1.5 px-2.5 sm:px-4 flex items-center justify-center transition-colors cursor-pointer select-none text-xs sm:text-[13px] leading-none ${
                   activeTab === 'history'
                     ? 'text-white font-bold'
                     : 'text-purple-300/80 hover:text-white font-medium'
@@ -1693,6 +1745,21 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
               >
                 <span>{t('modal_plyr_tab_history')}</span>
                 {activeTab === 'history' && (
+                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('fixtures')}
+                className={`relative py-1.5 px-2.5 sm:px-4 flex items-center justify-center transition-colors cursor-pointer select-none text-xs sm:text-[13px] leading-none ${
+                  activeTab === 'fixtures'
+                    ? 'text-white font-bold'
+                    : 'text-purple-300/80 hover:text-white font-medium'
+                }`}
+              >
+                <span>{t('modal_plyr_tab_fixtures')}</span>
+                {activeTab === 'fixtures' && (
                   <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]" />
                 )}
               </button>
@@ -3045,6 +3112,98 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                 )}
               </div>
 
+            </div>
+          )}
+
+          {/* TAB 4: FIXTURES (SIMPLE TABLE WITH FDR COLORING, GW ASC) */}
+          {activeTab === 'fixtures' && (
+            <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl overflow-hidden shadow-2xs">
+              {sortedFixtures.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
+                    <thead className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[10.5px] font-extrabold tracking-wider border-b border-slate-200 dark:border-purple-900/40 select-none">
+                      <tr>
+                        <th className="py-2 px-2.5 sm:px-3 text-left">GW</th>
+                        <th className="py-2 px-2.5 text-left">
+                          {language === 'id' ? 'Jadwal' : 'Date'}
+                        </th>
+                        <th className="py-2 px-2.5 text-left">
+                          {language === 'id' ? 'Pertandingan' : 'Fixture'}
+                        </th>
+                        <th className="py-2 px-2.5 sm:px-3 text-center">FDR</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-purple-900/30">
+                      {sortedFixtures.map((f, idx) => {
+                        const oppId = f.is_home ? f.team_a : f.team_h;
+                        const oppInfo = oppId ? FPL_TEAMS_BY_ID[oppId] : null;
+                        const oppShortName = oppInfo?.short_name || (oppId ? `T${oppId}` : 'TBD');
+                        const oppFullName = oppInfo?.name || (oppId ? `Team ${oppId}` : 'TBD');
+                        const oppBadgeUrl = oppInfo?.code
+                          ? `https://resources.premierleague.com/premierleague/badges/t${oppInfo.code}.svg`
+                          : '/default_team_badge.png';
+                        const venueLabel = f.is_home ? 'H' : 'A';
+                        const fdrClass = getFdrBadgeClass(f.difficulty);
+
+                        return (
+                          <tr
+                            key={f.id ?? `${f.event ?? 'tbd'}_${idx}`}
+                            className="hover:bg-slate-50/70 dark:hover:bg-purple-950/25 transition-colors"
+                          >
+                            <td className="py-1.5 px-2.5 sm:px-3 font-black text-slate-900 dark:text-white">
+                              {f.event != null ? `GW ${f.event}` : 'TBD'}
+                            </td>
+                            <td className="py-1.5 px-2.5 text-[11px] font-mono text-slate-600 dark:text-purple-200/80">
+                              {formatFixtureKickoff(f.kickoff_time)}
+                            </td>
+                            <td className="py-1.5 px-2.5">
+                              <span
+                                title={`${oppFullName} (${venueLabel})`}
+                                className={`inline-flex items-center gap-1.5 w-[92px] pl-1.5 pr-2 py-1 rounded-full font-bold text-[11.5px] leading-none shadow-2xs ${fdrClass}`}
+                              >
+                                <span className="w-4 h-4 rounded-full bg-white/95 p-0.5 flex items-center justify-center shrink-0">
+                                  <img
+                                    src={oppBadgeUrl}
+                                    alt={oppFullName}
+                                    className="w-full h-full object-contain select-none"
+                                    onError={(e) => {
+                                      if (oppInfo?.code && !e.currentTarget.src.includes('100/t')) {
+                                        e.currentTarget.src = `https://resources.premierleague.com/premierleague/badges/100/t${oppInfo.code}.png`;
+                                      } else {
+                                        e.currentTarget.src = '/default_team_badge.png';
+                                      }
+                                    }}
+                                  />
+                                </span>
+                                <span className="flex-1 text-center">
+                                  {oppShortName} ({venueLabel})
+                                </span>
+                              </span>
+                            </td>
+                            <td className="py-1.5 px-2.5 sm:px-3 text-center">
+                              <span
+                                className={`inline-flex items-center justify-center w-6 h-5 rounded font-black text-[11px] leading-none shadow-2xs ${fdrClass}`}
+                              >
+                                {f.difficulty ?? '-'}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
+                  {loadingSummary
+                    ? language === 'id'
+                      ? 'Memuat jadwal pertandingan...'
+                      : 'Loading fixtures...'
+                    : language === 'id'
+                    ? 'Tidak ada jadwal pertandingan mendatang.'
+                    : 'No upcoming fixtures available.'}
+                </div>
+              )}
             </div>
           )}
 

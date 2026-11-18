@@ -4,12 +4,19 @@ import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.
 import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
 import { buildRawMatchdayPayload } from './newsAggregator.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
+import { loadPulseMatchesForGw } from './pulseMatchSync.ts';
+import { findValidBetweenMatchAutosubWatches } from './fplAutosub.ts';
 import {
   getFplPlayerDirectory,
   matchPulsePersonToFpl,
   detectSurpriseLineupForClub,
   normalizeDiacritics,
 } from './liveMatchStoryGenerator.ts';
+import {
+  formatInjuryDescription,
+  getHistoricalMostGwLeaders,
+  getTopDifferingStarters,
+} from './notStartedStoryGenerator.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 
 export interface GeneratedPhaseStory {
@@ -305,20 +312,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
   }
 
   // Load Pulse match files strictly matching currentGw for granular goal+assist events
-  const pulseMatches: any[] = [];
-  try {
-    const dataDir = path.join(process.cwd(), 'src/data');
-    if (fs.existsSync(dataDir)) {
-      for (const file of fs.readdirSync(dataDir)) {
-        if (file.startsWith('pulse_match_') && file.endsWith('.json')) {
-          const pd = JSON.parse(fs.readFileSync(path.join(dataDir, file), 'utf-8'));
-          if (Number(pd?.gameweek?.gameweek) === currentGw) {
-            pulseMatches.push(pd);
-          }
-        }
-      }
-    }
-  } catch {}
+  const pulseMatches: any[] = loadPulseMatchesForGw(currentGw);
 
   const allCachedMatches = getCachedMatchesForGw(currentGw) || [];
   const cachedMatches = allCachedMatches.filter(
@@ -478,12 +472,13 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                 }))
                 .filter((p) => p.home && p.away);
               if (validBatch.length === 0) break;
-              const matchesList = validBatch
-                .map((p, idx) => {
-                  const pair = `[C:${p.home}] vs [C:${p.away}]`;
-                  return idx === validBatch.length - 1 ? `dan ${pair}` : pair;
-                })
-                .join(', ');
+              const matchPairs = validBatch.map((p) => `[C:${p.home}] vs [C:${p.away}]`);
+              const matchesList =
+                matchPairs.length === 1
+                  ? matchPairs[0]
+                  : matchPairs.length === 2
+                    ? `${matchPairs[0]} dan ${matchPairs[1]}`
+                    : `${matchPairs.slice(0, -1).join(', ')} dan ${matchPairs[matchPairs.length - 1]}`;
               const cond = isShortBreak ? 'Jeda Pendek - Multi Laga' : 'Jeda Panjang - Multi Laga';
               produced.push({
                 id: tmpl.id,
@@ -884,22 +879,26 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
 
         // 45. BM_LINEUP_AUTOSUB_ALERT
         case 'BM_LINEUP_AUTOSUB_ALERT': {
-          const watches: { playerDnp: string; club: string; team: string; ownersCount: number }[] = [];
-          const teamDnpSeen = new Set<string>();
-          for (const op of ownershipList) {
-            const pInfo = playerMap.get(op.id);
-            if (!pInfo || pInfo.minutes > 0 || !finishedClubFixtureMap.has(pInfo.club)) continue;
-            for (const o of op.owners || []) {
-              if (!o.is_starter || teamDnpSeen.has(o.entry_name)) continue;
-              teamDnpSeen.add(o.entry_name);
-              watches.push({
-                playerDnp: pInfo.name,
-                club: pInfo.club,
-                team: o.entry_name,
-                ownersCount: pInfo.ownersCount,
-              });
-            }
-          }
+          const watches = ownershipList.length > 0
+            ? findValidBetweenMatchAutosubWatches(
+                ownershipList,
+                standings,
+                (id, op) => {
+                  const pInfo = playerMap.get(id);
+                  if (!pInfo) return undefined;
+                  return {
+                    id,
+                    name: op.web_name || pInfo.name,
+                    club: pInfo.club,
+                    position: op.position || pInfo.position,
+                    minutes: pInfo.minutes,
+                    points: pInfo.points,
+                    ownersCount: pInfo.ownersCount,
+                  };
+                },
+                finishedClubFixtureMap
+              )
+            : [];
           watches
             .sort((a, b) => b.ownersCount - a.ownersCount)
             .slice(0, 3)
@@ -924,21 +923,117 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
             const sorted = [...standings].sort((a, b) => (a.rank || 0) - (b.rank || 0));
             const r1 = sorted[0];
             const r2 = sorted[1];
-            const margin = (r1.total_points || 0) - (r2.total_points || 0);
-            const isTied = margin === 0;
-            produced.push({
-              id: tmpl.id,
-              headlineId: renderTemplateBranch(tmpl.template, isTied ? 'Poin Sama' : 'Unggul Poin', {
-                gw: currentGw,
-                team_1: r1.entry_name,
+            const margin = Math.abs((r1.total_points || 0) - (r2.total_points || 0));
+            const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
+              ? dbData.league_analytics.all_chips_used
+              : [];
+
+            const resolveTeamChip = (entryId: number, activeChipRaw?: string): string => {
+              const row = allChips.find((c: any) => Number(c.entry_id) === Number(entryId));
+              if (row) {
+                if ((row.wc1 && Number(row.wc1.gw) === currentGw) || (row.wc2 && Number(row.wc2.gw) === currentGw)) return 'Wildcard';
+                if ((row.fh1 && Number(row.fh1.gw) === currentGw) || (row.fh2 && Number(row.fh2.gw) === currentGw)) return 'Free Hit';
+                if ((row.bb1 && Number(row.bb1.gw) === currentGw) || (row.bb2 && Number(row.bb2.gw) === currentGw)) return 'Bench Boost';
+                if ((row.tc1 && Number(row.tc1.gw) === currentGw) || (row.tc2 && Number(row.tc2.gw) === currentGw)) return 'Triple Captain';
+              }
+              const c = String(activeChipRaw || '').toLowerCase();
+              if (c === 'wc' || c === 'wildcard') return 'Wildcard';
+              if (c === 'fh' || c === 'freehit') return 'Free Hit';
+              if (c === 'bb' || c === 'bboost') return 'Bench Boost';
+              if (c === 'tc' || c === '3xc') return 'Triple Captain';
+              return '';
+            };
+
+            const resolveTeamCaptain = (entryObj: any): string => {
+              if (entryObj?.captain?.name) return entryObj.captain.name;
+              const row = rawPayload?.standingsTable?.find((s) => s.team === entryObj?.entry_name);
+              return row?.starters?.find((st) => st.isC)?.name || '';
+            };
+
+            const chip1 = resolveTeamChip(r1.entry_id, r1.active_chip);
+            const chip2 = resolveTeamChip(r2.entry_id, r2.active_chip);
+            const cap1 = resolveTeamCaptain(r1);
+            const cap2 = resolveTeamCaptain(r2);
+            const marginClause =
+              margin === 0 ? ' dengan poin identik' : ` dengan keduanya terpaut [N:${margin} Poin]`;
+
+            let headlineId = '';
+            let headlineEn = '';
+
+            if (chip1 && chip2) {
+              if (chip1 === chip2) {
+                headlineId = renderTemplateBranch(tmpl.template, 'chip sama', {
+                  team1: r1.entry_name,
+                  team2: r2.entry_name,
+                  chip: chip1,
+                  margin_clause: marginClause,
+                });
+                headlineEn = `[T:${r1.entry_name}] and [T:${r2.entry_name}] both activated [N:${chip1}] in the provisional title race${margin === 0 ? ' while level on points' : ` separated by [N:${margin} Pts]`}.`;
+              } else {
+                headlineId = renderTemplateBranch(tmpl.template, 'duel chip berbeda', {
+                  team1: r1.entry_name,
+                  team2: r2.entry_name,
+                  chip1,
+                  chip2,
+                  margin_clause: marginClause,
+                });
+                headlineEn = `[T:${r1.entry_name}] activated [N:${chip1}] while [T:${r2.entry_name}] activated [N:${chip2}] in the provisional title race.`;
+              }
+            } else if (chip1 || chip2) {
+              const chipTeam = chip1 ? r1.entry_name : r2.entry_name;
+              const rivalTeam = chip1 ? r2.entry_name : r1.entry_name;
+              const chipName = chip1 || chip2;
+              const targetClause =
+                margin === 0
+                  ? 'memecah kebuntuan poin identik melawan'
+                  : chip1
+                    ? `memperlebar keunggulan [N:${margin} Poin] atas`
+                    : `memangkas jarak [N:${margin} Poin] dari`;
+              headlineId = renderTemplateBranch(tmpl.template, 'manuver chip', {
+                team_chip: chipTeam,
+                chip: chipName,
+                target_clause: targetClause,
+                team_rival: rivalTeam,
+              });
+              headlineEn = `[T:${chipTeam}] activated [N:${chipName}] against [T:${rivalTeam}] in the provisional title race.`;
+            } else if (margin === 0) {
+              headlineId = renderTemplateBranch(tmpl.template, 'poin sama', {
+                team1: r1.entry_name,
+                team2: r2.entry_name,
+              });
+              headlineEn = `[T:${r1.entry_name}] and [T:${r2.entry_name}] are level on provisional points at the top of the table.`;
+            } else if (cap1 && cap2 && cap1 !== cap2) {
+              headlineId = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
+                team1: r1.entry_name,
                 margin,
-                team_2: r2.entry_name,
-              }),
-              headlineEn: isTied
-                ? `[T:${r1.entry_name}] and [T:${r2.entry_name}] are level on provisional points at the top of the table.`
-                : `[T:${r1.entry_name}] leads the live standings by [N:${margin} Pts] over [T:${r2.entry_name}] in 2nd place.`,
-              dramaScore: 91,
-            });
+                team2: r2.entry_name,
+                captain1: cap1,
+                captain2: cap2,
+              });
+              headlineEn = `Provisional leader [T:${r1.entry_name}] leads [T:${r2.entry_name}] by [N:${margin} Pts], with [P:${cap1}] captained vs [P:${cap2}].`;
+            } else if (cap1 && cap2 && cap1 === cap2) {
+              const diffStarters = getTopDifferingStarters(r1.entry_id, r2.entry_id);
+              if (diffStarters) {
+                headlineId = renderTemplateBranch(tmpl.template, 'kapten sama', {
+                  team1: r1.entry_name,
+                  margin,
+                  team2: r2.entry_name,
+                  captain: cap1,
+                  diff_player1: diffStarters.player1,
+                  diff_player2: diffStarters.player2,
+                });
+                headlineEn = `Provisional leader [T:${r1.entry_name}] leads [T:${r2.entry_name}] by [N:${margin} Pts] with both captaining [P:${cap1}]; differentials turn to [P:${diffStarters.player1}] and [P:${diffStarters.player2}].`;
+              }
+            }
+
+            if (headlineId) {
+              produced.push({
+                id: tmpl.id,
+                headlineId,
+                headlineEn,
+                dramaScore: 91,
+              });
+            }
           }
           break;
         }
@@ -1428,11 +1523,12 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
             }
           }
 
-          diffStories
+            diffStories
             .sort((a, b) => b.pts - a.pts || a.pickersCount - b.pickersCount)
             .slice(0, 3)
             .forEach((ds, idx) => {
-              const headlineId = renderTemplate(tmpl.template, {
+              const cond = ds.pickersCount === 1 ? 'Kapten Eksklusif' : 'Kapten Differential';
+              const headlineId = renderTemplateBranch(tmpl.template, cond, {
                 team: ds.team,
                 pts: ds.pts,
                 captain: ds.captain,
@@ -1447,6 +1543,229 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                 dramaScore: 88,
               });
             });
+          break;
+        }
+
+        // 102. BM_PLAYER_AVAILABILITY_FLAGGED
+        case 'BM_PLAYER_AVAILABILITY_FLAGGED': {
+          if (upcomingFixtures.length > 0) {
+            const upcomingClubMap = new Map<string, string>();
+            for (const f of upcomingFixtures) {
+              const h = resolveClubName(f.home_team, '');
+              const a = resolveClubName(f.away_team, '');
+              if (h && a) {
+                if (!upcomingClubMap.has(h)) upcomingClubMap.set(h, a);
+                if (!upcomingClubMap.has(a)) upcomingClubMap.set(a, h);
+              }
+            }
+
+            const prevDeadline = currentGw > 1 ? deadlines[String(currentGw - 1)] : undefined;
+            const prevDeadlineMs = prevDeadline ? new Date(prevDeadline).getTime() : NaN;
+            const totalTeams = standings.length || Number(dbData?.meta?.total_teams) || 0;
+            const ownershipById = new Map<number, number>();
+            for (const op of ownershipList) {
+              if (op?.id) ownershipById.set(op.id, Number(op.owned_count ?? 0));
+            }
+
+            const flaggedUpcoming: {
+              id: number;
+              name: string;
+              club: string;
+              opponent: string;
+              injuryDesc: string;
+              ownersCount: number;
+              cost: number;
+              isOut: boolean;
+            }[] = [];
+
+            for (const p of Object.values(dbData?.players || {}) as any[]) {
+              if (!p?.status || p.status === 'a' || !p.news || !p.newsAdded) continue;
+              if (Number.isFinite(prevDeadlineMs)) {
+                const newsAddedMs = new Date(p.newsAdded).getTime();
+                if (!Number.isFinite(newsAddedMs) || newsAddedMs < prevDeadlineMs) continue;
+              }
+              const club = resolveClubName(p.teamName || p.team_name || p.teamShort || p.team_short_name, '');
+              const opponent = club ? upcomingClubMap.get(club) : undefined;
+              if (!club || !opponent) continue;
+
+              const ownersCount = ownershipById.get(p.id) ?? (p.league_ownership?.count || 0);
+              if (ownersCount <= 0 || totalTeams === 0) continue;
+
+              const isOut =
+                p.status === 'i' ||
+                p.status === 's' ||
+                p.status === 'n' ||
+                p.chanceOfPlayingNextRound === 0 ||
+                p.chanceOfPlayingThisRound === 0;
+
+              flaggedUpcoming.push({
+                id: p.id,
+                name: p.webName || p.web_name || '',
+                club,
+                opponent,
+                injuryDesc: formatInjuryDescription(p.news),
+                ownersCount,
+                cost: Number(p.nowCost || p.cost || 0),
+                isOut,
+              });
+            }
+
+            flaggedUpcoming
+              .filter((x) => x.name)
+              .sort((a, b) => {
+                if (a.isOut !== b.isOut) return a.isOut ? -1 : 1;
+                if (b.ownersCount !== a.ownersCount) return b.ownersCount - a.ownersCount;
+                return b.cost - a.cost;
+              })
+              .slice(0, 5)
+              .forEach((item) => {
+                const cond = item.isOut ? 'Dipastikan Absen' : 'Meragukan';
+                const headlineId = renderTemplateBranch(tmpl.template, cond, {
+                  player: item.name,
+                  club: item.club,
+                  opponent: item.opponent,
+                  injury_desc: item.injuryDesc,
+                  owners_count: item.ownersCount,
+                });
+                if (!headlineId) return;
+                produced.push({
+                  id: `${tmpl.id}_${toStorySlug(item.name)}`,
+                  headlineId,
+                  headlineEn: item.isOut
+                    ? `[P:${item.name}] ([C:${item.club}]) is ruled out against [C:${item.opponent}] (${item.injuryDesc}), impacting [N:${item.ownersCount}] owners.`
+                    : `[P:${item.name}] ([C:${item.club}]) is doubtful against [C:${item.opponent}] (${item.injuryDesc}), leaving [N:${item.ownersCount}] owners waiting.`,
+                  dramaScore: item.isOut ? 87 : 83,
+                });
+              });
+          }
+          break;
+        }
+
+        // 103. BM_STANDINGS_WEEKLY_WINS_MOST
+        case 'BM_STANDINGS_WEEKLY_WINS_MOST': {
+          const sortedLive = [...standings].sort((a: any, b: any) => (a.rank || 999) - (b.rank || 999));
+          const liveTop2Ids = new Set(sortedLive.slice(0, 2).map((s: any) => Number(s.entry_id)));
+          const mostGwLeaders = getHistoricalMostGwLeaders(currentGw).filter(
+            (t) => !liveTop2Ids.has(Number(t.entry_id))
+          );
+
+          if (mostGwLeaders.length >= 2) {
+            const team1 = mostGwLeaders[0];
+            const team2 = mostGwLeaders[1];
+            const st1 = standings.find((s: any) => Number(s.entry_id) === Number(team1.entry_id));
+            const st2 = standings.find((s: any) => Number(s.entry_id) === Number(team2.entry_id));
+            const gwPts1 = Number(st1?.event_points ?? 0);
+            const gwPts2 = Number(st2?.event_points ?? 0);
+
+            const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
+              ? dbData.league_analytics.all_chips_used
+              : [];
+
+            const resolveTeamChip = (entryId: number, activeChipRaw?: string): string => {
+              const row = allChips.find((c: any) => Number(c.entry_id) === Number(entryId));
+              if (row) {
+                if ((row.wc1 && Number(row.wc1.gw) === currentGw) || (row.wc2 && Number(row.wc2.gw) === currentGw)) return 'Wildcard';
+                if ((row.fh1 && Number(row.fh1.gw) === currentGw) || (row.fh2 && Number(row.fh2.gw) === currentGw)) return 'Free Hit';
+                if ((row.bb1 && Number(row.bb1.gw) === currentGw) || (row.bb2 && Number(row.bb2.gw) === currentGw)) return 'Bench Boost';
+                if ((row.tc1 && Number(row.tc1.gw) === currentGw) || (row.tc2 && Number(row.tc2.gw) === currentGw)) return 'Triple Captain';
+              }
+              const c = String(activeChipRaw || '').toLowerCase();
+              if (c === 'wc' || c === 'wildcard') return 'Wildcard';
+              if (c === 'fh' || c === 'freehit') return 'Free Hit';
+              if (c === 'bb' || c === 'bboost') return 'Bench Boost';
+              if (c === 'tc' || c === '3xc') return 'Triple Captain';
+              return '';
+            };
+
+            const resolveTeamCaptain = (entryObj: any, entryName: string): string => {
+              if (entryObj?.captain?.name) return entryObj.captain.name;
+              const row = rawPayload?.standingsTable?.find((s) => s.team === entryName);
+              return row?.starters?.find((st) => st.isC)?.name || '';
+            };
+
+            const chip1 = resolveTeamChip(team1.entry_id, st1?.active_chip);
+            const chip2 = resolveTeamChip(team2.entry_id, st2?.active_chip);
+            const cap1 = resolveTeamCaptain(st1, team1.entry_name);
+            const cap2 = resolveTeamCaptain(st2, team2.entry_name);
+
+            let headlineId = '';
+            let headlineEn = '';
+
+            if (chip1 && chip2) {
+              if (chip1 === chip2) {
+                headlineId = renderTemplateBranch(tmpl.template, 'chip sama', {
+                  team1: team1.entry_name,
+                  titles1: team1.titles,
+                  gw_pts1: gwPts1,
+                  team2: team2.entry_name,
+                  titles2: team2.titles,
+                  gw_pts2: gwPts2,
+                  chip: chip1,
+                });
+                headlineEn = `[T:${team1.entry_name}] and [T:${team2.entry_name}] both activated [N:${chip1}] in the Most GW Wins race.`;
+              } else {
+                headlineId = renderTemplateBranch(tmpl.template, 'duel chip berbeda', {
+                  team1: team1.entry_name,
+                  titles1: team1.titles,
+                  gw_pts1: gwPts1,
+                  team2: team2.entry_name,
+                  titles2: team2.titles,
+                  gw_pts2: gwPts2,
+                  chip1,
+                  chip2,
+                });
+                headlineEn = `[T:${team1.entry_name}] activated [N:${chip1}] while [T:${team2.entry_name}] activated [N:${chip2}] in the Most GW Wins race.`;
+              }
+            } else if (chip1 || chip2) {
+              const chipTeam = chip1 ? team1 : team2;
+              const chipPts = chip1 ? gwPts1 : gwPts2;
+              const chipName = chip1 || chip2;
+              headlineId = renderTemplateBranch(tmpl.template, 'manuver chip', {
+                team_chip: chipTeam.entry_name,
+                titles_chip: chipTeam.titles,
+                gw_pts_chip: chipPts,
+                chip: chipName,
+              });
+              headlineEn = `[T:${chipTeam.entry_name}] ([N:${chipTeam.titles}] wins, [N:${chipPts} Pts] provisionally) activated [N:${chipName}] in the Most GW Wins race.`;
+            } else if (cap1 && cap2 && cap1 !== cap2) {
+              headlineId = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
+                team1: team1.entry_name,
+                titles1: team1.titles,
+                gw_pts1: gwPts1,
+                team2: team2.entry_name,
+                titles2: team2.titles,
+                gw_pts2: gwPts2,
+                captain1: cap1,
+                captain2: cap2,
+              });
+              headlineEn = `[T:${team1.entry_name}] ([N:${team1.titles}] wins, [N:${gwPts1} Pts] provisionally) and [T:${team2.entry_name}] ([N:${team2.titles}] wins, [N:${gwPts2} Pts] provisionally) battle in the Most GW Wins race with captains [P:${cap1}] vs [P:${cap2}].`;
+            } else if (cap1 && cap2 && cap1 === cap2) {
+              const diffStarters = getTopDifferingStarters(team1.entry_id, team2.entry_id);
+              if (diffStarters) {
+                headlineId = renderTemplateBranch(tmpl.template, 'kapten sama', {
+                  team1: team1.entry_name,
+                  titles1: team1.titles,
+                  gw_pts1: gwPts1,
+                  team2: team2.entry_name,
+                  titles2: team2.titles,
+                  gw_pts2: gwPts2,
+                  captain: cap1,
+                  diff_player1: diffStarters.player1,
+                  diff_player2: diffStarters.player2,
+                });
+                headlineEn = `[T:${team1.entry_name}] ([N:${gwPts1} Pts] provisionally) and [T:${team2.entry_name}] ([N:${gwPts2} Pts] provisionally) both captain [P:${cap1}] in the Most GW Wins race; differentials turn to [P:${diffStarters.player1}] and [P:${diffStarters.player2}].`;
+              }
+            }
+
+            if (headlineId) {
+              produced.push({
+                id: tmpl.id,
+                headlineId,
+                headlineEn,
+                dramaScore: 84,
+              });
+            }
+          }
           break;
         }
       }

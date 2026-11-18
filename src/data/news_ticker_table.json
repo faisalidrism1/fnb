@@ -1,7 +1,7 @@
 [
   {
     "id": "CF_STANDINGS_GAMEWEEK_WINNER",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -24,7 +24,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -47,7 +47,7 @@
   },
   {
     "id": "CF_STANDINGS_WEEKLY_WINS_MOST",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -70,7 +70,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_RISE",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -92,7 +92,7 @@
   },
   {
     "id": "CF_PLAYER_TOP_PERFORMER_GW_SCORER",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -114,33 +114,8 @@
     ]
   },
   {
-    "id": "CF_LINEUP_AUTOSUB_CONFIRMED",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Lineup",
-    "sub_kategori": "Autosub",
-    "drama_score": 86,
-    "poin_tayang": 0,
-    "text_berita": "[T:AHAY JEBRET] meraih [N:+4 Poin] lewat autosub [P:A.Becker] yang masuk menggantikan [P:João Pedro].",
-    "text_berita_en": "[T:AHAY JEBRET] gained [N:+4 Pts] via an autosub as [P:A.Becker] replaced [P:João Pedro].",
-    "gw": 10,
-    "teams": [
-      "AHAY JEBRET"
-    ],
-    "players": [
-      "A.Becker",
-      "João Pedro"
-    ]
-  },
-  {
     "id": "CF_CAPTAIN_POPULAR_MOST_CAPTAINED",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -162,7 +137,7 @@
   },
   {
     "id": "CF_CHIP_WILDCARD_1_blue_one",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -184,7 +159,7 @@
   },
   {
     "id": "CF_CHIP_FREE_HIT_1_tim_holland",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -206,7 +181,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_1_fornaspengawasan",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -228,7 +203,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_2_telur_dadar",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -250,7 +225,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_3_ehajrakab_fc",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -272,7 +247,7 @@
   },
   {
     "id": "CF_CHIP_TRIPLE_CAPTAIN_1_anti_koruptor_laknat",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -296,7 +271,7 @@
   },
   {
     "id": "CF_CHIP_TRIPLE_CAPTAIN_2_rajo_s_team",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -320,7 +295,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_1_asoy_banget",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -342,7 +317,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_2_fornaspengawasan",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -364,7 +339,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_3_notyet",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -386,7 +361,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_1_cherki",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -411,7 +386,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_2_gro",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -436,7 +411,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_s_3_roefs",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -461,7 +436,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_1_n_jackson",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -486,7 +461,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_2_gro",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -511,7 +486,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_3_degaard",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -536,7 +511,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_1_a2n_s_team",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -558,7 +533,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_2_ceved_sc",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -580,7 +555,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_3_amenk_wenger",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -602,7 +577,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_1_r4_r5",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -625,7 +600,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_2_r15_r16",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -648,7 +623,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_3_r19_r20",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -671,7 +646,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_1_muharemovic",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -696,7 +671,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_2_gro",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -721,7 +696,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_3_cherki",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -746,7 +721,7 @@
   },
   {
     "id": "CF_CAPTAIN_VICE_CAPTAIN_1_ahay_jebret",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -771,7 +746,7 @@
   },
   {
     "id": "CF_CAPTAIN_DIFFERENTIAL_RETURN_1_kuromi_fc",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -795,7 +770,7 @@
   },
   {
     "id": "CF_CAPTAIN_DIFFERENTIAL_RETURN_2_papa_jolin",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -819,7 +794,7 @@
   },
   {
     "id": "CF_CAPTAIN_DIFFERENTIAL_RETURN_3_bercelana",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -843,7 +818,7 @@
   },
   {
     "id": "CF_TRANSFER_IN_MOST_BOUGHT",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -866,7 +841,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_brighton_de_cuyper",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -888,7 +863,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_arsenal_calafiori",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -910,7 +885,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_leeds_muharemovic",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -932,7 +907,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_sunderland_roefs",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -954,7 +929,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_1_wirtz",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -978,7 +953,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_2_e_le_fee",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1002,7 +977,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_3_mcginn",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1028,7 +1003,7 @@
   },
   {
     "id": "CF_MATCH_BONUS_POINTS",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1050,7 +1025,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_red_thiago",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1072,7 +1047,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_gvardiol",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1094,7 +1069,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_guehi",
-    "timestamp_produksi": "2026-11-16T18:15:56.893Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.163Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1116,7 +1091,7 @@
   },
   {
     "id": "PV_STANDINGS_TITLE_RACE",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1139,7 +1114,7 @@
   },
   {
     "id": "PV_STANDINGS_GAMEWEEK_LEADER",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1162,7 +1137,7 @@
   },
   {
     "id": "PV_PLAYER_TOP_PERFORMER",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1185,7 +1160,7 @@
   },
   {
     "id": "PV_CAPTAIN_POPULAR_MOST_CAPTAINED",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1208,7 +1183,7 @@
   },
   {
     "id": "PV_CAPTAIN_VICE_CAPTAIN_1_ahay_jebret",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1232,33 +1207,8 @@
     ]
   },
   {
-    "id": "PV_LINEUP_AUTOSUB_PENDING_1_ahay_jebret",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
-    "fase": "Provisional",
-    "waktu_tayang": [
-      "Provisional"
-    ],
-    "kategori": "Lineup",
-    "sub_kategori": "Autosub",
-    "drama_score": 86,
-    "poin_tayang": 0,
-    "text_berita": "[T:AHAY JEBRET] menanti autosub untuk memasukkan [P:A.Becker] ([N:4 Poin]) menggantikan [P:João Pedro] yang absen.",
-    "text_berita_en": "[T:AHAY JEBRET] awaits automatic substitution to bring [P:A.Becker] ([N:4 Pts]) on for [P:João Pedro].",
-    "gw": 10,
-    "teams": [
-      "AHAY JEBRET"
-    ],
-    "players": [
-      "A.Becker",
-      "João Pedro"
-    ]
-  },
-  {
     "id": "PV_LINEUP_BENCH_TOTAL_1_rdwndvsn",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1282,7 +1232,7 @@
   },
   {
     "id": "PV_LINEUP_BENCH_TOTAL_2_mesin_fc",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1306,7 +1256,7 @@
   },
   {
     "id": "PV_LINEUP_BENCH_TOTAL_3_mooy_pablo",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1330,7 +1280,7 @@
   },
   {
     "id": "PV_CHIP_WILDCARD_1_blue_one",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1352,7 +1302,7 @@
   },
   {
     "id": "PV_CHIP_FREE_HIT_1_tim_holland",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1374,7 +1324,7 @@
   },
   {
     "id": "PV_CHIP_BENCH_BOOST_1_fornaspengawasan",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1396,7 +1346,7 @@
   },
   {
     "id": "PV_CHIP_BENCH_BOOST_2_telur_dadar",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1418,7 +1368,7 @@
   },
   {
     "id": "PV_CHIP_BENCH_BOOST_3_ehajrakab_fc",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1440,7 +1390,7 @@
   },
   {
     "id": "PV_CHIP_TRIPLE_CAPTAIN_1_anti_koruptor_laknat",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1464,7 +1414,7 @@
   },
   {
     "id": "PV_CHIP_TRIPLE_CAPTAIN_2_rajo_s_team",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1488,7 +1438,7 @@
   },
   {
     "id": "PV_TRANSFER_HITS_EVALUATION_1_asoy_banget",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1512,7 +1462,7 @@
   },
   {
     "id": "PV_TRANSFER_HITS_EVALUATION_2_fornaspengawasan",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1536,7 +1486,7 @@
   },
   {
     "id": "PV_TRANSFER_HITS_EVALUATION_3_notyet",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1560,7 +1510,7 @@
   },
   {
     "id": "PV_MATCH_CLEAN_SHEET_leeds_muharemovi",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1582,7 +1532,7 @@
   },
   {
     "id": "PV_MATCH_CLEAN_SHEET_arsenal_calafiori",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1604,7 +1554,7 @@
   },
   {
     "id": "PV_MATCH_CLEAN_SHEET_brighton_de_cuyper",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1626,7 +1576,7 @@
   },
   {
     "id": "PV_MATCH_CLEAN_SHEET_sunderland_roefs",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1648,7 +1598,7 @@
   },
   {
     "id": "PV_STANDINGS_RANK_MOVEMENT_up_rajo_s_team",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1670,7 +1620,7 @@
   },
   {
     "id": "PV_STANDINGS_RANK_MOVEMENT_up_tolyam074",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1692,7 +1642,7 @@
   },
   {
     "id": "PV_STANDINGS_RANK_MOVEMENT_down_a2n_s_team",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1714,7 +1664,7 @@
   },
   {
     "id": "PV_STANDINGS_RANK_MOVEMENT_down_ceved_sc",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1736,7 +1686,7 @@
   },
   {
     "id": "PV_TRANSFER_OUT_SOLD_HAULERS_1_cherki",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1761,7 +1711,7 @@
   },
   {
     "id": "PV_TRANSFER_OUT_SOLD_HAULERS_2_gro",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1786,7 +1736,7 @@
   },
   {
     "id": "PV_TRANSFER_OUT_SOLD_HAULERS_s_3_roefs",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1811,7 +1761,7 @@
   },
   {
     "id": "PV_CAPTAIN_ALTERNATIVE_MISSED_HAUL_1_n_jackson",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1836,7 +1786,7 @@
   },
   {
     "id": "PV_CAPTAIN_ALTERNATIVE_MISSED_HAUL_2_gro",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1861,7 +1811,7 @@
   },
   {
     "id": "PV_CAPTAIN_ALTERNATIVE_MISSED_HAUL_3_degaard",
-    "timestamp_produksi": "2026-11-16T18:15:56.983Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.729Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Provisional",
@@ -1886,7 +1836,7 @@
   },
   {
     "id": "BM_MATCH_CLEAN_SHEET_leeds_muharemovi",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -1908,7 +1858,7 @@
   },
   {
     "id": "BM_MATCH_CLEAN_SHEET_arsenal_calafiori",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -1930,7 +1880,7 @@
   },
   {
     "id": "BM_MATCH_CLEAN_SHEET_brighton_de_cuyper",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -1952,7 +1902,7 @@
   },
   {
     "id": "BM_MATCH_CLEAN_SHEET_sunderland_roefs",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -1974,7 +1924,7 @@
   },
   {
     "id": "BM_MATCH_GOAL_CONTRIBUTORS_multi_barry",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -1996,7 +1946,7 @@
   },
   {
     "id": "BM_MATCH_GOAL_CONTRIBUTORS_multi_delap",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2018,7 +1968,7 @@
   },
   {
     "id": "BM_MATCH_GOAL_CONTRIBUTORS_ga_delap_schlager",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2041,7 +1991,7 @@
   },
   {
     "id": "BM_MATCH_GOAL_CONTRIBUTORS_ga_delap_gibbs_white",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2064,7 +2014,7 @@
   },
   {
     "id": "BM_MATCH_BONUS_POINTS_delap",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2086,7 +2036,7 @@
   },
   {
     "id": "BM_MATCH_BONUS_POINTS_barry",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2108,7 +2058,7 @@
   },
   {
     "id": "BM_MATCH_BONUS_POINTS_wirtz",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2130,7 +2080,7 @@
   },
   {
     "id": "BM_MATCH_INJURY_gvardiol",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2152,7 +2102,7 @@
   },
   {
     "id": "BM_MATCH_INJURY_gu_hi",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2174,7 +2124,7 @@
   },
   {
     "id": "BM_MATCH_INJURY_maguire",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2196,7 +2146,7 @@
   },
   {
     "id": "BM_LINEUP_BENCH_POINTS_1_long_moo_long_fc",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2220,7 +2170,7 @@
   },
   {
     "id": "BM_LINEUP_BENCH_POINTS_2_telur_dadar",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2244,7 +2194,7 @@
   },
   {
     "id": "BM_LINEUP_BENCH_POINTS_3_prabu_belgeduwelbeh",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2267,32 +2217,8 @@
     ]
   },
   {
-    "id": "BM_LINEUP_AUTOSUB_ALERT_1_ahay_jebret",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
-    "fase": "Between Match",
-    "waktu_tayang": [
-      "Between Match"
-    ],
-    "kategori": "Lineup",
-    "sub_kategori": "Autosub",
-    "drama_score": 84,
-    "poin_tayang": 0,
-    "text_berita": "[T:AHAY JEBRET] menanti autosub setelah starter [P:João Pedro] ([C:Chelsea]) absen bermain (0 menit).",
-    "text_berita_en": "[T:AHAY JEBRET] awaits an autosub after starter [P:João Pedro] ([C:Chelsea]) played 0 minutes.",
-    "gw": 10,
-    "teams": [
-      "AHAY JEBRET"
-    ],
-    "players": [
-      "João Pedro"
-    ]
-  },
-  {
     "id": "BM_STANDINGS_TITLE_RACE",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2304,18 +2230,22 @@
     "sub_kategori": "Title Race",
     "drama_score": 91,
     "poin_tayang": 0,
-    "text_berita": "[T:Yuk Bisa Yuk FC] memimpin klasemen sementara dengan keunggulan [N:19 Poin] atas [T:PSIS FC] di peringkat kedua.",
-    "text_berita_en": "[T:Yuk Bisa Yuk FC] leads the live standings by [N:19 Pts] over [T:PSIS FC] in 2nd place.",
+    "text_berita": "Pemuncak klasemen sementara [T:Yuk Bisa Yuk FC] unggul [N:19 Poin] atas [T:PSIS FC] dengan keduanya menunjuk [P:Haaland] sebagai kapten, sehingga penentu selisih poin sementara beralih ke [P:Palmer] dan [P:Mbeumo].",
+    "text_berita_en": "Provisional leader [T:Yuk Bisa Yuk FC] leads [T:PSIS FC] by [N:19 Pts] with both captaining [P:Haaland]; differentials turn to [P:Palmer] and [P:Mbeumo].",
     "gw": 10,
     "teams": [
       "Yuk Bisa Yuk FC",
       "PSIS FC"
     ],
-    "players": []
+    "players": [
+      "Haaland",
+      "Palmer",
+      "Mbeumo"
+    ]
   },
   {
     "id": "BM_STANDINGS_GAMEWEEK_LEADER",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2337,7 +2267,7 @@
   },
   {
     "id": "BM_STANDINGS_RANK_MOVEMENT_up_rajo_s_team",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2359,7 +2289,7 @@
   },
   {
     "id": "BM_STANDINGS_RANK_MOVEMENT_up_tolyam074",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2381,7 +2311,7 @@
   },
   {
     "id": "BM_STANDINGS_RANK_MOVEMENT_down_a2n_s_team",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2403,7 +2333,7 @@
   },
   {
     "id": "BM_STANDINGS_RANK_MOVEMENT_down_ceved_sc",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2425,7 +2355,7 @@
   },
   {
     "id": "BM_CAPTAIN_VICE_CAPTAIN_1_ahay_jebret",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2450,7 +2380,7 @@
   },
   {
     "id": "BM_CHIP_PROGRESS_tc_1_anti_koruptor_laknat",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2462,7 +2392,7 @@
     "sub_kategori": "Chip Progress",
     "drama_score": 89,
     "poin_tayang": 0,
-    "text_berita": "[T:Anti Koruptor Laknat] mengantongi [N:24 Poin] sementara dari kapten [P:Isak] lewat [N:Triple Captain].",
+    "text_berita": "[T:Anti Koruptor Laknat] mengaktifkan [N:Triple Captain] dan membukukan [N:24 Poin] sementara dari kapten [P:Isak].",
     "text_berita_en": "[T:Anti Koruptor Laknat] provisionally holds [N:24 Pts] from captain [P:Isak] via [N:Triple Captain].",
     "gw": 10,
     "teams": [
@@ -2474,7 +2404,7 @@
   },
   {
     "id": "BM_CHIP_PROGRESS_bb_2_fornaspengawasan",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2486,7 +2416,7 @@
     "sub_kategori": "Chip Progress",
     "drama_score": 87,
     "poin_tayang": 0,
-    "text_berita": "[T:FornasPengawasan] mengoleksi [N:19 Poin] dari bangku cadangannya lewat [N:Bench Boost] sejauh ini.",
+    "text_berita": "[T:FornasPengawasan] mengaktifkan [N:Bench Boost] dan mengoleksi [N:19 Poin] sementara dari bangku cadangannya.",
     "text_berita_en": "[T:FornasPengawasan] has collected [N:19 Pts] from the bench via [N:Bench Boost] so far.",
     "gw": 10,
     "teams": [
@@ -2496,7 +2426,7 @@
   },
   {
     "id": "BM_CHIP_PROGRESS_tc_3_rajo_s_team",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2508,7 +2438,7 @@
     "sub_kategori": "Chip Progress",
     "drama_score": 89,
     "poin_tayang": 0,
-    "text_berita": "[T:Rajo's Team] mengantongi [N:18 Poin] sementara dari kapten [P:De Cuyper] lewat [N:Triple Captain].",
+    "text_berita": "[T:Rajo's Team] mengaktifkan [N:Triple Captain] dan membukukan [N:18 Poin] sementara dari kapten [P:De Cuyper].",
     "text_berita_en": "[T:Rajo's Team] provisionally holds [N:18 Pts] from captain [P:De Cuyper] via [N:Triple Captain].",
     "gw": 10,
     "teams": [
@@ -2520,7 +2450,7 @@
   },
   {
     "id": "BM_CHIP_PROGRESS_bb_4_telur_dadar",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2532,7 +2462,7 @@
     "sub_kategori": "Chip Progress",
     "drama_score": 87,
     "poin_tayang": 0,
-    "text_berita": "[T:TELUR DADAR] mengoleksi [N:22 Poin] dari bangku cadangannya lewat [N:Bench Boost] sejauh ini.",
+    "text_berita": "[T:TELUR DADAR] mengaktifkan [N:Bench Boost] dan mengoleksi [N:22 Poin] sementara dari bangku cadangannya.",
     "text_berita_en": "[T:TELUR DADAR] has collected [N:22 Pts] from the bench via [N:Bench Boost] so far.",
     "gw": 10,
     "teams": [
@@ -2542,7 +2472,7 @@
   },
   {
     "id": "BM_CHIP_PROGRESS_bb_5_ehajrakab_fc",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2554,7 +2484,7 @@
     "sub_kategori": "Chip Progress",
     "drama_score": 87,
     "poin_tayang": 0,
-    "text_berita": "[T:ehajrakab fc] mengoleksi [N:21 Poin] dari bangku cadangannya lewat [N:Bench Boost] sejauh ini.",
+    "text_berita": "[T:ehajrakab fc] mengaktifkan [N:Bench Boost] dan mengoleksi [N:21 Poin] sementara dari bangku cadangannya.",
     "text_berita_en": "[T:ehajrakab fc] has collected [N:21 Pts] from the bench via [N:Bench Boost] so far.",
     "gw": 10,
     "teams": [
@@ -2564,7 +2494,7 @@
   },
   {
     "id": "BM_TRANSFER_HITS_EVALUATION_1_asoy_banget",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2576,7 +2506,7 @@
     "sub_kategori": "Hits",
     "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[T:asoy banget] menanggung penalti hit [N:-24 Poin], sementara rekrutan barunya [P:Araujo] ([C:Liverpool]) membukukan [N:7 Poin] pada laga yang sudah tuntas.",
+    "text_berita": "[T:asoy banget] memulai pekan dengan penalti poin [N:-24 Poin], sementara rekrutan barunya [P:Araujo] ([C:Liverpool]) membukukan [N:7 Poin] pada laga yang sudah tuntas.",
     "text_berita_en": "[T:asoy banget] took a [N:-24 Pts] hit while new signing [P:Araujo] ([C:Liverpool]) recorded [N:7 Pts] in a completed match.",
     "gw": 10,
     "teams": [
@@ -2588,7 +2518,7 @@
   },
   {
     "id": "BM_TRANSFER_HITS_EVALUATION_2_fornaspengawasan",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2600,7 +2530,7 @@
     "sub_kategori": "Hits",
     "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[T:FornasPengawasan] menanggung penalti hit [N:-12 Poin], sementara rekrutan barunya [P:Raya] ([C:Arsenal]) membukukan [N:6 Poin] pada laga yang sudah tuntas.",
+    "text_berita": "[T:FornasPengawasan] memulai pekan dengan penalti poin [N:-12 Poin], sementara rekrutan barunya [P:Raya] ([C:Arsenal]) membukukan [N:6 Poin] pada laga yang sudah tuntas.",
     "text_berita_en": "[T:FornasPengawasan] took a [N:-12 Pts] hit while new signing [P:Raya] ([C:Arsenal]) recorded [N:6 Pts] in a completed match.",
     "gw": 10,
     "teams": [
@@ -2612,7 +2542,7 @@
   },
   {
     "id": "BM_TRANSFER_HITS_EVALUATION_3_notyet",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2624,7 +2554,7 @@
     "sub_kategori": "Hits",
     "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[T:notyet] menanggung penalti hit [N:-12 Poin], sementara rekrutan barunya [P:Konsa] ([C:Arsenal]) membukukan [N:8 Poin] pada laga yang sudah tuntas.",
+    "text_berita": "[T:notyet] memulai pekan dengan penalti poin [N:-12 Poin], sementara rekrutan barunya [P:Konsa] ([C:Arsenal]) membukukan [N:8 Poin] pada laga yang sudah tuntas.",
     "text_berita_en": "[T:notyet] took a [N:-12 Pts] hit while new signing [P:Konsa] ([C:Arsenal]) recorded [N:8 Pts] in a completed match.",
     "gw": 10,
     "teams": [
@@ -2636,7 +2566,7 @@
   },
   {
     "id": "BM_CAPTAIN_DIFFERENTIAL_RETURN_1_kuromi_fc",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2648,7 +2578,7 @@
     "sub_kategori": "Differential",
     "drama_score": 88,
     "poin_tayang": 0,
-    "text_berita": "[T:Kuromi FC] mengoleksi [N:22 Poin] dari kapten differential [P:N.Jackson] ([C:Aston Villa]) usai laga melawan [C:Man Utd].",
+    "text_berita": "[T:Kuromi FC] sebagai satu-satunya tim yang menunjuk [P:N.Jackson] ([C:Aston Villa]) sebagai kapten membukukan [N:22 Poin] usai laga melawan [C:Man Utd].",
     "text_berita_en": "[T:Kuromi FC] collected [N:22 Pts] from differential captain [P:N.Jackson] ([C:Aston Villa]) after facing [C:Man Utd].",
     "gw": 10,
     "teams": [
@@ -2660,7 +2590,7 @@
   },
   {
     "id": "BM_CAPTAIN_DIFFERENTIAL_RETURN_2_papa_jolin",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2672,7 +2602,7 @@
     "sub_kategori": "Differential",
     "drama_score": 88,
     "poin_tayang": 0,
-    "text_berita": "[T:Papa Jolin] mengoleksi [N:22 Poin] dari kapten differential [P:Ødegaard] ([C:Arsenal]) usai laga melawan [C:Hull City].",
+    "text_berita": "[T:Papa Jolin] sebagai satu-satunya tim yang menunjuk [P:Ødegaard] ([C:Arsenal]) sebagai kapten membukukan [N:22 Poin] usai laga melawan [C:Hull City].",
     "text_berita_en": "[T:Papa Jolin] collected [N:22 Pts] from differential captain [P:Ødegaard] ([C:Arsenal]) after facing [C:Hull City].",
     "gw": 10,
     "teams": [
@@ -2684,7 +2614,7 @@
   },
   {
     "id": "BM_CAPTAIN_DIFFERENTIAL_RETURN_3_bercelana",
-    "timestamp_produksi": "2026-11-16T18:15:56.956Z",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
     "sumber": "Sys",
     "status_tayang": "N",
     "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
@@ -2696,7 +2626,7 @@
     "sub_kategori": "Differential",
     "drama_score": 88,
     "poin_tayang": 0,
-    "text_berita": "[T:BERCELANA] mengoleksi [N:20 Poin] dari kapten differential [P:B.Fernandes] ([C:Man Utd]) usai laga melawan [C:Aston Villa].",
+    "text_berita": "[T:BERCELANA] sebagai satu-satunya tim yang menunjuk [P:B.Fernandes] ([C:Man Utd]) sebagai kapten membukukan [N:20 Poin] usai laga melawan [C:Aston Villa].",
     "text_berita_en": "[T:BERCELANA] collected [N:20 Pts] from differential captain [P:B.Fernandes] ([C:Man Utd]) after facing [C:Aston Villa].",
     "gw": 10,
     "teams": [
@@ -2704,6 +2634,33 @@
     ],
     "players": [
       "B.Fernandes"
+    ]
+  },
+  {
+    "id": "BM_STANDINGS_WEEKLY_WINS_MOST",
+    "timestamp_produksi": "2026-11-18T05:11:32.434Z",
+    "sumber": "Sys",
+    "status_tayang": "N",
+    "keterangan_tidak_tayang": "Fase saat ini (Confirmed) bukan Between Match",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Weekly Wins",
+    "drama_score": 84,
+    "poin_tayang": 0,
+    "text_berita": "[T:Blackswann] ([N:1] kali juara, [N:62 Poin] sementara) dan [T:rdwndvsn] ([N:1] kali juara, [N:65 Poin] sementara) keduanya menunjuk [P:Haaland] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin sementara beralih ke [P:Kudus] dan [P:Raya].",
+    "text_berita_en": "[T:Blackswann] ([N:62 Pts] provisionally) and [T:rdwndvsn] ([N:65 Pts] provisionally) both captain [P:Haaland] in the Most GW Wins race; differentials turn to [P:Kudus] and [P:Raya].",
+    "gw": 10,
+    "teams": [
+      "Blackswann",
+      "rdwndvsn"
+    ],
+    "players": [
+      "Haaland",
+      "Kudus",
+      "Raya"
     ]
   },
   {
@@ -2816,8 +2773,8 @@
     "sub_kategori": "Title Race",
     "drama_score": 89,
     "poin_tayang": 2,
-    "text_berita": "[T:Yuk Bisa Yuk FC] mempertahankan keunggulan [N:15 Poin] atas [T:PSIS FC]; keduanya mengapteni [P:Haaland], sehingga pembeda beralih ke [P:Palmer] vs [P:Mbeumo].",
-    "text_berita_en": "[T:Yuk Bisa Yuk FC] mempertahankan keunggulan [N:15 Poin] atas [T:PSIS FC]; keduanya mengapteni [P:Haaland], sehingga pembeda beralih ke [P:Palmer] vs [P:Mbeumo].",
+    "text_berita": "Pemuncak klasemen [T:Yuk Bisa Yuk FC] unggul [N:15 Poin] atas [T:PSIS FC] dengan keduanya menunjuk [P:Haaland] sebagai kapten, sehingga penentu selisih poin beralih ke [P:Palmer] dan [P:Mbeumo].",
+    "text_berita_en": "Pemuncak klasemen [T:Yuk Bisa Yuk FC] unggul [N:15 Poin] atas [T:PSIS FC] dengan keduanya menunjuk [P:Haaland] sebagai kapten, sehingga penentu selisih poin beralih ke [P:Palmer] dan [P:Mbeumo].",
     "gw": 10,
     "teams": [
       "Yuk Bisa Yuk FC",
@@ -2843,8 +2800,8 @@
     "sub_kategori": "Popular",
     "drama_score": 83,
     "poin_tayang": 2,
-    "text_berita": "[P:Haaland] menjadi kapten terpopuler di liga setelah dipilih [N:65] tim, diikuti [P:Isak] ([N:9] tim), sementara [N:23] tim memilih kapten lain.",
-    "text_berita_en": "[P:Haaland] menjadi kapten terpopuler di liga setelah dipilih [N:65] tim, diikuti [P:Isak] ([N:9] tim), sementara [N:23] tim memilih kapten lain.",
+    "text_berita": "[P:Haaland] memuncaki daftar kapten terpopuler setelah dipilih [N:65] tim, diikuti [P:Isak] ([N:9] tim), sementara [N:23] tim memilih kapten lain.",
+    "text_berita_en": "[P:Haaland] memuncaki daftar kapten terpopuler setelah dipilih [N:65] tim, diikuti [P:Isak] ([N:9] tim), sementara [N:23] tim memilih kapten lain.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -2866,8 +2823,8 @@
     "sub_kategori": "Hits",
     "drama_score": 84,
     "poin_tayang": 1,
-    "text_berita": "[T:asoy banget] ([N:-24 Poin]), [T:Sunnah Rasul FC] ([N:-12 Poin]), dan [N:13] tim lainnya mengambil transfer hit dan memulai pekan dengan penalti poin.",
-    "text_berita_en": "[T:asoy banget] ([N:-24 Poin]), [T:Sunnah Rasul FC] ([N:-12 Poin]), dan [N:13] tim lainnya mengambil transfer hit dan memulai pekan dengan penalti poin.",
+    "text_berita": "[T:asoy banget] ([N:-24 Poin]), [T:Sunnah Rasul FC] ([N:-12 Poin]) dan [N:13] tim lainnya memulai pekan dengan penalti poin akibat aktivitas transfer berlebih.",
+    "text_berita_en": "[T:asoy banget] ([N:-24 Poin]), [T:Sunnah Rasul FC] ([N:-12 Poin]) dan [N:13] tim lainnya memulai pekan dengan penalti poin akibat aktivitas transfer berlebih.",
     "gw": 10,
     "teams": [
       "asoy banget",
@@ -2962,8 +2919,8 @@
     "sub_kategori": "Differential",
     "drama_score": 87,
     "poin_tayang": 2,
-    "text_berita": "[T:BERCELANA] menjadi satu-satunya tim yang mengapteni [P:B.Fernandes].",
-    "text_berita_en": "[T:BERCELANA] menjadi satu-satunya tim yang mengapteni [P:B.Fernandes].",
+    "text_berita": "[T:BERCELANA] menjadi satu-satunya tim yang menunjuk [P:B.Fernandes] sebagai kapten.",
+    "text_berita_en": "[T:BERCELANA] menjadi satu-satunya tim yang menunjuk [P:B.Fernandes] sebagai kapten.",
     "gw": 10,
     "teams": [
       "BERCELANA"
@@ -2986,8 +2943,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Guéhi] ([C:Man City]) diragukan tampil karena cedera yang belum dirinci — berdampak ke [N:13] pemilik.",
-    "text_berita_en": "[P:Guéhi] ([C:Man City]) diragukan tampil karena cedera yang belum dirinci — berdampak ke [N:13] pemilik.",
+    "text_berita": "[P:Guéhi] ([C:Man City]) diragukan tampil akibat masalah cedera sehingga menimbulkan tanda tanya bagi [N:13] pemiliknya.",
+    "text_berita_en": "[P:Guéhi] ([C:Man City]) diragukan tampil akibat masalah cedera sehingga menimbulkan tanda tanya bagi [N:13] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3008,8 +2965,8 @@
     "sub_kategori": "Weekly Wins",
     "drama_score": 82,
     "poin_tayang": 2,
-    "text_berita": "[T:Blackswann] ([N:1 Gelar]) dan [T:rdwndvsn] ([N:1 Gelar]) mengapteni [P:Haaland], menjadikan duel [P:Kudus] vs [P:Raya] sebagai penentu gelar mingguan.",
-    "text_berita_en": "[T:Blackswann] ([N:1 Gelar]) dan [T:rdwndvsn] ([N:1 Gelar]) mengapteni [P:Haaland], menjadikan duel [P:Kudus] vs [P:Raya] sebagai penentu gelar mingguan.",
+    "text_berita": "[T:Blackswann] ([N:1] kali juara) dan [T:rdwndvsn] ([N:1] kali juara) keduanya menunjuk [P:Haaland] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin beralih ke [P:Kudus] dan [P:Raya].",
+    "text_berita_en": "[T:Blackswann] ([N:1] kali juara) dan [T:rdwndvsn] ([N:1] kali juara) keduanya menunjuk [P:Haaland] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin beralih ke [P:Kudus] dan [P:Raya].",
     "gw": 10,
     "teams": [
       "Blackswann",
@@ -3087,8 +3044,8 @@
     "sub_kategori": "Transfers Out",
     "drama_score": 82,
     "poin_tayang": 2,
-    "text_berita": "[P:João Pedro] paling banyak dilepas oleh [N:14] tim, disusul [P:Cherki] ([N:11] tim).",
-    "text_berita_en": "[P:João Pedro] paling banyak dilepas oleh [N:14] tim, disusul [P:Cherki] ([N:11] tim).",
+    "text_berita": "[P:João Pedro] menempati urutan teratas transfer keluar setelah dilepas [N:14] tim, diikuti [P:Cherki] ([N:11] tim).",
+    "text_berita_en": "[P:João Pedro] menempati urutan teratas transfer keluar setelah dilepas [N:14] tim, diikuti [P:Cherki] ([N:11] tim).",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3110,8 +3067,8 @@
     "sub_kategori": "Differential",
     "drama_score": 86,
     "poin_tayang": 2,
-    "text_berita": "[T:Wayolo FC] memasang duo differential [P:Wirtz] ([N:1%]) dan [P:Jacquet] ([N:4%]) di starting XI.",
-    "text_berita_en": "[T:Wayolo FC] memasang duo differential [P:Wirtz] ([N:1%]) dan [P:Jacquet] ([N:4%]) di starting XI.",
+    "text_berita": "[T:Wayolo FC] menyertakan dua pemain differential, [P:Wirtz] ([N:1%]) dan [P:Jacquet] ([N:4%]), di susunan pemain inti.",
+    "text_berita_en": "[T:Wayolo FC] menyertakan dua pemain differential, [P:Wirtz] ([N:1%]) dan [P:Jacquet] ([N:4%]), di susunan pemain inti.",
     "gw": 10,
     "teams": [
       "Wayolo FC"
@@ -3135,8 +3092,8 @@
     "sub_kategori": "Ownership",
     "drama_score": 85,
     "poin_tayang": 1,
-    "text_berita": "[P:Haaland] mencatat kepemilikan tertinggi di FNB League sebesar [N:96%], diikuti [P:De Cuyper] dengan [N:79%].",
-    "text_berita_en": "[P:Haaland] mencatat kepemilikan tertinggi di FNB League sebesar [N:96%], diikuti [P:De Cuyper] dengan [N:79%].",
+    "text_berita": "[P:Haaland] menjadi pemain dengan kepemilikan tertinggi sebesar [N:96%], mengungguli [P:De Cuyper] ([N:79%]).",
+    "text_berita_en": "[P:Haaland] menjadi pemain dengan kepemilikan tertinggi sebesar [N:96%], mengungguli [P:De Cuyper] ([N:79%]).",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3178,8 +3135,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Manzambi] ([C:Aston Villa]) diragukan tampil karena cedera betis — berdampak ke [N:12] pemilik.",
-    "text_berita_en": "[P:Manzambi] ([C:Aston Villa]) diragukan tampil karena cedera betis — berdampak ke [N:12] pemilik.",
+    "text_berita": "[P:Manzambi] ([C:Aston Villa]) diragukan tampil akibat cedera betis sehingga menimbulkan tanda tanya bagi [N:12] pemiliknya.",
+    "text_berita_en": "[P:Manzambi] ([C:Aston Villa]) diragukan tampil akibat cedera betis sehingga menimbulkan tanda tanya bagi [N:12] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3200,8 +3157,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Belloumi] ([C:Hull City]) diragukan tampil karena cedera hamstring — berdampak ke [N:10] pemilik.",
-    "text_berita_en": "[P:Belloumi] ([C:Hull City]) diragukan tampil karena cedera hamstring — berdampak ke [N:10] pemilik.",
+    "text_berita": "[P:Belloumi] ([C:Hull City]) diragukan tampil akibat cedera hamstring sehingga menimbulkan tanda tanya bagi [N:10] pemiliknya.",
+    "text_berita_en": "[P:Belloumi] ([C:Hull City]) diragukan tampil akibat cedera hamstring sehingga menimbulkan tanda tanya bagi [N:10] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3222,8 +3179,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Virgil] ([C:Liverpool]) diragukan tampil karena cedera yang belum dirinci — berdampak ke [N:4] pemilik.",
-    "text_berita_en": "[P:Virgil] ([C:Liverpool]) diragukan tampil karena cedera yang belum dirinci — berdampak ke [N:4] pemilik.",
+    "text_berita": "[P:Virgil] ([C:Liverpool]) diragukan tampil akibat masalah cedera sehingga menimbulkan tanda tanya bagi [N:4] pemiliknya.",
+    "text_berita_en": "[P:Virgil] ([C:Liverpool]) diragukan tampil akibat masalah cedera sehingga menimbulkan tanda tanya bagi [N:4] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3244,8 +3201,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Brobbey] ([C:Sunderland]) diragukan tampil karena cedera otot — berdampak ke [N:4] pemilik.",
-    "text_berita_en": "[P:Brobbey] ([C:Sunderland]) diragukan tampil karena cedera otot — berdampak ke [N:4] pemilik.",
+    "text_berita": "[P:Brobbey] ([C:Sunderland]) diragukan tampil akibat cedera otot sehingga menimbulkan tanda tanya bagi [N:4] pemiliknya.",
+    "text_berita_en": "[P:Brobbey] ([C:Sunderland]) diragukan tampil akibat cedera otot sehingga menimbulkan tanda tanya bagi [N:4] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3266,8 +3223,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Maguire] ([C:Man Utd]) diragukan tampil karena cedera punggung — berdampak ke [N:3] pemilik.",
-    "text_berita_en": "[P:Maguire] ([C:Man Utd]) diragukan tampil karena cedera punggung — berdampak ke [N:3] pemilik.",
+    "text_berita": "[P:Maguire] ([C:Man Utd]) diragukan tampil akibat cedera punggung sehingga menimbulkan tanda tanya bagi [N:3] pemiliknya.",
+    "text_berita_en": "[P:Maguire] ([C:Man Utd]) diragukan tampil akibat cedera punggung sehingga menimbulkan tanda tanya bagi [N:3] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3288,8 +3245,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Tel] ([C:Spurs]) diragukan tampil karena cedera pergelangan kaki — berdampak ke [N:2] pemilik.",
-    "text_berita_en": "[P:Tel] ([C:Spurs]) diragukan tampil karena cedera pergelangan kaki — berdampak ke [N:2] pemilik.",
+    "text_berita": "[P:Tel] ([C:Spurs]) diragukan tampil akibat cedera pergelangan kaki sehingga menimbulkan tanda tanya bagi [N:2] pemiliknya.",
+    "text_berita_en": "[P:Tel] ([C:Spurs]) diragukan tampil akibat cedera pergelangan kaki sehingga menimbulkan tanda tanya bagi [N:2] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3310,8 +3267,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Strand Larsen] ([C:Crystal Palace]) diragukan tampil karena cedera pergelangan kaki — berdampak ke [N:1] pemilik.",
-    "text_berita_en": "[P:Strand Larsen] ([C:Crystal Palace]) diragukan tampil karena cedera pergelangan kaki — berdampak ke [N:1] pemilik.",
+    "text_berita": "[P:Strand Larsen] ([C:Crystal Palace]) diragukan tampil akibat cedera pergelangan kaki sehingga menimbulkan tanda tanya bagi [N:1] pemiliknya.",
+    "text_berita_en": "[P:Strand Larsen] ([C:Crystal Palace]) diragukan tampil akibat cedera pergelangan kaki sehingga menimbulkan tanda tanya bagi [N:1] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3332,8 +3289,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[P:Xhaka] ([C:Sunderland]) diragukan tampil karena cedera betis — berdampak ke [N:1] pemilik.",
-    "text_berita_en": "[P:Xhaka] ([C:Sunderland]) diragukan tampil karena cedera betis — berdampak ke [N:1] pemilik.",
+    "text_berita": "[P:Xhaka] ([C:Sunderland]) diragukan tampil akibat cedera betis sehingga menimbulkan tanda tanya bagi [N:1] pemiliknya.",
+    "text_berita_en": "[P:Xhaka] ([C:Sunderland]) diragukan tampil akibat cedera betis sehingga menimbulkan tanda tanya bagi [N:1] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3354,8 +3311,8 @@
     "sub_kategori": "Availability",
     "drama_score": 84,
     "poin_tayang": 1,
-    "text_berita": "[P:Gvardiol] ([C:Man City]) diragukan tampil karena cedera yang belum dirinci — berdampak ke [N:21] pemilik.",
-    "text_berita_en": "[P:Gvardiol] ([C:Man City]) diragukan tampil karena cedera yang belum dirinci — berdampak ke [N:21] pemilik.",
+    "text_berita": "[P:Gvardiol] ([C:Man City]) diragukan tampil akibat masalah cedera sehingga menimbulkan tanda tanya bagi [N:21] pemiliknya.",
+    "text_berita_en": "[P:Gvardiol] ([C:Man City]) diragukan tampil akibat masalah cedera sehingga menimbulkan tanda tanya bagi [N:21] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3376,8 +3333,8 @@
     "sub_kategori": "Availability",
     "drama_score": 88,
     "poin_tayang": 1,
-    "text_berita": "[P:Thiago] ([C:Brentford]) dipastikan absen akibat sanksi larangan bertanding — pukulan bagi [N:4] pemilik.",
-    "text_berita_en": "[P:Thiago] ([C:Brentford]) dipastikan absen akibat sanksi larangan bertanding — pukulan bagi [N:4] pemilik.",
+    "text_berita": "[P:Thiago] ([C:Brentford]) dipastikan absen akibat sanksi larangan bertanding sehingga berdampak bagi [N:4] pemiliknya.",
+    "text_berita_en": "[P:Thiago] ([C:Brentford]) dipastikan absen akibat sanksi larangan bertanding sehingga berdampak bagi [N:4] pemiliknya.",
     "gw": 10,
     "teams": [],
     "players": [
@@ -3398,8 +3355,8 @@
     "sub_kategori": "Period",
     "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[N:0'] Kickoff babak pertama di [N:The City Ground]: [C:Nott'm Forest] vs [C:Man City] resmi dimulai pada Gameweek [N:10].",
-    "text_berita_en": "[N:0'] First half kicks off. Gameweek [N:10] match between [C:Nott'm Forest] vs [C:Man City] is underway at [N:The City Ground].",
+    "text_berita": "[N:0'] Babak pertama dimulai di [N:The City Ground]: [C:Nott'm Forest] vs [C:Man City].",
+    "text_berita_en": "[N:0'] First half kicks off at [N:The City Ground]: [C:Nott'm Forest] vs [C:Man City].",
     "gw": 10,
     "teams": [
       "Nott'm Forest",
@@ -3828,7 +3785,7 @@
     "sub_kategori": "Period",
     "drama_score": 92,
     "poin_tayang": 0,
-    "text_berita": "[N:90+6'] Laga usai di [N:The City Ground]: [C:Nott'm Forest] [N:3] - [N:1] [C:Man City] — pencetak gol: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%], [N:2 Gol]), dan [P:Cherki] ([N:31%]).",
+    "text_berita": "[N:90+6'] Laga usai di [N:The City Ground]: [C:Nott'm Forest] [N:3] - [N:1] [C:Man City] — pencetak gol: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%], [N:2 Gol]) dan [P:Cherki] ([N:31%]).",
     "text_berita_en": "[N:90+6'] Full time at [N:The City Ground]. [C:Nott'm Forest] [N:3] - [N:1] [C:Man City]. Goalscorers: [P:Jair Cunha] ([N:0%]), [P:Delap] ([N:0%], [N:2 Goals]), and [P:Cherki] ([N:31%]).",
     "gw": 10,
     "teams": [

@@ -1,14 +1,14 @@
 import { MatchCardItem, MatchPlayerItem, MatchPlayerEvent, PositionType } from '../types.ts';
 
-const FPL_BASE = 'https://fantasy.premierleague.com/api';
-const FPL_HEADERS = {
+export const FPL_BASE = 'https://fantasy.premierleague.com/api';
+export const FPL_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'Accept': 'application/json, text/plain, */*',
   'Referer': 'https://fantasy.premierleague.com/'
 };
 
-const PULSE_BASE = 'https://footballapi.pulselive.com/football';
-const PULSE_HEADERS = {
+export const PULSE_BASE = 'https://footballapi.pulselive.com/football';
+export const PULSE_HEADERS = {
   'Origin': 'https://www.premierleague.com',
   'Referer': 'https://www.premierleague.com/',
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -141,7 +141,7 @@ async function getLatestPulseCompSeason(): Promise<{ id: number; label: string }
  * Fetches all fixtures for the current season from Pulse API and builds a lookup index:
  * Key format: `${gw}_${homeShort}_${awayShort}` -> pulseMatchId
  */
-async function getPulseSeasonFixturesIndex(): Promise<Map<string, number>> {
+export async function getPulseSeasonFixturesIndex(): Promise<Map<string, number>> {
   const now = Date.now();
   const season = await getLatestPulseCompSeason();
 
