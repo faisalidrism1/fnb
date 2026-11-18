@@ -535,3 +535,52 @@ export async function syncPulseMatchesForActiveGw(
     files,
   };
 }
+
+let lastLivePulseSync: { gw: number; at: number } | null = null;
+let inFlightLivePulseSync: Promise<SyncPulseMatchesResult | null> | null = null;
+
+/**
+ * Ensures live Pulse match files for `targetGw` are synced during Live Match phase,
+ * respecting a short cooldown (default 15s) to avoid redundant API calls unless forced.
+ */
+export async function ensureLivePulseMatchesSynced(
+  targetGw?: number,
+  options?: { force?: boolean; ttlMs?: number }
+): Promise<SyncPulseMatchesResult | null> {
+  const db = getOptimalDatabase();
+  const gw = Number(targetGw || db?.meta?.current_gw) || 0;
+  if (!gw) return null;
+
+  const ttlMs = options?.ttlMs ?? 15000;
+  const now = Date.now();
+  if (
+    !options?.force &&
+    lastLivePulseSync &&
+    lastLivePulseSync.gw === gw &&
+    now - lastLivePulseSync.at < ttlMs
+  ) {
+    return null;
+  }
+
+  if (inFlightLivePulseSync) {
+    return inFlightLivePulseSync;
+  }
+
+  inFlightLivePulseSync = (async () => {
+    try {
+      const result = await syncPulseMatchesForActiveGw(gw, {
+        forceRefresh: Boolean(options?.force),
+      });
+      lastLivePulseSync = { gw, at: Date.now() };
+      return result;
+    } catch (err: any) {
+      console.warn('[Pulse Sync] Live Pulse match sync warning:', err?.message || err);
+      return null;
+    } finally {
+      inFlightLivePulseSync = null;
+    }
+  })();
+
+  return inFlightLivePulseSync;
+}
+

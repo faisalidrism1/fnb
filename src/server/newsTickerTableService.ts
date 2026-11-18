@@ -8,8 +8,9 @@ import { generateBetweenMatchStories } from './betweenMatchStoryGenerator.ts';
 import { generateProvisionalStories } from './provisionalStoryGenerator.ts';
 import { getPhase1Templates } from '../data/phase1Templates.ts';
 import { getOptimalDatabase } from './db.ts';
-import { checkLiveBetweenMatchPhase } from './liveBetweenMatchChecker.ts';
+import { checkLiveBetweenMatchPhase, isMatchCardRunning } from './liveBetweenMatchChecker.ts';
 import { loadPulseMatchesForGw } from './pulseMatchSync.ts';
+import { resolveClubName } from '../utils/clubNameResolver.ts';
 import type { MatchCardItem } from '../types.ts';
 
 export { checkLiveBetweenMatchPhase, ensureLiveMatchesAndCheckPhase } from './liveBetweenMatchChecker.ts';
@@ -39,11 +40,46 @@ const TABLE_FILE_PATH = path.join(process.cwd(), 'src/data/news_ticker_table.jso
 let memoryTableCache: NewsTickerDbRow[] | null = null;
 let lastBuiltGw: number | null = null;
 let lastBuiltPhase: string | null = null;
+let lastBuiltAt = 0;
 
 export function clearNewsTickerMemoryCache(): void {
   memoryTableCache = null;
   lastBuiltGw = null;
   lastBuiltPhase = null;
+  lastBuiltAt = 0;
+}
+
+/**
+ * Menghapus semua baris news di container (memori + file news_ticker_table.json).
+ * Dipanggil saat terdeteksi Action A, perubahan GW, perubahan fase, atau reset container.
+ */
+export function clearNewsTickerTable(): void {
+  clearNewsTickerMemoryCache();
+  try {
+    const dir = path.dirname(TABLE_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(TABLE_FILE_PATH, '[]', 'utf-8');
+  } catch (err: any) {
+    console.warn('[News Table Service] Warning clearing container news table:', err?.message || err);
+  }
+}
+
+export function getNewsTickerLastBuiltAt(): number {
+  return lastBuiltAt;
+}
+
+export function getNewsTickerBuiltState(): {
+  gw: number | null;
+  phase: string | null;
+  builtAt: number;
+} {
+  return {
+    gw: lastBuiltGw,
+    phase: lastBuiltPhase,
+    builtAt: lastBuiltAt,
+  };
 }
 
 // Short-lived cache of Editor template IDs from TabAdminEditor (src/data/phase1Templates.ts)
@@ -632,6 +668,94 @@ export function formatPointsAndRankStatus(
   return { headlineId: id, headlineEn: en };
 }
 
+export function normalizeTickerPhase(phase?: string | null): GameweekPhase {
+  const p = String(phase || '').trim().toLowerCase();
+  if (p === 'live' || p === 'live match') return 'Live Match';
+  if (p === 'not started' || p === 'pre-deadline') return 'Not started';
+  if (p === 'between match') return 'Between Match';
+  if (p === 'provisional') return 'Provisional';
+  if (p === 'confirmed') return 'Confirmed';
+  return 'Not started';
+}
+
+/**
+ * Checks whether a Pulse match JSON represents a match that is currently LIVE (in play or Half Time),
+ * strictly excluding finished ('C' / FT) and upcoming ('U') matches.
+ */
+export function isPulseMatchCurrentlyLive(
+  pulseData: any,
+  cachedMatches?: MatchCardItem[] | null
+): boolean {
+  if (!pulseData) return false;
+
+  // Cross-check against fresh MatchCardItem state when available
+  if (Array.isArray(cachedMatches) && cachedMatches.length > 0) {
+    const pHomeRaw =
+      pulseData?.teams?.[0]?.team?.shortName ||
+      pulseData?.teams?.[0]?.team?.club?.shortName ||
+      pulseData?.teams?.[0]?.team?.club?.abbr ||
+      pulseData?.teams?.[0]?.team?.name ||
+      '';
+    const pAwayRaw =
+      pulseData?.teams?.[1]?.team?.shortName ||
+      pulseData?.teams?.[1]?.team?.club?.shortName ||
+      pulseData?.teams?.[1]?.team?.club?.abbr ||
+      pulseData?.teams?.[1]?.team?.name ||
+      '';
+    const pHome = resolveClubName(pHomeRaw).toLowerCase();
+    const pAway = resolveClubName(pAwayRaw).toLowerCase();
+
+    if (pHome && pAway) {
+      const matchedCard = cachedMatches.find((m) => {
+        const mHome = resolveClubName(m.home_team?.name || m.home_team?.short_name).toLowerCase();
+        const mAway = resolveClubName(m.away_team?.name || m.away_team?.short_name).toLowerCase();
+        return mHome === pHome && mAway === pAway;
+      });
+      if (matchedCard) {
+        return isMatchCardRunning(matchedCard);
+      }
+    }
+  }
+
+  const status = String(pulseData?.status || '').trim().toUpperCase();
+  const phase = String(pulseData?.phase || '').trim().toUpperCase();
+  const clockLabel = String(pulseData?.clock?.label || '').trim().toUpperCase();
+  const clockSecs = Number(pulseData?.clock?.secs) || 0;
+  const hasOutcome = typeof pulseData?.outcome === 'string' && pulseData.outcome.trim().length > 0;
+  const events: any[] = Array.isArray(pulseData?.events) ? pulseData.events : [];
+  const hasSecondHalfEnd = events.some(
+    (e: any) =>
+      e?.type === 'PE' &&
+      (e?.phase === '2' || e?.phase === '2H') &&
+      (Boolean(e?.clock?.secs && Number(e.clock.secs) >= 5400) || Boolean(e?.time?.millis))
+  );
+
+  const isExplicitlyLiveAndUnder90 = status === 'L' && clockSecs < 5400;
+  const isFinished =
+    (status === 'C' ||
+      phase === 'F' ||
+      phase === 'FT' ||
+      hasOutcome ||
+      hasSecondHalfEnd ||
+      clockLabel === 'FT' ||
+      clockLabel.includes('FULL')) &&
+    !isExplicitlyLiveAndUnder90;
+
+  if (isFinished) return false;
+  if (status === 'U' || phase === 'U') return false;
+
+  return Boolean(
+    status === 'L' ||
+      status === 'I' ||
+      status === 'HT' ||
+      phase === '1' ||
+      phase === '1H' ||
+      phase === '2' ||
+      phase === '2H' ||
+      phase === 'HT'
+  );
+}
+
 /**
  * Checks if a phase candidate matches the currently active phase
  */
@@ -739,10 +863,17 @@ export function createStoryRecordsForPhases(
   });
 
   const uniquePhases = Array.from(new Set(normalizedPhases));
+  const activePhases = uniquePhases.filter(
+    (targetPhase) => gw === currentActiveGw && isPhaseActive(targetPhase, resolvedActivePhase)
+  );
+  if (activePhases.length === 0) {
+    return [];
+  }
+
   const hasPointsOrRank = mentionsPointsOrRank(textId) || mentionsPointsOrRank(textEn);
 
-  // Generate 1 distinct row per allowed phase
-  return uniquePhases.map((targetPhase) => {
+  // Generate strictly for the active GW and active phase
+  return activePhases.map((targetPhase) => {
     const rowId = uniquePhases.length > 1
       ? `${baseId}__${phaseToSlug(targetPhase)}`
       : baseId;
@@ -759,21 +890,8 @@ export function createStoryRecordsForPhases(
       phaseTextEn = formatted.headlineEn;
     }
 
-    // Determine status_tayang & keterangan
-    let statusTayang: 'Y' | 'N';
-    let keterangan: string;
-
-    if (gw !== currentActiveGw) {
-      statusTayang = 'N';
-      keterangan = raw.keterangan_tidak_tayang || `Bukan Gameweek aktif (Arsip Gameweek ${gw})`;
-    } else if (!isPhaseActive(targetPhase, resolvedActivePhase)) {
-      statusTayang = 'N';
-      keterangan = `Fase saat ini (${resolvedActivePhase}) bukan ${targetPhase}`;
-    } else {
-      // Current Gameweek and matching current phase!
-      statusTayang = raw.status_tayang || 'Y';
-      keterangan = raw.keterangan_tidak_tayang ?? (statusTayang === 'Y' ? '' : 'Tidak ditayangkan');
-    }
+    const statusTayang: 'Y' | 'N' = raw.status_tayang || 'Y';
+    const keterangan = raw.keterangan_tidak_tayang ?? (statusTayang === 'Y' ? '' : 'Tidak ditayangkan');
 
     return {
       id: rowId,
@@ -833,7 +951,10 @@ export function extractGwFromStory(headlineId: string, headlineEn: string, id: s
  * Rebuilds and synchronizes the news ticker database table in the container
  * purely from Editor Table templates (src/data/phase1_templates.json).
  */
-export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[] {
+export function rebuildNewsTickerTable(
+  phaseOverride?: string,
+  options?: { clearExisting?: boolean }
+): NewsTickerDbRow[] {
   try {
     invalidateEditorTemplateIdCache();
     const tableRows: NewsTickerDbRow[] = [];
@@ -969,39 +1090,70 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       return rawId;
     };
 
+    const db = getOptimalDatabase();
+    const hasPopulatedDb =
+      Boolean(db?.meta?.total_teams) &&
+      Object.keys(db?.gw_snapshots || {}).length > 0;
     const feedGw = getCurrentGw();
-    const currentActivePhase = phaseOverride || getGameweekPhase(feedGw);
+    if (!hasPopulatedDb || !feedGw) {
+      clearNewsTickerTable();
+      return [];
+    }
+    const currentActivePhase = normalizeTickerPhase(phaseOverride || getGameweekPhase(feedGw));
 
-    // 0. Load existing Editor table records ONLY for the active GW to preserve poin_tayang within the same GW
-    // and prevent older/other GW poin_tayang or rows from leaking across Gameweeks.
-    const existingTableMap = new Map<string, NewsTickerDbRow>();
+    // Read current container rows on disk to detect GW change or Phase change
+    let diskRows: NewsTickerDbRow[] = [];
     if (fs.existsSync(TABLE_FILE_PATH)) {
       try {
         const rawExisting = fs.readFileSync(TABLE_FILE_PATH, 'utf-8');
         const parsedExisting = JSON.parse(rawExisting);
         if (Array.isArray(parsedExisting)) {
-          parsedExisting.forEach((r: NewsTickerDbRow) => {
-            if (r && r.id && Number(r.gw) === feedGw) {
-              const rawKey = String(r.id);
-              const normalizedKey = normalizeLegacyRowId(rawKey);
-              if (isEditorTemplateId(rawKey)) {
-                existingTableMap.set(rawKey, r);
-              }
-              if (normalizedKey !== rawKey && isEditorTemplateId(normalizedKey) && !existingTableMap.has(normalizedKey)) {
-                existingTableMap.set(normalizedKey, r);
-              }
-            }
-          });
+          diskRows = parsedExisting;
         }
       } catch {}
     }
 
-    // Hitung baseline poin_tayang minimum dari berita aktif yang sudah ada di GW aktif
-    // (Mencegah "Starvation" / monopoli nilai 0 saat berita baru lahir)
+    const isGwChangedInMemory = lastBuiltGw !== null && lastBuiltGw !== feedGw;
+    const isPhaseChangedInMemory = lastBuiltPhase !== null && !isPhaseActive(lastBuiltPhase, currentActivePhase);
+    const hasDifferentGwOnDisk = diskRows.some((r) => !r || Number(r.gw) !== feedGw);
+    const hasDifferentPhaseOnDisk = diskRows.some((r) => !r || !r.fase || !isPhaseActive(r.fase, currentActivePhase));
+
+    const shouldPurgeContainer = Boolean(
+      options?.clearExisting ||
+      isGwChangedInMemory ||
+      isPhaseChangedInMemory ||
+      hasDifferentGwOnDisk ||
+      hasDifferentPhaseOnDisk
+    );
+
+    // 0. On Action A, GW change, or Phase change: delete ALL existing rows in container BEFORE regenerating
+    const existingTableMap = new Map<string, NewsTickerDbRow>();
+    if (shouldPurgeContainer) {
+      console.log(
+        `[News Table Service] Purging container news rows (clearExisting=${Boolean(options?.clearExisting)}, gwChanged=${isGwChangedInMemory || hasDifferentGwOnDisk}, phaseChanged=${isPhaseChangedInMemory || hasDifferentPhaseOnDisk}) -> GW ${feedGw}, Phase: ${currentActivePhase}`
+      );
+      clearNewsTickerTable();
+    } else {
+      diskRows.forEach((r: NewsTickerDbRow) => {
+        if (r && r.id && Number(r.gw) === feedGw && r.fase && isPhaseActive(r.fase, currentActivePhase)) {
+          const rawKey = String(r.id);
+          const normalizedKey = normalizeLegacyRowId(rawKey);
+          if (isEditorTemplateId(rawKey)) {
+            existingTableMap.set(rawKey, r);
+          }
+          if (normalizedKey !== rawKey && isEditorTemplateId(normalizedKey) && !existingTableMap.has(normalizedKey)) {
+            existingTableMap.set(normalizedKey, r);
+          }
+        }
+      });
+    }
+
+    // Hitung baseline poin_tayang minimum dari berita aktif yang sudah ada di GW & fase aktif
+    // (Mencegah "Starvation" / monopoli nilai 0 saat berita baru lahir dalam fase yang sama)
     let baselinePoinTayang = 0;
     const activeExistingPoints: number[] = [];
     for (const r of existingTableMap.values()) {
-      if (r.status_tayang === 'Y' && Number(r.gw) === feedGw && r.poin_tayang > 0) {
+      if (r.status_tayang === 'Y' && Number(r.gw) === feedGw && isPhaseActive(r.fase, currentActivePhase) && r.poin_tayang > 0) {
         activeExistingPoints.push(r.poin_tayang);
       }
     }
@@ -1009,10 +1161,11 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       baselinePoinTayang = Math.min(...activeExistingPoints);
     }
 
-    // Helper to safely add rows strictly for feedGw while restoring poin_tayang
+    // Helper to safely add rows strictly for feedGw and currentActivePhase while restoring poin_tayang
     const addRows = (rows: NewsTickerDbRow[]) => {
       for (const r of rows) {
         if (Number(r.gw) !== feedGw) continue;
+        if (!r.fase || !isPhaseActive(r.fase, currentActivePhase)) continue;
         if (!seenIds.has(r.id)) {
           seenIds.add(r.id);
           const baseId = r.id.split('__')[0];
@@ -1027,33 +1180,53 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       }
     };
 
-    // 1. Produce stories directly from Editor templates (Phase 1, Live Match, Confirmed)
-    // Inherit metadata from editor table (id, gw_phase, category, subcategory, template)
-    // Pair with produced metadata (GW, TIMESTAMP, SOURCE)
-
-    // 3a. Inject Phase 1 template stories for the active Gameweek
-    try {
-      const p1Stories = generatePhase1Stories(feedGw);
-      for (const p1 of p1Stories) {
-        const records = createStoryRecordsForPhases({
-          ...p1,
-          sumber: (p1.sumber as any) || 'Sys',
-          gw: p1.gw || feedGw,
-        }, p1.gw || feedGw, currentActivePhase);
-        addRows(records);
+    // 1. Produce stories STRICTLY for the active GW and active phase ONLY.
+    if (isPhaseActive('Not started', currentActivePhase)) {
+      // 3a. Not started (NS_*)
+      try {
+        const p1Stories = generatePhase1Stories(feedGw);
+        for (const p1 of p1Stories) {
+          const records = createStoryRecordsForPhases({
+            ...p1,
+            sumber: (p1.sumber as any) || 'Sys',
+            gw: p1.gw || feedGw,
+          }, p1.gw || feedGw, currentActivePhase);
+          addRows(records);
+        }
+      } catch (err: any) {
+        console.warn('[News Table Service] Warning generating Not started stories:', err.message);
       }
-    } catch (err: any) {
-      console.warn('[News Table Service] Warning generating Phase 1 stories:', err.message);
-    }
+    } else if (isPhaseActive('Live Match', currentActivePhase)) {
+      // 3b. Live Match (LM_*) — KHUSUS FASE LM HARUS LIVE NEWSNYA:
+      // Only process matches that are genuinely LIVE right now (exclude finished 'C' / FT and upcoming 'U' matches).
+      try {
+        const cachedMatches = getCachedMatchesForGw(feedGw);
+        const pulseMatches = loadPulseMatchesForGw(feedGw).filter((pulseData) =>
+          isPulseMatchCurrentlyLive(pulseData, cachedMatches)
+        );
 
-    // 3b. Inject Live Match template stories produced from Editor templates (LM_*)
-    // Supports MULTI-MATCH: loads all active GW Pulse match files from src/data/pulse_matches/ + cached match stats
-    try {
-      const pulseMatches = loadPulseMatchesForGw(feedGw);
-      for (const pulseData of pulseMatches) {
-        try {
-          const liveStories = generateStoriesFromPulseMatch(pulseData, feedGw);
-          for (const ls of liveStories) {
+        for (const pulseData of pulseMatches) {
+          try {
+            const liveStories = generateStoriesFromPulseMatch(pulseData, feedGw);
+            for (const ls of liveStories) {
+              const records = createStoryRecordsForPhases({
+                ...ls,
+                sumber: (ls.sumber as any) || 'Sys',
+                gw: ls.gw || feedGw,
+              }, ls.gw || feedGw, currentActivePhase);
+              addRows(records);
+            }
+          } catch (fileErr: any) {
+            console.warn(`[News Table Service] Warning reading live Pulse match ${pulseData?.id}:`, fileErr.message);
+          }
+        }
+
+        if (cachedMatches && cachedMatches.length > 0) {
+          const liveStatStories = generateLiveMatchStatStories(feedGw, {
+            includeFinished: false,
+            matchesOverride: cachedMatches,
+          });
+          for (const ls of liveStatStories) {
             const records = createStoryRecordsForPhases({
               ...ls,
               sumber: (ls.sumber as any) || 'Sys',
@@ -1061,125 +1234,107 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
             }, ls.gw || feedGw, currentActivePhase);
             addRows(records);
           }
-        } catch (fileErr: any) {
-          console.warn(`[News Table Service] Warning reading Pulse match ${pulseData?.id}:`, fileErr.message);
-        }
-      }
 
-      const cachedMatches = getCachedMatchesForGw(feedGw);
-      if (cachedMatches && cachedMatches.length > 0) {
-        const liveStatStories = generateLiveMatchStatStories(feedGw, {
-          includeFinished: false,
-          matchesOverride: cachedMatches,
-        });
-        for (const ls of liveStatStories) {
+          const liveRankShiftStories = generateLiveTeamRankShiftStories(feedGw, {
+            requireLiveMatch: true,
+            matchesOverride: cachedMatches,
+          });
+          for (const ls of liveRankShiftStories) {
+            const records = createStoryRecordsForPhases({
+              ...ls,
+              sumber: (ls.sumber as any) || 'Sys',
+              gw: ls.gw || feedGw,
+            }, ls.gw || feedGw, currentActivePhase);
+            addRows(records);
+          }
+
+          const liveScoreStories = generateLiveMatchScoreStories(feedGw, {
+            includeFinished: false,
+            matchesOverride: cachedMatches,
+          });
+          for (const ls of liveScoreStories) {
+            const records = createStoryRecordsForPhases({
+              ...ls,
+              sumber: (ls.sumber as any) || 'Sys',
+              gw: ls.gw || feedGw,
+            }, ls.gw || feedGw, currentActivePhase);
+            addRows(records);
+          }
+
+          const liveLineupStories = generateLiveLineupSurpriseStories(feedGw, {
+            includeFinished: false,
+            matchesOverride: cachedMatches,
+          });
+          for (const ls of liveLineupStories) {
+            const records = createStoryRecordsForPhases({
+              ...ls,
+              sumber: (ls.sumber as any) || 'Sys',
+              gw: ls.gw || feedGw,
+            }, ls.gw || feedGw, currentActivePhase);
+            addRows(records);
+          }
+
+          const liveTitleRaceStories = generateLiveTitleRaceStories(feedGw, {
+            requireLiveMatch: true,
+            matchesOverride: cachedMatches,
+          });
+          for (const ls of liveTitleRaceStories) {
+            const records = createStoryRecordsForPhases({
+              ...ls,
+              sumber: (ls.sumber as any) || 'Sys',
+              gw: ls.gw || feedGw,
+            }, ls.gw || feedGw, currentActivePhase);
+            addRows(records);
+          }
+        }
+      } catch (err: any) {
+        console.warn('[News Table Service] Warning generating Live Match stories:', err.message);
+      }
+    } else if (isPhaseActive('Between Match', currentActivePhase)) {
+      // 3d. Between Match (BM_*)
+      try {
+        const bmStories = generateBetweenMatchStories(feedGw);
+        for (const bm of bmStories) {
           const records = createStoryRecordsForPhases({
-            ...ls,
-            sumber: (ls.sumber as any) || 'Sys',
-            gw: ls.gw || feedGw,
-          }, ls.gw || feedGw, currentActivePhase);
+            ...bm,
+            sumber: (bm.sumber as any) || 'Sys',
+            gw: bm.gw || feedGw,
+          }, bm.gw || feedGw, currentActivePhase);
           addRows(records);
         }
-
-        const liveRankShiftStories = generateLiveTeamRankShiftStories(feedGw, {
-          requireLiveMatch: true,
-          matchesOverride: cachedMatches,
-        });
-        for (const ls of liveRankShiftStories) {
+      } catch (err: any) {
+        console.warn('[News Table Service] Warning generating Between Match stories:', err.message);
+      }
+    } else if (isPhaseActive('Provisional', currentActivePhase)) {
+      // 3e. Provisional (PV_*)
+      try {
+        const pvStories = generateProvisionalStories(feedGw);
+        for (const pv of pvStories) {
           const records = createStoryRecordsForPhases({
-            ...ls,
-            sumber: (ls.sumber as any) || 'Sys',
-            gw: ls.gw || feedGw,
-          }, ls.gw || feedGw, currentActivePhase);
+            ...pv,
+            sumber: (pv.sumber as any) || 'Sys',
+            gw: pv.gw || feedGw,
+          }, pv.gw || feedGw, currentActivePhase);
           addRows(records);
         }
-
-        const liveScoreStories = generateLiveMatchScoreStories(feedGw, {
-          includeFinished: false,
-          matchesOverride: cachedMatches,
-        });
-        for (const ls of liveScoreStories) {
+      } catch (err: any) {
+        console.warn('[News Table Service] Warning generating Provisional stories:', err.message);
+      }
+    } else if (isPhaseActive('Confirmed', currentActivePhase)) {
+      // 3c. Confirmed (CF_*)
+      try {
+        const confStories = generateConfirmedStories(feedGw);
+        for (const cs of confStories) {
           const records = createStoryRecordsForPhases({
-            ...ls,
-            sumber: (ls.sumber as any) || 'Sys',
-            gw: ls.gw || feedGw,
-          }, ls.gw || feedGw, currentActivePhase);
+            ...cs,
+            sumber: (cs.sumber as any) || 'Sys',
+            gw: cs.gw || feedGw,
+          }, cs.gw || feedGw, currentActivePhase);
           addRows(records);
         }
-
-        const liveLineupStories = generateLiveLineupSurpriseStories(feedGw, {
-          includeFinished: false,
-          matchesOverride: cachedMatches,
-        });
-        for (const ls of liveLineupStories) {
-          const records = createStoryRecordsForPhases({
-            ...ls,
-            sumber: (ls.sumber as any) || 'Sys',
-            gw: ls.gw || feedGw,
-          }, ls.gw || feedGw, currentActivePhase);
-          addRows(records);
-        }
-
-        const liveTitleRaceStories = generateLiveTitleRaceStories(feedGw, {
-          requireLiveMatch: true,
-          matchesOverride: cachedMatches,
-        });
-        for (const ls of liveTitleRaceStories) {
-          const records = createStoryRecordsForPhases({
-            ...ls,
-            sumber: (ls.sumber as any) || 'Sys',
-            gw: ls.gw || feedGw,
-          }, ls.gw || feedGw, currentActivePhase);
-          addRows(records);
-        }
+      } catch (err: any) {
+        console.warn('[News Table Service] Warning generating Confirmed stories:', err.message);
       }
-    } catch (err: any) {
-      console.warn('[News Table Service] Warning generating Live Match stories:', err.message);
-    }
-
-    // 3c. Inject Confirmed template stories produced from Editor templates (CF_*)
-    try {
-      const confStories = generateConfirmedStories(feedGw);
-      for (const cs of confStories) {
-        const records = createStoryRecordsForPhases({
-          ...cs,
-          sumber: (cs.sumber as any) || 'Sys',
-          gw: cs.gw || feedGw,
-        }, cs.gw || feedGw, currentActivePhase);
-        addRows(records);
-      }
-    } catch (err: any) {
-      console.warn('[News Table Service] Warning generating Confirmed stories:', err.message);
-    }
-
-    // 3d. Inject Between Match template stories produced from Editor templates (BM_*)
-    try {
-      const bmStories = generateBetweenMatchStories(feedGw);
-      for (const bm of bmStories) {
-        const records = createStoryRecordsForPhases({
-          ...bm,
-          sumber: (bm.sumber as any) || 'Sys',
-          gw: bm.gw || feedGw,
-        }, bm.gw || feedGw, currentActivePhase);
-        addRows(records);
-      }
-    } catch (err: any) {
-      console.warn('[News Table Service] Warning generating Between Match stories:', err.message);
-    }
-
-    // 3e. Inject Provisional template stories produced from Editor templates (PV_*)
-    try {
-      const pvStories = generateProvisionalStories(feedGw);
-      for (const pv of pvStories) {
-        const records = createStoryRecordsForPhases({
-          ...pv,
-          sumber: (pv.sumber as any) || 'Sys',
-          gw: pv.gw || feedGw,
-        }, pv.gw || feedGw, currentActivePhase);
-        addRows(records);
-      }
-    } catch (err: any) {
-      console.warn('[News Table Service] Warning generating Provisional stories:', err.message);
     }
 
     // Sort by: status_tayang 'Y' first, then timestamp descending
@@ -1190,12 +1345,12 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
       return new Date(b.timestamp_produksi).getTime() - new Date(a.timestamp_produksi).getTime();
     });
 
-
     // Save to container file
     fs.writeFileSync(TABLE_FILE_PATH, JSON.stringify(tableRows, null, 2), 'utf-8');
     memoryTableCache = tableRows;
     lastBuiltGw = feedGw;
     lastBuiltPhase = currentActivePhase;
+    lastBuiltAt = Date.now();
     console.log(`[News Table Service] Successfully synchronized container news table with ${tableRows.length} rows (GW ${feedGw}, Phase: ${currentActivePhase}).`);
 
     return tableRows;
@@ -1207,9 +1362,9 @@ export function rebuildNewsTickerTable(phaseOverride?: string): NewsTickerDbRow[
 
 function isTableStaleForCurrentState(rows: NewsTickerDbRow[]): boolean {
   const currentGw = getCurrentGw();
-  const currentPhase = getGameweekPhase(currentGw);
+  const currentPhase = normalizeTickerPhase(getGameweekPhase(currentGw));
 
-  if (lastBuiltGw !== null && (lastBuiltGw !== currentGw || lastBuiltPhase !== currentPhase)) {
+  if (lastBuiltGw !== null && (lastBuiltGw !== currentGw || !isPhaseActive(lastBuiltPhase || '', currentPhase))) {
     return true;
   }
 
@@ -1217,13 +1372,14 @@ function isTableStaleForCurrentState(rows: NewsTickerDbRow[]): boolean {
     if (!r.gw || Number(r.gw) !== currentGw) {
       return true;
     }
-    if (r.status_tayang === 'Y') {
-      if (!isEditorTemplateId(r.id)) return true;
-      if (!r.fase || !isPhaseActive(r.fase, currentPhase)) return true;
-    } else if (
-      isEditorTemplateId(r.id) &&
-      r.fase &&
-      isPhaseActive(r.fase, currentPhase) &&
+    if (!r.fase || !isPhaseActive(r.fase, currentPhase)) {
+      return true;
+    }
+    if (!isEditorTemplateId(r.id)) {
+      return true;
+    }
+    if (
+      r.status_tayang !== 'Y' &&
       typeof r.keterangan_tidak_tayang === 'string' &&
       r.keterangan_tidak_tayang.startsWith('Fase saat ini')
     ) {
@@ -1253,7 +1409,10 @@ export function getNewsTickerTable(forceRefresh = false): NewsTickerDbRow[] {
         if (!isTableStaleForCurrentState(parsed)) {
           memoryTableCache = parsed;
           lastBuiltGw = getCurrentGw();
-          lastBuiltPhase = getGameweekPhase(lastBuiltGw);
+          lastBuiltPhase = normalizeTickerPhase(getGameweekPhase(lastBuiltGw));
+          if (!lastBuiltAt) {
+            lastBuiltAt = Date.now();
+          }
           return parsed;
         }
       }

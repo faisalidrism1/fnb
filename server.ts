@@ -38,13 +38,18 @@ import {
   isPhaseActive,
   isEditorTemplateId,
   clearNewsTickerMemoryCache,
+  clearNewsTickerTable,
+  getNewsTickerLastBuiltAt,
+  getNewsTickerBuiltState,
   checkLiveBetweenMatchPhase,
   ensureLiveMatchesAndCheckPhase
 } from './src/server/newsTickerTableService.ts';
 import {
   syncPulseMatchesForActiveGw,
+  ensureLivePulseMatchesSynced,
   loadPulseMatchesForGw,
   migrateLegacyPulseMatchFiles,
+  clearAllPulseMatchFiles,
 } from './src/server/pulseMatchSync.ts';
 import {
   getPhase1Templates,
@@ -180,6 +185,9 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
 
       // Refresh live match status, sync Pulse match event files (Action A/B), and rebuild News Ticker table
       try {
+        if (action === 'A_FULL') {
+          clearNewsTickerTable();
+        }
         const activeGwForPulse = targetGW || getCurrentGw();
         await Promise.all([
           ensureLiveMatchesAndCheckPhase(activeGwForPulse).catch(() => null),
@@ -188,7 +196,7 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
             return null;
           }),
         ]);
-        rebuildNewsTickerTable();
+        rebuildNewsTickerTable(undefined, { clearExisting: action === 'A_FULL' });
       } catch (ntErr: any) {
         console.warn('[Server] Error rebuilding news ticker table after sync:', ntErr.message);
       }
@@ -886,7 +894,9 @@ app.all('/api/container/clear', (req, res) => {
   console.log('[Server] Request received to completely empty container cache...');
   cachedData = null;
   resetDatabaseState();
-  clearNewsTickerMemoryCache();
+  clearNewsTickerTable();
+  clearAllPulseMatchFiles();
+  invalidateMatchesCache();
   playerSummaryCache.clear();
   eventLiveCache.clear();
   fixturesCache.clear();
@@ -1233,19 +1243,41 @@ app.get('/api/news-ticker/feed', async (req, res) => {
     );
     const currentPhase = phase || getGameweekPhase(currentGw);
 
-    if (
-      (currentPhase === 'Live' || currentPhase === 'Live Match') &&
-      !getCachedMatchesForGw(currentGw)
-    ) {
-      await fetchMatchesForGw(currentGw).catch(() => {});
+    if (isPhaseActive('Live Match', currentPhase)) {
+      if (force) {
+        invalidateMatchesCache(currentGw);
+      }
+      await Promise.all([
+        !getCachedMatchesForGw(currentGw) || force
+          ? fetchMatchesForGw(currentGw).catch(() => null)
+          : Promise.resolve(null),
+        ensureLivePulseMatchesSynced(currentGw, { force }).catch(() => null),
+      ]);
     }
+
+    const builtState = getNewsTickerBuiltState();
+    const gwChanged = builtState.gw !== null && builtState.gw !== currentGw;
+    const phaseChanged =
+      builtState.phase !== null && !isPhaseActive(builtState.phase, currentPhase);
+    const liveNeedsRefresh =
+      isPhaseActive('Live Match', currentPhase) &&
+      Date.now() - getNewsTickerLastBuiltAt() >= 15000;
 
     let containerRows = getNewsTickerTable();
     if (
       force ||
       phase ||
+      gwChanged ||
+      phaseChanged ||
+      liveNeedsRefresh ||
       containerRows.length === 0 ||
-      containerRows.some((r) => !r.gw || Number(r.gw) !== currentGw)
+      containerRows.some(
+        (r) =>
+          !r.gw ||
+          Number(r.gw) !== currentGw ||
+          !r.fase ||
+          !isPhaseActive(r.fase, currentPhase)
+      )
     ) {
       containerRows = rebuildNewsTickerTable(phase);
     }
@@ -1314,10 +1346,32 @@ app.get('/api/admin/news-ticker', async (req, res) => {
   try {
     const forceRefresh = req.query.refresh === '1';
     const phase = req.query.phase ? String(req.query.phase) : undefined;
+    const currentGw = getCurrentGw();
     if (!phase) {
-      await ensureLiveMatchesAndCheckPhase(getCurrentGw()).catch(() => null);
+      await ensureLiveMatchesAndCheckPhase(currentGw).catch(() => null);
     }
-    if (forceRefresh || phase) {
+    const currentPhase = phase || getGameweekPhase(currentGw);
+    if (isPhaseActive('Live Match', currentPhase)) {
+      if (forceRefresh) {
+        invalidateMatchesCache(currentGw);
+      }
+      await Promise.all([
+        !getCachedMatchesForGw(currentGw) || forceRefresh
+          ? fetchMatchesForGw(currentGw).catch(() => null)
+          : Promise.resolve(null),
+        ensureLivePulseMatchesSynced(currentGw, { force: forceRefresh }).catch(() => null),
+      ]);
+    }
+
+    const builtState = getNewsTickerBuiltState();
+    const gwChanged = builtState.gw !== null && builtState.gw !== currentGw;
+    const phaseChanged =
+      builtState.phase !== null && !isPhaseActive(builtState.phase, currentPhase);
+    const liveNeedsRefresh =
+      isPhaseActive('Live Match', currentPhase) &&
+      Date.now() - getNewsTickerLastBuiltAt() >= 15000;
+
+    if (forceRefresh || phase || gwChanged || phaseChanged || liveNeedsRefresh) {
       rebuildNewsTickerTable(phase);
     }
 
@@ -1650,7 +1704,9 @@ async function startServer() {
     setTimeout(() => {
       dbReadyPromise.then(() => {
         try {
-          getNewsTickerTable();
+          if (cachedData) {
+            getNewsTickerTable();
+          }
         } catch (err: any) {
           console.warn('[Server] Initial Editor news table warm warning:', err.message);
         }
