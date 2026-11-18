@@ -1,0 +1,2385 @@
+{
+  "id": 129022,
+  "altIds": {
+    "opta": "g2645294"
+  },
+  "gameweek": {
+    "gameweek": 10
+  },
+  "kickoff": {
+    "millis": 1794146400000,
+    "label": "2026-11-08 14:00:00"
+  },
+  "ground": {
+    "name": "Stadium of Light, Sunderland"
+  },
+  "status": "C",
+  "phase": "F",
+  "outcome": "H",
+  "clock": {
+    "label": "Full Time",
+    "secs": 5400
+  },
+  "teams": [
+    {
+      "team": {
+        "id": 56,
+        "name": "Sunderland",
+        "shortName": "Sunderland",
+        "club": {
+          "abbr": "SUN"
+        }
+      },
+      "score": 1
+    },
+    {
+      "team": {
+        "id": 8,
+        "name": "Chelsea",
+        "shortName": "Chelsea",
+        "club": {
+          "abbr": "CHE"
+        }
+      },
+      "score": 0
+    }
+  ],
+  "teamLists": [
+    {
+      "teamId": 56,
+      "formation": {
+        "subs": [
+          "515046",
+          "135720",
+          "638411",
+          "536661",
+          "554197",
+          "437505",
+          "696104",
+          "549940",
+          "604211"
+        ],
+        "teamId": "56",
+        "lineup": [
+          [
+            "498016"
+          ],
+          [
+            "93605",
+            "200834",
+            "167512",
+            "434399"
+          ],
+          [
+            "84450",
+            "577669"
+          ],
+          [
+            "487676",
+            "484420",
+            "549912"
+          ],
+          [
+            "441264"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 498016,
+          "altIds": {
+            "opta": "p498016"
+          },
+          "name": {
+            "first": "Robin",
+            "last": "Roefs",
+            "display": "Robin Roefs"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22
+        },
+        {
+          "id": 549912,
+          "altIds": {
+            "opta": "p549912"
+          },
+          "name": {
+            "first": "Chemsdine",
+            "last": "Talbi",
+            "display": "Chemsdine Talbi"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7
+        },
+        {
+          "id": 441264,
+          "altIds": {
+            "opta": "p441264"
+          },
+          "name": {
+            "first": "Brian",
+            "last": "Brobbey",
+            "display": "Brian Brobbey"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 9
+          },
+          "captain": false,
+          "shirtNumber": 9
+        },
+        {
+          "id": 93605,
+          "altIds": {
+            "opta": "p93605"
+          },
+          "name": {
+            "first": "Thomas",
+            "last": "Meunier",
+            "display": "Thomas Meunier"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 12
+          },
+          "captain": false,
+          "shirtNumber": 12
+        },
+        {
+          "id": 167512,
+          "altIds": {
+            "opta": "p167512"
+          },
+          "name": {
+            "first": "Luke",
+            "last": "O'Nien",
+            "display": "Luke O'Nien"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 13
+          },
+          "captain": false,
+          "shirtNumber": 13
+        },
+        {
+          "id": 434399,
+          "altIds": {
+            "opta": "p434399"
+          },
+          "name": {
+            "first": "Reinildo Isnard",
+            "last": "Mandava",
+            "display": "Reinildo Isnard Mandava"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 17
+          },
+          "captain": false,
+          "shirtNumber": 17
+        },
+        {
+          "id": 200834,
+          "altIds": {
+            "opta": "p200834"
+          },
+          "name": {
+            "first": "Nordi",
+            "last": "Mukiele",
+            "display": "Nordi Mukiele"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 20
+          },
+          "captain": false,
+          "shirtNumber": 20
+        },
+        {
+          "id": 577669,
+          "altIds": {
+            "opta": "p577669"
+          },
+          "name": {
+            "first": "Noah",
+            "last": "Sadiki",
+            "display": "Noah Sadiki"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 27
+          },
+          "captain": false,
+          "shirtNumber": 27
+        },
+        {
+          "id": 484420,
+          "altIds": {
+            "opta": "p484420"
+          },
+          "name": {
+            "first": "Enzo",
+            "last": "Le Fée",
+            "display": "Enzo Le Fée"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 28
+          },
+          "captain": false,
+          "shirtNumber": 28
+        },
+        {
+          "id": 487676,
+          "altIds": {
+            "opta": "p487676"
+          },
+          "name": {
+            "first": "Trai",
+            "last": "Hume",
+            "display": "Trai Hume"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 32
+          },
+          "captain": false,
+          "shirtNumber": 32
+        },
+        {
+          "id": 84450,
+          "altIds": {
+            "opta": "p84450"
+          },
+          "name": {
+            "first": "Granit",
+            "last": "Xhaka",
+            "display": "Granit Xhaka"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 34
+          },
+          "captain": true,
+          "shirtNumber": 34
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 515046,
+          "altIds": {
+            "opta": "p515046"
+          },
+          "name": {
+            "first": "Melker",
+            "last": "Ellborg",
+            "display": "Melker Ellborg"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 31
+          },
+          "captain": false,
+          "shirtNumber": 31
+        },
+        {
+          "id": 135720,
+          "altIds": {
+            "opta": "p135720"
+          },
+          "name": {
+            "first": "Kevin",
+            "last": "Danso",
+            "display": "Kevin Danso"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4
+        },
+        {
+          "id": 638411,
+          "altIds": {
+            "opta": "p638411"
+          },
+          "name": {
+            "first": "Dayann",
+            "last": "Méthalie",
+            "display": "Dayann Méthalie"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6
+        },
+        {
+          "id": 536661,
+          "altIds": {
+            "opta": "p536661"
+          },
+          "name": {
+            "first": "Nilson",
+            "last": "Angulo",
+            "display": "Nilson Angulo"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10
+        },
+        {
+          "id": 554197,
+          "altIds": {
+            "opta": "p554197"
+          },
+          "name": {
+            "first": "Chris",
+            "last": "Rigg",
+            "display": "Chris Rigg"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11
+        },
+        {
+          "id": 437505,
+          "altIds": {
+            "opta": "p437505"
+          },
+          "name": {
+            "first": "Wilson",
+            "last": "Isidor",
+            "display": "Wilson Isidor"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 18
+          },
+          "captain": false,
+          "shirtNumber": 18
+        },
+        {
+          "id": 696104,
+          "altIds": {
+            "opta": "p696104"
+          },
+          "name": {
+            "first": "Jules",
+            "last": "Ahoka",
+            "display": "Jules Ahoka"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 29
+          },
+          "captain": false,
+          "shirtNumber": 29
+        },
+        {
+          "id": 549940,
+          "altIds": {
+            "opta": "p549940"
+          },
+          "name": {
+            "first": "Malick",
+            "last": "Fofana",
+            "display": "Malick Fofana"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 39
+          },
+          "captain": false,
+          "shirtNumber": 39
+        },
+        {
+          "id": 604211,
+          "altIds": {
+            "opta": "p604211"
+          },
+          "name": {
+            "first": "Tymur",
+            "last": "Tutierov",
+            "display": "Tymur Tutierov"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 57
+          },
+          "captain": false,
+          "shirtNumber": 57
+        }
+      ]
+    },
+    {
+      "teamId": 8,
+      "formation": {
+        "subs": [
+          "499857",
+          "543158",
+          "50175",
+          "503037",
+          "593117",
+          "482609",
+          "622758",
+          "636846",
+          "624773"
+        ],
+        "teamId": "8",
+        "lineup": [
+          [
+            "549939"
+          ],
+          [
+            "620109",
+            "444463",
+            "460028",
+            "498444"
+          ],
+          [
+            "486672",
+            "514356",
+            "56979"
+          ],
+          [
+            "244851",
+            "244850"
+          ],
+          [
+            "247632"
+          ]
+        ],
+        "formation": "4-3-2-1"
+      },
+      "lineup": [
+        {
+          "id": 549939,
+          "altIds": {
+            "opta": "p549939"
+          },
+          "name": {
+            "first": "Mike",
+            "last": "Penders",
+            "display": "Mike Penders"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 39
+          },
+          "captain": false,
+          "shirtNumber": 39
+        },
+        {
+          "id": 620109,
+          "altIds": {
+            "opta": "p620109"
+          },
+          "name": {
+            "first": "Marco",
+            "last": "Palestra",
+            "display": "Marco Palestra"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2
+        },
+        {
+          "id": 444463,
+          "altIds": {
+            "opta": "p444463"
+          },
+          "name": {
+            "first": "Wesley",
+            "last": "Fofana",
+            "display": "Wesley Fofana"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3
+        },
+        {
+          "id": 460028,
+          "altIds": {
+            "opta": "p460028"
+          },
+          "name": {
+            "first": "Levi",
+            "last": "Colwill",
+            "display": "Levi Colwill"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6
+        },
+        {
+          "id": 247632,
+          "altIds": {
+            "opta": "p247632"
+          },
+          "name": {
+            "first": "Pedro",
+            "last": "Lomba Neto",
+            "display": "Pedro Lomba Neto"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7
+        },
+        {
+          "id": 244851,
+          "altIds": {
+            "opta": "p244851"
+          },
+          "name": {
+            "first": "Cole",
+            "last": "Palmer",
+            "display": "Cole Palmer"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10
+        },
+        {
+          "id": 56979,
+          "altIds": {
+            "opta": "p56979"
+          },
+          "name": {
+            "first": "Jordan",
+            "last": "Henderson",
+            "display": "Jordan Henderson"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14
+        },
+        {
+          "id": 244850,
+          "altIds": {
+            "opta": "p244850"
+          },
+          "name": {
+            "first": "Morgan",
+            "last": "Rogers",
+            "display": "Morgan Rogers"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 17
+          },
+          "captain": false,
+          "shirtNumber": 17
+        },
+        {
+          "id": 486672,
+          "altIds": {
+            "opta": "p486672"
+          },
+          "name": {
+            "first": "Moisés",
+            "last": "Caicedo",
+            "display": "Moisés Caicedo"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 25
+          },
+          "captain": true,
+          "shirtNumber": 25
+        },
+        {
+          "id": 498444,
+          "altIds": {
+            "opta": "p498444"
+          },
+          "name": {
+            "first": "Pep",
+            "last": "Chavarría",
+            "display": "Pep Chavarría"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 29
+          },
+          "captain": false,
+          "shirtNumber": 29
+        },
+        {
+          "id": 514356,
+          "altIds": {
+            "opta": "p514356"
+          },
+          "name": {
+            "first": "Roméo",
+            "last": "Lavia",
+            "display": "Roméo Lavia"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 45
+          },
+          "captain": false,
+          "shirtNumber": 45
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 499857,
+          "altIds": {
+            "opta": "p499857"
+          },
+          "name": {
+            "first": "Teddy",
+            "last": "Sharman-Lowe",
+            "display": "Teddy Sharman-Lowe"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 28
+          },
+          "captain": false,
+          "shirtNumber": 28
+        },
+        {
+          "id": 543158,
+          "altIds": {
+            "opta": "p543158"
+          },
+          "name": {
+            "first": "Valentín",
+            "last": "Barco",
+            "display": "Valentín Barco"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4
+        },
+        {
+          "id": 50175,
+          "altIds": {
+            "opta": "p50175"
+          },
+          "name": {
+            "first": "Danny",
+            "last": "Welbeck",
+            "display": "Danny Welbeck"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 18
+          },
+          "captain": false,
+          "shirtNumber": 18
+        },
+        {
+          "id": 503037,
+          "altIds": {
+            "opta": "p503037"
+          },
+          "name": {
+            "first": "Emmanuel",
+            "last": "Emegha",
+            "display": "Emmanuel Emegha"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22
+        },
+        {
+          "id": 593117,
+          "altIds": {
+            "opta": "p593117"
+          },
+          "name": {
+            "first": "Geovany",
+            "last": "Tcherno Quenda",
+            "display": "Geovany Tcherno Quenda"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23
+        },
+        {
+          "id": 482609,
+          "altIds": {
+            "opta": "p482609"
+          },
+          "name": {
+            "first": "Malo",
+            "last": "Gusto",
+            "display": "Malo Gusto"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 27
+          },
+          "captain": false,
+          "shirtNumber": 27
+        },
+        {
+          "id": 622758,
+          "altIds": {
+            "opta": "p622758"
+          },
+          "name": {
+            "first": "Aaron",
+            "last": "Anselmino",
+            "display": "Aaron Anselmino"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 30
+          },
+          "captain": false,
+          "shirtNumber": 30
+        },
+        {
+          "id": 636846,
+          "altIds": {
+            "opta": "p636846"
+          },
+          "name": {
+            "first": "Mahdi",
+            "last": "Nicoll-Jazuli",
+            "display": "Mahdi Nicoll-Jazuli"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 32
+          },
+          "captain": false,
+          "shirtNumber": 32
+        },
+        {
+          "id": 624773,
+          "altIds": {
+            "opta": "p624773"
+          },
+          "name": {
+            "first": "Estêvão Willian",
+            "last": "Almeida de Oliveira Gonçalves",
+            "display": "Estêvão Willian Almeida de Oliveira Gonçalves"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 41
+          },
+          "captain": false,
+          "shirtNumber": 41
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "S",
+      "personId": 696104,
+      "description": "ON",
+      "phase": "1",
+      "clock": {
+        "label": "4'",
+        "secs": 240
+      }
+    },
+    {
+      "type": "S",
+      "personId": 84450,
+      "description": "OFF",
+      "phase": "1",
+      "clock": {
+        "label": "4'",
+        "secs": 240
+      }
+    },
+    {
+      "type": "S",
+      "personId": 437505,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      }
+    },
+    {
+      "type": "S",
+      "personId": 441264,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      }
+    },
+    {
+      "type": "S",
+      "personId": 536661,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "88'",
+        "secs": 5280
+      }
+    },
+    {
+      "type": "S",
+      "personId": 549912,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "88'",
+        "secs": 5280
+      }
+    },
+    {
+      "type": "S",
+      "personId": 554197,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "88'",
+        "secs": 5280
+      }
+    },
+    {
+      "type": "S",
+      "personId": 484420,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "88'",
+        "secs": 5280
+      }
+    },
+    {
+      "type": "P",
+      "personId": 484420,
+      "phase": "1",
+      "clock": {
+        "label": "36'",
+        "secs": 2160
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 696104,
+      "phase": "1",
+      "clock": {
+        "label": "21'",
+        "secs": 1260
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 93605,
+      "phase": "2",
+      "clock": {
+        "label": "50'",
+        "secs": 3000
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 441264,
+      "phase": "2",
+      "clock": {
+        "label": "53'",
+        "secs": 3180
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 167512,
+      "phase": "2",
+      "clock": {
+        "label": "90'",
+        "secs": 5400
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 0,
+      "phase": "2",
+      "clock": {
+        "label": "91'",
+        "secs": 5460
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 536661,
+      "phase": "2",
+      "clock": {
+        "label": "94'",
+        "secs": 5640
+      }
+    },
+    {
+      "type": "S",
+      "personId": 624773,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      }
+    },
+    {
+      "type": "S",
+      "personId": 460028,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      }
+    },
+    {
+      "type": "S",
+      "personId": 50175,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "62'",
+        "secs": 3720
+      }
+    },
+    {
+      "type": "S",
+      "personId": 247632,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "62'",
+        "secs": 3720
+      }
+    },
+    {
+      "type": "S",
+      "personId": 482609,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "62'",
+        "secs": 3720
+      }
+    },
+    {
+      "type": "S",
+      "personId": 620109,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "62'",
+        "secs": 3720
+      }
+    },
+    {
+      "type": "S",
+      "personId": 593117,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      }
+    },
+    {
+      "type": "S",
+      "personId": 498444,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      }
+    },
+    {
+      "type": "S",
+      "personId": 503037,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "87'",
+        "secs": 5220
+      }
+    },
+    {
+      "type": "S",
+      "personId": 56979,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "87'",
+        "secs": 5220
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 460028,
+      "phase": "1",
+      "clock": {
+        "label": "35'",
+        "secs": 2100
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 247632,
+      "phase": "2",
+      "clock": {
+        "label": "55'",
+        "secs": 3300
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 486672,
+      "phase": "2",
+      "clock": {
+        "label": "76'",
+        "secs": 4560
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 444463,
+      "phase": "2",
+      "clock": {
+        "label": "90'",
+        "secs": 5400
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5400,
+        "label": "90'"
+      }
+    }
+  ],
+  "textstreamEvents": [
+    {
+      "id": 2906085,
+      "type": "lineup",
+      "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2906315,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2906333,
+      "time": {
+        "secs": 12,
+        "label": "01"
+      },
+      "type": "offside",
+      "text": "Offside, Sunderland. Trai Hume is caught offside.",
+      "playerIds": [
+        12136,
+        122126
+      ]
+    },
+    {
+      "id": 2906339,
+      "time": {
+        "secs": 115,
+        "label": "02"
+      },
+      "type": "free kick won",
+      "text": "Levi Colwill (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        51229
+      ]
+    },
+    {
+      "id": 2906340,
+      "time": {
+        "secs": 115,
+        "label": "02"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Trai Hume (Sunderland).",
+      "playerIds": [
+        122126
+      ]
+    },
+    {
+      "id": 2906354,
+      "time": {
+        "secs": 151,
+        "label": "03"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Granit Xhaka (Sunderland)."
+    },
+    {
+      "id": 2906365,
+      "time": {
+        "secs": 227,
+        "label": "04"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2906364,
+      "time": {
+        "secs": 228,
+        "label": "04"
+      },
+      "type": "substitution",
+      "text": "Substitution, Sunderland. Jules Ahoka replaces Granit Xhaka because of an injury.",
+      "playerIds": [
+        308649,
+        12136
+      ]
+    },
+    {
+      "id": 2906452,
+      "time": {
+        "secs": 636,
+        "label": "11"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Brian Brobbey (Sunderland).",
+      "playerIds": [
+        67784
+      ]
+    },
+    {
+      "id": 2906453,
+      "time": {
+        "secs": 636,
+        "label": "11"
+      },
+      "type": "free kick won",
+      "text": "Levi Colwill (Chelsea) wins a free kick on the left wing.",
+      "playerIds": [
+        51229
+      ]
+    },
+    {
+      "id": 2906495,
+      "time": {
+        "secs": 726,
+        "label": "13"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Trai Hume (Sunderland) left footed shot from the centre of the box is blocked. Assisted by Chemsdine Talbi with a cross.",
+      "playerIds": [
+        122126,
+        118633
+      ]
+    },
+    {
+      "id": 2906517,
+      "time": {
+        "secs": 854,
+        "label": "15"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Brian Brobbey (Sunderland) right footed shot from very close range is close, but misses to the left. Assisted by Chemsdine Talbi with a cross.",
+      "playerIds": [
+        67784,
+        118633
+      ]
+    },
+    {
+      "id": 2906572,
+      "time": {
+        "secs": 1102,
+        "label": "19"
+      },
+      "type": "free kick won",
+      "text": "Roméo Lavia (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        99282
+      ]
+    },
+    {
+      "id": 2906592,
+      "time": {
+        "secs": 1102,
+        "label": "19"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Thomas Meunier (Sunderland).",
+      "playerIds": [
+        12196
+      ]
+    },
+    {
+      "id": 2906595,
+      "time": {
+        "secs": 1213,
+        "label": "21"
+      },
+      "type": "free kick won",
+      "text": "Moisés Caicedo (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2906625,
+      "time": {
+        "secs": 1213,
+        "label": "21"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jules Ahoka (Sunderland).",
+      "playerIds": [
+        308649
+      ]
+    },
+    {
+      "id": 2906624,
+      "time": {
+        "secs": 1218,
+        "label": "21"
+      },
+      "type": "yellow card",
+      "text": "Jules Ahoka (Sunderland) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        308649
+      ]
+    },
+    {
+      "id": 2906674,
+      "time": {
+        "secs": 1461,
+        "label": "25"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Morgan Rogers (Chelsea) header from the centre of the box misses to the right. Assisted by Marco Palestra with a cross.",
+      "playerIds": [
+        23968,
+        140055
+      ]
+    },
+    {
+      "id": 2906686,
+      "time": {
+        "secs": 1544,
+        "label": "26"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Nordi Mukiele (Sunderland).",
+      "playerIds": [
+        51199
+      ]
+    },
+    {
+      "id": 2906687,
+      "time": {
+        "secs": 1544,
+        "label": "26"
+      },
+      "type": "free kick won",
+      "text": "Morgan Rogers (Chelsea) wins a free kick in the attacking half.",
+      "playerIds": [
+        23968
+      ]
+    },
+    {
+      "id": 2906732,
+      "time": {
+        "secs": 1670,
+        "label": "28"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Brian Brobbey (Sunderland) left footed shot from a difficult angle on the left is close, but misses the top left corner. Assisted by Trai Hume with a headed pass following a fast break.",
+      "playerIds": [
+        67784,
+        122126
+      ]
+    },
+    {
+      "id": 2906820,
+      "time": {
+        "secs": 1899,
+        "label": "32"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Trai Hume (Sunderland) left footed shot from the centre of the box misses to the left.",
+      "playerIds": [
+        122126
+      ]
+    },
+    {
+      "id": 2906783,
+      "time": {
+        "secs": 1969,
+        "label": "33"
+      },
+      "type": "penalty lost",
+      "text": "Penalty conceded by Levi Colwill (Chelsea) after a foul in the penalty area.",
+      "playerIds": [
+        51229
+      ]
+    },
+    {
+      "id": 2906796,
+      "time": {
+        "secs": 1969,
+        "label": "33"
+      },
+      "type": "penalty won",
+      "text": "Penalty Sunderland. Brian Brobbey draws a foul in the penalty area.",
+      "playerIds": [
+        67784
+      ]
+    },
+    {
+      "id": 2906795,
+      "time": {
+        "secs": 2064,
+        "label": "35"
+      },
+      "type": "yellow card",
+      "text": "Levi Colwill (Chelsea) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        51229
+      ]
+    },
+    {
+      "id": 2906819,
+      "time": {
+        "secs": 2123,
+        "label": "36"
+      },
+      "type": "penalty goal",
+      "text": "Goal! Sunderland 1, Chelsea 0. Enzo Le Fée (Sunderland) converts the penalty with a right footed shot to the bottom left corner.",
+      "playerIds": [
+        138104
+      ]
+    },
+    {
+      "id": 2906888,
+      "time": {
+        "secs": 2418,
+        "label": "41"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Roméo Lavia (Chelsea) right footed shot from outside the box is close, but misses to the left. Assisted by Moisés Caicedo.",
+      "playerIds": [
+        99282,
+        112203
+      ]
+    },
+    {
+      "id": 2906969,
+      "time": {
+        "secs": 2672,
+        "label": "45"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Pedro Neto (Chelsea) right footed shot from outside the box is saved in the centre of the goal by Robin Roefs (Sunderland). Assisted by Cole Palmer.",
+      "playerIds": [
+        21998,
+        49293
+      ]
+    },
+    {
+      "id": 2906981,
+      "time": {
+        "secs": 2700,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 5 minutes of added time."
+    },
+    {
+      "id": 2907008,
+      "time": {
+        "secs": 2866,
+        "label": "45+3"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Chemsdine Talbi (Sunderland).",
+      "playerIds": [
+        118633
+      ]
+    },
+    {
+      "id": 2907009,
+      "time": {
+        "secs": 2866,
+        "label": "45+3"
+      },
+      "type": "free kick won",
+      "text": "Marco Palestra (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        140055
+      ]
+    },
+    {
+      "id": 2907040,
+      "time": {
+        "secs": 2934,
+        "label": "45+4"
+      },
+      "type": "corner",
+      "text": "Corner, Chelsea. Conceded by Nordi Mukiele.",
+      "playerIds": [
+        51199
+      ]
+    },
+    {
+      "id": 2907043,
+      "time": {
+        "secs": 3000,
+        "label": "45+6"
+      },
+      "type": "free kick won",
+      "text": "Morgan Rogers (Chelsea) wins a free kick on the right wing.",
+      "playerIds": [
+        23968
+      ]
+    },
+    {
+      "id": 2907044,
+      "time": {
+        "secs": 3000,
+        "label": "45+6"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Noah Sadiki (Sunderland).",
+      "playerIds": [
+        124944
+      ]
+    },
+    {
+      "id": 2907050,
+      "time": {
+        "secs": 3044,
+        "label": "45+6"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Morgan Rogers (Chelsea) right footed shot from more than 40 yards on the right wing is saved in the top centre of the goal by Robin Roefs (Sunderland).",
+      "playerIds": [
+        23968
+      ]
+    },
+    {
+      "id": 2907049,
+      "time": {
+        "secs": 3051,
+        "label": "45+6"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Sunderland 1, Chelsea 0."
+    },
+    {
+      "id": 2907121,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Estêvão replaces Levi Colwill.",
+      "playerIds": [
+        304474,
+        51229
+      ]
+    },
+    {
+      "id": 2907124,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Sunderland 1, Chelsea 0."
+    },
+    {
+      "id": 2907158,
+      "time": {
+        "secs": 2787,
+        "label": "47"
+      },
+      "type": "free kick won",
+      "text": "Trai Hume (Sunderland) wins a free kick in the defensive half.",
+      "playerIds": [
+        122126
+      ]
+    },
+    {
+      "id": 2907179,
+      "time": {
+        "secs": 2787,
+        "label": "47"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Pep Chavarría (Chelsea).",
+      "playerIds": [
+        70585
+      ]
+    },
+    {
+      "id": 2907182,
+      "time": {
+        "secs": 2912,
+        "label": "49"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Noah Sadiki (Sunderland).",
+      "playerIds": [
+        124944
+      ]
+    },
+    {
+      "id": 2907183,
+      "time": {
+        "secs": 2912,
+        "label": "49"
+      },
+      "type": "free kick won",
+      "text": "Roméo Lavia (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        99282
+      ]
+    },
+    {
+      "id": 2907205,
+      "time": {
+        "secs": 2982,
+        "label": "50"
+      },
+      "type": "free kick won",
+      "text": "Moisés Caicedo (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2907227,
+      "time": {
+        "secs": 2982,
+        "label": "50"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Thomas Meunier (Sunderland).",
+      "playerIds": [
+        12196
+      ]
+    },
+    {
+      "id": 2907226,
+      "time": {
+        "secs": 2986,
+        "label": "50"
+      },
+      "type": "yellow card",
+      "text": "Thomas Meunier (Sunderland) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        12196
+      ]
+    },
+    {
+      "id": 2907252,
+      "time": {
+        "secs": 3079,
+        "label": "52"
+      },
+      "type": "start delay",
+      "text": "Delay in match (Chelsea)."
+    },
+    {
+      "id": 2907253,
+      "time": {
+        "secs": 3085,
+        "label": "52"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2907251,
+      "time": {
+        "secs": 3129,
+        "label": "53"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Brian Brobbey (Sunderland).",
+      "playerIds": [
+        67784
+      ]
+    },
+    {
+      "id": 2907254,
+      "time": {
+        "secs": 3129,
+        "label": "53"
+      },
+      "type": "free kick won",
+      "text": "Roméo Lavia (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        99282
+      ]
+    },
+    {
+      "id": 2907274,
+      "time": {
+        "secs": 3136,
+        "label": "53"
+      },
+      "type": "yellow card",
+      "text": "Brian Brobbey (Sunderland) is shown the yellow card.",
+      "playerIds": [
+        67784
+      ]
+    },
+    {
+      "id": 2907300,
+      "time": {
+        "secs": 3261,
+        "label": "55"
+      },
+      "type": "free kick won",
+      "text": "Reinildo Mandava (Sunderland) wins a free kick in the defensive half.",
+      "playerIds": [
+        63733
+      ]
+    },
+    {
+      "id": 2907301,
+      "time": {
+        "secs": 3261,
+        "label": "55"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Pedro Neto (Chelsea).",
+      "playerIds": [
+        21998
+      ]
+    },
+    {
+      "id": 2907327,
+      "time": {
+        "secs": 3288,
+        "label": "55"
+      },
+      "type": "yellow card",
+      "text": "Pedro Neto (Chelsea) is shown the yellow card.",
+      "playerIds": [
+        21998
+      ]
+    },
+    {
+      "id": 2907354,
+      "time": {
+        "secs": 3352,
+        "label": "56"
+      },
+      "type": "corner",
+      "text": "Corner, Sunderland. Conceded by Marco Palestra.",
+      "playerIds": [
+        140055
+      ]
+    },
+    {
+      "id": 2907383,
+      "time": {
+        "secs": 3418,
+        "label": "57"
+      },
+      "type": "offside",
+      "text": "Offside, Sunderland. Trai Hume is caught offside.",
+      "playerIds": [
+        12196,
+        122126
+      ]
+    },
+    {
+      "id": 2907382,
+      "time": {
+        "secs": 3467,
+        "label": "58"
+      },
+      "type": "free kick lost",
+      "text": "Handball by Estêvão (Chelsea).",
+      "playerIds": [
+        304474
+      ]
+    },
+    {
+      "id": 2907400,
+      "time": {
+        "secs": 3526,
+        "label": "59"
+      },
+      "type": "free kick lost",
+      "text": "Handball by Thomas Meunier (Sunderland).",
+      "playerIds": [
+        12196
+      ]
+    },
+    {
+      "id": 2907424,
+      "time": {
+        "secs": 3689,
+        "label": "62"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Danny Welbeck replaces Pedro Neto.",
+      "playerIds": [
+        3452,
+        21998
+      ]
+    },
+    {
+      "id": 2907434,
+      "time": {
+        "secs": 3698,
+        "label": "62"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Malo Gusto replaces Marco Palestra.",
+      "playerIds": [
+        68827,
+        140055
+      ]
+    },
+    {
+      "id": 2907432,
+      "time": {
+        "secs": 3742,
+        "label": "63"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Trai Hume (Sunderland).",
+      "playerIds": [
+        122126
+      ]
+    },
+    {
+      "id": 2907433,
+      "time": {
+        "secs": 3742,
+        "label": "63"
+      },
+      "type": "free kick won",
+      "text": "Moisés Caicedo (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2907462,
+      "time": {
+        "secs": 3856,
+        "label": "65"
+      },
+      "type": "free kick won",
+      "text": "Moisés Caicedo (Chelsea) wins a free kick in the attacking half.",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2907463,
+      "time": {
+        "secs": 3856,
+        "label": "65"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Brian Brobbey (Sunderland).",
+      "playerIds": [
+        67784
+      ]
+    },
+    {
+      "id": 2907484,
+      "time": {
+        "secs": 3898,
+        "label": "65"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Danny Welbeck (Chelsea) header from the centre of the box misses to the right. Assisted by Pep Chavarría with a cross following a set piece situation.",
+      "playerIds": [
+        3452,
+        70585
+      ]
+    },
+    {
+      "id": 2907485,
+      "time": {
+        "secs": 3906,
+        "label": "66"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Wesley Fofana (Chelsea) header from the centre of the box misses to the left. Assisted by Malo Gusto with a cross following a set piece situation.",
+      "playerIds": [
+        66284,
+        68827
+      ]
+    },
+    {
+      "id": 2907507,
+      "time": {
+        "secs": 4001,
+        "label": "67"
+      },
+      "type": "substitution",
+      "text": "Substitution, Sunderland. Wilson Isidor replaces Brian Brobbey.",
+      "playerIds": [
+        52989,
+        67784
+      ]
+    },
+    {
+      "id": 2907546,
+      "time": {
+        "secs": 4145,
+        "label": "70"
+      },
+      "type": "free kick won",
+      "text": "Moisés Caicedo (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2907559,
+      "time": {
+        "secs": 4145,
+        "label": "70"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Wilson Isidor (Sunderland).",
+      "playerIds": [
+        52989
+      ]
+    },
+    {
+      "id": 2907562,
+      "time": {
+        "secs": 4225,
+        "label": "71"
+      },
+      "type": "free kick won",
+      "text": "Enzo Le Fée (Sunderland) wins a free kick in the defensive half.",
+      "playerIds": [
+        138104
+      ]
+    },
+    {
+      "id": 2907563,
+      "time": {
+        "secs": 4225,
+        "label": "71"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Morgan Rogers (Chelsea).",
+      "playerIds": [
+        23968
+      ]
+    },
+    {
+      "id": 2907607,
+      "time": {
+        "secs": 4438,
+        "label": "74"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Malo Gusto (Chelsea) right footed shot from the right side of the box is saved in the top centre of the goal by Robin Roefs (Sunderland). Assisted by Cole Palmer.",
+      "playerIds": [
+        68827,
+        49293
+      ]
+    },
+    {
+      "id": 2907624,
+      "time": {
+        "secs": 4516,
+        "label": "76"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Moisés Caicedo (Chelsea).",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2907626,
+      "time": {
+        "secs": 4516,
+        "label": "76"
+      },
+      "type": "free kick won",
+      "text": "Wilson Isidor (Sunderland) wins a free kick in the defensive half.",
+      "playerIds": [
+        52989
+      ]
+    },
+    {
+      "id": 2907625,
+      "time": {
+        "secs": 4517,
+        "label": "76"
+      },
+      "type": "yellow card",
+      "text": "Moisés Caicedo (Chelsea) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2907659,
+      "time": {
+        "secs": 4611,
+        "label": "77"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Wilson Isidor (Sunderland) right footed shot from the centre of the box is saved in the centre of the goal by Mike Penders (Chelsea).",
+      "playerIds": [
+        52989
+      ]
+    },
+    {
+      "id": 2907660,
+      "time": {
+        "secs": 4616,
+        "label": "77"
+      },
+      "type": "corner",
+      "text": "Corner, Sunderland. Conceded by Pep Chavarría.",
+      "playerIds": [
+        70585
+      ]
+    },
+    {
+      "id": 2907658,
+      "time": {
+        "secs": 4663,
+        "label": "78"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Wilson Isidor (Sunderland) header from the centre of the box misses to the left. Assisted by Enzo Le Fée with a cross following a corner.",
+      "playerIds": [
+        52989,
+        138104
+      ]
+    },
+    {
+      "id": 2907684,
+      "time": {
+        "secs": 4673,
+        "label": "78"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Chemsdine Talbi (Sunderland) right footed shot from outside the box misses to the left following a corner.",
+      "playerIds": [
+        118633
+      ]
+    },
+    {
+      "id": 2907683,
+      "time": {
+        "secs": 4729,
+        "label": "79"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Geovany Quenda replaces Pep Chavarría.",
+      "playerIds": [
+        129425,
+        70585
+      ]
+    },
+    {
+      "id": 2907712,
+      "time": {
+        "secs": 4828,
+        "label": "81"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Geovany Quenda (Chelsea) left footed shot from the left side of the box is blocked.",
+      "playerIds": [
+        129425
+      ]
+    },
+    {
+      "id": 2907711,
+      "time": {
+        "secs": 4831,
+        "label": "81"
+      },
+      "type": "corner",
+      "text": "Corner, Chelsea. Conceded by Thomas Meunier.",
+      "playerIds": [
+        12196
+      ]
+    },
+    {
+      "id": 2907755,
+      "time": {
+        "secs": 5053,
+        "label": "85"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Cole Palmer (Chelsea) header from the centre of the box is saved in the bottom right corner by Robin Roefs (Sunderland).",
+      "playerIds": [
+        49293
+      ]
+    },
+    {
+      "id": 2907793,
+      "time": {
+        "secs": 5189,
+        "label": "87"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Chemsdine Talbi (Sunderland) right footed shot from outside the box is close, but misses to the right. Assisted by Wilson Isidor following a fast break.",
+      "playerIds": [
+        118633,
+        52989
+      ]
+    },
+    {
+      "id": 2907820,
+      "time": {
+        "secs": 5214,
+        "label": "87"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Emmanuel Emegha replaces Jordan Henderson.",
+      "playerIds": [
+        108291,
+        3712
+      ]
+    },
+    {
+      "id": 2907819,
+      "time": {
+        "secs": 5237,
+        "label": "88"
+      },
+      "type": "substitution",
+      "text": "Substitution, Sunderland. Nilson Angulo replaces Chemsdine Talbi.",
+      "playerIds": [
+        115105,
+        118633
+      ]
+    },
+    {
+      "id": 2907821,
+      "time": {
+        "secs": 5254,
+        "label": "88"
+      },
+      "type": "substitution",
+      "text": "Substitution, Sunderland. Chris Rigg replaces Enzo Le Fée.",
+      "playerIds": [
+        119614,
+        138104
+      ]
+    },
+    {
+      "id": 2907834,
+      "time": {
+        "secs": 5357,
+        "label": "90"
+      },
+      "type": "free kick won",
+      "text": "Emmanuel Emegha (Chelsea) wins a free kick in the attacking half.",
+      "playerIds": [
+        108291
+      ]
+    },
+    {
+      "id": 2907851,
+      "time": {
+        "secs": 5357,
+        "label": "90"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Luke O'Nien (Sunderland).",
+      "playerIds": [
+        10361
+      ]
+    },
+    {
+      "id": 2907849,
+      "time": {
+        "secs": 5361,
+        "label": "90"
+      },
+      "type": "yellow card",
+      "text": "Luke O'Nien (Sunderland) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        10361
+      ]
+    },
+    {
+      "id": 2907892,
+      "time": {
+        "secs": 5383,
+        "label": "90"
+      },
+      "type": "yellow card",
+      "text": "Wesley Fofana (Chelsea) is shown the yellow card.",
+      "playerIds": [
+        66284
+      ]
+    },
+    {
+      "id": 2907850,
+      "time": {
+        "secs": 5399,
+        "label": "90"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 5 minutes of added time."
+    },
+    {
+      "id": 2907891,
+      "time": {
+        "secs": 5463,
+        "label": "90+2"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Danny Welbeck (Chelsea) header from the centre of the box is just a bit too high. Assisted by Estêvão with a cross following a set piece situation.",
+      "playerIds": [
+        3452,
+        304474
+      ]
+    },
+    {
+      "id": 2907913,
+      "time": {
+        "secs": 5528,
+        "label": "90+3"
+      },
+      "type": "free kick won",
+      "text": "Reinildo Mandava (Sunderland) wins a free kick in the defensive half.",
+      "playerIds": [
+        63733
+      ]
+    },
+    {
+      "id": 2907914,
+      "time": {
+        "secs": 5528,
+        "label": "90+3"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Estêvão (Chelsea).",
+      "playerIds": [
+        304474
+      ]
+    },
+    {
+      "id": 2907919,
+      "time": {
+        "secs": 5606,
+        "label": "90+4"
+      },
+      "type": "free kick won",
+      "text": "Malo Gusto (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        68827
+      ]
+    },
+    {
+      "id": 2907922,
+      "time": {
+        "secs": 5606,
+        "label": "90+4"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Nilson Angulo (Sunderland).",
+      "playerIds": [
+        115105
+      ]
+    },
+    {
+      "id": 2907925,
+      "time": {
+        "secs": 5609,
+        "label": "90+4"
+      },
+      "type": "yellow card",
+      "text": "Nilson Angulo (Sunderland) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        115105
+      ]
+    },
+    {
+      "id": 2907923,
+      "time": {
+        "secs": 5660,
+        "label": "90+5"
+      },
+      "type": "free kick won",
+      "text": "Morgan Rogers (Chelsea) wins a free kick in the attacking half.",
+      "playerIds": [
+        23968
+      ]
+    },
+    {
+      "id": 2907924,
+      "time": {
+        "secs": 5660,
+        "label": "90+5"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Trai Hume (Sunderland).",
+      "playerIds": [
+        122126
+      ]
+    },
+    {
+      "id": 2907934,
+      "time": {
+        "secs": 5755,
+        "label": "90+6"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Danny Welbeck (Chelsea).",
+      "playerIds": [
+        3452
+      ]
+    },
+    {
+      "id": 2907937,
+      "time": {
+        "secs": 5755,
+        "label": "90+6"
+      },
+      "type": "free kick won",
+      "text": "Robin Roefs (Sunderland) wins a free kick in the defensive half.",
+      "playerIds": [
+        75692
+      ]
+    },
+    {
+      "id": 2907940,
+      "time": {
+        "secs": 5780,
+        "label": "90+7"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Sunderland 1, Chelsea 0."
+    },
+    {
+      "id": 2907943,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Sunderland 1, Chelsea 0."
+    }
+  ]
+}

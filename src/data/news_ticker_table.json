@@ -1,7 +1,7 @@
 [
   {
     "id": "CF_STANDINGS_GAMEWEEK_WINNER",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -24,7 +24,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -47,7 +47,7 @@
   },
   {
     "id": "CF_STANDINGS_WEEKLY_WINS_MOST",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -70,7 +70,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_RISE",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -92,7 +92,7 @@
   },
   {
     "id": "CF_PLAYER_TOP_PERFORMER_GW_SCORER",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -115,7 +115,7 @@
   },
   {
     "id": "CF_CAPTAIN_POPULAR_MOST_CAPTAINED",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -137,7 +137,7 @@
   },
   {
     "id": "CF_CHIP_WILDCARD_1_blue_one",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -159,7 +159,7 @@
   },
   {
     "id": "CF_CHIP_FREE_HIT_1_tim_holland",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -181,7 +181,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_1_fornaspengawasan",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -203,7 +203,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_2_telur_dadar",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -225,7 +225,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_3_ehajrakab_fc",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -247,7 +247,7 @@
   },
   {
     "id": "CF_CHIP_TRIPLE_CAPTAIN_1_anti_koruptor_laknat",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -271,7 +271,7 @@
   },
   {
     "id": "CF_CHIP_TRIPLE_CAPTAIN_2_rajo_s_team",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -295,7 +295,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_1_asoy_banget",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -317,7 +317,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_2_fornaspengawasan",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -339,7 +339,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_3_notyet",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -361,7 +361,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_1_cherki",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -386,7 +386,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_2_gro",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -411,7 +411,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_s_3_roefs",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -436,7 +436,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_1_n_jackson",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -461,7 +461,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_2_gro",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -486,7 +486,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_3_degaard",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -511,7 +511,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_1_a2n_s_team",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -533,7 +533,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_2_ceved_sc",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -555,7 +555,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_3_amenk_wenger",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -577,7 +577,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_1_r4_r5",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -600,7 +600,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_2_r15_r16",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -623,7 +623,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_3_r19_r20",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -646,7 +646,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_1_muharemovic",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -671,7 +671,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_2_gro",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -696,7 +696,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_3_cherki",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -721,7 +721,7 @@
   },
   {
     "id": "CF_CAPTAIN_VICE_CAPTAIN_1_ahay_jebret",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -746,7 +746,7 @@
   },
   {
     "id": "CF_CAPTAIN_DIFFERENTIAL_RETURN_1_kuromi_fc",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -770,7 +770,7 @@
   },
   {
     "id": "CF_CAPTAIN_DIFFERENTIAL_RETURN_2_papa_jolin",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -794,7 +794,7 @@
   },
   {
     "id": "CF_CAPTAIN_DIFFERENTIAL_RETURN_3_bercelana",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -818,7 +818,7 @@
   },
   {
     "id": "CF_TRANSFER_IN_MOST_BOUGHT",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -841,7 +841,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_brighton_de_cuyper",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -863,7 +863,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_arsenal_calafiori",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -885,7 +885,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_leeds_muharemovic",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -907,7 +907,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_sunderland_roefs",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -929,7 +929,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_1_wirtz",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -953,7 +953,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_2_e_le_fee",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -977,7 +977,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_3_mcginn",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1003,7 +1003,7 @@
   },
   {
     "id": "CF_MATCH_BONUS_POINTS",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1025,7 +1025,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_red_thiago",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1047,7 +1047,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_gvardiol",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1069,7 +1069,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_guehi",
-    "timestamp_produksi": "2026-11-18T05:29:23.866Z",
+    "timestamp_produksi": "2026-11-18T06:32:53.781Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",

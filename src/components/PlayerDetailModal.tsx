@@ -1487,23 +1487,13 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     return null;
   }, [playerMeta, summaryData, playerStatsObj, rawPhoto]);
 
-  // Modern Premier League 2025/2026 Cutout Photo proxied locally to prevent CORS/ISP blocks
+  // Strictly 1 primary source: Premier League 2025/2026 500x500 proxied locally (no fallback)
   const playerPhotoUrl = useMemo(() => {
     if (playerCode) {
       return `/api/fpl-player-photo/${playerCode}`;
     }
-    if (rawPhoto) {
-      const match = rawPhoto.match(/(\d+)/);
-      if (match) {
-        return `/api/fpl-player-photo/${match[1]}`;
-      }
-      if (rawPhoto.startsWith('http')) return rawPhoto;
-    }
     return '';
-  }, [playerCode, rawPhoto]);
-
-  const displayImageSrc = (!photoError && playerPhotoUrl) ? playerPhotoUrl : clubBadgeUrl;
-  const isShowingPhoto = !photoError && Boolean(playerPhotoUrl);
+  }, [playerCode]);
 
   const playerPosition = playerMeta?.position || summaryData?.player_info?.position || 'PL';
   const positionBg =
@@ -1601,46 +1591,23 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
         {/* ================= CLEAN HEADER (ALIGNED WITH TEAM MODAL) ================= */}
         {/* ================= CLEAN HEADER (ALIGNED WITH TEAM MODAL) ================= */}
         <div className="bg-gradient-to-r from-[#37003c] via-[#28002d] to-[#1c0022] text-white pt-2 sm:pt-2.5 pb-0 px-3 sm:px-4 shrink-0 relative z-30 overflow-hidden">
-          {/* Foto Pemain: Full dari atas header sampai batas bawah tab */}
-          <div className="absolute top-0 bottom-0 left-3 sm:left-4 z-10 pointer-events-none flex items-end justify-center">
-            <img
-              key={`${playerId}-${displayImageSrc}`}
-              src={displayImageSrc}
-              alt={isShowingPhoto ? playerName : (teamShortName || 'Club Badge')}
-              loading="eager"
-              decoding="async"
-              referrerPolicy="no-referrer"
-              className={`select-none transition-transform duration-200 ${
-                isShowingPhoto
-                  ? 'h-full w-auto max-w-[80px] sm:max-w-[92px] object-contain object-bottom filter drop-shadow-md'
-                  : 'h-11 sm:h-13 w-auto object-contain filter drop-shadow mb-2'
-              }`}
-              onError={(e) => {
-                const target = e.currentTarget;
-                const currentSrc = target.src;
-                if (target.src.includes('/api/fpl-player-photo/') && playerCode) {
-                  // Fallback 1: Direct Premier League CDN
-                  target.src = `https://resources.premierleague.com/premierleague25/photos/players/500x500/${playerCode}.png`;
-                } else if (playerCode && currentSrc.includes('500x500')) {
-                  // Fallback 2: Versi 110x140
-                  target.src = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${playerCode}.png`;
-                } else if (playerCode && currentSrc.includes('110x140') && !currentSrc.includes('/p')) {
-                  // Fallback 3: Format legacy 250x250
-                  target.src = `https://resources.premierleague.com/premierleague/photos/players/250x250/p${playerCode}.png`;
-                } else if (playerCode && !currentSrc.includes('/110x140/p')) {
-                  // Fallback 4: Format legacy 110x140
-                  target.src = `https://resources.premierleague.com/premierleague/photos/players/110x140/p${playerCode}.png`;
-                } else if (!photoError && playerPhotoUrl) {
-                  // Fallback 5: Switch to official club badge
-                  target.onerror = null;
+          {/* Foto Pemain: Full dari atas header sampai batas bawah tab (tanpa fallback) */}
+          {playerPhotoUrl && !photoError && (
+            <div className="absolute top-0 bottom-0 left-3 sm:left-4 z-10 pointer-events-none flex items-end justify-center">
+              <img
+                key={`${playerId}-${playerPhotoUrl}`}
+                src={playerPhotoUrl}
+                alt={playerName}
+                loading="eager"
+                decoding="async"
+                className="select-none transition-transform duration-200 h-full w-auto max-w-[80px] sm:max-w-[92px] object-contain object-bottom filter drop-shadow-md"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
                   setPhotoError(true);
-                } else {
-                  target.onerror = null;
-                  target.src = '/default_team_badge.png';
-                }
-              }}
-            />
-          </div>
+                }}
+              />
+            </div>
+          )}
 
           {/* Baris Konten Header: Tepat di tengah secara vertikal antara batas atas modal/header dan batas atas tab nav */}
           <div className="h-14 sm:h-16 flex items-center justify-between gap-3 relative z-20">
@@ -1648,7 +1615,9 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
             {/* Left: Spacer untuk foto pemain + Info Nama, Posisi, Klub, Harga */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               {/* Spacer transparan yang lebarnya sama dengan foto agar info teks tidak menimpa foto */}
-              <div className="shrink-0 w-[64px] sm:w-[76px]" aria-hidden="true" />
+              {playerPhotoUrl && !photoError && (
+                <div className="shrink-0 w-[64px] sm:w-[76px]" aria-hidden="true" />
+              )}
 
               <div className="min-w-0 flex flex-col justify-center">
                 {/* 1. Nama Pemain di atas */}

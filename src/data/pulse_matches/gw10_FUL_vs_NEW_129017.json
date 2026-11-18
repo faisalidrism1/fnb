@@ -1,0 +1,2308 @@
+{
+  "id": 129017,
+  "altIds": {
+    "opta": "g2645289"
+  },
+  "gameweek": {
+    "gameweek": 10
+  },
+  "kickoff": {
+    "millis": 1794063600000,
+    "label": "2026-11-07 15:00:00"
+  },
+  "ground": {
+    "name": "Craven Cottage, London"
+  },
+  "status": "C",
+  "phase": "F",
+  "outcome": "D",
+  "clock": {
+    "label": "Full Time",
+    "secs": 5400
+  },
+  "teams": [
+    {
+      "team": {
+        "id": 54,
+        "name": "Fulham",
+        "shortName": "Fulham",
+        "club": {
+          "abbr": "FUL"
+        }
+      },
+      "score": 1
+    },
+    {
+      "team": {
+        "id": 4,
+        "name": "Newcastle United",
+        "shortName": "Newcastle",
+        "club": {
+          "abbr": "NEW"
+        }
+      },
+      "score": 1
+    }
+  ],
+  "teamLists": [
+    {
+      "teamId": 54,
+      "formation": {
+        "subs": [
+          "86873",
+          "167074",
+          "174874",
+          "571779",
+          "244042",
+          "560552",
+          "551050",
+          "500033",
+          "184349"
+        ],
+        "teamId": "54",
+        "lineup": [
+          [
+            "80201"
+          ],
+          [
+            "166477",
+            "442299",
+            "232892",
+            "169528"
+          ],
+          [
+            "207189",
+            "463210"
+          ],
+          [
+            "477555",
+            "577725",
+            "153133"
+          ],
+          [
+            "551466"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 80201,
+          "altIds": {
+            "opta": "p80201"
+          },
+          "name": {
+            "first": "Bernd",
+            "last": "Leno",
+            "display": "Bernd Leno"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1
+        },
+        {
+          "id": 232892,
+          "altIds": {
+            "opta": "p232892"
+          },
+          "name": {
+            "first": "Calvin",
+            "last": "Bassey",
+            "display": "Calvin Bassey"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 3
+          },
+          "captain": true,
+          "shirtNumber": 3
+        },
+        {
+          "id": 551466,
+          "altIds": {
+            "opta": "p551466"
+          },
+          "name": {
+            "first": "Gonzalo",
+            "last": "García",
+            "display": "Gonzalo García"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7
+        },
+        {
+          "id": 477555,
+          "altIds": {
+            "opta": "p477555"
+          },
+          "name": {
+            "first": "Oscar",
+            "last": "Bobb",
+            "display": "Oscar Bobb"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14
+        },
+        {
+          "id": 207189,
+          "altIds": {
+            "opta": "p207189"
+          },
+          "name": {
+            "first": "Sander",
+            "last": "Berge",
+            "display": "Sander Berge"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 16
+          },
+          "captain": false,
+          "shirtNumber": 16
+        },
+        {
+          "id": 153133,
+          "altIds": {
+            "opta": "p153133"
+          },
+          "name": {
+            "first": "Alex",
+            "last": "Iwobi",
+            "display": "Alex Iwobi"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 17
+          },
+          "captain": false,
+          "shirtNumber": 17
+        },
+        {
+          "id": 463210,
+          "altIds": {
+            "opta": "p463210"
+          },
+          "name": {
+            "first": "Shea",
+            "last": "Charles",
+            "display": "Shea Charles"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 19
+          },
+          "captain": false,
+          "shirtNumber": 19
+        },
+        {
+          "id": 166477,
+          "altIds": {
+            "opta": "p166477"
+          },
+          "name": {
+            "first": "Timothy",
+            "last": "Castagne",
+            "display": "Timothy Castagne"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 21
+          },
+          "captain": false,
+          "shirtNumber": 21
+        },
+        {
+          "id": 442299,
+          "altIds": {
+            "opta": "p442299"
+          },
+          "name": {
+            "first": "David",
+            "last": "Affengruber",
+            "display": "David Affengruber"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22
+        },
+        {
+          "id": 577725,
+          "altIds": {
+            "opta": "p577725"
+          },
+          "name": {
+            "first": "Josh",
+            "last": "King",
+            "display": "Josh King"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 24
+          },
+          "captain": false,
+          "shirtNumber": 24
+        },
+        {
+          "id": 169528,
+          "altIds": {
+            "opta": "p169528"
+          },
+          "name": {
+            "first": "Antonee",
+            "last": "Robinson",
+            "display": "Antonee Robinson"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 33
+          },
+          "captain": false,
+          "shirtNumber": 33
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 86873,
+          "altIds": {
+            "opta": "p86873"
+          },
+          "name": {
+            "first": "Benjamin",
+            "last": "Lecomte",
+            "display": "Benjamin Lecomte"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23
+        },
+        {
+          "id": 167074,
+          "altIds": {
+            "opta": "p167074"
+          },
+          "name": {
+            "first": "Kenny",
+            "last": "Tete",
+            "display": "Kenny Tete"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2
+        },
+        {
+          "id": 174874,
+          "altIds": {
+            "opta": "p174874"
+          },
+          "name": {
+            "first": "Joachim",
+            "last": "Andersen",
+            "display": "Joachim Andersen"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5
+        },
+        {
+          "id": 571779,
+          "altIds": {
+            "opta": "p571779"
+          },
+          "name": {
+            "first": "César",
+            "last": "Palacios",
+            "display": "César Palacios"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 8
+          },
+          "captain": false,
+          "shirtNumber": 8
+        },
+        {
+          "id": 244042,
+          "altIds": {
+            "opta": "p244042"
+          },
+          "name": {
+            "first": "Rodrigo",
+            "last": "Muniz Carvalho",
+            "display": "Rodrigo Muniz Carvalho"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 9
+          },
+          "captain": false,
+          "shirtNumber": 9
+        },
+        {
+          "id": 560552,
+          "altIds": {
+            "opta": "p560552"
+          },
+          "name": {
+            "first": "Kevin",
+            "last": "Santos Lopes de Macedo",
+            "display": "Kevin Santos Lopes de Macedo"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11
+        },
+        {
+          "id": 551050,
+          "altIds": {
+            "opta": "p551050"
+          },
+          "name": {
+            "first": "Hugo",
+            "last": "Larsson",
+            "display": "Hugo Larsson"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 15
+          },
+          "captain": false,
+          "shirtNumber": 15
+        },
+        {
+          "id": 500033,
+          "altIds": {
+            "opta": "p500033"
+          },
+          "name": {
+            "first": "Manuel Ángel",
+            "last": "Morán Ibáñez",
+            "display": "Manuel Ángel Morán Ibáñez"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 20
+          },
+          "captain": false,
+          "shirtNumber": 20
+        },
+        {
+          "id": 184349,
+          "altIds": {
+            "opta": "p184349"
+          },
+          "name": {
+            "first": "Ryan",
+            "last": "Sessegnon",
+            "display": "Ryan Sessegnon"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 30
+          },
+          "captain": false,
+          "shirtNumber": 30
+        }
+      ]
+    },
+    {
+      "teamId": 4,
+      "formation": {
+        "subs": [
+          "98747",
+          "441191",
+          "220237",
+          "119471",
+          "611665",
+          "449434",
+          "613221",
+          "200089",
+          "547719"
+        ],
+        "teamId": "4",
+        "lineup": [
+          [
+            "470551"
+          ],
+          [
+            "463726",
+            "465642",
+            "78916",
+            "487838"
+          ],
+          [
+            "636852",
+            "465694"
+          ],
+          [
+            "114243",
+            "216646",
+            "201666"
+          ],
+          [
+            "538207"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 470551,
+          "altIds": {
+            "opta": "p470551"
+          },
+          "name": {
+            "first": "Lukás",
+            "last": "Hornícek",
+            "display": "Lukás Hornícek"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 21
+          },
+          "captain": false,
+          "shirtNumber": 21
+        },
+        {
+          "id": 487838,
+          "altIds": {
+            "opta": "p487838"
+          },
+          "name": {
+            "first": "Lewis",
+            "last": "Hall",
+            "display": "Lewis Hall"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3
+        },
+        {
+          "id": 465694,
+          "altIds": {
+            "opta": "p465694"
+          },
+          "name": {
+            "first": "Nico",
+            "last": "González",
+            "display": "Nico González"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6
+        },
+        {
+          "id": 216646,
+          "altIds": {
+            "opta": "p216646"
+          },
+          "name": {
+            "first": "Yoane",
+            "last": "Wissa",
+            "display": "Yoane Wissa"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 9
+          },
+          "captain": false,
+          "shirtNumber": 9
+        },
+        {
+          "id": 538207,
+          "altIds": {
+            "opta": "p538207"
+          },
+          "name": {
+            "first": "William",
+            "last": "Osula",
+            "display": "William Osula"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10
+        },
+        {
+          "id": 201666,
+          "altIds": {
+            "opta": "p201666"
+          },
+          "name": {
+            "first": "Harvey",
+            "last": "Barnes",
+            "display": "Harvey Barnes"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11
+        },
+        {
+          "id": 465642,
+          "altIds": {
+            "opta": "p465642"
+          },
+          "name": {
+            "first": "Malick",
+            "last": "Thiaw",
+            "display": "Malick Thiaw"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 12
+          },
+          "captain": false,
+          "shirtNumber": 12
+        },
+        {
+          "id": 636852,
+          "altIds": {
+            "opta": "p636852"
+          },
+          "name": {
+            "first": "Sean",
+            "last": "Steur",
+            "display": "Sean Steur"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14
+        },
+        {
+          "id": 114243,
+          "altIds": {
+            "opta": "p114243"
+          },
+          "name": {
+            "first": "Jacob",
+            "last": "Murphy",
+            "display": "Jacob Murphy"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23
+        },
+        {
+          "id": 78916,
+          "altIds": {
+            "opta": "p78916"
+          },
+          "name": {
+            "first": "Dan",
+            "last": "Burn",
+            "display": "Dan Burn"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 33
+          },
+          "captain": true,
+          "shirtNumber": 33
+        },
+        {
+          "id": 463726,
+          "altIds": {
+            "opta": "p463726"
+          },
+          "name": {
+            "first": "Amar",
+            "last": "Dedic",
+            "display": "Amar Dedic"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 37
+          },
+          "captain": false,
+          "shirtNumber": 37
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 98747,
+          "altIds": {
+            "opta": "p98747"
+          },
+          "name": {
+            "first": "Nick",
+            "last": "Pope",
+            "display": "Nick Pope"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1
+        },
+        {
+          "id": 441191,
+          "altIds": {
+            "opta": "p441191"
+          },
+          "name": {
+            "first": "Tino",
+            "last": "Livramento",
+            "display": "Tino Livramento"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2
+        },
+        {
+          "id": 220237,
+          "altIds": {
+            "opta": "p220237"
+          },
+          "name": {
+            "first": "Sven",
+            "last": "Botman",
+            "display": "Sven Botman"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4
+        },
+        {
+          "id": 119471,
+          "altIds": {
+            "opta": "p119471"
+          },
+          "name": {
+            "first": "Fabian",
+            "last": "Schär",
+            "display": "Fabian Schär"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5
+        },
+        {
+          "id": 611665,
+          "altIds": {
+            "opta": "p611665"
+          },
+          "name": {
+            "first": "Bazoumana",
+            "last": "Touré",
+            "display": "Bazoumana Touré"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 17
+          },
+          "captain": false,
+          "shirtNumber": 17
+        },
+        {
+          "id": 449434,
+          "altIds": {
+            "opta": "p449434"
+          },
+          "name": {
+            "first": "Anthony",
+            "last": "Elanga",
+            "display": "Anthony Elanga"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 19
+          },
+          "captain": false,
+          "shirtNumber": 19
+        },
+        {
+          "id": 613221,
+          "altIds": {
+            "opta": "p613221"
+          },
+          "name": {
+            "first": "Matias",
+            "last": "Fernandez-Pardo",
+            "display": "Matias Fernandez-Pardo"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 20
+          },
+          "captain": false,
+          "shirtNumber": 20
+        },
+        {
+          "id": 200089,
+          "altIds": {
+            "opta": "p200089"
+          },
+          "name": {
+            "first": "Joe",
+            "last": "Willock",
+            "display": "Joe Willock"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 28
+          },
+          "captain": false,
+          "shirtNumber": 28
+        },
+        {
+          "id": 547719,
+          "altIds": {
+            "opta": "p547719"
+          },
+          "name": {
+            "first": "Lewis",
+            "last": "Miley",
+            "display": "Lewis Miley"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 67
+          },
+          "captain": false,
+          "shirtNumber": 67
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "S",
+      "personId": 244042,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "65'",
+        "secs": 3900
+      }
+    },
+    {
+      "type": "S",
+      "personId": 551466,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "65'",
+        "secs": 3900
+      }
+    },
+    {
+      "type": "S",
+      "personId": 571779,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "72'",
+        "secs": 4320
+      }
+    },
+    {
+      "type": "S",
+      "personId": 577725,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "72'",
+        "secs": 4320
+      }
+    },
+    {
+      "type": "S",
+      "personId": 167074,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "77'",
+        "secs": 4620
+      }
+    },
+    {
+      "type": "S",
+      "personId": 166477,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "77'",
+        "secs": 4620
+      }
+    },
+    {
+      "type": "S",
+      "personId": 184349,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "77'",
+        "secs": 4620
+      }
+    },
+    {
+      "type": "S",
+      "personId": 477555,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "77'",
+        "secs": 4620
+      }
+    },
+    {
+      "type": "G",
+      "personId": 244042,
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      }
+    },
+    {
+      "type": "S",
+      "personId": 200089,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "61'",
+        "secs": 3660
+      }
+    },
+    {
+      "type": "S",
+      "personId": 216646,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "61'",
+        "secs": 3660
+      }
+    },
+    {
+      "type": "S",
+      "personId": 547719,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "61'",
+        "secs": 3660
+      }
+    },
+    {
+      "type": "S",
+      "personId": 465694,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "61'",
+        "secs": 3660
+      }
+    },
+    {
+      "type": "S",
+      "personId": 613221,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "74'",
+        "secs": 4440
+      }
+    },
+    {
+      "type": "S",
+      "personId": 636852,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "74'",
+        "secs": 4440
+      }
+    },
+    {
+      "type": "S",
+      "personId": 449434,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      }
+    },
+    {
+      "type": "S",
+      "personId": 538207,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      }
+    },
+    {
+      "type": "S",
+      "personId": 119471,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      }
+    },
+    {
+      "type": "S",
+      "personId": 465642,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      }
+    },
+    {
+      "type": "S",
+      "personId": 613221,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "97'",
+        "secs": 5820
+      }
+    },
+    {
+      "type": "G",
+      "personId": 114243,
+      "phase": "2",
+      "clock": {
+        "label": "80'",
+        "secs": 4800
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 119471,
+      "phase": "2",
+      "clock": {
+        "label": "90'",
+        "secs": 5400
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 463726,
+      "phase": "2",
+      "clock": {
+        "label": "92'",
+        "secs": 5520
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 0,
+      "phase": "2",
+      "clock": {
+        "label": "95'",
+        "secs": 5700
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5400,
+        "label": "90'"
+      }
+    }
+  ],
+  "textstreamEvents": [
+    {
+      "id": 2903877,
+      "type": "lineup",
+      "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2904118,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2904136,
+      "time": {
+        "secs": 160,
+        "label": "03"
+      },
+      "type": "corner",
+      "text": "Corner, Fulham. Conceded by Amar Dedic.",
+      "playerIds": [
+        68637
+      ]
+    },
+    {
+      "id": 2904139,
+      "time": {
+        "secs": 193,
+        "label": "04"
+      },
+      "type": "start delay",
+      "text": "Delay in match (Newcastle United)."
+    },
+    {
+      "id": 2904140,
+      "time": {
+        "secs": 201,
+        "label": "04"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2904151,
+      "time": {
+        "secs": 283,
+        "label": "05"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Timothy Castagne.",
+      "playerIds": [
+        6712
+      ]
+    },
+    {
+      "id": 2904154,
+      "time": {
+        "secs": 330,
+        "label": "06"
+      },
+      "type": "offside",
+      "text": "Offside, Newcastle United. Malick Thiaw is caught offside.",
+      "playerIds": [
+        108922,
+        124462
+      ]
+    },
+    {
+      "id": 2904169,
+      "time": {
+        "secs": 476,
+        "label": "08"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yoane Wissa (Newcastle United).",
+      "playerIds": [
+        117497
+      ]
+    },
+    {
+      "id": 2904170,
+      "time": {
+        "secs": 476,
+        "label": "08"
+      },
+      "type": "free kick won",
+      "text": "Antonee Robinson (Fulham) wins a free kick on the left wing.",
+      "playerIds": [
+        14624
+      ]
+    },
+    {
+      "id": 2904184,
+      "time": {
+        "secs": 785,
+        "label": "14"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Oscar Bobb (Fulham) left footed shot from the right side of the box is saved in the centre of the goal by Lukás Hornícek (Newcastle United).",
+      "playerIds": [
+        66657
+      ]
+    },
+    {
+      "id": 2904187,
+      "time": {
+        "secs": 787,
+        "label": "14"
+      },
+      "type": "corner",
+      "text": "Corner, Fulham. Conceded by Amar Dedic.",
+      "playerIds": [
+        68637
+      ]
+    },
+    {
+      "id": 2904200,
+      "time": {
+        "secs": 820,
+        "label": "14"
+      },
+      "type": "post",
+      "text": "Gonzalo García (Fulham) hits the bar with a header from the right side of the six yard box. Assisted by Alex Iwobi with a cross following a corner.",
+      "playerIds": [
+        119364,
+        4717
+      ]
+    },
+    {
+      "id": 2904185,
+      "time": {
+        "secs": 845,
+        "label": "15"
+      },
+      "type": "free kick won",
+      "text": "William Osula (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        114590
+      ]
+    },
+    {
+      "id": 2904186,
+      "time": {
+        "secs": 845,
+        "label": "15"
+      },
+      "type": "free kick lost",
+      "text": "Foul by David Affengruber (Fulham).",
+      "playerIds": [
+        68651
+      ]
+    },
+    {
+      "id": 2904199,
+      "time": {
+        "secs": 902,
+        "label": "16"
+      },
+      "type": "free kick won",
+      "text": "Josh King (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        128976
+      ]
+    },
+    {
+      "id": 2904201,
+      "time": {
+        "secs": 902,
+        "label": "16"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Nico González (Newcastle United).",
+      "playerIds": [
+        67849
+      ]
+    },
+    {
+      "id": 2904208,
+      "time": {
+        "secs": 996,
+        "label": "17"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Timothy Castagne.",
+      "playerIds": [
+        6712
+      ]
+    },
+    {
+      "id": 2904214,
+      "time": {
+        "secs": 1096,
+        "label": "19"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Harvey Barnes (Newcastle United) right footed shot from the centre of the box is saved in the bottom right corner by Bernd Leno (Fulham). Assisted by Jacob Murphy with a cross.",
+      "playerIds": [
+        14716,
+        9662
+      ]
+    },
+    {
+      "id": 2904235,
+      "time": {
+        "secs": 1417,
+        "label": "24"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Oscar Bobb (Fulham) left footed shot from the right side of the box is blocked. Assisted by Shea Charles with a headed pass.",
+      "playerIds": [
+        66657,
+        75201
+      ]
+    },
+    {
+      "id": 2904243,
+      "time": {
+        "secs": 1513,
+        "label": "26"
+      },
+      "type": "start delay",
+      "text": "Delay in match (Fulham)."
+    },
+    {
+      "id": 2904244,
+      "time": {
+        "secs": 1562,
+        "label": "27"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2904241,
+      "time": {
+        "secs": 1611,
+        "label": "27"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Sean Steur (Newcastle United).",
+      "playerIds": [
+        303043
+      ]
+    },
+    {
+      "id": 2904242,
+      "time": {
+        "secs": 1611,
+        "label": "27"
+      },
+      "type": "free kick won",
+      "text": "Josh King (Fulham) wins a free kick in the attacking half.",
+      "playerIds": [
+        128976
+      ]
+    },
+    {
+      "id": 2904256,
+      "time": {
+        "secs": 1699,
+        "label": "29"
+      },
+      "type": "free kick won",
+      "text": "Lewis Hall (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2904257,
+      "time": {
+        "secs": 1699,
+        "label": "29"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Gonzalo García (Fulham).",
+      "playerIds": [
+        119364
+      ]
+    },
+    {
+      "id": 2904265,
+      "time": {
+        "secs": 1785,
+        "label": "30"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Malick Thiaw (Newcastle United).",
+      "playerIds": [
+        124462
+      ]
+    },
+    {
+      "id": 2904268,
+      "time": {
+        "secs": 1785,
+        "label": "30"
+      },
+      "type": "free kick won",
+      "text": "Gonzalo García (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        119364
+      ]
+    },
+    {
+      "id": 2904290,
+      "time": {
+        "secs": 1901,
+        "label": "32"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Harvey Barnes (Newcastle United) right footed shot from the left side of the box is saved in the centre of the goal by Bernd Leno (Fulham). Assisted by William Osula.",
+      "playerIds": [
+        14716,
+        114590
+      ]
+    },
+    {
+      "id": 2904289,
+      "time": {
+        "secs": 1904,
+        "label": "32"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Bernd Leno.",
+      "playerIds": [
+        4985
+      ]
+    },
+    {
+      "id": 2904303,
+      "time": {
+        "secs": 1943,
+        "label": "33"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yoane Wissa (Newcastle United).",
+      "playerIds": [
+        117497
+      ]
+    },
+    {
+      "id": 2904319,
+      "time": {
+        "secs": 1943,
+        "label": "33"
+      },
+      "type": "free kick won",
+      "text": "Timothy Castagne (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        6712
+      ]
+    },
+    {
+      "id": 2904301,
+      "time": {
+        "secs": 2040,
+        "label": "35"
+      },
+      "type": "free kick won",
+      "text": "Harvey Barnes (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        14716
+      ]
+    },
+    {
+      "id": 2904302,
+      "time": {
+        "secs": 2040,
+        "label": "35"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Timothy Castagne (Fulham).",
+      "playerIds": [
+        6712
+      ]
+    },
+    {
+      "id": 2904313,
+      "time": {
+        "secs": 2141,
+        "label": "36"
+      },
+      "type": "free kick won",
+      "text": "Gonzalo García (Fulham) wins a free kick on the left wing.",
+      "playerIds": [
+        119364
+      ]
+    },
+    {
+      "id": 2904320,
+      "time": {
+        "secs": 2141,
+        "label": "36"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Malick Thiaw (Newcastle United).",
+      "playerIds": [
+        124462
+      ]
+    },
+    {
+      "id": 2904325,
+      "time": {
+        "secs": 2219,
+        "label": "37"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Josh King (Fulham) right footed shot from outside the box is saved in the centre of the goal by Lukás Hornícek (Newcastle United). Assisted by Alex Iwobi.",
+      "playerIds": [
+        128976,
+        4717
+      ]
+    },
+    {
+      "id": 2904346,
+      "time": {
+        "secs": 2700,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 1 minutes of added time."
+    },
+    {
+      "id": 2904347,
+      "time": {
+        "secs": 2726,
+        "label": "45+1"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Josh King (Fulham) header from the centre of the box misses to the right.",
+      "playerIds": [
+        128976
+      ]
+    },
+    {
+      "id": 2904352,
+      "time": {
+        "secs": 2764,
+        "label": "45+2"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Fulham 0, Newcastle United 0."
+    },
+    {
+      "id": 2904371,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Fulham 0, Newcastle United 0."
+    },
+    {
+      "id": 2904386,
+      "time": {
+        "secs": 2875,
+        "label": "48"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Harvey Barnes (Newcastle United) right footed shot from the centre of the box is close, but misses the top right corner. Assisted by Yoane Wissa.",
+      "playerIds": [
+        14716,
+        117497
+      ]
+    },
+    {
+      "id": 2904398,
+      "time": {
+        "secs": 3010,
+        "label": "51"
+      },
+      "type": "free kick won",
+      "text": "Antonee Robinson (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        14624
+      ]
+    },
+    {
+      "id": 2904399,
+      "time": {
+        "secs": 3010,
+        "label": "51"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jacob Murphy (Newcastle United).",
+      "playerIds": [
+        9662
+      ]
+    },
+    {
+      "id": 2904404,
+      "time": {
+        "secs": 3063,
+        "label": "52"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Sean Steur (Newcastle United)."
+    },
+    {
+      "id": 2904426,
+      "time": {
+        "secs": 3201,
+        "label": "54"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2904425,
+      "time": {
+        "secs": 3311,
+        "label": "56"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Sander Berge (Fulham) right footed shot from outside the box is close, but misses to the left. Assisted by Gonzalo García.",
+      "playerIds": [
+        21614,
+        119364
+      ]
+    },
+    {
+      "id": 2904441,
+      "time": {
+        "secs": 3349,
+        "label": "56"
+      },
+      "type": "free kick won",
+      "text": "Lewis Hall (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2904442,
+      "time": {
+        "secs": 3349,
+        "label": "56"
+      },
+      "type": "free kick lost",
+      "text": "Foul by David Affengruber (Fulham).",
+      "playerIds": [
+        68651
+      ]
+    },
+    {
+      "id": 2904447,
+      "time": {
+        "secs": 3433,
+        "label": "58"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Yoane Wissa (Newcastle United) right footed shot from a difficult angle on the right is close, but misses to the right. Assisted by William Osula.",
+      "playerIds": [
+        117497,
+        114590
+      ]
+    },
+    {
+      "id": 2904461,
+      "time": {
+        "secs": 3604,
+        "label": "61"
+      },
+      "type": "free kick won",
+      "text": "Malick Thiaw (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        124462
+      ]
+    },
+    {
+      "id": 2904469,
+      "time": {
+        "secs": 3604,
+        "label": "61"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Gonzalo García (Fulham).",
+      "playerIds": [
+        119364
+      ]
+    },
+    {
+      "id": 2904468,
+      "time": {
+        "secs": 3637,
+        "label": "61"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Joe Willock replaces Yoane Wissa.",
+      "playerIds": [
+        14446,
+        117497
+      ]
+    },
+    {
+      "id": 2904470,
+      "time": {
+        "secs": 3643,
+        "label": "61"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Lewis Miley replaces Nico González.",
+      "playerIds": [
+        117647,
+        67849
+      ]
+    },
+    {
+      "id": 2904467,
+      "time": {
+        "secs": 3670,
+        "label": "62"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lewis Miley (Newcastle United).",
+      "playerIds": [
+        117647
+      ]
+    },
+    {
+      "id": 2904485,
+      "time": {
+        "secs": 3670,
+        "label": "62"
+      },
+      "type": "free kick won",
+      "text": "Shea Charles (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        75201
+      ]
+    },
+    {
+      "id": 2904510,
+      "time": {
+        "secs": 3828,
+        "label": "64"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Oscar Bobb (Fulham).",
+      "playerIds": [
+        66657
+      ]
+    },
+    {
+      "id": 2904511,
+      "time": {
+        "secs": 3828,
+        "label": "64"
+      },
+      "type": "free kick won",
+      "text": "Dan Burn (Newcastle United) wins a free kick on the left wing.",
+      "playerIds": [
+        8707
+      ]
+    },
+    {
+      "id": 2904516,
+      "time": {
+        "secs": 3900,
+        "label": "66"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. Rodrigo Muniz replaces Gonzalo García.",
+      "playerIds": [
+        117763,
+        119364
+      ]
+    },
+    {
+      "id": 2904526,
+      "time": {
+        "secs": 3930,
+        "label": "66"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Sean Steur (Newcastle United) right footed shot from outside the box is blocked. Assisted by Amar Dedic.",
+      "playerIds": [
+        303043,
+        68637
+      ]
+    },
+    {
+      "id": 2904536,
+      "time": {
+        "secs": 3980,
+        "label": "67"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Rodrigo Muniz (Fulham).",
+      "playerIds": [
+        117763
+      ]
+    },
+    {
+      "id": 2904537,
+      "time": {
+        "secs": 3980,
+        "label": "67"
+      },
+      "type": "free kick won",
+      "text": "Malick Thiaw (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        124462
+      ]
+    },
+    {
+      "id": 2904569,
+      "time": {
+        "secs": 4284,
+        "label": "72"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. César Palacios replaces Josh King because of an injury.",
+      "playerIds": [
+        123594,
+        128976
+      ]
+    },
+    {
+      "id": 2904581,
+      "time": {
+        "secs": 4384,
+        "label": "74"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Matias Fernandez-Pardo replaces Sean Steur.",
+      "playerIds": [
+        135108,
+        303043
+      ]
+    },
+    {
+      "id": 2904592,
+      "time": {
+        "secs": 4429,
+        "label": "74"
+      },
+      "type": "free kick lost",
+      "text": "Foul by César Palacios (Fulham).",
+      "playerIds": [
+        123594
+      ]
+    },
+    {
+      "id": 2904593,
+      "time": {
+        "secs": 4429,
+        "label": "74"
+      },
+      "type": "free kick won",
+      "text": "Lewis Hall (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2904608,
+      "time": {
+        "secs": 4506,
+        "label": "76"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Matias Fernandez-Pardo (Newcastle United) header from the centre of the box is too high. Assisted by Jacob Murphy with a cross.",
+      "playerIds": [
+        135108,
+        9662
+      ]
+    },
+    {
+      "id": 2904607,
+      "time": {
+        "secs": 4512,
+        "label": "76"
+      },
+      "type": "free kick won",
+      "text": "Rodrigo Muniz (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        117763
+      ]
+    },
+    {
+      "id": 2904609,
+      "time": {
+        "secs": 4512,
+        "label": "76"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dan Burn (Newcastle United).",
+      "playerIds": [
+        8707
+      ]
+    },
+    {
+      "id": 2904616,
+      "time": {
+        "secs": 4551,
+        "label": "76"
+      },
+      "type": "corner",
+      "text": "Corner, Fulham. Conceded by Malick Thiaw.",
+      "playerIds": [
+        124462
+      ]
+    },
+    {
+      "id": 2904622,
+      "time": {
+        "secs": 4580,
+        "label": "77"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Timothy Castagne (Fulham) header from the left side of the six yard box is saved in the centre of the goal by Lukás Hornícek (Newcastle United). Assisted by Alex Iwobi with a cross.",
+      "playerIds": [
+        6712,
+        4717
+      ]
+    },
+    {
+      "id": 2904619,
+      "time": {
+        "secs": 4581,
+        "label": "77"
+      },
+      "type": "offside",
+      "text": "Offside, Fulham. Shea Charles is caught offside.",
+      "playerIds": [
+        6712,
+        75201
+      ]
+    },
+    {
+      "id": 2904623,
+      "time": {
+        "secs": 4610,
+        "label": "77"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. Kenny Tete replaces Timothy Castagne.",
+      "playerIds": [
+        4880,
+        6712
+      ]
+    },
+    {
+      "id": 2904624,
+      "time": {
+        "secs": 4617,
+        "label": "77"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. Ryan Sessegnon replaces Oscar Bobb.",
+      "playerIds": [
+        14656,
+        66657
+      ]
+    },
+    {
+      "id": 2904641,
+      "time": {
+        "secs": 4654,
+        "label": "78"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Joe Willock (Newcastle United) right footed shot from outside the box is saved in the bottom left corner by Bernd Leno (Fulham). Assisted by Matias Fernandez-Pardo.",
+      "playerIds": [
+        14446,
+        135108
+      ]
+    },
+    {
+      "id": 2904647,
+      "time": {
+        "secs": 4754,
+        "label": "80"
+      },
+      "type": "goal",
+      "text": "Goal! Fulham 0, Newcastle United 1. Jacob Murphy (Newcastle United) left footed shot from outside the box to the bottom left corner.",
+      "playerIds": [
+        9662
+      ]
+    },
+    {
+      "id": 2904655,
+      "time": {
+        "secs": 4840,
+        "label": "81"
+      },
+      "type": "free kick won",
+      "text": "Malick Thiaw (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        124462
+      ]
+    },
+    {
+      "id": 2904657,
+      "time": {
+        "secs": 4840,
+        "label": "81"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Rodrigo Muniz (Fulham).",
+      "playerIds": [
+        117763
+      ]
+    },
+    {
+      "id": 2904656,
+      "time": {
+        "secs": 4885,
+        "label": "82"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Matias Fernandez-Pardo (Newcastle United).",
+      "playerIds": [
+        135108
+      ]
+    },
+    {
+      "id": 2904683,
+      "time": {
+        "secs": 4885,
+        "label": "82"
+      },
+      "type": "free kick won",
+      "text": "Calvin Bassey (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        23793
+      ]
+    },
+    {
+      "id": 2904680,
+      "time": {
+        "secs": 4933,
+        "label": "83"
+      },
+      "type": "goal",
+      "text": "Goal! Fulham 1, Newcastle United 1. Rodrigo Muniz (Fulham) right footed shot from the left side of the six yard box to the bottom right corner.",
+      "playerIds": [
+        117763
+      ]
+    },
+    {
+      "id": 2904696,
+      "time": {
+        "secs": 5070,
+        "label": "85"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Fabian Schär replaces Malick Thiaw because of an injury.",
+      "playerIds": [
+        5220,
+        124462
+      ]
+    },
+    {
+      "id": 2904692,
+      "time": {
+        "secs": 5080,
+        "label": "85"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Anthony Elanga replaces William Osula.",
+      "playerIds": [
+        49259,
+        114590
+      ]
+    },
+    {
+      "id": 2904699,
+      "time": {
+        "secs": 5224,
+        "label": "88"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Lewis Hall (Newcastle United) right footed shot from the centre of the box is saved in the bottom right corner by Bernd Leno (Fulham).",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2904702,
+      "time": {
+        "secs": 5250,
+        "label": "88"
+      },
+      "type": "offside",
+      "text": "Offside, Fulham. Rodrigo Muniz is caught offside.",
+      "playerIds": [
+        4717,
+        117763
+      ]
+    },
+    {
+      "id": 2904717,
+      "time": {
+        "secs": 5361,
+        "label": "90"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Fabian Schär (Newcastle United).",
+      "playerIds": [
+        5220
+      ]
+    },
+    {
+      "id": 2904718,
+      "time": {
+        "secs": 5361,
+        "label": "90"
+      },
+      "type": "free kick won",
+      "text": "Rodrigo Muniz (Fulham) wins a free kick on the left wing.",
+      "playerIds": [
+        117763
+      ]
+    },
+    {
+      "id": 2904729,
+      "time": {
+        "secs": 5367,
+        "label": "90"
+      },
+      "type": "yellow card",
+      "text": "Fabian Schär (Newcastle United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        5220
+      ]
+    },
+    {
+      "id": 2904728,
+      "time": {
+        "secs": 5399,
+        "label": "90"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 6 minutes of added time."
+    },
+    {
+      "id": 2904747,
+      "time": {
+        "secs": 5435,
+        "label": "90+1"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Rodrigo Muniz (Fulham) header from the centre of the box misses to the left. Assisted by Alex Iwobi following a set piece situation.",
+      "playerIds": [
+        117763,
+        4717
+      ]
+    },
+    {
+      "id": 2904734,
+      "time": {
+        "secs": 5446,
+        "label": "90+1"
+      },
+      "type": "miss",
+      "text": "Attempt missed. César Palacios (Fulham) right footed shot from outside the box is high and wide to the left following a set piece situation.",
+      "playerIds": [
+        123594
+      ]
+    },
+    {
+      "id": 2904746,
+      "time": {
+        "secs": 5488,
+        "label": "90+2"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Amar Dedic (Newcastle United).",
+      "playerIds": [
+        68637
+      ]
+    },
+    {
+      "id": 2904749,
+      "time": {
+        "secs": 5488,
+        "label": "90+2"
+      },
+      "type": "free kick won",
+      "text": "Rodrigo Muniz (Fulham) wins a free kick in the attacking half.",
+      "playerIds": [
+        117763
+      ]
+    },
+    {
+      "id": 2904748,
+      "time": {
+        "secs": 5494,
+        "label": "90+2"
+      },
+      "type": "yellow card",
+      "text": "Amar Dedic (Newcastle United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        68637
+      ]
+    },
+    {
+      "id": 2904758,
+      "time": {
+        "secs": 5565,
+        "label": "90+3"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Ryan Sessegnon (Fulham) left footed shot from outside the box is saved in the bottom right corner by Lukás Hornícek (Newcastle United).",
+      "playerIds": [
+        14656
+      ]
+    },
+    {
+      "id": 2904759,
+      "time": {
+        "secs": 5570,
+        "label": "90+3"
+      },
+      "type": "offside",
+      "text": "Offside, Fulham. David Affengruber is caught offside.",
+      "playerIds": [
+        14656,
+        68651
+      ]
+    },
+    {
+      "id": 2904773,
+      "time": {
+        "secs": 5604,
+        "label": "90+4"
+      },
+      "type": "free kick won",
+      "text": "Rodrigo Muniz (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        117763
+      ]
+    },
+    {
+      "id": 2904774,
+      "time": {
+        "secs": 5604,
+        "label": "90+4"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dan Burn (Newcastle United).",
+      "playerIds": [
+        8707
+      ]
+    },
+    {
+      "id": 2904779,
+      "time": {
+        "secs": 5670,
+        "label": "90+5"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Matias Fernandez-Pardo (Newcastle United)."
+    },
+    {
+      "id": 2904794,
+      "time": {
+        "secs": 5774,
+        "label": "90+7"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2904797,
+      "time": {
+        "secs": 5872,
+        "label": "90+8"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Fulham 1, Newcastle United 1."
+    },
+    {
+      "id": 2904800,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Fulham 1, Newcastle United 1."
+    }
+  ]
+}

@@ -731,6 +731,7 @@ async function prewarmShirtCache() {
 }
 
 // Proxied Player Photos for 100% reliable same-origin loading without ISP/CORS/Adblock blocks
+// Strictly 1 primary source (Premier League 2025/2026 500x500) with zero fallbacks
 const playerPhotoCache = new Map<string, { buffer: Buffer; contentType: string }>();
 
 app.get('/api/fpl-player-photo/:code', async (req, res) => {
@@ -738,6 +739,7 @@ app.get('/api/fpl-player-photo/:code', async (req, res) => {
     const rawCode = String(req.params.code).trim();
     if (!rawCode) return res.status(400).send('Invalid player code');
     const cleanCode = rawCode.replace(/^p/, '').replace(/\.(png|jpg|webp)$/, '');
+    if (!/^\d+$/.test(cleanCode)) return res.status(400).send('Invalid player code');
 
     if (playerPhotoCache.has(cleanCode)) {
       const cached = playerPhotoCache.get(cleanCode)!;
@@ -746,33 +748,23 @@ app.get('/api/fpl-player-photo/:code', async (req, res) => {
       return res.send(cached.buffer);
     }
 
-    const candidates = [
-      `https://resources.premierleague.com/premierleague25/photos/players/500x500/${cleanCode}.png`,
-      `https://resources.premierleague.com/premierleague25/photos/players/110x140/${cleanCode}.png`,
-      `https://resources.premierleague.com/premierleague/photos/players/250x250/p${cleanCode}.png`,
-      `https://resources.premierleague.com/premierleague/photos/players/110x140/p${cleanCode}.png`
-    ];
+    const primaryPhotoUrl = `https://resources.premierleague.com/premierleague25/photos/players/500x500/${cleanCode}.png`;
 
-    for (const url of candidates) {
-      try {
-        const resp = await fetch(url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'image/png,image/webp,image/*;q=0.8'
-          }
-        });
-        if (resp.ok) {
-          const arrBuf = await resp.arrayBuffer();
-          const buffer = Buffer.from(arrBuf);
-          const contentType = resp.headers.get('content-type') || 'image/png';
-          playerPhotoCache.set(cleanCode, { buffer, contentType });
-          res.setHeader('Content-Type', contentType);
-          res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
-          return res.send(buffer);
-        }
-      } catch {
-        // try next candidate
+    const resp = await fetch(primaryPhotoUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'image/png,image/webp,image/*;q=0.8'
       }
+    });
+
+    if (resp.ok) {
+      const arrBuf = await resp.arrayBuffer();
+      const buffer = Buffer.from(arrBuf);
+      const contentType = resp.headers.get('content-type') || 'image/png';
+      playerPhotoCache.set(cleanCode, { buffer, contentType });
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+      return res.send(buffer);
     }
 
     res.status(404).send('Player photo not found');

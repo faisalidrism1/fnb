@@ -7,6 +7,8 @@ import {
   PULSE_BASE,
   PULSE_HEADERS,
   getPulseSeasonFixturesIndex,
+  getOptaMatchCodeForPulseId,
+  fetchSdpNormalizedMatch,
 } from './matchesFetcher.ts';
 
 const DATA_DIR = path.join(process.cwd(), 'src/data');
@@ -323,17 +325,28 @@ export async function fetchAndCachePulseMatch(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
   try {
-    const [fixtureRes, tsEvents] = await Promise.all([
-      fetch(`${PULSE_BASE}/fixtures/${matchId}`, {
-        headers: PULSE_HEADERS,
-        signal: controller.signal,
-      }),
+    const [optaCode, tsEvents] = await Promise.all([
+      getOptaMatchCodeForPulseId(matchId).catch(() => null),
       fetchPulseMatchTextstream(matchId),
     ]);
+
+    let data: any = null;
+    if (optaCode) {
+      data = await fetchSdpNormalizedMatch(optaCode, matchId, options?.fallbackGw);
+    }
+
+    if (!data) {
+      const fixtureRes = await fetch(`${PULSE_BASE}/fixtures/${matchId}`, {
+        headers: PULSE_HEADERS,
+        signal: controller.signal,
+      });
+      if (fixtureRes.ok) {
+        data = await fixtureRes.json();
+      }
+    }
     clearTimeout(timeoutId);
 
-    if (fixtureRes.ok) {
-      const data = await fixtureRes.json();
+    if (data) {
       data.textstreamEvents = Array.isArray(tsEvents) ? tsEvents : [];
       const meta = extractPulseMatchMeta(data);
       const gw = meta?.gw || Number(options?.fallbackGw) || 0;
@@ -520,8 +533,9 @@ export async function syncPulseMatchesForActiveGw(
     ? fs.readdirSync(PULSE_MATCHES_DIR).filter((f) => f.endsWith('.json')).sort()
     : [];
 
+  const unmatchedNote = failed > 0 ? `, ${failed} unmatched` : '';
   console.log(
-    `[Pulse Sync] GW ${gw}: ${synced} synced, ${skippedFinal} final cached, ${failed} unmatched/failed, ${removedStale} stale removed (${files.length} file(s) in pulse_matches).`
+    `[Pulse Sync] GW ${gw}: ${synced} synced, ${skippedFinal} final cached${unmatchedNote}, ${removedStale} stale removed (${files.length} file(s) in pulse_matches).`
   );
 
   return {

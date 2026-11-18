@@ -1,0 +1,2783 @@
+{
+  "id": 129015,
+  "altIds": {
+    "opta": "g2645287"
+  },
+  "gameweek": {
+    "gameweek": 10
+  },
+  "kickoff": {
+    "millis": 1794146400000,
+    "label": "2026-11-08 14:00:00"
+  },
+  "ground": {
+    "name": "Selhurst Park, London"
+  },
+  "status": "C",
+  "phase": "F",
+  "outcome": "A",
+  "clock": {
+    "label": "Full Time",
+    "secs": 5400
+  },
+  "teams": [
+    {
+      "team": {
+        "id": 31,
+        "name": "Crystal Palace",
+        "shortName": "Crystal Palace",
+        "club": {
+          "abbr": "CRY"
+        }
+      },
+      "score": 1
+    },
+    {
+      "team": {
+        "id": 14,
+        "name": "Liverpool",
+        "shortName": "Liverpool",
+        "club": {
+          "abbr": "LIV"
+        }
+      },
+      "score": 3
+    }
+  ],
+  "teamLists": [
+    {
+      "teamId": 31,
+      "formation": {
+        "subs": [
+          "121709",
+          "651426",
+          "205533",
+          "433154",
+          "108413",
+          "533646",
+          "570794",
+          "438464",
+          "172850"
+        ],
+        "teamId": "31",
+        "lineup": [
+          [
+            "172649"
+          ],
+          [
+            "427623",
+            "220362",
+            "152551"
+          ],
+          [
+            "242313",
+            "496221",
+            "450063",
+            "244723"
+          ],
+          [
+            "209400",
+            "488024"
+          ],
+          [
+            "247412"
+          ]
+        ],
+        "formation": "3-4-2-1"
+      },
+      "lineup": [
+        {
+          "id": 172649,
+          "altIds": {
+            "opta": "p172649"
+          },
+          "name": {
+            "first": "Dean",
+            "last": "Henderson",
+            "display": "Dean Henderson"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 1
+          },
+          "captain": true,
+          "shirtNumber": 1
+        },
+        {
+          "id": 244723,
+          "altIds": {
+            "opta": "p244723"
+          },
+          "name": {
+            "first": "Tyrick",
+            "last": "Mitchell",
+            "display": "Tyrick Mitchell"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3
+        },
+        {
+          "id": 220362,
+          "altIds": {
+            "opta": "p220362"
+          },
+          "name": {
+            "first": "Axel",
+            "last": "Disasi",
+            "display": "Axel Disasi"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5
+        },
+        {
+          "id": 152551,
+          "altIds": {
+            "opta": "p152551"
+          },
+          "name": {
+            "first": "Jefferson",
+            "last": "Lerma",
+            "display": "Jefferson Lerma"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 8
+          },
+          "captain": false,
+          "shirtNumber": 8
+        },
+        {
+          "id": 488024,
+          "altIds": {
+            "opta": "p488024"
+          },
+          "name": {
+            "first": "Yéremy",
+            "last": "Pino",
+            "display": "Yéremy Pino"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10
+        },
+        {
+          "id": 209400,
+          "altIds": {
+            "opta": "p209400"
+          },
+          "name": {
+            "first": "Daichi",
+            "last": "Kamada",
+            "display": "Daichi Kamada"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 18
+          },
+          "captain": false,
+          "shirtNumber": 18
+        },
+        {
+          "id": 496221,
+          "altIds": {
+            "opta": "p496221"
+          },
+          "name": {
+            "first": "Adam",
+            "last": "Wharton",
+            "display": "Adam Wharton"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 20
+          },
+          "captain": false,
+          "shirtNumber": 20
+        },
+        {
+          "id": 247412,
+          "altIds": {
+            "opta": "p247412"
+          },
+          "name": {
+            "first": "Jørgen",
+            "last": "Strand Larsen",
+            "display": "Jørgen Strand Larsen"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22
+        },
+        {
+          "id": 450063,
+          "altIds": {
+            "opta": "p450063"
+          },
+          "name": {
+            "first": "Quinten",
+            "last": "Timber",
+            "display": "Quinten Timber"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23
+        },
+        {
+          "id": 427623,
+          "altIds": {
+            "opta": "p427623"
+          },
+          "name": {
+            "first": "Chris",
+            "last": "Richards",
+            "display": "Chris Richards"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 26
+          },
+          "captain": false,
+          "shirtNumber": 26
+        },
+        {
+          "id": 242313,
+          "altIds": {
+            "opta": "p242313"
+          },
+          "name": {
+            "first": "Óscar",
+            "last": "Mingueza",
+            "display": "Óscar Mingueza"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 30
+          },
+          "captain": false,
+          "shirtNumber": 30
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 121709,
+          "altIds": {
+            "opta": "p121709"
+          },
+          "name": {
+            "first": "Walter",
+            "last": "Benítez",
+            "display": "Walter Benítez"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 44
+          },
+          "captain": false,
+          "shirtNumber": 44
+        },
+        {
+          "id": 651426,
+          "altIds": {
+            "opta": "p651426"
+          },
+          "name": {
+            "first": "Jaydee",
+            "last": "Canvot",
+            "display": "Jaydee Canvot"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6
+        },
+        {
+          "id": 205533,
+          "altIds": {
+            "opta": "p205533"
+          },
+          "name": {
+            "first": "Eddie",
+            "last": "Nketiah",
+            "display": "Eddie Nketiah"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 9
+          },
+          "captain": false,
+          "shirtNumber": 9
+        },
+        {
+          "id": 433154,
+          "altIds": {
+            "opta": "p433154"
+          },
+          "name": {
+            "first": "Dwight",
+            "last": "McNeil",
+            "display": "Dwight McNeil"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11
+        },
+        {
+          "id": 108413,
+          "altIds": {
+            "opta": "p108413"
+          },
+          "name": {
+            "first": "Will",
+            "last": "Hughes",
+            "display": "Will Hughes"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 19
+          },
+          "captain": false,
+          "shirtNumber": 19
+        },
+        {
+          "id": 533646,
+          "altIds": {
+            "opta": "p533646"
+          },
+          "name": {
+            "first": "Darío",
+            "last": "Osorio",
+            "display": "Darío Osorio"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 24
+          },
+          "captain": false,
+          "shirtNumber": 24
+        },
+        {
+          "id": 570794,
+          "altIds": {
+            "opta": "p570794"
+          },
+          "name": {
+            "first": "Anan",
+            "last": "Khalaili",
+            "display": "Anan Khalaili"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 25
+          },
+          "captain": false,
+          "shirtNumber": 25
+        },
+        {
+          "id": 438464,
+          "altIds": {
+            "opta": "p438464"
+          },
+          "name": {
+            "first": "Cheick",
+            "last": "Doucouré",
+            "display": "Cheick Doucouré"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 28
+          },
+          "captain": false,
+          "shirtNumber": 28
+        },
+        {
+          "id": 172850,
+          "altIds": {
+            "opta": "p172850"
+          },
+          "name": {
+            "first": "Ben",
+            "last": "Chilwell",
+            "display": "Ben Chilwell"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 33
+          },
+          "captain": false,
+          "shirtNumber": 33
+        }
+      ]
+    },
+    {
+      "teamId": 14,
+      "formation": {
+        "subs": [
+          "449027",
+          "171287",
+          "158983",
+          "214285",
+          "551499",
+          "591386",
+          "491501",
+          "514514",
+          "611922"
+        ],
+        "teamId": "14",
+        "lineup": [
+          [
+            "116535"
+          ],
+          [
+            "445087",
+            "606702",
+            "97032",
+            "544877"
+          ],
+          [
+            "424876",
+            "243016"
+          ],
+          [
+            "243298",
+            "494595",
+            "482616"
+          ],
+          [
+            "219168"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 116535,
+          "altIds": {
+            "opta": "p116535"
+          },
+          "name": {
+            "first": "Alisson Ramsés",
+            "last": "Becker",
+            "display": "Alisson Ramsés Becker"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1
+        },
+        {
+          "id": 97032,
+          "altIds": {
+            "opta": "p97032"
+          },
+          "name": {
+            "first": "Virgil",
+            "last": "van Dijk",
+            "display": "Virgil van Dijk"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 4
+          },
+          "captain": true,
+          "shirtNumber": 4
+        },
+        {
+          "id": 606702,
+          "altIds": {
+            "opta": "p606702"
+          },
+          "name": {
+            "first": "Jérémy",
+            "last": "Jacquet",
+            "display": "Jérémy Jacquet"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5
+        },
+        {
+          "id": 544877,
+          "altIds": {
+            "opta": "p544877"
+          },
+          "name": {
+            "first": "Milos",
+            "last": "Kerkez",
+            "display": "Milos Kerkez"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6
+        },
+        {
+          "id": 494595,
+          "altIds": {
+            "opta": "p494595"
+          },
+          "name": {
+            "first": "Florian",
+            "last": "Wirtz",
+            "display": "Florian Wirtz"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7
+        },
+        {
+          "id": 424876,
+          "altIds": {
+            "opta": "p424876"
+          },
+          "name": {
+            "first": "Dominik",
+            "last": "Szoboszlai",
+            "display": "Dominik Szoboszlai"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 8
+          },
+          "captain": false,
+          "shirtNumber": 8
+        },
+        {
+          "id": 219168,
+          "altIds": {
+            "opta": "p219168"
+          },
+          "name": {
+            "first": "Alexander",
+            "last": "Isak",
+            "display": "Alexander Isak"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 9
+          },
+          "captain": false,
+          "shirtNumber": 9
+        },
+        {
+          "id": 243016,
+          "altIds": {
+            "opta": "p243016"
+          },
+          "name": {
+            "first": "Alexis",
+            "last": "Mac Allister",
+            "display": "Alexis Mac Allister"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10
+        },
+        {
+          "id": 243298,
+          "altIds": {
+            "opta": "p243298"
+          },
+          "name": {
+            "first": "Cody",
+            "last": "Gakpo",
+            "display": "Cody Gakpo"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 18
+          },
+          "captain": false,
+          "shirtNumber": 18
+        },
+        {
+          "id": 482616,
+          "altIds": {
+            "opta": "p482616"
+          },
+          "name": {
+            "first": "Bradley",
+            "last": "Barcola",
+            "display": "Bradley Barcola"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 29
+          },
+          "captain": false,
+          "shirtNumber": 29
+        },
+        {
+          "id": 445087,
+          "altIds": {
+            "opta": "p445087"
+          },
+          "name": {
+            "first": "Ronald",
+            "last": "Araujo",
+            "display": "Ronald Araujo"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 33
+          },
+          "captain": false,
+          "shirtNumber": 33
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 449027,
+          "altIds": {
+            "opta": "p449027"
+          },
+          "name": {
+            "first": "Giorgi",
+            "last": "Mamardashvili",
+            "display": "Giorgi Mamardashvili"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 25
+          },
+          "captain": false,
+          "shirtNumber": 25
+        },
+        {
+          "id": 171287,
+          "altIds": {
+            "opta": "p171287"
+          },
+          "name": {
+            "first": "Joe",
+            "last": "Gomez",
+            "display": "Joe Gomez"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2
+        },
+        {
+          "id": 158983,
+          "altIds": {
+            "opta": "p158983"
+          },
+          "name": {
+            "first": "Wataru",
+            "last": "Endo",
+            "display": "Wataru Endo"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3
+        },
+        {
+          "id": 214285,
+          "altIds": {
+            "opta": "p214285"
+          },
+          "name": {
+            "first": "Kostas",
+            "last": "Tsimikas",
+            "display": "Kostas Tsimikas"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 21
+          },
+          "captain": false,
+          "shirtNumber": 21
+        },
+        {
+          "id": 551499,
+          "altIds": {
+            "opta": "p551499"
+          },
+          "name": {
+            "first": "Víctor",
+            "last": "Muñoz",
+            "display": "Víctor Muñoz"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23
+        },
+        {
+          "id": 591386,
+          "altIds": {
+            "opta": "p591386"
+          },
+          "name": {
+            "first": "Trey",
+            "last": "Nyoni",
+            "display": "Trey Nyoni"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 42
+          },
+          "captain": false,
+          "shirtNumber": 42
+        },
+        {
+          "id": 491501,
+          "altIds": {
+            "opta": "p491501"
+          },
+          "name": {
+            "first": "James",
+            "last": "McConnell",
+            "display": "James McConnell"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 53
+          },
+          "captain": false,
+          "shirtNumber": 53
+        },
+        {
+          "id": 514514,
+          "altIds": {
+            "opta": "p514514"
+          },
+          "name": {
+            "first": "Lewis",
+            "last": "Koumas",
+            "display": "Lewis Koumas"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 67
+          },
+          "captain": false,
+          "shirtNumber": 67
+        },
+        {
+          "id": 611922,
+          "altIds": {
+            "opta": "p611922"
+          },
+          "name": {
+            "first": "Rio",
+            "last": "Ngumoha",
+            "display": "Rio Ngumoha"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 73
+          },
+          "captain": false,
+          "shirtNumber": 73
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "S",
+      "personId": 533646,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "60'",
+        "secs": 3600
+      }
+    },
+    {
+      "type": "S",
+      "personId": 450063,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "60'",
+        "secs": 3600
+      }
+    },
+    {
+      "type": "S",
+      "personId": 205533,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "72'",
+        "secs": 4320
+      }
+    },
+    {
+      "type": "S",
+      "personId": 247412,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "72'",
+        "secs": 4320
+      }
+    },
+    {
+      "type": "S",
+      "personId": 570794,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "87'",
+        "secs": 5220
+      }
+    },
+    {
+      "type": "S",
+      "personId": 242313,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "87'",
+        "secs": 5220
+      }
+    },
+    {
+      "type": "S",
+      "personId": 433154,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "87'",
+        "secs": 5220
+      }
+    },
+    {
+      "type": "S",
+      "personId": 488024,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "87'",
+        "secs": 5220
+      }
+    },
+    {
+      "type": "P",
+      "personId": 205533,
+      "phase": "2",
+      "clock": {
+        "label": "95'",
+        "secs": 5700
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 488024,
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 152551,
+      "phase": "2",
+      "clock": {
+        "label": "82'",
+        "secs": 4920
+      }
+    },
+    {
+      "type": "S",
+      "personId": 591386,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "69'",
+        "secs": 4140
+      }
+    },
+    {
+      "type": "S",
+      "personId": 424876,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "69'",
+        "secs": 4140
+      }
+    },
+    {
+      "type": "S",
+      "personId": 551499,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "69'",
+        "secs": 4140
+      }
+    },
+    {
+      "type": "S",
+      "personId": 482616,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "69'",
+        "secs": 4140
+      }
+    },
+    {
+      "type": "S",
+      "personId": 611922,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "76'",
+        "secs": 4560
+      }
+    },
+    {
+      "type": "S",
+      "personId": 243298,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "76'",
+        "secs": 4560
+      }
+    },
+    {
+      "type": "S",
+      "personId": 514514,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "90'",
+        "secs": 5400
+      }
+    },
+    {
+      "type": "S",
+      "personId": 219168,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "90'",
+        "secs": 5400
+      }
+    },
+    {
+      "type": "S",
+      "personId": 171287,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "91'",
+        "secs": 5460
+      }
+    },
+    {
+      "type": "S",
+      "personId": 445087,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "91'",
+        "secs": 5460
+      }
+    },
+    {
+      "type": "G",
+      "personId": 243016,
+      "assistId": 424876,
+      "phase": "1",
+      "clock": {
+        "label": "40'",
+        "secs": 2400
+      }
+    },
+    {
+      "type": "G",
+      "personId": 494595,
+      "assistId": 482616,
+      "phase": "2",
+      "clock": {
+        "label": "54'",
+        "secs": 3240
+      }
+    },
+    {
+      "type": "G",
+      "personId": 219168,
+      "assistId": 494595,
+      "phase": "2",
+      "clock": {
+        "label": "89'",
+        "secs": 5340
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 445087,
+      "phase": "1",
+      "clock": {
+        "label": "24'",
+        "secs": 1440
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 482616,
+      "phase": "2",
+      "clock": {
+        "label": "59'",
+        "secs": 3540
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 551499,
+      "phase": "2",
+      "clock": {
+        "label": "82'",
+        "secs": 4920
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 243016,
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5400,
+        "label": "90'"
+      }
+    }
+  ],
+  "textstreamEvents": [
+    {
+      "id": 2906078,
+      "type": "lineup",
+      "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2906310,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2906318,
+      "time": {
+        "secs": 18,
+        "label": "01"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Alexis Mac Allister (Liverpool) right footed shot from outside the box is saved in the centre of the goal by Dean Henderson (Crystal Palace).",
+      "playerIds": [
+        63633
+      ]
+    },
+    {
+      "id": 2906316,
+      "time": {
+        "secs": 50,
+        "label": "01"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Óscar Mingueza (Crystal Palace).",
+      "playerIds": [
+        50909
+      ]
+    },
+    {
+      "id": 2906317,
+      "time": {
+        "secs": 50,
+        "label": "01"
+      },
+      "type": "free kick won",
+      "text": "Milos Kerkez (Liverpool) wins a free kick in the defensive half.",
+      "playerIds": [
+        116665
+      ]
+    },
+    {
+      "id": 2906330,
+      "time": {
+        "secs": 106,
+        "label": "02"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Chris Richards.",
+      "playerIds": [
+        50842
+      ]
+    },
+    {
+      "id": 2906357,
+      "time": {
+        "secs": 181,
+        "label": "04"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Alexander Isak (Liverpool) left footed shot from the left side of the box is blocked. Assisted by Bradley Barcola.",
+      "playerIds": [
+        21737,
+        68840
+      ]
+    },
+    {
+      "id": 2906393,
+      "time": {
+        "secs": 391,
+        "label": "07"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ronald Araujo (Liverpool).",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2906394,
+      "time": {
+        "secs": 391,
+        "label": "07"
+      },
+      "type": "free kick won",
+      "text": "Jørgen Strand Larsen (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        35670
+      ]
+    },
+    {
+      "id": 2906416,
+      "time": {
+        "secs": 424,
+        "label": "08"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Axel Disasi (Crystal Palace).",
+      "playerIds": [
+        54893
+      ]
+    },
+    {
+      "id": 2906417,
+      "time": {
+        "secs": 424,
+        "label": "08"
+      },
+      "type": "free kick won",
+      "text": "Alexander Isak (Liverpool) wins a free kick on the right wing.",
+      "playerIds": [
+        21737
+      ]
+    },
+    {
+      "id": 2906426,
+      "time": {
+        "secs": 585,
+        "label": "10"
+      },
+      "type": "free kick won",
+      "text": "Milos Kerkez (Liverpool) wins a free kick on the left wing.",
+      "playerIds": [
+        116665
+      ]
+    },
+    {
+      "id": 2906441,
+      "time": {
+        "secs": 585,
+        "label": "10"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Óscar Mingueza (Crystal Palace).",
+      "playerIds": [
+        50909
+      ]
+    },
+    {
+      "id": 2906440,
+      "time": {
+        "secs": 646,
+        "label": "11"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Alexis Mac Allister (Liverpool) header from the centre of the box is close, but misses to the left. Assisted by Dominik Szoboszlai with a cross following a set piece situation.",
+      "playerIds": [
+        63633,
+        33231
+      ]
+    },
+    {
+      "id": 2906503,
+      "time": {
+        "secs": 832,
+        "label": "14"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Dominik Szoboszlai (Liverpool) left footed shot from outside the box is close, but misses to the left.",
+      "playerIds": [
+        33231
+      ]
+    },
+    {
+      "id": 2906504,
+      "time": {
+        "secs": 833,
+        "label": "14"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Dean Henderson.",
+      "playerIds": [
+        13988
+      ]
+    },
+    {
+      "id": 2906505,
+      "time": {
+        "secs": 926,
+        "label": "16"
+      },
+      "type": "free kick won",
+      "text": "Quinten Timber (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        67779
+      ]
+    },
+    {
+      "id": 2906506,
+      "time": {
+        "secs": 926,
+        "label": "16"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Alexander Isak (Liverpool).",
+      "playerIds": [
+        21737
+      ]
+    },
+    {
+      "id": 2906562,
+      "time": {
+        "secs": 1042,
+        "label": "18"
+      },
+      "type": "post",
+      "text": "Yéremy Pino (Crystal Palace) hits the bar with a left footed shot from the centre of the box. Assisted by Tyrick Mitchell.",
+      "playerIds": [
+        109117,
+        24334
+      ]
+    },
+    {
+      "id": 2906554,
+      "time": {
+        "secs": 1054,
+        "label": "18"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Yéremy Pino (Crystal Palace) header from the centre of the box is saved in the bottom left corner by Alisson Becker (Liverpool). Assisted by Óscar Mingueza with a cross.",
+      "playerIds": [
+        109117,
+        50909
+      ]
+    },
+    {
+      "id": 2906587,
+      "time": {
+        "secs": 1161,
+        "label": "20"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bradley Barcola (Liverpool) left footed shot from the left side of the box misses to the left. Assisted by Virgil van Dijk.",
+      "playerIds": [
+        68840,
+        5140
+      ]
+    },
+    {
+      "id": 2906569,
+      "time": {
+        "secs": 1166,
+        "label": "20"
+      },
+      "type": "free kick won",
+      "text": "Quinten Timber (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        67779
+      ]
+    },
+    {
+      "id": 2906586,
+      "time": {
+        "secs": 1166,
+        "label": "20"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Alexis Mac Allister (Liverpool).",
+      "playerIds": [
+        63633
+      ]
+    },
+    {
+      "id": 2906601,
+      "time": {
+        "secs": 1248,
+        "label": "21"
+      },
+      "type": "free kick won",
+      "text": "Alexis Mac Allister (Liverpool) wins a free kick in the defensive half.",
+      "playerIds": [
+        63633
+      ]
+    },
+    {
+      "id": 2906603,
+      "time": {
+        "secs": 1248,
+        "label": "21"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jefferson Lerma (Crystal Palace).",
+      "playerIds": [
+        37776
+      ]
+    },
+    {
+      "id": 2906602,
+      "time": {
+        "secs": 1301,
+        "label": "22"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Tyrick Mitchell.",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2906630,
+      "time": {
+        "secs": 1354,
+        "label": "23"
+      },
+      "type": "free kick won",
+      "text": "Jefferson Lerma (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        37776
+      ]
+    },
+    {
+      "id": 2906632,
+      "time": {
+        "secs": 1354,
+        "label": "23"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ronald Araujo (Liverpool).",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2906631,
+      "time": {
+        "secs": 1385,
+        "label": "24"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Cody Gakpo (Liverpool).",
+      "playerIds": [
+        32894
+      ]
+    },
+    {
+      "id": 2906633,
+      "time": {
+        "secs": 1385,
+        "label": "24"
+      },
+      "type": "free kick won",
+      "text": "Tyrick Mitchell (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2906662,
+      "time": {
+        "secs": 1416,
+        "label": "24"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ronald Araujo (Liverpool).",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2906664,
+      "time": {
+        "secs": 1416,
+        "label": "24"
+      },
+      "type": "free kick won",
+      "text": "Tyrick Mitchell (Crystal Palace) wins a free kick on the left wing.",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2906663,
+      "time": {
+        "secs": 1420,
+        "label": "24"
+      },
+      "type": "yellow card",
+      "text": "Ronald Araujo (Liverpool) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2906707,
+      "time": {
+        "secs": 1650,
+        "label": "28"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Axel Disasi.",
+      "playerIds": [
+        54893
+      ]
+    },
+    {
+      "id": 2906719,
+      "time": {
+        "secs": 1687,
+        "label": "29"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jérémy Jacquet (Liverpool) header from the centre of the box is too high. Assisted by Dominik Szoboszlai with a cross following a corner.",
+      "playerIds": [
+        133104,
+        33231
+      ]
+    },
+    {
+      "id": 2906720,
+      "time": {
+        "secs": 1722,
+        "label": "29"
+      },
+      "type": "free kick won",
+      "text": "Jørgen Strand Larsen (Crystal Palace) wins a free kick on the left wing.",
+      "playerIds": [
+        35670
+      ]
+    },
+    {
+      "id": 2906721,
+      "time": {
+        "secs": 1722,
+        "label": "29"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Virgil van Dijk (Liverpool).",
+      "playerIds": [
+        5140
+      ]
+    },
+    {
+      "id": 2906741,
+      "time": {
+        "secs": 1757,
+        "label": "30"
+      },
+      "type": "offside",
+      "text": "Offside, Crystal Palace. Daichi Kamada is caught offside.",
+      "playerIds": [
+        24334,
+        49759
+      ]
+    },
+    {
+      "id": 2906760,
+      "time": {
+        "secs": 1897,
+        "label": "32"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Florian Wirtz (Liverpool) right footed shot from the right side of the box is blocked. Assisted by Jérémy Jacquet.",
+      "playerIds": [
+        75382,
+        133104
+      ]
+    },
+    {
+      "id": 2906761,
+      "time": {
+        "secs": 1907,
+        "label": "32"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Jørgen Strand Larsen (Crystal Palace) right footed shot from outside the box is blocked. Assisted by Daichi Kamada.",
+      "playerIds": [
+        35670,
+        49759
+      ]
+    },
+    {
+      "id": 2906788,
+      "time": {
+        "secs": 1949,
+        "label": "33"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Yéremy Pino (Crystal Palace) left footed shot from the left side of the box misses to the right. Assisted by Óscar Mingueza.",
+      "playerIds": [
+        109117,
+        50909
+      ]
+    },
+    {
+      "id": 2906855,
+      "time": {
+        "secs": 1950,
+        "label": "33"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Daichi Kamada (Crystal Palace) right footed shot from the centre of the box misses to the left. Assisted by Yéremy Pino.",
+      "playerIds": [
+        49759,
+        109117
+      ]
+    },
+    {
+      "id": 2906762,
+      "time": {
+        "secs": 1951,
+        "label": "33"
+      },
+      "type": "offside",
+      "text": "Offside, Crystal Palace. Jørgen Strand Larsen is caught offside.",
+      "playerIds": [
+        49759,
+        35670
+      ]
+    },
+    {
+      "id": 2906816,
+      "time": {
+        "secs": 2163,
+        "label": "37"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bradley Barcola (Liverpool) right footed shot from the centre of the box is too high. Assisted by Dominik Szoboszlai with a cross.",
+      "playerIds": [
+        68840,
+        33231
+      ]
+    },
+    {
+      "id": 2906838,
+      "time": {
+        "secs": 2259,
+        "label": "38"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Daichi Kamada (Crystal Palace) right footed shot from the centre of the box is saved in the top centre of the goal by Alisson Becker (Liverpool). Assisted by Tyrick Mitchell with a cross.",
+      "playerIds": [
+        49759,
+        24334
+      ]
+    },
+    {
+      "id": 2906854,
+      "time": {
+        "secs": 2291,
+        "label": "39"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jefferson Lerma (Crystal Palace).",
+      "playerIds": [
+        37776
+      ]
+    },
+    {
+      "id": 2906856,
+      "time": {
+        "secs": 2291,
+        "label": "39"
+      },
+      "type": "free kick won",
+      "text": "Cody Gakpo (Liverpool) wins a free kick on the right wing.",
+      "playerIds": [
+        32894
+      ]
+    },
+    {
+      "id": 2906863,
+      "time": {
+        "secs": 2356,
+        "label": "40"
+      },
+      "type": "goal",
+      "text": "Goal! Crystal Palace 0, Liverpool 1. Alexis Mac Allister (Liverpool) header from the centre of the box to the centre of the goal. Assisted by Dominik Szoboszlai with a cross following a set piece situation.",
+      "playerIds": [
+        63633,
+        33231
+      ]
+    },
+    {
+      "id": 2906892,
+      "time": {
+        "secs": 2454,
+        "label": "41"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Quinten Timber (Crystal Palace) right footed shot from the left side of the box is blocked. Assisted by Tyrick Mitchell.",
+      "playerIds": [
+        67779,
+        24334
+      ]
+    },
+    {
+      "id": 2906891,
+      "time": {
+        "secs": 2490,
+        "label": "42"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Quinten Timber (Crystal Palace) right footed shot from outside the box is saved in the centre of the goal by Alisson Becker (Liverpool). Assisted by Yéremy Pino.",
+      "playerIds": [
+        67779,
+        109117
+      ]
+    },
+    {
+      "id": 2906939,
+      "time": {
+        "secs": 2564,
+        "label": "43"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Adam Wharton (Crystal Palace) header from the centre of the box is saved in the bottom right corner by Alisson Becker (Liverpool). Assisted by Yéremy Pino with a cross.",
+      "playerIds": [
+        69595,
+        109117
+      ]
+    },
+    {
+      "id": 2906904,
+      "time": {
+        "secs": 2565,
+        "label": "43"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Alisson Becker.",
+      "playerIds": [
+        20559
+      ]
+    },
+    {
+      "id": 2906941,
+      "time": {
+        "secs": 2607,
+        "label": "44"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Yéremy Pino (Crystal Palace) left footed shot from outside the box is blocked.",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2906940,
+      "time": {
+        "secs": 2608,
+        "label": "44"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Virgil van Dijk.",
+      "playerIds": [
+        5140
+      ]
+    },
+    {
+      "id": 2906950,
+      "time": {
+        "secs": 2680,
+        "label": "45"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Dominik Szoboszlai (Liverpool)."
+    },
+    {
+      "id": 2906974,
+      "time": {
+        "secs": 2700,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 3 minutes of added time."
+    },
+    {
+      "id": 2906985,
+      "time": {
+        "secs": 2767,
+        "label": "45+2"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2906987,
+      "time": {
+        "secs": 2817,
+        "label": "45+2"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Florian Wirtz (Liverpool) right footed shot from the left side of the box is blocked.",
+      "playerIds": [
+        75382
+      ]
+    },
+    {
+      "id": 2906986,
+      "time": {
+        "secs": 2818,
+        "label": "45+2"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Axel Disasi.",
+      "playerIds": [
+        54893
+      ]
+    },
+    {
+      "id": 2906999,
+      "time": {
+        "secs": 2861,
+        "label": "45+3"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jérémy Jacquet (Liverpool) header from very close range misses to the left. Assisted by Dominik Szoboszlai with a cross following a corner.",
+      "playerIds": [
+        133104,
+        33231
+      ]
+    },
+    {
+      "id": 2907000,
+      "time": {
+        "secs": 2862,
+        "label": "45+3"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Ronald Araujo (Liverpool) left footed shot from very close range is saved in the centre of the goal by Dean Henderson (Crystal Palace). Assisted by Jérémy Jacquet.",
+      "playerIds": [
+        66133,
+        133104
+      ]
+    },
+    {
+      "id": 2907016,
+      "time": {
+        "secs": 2898,
+        "label": "45+4"
+      },
+      "type": "free kick won",
+      "text": "Adam Wharton (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2907017,
+      "time": {
+        "secs": 2898,
+        "label": "45+4"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Florian Wirtz (Liverpool).",
+      "playerIds": [
+        75382
+      ]
+    },
+    {
+      "id": 2907028,
+      "time": {
+        "secs": 2947,
+        "label": "45+5"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Crystal Palace 0, Liverpool 1."
+    },
+    {
+      "id": 2907090,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Crystal Palace 0, Liverpool 1."
+    },
+    {
+      "id": 2907102,
+      "time": {
+        "secs": 2749,
+        "label": "46"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Quinten Timber (Crystal Palace) right footed shot from outside the box misses to the left. Assisted by Daichi Kamada.",
+      "playerIds": [
+        67779,
+        49759
+      ]
+    },
+    {
+      "id": 2907109,
+      "time": {
+        "secs": 2800,
+        "label": "47"
+      },
+      "type": "free kick won",
+      "text": "Jefferson Lerma (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        37776
+      ]
+    },
+    {
+      "id": 2907110,
+      "time": {
+        "secs": 2800,
+        "label": "47"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bradley Barcola (Liverpool).",
+      "playerIds": [
+        68840
+      ]
+    },
+    {
+      "id": 2907115,
+      "time": {
+        "secs": 2865,
+        "label": "48"
+      },
+      "type": "free kick won",
+      "text": "Yéremy Pino (Crystal Palace) wins a free kick in the attacking half.",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2907127,
+      "time": {
+        "secs": 2865,
+        "label": "48"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ronald Araujo (Liverpool).",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2907128,
+      "time": {
+        "secs": 2894,
+        "label": "49"
+      },
+      "type": "offside",
+      "text": "Offside, Crystal Palace. Adam Wharton is caught offside.",
+      "playerIds": [
+        50909,
+        69595
+      ]
+    },
+    {
+      "id": 2907129,
+      "time": {
+        "secs": 2947,
+        "label": "50"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Florian Wirtz (Liverpool).",
+      "playerIds": [
+        75382
+      ]
+    },
+    {
+      "id": 2907130,
+      "time": {
+        "secs": 2947,
+        "label": "50"
+      },
+      "type": "free kick won",
+      "text": "Quinten Timber (Crystal Palace) wins a free kick on the left wing.",
+      "playerIds": [
+        67779
+      ]
+    },
+    {
+      "id": 2907176,
+      "time": {
+        "secs": 3081,
+        "label": "52"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Óscar Mingueza (Crystal Palace).",
+      "playerIds": [
+        50909
+      ]
+    },
+    {
+      "id": 2907188,
+      "time": {
+        "secs": 3081,
+        "label": "52"
+      },
+      "type": "free kick won",
+      "text": "Alexis Mac Allister (Liverpool) wins a free kick in the attacking half.",
+      "playerIds": [
+        63633
+      ]
+    },
+    {
+      "id": 2907189,
+      "time": {
+        "secs": 3136,
+        "label": "53"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jérémy Jacquet (Liverpool).",
+      "playerIds": [
+        133104
+      ]
+    },
+    {
+      "id": 2907190,
+      "time": {
+        "secs": 3136,
+        "label": "53"
+      },
+      "type": "free kick won",
+      "text": "Jefferson Lerma (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        37776
+      ]
+    },
+    {
+      "id": 2907217,
+      "time": {
+        "secs": 3218,
+        "label": "54"
+      },
+      "type": "goal",
+      "text": "Goal! Crystal Palace 0, Liverpool 2. Florian Wirtz (Liverpool) right footed shot from the centre of the box to the bottom left corner. Assisted by Bradley Barcola with a cross.",
+      "playerIds": [
+        75382,
+        68840
+      ]
+    },
+    {
+      "id": 2907285,
+      "time": {
+        "secs": 3301,
+        "label": "56"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Jérémy Jacquet (Liverpool)."
+    },
+    {
+      "id": 2907284,
+      "time": {
+        "secs": 3366,
+        "label": "57"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2907309,
+      "time": {
+        "secs": 3465,
+        "label": "58"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Bradley Barcola (Liverpool) right footed shot from the right side of the box is blocked. Assisted by Cody Gakpo.",
+      "playerIds": [
+        68840,
+        32894
+      ]
+    },
+    {
+      "id": 2907314,
+      "time": {
+        "secs": 3466,
+        "label": "58"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Tyrick Mitchell.",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2907311,
+      "time": {
+        "secs": 3505,
+        "label": "59"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Ronald Araujo (Liverpool) header from the centre of the box misses to the right. Assisted by Dominik Szoboszlai with a cross following a corner.",
+      "playerIds": [
+        66133,
+        33231
+      ]
+    },
+    {
+      "id": 2907312,
+      "time": {
+        "secs": 3508,
+        "label": "59"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bradley Barcola (Liverpool).",
+      "playerIds": [
+        68840
+      ]
+    },
+    {
+      "id": 2907313,
+      "time": {
+        "secs": 3508,
+        "label": "59"
+      },
+      "type": "free kick won",
+      "text": "Yéremy Pino (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2907310,
+      "time": {
+        "secs": 3511,
+        "label": "59"
+      },
+      "type": "yellow card",
+      "text": "Bradley Barcola (Liverpool) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        68840
+      ]
+    },
+    {
+      "id": 2907344,
+      "time": {
+        "secs": 3560,
+        "label": "60"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Darío Osorio replaces Quinten Timber.",
+      "playerIds": [
+        135512,
+        67779
+      ]
+    },
+    {
+      "id": 2907373,
+      "time": {
+        "secs": 3711,
+        "label": "62"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Axel Disasi.",
+      "playerIds": [
+        54893
+      ]
+    },
+    {
+      "id": 2907391,
+      "time": {
+        "secs": 3757,
+        "label": "63"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Cody Gakpo (Liverpool).",
+      "playerIds": [
+        32894
+      ]
+    },
+    {
+      "id": 2907392,
+      "time": {
+        "secs": 3757,
+        "label": "63"
+      },
+      "type": "free kick won",
+      "text": "Tyrick Mitchell (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2907404,
+      "time": {
+        "secs": 3852,
+        "label": "65"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Darío Osorio (Crystal Palace).",
+      "playerIds": [
+        135512
+      ]
+    },
+    {
+      "id": 2907405,
+      "time": {
+        "secs": 3852,
+        "label": "65"
+      },
+      "type": "free kick won",
+      "text": "Milos Kerkez (Liverpool) wins a free kick in the defensive half.",
+      "playerIds": [
+        116665
+      ]
+    },
+    {
+      "id": 2907450,
+      "time": {
+        "secs": 4049,
+        "label": "68"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Adam Wharton (Crystal Palace).",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2907451,
+      "time": {
+        "secs": 4049,
+        "label": "68"
+      },
+      "type": "free kick won",
+      "text": "Dominik Szoboszlai (Liverpool) wins a free kick in the defensive half.",
+      "playerIds": [
+        33231
+      ]
+    },
+    {
+      "id": 2907469,
+      "time": {
+        "secs": 4095,
+        "label": "69"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Víctor Muñoz replaces Bradley Barcola.",
+      "playerIds": [
+        119386,
+        68840
+      ]
+    },
+    {
+      "id": 2907470,
+      "time": {
+        "secs": 4096,
+        "label": "69"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Trey Nyoni replaces Dominik Szoboszlai.",
+      "playerIds": [
+        130665,
+        33231
+      ]
+    },
+    {
+      "id": 2907512,
+      "time": {
+        "secs": 4241,
+        "label": "71"
+      },
+      "type": "free kick won",
+      "text": "Ronald Araujo (Liverpool) wins a free kick in the defensive half.",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2907513,
+      "time": {
+        "secs": 4241,
+        "label": "71"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yéremy Pino (Crystal Palace).",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2907511,
+      "time": {
+        "secs": 4257,
+        "label": "71"
+      },
+      "type": "yellow card",
+      "text": "Yéremy Pino (Crystal Palace) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2907537,
+      "time": {
+        "secs": 4299,
+        "label": "72"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Eddie Nketiah replaces Jørgen Strand Larsen.",
+      "playerIds": [
+        14451,
+        35670
+      ]
+    },
+    {
+      "id": 2907540,
+      "time": {
+        "secs": 4333,
+        "label": "73"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Trey Nyoni (Liverpool).",
+      "playerIds": [
+        130665
+      ]
+    },
+    {
+      "id": 2907541,
+      "time": {
+        "secs": 4333,
+        "label": "73"
+      },
+      "type": "free kick won",
+      "text": "Adam Wharton (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2907555,
+      "time": {
+        "secs": 4383,
+        "label": "74"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Yéremy Pino (Crystal Palace) right footed shot from outside the box is blocked. Assisted by Jefferson Lerma.",
+      "playerIds": [
+        109117,
+        37776
+      ]
+    },
+    {
+      "id": 2907568,
+      "time": {
+        "secs": 4416,
+        "label": "74"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Tyrick Mitchell (Crystal Palace).",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2907569,
+      "time": {
+        "secs": 4416,
+        "label": "74"
+      },
+      "type": "free kick won",
+      "text": "Alexander Isak (Liverpool) wins a free kick in the attacking half.",
+      "playerIds": [
+        21737
+      ]
+    },
+    {
+      "id": 2907588,
+      "time": {
+        "secs": 4537,
+        "label": "76"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Rio Ngumoha replaces Cody Gakpo.",
+      "playerIds": [
+        134796,
+        32894
+      ]
+    },
+    {
+      "id": 2907600,
+      "time": {
+        "secs": 4566,
+        "label": "77"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Yéremy Pino (Crystal Palace) right footed shot from the centre of the box is saved in the centre of the goal by Alisson Becker (Liverpool). Assisted by Darío Osorio.",
+      "playerIds": [
+        109117,
+        135512
+      ]
+    },
+    {
+      "id": 2907598,
+      "time": {
+        "secs": 4567,
+        "label": "77"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Jefferson Lerma (Crystal Palace) right footed shot from outside the box is saved in the centre of the goal by Alisson Becker (Liverpool).",
+      "playerIds": [
+        37776
+      ]
+    },
+    {
+      "id": 2907599,
+      "time": {
+        "secs": 4620,
+        "label": "78"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Eddie Nketiah (Crystal Palace) left footed shot from the left side of the six yard box misses to the left. Assisted by Adam Wharton with a through ball.",
+      "playerIds": [
+        14451,
+        69595
+      ]
+    },
+    {
+      "id": 2907633,
+      "time": {
+        "secs": 4782,
+        "label": "80"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Virgil van Dijk (Liverpool).",
+      "playerIds": [
+        5140
+      ]
+    },
+    {
+      "id": 2907635,
+      "time": {
+        "secs": 4782,
+        "label": "80"
+      },
+      "type": "free kick won",
+      "text": "Darío Osorio (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        135512
+      ]
+    },
+    {
+      "id": 2907634,
+      "time": {
+        "secs": 4805,
+        "label": "81"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Jérémy Jacquet.",
+      "playerIds": [
+        133104
+      ]
+    },
+    {
+      "id": 2907672,
+      "time": {
+        "secs": 4867,
+        "label": "82"
+      },
+      "type": "free kick lost",
+      "text": "Víctor Muñoz (Liverpool) has gone down, but the referee deems it simulation.",
+      "playerIds": [
+        119386
+      ]
+    },
+    {
+      "id": 2907674,
+      "time": {
+        "secs": 4900,
+        "label": "82"
+      },
+      "type": "yellow card",
+      "text": "Víctor Muñoz (Liverpool) is shown the yellow card.",
+      "playerIds": [
+        119386
+      ]
+    },
+    {
+      "id": 2907671,
+      "time": {
+        "secs": 4915,
+        "label": "82"
+      },
+      "type": "yellow card",
+      "text": "Jefferson Lerma (Crystal Palace) is shown the yellow card.",
+      "playerIds": [
+        37776
+      ]
+    },
+    {
+      "id": 2907673,
+      "time": {
+        "secs": 4923,
+        "label": "83"
+      },
+      "type": "yellow card",
+      "text": "Alexis Mac Allister (Liverpool) is shown the yellow card.",
+      "playerIds": [
+        63633
+      ]
+    },
+    {
+      "id": 2907706,
+      "time": {
+        "secs": 5052,
+        "label": "85"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Florian Wirtz (Liverpool) right footed shot from the centre of the box is saved in the top centre of the goal by Dean Henderson (Crystal Palace). Assisted by Víctor Muñoz.",
+      "playerIds": [
+        75382,
+        119386
+      ]
+    },
+    {
+      "id": 2907723,
+      "time": {
+        "secs": 5120,
+        "label": "86"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Ronald Araujo.",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2907738,
+      "time": {
+        "secs": 5152,
+        "label": "86"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Chris Richards (Crystal Palace) header from the centre of the box misses to the right. Assisted by Darío Osorio with a cross following a corner.",
+      "playerIds": [
+        50842,
+        135512
+      ]
+    },
+    {
+      "id": 2907737,
+      "time": {
+        "secs": 5175,
+        "label": "87"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Alexander Isak (Liverpool) right footed shot from the centre of the box is saved in the centre of the goal by Dean Henderson (Crystal Palace). Assisted by Víctor Muñoz.",
+      "playerIds": [
+        21737,
+        119386
+      ]
+    },
+    {
+      "id": 2907740,
+      "time": {
+        "secs": 5206,
+        "label": "87"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Anan Khalaili replaces Óscar Mingueza.",
+      "playerIds": [
+        123848,
+        50909
+      ]
+    },
+    {
+      "id": 2907739,
+      "time": {
+        "secs": 5212,
+        "label": "87"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Dwight McNeil replaces Yéremy Pino.",
+      "playerIds": [
+        24797,
+        109117
+      ]
+    },
+    {
+      "id": 2907741,
+      "time": {
+        "secs": 5240,
+        "label": "88"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Virgil van Dijk (Liverpool) left footed shot from the centre of the box misses to the left.",
+      "playerIds": [
+        5140
+      ]
+    },
+    {
+      "id": 2907760,
+      "time": {
+        "secs": 5268,
+        "label": "88"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Rio Ngumoha (Liverpool) right footed shot from the left side of the box is saved in the bottom left corner by Dean Henderson (Crystal Palace). Assisted by Jérémy Jacquet.",
+      "playerIds": [
+        134796,
+        133104
+      ]
+    },
+    {
+      "id": 2907761,
+      "time": {
+        "secs": 5308,
+        "label": "89"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Dwight McNeil (Crystal Palace) left footed shot from outside the box is blocked. Assisted by Anan Khalaili.",
+      "playerIds": [
+        24797,
+        123848
+      ]
+    },
+    {
+      "id": 2907781,
+      "time": {
+        "secs": 5332,
+        "label": "89"
+      },
+      "type": "goal",
+      "text": "Goal! Crystal Palace 0, Liverpool 3. Alexander Isak (Liverpool) right footed shot from the centre of the box to the centre of the goal. Assisted by Florian Wirtz following a fast break.",
+      "playerIds": [
+        21737,
+        75382
+      ]
+    },
+    {
+      "id": 2907787,
+      "time": {
+        "secs": 5400,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 4 minutes of added time."
+    },
+    {
+      "id": 2907796,
+      "time": {
+        "secs": 5400,
+        "label": "90+1"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Lewis Koumas replaces Alexander Isak.",
+      "playerIds": [
+        129671,
+        21737
+      ]
+    },
+    {
+      "id": 2907797,
+      "time": {
+        "secs": 5423,
+        "label": "90+1"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Joe Gomez replaces Ronald Araujo.",
+      "playerIds": [
+        10651,
+        66133
+      ]
+    },
+    {
+      "id": 2907846,
+      "time": {
+        "secs": 5553,
+        "label": "90+3"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Darío Osorio (Crystal Palace) right footed shot from the centre of the box misses to the left.",
+      "playerIds": [
+        135512
+      ]
+    },
+    {
+      "id": 2907828,
+      "time": {
+        "secs": 5554,
+        "label": "90+3"
+      },
+      "type": "penalty lost",
+      "text": "Penalty conceded by Milos Kerkez (Liverpool) after a foul in the penalty area.",
+      "playerIds": [
+        116665
+      ]
+    },
+    {
+      "id": 2907829,
+      "time": {
+        "secs": 5554,
+        "label": "90+3"
+      },
+      "type": "penalty won",
+      "text": "Penalty Crystal Palace. Darío Osorio draws a foul in the penalty area.",
+      "playerIds": [
+        135512
+      ]
+    },
+    {
+      "id": 2907873,
+      "time": {
+        "secs": 5663,
+        "label": "90+5"
+      },
+      "type": "penalty goal",
+      "text": "Goal! Crystal Palace 1, Liverpool 3. Eddie Nketiah (Crystal Palace) converts the penalty with a right footed shot to the bottom right corner.",
+      "playerIds": [
+        14451
+      ]
+    },
+    {
+      "id": 2907876,
+      "time": {
+        "secs": 5689,
+        "label": "90+5"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Crystal Palace 1, Liverpool 3."
+    },
+    {
+      "id": 2907903,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Crystal Palace 1, Liverpool 3."
+    }
+  ]
+}

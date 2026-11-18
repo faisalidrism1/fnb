@@ -8,6 +8,7 @@ export const FPL_HEADERS = {
 };
 
 export const PULSE_BASE = 'https://footballapi.pulselive.com/football';
+export const SDP_PULSE_BASE = 'https://sdp-prem-prod.premier-league-prod.pulselive.com';
 export const PULSE_HEADERS = {
   'Origin': 'https://www.premierleague.com',
   'Referer': 'https://www.premierleague.com/',
@@ -60,6 +61,7 @@ let pulseSeasonFixturesCache: {
   seasonId: number;
   fixtures: any[];
   indexByGwAndTeams: Map<string, number>;
+  optaByPulseId: Map<number, number>;
   time: number;
 } | null = null;
 
@@ -150,8 +152,9 @@ export async function getPulseSeasonFixturesIndex(): Promise<Map<string, number>
   }
 
   const index = new Map<string, number>();
+  const optaByPulseId = new Map<number, number>();
   try {
-    const data = await fetchJson(`${PULSE_BASE}/fixtures?comps=1&compSeasons=${season.id}&page=0&pageSize=400`, PULSE_HEADERS);
+    const data = await fetchJson(`${PULSE_BASE}/fixtures?comps=1&compSeasons=${season.id}&page=0&pageSize=400&altIds=true`, PULSE_HEADERS);
     if (data && Array.isArray(data.content)) {
       for (const fix of data.content) {
         const gw = fix.gameweek?.gameweek;
@@ -160,11 +163,18 @@ export async function getPulseSeasonFixturesIndex(): Promise<Map<string, number>
         if (gw && homeShort && awayShort && fix.id) {
           index.set(`${gw}_${homeShort}_${awayShort}`, fix.id);
         }
+        if (fix.id && fix.altIds?.opta) {
+          const optaCode = parseInt(String(fix.altIds.opta).replace(/\D/g, ''), 10);
+          if (!isNaN(optaCode) && optaCode > 0) {
+            optaByPulseId.set(Number(fix.id), optaCode);
+          }
+        }
       }
       pulseSeasonFixturesCache = {
         seasonId: season.id,
         fixtures: data.content,
         indexByGwAndTeams: index,
+        optaByPulseId,
         time: now
       };
       return index;
@@ -176,12 +186,257 @@ export async function getPulseSeasonFixturesIndex(): Promise<Map<string, number>
   return pulseSeasonFixturesCache?.indexByGwAndTeams || index;
 }
 
+export async function getOptaMatchCodeForPulseId(pulseId: number): Promise<number | null> {
+  if (!pulseId) return null;
+  if (!pulseSeasonFixturesCache) {
+    await getPulseSeasonFixturesIndex();
+  }
+  return pulseSeasonFixturesCache?.optaByPulseId.get(Number(pulseId)) || null;
+}
+
+function mapSdpPosChar(posStr?: string): string {
+  const p = String(posStr || '').toLowerCase();
+  if (p.includes('goalkeeper') || p === 'g') return 'G';
+  if (p.includes('defender') || p === 'd') return 'D';
+  if (p.includes('forward') || p.includes('striker') || p === 'f') return 'F';
+  return 'M';
+}
+
+function mapSdpPlayerToPulse(p: any): any {
+  const isSub = p?.position === 'Substitute';
+  const effectivePos = isSub ? (p?.subPosition || 'Midfielder') : p?.position;
+  const posChar = mapSdpPosChar(effectivePos);
+  const numId = Number(p?.id) || 0;
+  const first = String(p?.firstName || '').trim();
+  const last = String(p?.lastName || '').trim();
+  const display = `${first} ${last}`.trim() || last || first || 'Player';
+  return {
+    id: numId,
+    altIds: numId ? { opta: `p${numId}` } : undefined,
+    name: {
+      first,
+      last: last || display,
+      display
+    },
+    matchPosition: posChar,
+    info: {
+      position: posChar,
+      shirtNum: Number(p?.shirtNum) || 0
+    },
+    captain: Boolean(p?.isCaptain),
+    shirtNumber: Number(p?.shirtNum) || 0
+  };
+}
+
+function mapSdpPeriodToPhase(period?: string): string {
+  if (period === 'FirstHalf') return '1';
+  if (period === 'SecondHalf') return '2';
+  if (period === 'HalfTime') return 'HT';
+  if (period === 'FullTime') return 'F';
+  return '1';
+}
+
+function parseSdpClockToLabelAndSecs(clock?: string | number | null): { label: string; secs: number } | undefined {
+  if (clock === undefined || clock === null || clock === '') return undefined;
+  const raw = String(clock).trim();
+  const plusMatch = raw.match(/^(\d+)\+(\d+)$/);
+  if (plusMatch) {
+    const mins = parseInt(plusMatch[1], 10) + parseInt(plusMatch[2], 10);
+    return { label: `${raw}'`, secs: mins * 60 };
+  }
+  const num = parseInt(raw, 10);
+  if (!isNaN(num)) {
+    return { label: `${num}'`, secs: num * 60 };
+  }
+  return { label: raw, secs: 0 };
+}
+
 /**
- * Fetches detailed match data (official starting XI, substitutes, and match events) from Pulse API
+ * Fetches match lineups, events, and live status from Premier League SDP API
+ * and normalizes into the standard Pulse match payload shape.
  */
-async function fetchPulseMatchDetails(pulseMatchId: number, isMatchFinished: boolean): Promise<any | null> {
+export async function fetchSdpNormalizedMatch(
+  optaMatchCode: number,
+  pulseMatchId?: number | null,
+  gwHint?: number
+): Promise<any | null> {
+  if (!optaMatchCode || optaMatchCode <= 0) return null;
+
+  try {
+    const [lineups, sdpEvents, matchV2] = await Promise.all([
+      fetchJson(`${SDP_PULSE_BASE}/api/v3/matches/${optaMatchCode}/lineups`, PULSE_HEADERS),
+      fetchJson(`${SDP_PULSE_BASE}/api/v1/matches/${optaMatchCode}/events`, PULSE_HEADERS),
+      fetchJson(`${SDP_PULSE_BASE}/api/v2/matches/${optaMatchCode}`, PULSE_HEADERS)
+    ]);
+
+    if (!lineups && !matchV2 && !sdpEvents) {
+      return null;
+    }
+
+    const period = String(matchV2?.period || '');
+    const isFt = period === 'FullTime';
+    const isHt = period === 'HalfTime';
+    const isFirstHalf = period === 'FirstHalf';
+    const isSecondHalf =
+      period === 'SecondHalf' ||
+      period === 'ExtraTime' ||
+      period === 'ExtraTimeFirstHalf' ||
+      period === 'ExtraTimeSecondHalf' ||
+      period === 'Penalties';
+    const isLive = isFirstHalf || isSecondHalf || isHt;
+
+    const homeScore = matchV2?.homeTeam?.score ?? null;
+    const awayScore = matchV2?.awayTeam?.score ?? null;
+    let outcome: string | undefined;
+    if (isFt && homeScore !== null && awayScore !== null) {
+      outcome = homeScore > awayScore ? 'H' : awayScore > homeScore ? 'A' : 'D';
+    }
+
+    const homeRawPlayers: any[] = Array.isArray(lineups?.home_team?.players) ? lineups.home_team.players : [];
+    const awayRawPlayers: any[] = Array.isArray(lineups?.away_team?.players) ? lineups.away_team.players : [];
+
+    const homeStarters = homeRawPlayers.filter((p) => p?.position !== 'Substitute').map(mapSdpPlayerToPulse);
+    const homeSubs = homeRawPlayers.filter((p) => p?.position === 'Substitute').map(mapSdpPlayerToPulse);
+    const awayStarters = awayRawPlayers.filter((p) => p?.position !== 'Substitute').map(mapSdpPlayerToPulse);
+    const awaySubs = awayRawPlayers.filter((p) => p?.position === 'Substitute').map(mapSdpPlayerToPulse);
+
+    const homeTeamId = Number(lineups?.home_team?.teamId || matchV2?.homeTeam?.id) || 0;
+    const awayTeamId = Number(lineups?.away_team?.teamId || matchV2?.awayTeam?.id) || 0;
+
+    const normalizedEvents: any[] = [];
+    for (const side of [sdpEvents?.homeTeam, sdpEvents?.awayTeam]) {
+      if (!side) continue;
+      for (const s of side.subs || []) {
+        const phase = mapSdpPeriodToPhase(s.period);
+        const clock = parseSdpClockToLabelAndSecs(s.time);
+        if (s.playerOnId) {
+          normalizedEvents.push({
+            type: 'S',
+            personId: Number(s.playerOnId),
+            description: 'ON',
+            phase,
+            clock
+          });
+        }
+        if (s.playerOffId) {
+          normalizedEvents.push({
+            type: 'S',
+            personId: Number(s.playerOffId),
+            description: 'OFF',
+            phase,
+            clock
+          });
+        }
+      }
+      for (const g of side.goals || []) {
+        normalizedEvents.push({
+          type: g.goalType === 'OwnGoal' ? 'O' : g.goalType === 'Penalty' ? 'P' : 'G',
+          personId: Number(g.playerId),
+          assistId: g.assistPlayerId ? Number(g.assistPlayerId) : undefined,
+          phase: mapSdpPeriodToPhase(g.period),
+          clock: parseSdpClockToLabelAndSecs(g.time)
+        });
+      }
+      for (const c of side.cards || []) {
+        normalizedEvents.push({
+          type: c.type === 'Yellow' ? 'Y' : c.type === 'SecondYellow' ? 'YR' : 'R',
+          personId: Number(c.playerId),
+          phase: mapSdpPeriodToPhase(c.period),
+          clock: parseSdpClockToLabelAndSecs(c.time)
+        });
+      }
+    }
+
+    if (isHt || isSecondHalf || isFt) {
+      normalizedEvents.push({ type: 'PE', phase: '1', clock: { secs: 2700, label: "45'" } });
+    }
+    if (isSecondHalf || isFt) {
+      normalizedEvents.push({ type: 'PS', phase: '2', clock: { secs: 2700, label: "45'" } });
+    }
+    if (isFt) {
+      normalizedEvents.push({ type: 'PE', phase: '2', clock: { secs: 5400, label: "90'" } });
+    }
+
+    const kickoffStr = matchV2?.kickoff ? String(matchV2.kickoff).replace(' ', 'T') + 'Z' : '';
+    const kickoffMillis = kickoffStr ? Date.parse(kickoffStr) : 0;
+
+    return {
+      id: pulseMatchId || optaMatchCode,
+      altIds: { opta: `g${optaMatchCode}` },
+      gameweek: {
+        gameweek: Number(matchV2?.matchWeek || gwHint) || 0
+      },
+      kickoff: kickoffMillis > 0 ? { millis: kickoffMillis, label: String(matchV2?.kickoff || '') } : undefined,
+      ground: matchV2?.ground ? { name: String(matchV2.ground) } : undefined,
+      status: isFt ? 'C' : isLive ? 'L' : 'U',
+      phase: isFt ? 'F' : isHt ? 'HT' : isFirstHalf ? '1' : isSecondHalf ? '2' : 'U',
+      outcome,
+      clock: isFt
+        ? { label: 'Full Time', secs: 5400 }
+        : isHt
+        ? { label: 'HT', secs: 2700 }
+        : parseSdpClockToLabelAndSecs(matchV2?.clock),
+      teams: [
+        {
+          team: {
+            id: homeTeamId,
+            name: matchV2?.homeTeam?.name || '',
+            shortName: matchV2?.homeTeam?.shortName || '',
+            club: { abbr: matchV2?.homeTeam?.abbr || '' }
+          },
+          score: homeScore
+        },
+        {
+          team: {
+            id: awayTeamId,
+            name: matchV2?.awayTeam?.name || '',
+            shortName: matchV2?.awayTeam?.shortName || '',
+            club: { abbr: matchV2?.awayTeam?.abbr || '' }
+          },
+          score: awayScore
+        }
+      ],
+      teamLists:
+        homeStarters.length > 0 || awayStarters.length > 0
+          ? [
+              {
+                teamId: homeTeamId,
+                formation: lineups?.home_team?.formation,
+                lineup: homeStarters,
+                substitutes: homeSubs
+              },
+              {
+                teamId: awayTeamId,
+                formation: lineups?.away_team?.formation,
+                lineup: awayStarters,
+                substitutes: awaySubs
+              }
+            ]
+          : [],
+      events: normalizedEvents
+    };
+  } catch (err: any) {
+    console.warn(`[SDP Pulse API] Failed to fetch match ${optaMatchCode}:`, err?.message || err);
+    return null;
+  }
+}
+
+/**
+ * Fetches detailed match data (official starting XI, substitutes, and match events)
+ * Primary: Premier League SDP API (using Opta match code `fix.code`).
+ * Fallback: Legacy Pulse API `/fixtures/${pulseMatchId}`.
+ */
+async function fetchPulseMatchDetails(
+  pulseMatchId: number | null,
+  isMatchFinished: boolean,
+  optaMatchCode?: number | null,
+  gwHint?: number
+): Promise<any | null> {
+  const cacheKey = Number(optaMatchCode || pulseMatchId || 0);
+  if (!cacheKey) return null;
+
   const now = Date.now();
-  const cached = pulseMatchDetailsCache.get(pulseMatchId);
+  const cached = pulseMatchDetailsCache.get(cacheKey);
 
   // If match was already finished and cached, keep it for 24 hours
   if (cached) {
@@ -192,10 +447,16 @@ async function fetchPulseMatchDetails(pulseMatchId: number, isMatchFinished: boo
   }
 
   try {
-    const data = await fetchJson(`${PULSE_BASE}/fixtures/${pulseMatchId}`, PULSE_HEADERS);
+    let data: any = null;
+    if (optaMatchCode && optaMatchCode > 0) {
+      data = await fetchSdpNormalizedMatch(optaMatchCode, pulseMatchId, gwHint);
+    }
+    if (!data && pulseMatchId && pulseMatchId > 0) {
+      data = await fetchJson(`${PULSE_BASE}/fixtures/${pulseMatchId}`, PULSE_HEADERS);
+    }
     if (data) {
       const isFinished = Boolean(isMatchFinished || data.status === 'C');
-      pulseMatchDetailsCache.set(pulseMatchId, {
+      pulseMatchDetailsCache.set(cacheKey, {
         data,
         time: now,
         isFinished
@@ -203,7 +464,7 @@ async function fetchPulseMatchDetails(pulseMatchId: number, isMatchFinished: boo
       return data;
     }
   } catch (err: any) {
-    console.warn(`[Pulse API] Failed to fetch match details for match ${pulseMatchId}:`, err.message);
+    console.warn(`[Pulse API] Failed to fetch match details for match ${cacheKey}:`, err.message);
   }
 
   return cached?.data || null;
@@ -370,12 +631,13 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     return { fix, pulseId };
   });
 
-  // Fetch Pulse match details for all matches with a known Pulse ID in parallel
+  // Fetch Pulse/SDP match details for all matches in parallel (using Opta match code `fix.code` + Pulse ID)
   const pulseMatchDetailsResults = await Promise.all(
     fixturePulseIds.map(async ({ fix, pulseId }) => {
-      if (!pulseId) return null;
+      const optaCode = Number(fix.code) || null;
+      if (!pulseId && !optaCode) return null;
       const isFt = Boolean(fix.finished || fix.finished_provisional);
-      return await fetchPulseMatchDetails(pulseId, isFt);
+      return await fetchPulseMatchDetails(pulseId, isFt, optaCode, gw);
     })
   );
 
@@ -629,7 +891,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       isSubbedOn = false,
       isSubbedOff = false
     ): MatchPlayerItem => {
-      const elId = fplEl ? fplEl.id : (pulsePlayer ? -pulsePlayer.id : 0);
+      const elId = fplEl ? fplEl.id : (pulsePlayer?.id ? -Math.abs(Number(pulsePlayer.id)) : 0);
       const live = fplEl ? liveStatsMap.get(fplEl.id) : null;
       const fixEvents = fplEl ? fixStatEventsMap.get(fplEl.id) : null;
       const statsObj = live?.stats || {};

@@ -1,0 +1,2725 @@
+{
+  "id": 129020,
+  "altIds": {
+    "opta": "g2645292"
+  },
+  "gameweek": {
+    "gameweek": 10
+  },
+  "kickoff": {
+    "millis": 1794155400000,
+    "label": "2026-11-08 16:30:00"
+  },
+  "ground": {
+    "name": "Old Trafford, Manchester"
+  },
+  "status": "C",
+  "phase": "F",
+  "outcome": "D",
+  "clock": {
+    "label": "Full Time",
+    "secs": 5400
+  },
+  "teams": [
+    {
+      "team": {
+        "id": 1,
+        "name": "Manchester United",
+        "shortName": "Man Utd",
+        "club": {
+          "abbr": "MUN"
+        }
+      },
+      "score": 4
+    },
+    {
+      "team": {
+        "id": 7,
+        "name": "Aston Villa",
+        "shortName": "Aston Villa",
+        "club": {
+          "abbr": "AVL"
+        }
+      },
+      "score": 4
+    }
+  ],
+  "teamLists": [
+    {
+      "teamId": 1,
+      "formation": {
+        "subs": [
+          "59735",
+          "209365",
+          "184341",
+          "458249",
+          "596777",
+          "532605",
+          "606745",
+          "576628",
+          "547037"
+        ],
+        "teamId": "1",
+        "lineup": [
+          [
+            "465247"
+          ],
+          [
+            "230001",
+            "550864",
+            "95658",
+            "216051"
+          ],
+          [
+            "166989",
+            "516895"
+          ],
+          [
+            "493250",
+            "141746",
+            "430871"
+          ],
+          [
+            "446008"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 465247,
+          "altIds": {
+            "opta": "p465247"
+          },
+          "name": {
+            "first": "Senne",
+            "last": "Lammens",
+            "display": "Senne Lammens"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1
+        },
+        {
+          "id": 216051,
+          "altIds": {
+            "opta": "p216051"
+          },
+          "name": {
+            "first": "José Diogo",
+            "last": "Dalot Teixeira",
+            "display": "José Diogo Dalot Teixeira"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2
+        },
+        {
+          "id": 230001,
+          "altIds": {
+            "opta": "p230001"
+          },
+          "name": {
+            "first": "Noussair",
+            "last": "Mazraoui",
+            "display": "Noussair Mazraoui"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3
+        },
+        {
+          "id": 95658,
+          "altIds": {
+            "opta": "p95658"
+          },
+          "name": {
+            "first": "Harry",
+            "last": "Maguire",
+            "display": "Harry Maguire"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5
+        },
+        {
+          "id": 141746,
+          "altIds": {
+            "opta": "p141746"
+          },
+          "name": {
+            "first": "Bruno Miguel",
+            "last": "Borges Fernandes",
+            "display": "Bruno Miguel Borges Fernandes"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 8
+          },
+          "captain": true,
+          "shirtNumber": 8
+        },
+        {
+          "id": 430871,
+          "altIds": {
+            "opta": "p430871"
+          },
+          "name": {
+            "first": "Matheus",
+            "last": "Santos Carneiro da Cunha",
+            "display": "Matheus Santos Carneiro da Cunha"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10
+        },
+        {
+          "id": 550864,
+          "altIds": {
+            "opta": "p550864"
+          },
+          "name": {
+            "first": "Leny",
+            "last": "Yoro",
+            "display": "Leny Yoro"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 15
+          },
+          "captain": false,
+          "shirtNumber": 15
+        },
+        {
+          "id": 493250,
+          "altIds": {
+            "opta": "p493250"
+          },
+          "name": {
+            "first": "Amad",
+            "last": "Diallo",
+            "display": "Amad Diallo"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 16
+          },
+          "captain": false,
+          "shirtNumber": 16
+        },
+        {
+          "id": 166989,
+          "altIds": {
+            "opta": "p166989"
+          },
+          "name": {
+            "first": "Youri",
+            "last": "Tielemans",
+            "display": "Youri Tielemans"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 18
+          },
+          "captain": false,
+          "shirtNumber": 18
+        },
+        {
+          "id": 446008,
+          "altIds": {
+            "opta": "p446008"
+          },
+          "name": {
+            "first": "Bryan",
+            "last": "Mbeumo",
+            "display": "Bryan Mbeumo"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 19
+          },
+          "captain": false,
+          "shirtNumber": 19
+        },
+        {
+          "id": 516895,
+          "altIds": {
+            "opta": "p516895"
+          },
+          "name": {
+            "first": "Kobbie",
+            "last": "Mainoo",
+            "display": "Kobbie Mainoo"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 37
+          },
+          "captain": false,
+          "shirtNumber": 37
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 59735,
+          "altIds": {
+            "opta": "p59735"
+          },
+          "name": {
+            "first": "Karl",
+            "last": "Darlow",
+            "display": "Karl Darlow"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 12
+          },
+          "captain": false,
+          "shirtNumber": 12
+        },
+        {
+          "id": 209365,
+          "altIds": {
+            "opta": "p209365"
+          },
+          "name": {
+            "first": "Matthijs",
+            "last": "de Ligt",
+            "display": "Matthijs de Ligt"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4
+        },
+        {
+          "id": 184341,
+          "altIds": {
+            "opta": "p184341"
+          },
+          "name": {
+            "first": "Mason",
+            "last": "Mount",
+            "display": "Mason Mount"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7
+        },
+        {
+          "id": 458249,
+          "altIds": {
+            "opta": "p458249"
+          },
+          "name": {
+            "first": "Joshua",
+            "last": "Zirkzee",
+            "display": "Joshua Zirkzee"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11
+        },
+        {
+          "id": 596777,
+          "altIds": {
+            "opta": "p596777"
+          },
+          "name": {
+            "first": "Patrick",
+            "last": "Dorgu",
+            "display": "Patrick Dorgu"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 13
+          },
+          "captain": false,
+          "shirtNumber": 13
+        },
+        {
+          "id": 532605,
+          "altIds": {
+            "opta": "p532605"
+          },
+          "name": {
+            "first": "Andrey",
+            "last": "Nascimento dos Santos",
+            "display": "Andrey Nascimento dos Santos"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 17
+          },
+          "captain": false,
+          "shirtNumber": 17
+        },
+        {
+          "id": 606745,
+          "altIds": {
+            "opta": "p606745"
+          },
+          "name": {
+            "first": "Ayden",
+            "last": "Heaven",
+            "display": "Ayden Heaven"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 26
+          },
+          "captain": false,
+          "shirtNumber": 26
+        },
+        {
+          "id": 576628,
+          "altIds": {
+            "opta": "p576628"
+          },
+          "name": {
+            "first": "Shea",
+            "last": "Lacey",
+            "display": "Shea Lacey"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 31
+          },
+          "captain": false,
+          "shirtNumber": 31
+        },
+        {
+          "id": 547037,
+          "altIds": {
+            "opta": "p547037"
+          },
+          "name": {
+            "first": "Jack",
+            "last": "Fletcher",
+            "display": "Jack Fletcher"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 38
+          },
+          "captain": false,
+          "shirtNumber": 38
+        }
+      ]
+    },
+    {
+      "teamId": 7,
+      "formation": {
+        "subs": [
+          "72147",
+          "149484",
+          "88894",
+          "195546",
+          "638987",
+          "448089",
+          "690838",
+          "671103",
+          "577285"
+        ],
+        "teamId": "7",
+        "lineup": [
+          [
+            "433969"
+          ],
+          [
+            "245719",
+            "184667",
+            "244954",
+            "441302"
+          ],
+          [
+            "226944",
+            "119090"
+          ],
+          [
+            "653481",
+            "122806",
+            "614071"
+          ],
+          [
+            "517052"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 433969,
+          "altIds": {
+            "opta": "p433969"
+          },
+          "name": {
+            "first": "Zion",
+            "last": "Suzuki",
+            "display": "Zion Suzuki"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1
+        },
+        {
+          "id": 184667,
+          "altIds": {
+            "opta": "p184667"
+          },
+          "name": {
+            "first": "Victor",
+            "last": "Lindelöf",
+            "display": "Victor Lindelöf"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3
+        },
+        {
+          "id": 245719,
+          "altIds": {
+            "opta": "p245719"
+          },
+          "name": {
+            "first": "Taylor",
+            "last": "Harwood-Bellis",
+            "display": "Taylor Harwood-Bellis"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4
+        },
+        {
+          "id": 122806,
+          "altIds": {
+            "opta": "p122806"
+          },
+          "name": {
+            "first": "John",
+            "last": "McGinn",
+            "display": "John McGinn"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 7
+          },
+          "captain": true,
+          "shirtNumber": 7
+        },
+        {
+          "id": 226944,
+          "altIds": {
+            "opta": "p226944"
+          },
+          "name": {
+            "first": "Boubacar",
+            "last": "Kamara",
+            "display": "Boubacar Kamara"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 8
+          },
+          "captain": false,
+          "shirtNumber": 8
+        },
+        {
+          "id": 517052,
+          "altIds": {
+            "opta": "p517052"
+          },
+          "name": {
+            "first": "Nicolas",
+            "last": "Jackson",
+            "display": "Nicolas Jackson"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11
+        },
+        {
+          "id": 244954,
+          "altIds": {
+            "opta": "p244954"
+          },
+          "name": {
+            "first": "Pau",
+            "last": "Torres",
+            "display": "Pau Torres"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14
+        },
+        {
+          "id": 441302,
+          "altIds": {
+            "opta": "p441302"
+          },
+          "name": {
+            "first": "Ian",
+            "last": "Maatsen",
+            "display": "Ian Maatsen"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22
+        },
+        {
+          "id": 119090,
+          "altIds": {
+            "opta": "p119090"
+          },
+          "name": {
+            "first": "Leon",
+            "last": "Goretzka",
+            "display": "Leon Goretzka"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 27
+          },
+          "captain": false,
+          "shirtNumber": 27
+        },
+        {
+          "id": 614071,
+          "altIds": {
+            "opta": "p614071"
+          },
+          "name": {
+            "first": "Johan",
+            "last": "Manzambi",
+            "display": "Johan Manzambi"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 44
+          },
+          "captain": false,
+          "shirtNumber": 44
+        },
+        {
+          "id": 653481,
+          "altIds": {
+            "opta": "p653481"
+          },
+          "name": {
+            "first": "Alysson Edward Franco",
+            "last": "da Rocha dos Santos",
+            "display": "Alysson Edward Franco da Rocha dos Santos"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 47
+          },
+          "captain": false,
+          "shirtNumber": 47
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 72147,
+          "altIds": {
+            "opta": "p72147"
+          },
+          "name": {
+            "first": "Marco",
+            "last": "Bizot",
+            "display": "Marco Bizot"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "shirtNum": 40
+          },
+          "captain": false,
+          "shirtNumber": 40
+        },
+        {
+          "id": 149484,
+          "altIds": {
+            "opta": "p149484"
+          },
+          "name": {
+            "first": "Tyrone",
+            "last": "Mings",
+            "display": "Tyrone Mings"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5
+        },
+        {
+          "id": 88894,
+          "altIds": {
+            "opta": "p88894"
+          },
+          "name": {
+            "first": "Ross",
+            "last": "Barkley",
+            "display": "Ross Barkley"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6
+        },
+        {
+          "id": 195546,
+          "altIds": {
+            "opta": "p195546"
+          },
+          "name": {
+            "first": "Emiliano",
+            "last": "Buendía",
+            "display": "Emiliano Buendía"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10
+        },
+        {
+          "id": 638987,
+          "altIds": {
+            "opta": "p638987"
+          },
+          "name": {
+            "first": "Ibrahim",
+            "last": "Mbaye",
+            "display": "Ibrahim Mbaye"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 19
+          },
+          "captain": false,
+          "shirtNumber": 19
+        },
+        {
+          "id": 448089,
+          "altIds": {
+            "opta": "p448089"
+          },
+          "name": {
+            "first": "João Victor",
+            "last": "Gomes da Silva",
+            "display": "João Victor Gomes da Silva"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 35
+          },
+          "captain": false,
+          "shirtNumber": 35
+        },
+        {
+          "id": 690838,
+          "altIds": {
+            "opta": "p690838"
+          },
+          "name": {
+            "first": "Brian",
+            "last": "Madjo",
+            "display": "Brian Madjo"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "shirtNum": 39
+          },
+          "captain": false,
+          "shirtNumber": 39
+        },
+        {
+          "id": 671103,
+          "altIds": {
+            "opta": "p671103"
+          },
+          "name": {
+            "first": "Modou Kéba",
+            "last": "Cissé",
+            "display": "Modou Kéba Cissé"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "shirtNum": 48
+          },
+          "captain": false,
+          "shirtNumber": 48
+        },
+        {
+          "id": 577285,
+          "altIds": {
+            "opta": "p577285"
+          },
+          "name": {
+            "first": "George",
+            "last": "Hemmings",
+            "display": "George Hemmings"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "shirtNum": 53
+          },
+          "captain": false,
+          "shirtNumber": 53
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "S",
+      "personId": 606745,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      }
+    },
+    {
+      "type": "S",
+      "personId": 95658,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      }
+    },
+    {
+      "type": "S",
+      "personId": 184341,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "66'",
+        "secs": 3960
+      }
+    },
+    {
+      "type": "S",
+      "personId": 166989,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "66'",
+        "secs": 3960
+      }
+    },
+    {
+      "type": "S",
+      "personId": 596777,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "66'",
+        "secs": 3960
+      }
+    },
+    {
+      "type": "S",
+      "personId": 216051,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "66'",
+        "secs": 3960
+      }
+    },
+    {
+      "type": "S",
+      "personId": 576628,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "66'",
+        "secs": 3960
+      }
+    },
+    {
+      "type": "S",
+      "personId": 493250,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "66'",
+        "secs": 3960
+      }
+    },
+    {
+      "type": "S",
+      "personId": 458249,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      }
+    },
+    {
+      "type": "S",
+      "personId": 446008,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      }
+    },
+    {
+      "type": "P",
+      "personId": 141746,
+      "phase": "1",
+      "clock": {
+        "label": "16'",
+        "secs": 960
+      }
+    },
+    {
+      "type": "G",
+      "personId": 166989,
+      "assistId": 230001,
+      "phase": "1",
+      "clock": {
+        "label": "44'",
+        "secs": 2640
+      }
+    },
+    {
+      "type": "G",
+      "personId": 458249,
+      "assistId": 596777,
+      "phase": "2",
+      "clock": {
+        "label": "92'",
+        "secs": 5520
+      }
+    },
+    {
+      "type": "G",
+      "personId": 596777,
+      "assistId": 141746,
+      "phase": "2",
+      "clock": {
+        "label": "96'",
+        "secs": 5760
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 606745,
+      "phase": "2",
+      "clock": {
+        "label": "57'",
+        "secs": 3420
+      }
+    },
+    {
+      "type": "S",
+      "personId": 577285,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      }
+    },
+    {
+      "type": "S",
+      "personId": 122806,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      }
+    },
+    {
+      "type": "S",
+      "personId": 88894,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      }
+    },
+    {
+      "type": "S",
+      "personId": 653481,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      }
+    },
+    {
+      "type": "S",
+      "personId": 448089,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      }
+    },
+    {
+      "type": "S",
+      "personId": 614071,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      }
+    },
+    {
+      "type": "S",
+      "personId": 638987,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      }
+    },
+    {
+      "type": "S",
+      "personId": 119090,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      }
+    },
+    {
+      "type": "S",
+      "personId": 690838,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "86'",
+        "secs": 5160
+      }
+    },
+    {
+      "type": "S",
+      "personId": 517052,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "86'",
+        "secs": 5160
+      }
+    },
+    {
+      "type": "G",
+      "personId": 653481,
+      "assistId": 122806,
+      "phase": "1",
+      "clock": {
+        "label": "1'",
+        "secs": 60
+      }
+    },
+    {
+      "type": "G",
+      "personId": 517052,
+      "phase": "1",
+      "clock": {
+        "label": "4'",
+        "secs": 240
+      }
+    },
+    {
+      "type": "P",
+      "personId": 122806,
+      "phase": "2",
+      "clock": {
+        "label": "48'",
+        "secs": 2880
+      }
+    },
+    {
+      "type": "G",
+      "personId": 119090,
+      "assistId": 517052,
+      "phase": "2",
+      "clock": {
+        "label": "53'",
+        "secs": 3180
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 433969,
+      "phase": "2",
+      "clock": {
+        "label": "97'",
+        "secs": 5820
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5400,
+        "label": "90'"
+      }
+    }
+  ],
+  "textstreamEvents": [
+    {
+      "id": 2907492,
+      "type": "lineup",
+      "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2907946,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2907949,
+      "time": {
+        "secs": 59,
+        "label": "01"
+      },
+      "type": "goal",
+      "text": "Goal! Manchester United 0, Aston Villa 1. Alysson (Aston Villa) left footed shot from the right side of the box to the centre of the goal. Assisted by John McGinn.",
+      "playerIds": [
+        326089,
+        51423
+      ]
+    },
+    {
+      "id": 2907952,
+      "time": {
+        "secs": 181,
+        "label": "04"
+      },
+      "type": "free kick won",
+      "text": "Johan Manzambi (Aston Villa) wins a free kick on the left wing.",
+      "playerIds": [
+        304175
+      ]
+    },
+    {
+      "id": 2907954,
+      "time": {
+        "secs": 181,
+        "label": "04"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Noussair Mazraoui (Manchester United).",
+      "playerIds": [
+        33245
+      ]
+    },
+    {
+      "id": 2907953,
+      "time": {
+        "secs": 219,
+        "label": "04"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Alysson (Aston Villa) left footed shot from the right side of the box is saved in the bottom right corner by Senne Lammens (Manchester United). Assisted by Taylor Harwood-Bellis.",
+      "playerIds": [
+        326089,
+        25447
+      ]
+    },
+    {
+      "id": 2907961,
+      "time": {
+        "secs": 220,
+        "label": "04"
+      },
+      "type": "goal",
+      "text": "Goal! Manchester United 0, Aston Villa 2. Nicolas Jackson (Aston Villa) right footed shot from very close range to the centre of the goal following a set piece situation.",
+      "playerIds": [
+        110526
+      ]
+    },
+    {
+      "id": 2907965,
+      "time": {
+        "secs": 342,
+        "label": "06"
+      },
+      "type": "start delay",
+      "text": "Delay in match (Aston Villa)."
+    },
+    {
+      "id": 2907964,
+      "time": {
+        "secs": 351,
+        "label": "06"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2907994,
+      "time": {
+        "secs": 386,
+        "label": "07"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Boubacar Kamara (Aston Villa) right footed shot from a difficult angle on the right is blocked. Assisted by Johan Manzambi.",
+      "playerIds": [
+        25067,
+        304175
+      ]
+    },
+    {
+      "id": 2907970,
+      "time": {
+        "secs": 387,
+        "label": "07"
+      },
+      "type": "corner",
+      "text": "Corner, Aston Villa. Conceded by Diogo Dalot.",
+      "playerIds": [
+        24252
+      ]
+    },
+    {
+      "id": 2907973,
+      "time": {
+        "secs": 594,
+        "label": "10"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bruno Fernandes (Manchester United) right footed shot from outside the box is close, but misses to the left. Assisted by Youri Tielemans.",
+      "playerIds": [
+        23396,
+        5865
+      ]
+    },
+    {
+      "id": 2907978,
+      "time": {
+        "secs": 772,
+        "label": "13"
+      },
+      "type": "penalty won",
+      "text": "Penalty Manchester United. Matheus Cunha draws a foul in the penalty area.",
+      "playerIds": [
+        51202
+      ]
+    },
+    {
+      "id": 2907979,
+      "time": {
+        "secs": 772,
+        "label": "13"
+      },
+      "type": "penalty lost",
+      "text": "Penalty conceded by Boubacar Kamara (Aston Villa) after a foul in the penalty area.",
+      "playerIds": [
+        25067
+      ]
+    },
+    {
+      "id": 2907984,
+      "time": {
+        "secs": 909,
+        "label": "16"
+      },
+      "type": "penalty goal",
+      "text": "Goal! Manchester United 1, Aston Villa 2. Bruno Fernandes (Manchester United) converts the penalty with a right footed shot to the centre of the goal.",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2907987,
+      "time": {
+        "secs": 975,
+        "label": "17"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Kobbie Mainoo (Manchester United).",
+      "playerIds": [
+        108936
+      ]
+    },
+    {
+      "id": 2907988,
+      "time": {
+        "secs": 975,
+        "label": "17"
+      },
+      "type": "free kick won",
+      "text": "John McGinn (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        51423
+      ]
+    },
+    {
+      "id": 2907993,
+      "time": {
+        "secs": 1033,
+        "label": "18"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Noussair Mazraoui (Manchester United).",
+      "playerIds": [
+        33245
+      ]
+    },
+    {
+      "id": 2907995,
+      "time": {
+        "secs": 1033,
+        "label": "18"
+      },
+      "type": "free kick won",
+      "text": "Johan Manzambi (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        304175
+      ]
+    },
+    {
+      "id": 2908002,
+      "time": {
+        "secs": 1096,
+        "label": "19"
+      },
+      "type": "offside",
+      "text": "Offside, Manchester United. Bryan Mbeumo is caught offside.",
+      "playerIds": [
+        5865,
+        66360
+      ]
+    },
+    {
+      "id": 2908009,
+      "time": {
+        "secs": 1403,
+        "label": "24"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Matheus Cunha (Manchester United) right footed shot from outside the box is saved in the top right corner by Zion Suzuki (Aston Villa). Assisted by Youri Tielemans.",
+      "playerIds": [
+        51202,
+        5865
+      ]
+    },
+    {
+      "id": 2908005,
+      "time": {
+        "secs": 1404,
+        "label": "24"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Zion Suzuki.",
+      "playerIds": [
+        125556
+      ]
+    },
+    {
+      "id": 2908008,
+      "time": {
+        "secs": 1481,
+        "label": "25"
+      },
+      "type": "offside",
+      "text": "Offside, Manchester United. Bruno Fernandes is caught offside.",
+      "playerIds": [
+        5865,
+        23396
+      ]
+    },
+    {
+      "id": 2908015,
+      "time": {
+        "secs": 1525,
+        "label": "26"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Bruno Fernandes (Manchester United) left footed shot from outside the box is blocked.",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2908016,
+      "time": {
+        "secs": 1526,
+        "label": "26"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by John McGinn.",
+      "playerIds": [
+        51423
+      ]
+    },
+    {
+      "id": 2908014,
+      "time": {
+        "secs": 1567,
+        "label": "27"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Zion Suzuki.",
+      "playerIds": [
+        125556
+      ]
+    },
+    {
+      "id": 2908118,
+      "time": {
+        "secs": 1601,
+        "label": "27"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Kobbie Mainoo (Manchester United) right footed shot from outside the box is saved in the top centre of the goal by Zion Suzuki (Aston Villa).",
+      "playerIds": [
+        108936
+      ]
+    },
+    {
+      "id": 2908121,
+      "time": {
+        "secs": 1692,
+        "label": "29"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Noussair Mazraoui (Manchester United) right footed shot from the right side of the box is blocked. Assisted by Bruno Fernandes.",
+      "playerIds": [
+        33245,
+        23396
+      ]
+    },
+    {
+      "id": 2908122,
+      "time": {
+        "secs": 1698,
+        "label": "29"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Amad Diallo (Manchester United) right footed shot from the centre of the box is blocked. Assisted by Kobbie Mainoo.",
+      "playerIds": [
+        69176,
+        108936
+      ]
+    },
+    {
+      "id": 2908123,
+      "time": {
+        "secs": 1698,
+        "label": "29"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Victor Lindelöf.",
+      "playerIds": [
+        5066
+      ]
+    },
+    {
+      "id": 2908131,
+      "time": {
+        "secs": 1721,
+        "label": "29"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Diogo Dalot (Manchester United) right footed shot from outside the box is high and wide to the right following a corner.",
+      "playerIds": [
+        24252
+      ]
+    },
+    {
+      "id": 2908130,
+      "time": {
+        "secs": 1793,
+        "label": "30"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Leon Goretzka (Aston Villa).",
+      "playerIds": [
+        5378
+      ]
+    },
+    {
+      "id": 2908132,
+      "time": {
+        "secs": 1793,
+        "label": "30"
+      },
+      "type": "free kick won",
+      "text": "Bryan Mbeumo (Manchester United) wins a free kick on the right wing.",
+      "playerIds": [
+        66360
+      ]
+    },
+    {
+      "id": 2908139,
+      "time": {
+        "secs": 2032,
+        "label": "34"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Amad Diallo (Manchester United).",
+      "playerIds": [
+        69176
+      ]
+    },
+    {
+      "id": 2908140,
+      "time": {
+        "secs": 2032,
+        "label": "34"
+      },
+      "type": "free kick won",
+      "text": "Ian Maatsen (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        51223
+      ]
+    },
+    {
+      "id": 2908145,
+      "time": {
+        "secs": 2218,
+        "label": "37"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Amad Diallo (Manchester United) left footed shot from the right side of the box is close, but misses to the left. Assisted by Youri Tielemans.",
+      "playerIds": [
+        69176,
+        5865
+      ]
+    },
+    {
+      "id": 2908148,
+      "time": {
+        "secs": 2274,
+        "label": "38"
+      },
+      "type": "free kick won",
+      "text": "John McGinn (Aston Villa) wins a free kick on the right wing.",
+      "playerIds": [
+        51423
+      ]
+    },
+    {
+      "id": 2908149,
+      "time": {
+        "secs": 2274,
+        "label": "38"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Kobbie Mainoo (Manchester United).",
+      "playerIds": [
+        108936
+      ]
+    },
+    {
+      "id": 2908155,
+      "time": {
+        "secs": 2298,
+        "label": "39"
+      },
+      "type": "free kick won",
+      "text": "Johan Manzambi (Aston Villa) wins a free kick on the left wing.",
+      "playerIds": [
+        304175
+      ]
+    },
+    {
+      "id": 2908156,
+      "time": {
+        "secs": 2298,
+        "label": "39"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Noussair Mazraoui (Manchester United).",
+      "playerIds": [
+        33245
+      ]
+    },
+    {
+      "id": 2908154,
+      "time": {
+        "secs": 2355,
+        "label": "40"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Pau Torres (Aston Villa) header from the centre of the box misses to the right. Assisted by John McGinn with a cross following a set piece situation.",
+      "playerIds": [
+        21529,
+        51423
+      ]
+    },
+    {
+      "id": 2908179,
+      "time": {
+        "secs": 2474,
+        "label": "42"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Bruno Fernandes (Manchester United) right footed shot from outside the box is blocked. Assisted by Noussair Mazraoui.",
+      "playerIds": [
+        23396,
+        33245
+      ]
+    },
+    {
+      "id": 2908163,
+      "time": {
+        "secs": 2509,
+        "label": "42"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Leny Yoro (Manchester United).",
+      "playerIds": [
+        118591
+      ]
+    },
+    {
+      "id": 2908164,
+      "time": {
+        "secs": 2509,
+        "label": "42"
+      },
+      "type": "free kick won",
+      "text": "Boubacar Kamara (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        25067
+      ]
+    },
+    {
+      "id": 2908169,
+      "time": {
+        "secs": 2559,
+        "label": "43"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Amad Diallo (Manchester United) left footed shot from the right side of the box is saved in the bottom left corner by Zion Suzuki (Aston Villa). Assisted by Youri Tielemans.",
+      "playerIds": [
+        69176,
+        5865
+      ]
+    },
+    {
+      "id": 2908172,
+      "time": {
+        "secs": 2620,
+        "label": "44"
+      },
+      "type": "goal",
+      "text": "Goal! Manchester United 2, Aston Villa 2. Youri Tielemans (Manchester United) left footed shot from the centre of the box to the centre of the goal. Assisted by Noussair Mazraoui.",
+      "playerIds": [
+        5865,
+        33245
+      ]
+    },
+    {
+      "id": 2908175,
+      "time": {
+        "secs": 2718,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 4 minutes of added time."
+    },
+    {
+      "id": 2908178,
+      "time": {
+        "secs": 2761,
+        "label": "45+2"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Alysson (Aston Villa) right footed shot from the right side of the box misses to the left. Assisted by Leon Goretzka with a through ball.",
+      "playerIds": [
+        326089,
+        5378
+      ]
+    },
+    {
+      "id": 2908184,
+      "time": {
+        "secs": 2945,
+        "label": "45+5"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Manchester United 2, Aston Villa 2."
+    },
+    {
+      "id": 2908627,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Ayden Heaven replaces Harry Maguire.",
+      "playerIds": [
+        133114,
+        9566
+      ]
+    },
+    {
+      "id": 2908630,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Manchester United 2, Aston Villa 2."
+    },
+    {
+      "id": 2908633,
+      "time": {
+        "secs": 2716,
+        "label": "46"
+      },
+      "type": "free kick won",
+      "text": "Boubacar Kamara (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        25067
+      ]
+    },
+    {
+      "id": 2908634,
+      "time": {
+        "secs": 2716,
+        "label": "46"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Diogo Dalot (Manchester United).",
+      "playerIds": [
+        24252
+      ]
+    },
+    {
+      "id": 2908639,
+      "time": {
+        "secs": 2788,
+        "label": "47"
+      },
+      "type": "penalty won",
+      "text": "Penalty Aston Villa. Alysson draws a foul in the penalty area.",
+      "playerIds": [
+        326089
+      ]
+    },
+    {
+      "id": 2908640,
+      "time": {
+        "secs": 2788,
+        "label": "47"
+      },
+      "type": "penalty lost",
+      "text": "Penalty conceded by Diogo Dalot (Manchester United) after a foul in the penalty area.",
+      "playerIds": [
+        24252
+      ]
+    },
+    {
+      "id": 2908645,
+      "time": {
+        "secs": 2855,
+        "label": "48"
+      },
+      "type": "penalty goal",
+      "text": "Goal! Manchester United 2, Aston Villa 3. John McGinn (Aston Villa) converts the penalty with a left footed shot to the bottom left corner.",
+      "playerIds": [
+        51423
+      ]
+    },
+    {
+      "id": 2908648,
+      "time": {
+        "secs": 2950,
+        "label": "50"
+      },
+      "type": "free kick won",
+      "text": "Youri Tielemans (Manchester United) wins a free kick in the attacking half.",
+      "playerIds": [
+        5865
+      ]
+    },
+    {
+      "id": 2908649,
+      "time": {
+        "secs": 2950,
+        "label": "50"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Leon Goretzka (Aston Villa).",
+      "playerIds": [
+        5378
+      ]
+    },
+    {
+      "id": 2908654,
+      "time": {
+        "secs": 3093,
+        "label": "52"
+      },
+      "type": "free kick won",
+      "text": "John McGinn (Aston Villa) wins a free kick in the attacking half.",
+      "playerIds": [
+        51423
+      ]
+    },
+    {
+      "id": 2908655,
+      "time": {
+        "secs": 3093,
+        "label": "52"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bruno Fernandes (Manchester United).",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2908660,
+      "time": {
+        "secs": 3135,
+        "label": "53"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Nicolas Jackson (Aston Villa) left footed shot from very close range misses to the right following a set piece situation.",
+      "playerIds": [
+        110526
+      ]
+    },
+    {
+      "id": 2908661,
+      "time": {
+        "secs": 3136,
+        "label": "53"
+      },
+      "type": "goal",
+      "text": "Goal! Manchester United 2, Aston Villa 4. Leon Goretzka (Aston Villa) left footed shot from very close range to the bottom right corner. Assisted by Nicolas Jackson following a set piece situation.",
+      "playerIds": [
+        5378,
+        110526
+      ]
+    },
+    {
+      "id": 2908759,
+      "time": {
+        "secs": 3269,
+        "label": "55"
+      },
+      "type": "free kick won",
+      "text": "Youri Tielemans (Manchester United) wins a free kick on the right wing.",
+      "playerIds": [
+        5865
+      ]
+    },
+    {
+      "id": 2908760,
+      "time": {
+        "secs": 3269,
+        "label": "55"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Leon Goretzka (Aston Villa).",
+      "playerIds": [
+        5378
+      ]
+    },
+    {
+      "id": 2908766,
+      "time": {
+        "secs": 3298,
+        "label": "55"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Noussair Mazraoui (Manchester United).",
+      "playerIds": [
+        33245
+      ]
+    },
+    {
+      "id": 2908767,
+      "time": {
+        "secs": 3298,
+        "label": "55"
+      },
+      "type": "free kick won",
+      "text": "Johan Manzambi (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        304175
+      ]
+    },
+    {
+      "id": 2908765,
+      "time": {
+        "secs": 3310,
+        "label": "56"
+      },
+      "type": "free kick lost",
+      "text": "Foul by John McGinn (Aston Villa).",
+      "playerIds": [
+        51423
+      ]
+    },
+    {
+      "id": 2908768,
+      "time": {
+        "secs": 3310,
+        "label": "56"
+      },
+      "type": "free kick won",
+      "text": "Ayden Heaven (Manchester United) wins a free kick in the attacking half.",
+      "playerIds": [
+        133114
+      ]
+    },
+    {
+      "id": 2908777,
+      "time": {
+        "secs": 3362,
+        "label": "57"
+      },
+      "type": "free kick won",
+      "text": "Alysson (Aston Villa) wins a free kick on the right wing.",
+      "playerIds": [
+        326089
+      ]
+    },
+    {
+      "id": 2908778,
+      "time": {
+        "secs": 3362,
+        "label": "57"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ayden Heaven (Manchester United).",
+      "playerIds": [
+        133114
+      ]
+    },
+    {
+      "id": 2908783,
+      "time": {
+        "secs": 3366,
+        "label": "57"
+      },
+      "type": "yellow card",
+      "text": "Ayden Heaven (Manchester United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        133114
+      ]
+    },
+    {
+      "id": 2908786,
+      "time": {
+        "secs": 3403,
+        "label": "57"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Alysson (Aston Villa)."
+    },
+    {
+      "id": 2908789,
+      "time": {
+        "secs": 3453,
+        "label": "58"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2908790,
+      "time": {
+        "secs": 3485,
+        "label": "59"
+      },
+      "type": "free kick won",
+      "text": "Matheus Cunha (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        51202
+      ]
+    },
+    {
+      "id": 2908791,
+      "time": {
+        "secs": 3485,
+        "label": "59"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Taylor Harwood-Bellis (Aston Villa).",
+      "playerIds": [
+        25447
+      ]
+    },
+    {
+      "id": 2908792,
+      "time": {
+        "secs": 3495,
+        "label": "59"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Bryan Mbeumo (Manchester United) left footed shot from the centre of the box is saved in the bottom right corner by Zion Suzuki (Aston Villa). Assisted by Matheus Cunha with a through ball.",
+      "playerIds": [
+        66360,
+        51202
+      ]
+    },
+    {
+      "id": 2908801,
+      "time": {
+        "secs": 3530,
+        "label": "59"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Youri Tielemans (Manchester United) right footed shot from outside the box is blocked. Assisted by Amad Diallo.",
+      "playerIds": [
+        5865,
+        69176
+      ]
+    },
+    {
+      "id": 2908819,
+      "time": {
+        "secs": 3566,
+        "label": "60"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Johan Manzambi (Aston Villa) right footed shot from outside the box is blocked. Assisted by Nicolas Jackson.",
+      "playerIds": [
+        304175,
+        110526
+      ]
+    },
+    {
+      "id": 2908804,
+      "time": {
+        "secs": 3596,
+        "label": "60"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Youri Tielemans (Manchester United) left footed shot from outside the box is high and wide to the left. Assisted by Matheus Cunha.",
+      "playerIds": [
+        5865,
+        51202
+      ]
+    },
+    {
+      "id": 2908807,
+      "time": {
+        "secs": 3668,
+        "label": "62"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Leon Goretzka (Aston Villa).",
+      "playerIds": [
+        5378
+      ]
+    },
+    {
+      "id": 2908808,
+      "time": {
+        "secs": 3668,
+        "label": "62"
+      },
+      "type": "free kick won",
+      "text": "Amad Diallo (Manchester United) wins a free kick in the attacking half.",
+      "playerIds": [
+        69176
+      ]
+    },
+    {
+      "id": 2908813,
+      "time": {
+        "secs": 3716,
+        "label": "62"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Matheus Cunha (Manchester United) right footed shot from outside the box is blocked. Assisted by Bruno Fernandes.",
+      "playerIds": [
+        51202,
+        23396
+      ]
+    },
+    {
+      "id": 2908814,
+      "time": {
+        "secs": 3717,
+        "label": "62"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Pau Torres.",
+      "playerIds": [
+        21529
+      ]
+    },
+    {
+      "id": 2908823,
+      "time": {
+        "secs": 3903,
+        "label": "66"
+      },
+      "type": "free kick won",
+      "text": "Leon Goretzka (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        5378
+      ]
+    },
+    {
+      "id": 2908824,
+      "time": {
+        "secs": 3903,
+        "label": "66"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bryan Mbeumo (Manchester United).",
+      "playerIds": [
+        66360
+      ]
+    },
+    {
+      "id": 2908822,
+      "time": {
+        "secs": 3924,
+        "label": "66"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Mason Mount replaces Youri Tielemans.",
+      "playerIds": [
+        14580,
+        5865
+      ]
+    },
+    {
+      "id": 2908831,
+      "time": {
+        "secs": 3939,
+        "label": "66"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Patrick Dorgu replaces Diogo Dalot.",
+      "playerIds": [
+        146567,
+        24252
+      ]
+    },
+    {
+      "id": 2908832,
+      "time": {
+        "secs": 3947,
+        "label": "66"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Shea Lacey replaces Amad Diallo.",
+      "playerIds": [
+        130151,
+        69176
+      ]
+    },
+    {
+      "id": 2908837,
+      "time": {
+        "secs": 4038,
+        "label": "68"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bryan Mbeumo (Manchester United) left footed shot from outside the box is close, but misses to the right. Assisted by Mason Mount.",
+      "playerIds": [
+        66360,
+        14580
+      ]
+    },
+    {
+      "id": 2908840,
+      "time": {
+        "secs": 4096,
+        "label": "69"
+      },
+      "type": "free kick won",
+      "text": "Johan Manzambi (Aston Villa) wins a free kick on the left wing.",
+      "playerIds": [
+        304175
+      ]
+    },
+    {
+      "id": 2908841,
+      "time": {
+        "secs": 4096,
+        "label": "69"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Shea Lacey (Manchester United).",
+      "playerIds": [
+        130151
+      ]
+    },
+    {
+      "id": 2908848,
+      "time": {
+        "secs": 4156,
+        "label": "70"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Matheus Cunha (Manchester United) left footed shot from the left side of the box is saved in the centre of the goal by Zion Suzuki (Aston Villa).",
+      "playerIds": [
+        51202
+      ]
+    },
+    {
+      "id": 2908847,
+      "time": {
+        "secs": 4191,
+        "label": "70"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bruno Fernandes (Manchester United) right footed shot from outside the box is high and wide to the right. Assisted by Matheus Cunha.",
+      "playerIds": [
+        23396,
+        51202
+      ]
+    },
+    {
+      "id": 2908846,
+      "time": {
+        "secs": 4222,
+        "label": "71"
+      },
+      "type": "substitution",
+      "text": "Substitution, Aston Villa. George Hemmings replaces John McGinn.",
+      "playerIds": [
+        124907,
+        51423
+      ]
+    },
+    {
+      "id": 2908855,
+      "time": {
+        "secs": 4233,
+        "label": "71"
+      },
+      "type": "substitution",
+      "text": "Substitution, Aston Villa. Ross Barkley replaces Alysson.",
+      "playerIds": [
+        4115,
+        326089
+      ]
+    },
+    {
+      "id": 2908859,
+      "time": {
+        "secs": 4300,
+        "label": "72"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Johan Manzambi (Aston Villa)."
+    },
+    {
+      "id": 2908858,
+      "time": {
+        "secs": 4373,
+        "label": "73"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2908865,
+      "time": {
+        "secs": 4521,
+        "label": "76"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Ian Maatsen.",
+      "playerIds": [
+        51223
+      ]
+    },
+    {
+      "id": 2908864,
+      "time": {
+        "secs": 4554,
+        "label": "76"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Taylor Harwood-Bellis.",
+      "playerIds": [
+        25447
+      ]
+    },
+    {
+      "id": 2908873,
+      "time": {
+        "secs": 4570,
+        "label": "77"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Bruno Fernandes (Manchester United) right footed shot from a difficult angle and long range on the left is blocked. Assisted by Patrick Dorgu.",
+      "playerIds": [
+        23396,
+        146567
+      ]
+    },
+    {
+      "id": 2908870,
+      "time": {
+        "secs": 4600,
+        "label": "77"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bryan Mbeumo (Manchester United) left footed shot from the centre of the box misses to the left. Assisted by Shea Lacey.",
+      "playerIds": [
+        66360,
+        130151
+      ]
+    },
+    {
+      "id": 2908871,
+      "time": {
+        "secs": 4629,
+        "label": "78"
+      },
+      "type": "substitution",
+      "text": "Substitution, Aston Villa. João Gomes replaces Johan Manzambi.",
+      "playerIds": [
+        133679,
+        304175
+      ]
+    },
+    {
+      "id": 2908872,
+      "time": {
+        "secs": 4637,
+        "label": "78"
+      },
+      "type": "substitution",
+      "text": "Substitution, Aston Villa. Ibrahim Mbaye replaces Leon Goretzka.",
+      "playerIds": [
+        142138,
+        5378
+      ]
+    },
+    {
+      "id": 2908882,
+      "time": {
+        "secs": 4778,
+        "label": "80"
+      },
+      "type": "free kick won",
+      "text": "Patrick Dorgu (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        146567
+      ]
+    },
+    {
+      "id": 2908883,
+      "time": {
+        "secs": 4778,
+        "label": "80"
+      },
+      "type": "free kick lost",
+      "text": "Foul by George Hemmings (Aston Villa).",
+      "playerIds": [
+        124907
+      ]
+    },
+    {
+      "id": 2908888,
+      "time": {
+        "secs": 4833,
+        "label": "81"
+      },
+      "type": "free kick won",
+      "text": "George Hemmings (Aston Villa) wins a free kick on the right wing.",
+      "playerIds": [
+        124907
+      ]
+    },
+    {
+      "id": 2908889,
+      "time": {
+        "secs": 4833,
+        "label": "81"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bruno Fernandes (Manchester United).",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2908915,
+      "time": {
+        "secs": 4888,
+        "label": "82"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Ross Barkley (Aston Villa) header from the centre of the box misses to the right. Assisted by Ibrahim Mbaye with a cross following a set piece situation.",
+      "playerIds": [
+        4115,
+        142138
+      ]
+    },
+    {
+      "id": 2908894,
+      "time": {
+        "secs": 4922,
+        "label": "83"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Joshua Zirkzee replaces Bryan Mbeumo.",
+      "playerIds": [
+        50848,
+        66360
+      ]
+    },
+    {
+      "id": 2908897,
+      "time": {
+        "secs": 4943,
+        "label": "83"
+      },
+      "type": "free kick won",
+      "text": "George Hemmings (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        124907
+      ]
+    },
+    {
+      "id": 2908898,
+      "time": {
+        "secs": 4943,
+        "label": "83"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Matheus Cunha (Manchester United).",
+      "playerIds": [
+        51202
+      ]
+    },
+    {
+      "id": 2908903,
+      "time": {
+        "secs": 5127,
+        "label": "86"
+      },
+      "type": "substitution",
+      "text": "Substitution, Aston Villa. Brian Madjo replaces Nicolas Jackson.",
+      "playerIds": [
+        326851,
+        110526
+      ]
+    },
+    {
+      "id": 2908906,
+      "time": {
+        "secs": 5163,
+        "label": "87"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Ross Barkley (Aston Villa) left footed shot from outside the box is saved in the centre of the goal by Senne Lammens (Manchester United). Assisted by Brian Madjo.",
+      "playerIds": [
+        4115,
+        326851
+      ]
+    },
+    {
+      "id": 2908907,
+      "time": {
+        "secs": 5191,
+        "label": "87"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Joshua Zirkzee (Manchester United).",
+      "playerIds": [
+        50848
+      ]
+    },
+    {
+      "id": 2908908,
+      "time": {
+        "secs": 5191,
+        "label": "87"
+      },
+      "type": "free kick won",
+      "text": "João Gomes (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        133679
+      ]
+    },
+    {
+      "id": 2908918,
+      "time": {
+        "secs": 5308,
+        "label": "89"
+      },
+      "type": "post",
+      "text": "Mason Mount (Manchester United) hits the bar with a left footed shot from the centre of the box. Assisted by Bruno Fernandes with a cross following a fast break.",
+      "playerIds": [
+        14580,
+        23396
+      ]
+    },
+    {
+      "id": 2908921,
+      "time": {
+        "secs": 5405,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 6 minutes of added time."
+    },
+    {
+      "id": 2908924,
+      "time": {
+        "secs": 5443,
+        "label": "90+1"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Taylor Harwood-Bellis (Aston Villa).",
+      "playerIds": [
+        25447
+      ]
+    },
+    {
+      "id": 2908925,
+      "time": {
+        "secs": 5443,
+        "label": "90+1"
+      },
+      "type": "free kick won",
+      "text": "Ayden Heaven (Manchester United) wins a free kick on the left wing.",
+      "playerIds": [
+        133114
+      ]
+    },
+    {
+      "id": 2908930,
+      "time": {
+        "secs": 5463,
+        "label": "90+2"
+      },
+      "type": "goal",
+      "text": "Goal! Manchester United 3, Aston Villa 4. Joshua Zirkzee (Manchester United) left footed shot from the centre of the box to the centre of the goal. Assisted by Patrick Dorgu with a cross.",
+      "playerIds": [
+        50848,
+        146567
+      ]
+    },
+    {
+      "id": 2908933,
+      "time": {
+        "secs": 5535,
+        "label": "90+3"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bruno Fernandes (Manchester United).",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2908934,
+      "time": {
+        "secs": 5535,
+        "label": "90+3"
+      },
+      "type": "free kick won",
+      "text": "Boubacar Kamara (Aston Villa) wins a free kick in the defensive half.",
+      "playerIds": [
+        25067
+      ]
+    },
+    {
+      "id": 2908939,
+      "time": {
+        "secs": 5634,
+        "label": "90+4"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Mason Mount (Manchester United) left footed shot from the centre of the box is high and wide to the left.",
+      "playerIds": [
+        14580
+      ]
+    },
+    {
+      "id": 2908945,
+      "time": {
+        "secs": 5724,
+        "label": "90+6"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Mason Mount (Manchester United) header from the centre of the box misses to the left. Assisted by Shea Lacey with a cross.",
+      "playerIds": [
+        14580,
+        130151
+      ]
+    },
+    {
+      "id": 2908942,
+      "time": {
+        "secs": 5725,
+        "label": "90+6"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Taylor Harwood-Bellis.",
+      "playerIds": [
+        25447
+      ]
+    },
+    {
+      "id": 2908946,
+      "time": {
+        "secs": 5745,
+        "label": "90+6"
+      },
+      "type": "goal",
+      "text": "Goal! Manchester United 4, Aston Villa 4. Patrick Dorgu (Manchester United) header from very close range to the centre of the goal. Assisted by Bruno Fernandes with a cross following a corner.",
+      "playerIds": [
+        146567,
+        23396
+      ]
+    },
+    {
+      "id": 2908951,
+      "time": {
+        "secs": 5765,
+        "label": "90+7"
+      },
+      "type": "yellow card",
+      "text": "Zion Suzuki (Aston Villa) is shown the yellow card.",
+      "playerIds": [
+        125556
+      ]
+    },
+    {
+      "id": 2908954,
+      "time": {
+        "secs": 5927,
+        "label": "90+9"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Manchester United 4, Aston Villa 4."
+    },
+    {
+      "id": 2908957,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Manchester United 4, Aston Villa 4."
+    }
+  ]
+}
