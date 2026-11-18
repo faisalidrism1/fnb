@@ -146,6 +146,46 @@ function formatClimberList(
     : `${tags[0]}, ${tags[1]}, and [N:${remaining}] other teams`;
 }
 
+const WIB_DAYS_ID = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+const WIB_DAYS_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const WIB_MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const WIB_MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatWibDateTimeParts(isoString?: string): {
+  dayId: string;
+  dayEn: string;
+  dateId: string;
+  dateEn: string;
+  timeWib: string;
+} | null {
+  if (!isoString) return null;
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) return null;
+  const wib = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+  const dow = wib.getUTCDay();
+  const dom = wib.getUTCDate();
+  const mon = wib.getUTCMonth();
+  const hh = String(wib.getUTCHours()).padStart(2, '0');
+  const mm = String(wib.getUTCMinutes()).padStart(2, '0');
+  return {
+    dayId: WIB_DAYS_ID[dow] || '',
+    dayEn: WIB_DAYS_EN[dow] || '',
+    dateId: `${dom} ${WIB_MONTHS_ID[mon] || ''}`,
+    dateEn: `${dom} ${WIB_MONTHS_EN[mon] || ''}`,
+    timeWib: `${hh}:${mm} WIB`,
+  };
+}
+
+function formatFixtureTopPlayersList(
+  players: Array<{ webName: string; ownedPct: number }>,
+  lang: 'id' | 'en' = 'id'
+): string {
+  const tags = players.slice(0, 2).map((p) => `[P:${p.webName}] ([N:${p.ownedPct}%])`);
+  if (tags.length === 0) return '';
+  if (tags.length === 1) return tags[0];
+  return lang === 'id' ? `${tags[0]} dan ${tags[1]}` : `${tags[0]} and ${tags[1]}`;
+}
+
 /**
  * Generates ready-to-air news stories for all Confirmed Phase templates (`CF_*`)
  * based on official, audited league data.
@@ -1608,7 +1648,14 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
             });
           }
 
-          incidents.slice(0, 3).forEach((inc) => {
+          const selectedIncidents = incidents.slice(0, 3);
+          const cfSlugCounts = new Map<string, number>();
+          for (const inc of selectedIncidents) {
+            const k = `${inc.type}_${toStorySlug(inc.name)}`;
+            cfSlugCounts.set(k, (cfSlugCounts.get(k) || 0) + 1);
+          }
+
+          selectedIncidents.forEach((inc) => {
             const cond = inc.type === 'red' ? 'Kartu Merah' : 'Cedera';
             const headlineId = renderTemplateBranch(tmpl.template, cond, {
               player: inc.name,
@@ -1617,8 +1664,10 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
               owners_count: inc.ownersCount,
             });
             if (!headlineId) return;
+            const slugKey = `${inc.type}_${toStorySlug(inc.name)}`;
+            const uniqueSuffix = (cfSlugCounts.get(slugKey) || 0) > 1 ? `${slugKey}_${inc.id}` : slugKey;
             produced.push({
-              id: `${tmpl.id}_${inc.type}_${toStorySlug(inc.name)}`,
+              id: `${tmpl.id}_${uniqueSuffix}`,
               headlineId,
               headlineEn:
                 inc.type === 'red'
@@ -1626,6 +1675,328 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
                   : `[P:${inc.name}] ([C:${inc.club}]) suffered an injury against [C:${inc.opponent}], impacting [N:${inc.ownersCount}] owners ahead of next week.`,
               dramaScore: inc.type === 'red' ? 91 : 88,
             });
+          });
+          break;
+        }
+
+        // ====================================================================
+        // CF_MATCH_NEXT_DEADLINE (Match | Deadline | Next GW Deadline | SINGLE-NEWS)
+        // ====================================================================
+        case 'CF_MATCH_NEXT_DEADLINE': {
+          if (currentGw >= 38) break;
+          const nextGw = currentGw + 1;
+          const deadlinesMap: Record<string, string> =
+            (dbData?.meta?.deadlines as Record<string, string>) ||
+            (dbData?.meta?.sync_status?.deadlines as Record<string, string>) ||
+            {};
+          const nextDeadlineIso =
+            deadlinesMap[String(nextGw)] ||
+            (Number(dbData?.meta?.current_gw) === currentGw
+              ? String(dbData?.meta?.sync_status?.next_deadline_time || '')
+              : '');
+          const parts = formatWibDateTimeParts(nextDeadlineIso);
+          if (!parts) break;
+
+          const headlineId = renderTemplate(tmpl.template, {
+            next_gw: nextGw,
+            wib_day: parts.dayId,
+            wib_date: parts.dateId,
+            deadline_time: parts.timeWib,
+          });
+          if (headlineId) {
+            produced.push({
+              id: tmpl.id,
+              headlineId,
+              headlineEn: `Gameweek [N:${nextGw}] Deadline: ${parts.dayEn}, ${parts.dateEn} at [N:${parts.timeWib}].`,
+              dramaScore: 92,
+            });
+          }
+          break;
+        }
+
+        // ====================================================================
+        // CF_MATCH_NEXT_GW_FIXTURES (Match | Next Fixtures | Upcoming Fixtures | MULTI-NEWS)
+        // ====================================================================
+        case 'CF_MATCH_NEXT_GW_FIXTURES': {
+          if (currentGw >= 38) break;
+          const nextGw = currentGw + 1;
+          const nextFixtures = (dbData?.meta?.sync_status?.gw_fixtures || [])
+            .filter((f: any) => Number(f.event) === nextGw && Boolean(f.kickoff_time))
+            .sort((a: any, b: any) => {
+              const tDiff = new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime();
+              return tDiff !== 0 ? tDiff : Number(a.id || 0) - Number(b.id || 0);
+            });
+          if (nextFixtures.length === 0) break;
+
+          // Build set of FNB entry IDs still holding Triple Captain in the target season half
+          const isHalf2 = nextGw >= 20;
+          const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
+            ? dbData.league_analytics.all_chips_used
+            : [];
+          const remTcEntryIds = new Set<number>(
+            allChips
+              .filter((c: any) => c?.entry_id && !(isHalf2 ? c.tc2 : c.tc1))
+              .map((c: any) => Number(c.entry_id))
+          );
+
+          // Index owned players per club from snapshot ownership + db players
+          type MatchOwnedAsset = {
+            id: number;
+            webName: string;
+            club: string;
+            position: string;
+            ownedCount: number;
+            ownedPct: number;
+            totalPoints: number;
+            nowCost: number;
+            ownersSet: Set<number>;
+          };
+
+          const dbPlayerById = new Map<number, any>();
+          const allPlayersByClub = new Map<string, any[]>();
+          for (const p of playerStatsList) {
+            if (!p?.id) continue;
+            dbPlayerById.set(Number(p.id), p);
+            const club = resolveClubName(p.teamName || p.team_name || p.teamShort || p.team_short_name, '');
+            if (!club) continue;
+            if (!allPlayersByClub.has(club)) allPlayersByClub.set(club, []);
+            allPlayersByClub.get(club)!.push(p);
+          }
+
+          const ownedPlayersByClub = new Map<string, MatchOwnedAsset[]>();
+          const seenOwnedPlayerIds = new Set<number>();
+          for (const op of ownershipList) {
+            if (!op?.id || Number(op.owned_count || 0) <= 0) continue;
+            const dbP = dbPlayerById.get(Number(op.id));
+            const club = resolveClubName(
+              op.team_name || dbP?.teamName || op.team_short_name || dbP?.teamShort,
+              ''
+            );
+            const webName = op.web_name || dbP?.webName;
+            if (!club || !webName) continue;
+
+            const ownersArr: any[] = Array.isArray(op.owners)
+              ? op.owners
+              : Array.isArray(dbP?.league_ownership?.owners)
+                ? dbP.league_ownership.owners
+                : [];
+            const ownersSet = new Set<number>(
+              ownersArr.map((o: any) => Number(o?.entry_id || o)).filter(Boolean)
+            );
+            const rawPct = Number(op.owned_percentage ?? 0);
+            const ownedPct = Math.round(rawPct) || (rawPct > 0 ? Number(rawPct.toFixed(1)) : 0);
+
+            seenOwnedPlayerIds.add(Number(op.id));
+            if (!ownedPlayersByClub.has(club)) ownedPlayersByClub.set(club, []);
+            ownedPlayersByClub.get(club)!.push({
+              id: Number(op.id),
+              webName,
+              club,
+              position: String(op.position || dbP?.position || 'MID').toUpperCase(),
+              ownedCount: Number(op.owned_count || 0),
+              ownedPct,
+              totalPoints: Number(op.total_points ?? dbP?.totalPoints ?? 0),
+              nowCost: Number(op.now_cost ?? dbP?.nowCost ?? 0),
+              ownersSet,
+            });
+          }
+
+          // Fallback if ownership_players list omitted an owned dbPlayer
+          for (const p of playerStatsList) {
+            const count = Number(p?.league_ownership?.count || 0);
+            if (!p?.id || count <= 0 || seenOwnedPlayerIds.has(Number(p.id))) continue;
+            const club = resolveClubName(p.teamName || p.teamShort, '');
+            const webName = p.webName || p.web_name;
+            if (!club || !webName) continue;
+            const ownersArr: any[] = Array.isArray(p.league_ownership?.owners) ? p.league_ownership.owners : [];
+            const ownersSet = new Set<number>(
+              ownersArr.map((o: any) => Number(o?.entry_id || o)).filter(Boolean)
+            );
+            const rawPct = Number(p.league_ownership?.percentage ?? (totalTeams > 0 ? (count / totalTeams) * 100 : 0));
+            const ownedPct = Math.round(rawPct) || (rawPct > 0 ? Number(rawPct.toFixed(1)) : 0);
+            if (!ownedPlayersByClub.has(club)) ownedPlayersByClub.set(club, []);
+            ownedPlayersByClub.get(club)!.push({
+              id: Number(p.id),
+              webName,
+              club,
+              position: String(p.position || 'MID').toUpperCase(),
+              ownedCount: count,
+              ownedPct,
+              totalPoints: Number(p.totalPoints ?? 0),
+              nowCost: Number(p.nowCost ?? 0),
+              ownersSet,
+            });
+          }
+
+          const sortOwnedDesc = (a: MatchOwnedAsset, b: MatchOwnedAsset) =>
+            b.ownedCount - a.ownedCount ||
+            b.totalPoints - a.totalPoints ||
+            b.nowCost - a.nowCost;
+
+          for (const list of ownedPlayersByClub.values()) {
+            list.sort(sortOwnedDesc);
+          }
+
+          nextFixtures.forEach((fix: any, idx: number) => {
+            const homeClub = resolveClubName(fix.home_team, '');
+            const awayClub = resolveClubName(fix.away_team, '');
+            const parts = formatWibDateTimeParts(fix.kickoff_time);
+            if (!homeClub || !awayClub || !parts) return;
+
+            const hFdr = fix.team_h_difficulty != null ? Number(fix.team_h_difficulty) : null;
+            const aFdr = fix.team_a_difficulty != null ? Number(fix.team_a_difficulty) : null;
+            const hPos = fix.home_pos != null ? Number(fix.home_pos) : null;
+            const aPos = fix.away_pos != null ? Number(fix.away_pos) : null;
+
+            const isMenjanjikan =
+              hFdr !== null &&
+              aFdr !== null &&
+              Math.min(hFdr, aFdr) <= 2 &&
+              Math.max(hFdr, aFdr) >= 4;
+            const favoredClub =
+              isMenjanjikan && hFdr !== null && aFdr !== null
+                ? hFdr <= aFdr
+                  ? homeClub
+                  : awayClub
+                : '';
+            const isKetat =
+              !isMenjanjikan &&
+              hPos !== null &&
+              aPos !== null &&
+              Math.abs(hPos - aPos) <= 4;
+
+            const homeOwned = ownedPlayersByClub.get(homeClub) || [];
+            const awayOwned = ownedPlayersByClub.get(awayClub) || [];
+            const matchOwned = [...homeOwned, ...awayOwned].sort(sortOwnedDesc);
+
+            let headlineId = '';
+            let headlineEn = '';
+            let dramaScore = 82;
+
+            if (matchOwned.length === 0) {
+              // Tanpa Kepemilikan: soroti aset fit dengan form tertinggi yang belum dimiliki tim FNB
+              const clubPool = [
+                ...(allPlayersByClub.get(homeClub) || []),
+                ...(allPlayersByClub.get(awayClub) || []),
+              ];
+              const fitPool = clubPool.filter(
+                (p: any) =>
+                  p.status !== 'i' &&
+                  p.status !== 's' &&
+                  (p.chanceOfPlayingNextRound === null ||
+                    p.chanceOfPlayingNextRound === undefined ||
+                    Number(p.chanceOfPlayingNextRound) >= 50)
+              );
+              const candidatePool = (fitPool.length > 0 ? fitPool : clubPool).sort(
+                (a: any, b: any) =>
+                  Number(b.form || 0) - Number(a.form || 0) ||
+                  Number(b.totalPoints || 0) - Number(a.totalPoints || 0) ||
+                  Number(b.nowCost || 0) - Number(a.nowCost || 0)
+              );
+              const topForm = candidatePool[0];
+              if (!topForm?.webName) return;
+              const formScore = Number(topForm.form || 0).toFixed(1);
+              headlineId = renderTemplateBranch(tmpl.template, 'tanpa kepemilikan', {
+                next_gw: nextGw,
+                home_club: homeClub,
+                away_club: awayClub,
+                wib_day: parts.dayId,
+                wib_date: parts.dateId,
+                kickoff_time: parts.timeWib,
+                top_form_player: topForm.webName,
+                form_score: formScore,
+              });
+              headlineEn = `Gameweek [N:${nextGw}]: [C:${homeClub}] vs [C:${awayClub}] on ${parts.dayEn}, ${parts.dateEn} [N:${parts.timeWib}] highlights [P:${topForm.webName}] (form [N:${formScore}]) as an unowned FNB League prospect.`;
+              dramaScore = 76;
+            } else if (isMenjanjikan) {
+              const favoredOwned = ownedPlayersByClub.get(favoredClub) || [];
+              // STRICT FPL RULE: NEVER recommend DEF or GKP for Triple Captain — only MID or FWD >= 15%
+              const tcCandidates = favoredOwned
+                .filter((p) => (p.position === 'MID' || p.position === 'FWD') && p.ownedPct >= 15)
+                .map((p) => {
+                  let tcOwners = 0;
+                  for (const eid of p.ownersSet) {
+                    if (remTcEntryIds.has(eid)) tcOwners++;
+                  }
+                  return { player: p, tcOwners };
+                })
+                .filter((x) => x.tcOwners >= 1)
+                .sort(
+                  (a, b) =>
+                    b.player.ownedCount - a.player.ownedCount ||
+                    b.tcOwners - a.tcOwners ||
+                    b.player.totalPoints - a.player.totalPoints
+                );
+
+              if (tcCandidates.length > 0) {
+                const bestTc = tcCandidates[0];
+                headlineId = renderTemplateBranch(tmpl.template, 'ada pemegang tc', {
+                  next_gw: nextGw,
+                  home_club: homeClub,
+                  away_club: awayClub,
+                  wib_day: parts.dayId,
+                  wib_date: parts.dateId,
+                  kickoff_time: parts.timeWib,
+                  favored_player: bestTc.player.webName,
+                  favored_pct: bestTc.player.ownedPct,
+                  tc_owners: bestTc.tcOwners,
+                });
+                headlineEn = `Gameweek [N:${nextGw}]: [C:${homeClub}] vs [C:${awayClub}] on ${parts.dayEn}, ${parts.dateEn} [N:${parts.timeWib}] offers a promising fixture for [P:${bestTc.player.webName}] ([N:${bestTc.player.ownedPct}%]) with [N:${bestTc.tcOwners}] owners still holding [N:Triple Captain].`;
+                dramaScore = 88;
+              } else {
+                const favoredListPool = favoredOwned.length > 0 ? favoredOwned : matchOwned;
+                const playersId = formatFixtureTopPlayersList(favoredListPool, 'id');
+                const playersEn = formatFixtureTopPlayersList(favoredListPool, 'en');
+                headlineId = renderTemplateBranch(tmpl.template, 'tanpa pemegang tc', {
+                  next_gw: nextGw,
+                  home_club: homeClub,
+                  away_club: awayClub,
+                  wib_day: parts.dayId,
+                  wib_date: parts.dateId,
+                  kickoff_time: parts.timeWib,
+                  players_list: playersId,
+                });
+                headlineEn = `Gameweek [N:${nextGw}]: [C:${homeClub}] vs [C:${awayClub}] on ${parts.dayEn}, ${parts.dateEn} [N:${parts.timeWib}] offers a promising fixture for ${playersEn}.`;
+                dramaScore = 85;
+              }
+            } else if (isKetat) {
+              const playersId = formatFixtureTopPlayersList(matchOwned, 'id');
+              const playersEn = formatFixtureTopPlayersList(matchOwned, 'en');
+              headlineId = renderTemplateBranch(tmpl.template, 'laga ketat', {
+                next_gw: nextGw,
+                home_club: homeClub,
+                away_club: awayClub,
+                wib_day: parts.dayId,
+                wib_date: parts.dateId,
+                kickoff_time: parts.timeWib,
+                players_list: playersId,
+              });
+              headlineEn = `Gameweek [N:${nextGw}]: [C:${homeClub}] vs [C:${awayClub}] on ${parts.dayEn}, ${parts.dateEn} [N:${parts.timeWib}] presents a tight clash for ${playersEn}.`;
+              dramaScore = 83;
+            } else {
+              const playersId = formatFixtureTopPlayersList(matchOwned, 'id');
+              const playersEn = formatFixtureTopPlayersList(matchOwned, 'en');
+              headlineId = renderTemplateBranch(tmpl.template, 'laga normal', {
+                next_gw: nextGw,
+                home_club: homeClub,
+                away_club: awayClub,
+                wib_day: parts.dayId,
+                wib_date: parts.dateId,
+                kickoff_time: parts.timeWib,
+                players_list: playersId,
+              });
+              headlineEn = `Gameweek [N:${nextGw}]: [C:${homeClub}] vs [C:${awayClub}] on ${parts.dayEn}, ${parts.dateEn} [N:${parts.timeWib}] features ${playersEn}.`;
+              dramaScore = 81;
+            }
+
+            if (headlineId) {
+              produced.push({
+                id: `${tmpl.id}_${idx + 1}_${toStorySlug(homeClub)}_${toStorySlug(awayClub)}`,
+                headlineId,
+                headlineEn,
+                dramaScore,
+              });
+            }
           });
           break;
         }

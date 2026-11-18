@@ -318,6 +318,7 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
       name: t.name,
       short_name: t.short_name,
       code: t.code,
+      position: t.position ?? null,
       badge_url: `https://resources.premierleague.com/premierleague/badges/t${t.code}.svg`,
       shirt_url: `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${t.code}-220.webp`,
       gk_shirt_url: `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${t.code}_1-220.webp`
@@ -397,6 +398,10 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
             team_a: fix.team_a,
             team_h_score: fix.team_h_score,
             team_a_score: fix.team_a_score,
+            team_h_difficulty: fix.team_h_difficulty ?? null,
+            team_a_difficulty: fix.team_a_difficulty ?? null,
+            home_pos: teamMap.get(fix.team_h)?.position ?? null,
+            away_pos: teamMap.get(fix.team_a)?.position ?? null,
             kickoff_time: fix.kickoff_time,
             started: Boolean(fix.started),
             finished: Boolean(fix.finished),

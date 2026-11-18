@@ -2502,5 +2502,57 @@
     "timestamp": "2026-11-15T12:00:00.000Z",
     "source": "Sys",
     "updated_at": "2026-11-15T14:05:19.925Z"
+  },
+  {
+    "no": 106,
+    "id": "CF_MATCH_NEXT_DEADLINE",
+    "gw_phase": "Confirmed",
+    "category": "Match",
+    "subcategory": "Deadline",
+    "title": "Next GW Deadline",
+    "output": "SINGLE-NEWS",
+    "template": "Jadwal Deadline Gameweek [N:{next_gw}]: {wib_day}, {wib_date} pukul [N:{deadline_time}].",
+    "example": "Jadwal Deadline Gameweek [N:11]: Sabtu, 21 Nov pukul [N:18:00 WIB].",
+    "code": "const nextGw = gw + 1;\nif (gw >= 38) return null;\nconst deadlineIso = getDeadlineIso(nextGw);\nif (!deadlineIso) return null;\nreturn renderTemplate(template, {\n  next_gw: nextGw,\n  wib_day: formatWibDay(deadlineIso),\n  wib_date: formatWibShortDate(deadlineIso),\n  deadline_time: formatWibTime(deadlineIso),\n});",
+    "sample_data": {
+      "next_gw": "11",
+      "wib_day": "Sabtu",
+      "wib_date": "21 Nov",
+      "deadline_time": "18:00 WIB"
+    },
+    "gw": 10,
+    "timestamp": "2026-11-18T05:25:00.000Z",
+    "source": "Sys",
+    "updated_at": "2026-11-18T05:25:00.000Z"
+  },
+  {
+    "no": 107,
+    "id": "CF_MATCH_NEXT_GW_FIXTURES",
+    "gw_phase": "Confirmed",
+    "category": "Match",
+    "subcategory": "Next Fixtures",
+    "title": "Upcoming Fixtures",
+    "output": "MULTI-NEWS",
+    "template": "[Kondisi: Laga Menjanjikan - Ada Pemegang TC]\nGameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menjadi laga menjanjikan bagi [P:{favored_player}] ([N:{favored_pct}%]) dengan [N:{tc_owners}] pemiliknya masih menyimpan [N:Triple Captain].\n\n[Kondisi: Laga Menjanjikan - Tanpa Pemegang TC]\nGameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menjadi laga menjanjikan bagi {players_list}.\n\n[Kondisi: Laga Ketat]\nGameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menyajikan duel ketat bagi {players_list}.\n\n[Kondisi: Laga Normal]\nGameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menyajikan penampilan {players_list}.\n\n[Kondisi: Tanpa Kepemilikan]\nGameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menyorot [P:{top_form_player}] (form [N:{form_score}]) sebagai aset yang belum dimiliki Tim FNB League.",
+    "example": "[Kondisi: Laga Menjanjikan - Ada Pemegang TC]\nGameweek [N:11]: [C:Man City] vs [C:Fulham] pada Sabtu, 21 Nov [N:19:30 WIB] menjadi laga menjanjikan bagi [P:Haaland] ([N:96%]) dengan [N:63] pemiliknya masih menyimpan [N:Triple Captain].\n\n[Kondisi: Laga Menjanjikan - Tanpa Pemegang TC]\nGameweek [N:11]: [C:Hull City] vs [C:Brighton] pada Minggu, 22 Nov [N:21:00 WIB] menjadi laga menjanjikan bagi [P:De Cuyper] ([N:79%]) dan [P:Groß] ([N:74%]).\n\n[Kondisi: Laga Ketat]\nGameweek [N:11]: [C:Chelsea] vs [C:Leeds] pada Sabtu, 21 Nov [N:22:00 WIB] menyajikan duel ketat bagi [P:Rogers] ([N:78%]) dan [P:Palmer] ([N:35%]).\n\n[Kondisi: Laga Normal]\nGameweek [N:11]: [C:Liverpool] vs [C:Man Utd] pada Minggu, 22 Nov [N:23:30 WIB] menyajikan penampilan [P:Isak] ([N:32%]) dan [P:Mbeumo] ([N:20%]).\n\n[Kondisi: Tanpa Kepemilikan]\nGameweek [N:11]: [C:Coventry City] vs [C:Crystal Palace] pada Sabtu, 21 Nov [N:22:00 WIB] menyorot [P:Sarr] (form [N:5.8]) sebagai aset yang belum dimiliki Tim FNB League.",
+    "code": "const nextGw = gw + 1;\nconst nextFixtures = getFixturesForGw(nextGw);\n// Renyah/Menjanjikan: min(FDR) <= 2 && max(FDR) >= 4 (khusus MID/FWD >= 15% untuk TC, tanpa DEF/GKP)\n// Ketat: selisih peringkat klasemen PL <= 4; Normal: sisanya; Tanpa Kepemilikan: top form belum dimiliki.\nreturn nextFixtures.map((fix) => renderFixtureStory(fix));",
+    "sample_data": {
+      "next_gw": "11",
+      "home_club": "Man City",
+      "away_club": "Fulham",
+      "wib_day": "Sabtu",
+      "wib_date": "21 Nov",
+      "kickoff_time": "19:30 WIB",
+      "favored_player": "Haaland",
+      "favored_pct": "96",
+      "tc_owners": "63",
+      "players_list": "[P:Rogers] ([N:78%]) dan [P:Palmer] ([N:35%])",
+      "top_form_player": "Sarr",
+      "form_score": "5.8"
+    },
+    "gw": 10,
+    "timestamp": "2026-11-18T05:25:00.000Z",
+    "source": "Sys",
+    "updated_at": "2026-11-18T05:25:00.000Z"
   }
 ]

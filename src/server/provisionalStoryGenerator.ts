@@ -597,20 +597,24 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
         case 'PV_TRANSFER_HITS_EVALUATION': {
           const hitTeams = standings
             .filter((s) => (s.event_transfers_cost || 0) > 0)
-            .sort((a, b) => (b.event_transfers_cost || 0) - (a.event_transfers_cost || 0))
-            .slice(0, 3);
+            .sort((a, b) => (b.event_transfers_cost || 0) - (a.event_transfers_cost || 0));
 
           const allGwTransfers = (dbData?.league_analytics?.all_transfers || []).filter(
             (tr: any) => Number(tr.event) === currentGw && tr.element_in?.name
           );
 
-          hitTeams.forEach((ht, idx) => {
+          const evaluatedHits: { ht: any; bestIn: any }[] = [];
+          for (const ht of hitTeams) {
             const teamTransfers = allGwTransfers
               .filter((tr: any) => tr.entry_id === ht.entry_id || tr.entry_name === ht.entry_name)
               .sort((a: any, b: any) => (b.element_in?.gw_points || 0) - (a.element_in?.gw_points || 0));
             const bestIn = teamTransfers[0]?.element_in;
-            if (!bestIn) return;
+            if (!bestIn) continue;
+            evaluatedHits.push({ ht, bestIn });
+            if (evaluatedHits.length >= 3) break;
+          }
 
+          evaluatedHits.forEach(({ ht, bestIn }, idx) => {
             produced.push({
               id: `${tmpl.id}_${idx + 1}_${toStorySlug(ht.entry_name)}`,
               headlineId: renderTemplate(tmpl.template, {

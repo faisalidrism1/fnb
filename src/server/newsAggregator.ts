@@ -372,40 +372,89 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
 
   // 2. Reconstruct Starting XI (11) and Bench (4) for every team with direct match status on each player
   const managerSquadMap: Record<number, RawTeamSquad> = {};
-  for (const p of allPlayers) {
-    const owners = p.league_ownership?.owners || [];
-    const clubName = resolveClubName(p.teamName || p.teamShort, '');
-    const matchInfo = getClubMatchInfo(clubName);
+  const snapOwnership = Array.isArray(snapshot?.ownership_players) && snapshot.ownership_players.length > 0
+    ? snapshot.ownership_players
+    : null;
 
-    for (const o of owners) {
-      if (!managerSquadMap[o.entry_id]) {
-        managerSquadMap[o.entry_id] = { starters: [], bench: [], benchPts: 0 };
+  if (snapOwnership) {
+    for (const op of snapOwnership as any[]) {
+      const owners = op.owners || [];
+      const pDb = db.players?.[op.id];
+      const clubName = resolveClubName(op.team_name || op.team_short_name || pDb?.teamName || pDb?.teamShort, '');
+      const matchInfo = getClubMatchInfo(clubName);
+      const gwEntry = (pDb?.gwHistory || []).find((h: any) => Number(h.round) === currentGw);
+      const pts = gwEntry?.points ?? pDb?.eventPoints ?? 0;
+      const webName = op.web_name || pDb?.webName || '';
+      const pos = op.position || pDb?.position || 'MID';
+
+      for (const o of owners) {
+        if (!managerSquadMap[o.entry_id]) {
+          managerSquadMap[o.entry_id] = { starters: [], bench: [], benchPts: 0 };
+        }
+        if (o.is_starter) {
+          managerSquadMap[o.entry_id].starters.push({
+            name: webName,
+            club: clubName,
+            pos,
+            pts: pts * (o.multiplier || 1),
+            isC: Boolean(o.is_captain),
+            isVC: Boolean(o.is_vice_captain),
+            matchStatus: matchInfo.status,
+            matchLabel: matchInfo.matchLabel,
+            fixture: matchInfo.fixture,
+          });
+        } else {
+          managerSquadMap[o.entry_id].bench.push({
+            name: webName,
+            club: clubName,
+            pos,
+            pts,
+            order: o.position_in_squad || 12,
+            matchStatus: matchInfo.status,
+            matchLabel: matchInfo.matchLabel,
+            fixture: matchInfo.fixture,
+          });
+          managerSquadMap[o.entry_id].benchPts += pts;
+        }
       }
-      const pts = p.eventPoints || 0;
-      if (o.is_starter) {
-        managerSquadMap[o.entry_id].starters.push({
-          name: p.webName,
-          club: clubName,
-          pos: p.position,
-          pts: pts * (o.multiplier || 1),
-          isC: Boolean(o.is_captain),
-          isVC: Boolean(o.is_vice_captain),
-          matchStatus: matchInfo.status,
-          matchLabel: matchInfo.matchLabel,
-          fixture: matchInfo.fixture,
-        });
-      } else {
-        managerSquadMap[o.entry_id].bench.push({
-          name: p.webName,
-          club: clubName,
-          pos: p.position,
-          pts,
-          order: o.position_in_squad || 12,
-          matchStatus: matchInfo.status,
-          matchLabel: matchInfo.matchLabel,
-          fixture: matchInfo.fixture,
-        });
-        managerSquadMap[o.entry_id].benchPts += pts;
+    }
+  } else {
+    for (const p of allPlayers) {
+      const owners = p.league_ownership?.owners || [];
+      const clubName = resolveClubName(p.teamName || p.teamShort, '');
+      const matchInfo = getClubMatchInfo(clubName);
+      const gwEntry = (p.gwHistory || []).find((h: any) => Number(h.round) === currentGw);
+      const pts = gwEntry?.points ?? p.eventPoints ?? 0;
+
+      for (const o of owners) {
+        if (!managerSquadMap[o.entry_id]) {
+          managerSquadMap[o.entry_id] = { starters: [], bench: [], benchPts: 0 };
+        }
+        if (o.is_starter) {
+          managerSquadMap[o.entry_id].starters.push({
+            name: p.webName,
+            club: clubName,
+            pos: p.position,
+            pts: pts * (o.multiplier || 1),
+            isC: Boolean(o.is_captain),
+            isVC: Boolean(o.is_vice_captain),
+            matchStatus: matchInfo.status,
+            matchLabel: matchInfo.matchLabel,
+            fixture: matchInfo.fixture,
+          });
+        } else {
+          managerSquadMap[o.entry_id].bench.push({
+            name: p.webName,
+            club: clubName,
+            pos: p.position,
+            pts,
+            order: o.position_in_squad || 12,
+            matchStatus: matchInfo.status,
+            matchLabel: matchInfo.matchLabel,
+            fixture: matchInfo.fixture,
+          });
+          managerSquadMap[o.entry_id].benchPts += pts;
+        }
       }
     }
   }

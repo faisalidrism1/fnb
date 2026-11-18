@@ -7,7 +7,7 @@ import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
 import {
   getFplPlayerDirectory,
-  detectSurpriseLineupForClub,
+  detectSurpriseLineupsForClub,
   normalizeDiacritics,
 } from './liveMatchStoryGenerator.ts';
 
@@ -555,7 +555,11 @@ function getAllFlaggedPlayersPostDeadline(gw: number): FlaggedPlayerItem[] {
             ownersCount,
             cost: p.nowCost || p.cost || 0,
             injuryDesc: formatInjuryDescription(p.news),
-            isOut: p.status === 'i' || p.chanceOfPlayingNextRound === 0,
+            isOut:
+              p.status === 'i' ||
+              p.status === 's' ||
+              p.status === 'n' ||
+              p.chanceOfPlayingNextRound === 0,
           });
         }
       }
@@ -1164,6 +1168,11 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
         case 14: {
           const flaggedList = getAllFlaggedPlayersPostDeadline(currentGw);
           if (flaggedList.length > 0) {
+            const slugCounts = new Map<string, number>();
+            for (const item of flaggedList) {
+              const s = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+              slugCounts.set(s, (slugCounts.get(s) || 0) + 1);
+            }
             flaggedAscStories = flaggedList.map((item) => {
               const cond = item.isOut || (item.chance != null && item.chance === 0) ? 'dipastikan absen' : 'meragukan';
               const headline = renderTemplateBranch(tmpl.template, cond, {
@@ -1173,8 +1182,9 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 injury_desc: item.injuryDesc,
               });
               const slug = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+              const uniqueSuffix = (slugCounts.get(slug) || 0) > 1 ? `${slug}_${item.id}` : slug;
               return {
-                id: `${tmpl.id}_${slug}`,
+                id: `${tmpl.id}_${uniqueSuffix}`,
                 headline_id: headline,
                 headline_en: headline,
                 kategori: tmpl.category,
@@ -1412,7 +1422,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 const starterNamesNorm = new Set<string>(side.lineup.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
                 const benchNamesNorm = new Set<string>(side.bench.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
 
-                const surprise = detectSurpriseLineupForClub(
+                const surprises = detectSurpriseLineupsForClub(
                   side.club,
                   side.opponent,
                   starterFplIds,
@@ -1422,35 +1432,35 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                   starterNamesNorm,
                   benchNamesNorm
                 );
-                if (!surprise) continue;
+                for (const surprise of surprises) {
+                  const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
+                  const headline = renderTemplateBranch(tmpl.template, cond, {
+                    club: surprise.club,
+                    player: surprise.player.webName,
+                    starter_pct: surprise.player.starterPct,
+                    opponent: surprise.opponent,
+                  });
+                  if (!headline) continue;
 
-                const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
-                const headline = renderTemplateBranch(tmpl.template, cond, {
-                  club: surprise.club,
-                  player: surprise.player.webName,
-                  starter_pct: surprise.player.starterPct,
-                  opponent: surprise.opponent,
-                });
-                if (!headline) continue;
-
-                const clubSlug = surprise.club.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                const playerSlug = surprise.player.webName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                surpriseLineupStories.push({
-                  id: `${tmpl.id}_${clubSlug}_${playerSlug}`,
-                  headline_id: headline,
-                  headline_en: headline,
-                  kategori: tmpl.category,
-                  sub_kategori: tmpl.subcategory,
-                  drama_score: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
-                  waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
-                  gw: Number(tmpl.gw) || currentGw,
-                  teams: extractTagNames(headline, 'T'),
-                  players: [surprise.player.webName],
-                  sumber: 'Sys',
-                  status_tayang: 'Y',
-                  keterangan_tidak_tayang: '',
-                  timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
-                });
+                  const clubSlug = surprise.club.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                  const playerSlug = surprise.player.webName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                  surpriseLineupStories.push({
+                    id: `${tmpl.id}_${clubSlug}_${playerSlug}_${surprise.player.id}`,
+                    headline_id: headline,
+                    headline_en: headline,
+                    kategori: tmpl.category,
+                    sub_kategori: tmpl.subcategory,
+                    drama_score: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
+                    waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
+                    gw: Number(tmpl.gw) || currentGw,
+                    teams: extractTagNames(headline, 'T'),
+                    players: [surprise.player.webName],
+                    sumber: 'Sys',
+                    status_tayang: 'Y',
+                    keterangan_tidak_tayang: '',
+                    timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
+                  });
+                }
               }
             }
           }

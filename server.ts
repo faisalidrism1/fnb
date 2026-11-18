@@ -62,6 +62,92 @@ import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.t
 import { generateBetweenMatchStories } from './src/server/betweenMatchStoryGenerator.ts';
 import { generateProvisionalStories } from './src/server/provisionalStoryGenerator.ts';
 
+async function ensureNextGwFixtureMetaIfMissing(currentGw: number): Promise<void> {
+  if (!currentGw || currentGw >= 38) return;
+  const nextGw = currentGw + 1;
+  try {
+    const db = getOptimalDatabase();
+    const gwFixtures: any[] = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
+      ? db.meta.sync_status.gw_fixtures
+      : [];
+    const nextFixes = gwFixtures.filter((f: any) => Number(f.event) === nextGw);
+    const needsEnrich =
+      nextFixes.length === 0 ||
+      nextFixes.some(
+        (f: any) =>
+          f.team_h_difficulty == null ||
+          f.team_a_difficulty == null ||
+          f.home_pos == null ||
+          f.away_pos == null
+      );
+    if (!needsEnrich) return;
+
+    const [bsRes, fixRes] = await Promise.all([
+      fetch('https://fantasy.premierleague.com/api/bootstrap-static/'),
+      fetch(`https://fantasy.premierleague.com/api/fixtures/?event=${nextGw}`),
+    ]);
+    if (!bsRes.ok || !fixRes.ok) return;
+    const bs = await bsRes.json();
+    const fixes = await fixRes.json();
+    if (!Array.isArray(bs?.teams) || !Array.isArray(fixes)) return;
+
+    const teamInfoMap = new Map<number, any>(bs.teams.map((t: any) => [Number(t.id), t]));
+    const fixById = new Map<number, any>(fixes.map((f: any) => [Number(f.id), f]));
+
+    if (nextFixes.length === 0) {
+      for (const fix of fixes) {
+        if (!fix?.kickoff_time) continue;
+        const hTeam = teamInfoMap.get(Number(fix.team_h));
+        const aTeam = teamInfoMap.get(Number(fix.team_a));
+        gwFixtures.push({
+          id: fix.id,
+          event: nextGw,
+          home_team: hTeam?.short_name || 'H',
+          away_team: aTeam?.short_name || 'A',
+          team_h: fix.team_h,
+          team_a: fix.team_a,
+          team_h_score: fix.team_h_score ?? null,
+          team_a_score: fix.team_a_score ?? null,
+          team_h_difficulty: fix.team_h_difficulty ?? null,
+          team_a_difficulty: fix.team_a_difficulty ?? null,
+          home_pos: hTeam?.position ?? null,
+          away_pos: aTeam?.position ?? null,
+          kickoff_time: fix.kickoff_time,
+          started: Boolean(fix.started),
+          finished: Boolean(fix.finished),
+          finished_provisional: Boolean(fix.finished_provisional),
+          minutes: fix.minutes || 0,
+        });
+      }
+      if (db.meta?.sync_status) {
+        db.meta.sync_status.gw_fixtures = gwFixtures;
+      }
+    } else {
+      for (const f of nextFixes) {
+        const raw = fixById.get(Number(f.id));
+        const hTeam = teamInfoMap.get(Number(raw?.team_h ?? f.team_h));
+        const aTeam = teamInfoMap.get(Number(raw?.team_a ?? f.team_a));
+        if (raw) {
+          f.team_h_difficulty = raw.team_h_difficulty ?? f.team_h_difficulty ?? null;
+          f.team_a_difficulty = raw.team_a_difficulty ?? f.team_a_difficulty ?? null;
+        }
+        if (hTeam) f.home_pos = hTeam.position ?? f.home_pos ?? null;
+        if (aTeam) f.away_pos = aTeam.position ?? f.away_pos ?? null;
+      }
+    }
+
+    // Persist patched fpl_database.json atomically
+    const dbPath = path.join(process.cwd(), 'src/data/fpl_database.json');
+    if (fs.existsSync(dbPath)) {
+      const tmp = `${dbPath}.tmp.${Date.now()}`;
+      fs.writeFileSync(tmp, JSON.stringify(db, null, 2), 'utf-8');
+      fs.renameSync(tmp, dbPath);
+    }
+  } catch (err: any) {
+    console.warn('[Fixture Meta] Could not enrich next GW fixture meta:', err.message);
+  }
+}
+
 const app = express();
 
 const PORT = Number(process.env.PORT) || 3000;
@@ -1245,6 +1331,18 @@ app.get('/api/news-ticker/feed', async (req, res) => {
           : Promise.resolve(null),
         ensureLivePulseMatchesSynced(currentGw, { force }).catch(() => null),
       ]);
+    } else if (
+      (isPhaseActive('Between Match', currentPhase) || isPhaseActive('Not started', currentPhase)) &&
+      (!getCachedMatchesForGw(currentGw) || force)
+    ) {
+      if (force) {
+        invalidateMatchesCache(currentGw);
+      }
+      await fetchMatchesForGw(currentGw).catch(() => null);
+    }
+
+    if (isPhaseActive('Confirmed', currentPhase)) {
+      await ensureNextGwFixtureMetaIfMissing(currentGw).catch(() => null);
     }
 
     const builtState = getNewsTickerBuiltState();
@@ -1353,6 +1451,18 @@ app.get('/api/admin/news-ticker', async (req, res) => {
           : Promise.resolve(null),
         ensureLivePulseMatchesSynced(currentGw, { force: forceRefresh }).catch(() => null),
       ]);
+    } else if (
+      (isPhaseActive('Between Match', currentPhase) || isPhaseActive('Not started', currentPhase)) &&
+      (!getCachedMatchesForGw(currentGw) || forceRefresh)
+    ) {
+      if (forceRefresh) {
+        invalidateMatchesCache(currentGw);
+      }
+      await fetchMatchesForGw(currentGw).catch(() => null);
+    }
+
+    if (isPhaseActive('Confirmed', currentPhase)) {
+      await ensureNextGwFixtureMetaIfMissing(currentGw).catch(() => null);
     }
 
     const builtState = getNewsTickerBuiltState();
@@ -1518,6 +1628,7 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
 
     // Also include Confirmed phase stories generated from Editor templates (CF_*)
     try {
+      await ensureNextGwFixtureMetaIfMissing(currentGw).catch(() => null);
       const confStories = generateConfirmedStories(currentGw);
       for (const cs of confStories) {
         stories.push(cs as any);

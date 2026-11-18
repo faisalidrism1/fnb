@@ -4097,6 +4097,76 @@ return renderTemplate(isRed ? template.red : template.injury, {
       owners_count: '4',
     },
   },
+  {
+    no: 106,
+    id: 'CF_MATCH_NEXT_DEADLINE',
+    gw_phase: 'Confirmed',
+    category: 'Match',
+    subcategory: 'Deadline',
+    title: 'Next GW Deadline',
+    output: 'SINGLE-NEWS',
+    template: `Jadwal Deadline Gameweek [N:{next_gw}]: {wib_day}, {wib_date} pukul [N:{deadline_time}].`,
+    example: '',
+    code: `const nextGw = gw + 1;
+if (gw >= 38) return null;
+const deadlineIso = getDeadlineIso(nextGw);
+if (!deadlineIso) return null;
+return renderTemplate(template, {
+  next_gw: nextGw,
+  wib_day: formatWibDay(deadlineIso),
+  wib_date: formatWibShortDate(deadlineIso),
+  deadline_time: formatWibTime(deadlineIso),
+});`,
+    sample_data: {
+      next_gw: '11',
+      wib_day: 'Sabtu',
+      wib_date: '21 Nov',
+      deadline_time: '18:00 WIB',
+    },
+  },
+  {
+    no: 107,
+    id: 'CF_MATCH_NEXT_GW_FIXTURES',
+    gw_phase: 'Confirmed',
+    category: 'Match',
+    subcategory: 'Next Fixtures',
+    title: 'Upcoming Fixtures',
+    output: 'MULTI-NEWS',
+    template: `[Kondisi: Laga Menjanjikan - Ada Pemegang TC]
+Gameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menjadi laga menjanjikan bagi [P:{favored_player}] ([N:{favored_pct}%]) dengan [N:{tc_owners}] pemiliknya masih menyimpan [N:Triple Captain].
+
+[Kondisi: Laga Menjanjikan - Tanpa Pemegang TC]
+Gameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menjadi laga menjanjikan bagi {players_list}.
+
+[Kondisi: Laga Ketat]
+Gameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menyajikan duel ketat bagi {players_list}.
+
+[Kondisi: Laga Normal]
+Gameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menyajikan penampilan {players_list}.
+
+[Kondisi: Tanpa Kepemilikan]
+Gameweek [N:{next_gw}]: [C:{home_club}] vs [C:{away_club}] pada {wib_day}, {wib_date} [N:{kickoff_time}] menyorot [P:{top_form_player}] (form [N:{form_score}]) sebagai aset yang belum dimiliki Tim FNB League.`,
+    example: '',
+    code: `const nextGw = gw + 1;
+const nextFixtures = getFixturesForGw(nextGw);
+// Menjanjikan: min(FDR) <= 2 && max(FDR) >= 4 (khusus MID/FWD >= 15% untuk TC, tanpa DEF/GKP)
+// Ketat: selisih peringkat klasemen PL <= 4; Normal: sisanya; Tanpa Kepemilikan: top form belum dimiliki.
+return nextFixtures.map((fix) => renderFixtureStory(fix));`,
+    sample_data: {
+      next_gw: '11',
+      home_club: 'Man City',
+      away_club: 'Fulham',
+      wib_day: 'Sabtu',
+      wib_date: '21 Nov',
+      kickoff_time: '19:30 WIB',
+      favored_player: 'Haaland',
+      favored_pct: '96',
+      tc_owners: '63',
+      players_list: '[P:Rogers] ([N:78%]) dan [P:Palmer] ([N:35%])',
+      top_form_player: 'Sarr',
+      form_score: '5.8',
+    },
+  },
 ];
 
 export function getPhase1Templates(): Phase1TemplateItem[] {

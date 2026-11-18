@@ -406,6 +406,10 @@ export interface GwFixtureItem {
   minutes?: number;
   team_h_score?: number | null;
   team_a_score?: number | null;
+  team_h_difficulty?: number | null;
+  team_a_difficulty?: number | null;
+  home_pos?: number | null;
+  away_pos?: number | null;
 }
 
 export interface EventDayStatusItem {

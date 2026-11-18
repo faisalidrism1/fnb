@@ -9,7 +9,7 @@ import { findValidBetweenMatchAutosubWatches } from './fplAutosub.ts';
 import {
   getFplPlayerDirectory,
   matchPulsePersonToFpl,
-  detectSurpriseLineupForClub,
+  detectSurpriseLineupsForClub,
   normalizeDiacritics,
 } from './liveMatchStoryGenerator.ts';
 import {
@@ -335,7 +335,10 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
       switch (tmpl.id) {
         // 34. BM_MATCH_SCORE_RESULT (Match Result)
         case 'BM_MATCH_SCORE_RESULT': {
-          for (const m of cachedMatches.slice(0, 5)) {
+          const sortedFinishedMatches = [...cachedMatches].sort(
+            (a, b) => new Date(b.kickoff_time || 0).getTime() - new Date(a.kickoff_time || 0).getTime()
+          );
+          for (const m of sortedFinishedMatches) {
             const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
             const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
             const venue = m.venue;
@@ -641,30 +644,40 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
             const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
             const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
             if (!homeClub || !awayClub) continue;
-            const allP = [...(m.home_lineup || []), ...(m.away_lineup || [])];
-            const gkSaver = allP.find((p) => Number(p.stats?.penalties_saved || 0) > 0);
-            const taker = allP.find((p) => Number(p.stats?.penalties_missed || 0) > 0);
-            if (gkSaver && taker) {
-              const gkInfo = playerMap.get(gkSaver.id);
-              const takerInfo = playerMap.get(taker.id);
-              const gkName = gkInfo?.name || gkSaver.web_name;
-              const takerName = takerInfo?.name || taker.web_name;
-              if (!gkName || !takerName) continue;
-              const isGkHome = (m.home_lineup || []).some((p) => p.id === gkSaver.id);
-              const club = isGkHome ? homeClub : awayClub;
-              const opp = isGkHome ? awayClub : homeClub;
-              produced.push({
-                id: `${tmpl.id}_m${m.id}_${toStorySlug(gkName)}`,
-                headlineId: renderTemplate(tmpl.template, {
-                  gk_name: gkName,
-                  gk_pct: gkInfo?.ownershipPct ?? 0,
-                  taker_name: takerName,
-                  taker_pct: takerInfo?.ownershipPct ?? 0,
-                  club,
-                  opponent: opp,
-                }),
-                headlineEn: `Goalkeeper [P:${gkName}] saved a penalty from [P:${takerName}] in [C:${club}] vs [C:${opp}].`,
-                dramaScore: 93,
+
+            const homePlayers = [...(m.home_lineup || []), ...(m.home_bench || [])];
+            const awayPlayers = [...(m.away_lineup || []), ...(m.away_bench || [])];
+            const pairings = [
+              { gkSide: homePlayers, oppSide: awayPlayers, club: homeClub, opp: awayClub },
+              { gkSide: awayPlayers, oppSide: homePlayers, club: awayClub, opp: homeClub },
+            ];
+
+            for (const pair of pairings) {
+              const gkSavers = pair.gkSide.filter((p) => Number(p.stats?.penalties_saved || 0) > 0);
+              const oppTakers = pair.oppSide.filter((p) => Number(p.stats?.penalties_missed || 0) > 0);
+              if (gkSavers.length === 0 || oppTakers.length === 0) continue;
+
+              gkSavers.forEach((gkSaver, idx) => {
+                const taker = oppTakers[Math.min(idx, oppTakers.length - 1)];
+                const gkInfo = playerMap.get(gkSaver.id);
+                const takerInfo = playerMap.get(taker.id);
+                const gkName = gkInfo?.name || gkSaver.web_name;
+                const takerName = takerInfo?.name || taker.web_name;
+                if (!gkName || !takerName) return;
+
+                produced.push({
+                  id: `${tmpl.id}_m${m.id}_${toStorySlug(gkName)}_${gkSaver.id}`,
+                  headlineId: renderTemplate(tmpl.template, {
+                    gk_name: gkName,
+                    gk_pct: gkInfo?.ownershipPct ?? 0,
+                    taker_name: takerName,
+                    taker_pct: takerInfo?.ownershipPct ?? 0,
+                    club: pair.club,
+                    opponent: pair.opp,
+                  }),
+                  headlineEn: `Goalkeeper [P:${gkName}] saved a penalty from [P:${takerName}] in [C:${pair.club}] vs [C:${pair.opp}].`,
+                  dramaScore: 93,
+                });
               });
             }
           }
@@ -1133,7 +1146,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
               const starterNamesNorm = new Set<string>(side.lineup.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
               const benchNamesNorm = new Set<string>(side.bench.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
 
-              const surprise = detectSurpriseLineupForClub(
+              const surprises = detectSurpriseLineupsForClub(
                 side.club,
                 side.opponent,
                 starterFplIds,
@@ -1143,27 +1156,27 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                 starterNamesNorm,
                 benchNamesNorm
               );
-              if (!surprise) continue;
+              for (const surprise of surprises) {
+                const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
+                const headlineId = renderTemplateBranch(tmpl.template, cond, {
+                  club: surprise.club,
+                  player: surprise.player.webName,
+                  starter_pct: surprise.player.starterPct,
+                  opponent: surprise.opponent,
+                });
+                if (!headlineId) continue;
 
-              const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
-              const headlineId = renderTemplateBranch(tmpl.template, cond, {
-                club: surprise.club,
-                player: surprise.player.webName,
-                starter_pct: surprise.player.starterPct,
-                opponent: surprise.opponent,
-              });
-              if (!headlineId) continue;
+                const headlineEn = surprise.isBenched
+                  ? `[C:${surprise.club}] benches [P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) against [C:${surprise.opponent}].`
+                  : `[P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) misses out from [C:${surprise.club}]'s matchday squad against [C:${surprise.opponent}].`;
 
-              const headlineEn = surprise.isBenched
-                ? `[C:${surprise.club}] benches [P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) against [C:${surprise.opponent}].`
-                : `[P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) misses out from [C:${surprise.club}]'s matchday squad against [C:${surprise.opponent}].`;
-
-              produced.push({
-                id: `${tmpl.id}_${toStorySlug(surprise.club)}_${toStorySlug(surprise.player.webName)}`,
-                headlineId,
-                headlineEn,
-                dramaScore: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
-              });
+                produced.push({
+                  id: `${tmpl.id}_${toStorySlug(surprise.club)}_${toStorySlug(surprise.player.webName)}_${surprise.player.id}`,
+                  headlineId,
+                  headlineEn,
+                  dramaScore: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
+                });
+              }
             }
           }
           break;
@@ -1610,33 +1623,40 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
               });
             }
 
-            flaggedUpcoming
+            const selectedFlagged = flaggedUpcoming
               .filter((x) => x.name)
               .sort((a, b) => {
                 if (a.isOut !== b.isOut) return a.isOut ? -1 : 1;
                 if (b.ownersCount !== a.ownersCount) return b.ownersCount - a.ownersCount;
                 return b.cost - a.cost;
               })
-              .slice(0, 5)
-              .forEach((item) => {
-                const cond = item.isOut ? 'Dipastikan Absen' : 'Meragukan';
-                const headlineId = renderTemplateBranch(tmpl.template, cond, {
-                  player: item.name,
-                  club: item.club,
-                  opponent: item.opponent,
-                  injury_desc: item.injuryDesc,
-                  owners_count: item.ownersCount,
-                });
-                if (!headlineId) return;
-                produced.push({
-                  id: `${tmpl.id}_${toStorySlug(item.name)}`,
-                  headlineId,
-                  headlineEn: item.isOut
-                    ? `[P:${item.name}] ([C:${item.club}]) is ruled out against [C:${item.opponent}] (${item.injuryDesc}), impacting [N:${item.ownersCount}] owners.`
-                    : `[P:${item.name}] ([C:${item.club}]) is doubtful against [C:${item.opponent}] (${item.injuryDesc}), leaving [N:${item.ownersCount}] owners waiting.`,
-                  dramaScore: item.isOut ? 87 : 83,
-                });
+              .slice(0, 5);
+            const bmSlugCounts = new Map<string, number>();
+            for (const item of selectedFlagged) {
+              const s = toStorySlug(item.name);
+              bmSlugCounts.set(s, (bmSlugCounts.get(s) || 0) + 1);
+            }
+            selectedFlagged.forEach((item) => {
+              const cond = item.isOut ? 'Dipastikan Absen' : 'Meragukan';
+              const headlineId = renderTemplateBranch(tmpl.template, cond, {
+                player: item.name,
+                club: item.club,
+                opponent: item.opponent,
+                injury_desc: item.injuryDesc,
+                owners_count: item.ownersCount,
               });
+              if (!headlineId) return;
+              const slug = toStorySlug(item.name);
+              const uniqueSuffix = (bmSlugCounts.get(slug) || 0) > 1 ? `${slug}_${item.id}` : slug;
+              produced.push({
+                id: `${tmpl.id}_${uniqueSuffix}`,
+                headlineId,
+                headlineEn: item.isOut
+                  ? `[P:${item.name}] ([C:${item.club}]) is ruled out against [C:${item.opponent}] (${item.injuryDesc}), impacting [N:${item.ownersCount}] owners.`
+                  : `[P:${item.name}] ([C:${item.club}]) is doubtful against [C:${item.opponent}] (${item.injuryDesc}), leaving [N:${item.ownersCount}] owners waiting.`,
+                dramaScore: item.isOut ? 87 : 83,
+              });
+            });
           }
           break;
         }

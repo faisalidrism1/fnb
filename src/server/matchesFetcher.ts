@@ -329,8 +329,9 @@ export async function fetchSdpNormalizedMatch(
         }
       }
       for (const g of side.goals || []) {
+        const gtLower = String(g.goalType || '').toLowerCase();
         normalizedEvents.push({
-          type: g.goalType === 'OwnGoal' ? 'O' : g.goalType === 'Penalty' ? 'P' : 'G',
+          type: gtLower.includes('own') ? 'O' : gtLower.includes('pen') ? 'P' : 'G',
           personId: Number(g.playerId),
           assistId: g.assistPlayerId ? Number(g.assistPlayerId) : undefined,
           phase: mapSdpPeriodToPhase(g.period),
@@ -347,6 +348,9 @@ export async function fetchSdpNormalizedMatch(
       }
     }
 
+    if (isFirstHalf || isHt || isSecondHalf || isFt) {
+      normalizedEvents.push({ type: 'PS', phase: '1', clock: { secs: 0, label: "1'" } });
+    }
     if (isHt || isSecondHalf || isFt) {
       normalizedEvents.push({ type: 'PE', phase: '1', clock: { secs: 2700, label: "45'" } });
     }
