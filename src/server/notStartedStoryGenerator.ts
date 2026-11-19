@@ -45,12 +45,18 @@ interface GeneratedPhase1Story {
   keterangan_tidak_tayang: string;
   poin_tayang?: number;
   timestamp_produksi?: string;
+  cycle_meta?: {
+    chance?: number;
+    ownersCount?: number;
+    cost?: number;
+    specialRank?: number;
+  };
 }
 
 /**
- * Reads existing poin_tayang map directly from database table
+ * Reads existing poin_tayang map directly from database table (scoped to active GW & Not started phase)
  */
-function getExistingPoinTayangMap(): Map<string, number> {
+function getExistingPoinTayangMap(targetGw?: number): Map<string, number> {
   const map = new Map<string, number>();
   try {
     if (fs.existsSync(TABLE_PATH)) {
@@ -58,9 +64,10 @@ function getExistingPoinTayangMap(): Map<string, number> {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
         for (const r of parsed) {
-          if (r && r.id && typeof r.poin_tayang === 'number') {
-            map.set(String(r.id), r.poin_tayang);
-          }
+          if (!r || !r.id || typeof r.poin_tayang !== 'number') continue;
+          if (targetGw && Number(r.gw) !== targetGw) continue;
+          if (r.fase && String(r.fase).trim().toLowerCase() !== 'not started') continue;
+          map.set(String(r.id), r.poin_tayang);
         }
       }
     }
@@ -585,6 +592,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   const db = getOptimalDatabase();
   const currentGw = targetGw || Number(db.meta?.current_gw);
   if (!currentGw) return [];
+  const nowIso = new Date().toISOString();
 
   const gwFixturesAll = db.meta?.sync_status?.gw_fixtures || [];
   const currentFixtures = gwFixturesAll.filter((f: any) => Number(f.event) === currentGw);
@@ -1197,7 +1205,12 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 sumber: 'Sys',
                 status_tayang: 'Y',
                 keterangan_tidak_tayang: '',
-                timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
+                timestamp_produksi: nowIso,
+                cycle_meta: {
+                  chance: item.chance != null ? item.chance : (item.isOut ? 0 : 50),
+                  ownersCount: item.ownersCount,
+                  cost: item.cost || 0,
+                },
                 _flaggedMeta: {
                   id: item.id,
                   chance: item.chance != null ? item.chance : (item.isOut ? 0 : 50),
@@ -1458,7 +1471,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                     sumber: 'Sys',
                     status_tayang: 'Y',
                     keterangan_tidak_tayang: '',
-                    timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
+                    timestamp_produksi: nowIso,
                   });
                 }
               }
@@ -1490,7 +1503,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
           sumber: 'Sys',
           status_tayang: 'Y',
           keterangan_tidak_tayang: '',
-          timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
+          timestamp_produksi: nowIso,
         });
       }
     } catch (err: any) {
@@ -1499,26 +1512,31 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   }
 
   // =========================================================================
-  // ATURAN SIKLUS ROTASI 4 GELOMBANG TEMATIK & KAIDAH POIN TAYANG (AGENTS.md Sec 7)
-  // 1. Gelombang 1:
-  //    - Fixture SELALU di paling awal gelombang 1
-  //    - Top Rivalry (Puncak Klasemen P1 vs P2)
-  //    - Captaincy Recap (Sebaran Kapten Dominan Liga)
-  // 2. Gelombang 2:
-  //    - Hits Recap (Agresivitas Minus Transfer)
-  //    - Wildcard Use & Freehit Use (Manuver Chip Skuad)
-  //    - Most Transferred In (Pembelian Terbanyak)
-  //    - Differential Captain (Keberanian Kapten Langka)
-  //    - 1 Flagged player (Multi-tier: poin_tayang ASC, peluang main ASC) di AKHIR gelombang 2
-  // 3. Gelombang 3:
-  //    - Most GW Rivalry (Perburuan Gelar Mingguan Terbanyak)
-  //    - Triple Captain Use & Bench Boost Use (Chip Daya Ledak Poin)
-  //    - Most Transferred Out (Pelepasan Terbanyak)
-  //    - Differential XI (Pilihan Pembeda Starting XI)
-  // 4. Gelombang 4:
-  //    - Most Owned (Aset Esensial Kepemilikan Tertinggi)
-  //    - Chip Recap (Akumulasi Penggunaan Seluruh Chip)
-  //    - 1 Flagged player (Multi-tier: poin_tayang ASC, peluang main DESC) di AKHIR gelombang 4
+  // ATURAN SIKLUS ROTASI 5 GELOMBANG TEMATIK & KAIDAH POIN TAYANG (AGENTS.md Sec 7)
+  // Aturan Mutlak: Dalam setiap gelombang TIDAK BOLEH ada >1 berita dari kategori sama.
+  // 1. Gelombang 1 (Opening & Prime Rivalry):
+  //    - NS_MATCH_FIXTURE_OPENING (Match) — wajib paling awal gelombang 1
+  //    - NS_STANDINGS_TITLE_RACE (Standings)
+  //    - NS_CAPTAIN_POPULAR_MOST_CAPTAINED (Captain)
+  //    - NS_CHIP_WILDCARD (Chip)
+  //    - (+ NS_LINEUP_SURPRISE_BENCHED [Lineup, MULTI-NEWS] jika lineup rilis pra-kickoff)
+  // 2. Gelombang 2 (Transfer Maneuvers & Severe Flagged):
+  //    - NS_TRANSFER_HITS_MOST (Transfer)
+  //    - NS_CHIP_FREE_HIT (Chip)
+  //    - NS_CAPTAIN_DIFFERENTIAL (Captain)
+  //    - 1 Flagged Player (Player, MULTI-NEWS: poin_tayang ASC, peluang main ASC) di akhir gelombang 2
+  // 3. Gelombang 3 (Weekly Race & Attacking Chips):
+  //    - NS_STANDINGS_WEEKLY_WINS_MOST (Standings)
+  //    - NS_CHIP_TRIPLE_CAPTAIN (Chip)
+  //    - NS_TRANSFER_IN_MOST_BOUGHT (Transfer)
+  // 4. Gelombang 4 (Lineup Tactics & Doubtful Flagged):
+  //    - NS_LINEUP_DIFFERENTIAL_XI (Lineup)
+  //    - NS_CHIP_BENCH_BOOST (Chip)
+  //    - NS_TRANSFER_OUT_MOST_SOLD (Transfer)
+  //    - 1 Flagged Player (Player, MULTI-NEWS: poin_tayang ASC, peluang main DESC) di akhir gelombang 4
+  // 5. Gelombang 5 (Macro Recap & Core Ownership):
+  //    - NS_CHIP_SUMMARY_USAGE (Chip)
+  //    - NS_PLAYER_OWNERSHIP_MOST_OWNED (Player)
   // =========================================================================
 
   // Inisialisasi pool kandidat Flagged Players dengan poin_tayang persisten dari database
@@ -1528,15 +1546,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
     poin_tayang: number;
   }
 
-  const existingPointsMap = getExistingPoinTayangMap();
-
-  // Hitung baseline poin tayang untuk siklus aktif saat ini
-  let currentCycle = 1;
-  for (const [id, pts] of existingPointsMap.entries()) {
-    if (id.includes(`gw${currentGw}`) && pts > currentCycle) {
-      currentCycle = pts;
-    }
-  }
+  const existingPointsMap = getExistingPoinTayangMap(currentGw);
 
   const flaggedPool: FlaggedCandidate[] = (flaggedAscStories.length > 0 ? flaggedAscStories : []).map((s: any) => ({
     story: s,
@@ -1547,7 +1557,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   // =========================================================================
   // PENYUSUNAN ANTREAN JIT (JUST-IN-TIME): TEPAT 1 SIKLUS AKTIF BERJALAN
   // Tidak membuat antrean untuk beberapa siklus ke depan!
-  // Poin tayang terbesar di database selalu merepresentasikan siklus yang sedang berjalan.
+  // poin_tayang bertambah +1 oleh sistem antrean ticker saat berita ditayangkan.
   // =========================================================================
 
   // -------------------------------------------------------------
@@ -1557,42 +1567,50 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   // 2) Peluang main ASC (paling kecil peluangnya / absen)
   // 3) ownersCount DESC, cost DESC
   // -------------------------------------------------------------
+  let pickedAscId: string | null = null;
   let pickedAscStory: GeneratedPhase1Story | undefined;
   if (flaggedPool.length > 0) {
-    flaggedPool.sort((a, b) => {
+    const ascCandidates = [...flaggedPool].sort((a, b) => {
       if (a.poin_tayang !== b.poin_tayang) return a.poin_tayang - b.poin_tayang;
       if (a.meta.chance !== b.meta.chance) return a.meta.chance - b.meta.chance;
       if (b.meta.ownersCount !== a.meta.ownersCount) return b.meta.ownersCount - a.meta.ownersCount;
       return b.meta.cost - a.meta.cost;
     });
-    const chosenAsc = flaggedPool[0];
-    chosenAsc.poin_tayang = Math.max(chosenAsc.poin_tayang + 1, currentCycle);
+    const chosenAsc = ascCandidates[0];
+    pickedAscId = chosenAsc.story.id;
     pickedAscStory = {
       ...chosenAsc.story,
       poin_tayang: chosenAsc.poin_tayang,
+      status_tayang: 'Y',
+      keterangan_tidak_tayang: '',
     };
   }
 
   // -------------------------------------------------------------
   // Pemilihan 1 Flagged Player untuk Gelombang 4:
   // Multi-tier sort:
-  // 1) poin_tayang ASC (selalu ASCENDING) -> Menjamin pemain berbeda dari Wave 2 terpilih!
-  // 2) Peluang main DESC (peluang tertinggi di antara cedera)
-  // 3) ownersCount DESC, cost DESC
+  // 1) Kecualikan pemain yang sudah dipilih di Gelombang 2 (jika pool >= 2)
+  // 2) poin_tayang ASC (selalu ASCENDING)
+  // 3) Peluang main DESC (peluang tertinggi di antara pemain flagged)
+  // 4) ownersCount DESC, cost DESC
   // -------------------------------------------------------------
+  let pickedDescId: string | null = null;
   let pickedDescStory: GeneratedPhase1Story | undefined;
-  if (flaggedPool.length > 0) {
-    flaggedPool.sort((a, b) => {
+  const descPool = flaggedPool.filter((c) => c.story.id !== pickedAscId);
+  if (descPool.length > 0) {
+    descPool.sort((a, b) => {
       if (a.poin_tayang !== b.poin_tayang) return a.poin_tayang - b.poin_tayang;
       if (b.meta.chance !== a.meta.chance) return b.meta.chance - a.meta.chance;
       if (b.meta.ownersCount !== a.meta.ownersCount) return b.meta.ownersCount - a.meta.ownersCount;
       return b.meta.cost - a.meta.cost;
     });
-    const chosenDesc = flaggedPool[0];
-    chosenDesc.poin_tayang = Math.max(chosenDesc.poin_tayang + 1, currentCycle);
+    const chosenDesc = descPool[0];
+    pickedDescId = chosenDesc.story.id;
     pickedDescStory = {
       ...chosenDesc.story,
       poin_tayang: chosenDesc.poin_tayang,
+      status_tayang: 'Y',
+      keterangan_tidak_tayang: '',
     };
   }
 
@@ -1600,13 +1618,12 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
     storiesByTemplateId.get('NS_MATCH_FIXTURE_OPENING'),
     storiesByTemplateId.get('NS_STANDINGS_TITLE_RACE'),
     storiesByTemplateId.get('NS_CAPTAIN_POPULAR_MOST_CAPTAINED'),
+    storiesByTemplateId.get('NS_CHIP_WILDCARD'),
   ].filter(Boolean) as GeneratedPhase1Story[];
 
   const wave2 = [
     storiesByTemplateId.get('NS_TRANSFER_HITS_MOST'),
-    storiesByTemplateId.get('NS_CHIP_WILDCARD'),
     storiesByTemplateId.get('NS_CHIP_FREE_HIT'),
-    storiesByTemplateId.get('NS_TRANSFER_IN_MOST_BOUGHT'),
     storiesByTemplateId.get('NS_CAPTAIN_DIFFERENTIAL'),
     pickedAscStory,
   ].filter(Boolean) as GeneratedPhase1Story[];
@@ -1614,36 +1631,52 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   const wave3 = [
     storiesByTemplateId.get('NS_STANDINGS_WEEKLY_WINS_MOST'),
     storiesByTemplateId.get('NS_CHIP_TRIPLE_CAPTAIN'),
-    storiesByTemplateId.get('NS_CHIP_BENCH_BOOST'),
-    storiesByTemplateId.get('NS_TRANSFER_OUT_MOST_SOLD'),
-    storiesByTemplateId.get('NS_LINEUP_DIFFERENTIAL_XI'),
+    storiesByTemplateId.get('NS_TRANSFER_IN_MOST_BOUGHT'),
   ].filter(Boolean) as GeneratedPhase1Story[];
 
   const wave4 = [
-    storiesByTemplateId.get('NS_PLAYER_OWNERSHIP_MOST_OWNED'),
-    storiesByTemplateId.get('NS_CHIP_SUMMARY_USAGE'),
+    storiesByTemplateId.get('NS_LINEUP_DIFFERENTIAL_XI'),
+    storiesByTemplateId.get('NS_CHIP_BENCH_BOOST'),
+    storiesByTemplateId.get('NS_TRANSFER_OUT_MOST_SOLD'),
     pickedDescStory,
   ].filter(Boolean) as GeneratedPhase1Story[];
 
-  const activeCycleItems = [...wave1, ...surpriseLineupStories, ...wave2, ...wave3, ...wave4];
+  const wave5 = [
+    storiesByTemplateId.get('NS_CHIP_SUMMARY_USAGE'),
+    storiesByTemplateId.get('NS_PLAYER_OWNERSHIP_MOST_OWNED'),
+  ].filter(Boolean) as GeneratedPhase1Story[];
+
+  const activeCycleItems = [
+    ...wave1,
+    ...surpriseLineupStories,
+    ...wave2,
+    ...wave3,
+    ...wave4,
+    ...wave5,
+  ];
   const orderedStories: GeneratedPhase1Story[] = [];
 
   for (const item of activeCycleItems) {
     const cleanItem = { ...item };
     delete (cleanItem as any)._flaggedMeta;
-    // Beri poin tayang siklus aktif jika belum terdefinisi
     if (cleanItem.poin_tayang === undefined) {
-      cleanItem.poin_tayang = Math.max(existingPointsMap.get(cleanItem.id) ?? 0, currentCycle);
+      cleanItem.poin_tayang = existingPointsMap.get(cleanItem.id) ?? 0;
     }
     orderedStories.push(cleanItem);
   }
 
-  // Jika diminta (default untuk master DB table), sertakan sisa kandidat cedera yang belum tayang
-  // di siklus ini agar tetap terdaftar lengkap di tabel dengan poin_tayang mereka saat ini (0 / sebelumnya)
+  // Daftarkan seluruh kandidat Flagged Player lainnya tetap dengan status_tayang: 'Y'
+  // (tidak pernah mengubah status_tayang menjadi 'N'); pemilihan batch siklus murni memakai poin_tayang.
   if (includeRemainingPool) {
     const registeredIds = new Set(orderedStories.map((s) => s.id));
     for (const f of flaggedPool) {
-      const cleanStory = { ...f.story, poin_tayang: f.poin_tayang };
+      if (f.story.id === pickedAscId || f.story.id === pickedDescId) continue;
+      const cleanStory: GeneratedPhase1Story = {
+        ...f.story,
+        poin_tayang: f.poin_tayang,
+        status_tayang: 'Y',
+        keterangan_tidak_tayang: '',
+      };
       delete (cleanStory as any)._flaggedMeta;
       if (!registeredIds.has(cleanStory.id)) {
         registeredIds.add(cleanStory.id);

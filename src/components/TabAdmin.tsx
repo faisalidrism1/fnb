@@ -173,15 +173,71 @@ const TabAdminNewsTable: React.FC = () => {
 
   useEffect(() => {
     fetchTableData();
+
+    const applyPointUpdate = (storyId: string, newPoints: number) => {
+      if (!storyId || typeof newPoints !== 'number') return;
+      setNewsRows((prev) => {
+        let changed = false;
+        const next = prev.map((row) => {
+          if (row.id === storyId && row.poin_tayang !== newPoints) {
+            changed = true;
+            return { ...row, poin_tayang: newPoints };
+          }
+          return row;
+        });
+        if (changed) {
+          try {
+            sessionStorage.setItem('fnb_news_ticker_admin_cache', JSON.stringify(next));
+          } catch {}
+        }
+        return changed ? next : prev;
+      });
+    };
+
     const handleTickerUpdated = () => {
       try {
         sessionStorage.removeItem('fnb_news_ticker_admin_cache');
       } catch {}
       fetchTableData(false);
     };
+
+    const handlePointIncremented = (e: Event) => {
+      const detail = (e as CustomEvent<{ id?: string; poin_tayang?: number }>).detail;
+      if (detail?.id && typeof detail.poin_tayang === 'number') {
+        applyPointUpdate(detail.id, detail.poin_tayang);
+      }
+    };
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        bc = new BroadcastChannel('fnb_news_ticker_sync');
+        bc.onmessage = (msg: MessageEvent) => {
+          const data = msg?.data;
+          if (data?.type === 'point-incremented' && data?.id && typeof data.poin_tayang === 'number') {
+            applyPointUpdate(String(data.id), data.poin_tayang);
+          }
+        };
+      }
+    } catch {}
+
     window.addEventListener('fnb:news-ticker-updated', handleTickerUpdated);
+    window.addEventListener('fnb:news-ticker-point-incremented', handlePointIncremented);
+
+    // Lightweight 15s sync for cross-device / background updates while viewing Tab Admin News Ticker
+    const pollId = setInterval(() => {
+      if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+        fetchTableData(false);
+      }
+    }, 15000);
+
     return () => {
       window.removeEventListener('fnb:news-ticker-updated', handleTickerUpdated);
+      window.removeEventListener('fnb:news-ticker-point-incremented', handlePointIncremented);
+      clearInterval(pollId);
+      try {
+        bc?.close();
+      } catch {}
     };
   }, [fetchTableData]);
 

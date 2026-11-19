@@ -18,6 +18,7 @@ import {
   getTopDifferingStarters,
 } from './notStartedStoryGenerator.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
+import { scheduleStoriesIntoWaves } from './waveCycleScheduler.ts';
 
 export interface GeneratedPhaseStory {
   id: string;
@@ -35,6 +36,12 @@ export interface GeneratedPhaseStory {
   keterangan_tidak_tayang: string;
   poin_tayang?: number;
   timestamp_produksi?: string;
+  cycle_meta?: {
+    chance?: number;
+    ownersCount?: number;
+    cost?: number;
+    specialRank?: number;
+  };
 }
 
 interface EmittedStoryDraft {
@@ -238,8 +245,8 @@ function finalizeBetweenMatchStories(
   nowIso: string
 ): GeneratedPhaseStory[] {
   const out: GeneratedPhaseStory[] = [];
-  for (const item of produced) {
-    if (!item.headlineId) continue;
+  produced.forEach((item, idx) => {
+    if (!item.headlineId) return;
     out.push({
       id: item.id,
       headline_id: item.headlineId,
@@ -255,8 +262,11 @@ function finalizeBetweenMatchStories(
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
       timestamp_produksi: nowIso,
+      cycle_meta: {
+        specialRank: idx,
+      },
     });
-  }
+  });
   return out;
 }
 
@@ -1796,5 +1806,10 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
     }
   }
 
-  return stories;
+  return scheduleStoriesIntoWaves(
+    stories,
+    'Between Match',
+    currentGw,
+    templates.map((t) => t.id)
+  );
 }

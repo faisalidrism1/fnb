@@ -80,14 +80,79 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
   storiesRef.current = stories;
   const activePhaseRef = useRef<string | null>(null);
   const activeGwRef = useRef<number | null>(null);
-  const handleIncomingStoriesRef = useRef<(newStories: NewsTickerStory[], incomingPhase?: string | null, incomingGw?: number | null) => void>(() => {});
+  const handleIncomingStoriesRef = useRef<(newStories: NewsTickerStory[], incomingPhase?: string | null, incomingGw?: number | null, isCycleRotation?: boolean) => void>(() => {});
+  const fetchFeedRef = useRef<(forceRefresh?: boolean) => Promise<void>>(async () => {});
+  const cycleRefreshPendingRef = useRef<boolean>(false);
+  const cycleRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
+  useEffect(() => {
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        broadcastChannelRef.current = new BroadcastChannel('fnb_news_ticker_sync');
+      }
+    } catch {}
+    return () => {
+      try {
+        broadcastChannelRef.current?.close();
+      } catch {}
+      broadcastChannelRef.current = null;
+    };
+  }, []);
+
+  const reportStoryAired = useCallback((storyId: string) => {
+    if (!storyId) return;
+    // Multi-tab protection 1: do not trigger from hidden/background browser tabs
+    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+      return;
+    }
+
+    // Multi-tab protection 2: shared same-browser lock so duplicate tabs don't double-POST
+    const lockKey = `fnb_ticker_aired_lock_${storyId}`;
+    const now = Date.now();
+    try {
+      const prevTs = Number(localStorage.getItem(lockKey) || 0);
+      if (prevTs > 0 && now - prevTs < 25000) {
+        return;
+      }
+      localStorage.setItem(lockKey, String(now));
+    } catch {}
+
+    const cycleSize = Math.max(1, storiesRef.current.length);
+    fetch('/api/admin/news-ticker/increment-point', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: storyId, cycleSize }),
+      keepalive: true,
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (json && json.success && typeof json.poin_tayang === 'number') {
+          const detail = {
+            id: String(json.id || storyId),
+            poin_tayang: json.poin_tayang,
+          };
+          window.dispatchEvent(
+            new CustomEvent('fnb:news-ticker-point-incremented', { detail })
+          );
+          try {
+            broadcastChannelRef.current?.postMessage({
+              type: 'point-incremented',
+              ...detail,
+            });
+          } catch {}
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Fetch news feed from backend
   useEffect(() => {
     let isMounted = true;
-    const fetchFeed = async () => {
+    const fetchFeed = async (forceRefresh = false) => {
       try {
-        const res = await fetch(`/api/news-ticker/feed?_t=${Date.now()}`, {
+        const refreshParam = forceRefresh ? '&refresh=1' : '';
+        const res = await fetch(`/api/news-ticker/feed?_t=${Date.now()}${refreshParam}`, {
           cache: 'no-store',
         });
         if (res.ok) {
@@ -100,32 +165,41 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
               .filter(isEditorSourcedStory)
               .filter((s: NewsTickerStory) => isStoryMatchingGw(s, incomingGw))
               .filter((s: NewsTickerStory) => isStoryMatchingPhase(s, incomingPhase));
-            handleIncomingStoriesRef.current(editorOnly, incomingPhase, incomingGw);
+            handleIncomingStoriesRef.current(editorOnly, incomingPhase, incomingGw, forceRefresh);
           }
         }
       } catch (err) {
         console.warn('[News Ticker] Fetch error:', err);
+      } finally {
+        if (forceRefresh) {
+          cycleRefreshPendingRef.current = false;
+        }
       }
     };
+    fetchFeedRef.current = fetchFeed;
 
-    fetchFeed();
+    fetchFeed(false);
 
     // Immediately re-fetch whenever templates are saved in Tabel Editor
     const handleTickerUpdated = () => {
-      fetchFeed();
+      fetchFeed(false);
     };
     window.addEventListener('fnb:news-ticker-updated', handleTickerUpdated);
 
-    // Re-fetch periodically (every 45s if live match, every 2 minutes otherwise)
+    // Re-fetch periodically (every 15s during Live Match, every 2 minutes otherwise)
     const isLive = Boolean(
       leagueData?.sync_status?.is_matchday_live ||
       leagueData?.gw_status?.status === 'Live'
     );
-    const intervalTime = isLive ? 45000 : 120000;
-    const intervalId = setInterval(fetchFeed, intervalTime);
+    const intervalTime = isLive ? 15000 : 120000;
+    const intervalId = setInterval(() => fetchFeed(false), intervalTime);
 
     return () => {
       isMounted = false;
+      if (cycleRefreshTimerRef.current) {
+        clearTimeout(cycleRefreshTimerRef.current);
+        cycleRefreshTimerRef.current = null;
+      }
       window.removeEventListener('fnb:news-ticker-updated', handleTickerUpdated);
       clearInterval(intervalId);
     };
@@ -437,12 +511,15 @@ const getSavedPoolIdx = (): number => {
 
   // Helper to create a single story DOM item (pure typography with entity color-coding, strictly NO icons)
   const createStoryElement = useCallback(
-    (story: NewsTickerStory, uid: number): HTMLElement => {
+    (story: NewsTickerStory, uid: number, isCycleEnd = false): HTMLElement => {
       const span = document.createElement('span');
       span.className =
         'inline-flex items-center whitespace-nowrap pr-8 leading-[1.25] shrink-0 align-middle select-none';
       span.dataset.uid = String(uid);
       span.dataset.storyId = story.id;
+      if (isCycleEnd) {
+        span.dataset.cycleEnd = '1';
+      }
 
       // Render entity highlighted content
       const content = renderFormattedStory(story);
@@ -466,18 +543,24 @@ const getSavedPoolIdx = (): number => {
   );
 
   // Get next story in round-robin sequence with persistent index (strictly Editor-sourced only)
-  const getNextStory = useCallback((): NewsTickerStory | null => {
+  // Note: poin_tayang increment is triggered only when the element physically finishes scrolling off the left edge.
+  const getNextStory = useCallback((): { story: NewsTickerStory; isCycleEnd: boolean } | null => {
     const list = storiesRef.current;
     if (list.length === 0) {
       return null;
     }
     const idx = poolIdxRef.current % list.length;
     const item = list[idx];
-    poolIdxRef.current = (idx + 1) % list.length;
+    const nextIdx = (idx + 1) % list.length;
+    poolIdxRef.current = nextIdx;
     try {
       sessionStorage.setItem(POOL_IDX_STORAGE_KEY, String(poolIdxRef.current));
     } catch {}
-    return item;
+
+    return {
+      story: item,
+      isCycleEnd: nextIdx === 0,
+    };
   }, []);
 
   // Initialize track buffer from Editor-sourced stories only
@@ -499,15 +582,17 @@ const getSavedPoolIdx = (): number => {
     let safetyCounter = 0;
 
     while (currentWidth < minWidth && safetyCounter < 25) {
-      const story = getNextStory();
-      if (!story) break;
-      const el = createStoryElement(story, nextUidRef.current++);
+      const next = getNextStory();
+      if (!next) break;
+      const el = createStoryElement(next.story, nextUidRef.current++, next.isCycleEnd);
       track.appendChild(el);
       currentWidth += el.offsetWidth || 350;
       safetyCounter++;
     }
   }, [getNextStory, createStoryElement]);
 
+  const reportStoryAiredRef = useRef(reportStoryAired);
+  reportStoryAiredRef.current = reportStoryAired;
   const getNextStoryRef = useRef(getNextStory);
   getNextStoryRef.current = getNextStory;
   const createStoryElementRef = useRef(createStoryElement);
@@ -518,7 +603,7 @@ const getSavedPoolIdx = (): number => {
   // Seamless transition when newly produced news arrives or phase changes:
   // "Habiskan dulu tampilan 1 berita yang sedang tampil di layar. News baru tersebut tampil sebagai berita berikutnya tepat setelahnya."
   const handleIncomingStories = useCallback(
-    (newStories: NewsTickerStory[], incomingPhase?: string | null, incomingGw?: number | null) => {
+    (newStories: NewsTickerStory[], incomingPhase?: string | null, incomingGw?: number | null, isCycleRotationArg = false) => {
       const track = trackRef.current;
       const container = containerRef.current;
       const prevPhase = activePhaseRef.current;
@@ -590,11 +675,14 @@ const getSavedPoolIdx = (): number => {
         return;
       }
 
-      // Check for genuinely new stories OR existing stories whose template/text changed
+      // Check for genuinely new stories OR existing stories whose template/text changed.
+      // Rule: LM_MATCH_SCORE_LIVE should NOT interrupt the queue mid-cycle; it stays scheduled once per cycle.
+      const isLiveScoreStory = (s: NewsTickerStory) => s.id.startsWith('LM_MATCH_SCORE_LIVE');
       const prevById = new Map<string, NewsTickerStory>(currentList.map((s) => [s.id, s]));
       const newIds = new Set(newStories.map((s) => s.id));
-      const freshStories = newStories.filter((s) => !prevById.has(s.id));
+      const freshStories = newStories.filter((s) => !prevById.has(s.id) && !isLiveScoreStory(s));
       const updatedStories = newStories.filter((s) => {
+        if (isLiveScoreStory(s)) return false;
         const prev = prevById.get(s.id);
         return (
           prev !== undefined &&
@@ -607,15 +695,17 @@ const getSavedPoolIdx = (): number => {
       storiesRef.current = newStories;
       setStories(newStories);
 
-      // If neither phase change, new IDs, text updates, nor removals occurred:
+      const isCycleRotation = Boolean(isCycleRotationArg && !isPhaseChanged && !isGwChanged);
+
+      // If neither phase change, cycle rotation, new breaking IDs, text updates, nor removals occurred:
       // DO NOT reset queue or playback position! Let the continuous conveyor keep scrolling uninterrupted.
-      if (!isPhaseChanged && freshStories.length === 0 && updatedStories.length === 0 && !hasRemovals) {
+      if (!isPhaseChanged && !isCycleRotation && freshStories.length === 0 && updatedStories.length === 0 && !hasRemovals) {
         return;
       }
 
-      // Genuinely fresh/edited stories arrived or phase changed:
-      // On phase change or removals, keep STRICTLY 1 currently-airing leading news item on screen
-      // so old-phase items cannot leak behind it, then queue new-phase items immediately after it.
+      // Genuinely fresh/edited stories arrived, cycle rotated, or phase changed:
+      // On phase change, cycle rotation, or removals, keep STRICTLY 1 currently-airing leading news item on screen
+      // so old-phase/old-cycle items cannot leak behind it, then queue new items immediately after it.
       if (!track || !container) return;
 
       const containerWidth = container.clientWidth || window.innerWidth || 1200;
@@ -638,7 +728,7 @@ const getSavedPoolIdx = (): number => {
       }
 
       const activeChildren =
-        isPhaseChanged || hasRemovals
+        isPhaseChanged || isCycleRotation || hasRemovals
           ? (visibleChildren.length > 0
               ? [visibleChildren[0]]
               : [track.firstElementChild as HTMLElement].filter(Boolean))
@@ -656,13 +746,13 @@ const getSavedPoolIdx = (): number => {
       }
       toRemove.forEach((el) => track.removeChild(el));
 
-      if (isPhaseChanged) {
+      if (isPhaseChanged || isCycleRotation) {
         poolIdxRef.current = 0;
         try {
           sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
         } catch {}
       } else {
-        // Same phase: prioritize genuinely fresh / edited stories right after the active item
+        // Same phase mid-cycle: prioritize genuinely fresh / edited stories right after the active item
         const priorityQueue = [...freshStories, ...updatedStories];
         for (const storyItem of priorityQueue) {
           const el = createStoryElement(storyItem, nextUidRef.current++);
@@ -679,16 +769,16 @@ const getSavedPoolIdx = (): number => {
 
       let safety = 0;
       while (totalWidth < minWidth && safety < 25) {
-        const nextStory = getNextStory();
-        if (!nextStory) break;
-        const el = createStoryElement(nextStory, nextUidRef.current++);
+        const next = getNextStory();
+        if (!next) break;
+        const el = createStoryElement(next.story, nextUidRef.current++, next.isCycleEnd);
         track.appendChild(el);
         totalWidth += el.offsetWidth || 350;
         safety++;
       }
 
       console.log(
-        `[News Ticker] ${isPhaseChanged ? `Phase transition (${prevPhase} -> ${incomingPhase})` : 'Stories updated'}; kept ${activeChildren.length} airing item(s), queued ${newStories.length} items for phase "${incomingPhase || 'current'}".`
+        `[News Ticker] ${isPhaseChanged ? `Phase transition (${prevPhase} -> ${incomingPhase})` : isCycleRotation ? 'Wave cycle rotated' : 'Stories updated'}; kept ${activeChildren.length} airing item(s), queued ${newStories.length} items for phase "${incomingPhase || 'current'}".`
       );
     },
     [createStoryElement, fillTrackInitial, getNextStory]
@@ -742,15 +832,49 @@ const getSavedPoolIdx = (): number => {
         if (firstChild) {
           const itemWidth = firstChild.offsetWidth;
           if (-currentXRef.current >= itemWidth) {
+            const exitedStoryId = firstChild.dataset.storyId || '';
+            const exitedCycleEnd = firstChild.dataset.cycleEnd === '1';
+
             // Atomic cycle in 1 frame:
             // 1. Remove left-most exited element
             track.removeChild(firstChild);
             // 2. Compensate offset by exact exited width (zero jitter, zero void)
             currentXRef.current += itemWidth;
-            // 3. Append next story seamlessly to the right from ongoing round-robin pool
-            const nextStory = getNextStoryRef.current();
-            if (nextStory) {
-              const nextEl = createStoryElementRef.current(nextStory, nextUidRef.current++);
+            // 3. Increment poin_tayang strictly when story finishes scrolling on screen
+            if (exitedStoryId) {
+              reportStoryAiredRef.current(exitedStoryId);
+            }
+            // 4. When last item of a managed cycle (NS/LM/BM/PV/CF) exits, fetch next cycle batch
+            const normPhase = normalizePhaseName(activePhaseRef.current);
+            const isCycleManagedPhase =
+              normPhase === 'not started' ||
+              normPhase === 'live match' ||
+              normPhase === 'between match' ||
+              normPhase === 'provisional' ||
+              normPhase === 'confirmed';
+            if (
+              exitedCycleEnd &&
+              isCycleManagedPhase &&
+              storiesRef.current.length > 1 &&
+              !cycleRefreshPendingRef.current
+            ) {
+              cycleRefreshPendingRef.current = true;
+              if (cycleRefreshTimerRef.current) {
+                clearTimeout(cycleRefreshTimerRef.current);
+              }
+              cycleRefreshTimerRef.current = setTimeout(() => {
+                cycleRefreshTimerRef.current = null;
+                fetchFeedRef.current(true);
+              }, 600);
+            }
+            // 5. Append next story seamlessly to the right from ongoing round-robin pool
+            const next = getNextStoryRef.current();
+            if (next) {
+              const nextEl = createStoryElementRef.current(
+                next.story,
+                nextUidRef.current++,
+                next.isCycleEnd
+              );
               track.appendChild(nextEl);
             }
           }

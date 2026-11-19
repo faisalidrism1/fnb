@@ -5,6 +5,7 @@ import { formatTeamList } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
 import { computeValidFplAutosubs } from './fplAutosub.ts';
+import { scheduleStoriesIntoWaves } from './waveCycleScheduler.ts';
 
 export interface GeneratedConfirmedStory {
   id: string;
@@ -22,6 +23,12 @@ export interface GeneratedConfirmedStory {
   keterangan_tidak_tayang: string;
   poin_tayang?: number;
   timestamp_produksi?: string;
+  cycle_meta?: {
+    chance?: number;
+    ownersCount?: number;
+    cost?: number;
+    specialRank?: number;
+  };
 }
 
 interface EmittedStoryDraft {
@@ -2004,8 +2011,8 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
 
       // CRITICAL RULE: If no real condition matched, produced remains empty ([]).
       // It is NOT added to stories list, NOT saved to db container, and NOT displayed in table.
-      for (const item of produced) {
-        if (!item.headlineId) continue;
+      produced.forEach((item, idx) => {
+        if (!item.headlineId) return;
         stories.push({
           id: item.id,
           headline_id: item.headlineId,
@@ -2021,12 +2028,20 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
           status_tayang: 'Y',
           keterangan_tidak_tayang: '',
           timestamp_produksi: nowIso,
+          cycle_meta: {
+            specialRank: idx,
+          },
         });
-      }
+      });
     } catch (tmplErr: any) {
       console.warn(`[Confirmed Story Generator] Error rendering template ${tmpl.id}:`, tmplErr.message);
     }
   }
 
-  return stories;
+  return scheduleStoriesIntoWaves(
+    stories,
+    'Confirmed',
+    currentGw,
+    confirmedTemplates.map((t) => t.id)
+  );
 }

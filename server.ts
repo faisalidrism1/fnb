@@ -61,6 +61,11 @@ import { generatePhase1Stories } from './src/server/notStartedStoryGenerator.ts'
 import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.ts';
 import { generateBetweenMatchStories } from './src/server/betweenMatchStoryGenerator.ts';
 import { generateProvisionalStories } from './src/server/provisionalStoryGenerator.ts';
+import {
+  selectCycleBatchForPhase,
+  selectLiveMatchCycleBatch,
+  BatchCyclePhase,
+} from './src/server/waveCycleScheduler.ts';
 
 async function ensureNextGwFixtureMetaIfMissing(currentGw: number): Promise<void> {
   if (!currentGw || currentGw >= 38) return;
@@ -150,7 +155,40 @@ async function ensureNextGwFixtureMetaIfMissing(currentGw: number): Promise<void
 
 const app = express();
 
-const PORT = Number(process.env.PORT) || 3000;
+function resolveServerPort(): number {
+  const args = process.argv.slice(2);
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--port' && args[i + 1]) {
+      const p = Number(args[i + 1]);
+      if (Number.isFinite(p) && p > 0) return p;
+    } else if (args[i].startsWith('--port=')) {
+      const p = Number(args[i].split('=')[1]);
+      if (Number.isFinite(p) && p > 0) return p;
+    }
+  }
+  const envPort = Number(process.env.PORT);
+  const nginxPort = Number(process.env.NGINX_PORT);
+  const defaultAppPort = Number(process.env.DEFAULT_APP_PORT) || 3000;
+  if (process.env.NODE_ENV !== 'production' && envPort && nginxPort && envPort === nginxPort) {
+    return defaultAppPort;
+  }
+  return envPort || defaultAppPort;
+}
+
+function resolveServerHost(): string {
+  const args = process.argv.slice(2);
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--host' && args[i + 1]) {
+      return args[i + 1];
+    } else if (args[i].startsWith('--host=')) {
+      return args[i].split('=')[1] || '0.0.0.0';
+    }
+  }
+  return process.env.HOST || '0.0.0.0';
+}
+
+const PORT = resolveServerPort();
+const HOST = resolveServerHost();
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
@@ -1332,7 +1370,9 @@ app.get('/api/news-ticker/feed', async (req, res) => {
         ensureLivePulseMatchesSynced(currentGw, { force }).catch(() => null),
       ]);
     } else if (
-      (isPhaseActive('Between Match', currentPhase) || isPhaseActive('Not started', currentPhase)) &&
+      (isPhaseActive('Between Match', currentPhase) ||
+        isPhaseActive('Not started', currentPhase) ||
+        isPhaseActive('Confirmed', currentPhase)) &&
       (!getCachedMatchesForGw(currentGw) || force)
     ) {
       if (force) {
@@ -1382,13 +1422,14 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       return isPhaseActive(r.fase, currentPhase);
     });
 
-    const stories = activeRows.map((r) => ({
+    const storiesWithMeta = activeRows.map((r) => ({
       id: r.id,
       headline_id: r.text_berita,
       headline_en: r.text_berita_en,
       headline: r.text_berita,
       drama_score: r.drama_score,
       poin_tayang: r.poin_tayang,
+      timestamp_produksi: r.timestamp_produksi,
       sumber: r.sumber,
       status_tayang: r.status_tayang,
       keterangan_tidak_tayang: r.keterangan_tidak_tayang,
@@ -1399,17 +1440,32 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       gw: r.gw,
       teams: r.teams,
       players: r.players,
+      cycle_meta: r.cycle_meta,
     }));
 
-    // Multi-tier sort per RULE[AGENTS_md] Section 7:
-    // Tier 1: poin_tayang ASC, Tier 2: drama_score DESC, Tier 3: id ASC
-    stories.sort((a, b) => {
-      const pDiff = (a.poin_tayang || 0) - (b.poin_tayang || 0);
-      if (pDiff !== 0) return pDiff;
-      const dDiff = (b.drama_score || 0) - (a.drama_score || 0);
-      if (dDiff !== 0) return dDiff;
-      return a.id.localeCompare(b.id);
-    });
+    // For Live Match: micro-cycle scheduler (Snapshot Inti + Breaking Events + strict minor cap + 12 NS fallback when < 10).
+    // For NS, BM, PV, CF: dynamic 1-cycle proportional batch selection using poin_tayang ASC without mutating status_tayang.
+    const knownPhaseTemplateIds = getPhase1Templates().map((t) => t.id);
+    let scheduledStories: typeof storiesWithMeta;
+    if (isPhaseActive('Live Match', currentPhase)) {
+      scheduledStories = selectLiveMatchCycleBatch(storiesWithMeta, knownPhaseTemplateIds);
+    } else {
+      const batchPhase: BatchCyclePhase = isPhaseActive('Not started', currentPhase)
+        ? 'Not started'
+        : isPhaseActive('Between Match', currentPhase)
+          ? 'Between Match'
+          : isPhaseActive('Provisional', currentPhase)
+            ? 'Provisional'
+            : 'Confirmed';
+      scheduledStories = selectCycleBatchForPhase(
+        storiesWithMeta,
+        batchPhase,
+        currentGw,
+        knownPhaseTemplateIds
+      );
+    }
+
+    const stories = scheduledStories.map(({ cycle_meta: _cycleMeta, ...rest }) => rest);
 
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -1452,7 +1508,9 @@ app.get('/api/admin/news-ticker', async (req, res) => {
         ensureLivePulseMatchesSynced(currentGw, { force: forceRefresh }).catch(() => null),
       ]);
     } else if (
-      (isPhaseActive('Between Match', currentPhase) || isPhaseActive('Not started', currentPhase)) &&
+      (isPhaseActive('Between Match', currentPhase) ||
+        isPhaseActive('Not started', currentPhase) ||
+        isPhaseActive('Confirmed', currentPhase)) &&
       (!getCachedMatchesForGw(currentGw) || forceRefresh)
     ) {
       if (forceRefresh) {
@@ -1511,10 +1569,14 @@ app.get('/api/admin/news-ticker', async (req, res) => {
 // Endpoint Admin: Increment poin tayang
 app.post('/api/admin/news-ticker/increment-point', (req, res) => {
   try {
-    const { id } = req.body;
+    const { id, cycleSize } = req.body || {};
     if (!id) return res.status(400).json({ success: false, error: 'ID is required' });
-    const success = incrementPoinTayang(String(id));
-    res.json({ success });
+    const parsedCycleSize = Number(cycleSize);
+    const result = incrementPoinTayang(
+      String(id),
+      Number.isFinite(parsedCycleSize) && parsedCycleSize > 0 ? parsedCycleSize : undefined
+    );
+    res.json(result);
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -1779,7 +1841,10 @@ async function startServer() {
         appType: 'spa',
       });
       return vite.middlewares;
-    })();
+    })().catch((err) => {
+      console.error('[Server] Vite middleware initialization failed:', err);
+      throw err;
+    });
 
     app.use(async (req, res, next) => {
       try {
@@ -1797,12 +1862,12 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const httpServer = app.listen(PORT, HOST, () => {
     console.log(`[Server] FPL Nusantara BERHADIAH running on port ${PORT}`);
 
-    setImmediate(() => {
+    setTimeout(() => {
       initializeDatabaseState();
-    });
+    }, 50);
 
     setTimeout(() => {
       dbReadyPromise.then(() => {
@@ -1819,6 +1884,11 @@ async function startServer() {
     setTimeout(() => {
       prewarmShirtCache().catch(() => {});
     }, 2500);
+  });
+
+  httpServer.on('error', (err: any) => {
+    console.error(`[Server] Failed to listen on ${HOST}:${PORT}:`, err?.message || err);
+    process.exit(1);
   });
 }
 

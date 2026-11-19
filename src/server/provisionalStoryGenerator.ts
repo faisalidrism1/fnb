@@ -4,6 +4,7 @@ import { buildRawMatchdayPayload } from './newsAggregator.ts';
 import { formatTeamList } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import { computeValidFplAutosubs } from './fplAutosub.ts';
+import { scheduleStoriesIntoWaves } from './waveCycleScheduler.ts';
 
 export interface GeneratedPhaseStory {
   id: string;
@@ -21,6 +22,12 @@ export interface GeneratedPhaseStory {
   keterangan_tidak_tayang: string;
   poin_tayang?: number;
   timestamp_produksi?: string;
+  cycle_meta?: {
+    chance?: number;
+    ownersCount?: number;
+    cost?: number;
+    specialRank?: number;
+  };
 }
 
 interface EmittedStoryDraft {
@@ -185,8 +192,8 @@ function finalizeProvisionalStories(
   nowIso: string
 ): GeneratedPhaseStory[] {
   const out: GeneratedPhaseStory[] = [];
-  for (const item of produced) {
-    if (!item.headlineId) continue;
+  produced.forEach((item, idx) => {
+    if (!item.headlineId) return;
     out.push({
       id: item.id,
       headline_id: item.headlineId,
@@ -202,8 +209,11 @@ function finalizeProvisionalStories(
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
       timestamp_produksi: nowIso,
+      cycle_meta: {
+        specialRank: idx,
+      },
     });
-  }
+  });
   return out;
 }
 
@@ -905,5 +915,10 @@ export function generateProvisionalStories(targetGw?: number): GeneratedPhaseSto
     }
   }
 
-  return stories;
+  return scheduleStoriesIntoWaves(
+    stories,
+    'Provisional',
+    currentGw,
+    templates.map((t) => t.id)
+  );
 }

@@ -458,6 +458,7 @@ export function generateStoriesFromPulseMatch(
   if (!pulseData) return [];
   const gw = targetGw || Number(pulseData?.gameweek?.gameweek) || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
+  const nowIso = new Date().toISOString();
 
   const templates = getPhase1Templates();
   const tmplMap = new Map<string, Phase1TemplateItem>();
@@ -679,7 +680,7 @@ export function generateStoriesFromPulseMatch(
             sumber: (tmplLineup.source as any) || 'Sys',
             status_tayang: 'Y',
             keterangan_tidak_tayang: '',
-            timestamp_produksi: tmplLineup.timestamp || tmplLineup.updated_at || new Date().toISOString(),
+            timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: "0'",
             clockSecs: 0,
@@ -735,7 +736,7 @@ export function generateStoriesFromPulseMatch(
       sumber: (tmpl.source as any) || 'Sys',
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
-      timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
+      timestamp_produksi: nowIso,
       pulseMatchId: matchId,
       minute: minuteStr,
       clockSecs,
@@ -1616,7 +1617,7 @@ export function generateStoriesFromPulseMatch(
             sumber: (tmplPs.source as any) || 'Sys',
             status_tayang: 'Y',
             keterangan_tidak_tayang: '',
-            timestamp_produksi: tmplPs.timestamp || tmplPs.updated_at || new Date().toISOString(),
+            timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
@@ -1662,7 +1663,7 @@ export function generateStoriesFromPulseMatch(
             sumber: (tmplOg.source as any) || 'Sys',
             status_tayang: 'Y',
             keterangan_tidak_tayang: '',
-            timestamp_produksi: tmplOg.timestamp || tmplOg.updated_at || new Date().toISOString(),
+            timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
@@ -1698,7 +1699,7 @@ export function generateStoriesFromPulseMatch(
             sumber: (tmplPs.source as any) || 'Sys',
             status_tayang: 'Y',
             keterangan_tidak_tayang: '',
-            timestamp_produksi: tmplPs.timestamp || tmplPs.updated_at || new Date().toISOString(),
+            timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
@@ -1737,7 +1738,7 @@ export function generateStoriesFromPulseMatch(
             sumber: (tmplPm.source as any) || 'Sys',
             status_tayang: 'Y',
             keterangan_tidak_tayang: '',
-            timestamp_produksi: tmplPm.timestamp || tmplPm.updated_at || new Date().toISOString(),
+            timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
@@ -1781,7 +1782,7 @@ export function generateStoriesFromPulseMatch(
             sumber: (tmplPen.source as any) || 'Sys',
             status_tayang: 'Y',
             keterangan_tidak_tayang: '',
-            timestamp_produksi: tmplPen.timestamp || tmplPen.updated_at || new Date().toISOString(),
+            timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
@@ -1880,7 +1881,7 @@ export function generateStoriesFromPulseMatch(
         sumber: (tmplVar.source as any) || 'Sys',
         status_tayang: 'Y',
         keterangan_tidak_tayang: '',
-        timestamp_produksi: tmplVar.timestamp || tmplVar.updated_at || new Date().toISOString(),
+        timestamp_produksi: nowIso,
         pulseMatchId: matchId,
         minute: minuteStr,
         clockSecs: tvSecs,
@@ -1968,7 +1969,7 @@ export function generateLiveMatchStatStories(
               sumber: (tmplSaves.source as any) || 'Sys',
               status_tayang: 'Y',
               keterangan_tidak_tayang: '',
-              timestamp_produksi: tmplSaves.timestamp || tmplSaves.updated_at || nowIso,
+              timestamp_produksi: nowIso,
               pulseMatchId: m.id,
               minute: minuteStr,
               clockSecs,
@@ -2007,7 +2008,7 @@ export function generateLiveMatchStatStories(
               sumber: (tmplDefcon.source as any) || 'Sys',
               status_tayang: 'Y',
               keterangan_tidak_tayang: '',
-              timestamp_produksi: tmplDefcon.timestamp || tmplDefcon.updated_at || nowIso,
+              timestamp_produksi: nowIso,
               pulseMatchId: m.id,
               minute: minuteStr,
               clockSecs,
@@ -2133,7 +2134,7 @@ export function generateLiveTeamRankShiftStories(
       sumber: (tmpl.source as any) || 'Sys',
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
-      timestamp_produksi: tmpl.timestamp || tmpl.updated_at || nowIso,
+      timestamp_produksi: nowIso,
     });
   }
 
@@ -2273,7 +2274,7 @@ export function generateLiveMatchScoreStories(
       sumber: (tmpl.source as any) || 'Sys',
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
-      timestamp_produksi: tmpl.timestamp || tmpl.updated_at || nowIso,
+      timestamp_produksi: nowIso,
       pulseMatchId: m.id,
       minute: minuteStr,
       clockSecs: (m.minutes || 0) * 60,
@@ -2363,7 +2364,7 @@ export function generateLiveLineupSurpriseStories(
           sumber: (tmpl.source as any) || 'Sys',
           status_tayang: 'Y',
           keterangan_tidak_tayang: '',
-          timestamp_produksi: tmpl.timestamp || tmpl.updated_at || nowIso,
+          timestamp_produksi: nowIso,
           pulseMatchId: m.id,
           minute: "0'",
           clockSecs: 0,
@@ -2385,6 +2386,7 @@ export function generateLiveTitleRaceStories(
 ): LiveMatchStory[] {
   const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
+  const nowIso = new Date().toISOString();
   const templates = getPhase1Templates();
   const tmpl = templates.find((t) => t.id === 'LM_STANDINGS_TITLE_RACE');
   if (!tmpl) return [];
@@ -2570,7 +2572,7 @@ export function generateLiveTitleRaceStories(
       sumber: (tmpl.source as any) || 'Sys',
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
-      timestamp_produksi: tmpl.timestamp || tmpl.updated_at || new Date().toISOString(),
+      timestamp_produksi: nowIso,
     },
   ];
 }

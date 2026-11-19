@@ -11,6 +11,11 @@ import { getOptimalDatabase } from './db.ts';
 import { checkLiveBetweenMatchPhase, isMatchCardRunning } from './liveBetweenMatchChecker.ts';
 import { loadPulseMatchesForGw } from './pulseMatchSync.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
+import {
+  resolveParentTemplateId,
+  CycleMeta,
+  LM_FALLBACK_NS_TEMPLATE_IDS,
+} from './waveCycleScheduler.ts';
 import type { MatchCardItem } from '../types.ts';
 
 export { checkLiveBetweenMatchPhase, ensureLiveMatchesAndCheckPhase } from './liveBetweenMatchChecker.ts';
@@ -32,6 +37,7 @@ export interface NewsTickerDbRow {
   gw: number;
   teams: string[];
   players: string[];
+  cycle_meta?: CycleMeta;
 }
 
 const TABLE_FILE_PATH = path.join(process.cwd(), 'src/data/news_ticker_table.json');
@@ -41,6 +47,9 @@ let memoryTableCache: NewsTickerDbRow[] | null = null;
 let lastBuiltGw: number | null = null;
 let lastBuiltPhase: string | null = null;
 let lastBuiltAt = 0;
+
+// Server-side cooldown registry to prevent multi-tab / multi-device duplicate +1 increments within the same cycle
+const lastIncrementByRowKey = new Map<string, number>();
 
 export function clearNewsTickerMemoryCache(): void {
   memoryTableCache = null;
@@ -55,6 +64,7 @@ export function clearNewsTickerMemoryCache(): void {
  */
 export function clearNewsTickerTable(): void {
   clearNewsTickerMemoryCache();
+  lastIncrementByRowKey.clear();
   try {
     const dir = path.dirname(TABLE_FILE_PATH);
     if (!fs.existsSync(dir)) {
@@ -801,6 +811,9 @@ export function createStoryRecordsForPhases(
     gw?: number;
     teams?: string[];
     players?: string[];
+    pulseMatchId?: number;
+    clockSecs?: number;
+    cycle_meta?: CycleMeta;
   },
   defaultGw = 9,
   currentActivePhase?: string
@@ -893,6 +906,15 @@ export function createStoryRecordsForPhases(
     const statusTayang: 'Y' | 'N' = raw.status_tayang || 'Y';
     const keterangan = raw.keterangan_tidak_tayang ?? (statusTayang === 'Y' ? '' : 'Tidak ditayangkan');
 
+    const mergedCycleMeta: CycleMeta | undefined =
+      raw.cycle_meta || raw.pulseMatchId !== undefined || raw.clockSecs !== undefined
+        ? {
+            ...(raw.cycle_meta || {}),
+            ...(raw.pulseMatchId !== undefined ? { pulseMatchId: raw.pulseMatchId } : {}),
+            ...(raw.clockSecs !== undefined ? { clockSecs: raw.clockSecs } : {}),
+          }
+        : undefined;
+
     return {
       id: rowId,
       timestamp_produksi: timestamp,
@@ -910,6 +932,7 @@ export function createStoryRecordsForPhases(
       gw,
       teams,
       players,
+      ...(mergedCycleMeta ? { cycle_meta: mergedCycleMeta } : {}),
     };
   });
 }
@@ -1148,20 +1171,26 @@ export function rebuildNewsTickerTable(
       });
     }
 
-    // Hitung baseline poin_tayang minimum dari berita aktif yang sudah ada di GW & fase aktif
-    // (Mencegah "Starvation" / monopoli nilai 0 saat berita baru lahir dalam fase yang sama)
-    let baselinePoinTayang = 0;
-    const activeExistingPoints: number[] = [];
+    // Hitung minimum poin_tayang per parent template dari pool aktif ('Y') yang sudah ada di GW & fase aktif
+    // (Berita baru yang lahir di tengah fase mewarisi nilai minimum pool template-nya masing-masing)
+    const sortedEditorTemplateIds = Array.from(getEditorTemplateIdSet()).sort(
+      (a, b) => b.length - a.length
+    );
+    const minPoinByTemplate = new Map<string, number>();
     for (const r of existingTableMap.values()) {
-      if (r.status_tayang === 'Y' && Number(r.gw) === feedGw && isPhaseActive(r.fase, currentActivePhase) && r.poin_tayang > 0) {
-        activeExistingPoints.push(r.poin_tayang);
+      if (r.status_tayang === 'Y' && Number(r.gw) === feedGw && isPhaseActive(r.fase, currentActivePhase)) {
+        const parentTid = resolveParentTemplateId(r.id, sortedEditorTemplateIds);
+        const curPoin = Math.max(0, Number(r.poin_tayang) || 0);
+        const prevMin = minPoinByTemplate.get(parentTid);
+        if (prevMin === undefined || curPoin < prevMin) {
+          minPoinByTemplate.set(parentTid, curPoin);
+        }
       }
     }
-    if (activeExistingPoints.length > 0) {
-      baselinePoinTayang = Math.min(...activeExistingPoints);
-    }
 
-    // Helper to safely add rows strictly for feedGw and currentActivePhase while restoring poin_tayang
+    const isLiveMatchPhase = isPhaseActive('Live Match', currentActivePhase);
+
+    // Helper to safely add rows strictly for feedGw and currentActivePhase while restoring poin_tayang & original timestamp
     const addRows = (rows: NewsTickerDbRow[]) => {
       for (const r of rows) {
         if (Number(r.gw) !== feedGw) continue;
@@ -1170,10 +1199,21 @@ export function rebuildNewsTickerTable(
           seenIds.add(r.id);
           const baseId = r.id.split('__')[0];
           const existing = existingTableMap.get(r.id) || existingTableMap.get(baseId);
-          if (existing && existing.poin_tayang !== undefined) {
-            r.poin_tayang = existing.poin_tayang;
-          } else if (r.status_tayang === 'Y' && baselinePoinTayang > 0 && r.poin_tayang === 0) {
-            r.poin_tayang = baselinePoinTayang;
+          if (existing) {
+            if (existing.poin_tayang !== undefined) {
+              r.poin_tayang = existing.poin_tayang;
+            }
+            if (existing.text_berita === r.text_berita && existing.timestamp_produksi) {
+              r.timestamp_produksi = existing.timestamp_produksi;
+            }
+          } else if (!isLiveMatchPhase && r.status_tayang === 'Y' && r.poin_tayang === 0) {
+            // Untuk fase non-LM, berita baru di tengah fase mewarisi poin_tayang minimum pool template-nya.
+            // Untuk fase Live Match, event baru tetap mulai dari 0 agar gol/kejadian baru langsung prioritas.
+            const parentTid = resolveParentTemplateId(r.id, sortedEditorTemplateIds);
+            const poolMin = minPoinByTemplate.get(parentTid);
+            if (poolMin !== undefined && poolMin > 0) {
+              r.poin_tayang = poolMin;
+            }
           }
           tableRows.push(r);
         }
@@ -1287,6 +1327,29 @@ export function rebuildNewsTickerTable(
             addRows(records);
           }
         }
+
+        // Also register the 12 post-deadline locked NS_* fallback items for quiet Live Match periods
+        try {
+          const fallbackNsStories = generatePhase1Stories(feedGw).filter((p1) =>
+            LM_FALLBACK_NS_TEMPLATE_IDS.has(p1.id)
+          );
+          for (const fb of fallbackNsStories) {
+            const records = createStoryRecordsForPhases({
+              ...fb,
+              sumber: (fb.sumber as any) || 'Sys',
+              gw: fb.gw || feedGw,
+              waktu_tayang: ['Live Match'],
+              fase: 'Live Match',
+              cycle_meta: {
+                ...(fb.cycle_meta || {}),
+                isLmFallback: true,
+              },
+            }, fb.gw || feedGw, currentActivePhase);
+            addRows(records);
+          }
+        } catch (fbErr: any) {
+          console.warn('[News Table Service] Warning generating LM NS fallback stories:', fbErr.message);
+        }
       } catch (err: any) {
         console.warn('[News Table Service] Warning generating Live Match stories:', err.message);
       }
@@ -1337,10 +1400,13 @@ export function rebuildNewsTickerTable(
       }
     }
 
-    // Sort by: status_tayang 'Y' first, then timestamp descending
+    // Sort by: status_tayang 'Y' first; preserve wave-cycle order for NS/BM/PV/CF, timestamp descending for Live Match
     tableRows.sort((a, b) => {
       if (a.status_tayang !== b.status_tayang) {
         return a.status_tayang === 'Y' ? -1 : 1;
+      }
+      if (!isPhaseActive('Live Match', currentActivePhase)) {
+        return 0;
       }
       return new Date(b.timestamp_produksi).getTime() - new Date(a.timestamp_produksi).getTime();
     });
@@ -1517,19 +1583,48 @@ export function queryNewsTickerTable(params: {
 }
 
 /**
- * Increments poin_tayang by +1 when a news item enters the ticker queue per RULE[AGENTS_md]
+ * Increments poin_tayang by +1 when a news item actually finishes airing on screen,
+ * guarded by a server-side per-row cooldown so multiple open tabs/devices cannot
+ * double-increment the same story within the same airing cycle.
  */
-export function incrementPoinTayang(id: string): boolean {
+export function incrementPoinTayang(
+  id: string,
+  cycleSizeHint?: number
+): { success: boolean; deduped?: boolean; id?: string; poin_tayang?: number } {
   const rows = getNewsTickerTable();
   const row = rows.find((r) => r.id === id);
-  if (!row) return false;
+  if (!row) return { success: false };
+
+  const rowKey = `${row.gw}:${row.fase}:${row.id}`;
+  const now = Date.now();
+  const cooldownMs = isPhaseActive('Live Match', row.fase)
+    ? 45000
+    : Math.max(45000, Math.min(180000, Math.max(10, Number(cycleSizeHint) || 15) * 5000));
+
+  const lastTs = lastIncrementByRowKey.get(rowKey) || 0;
+  if (now - lastTs < cooldownMs) {
+    return {
+      success: true,
+      deduped: true,
+      id: row.id,
+      poin_tayang: row.poin_tayang || 0,
+    };
+  }
+
   row.poin_tayang = (row.poin_tayang || 0) + 1;
+  lastIncrementByRowKey.set(rowKey, now);
+
   try {
     fs.writeFileSync(TABLE_FILE_PATH, JSON.stringify(rows, null, 2), 'utf-8');
     memoryTableCache = rows;
-    return true;
+    return {
+      success: true,
+      deduped: false,
+      id: row.id,
+      poin_tayang: row.poin_tayang,
+    };
   } catch {
-    return false;
+    return { success: false };
   }
 }
 
