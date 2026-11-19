@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Users, Shield, Award, Sparkles, Shirt } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import {
   PlayerOwnershipItem,
   ClubOwnershipItem,
@@ -7,7 +6,6 @@ import {
   TemplateSquadData,
   TemplateSquadPlayer,
 } from '../types.ts';
-import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import fnbLogo from '../assets/images/fnb_league_logo_transparent.png';
 import { useLanguage } from '../utils/i18n.ts';

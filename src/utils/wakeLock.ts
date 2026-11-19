@@ -31,6 +31,3 @@ export const releaseWakeLock = async (): Promise<void> => {
   }
 };
 
-export const isWakeLockActive = (): boolean => {
-  return wakeLockSentinel !== null && !wakeLockSentinel.released;
-};

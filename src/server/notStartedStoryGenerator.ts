@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
+import { getPhase1Templates } from '../data/phase1Templates.ts';
 import { formatTeamList, getTeamAppearanceCounts } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
@@ -414,7 +414,6 @@ export function getHistoricalMostGwLeaders(
   const maxGw = currentGw - 1;
   if (maxGw < 1) return [];
 
-  const db = getOptimalDatabase();
   const teamMap = new Map<
     number,
     {

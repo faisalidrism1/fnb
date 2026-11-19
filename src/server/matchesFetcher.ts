@@ -729,7 +729,6 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     );
 
     const isFt = Boolean(fix.finished || fix.finished_provisional || isPulseFinished || isTimeFinished);
-    const isLive = Boolean(fix.started && !isFt);
     if (!isFt) allMatchesFinished = false;
 
     // Accurate Half Time Detection:

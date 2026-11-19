@@ -449,7 +449,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
   }, []);
 
   // 1. Calculate per-GW ranks and build series for all teams
-  const { allTeams, teamsMap } = useMemo(() => {
+  const { allTeams } = useMemo(() => {
     // Map of GW -> Map of entryId -> GW Rank
     const gwRanksMap: Record<number, Record<number, number>> = {};
 
@@ -520,7 +520,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
     });
 
     const list = Object.values(tMap).sort((a, b) => a.latestRank - b.latestRank);
-    return { allTeams: list, teamsMap: tMap };
+    return { allTeams: list };
   }, [standings, sortedGWs, latestGW]);
 
   // Alphabetically sorted list for multiple picker

@@ -1,17 +1,9 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import {
-  ArrowRightLeft,
-  UserPlus,
-  UserMinus,
-  Search,
-  ChevronDown,
-  Clock,
-} from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search } from 'lucide-react';
 import {
   TransferItem,
   MostTransferredItem,
 } from '../types.ts';
-import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
@@ -47,12 +39,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
 }) => {
   const { t, language } = useLanguage();
   const userProfileId = useUserProfileId();
-  const [internalSubTab, setInternalSubTab] = useState<TransferSubTab>('all-transfers');
-  const subTab = propSubTab !== undefined ? propSubTab : internalSubTab;
-  const setSubTab = (val: TransferSubTab) => {
-    if (onSelectSubTab) onSelectSubTab(val);
-    else setInternalSubTab(val);
-  };
+  const subTab = propSubTab !== undefined ? propSubTab : 'all-transfers';
 
   // Default filters to Current GW
   const currentGWStr = String(currentGW || (availableGWs.length > 0 ? Math.max(...availableGWs) : 'all'));

@@ -1,30 +1,5 @@
 export type PositionType = 'GKP' | 'DEF' | 'MID' | 'FWD';
 
-export interface FPLTeam {
-  id: number;
-  name: string;
-  short_name: string;
-  code: number;
-  badge_url: string;
-  shirt_url: string;
-  gk_shirt_url: string;
-}
-
-export interface FPLElement {
-  id: number;
-  web_name: string;
-  first_name: string;
-  second_name: string;
-  team: number;
-  team_code: number;
-  team_short_name: string;
-  element_type: number;
-  position: PositionType;
-  now_cost: number; // in £0.1m, e.g. 100 = £10.0m
-  total_points: number;
-  event_points: number;
-}
-
 export interface StandingsRow {
   rank: number;
   last_rank: number | null;
@@ -772,81 +747,12 @@ export interface OptimalFplDatabaseSchema {
   table_counts: Record<string, number>;
 }
 
-export interface DbStanding {
-  gw: number;
-  rank: number;
-  lastRank: number | null;
-  rankChange: number;
-  entryId: number;
-  entryName: string;
-  playerName: string;
-  totalPoints: number;
-  eventPoints: number;
-  eventTransfersCost: number;
-  activeChip: string | null;
-  captain: any;
-  viceCaptain: any;
-}
-
-export interface DbGameweekChampion {
-  gw: number;
-  points: number;
-  entryIds: number[];
-  champions: GWChampionEntry[];
-}
-
-export interface DbOwnershipPlayer {
-  gw: number;
-  playerId: number;
-  ownedCount: number;
-  ownedPercentage: number;
-  owners: PlayerOwnerItem[];
-}
-
-export interface DbOwnershipClub {
-  gw: number;
-  clubId: number;
-  ownedCount: number;
-  ownedPercentage: number;
-}
-
-export interface DbFansClub {
-  gw: number | string;
-  clubId: number;
-  clubName: string;
-  managers: FansClubManager[];
-}
-
-export interface DbTemplateSquad {
-  gw: number;
-  gks: TemplateSquadPlayer[];
-  defs: TemplateSquadPlayer[];
-  mids: TemplateSquadPlayer[];
-  fwds: TemplateSquadPlayer[];
-  totalCost: number;
-}
-
-export interface DbTransfer {
-  gw: number;
-  entryId: number;
-  elementIn: number;
-  elementOut: number;
-  time: string;
-}
-
 export interface DbLigaMinus {
   entryId: number;
   entryName: string;
   playerName: string;
   totalMinusPoints: number;
   currentRank: number;
-}
-
-export interface DbCaptainStat {
-  gw: number;
-  playerId: number;
-  captainCount: number;
-  viceCount: number;
 }
 
 export interface DbChipUsed {
@@ -857,61 +763,3 @@ export interface DbChipUsed {
   gw: number;
   points: number;
 }
-
-export interface DbSyncMeta {
-  lastSynced: string;
-  nextSyncWib: string;
-  isMatchdayLive: boolean;
-  currentGw: number;
-  leagueId: number;
-  leagueName: string;
-  totalTeams: number;
-  tableCounts: Record<string, number>;
-}
-
-export interface FplDatabaseSchema {
-  meta: DbSyncMeta;
-  standings: DbStanding[];
-  gameweekChampions: DbGameweekChampion[];
-  ownershipPlayers: DbOwnershipPlayer[];
-  ownershipClubs: DbOwnershipClub[];
-  fansClubs: DbFansClub[];
-  templateSquads: DbTemplateSquad[];
-  transfers: DbTransfer[];
-  ligaMinus: DbLigaMinus[];
-  captainStats: DbCaptainStat[];
-  chipsUsed: DbChipUsed[];
-  players: DbPlayerStat[];
-}
-
-export type DataClass = 'History' | 'Live' | 'Final';
-
-export interface DataClassContext {
-  currentGW: number;
-  isFinal: boolean;
-}
-
-/**
- * Resolves the Data Class classification for any row or entity deterministically.
- * Rules:
- * 1. Rows without a `gw` property are 'History'
- * 2. Rows with `gw < currentGW` are 'History'
- * 3. Rows with `gw === currentGW` are 'Final' (if isFinal is true) or 'Live' (if isFinal is false)
- */
-export function resolveDataClass(
-  gw: number | null | undefined,
-  context: DataClassContext
-): DataClass {
-  if (gw === undefined || gw === null) {
-    return 'History';
-  }
-  if (gw < context.currentGW) {
-    return 'History';
-  }
-  if (gw === context.currentGW) {
-    return context.isFinal ? 'Final' : 'Live';
-  }
-  return 'History';
-}
-
-

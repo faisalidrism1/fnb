@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
 import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
 import { buildRawMatchdayPayload } from './newsAggregator.ts';

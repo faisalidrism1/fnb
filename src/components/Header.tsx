@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Settings } from 'lucide-react';
 import {
   MainTab,
@@ -22,12 +22,7 @@ interface HeaderProps {
   activeTab?: MainTab;
   onSelectTab?: (tab: MainTab) => void;
   syncStatus?: SyncStatus | any;
-  isSyncing?: boolean;
-  onManualSync?: () => void;
   currentGW?: number;
-  availableGWs?: number[];
-  selectedGW?: number;
-  onSelectGW?: (gw: number) => void;
   gwStatus?: GwEventStatus;
   eventsStatus?: Record<number, GwEventStatus>;
   // Sub-tabs props
@@ -46,22 +41,11 @@ interface HeaderProps {
   isAdminUnlocked?: boolean;
 }
 
-const TABS: { id: MainTab; label: string }[] = [
-  { id: 'STANDINGS', label: 'STANDINGS' },
-  { id: 'MATCHES', label: 'MATCHES' },
-  { id: 'OWNERSHIP', label: 'OWNERSHIP' },
-  { id: 'TRANSFER', label: 'TRANSFER' },
-  { id: 'CAPTAIN', label: 'CAPTAIN' },
-  { id: 'CHIPS', label: 'CHIPS' },
-  { id: 'ADMIN', label: 'ADMIN' },
-];
-
 export const Header: React.FC<HeaderProps> = ({
   activeTab = 'STANDINGS',
   onSelectTab,
   syncStatus,
   currentGW,
-  availableGWs,
   gwStatus,
   eventsStatus,
   standingsSubTab = 'live-table',
@@ -78,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
   leagueData,
   isAdminUnlocked = false,
 }) => {
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
   const navRef = useRef<HTMLElement>(null);
   const subNavRef = useRef<HTMLElement>(null);
 
@@ -101,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({
   // Determine current active Gameweek status (Not Started, Live, Provisional, Confirmed)
   const effectiveGW = currentGW || 1;
   const activeGwStatusObj = eventsStatus?.[effectiveGW] || gwStatus;
-  const { status: activeGwLifecycleStatus, isLiveOrProvisional } = getGameweekStatus(
+  const { isLiveOrProvisional } = getGameweekStatus(
     effectiveGW,
     effectiveGW,
     activeGwStatusObj,

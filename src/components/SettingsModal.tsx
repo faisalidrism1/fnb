@@ -10,8 +10,6 @@ import {
   ChevronRight,
   Check,
   ChevronDown,
-  Sparkles,
-  Info,
   AlertCircle
 } from 'lucide-react';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
@@ -120,8 +118,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   // Language state & translation hook
   const { language, setLanguage, t } = useLanguage();
 
-  // Admin Area notification & code verification state
-  const [adminNotice, setAdminNotice] = useState<string | null>(null);
+  // Admin Area code verification state
   const [isAdminPopupOpen, setIsAdminPopupOpen] = useState<boolean>(false);
   const [adminCodeInput, setAdminCodeInput] = useState<string>('');
   const [adminAuthMessage, setAdminAuthMessage] = useState<string | null>(null);
@@ -255,10 +252,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const currentProfile = fnbTeams.find((t) => String(t.id) === selectedEntryId);
   const isGuest = selectedEntryId === 'guest';
 
-  const profileBadge = t('settings_profile_badge', { N: fnbTeams.length });
   const profileDesc = t('settings_profile_desc');
   const adminDesc = t('settings_admin_desc');
-  const adminNoticeText = t('settings_admin_notice');
 
   return (
     <div
@@ -314,12 +309,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {t('settings_profile_label')}
                 </label>
               </div>
-
-              {profileBadge && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-[#00ff87] border border-emerald-200 dark:border-emerald-800/40">
-                  {profileBadge}
-                </span>
-              )}
             </div>
 
             <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-snug">
@@ -678,13 +667,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <ChevronRight className="w-4 h-4" />
               </div>
             </button>
-
-            {adminNotice && (
-              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs animate-in fade-in duration-150">
-                <Info className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                <span>{adminNotice}</span>
-              </div>
-            )}
           </div>
         </div>
 

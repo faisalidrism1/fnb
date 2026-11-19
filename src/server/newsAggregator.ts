@@ -225,14 +225,6 @@ export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
   // 1. Read 10 Gameweek Fixtures strictly from Single Truth Source (db.ts)
   const rawGwFixtures: any[] = db.meta?.sync_status?.gw_fixtures || [];
 
-  const EPL_CLUB_NAMES: Record<string, string> = {
-    ARS: 'Arsenal', AVL: 'Aston Villa', BOU: 'Bournemouth', BRE: 'Brentford',
-    BHA: 'Brighton', CHE: 'Chelsea', CRY: 'Crystal Palace', EVE: 'Everton',
-    FUL: 'Fulham', IPS: 'Ipswich Town', LEI: 'Leicester', LIV: 'Liverpool',
-    MCI: 'Man City', MUN: 'Man Utd', NEW: 'Newcastle', NFO: "Nott'm Forest",
-    SOU: 'Southampton', TOT: 'Spurs', WHU: 'West Ham', WOL: 'Wolves',
-  };
-
   interface ClubFixtureInfo {
     status: 'Finished' | 'Live' | 'Upcoming';
     matchLabel: string;

@@ -43,55 +43,6 @@ export function parseSyncTimestamp(timestampStr?: string): number {
 }
 
 /**
- * Checks if incoming league data is strictly newer than current league data.
- */
-export function isDataNewer(
-  incoming: TransformedLeagueData | null | undefined,
-  current: TransformedLeagueData | null | undefined
-): boolean {
-  if (!incoming) return false;
-  if (!current) return true;
-
-  const incomingTime = parseSyncTimestamp(incoming.sync_status?.last_synced);
-  const currentTime = parseSyncTimestamp(current.sync_status?.last_synced);
-
-  if (incomingTime > 0 && currentTime > 0) {
-    return incomingTime > currentTime;
-  }
-
-  // If timestamps are identical or cannot be parsed, compare GWs or fallback to newer
-  const incomingGW = incoming.current_gw || 0;
-  const currentGW = current.current_gw || 0;
-  if (incomingGW !== currentGW) {
-    return incomingGW > currentGW;
-  }
-
-  return true;
-}
-
-/**
- * Checks if data is considered "stale" (older than 3 hours or older than current day).
- */
-export function isDataStale(data: TransformedLeagueData | null | undefined): boolean {
-  if (!data || !data.sync_status?.last_synced) return true;
-  const syncTime = parseSyncTimestamp(data.sync_status.last_synced);
-  if (!syncTime) return true;
-
-  const now = Date.now();
-  const diffHours = (now - syncTime) / (1000 * 60 * 60);
-
-  // If older than 4 hours, consider stale
-  if (diffHours >= 4) return true;
-
-  // Check if sync was from a previous calendar day (UTC/local)
-  const syncDate = new Date(syncTime).toDateString();
-  const nowDate = new Date(now).toDateString();
-  if (syncDate !== nowDate) return true;
-
-  return false;
-}
-
-/**
  * Asynchronously save league data to persistent IndexedDB
  */
 export async function saveToIndexedDB(data: TransformedLeagueData): Promise<void> {

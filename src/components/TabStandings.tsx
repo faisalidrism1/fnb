@@ -1,18 +1,10 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import {
-  ArrowUp,
-  ArrowDown,
-  Minus,
   Trophy,
   Award,
   Medal,
-  ChevronDown,
   ArrowUpDown,
   Search,
-  AlertTriangle,
-  LineChart,
-  Activity,
-  Info,
 } from 'lucide-react';
 import {
   StandingsRow,
@@ -23,8 +15,7 @@ import {
   SyncStatus,
   StandingsSubTab,
 } from '../types.ts';
-import { scrollTabIntoView } from '../utils.ts';
-import { getGameweekStatus, GameweekLifecycleStatus } from '../utils/gwStatus.ts';
+import { getGameweekStatus } from '../utils/gwStatus.ts';
 import { StandingsChart } from './StandingsChart.tsx';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage, formatDeadlineByLanguage } from '../utils/i18n.ts';
@@ -90,10 +81,6 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
   }, [currentGW, eventsStatus, gwStatus, syncStatus]);
 
   const subTab = propSubTab !== undefined ? propSubTab : internalSubTab;
-  const setSubTab = (val: StandingsSubTab) => {
-    if (onSelectSubTab) onSelectSubTab(val);
-    else setInternalSubTab(val);
-  };
   const [searchQuery, setSearchQuery] = useState('');
   const [liveEventStatus, setLiveEventStatus] = useState<GwEventStatus | null>(null);
   const [nowTime, setNowTime] = useState<number>(() => Date.now());
@@ -160,41 +147,6 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
       clearInterval(interval);
     };
   }, [selectedGW, syncStatus]);
-
-  const gwEventStatus = useMemo((): GwEventStatus => {
-    if (eventsStatus && eventsStatus[selectedGW]) {
-      return eventsStatus[selectedGW];
-    }
-    if (liveEventStatus && liveEventStatus.event === selectedGW) {
-      return liveEventStatus;
-    }
-    if (selectedGW === currentGW && gwStatus) {
-      return gwStatus;
-    }
-    if (selectedGW < currentGW) {
-      return {
-        event: selectedGW,
-        status: 'Confirmed',
-        days: [],
-        data_checked: true,
-        finished: true
-      };
-    }
-    if (selectedGW > currentGW) {
-      return {
-        event: selectedGW,
-        status: 'Not started',
-        days: [],
-        data_checked: false,
-        finished: false
-      };
-    }
-    return {
-      event: selectedGW,
-      status: 'Live',
-      days: []
-    };
-  }, [liveEventStatus, eventsStatus, gwStatus, selectedGW, currentGW]);
 
   // Status for the active gameweek (currentGW)
   const currentGwLifecycleStatus = useMemo(() => {

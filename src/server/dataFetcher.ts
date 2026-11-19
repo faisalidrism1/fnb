@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import {
   TransformedLeagueData,
   StandingsRow,
@@ -367,7 +365,6 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
       console.warn(`Could not fetch live points for GW ${gw}:`, e);
     }
   }
-  const liveElementPointsMap = gwLivePointsMap.get(currentGW) || new Map<number, number>();
 
   // Fetch fixtures for current GW and next GW (to ensure entire gameweek and upcoming matches are tracked)
   let activeFixtures: string[] = [];
@@ -383,7 +380,6 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
     try {
       const fixtures = await fetchWithRetry(`${FPL_BASE}/fixtures/?event=${ev}`);
       if (fixtures && Array.isArray(fixtures)) {
-        const now = Date.now();
         for (const fix of fixtures) {
           if (!fix.kickoff_time) continue;
           const home = teamMap.get(fix.team_h)?.short_name || 'H';
@@ -1171,7 +1167,6 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
   for (const ent of entries) {
     const details = entryDetails.get(ent.entry);
     // Find clubs that have 3+ players in EVERY gameweek
-    const clubsWith3InAll = new Set<number>();
     for (const t of bootstrap.teams) {
       let isAlways3 = true;
       let lastPlayers: string[] = [];

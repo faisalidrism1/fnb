@@ -40,25 +40,6 @@ export function sortTeamsByLeastFeatured(teams: string[]): string[] {
 }
 
 /**
- * Sorts any array of objects by least featured team name (Opsi B).
- */
-export function sortObjectsByLeastFeaturedTeam<T>(
-  items: T[],
-  getTeamName: (item: T) => string
-): T[] {
-  if (!items || items.length <= 1) return items;
-  const counts = getTeamAppearanceCounts();
-  return [...items].sort((a, b) => {
-    const cleanA = getTeamName(a).replace(/^\[T:/, '').replace(/\]$/, '').trim();
-    const cleanB = getTeamName(b).replace(/^\[T:/, '').replace(/\]$/, '').trim();
-    const countA = counts[cleanA] || 0;
-    const countB = counts[cleanB] || 0;
-    if (countA !== countB) return countA - countB;
-    return cleanA.localeCompare(cleanB);
-  });
-}
-
-/**
  * Memformat daftar tim sesuai aturan baku:
  * - Jumlah tim <= 3: sebutkan semua nama tim ([T:A], [T:A] dan [T:B], [T:A], [T:B], dan [T:C])
  * - Jumlah tim > 3: sebutkan 2 dan n tim lainnya ([T:A], [T:B], dan [N:X] tim lainnya)

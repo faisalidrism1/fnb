@@ -1,7 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Crown, Shield } from 'lucide-react';
+import React, { useState } from 'react';
 import { CaptainPlayerItem, ClubCaptainItem, StandingsRow } from '../types.ts';
-import { scrollTabIntoView } from '../utils.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
@@ -64,12 +62,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
 }) => {
   const { t, language } = useLanguage();
   const userProfileId = useUserProfileId();
-  const [internalSubTab, setInternalSubTab] = useState<CaptainSubTab>('most-captained-player');
-  const subTab = propSubTab !== undefined ? propSubTab : internalSubTab;
-  const setSubTab = (val: CaptainSubTab) => {
-    if (onSelectSubTab) onSelectSubTab(val);
-    else setInternalSubTab(val);
-  };
+  const subTab = propSubTab !== undefined ? propSubTab : 'most-captained-player';
 
   // Internal independent GW filter to preserve user choice during session
   const [internalGW, setInternalGW] = useState<number>(() => {

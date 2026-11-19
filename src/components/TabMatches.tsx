@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import {
   MatchCardItem,
   MatchPlayerItem,
@@ -60,34 +60,6 @@ const MATCH_METRIC_OPTIONS: Array<{ value: MatchStatMetric; label: string }> = [
   { value: 'tsb', label: 'Teams Selected By (FNB League)' },
   { value: 'cost', label: 'Player Price' },
 ];
-
-/**
- * Format ISO Kickoff time into 1-line Indonesian date & time
- * Example: "Sabtu, 17 Agu 2024 • 18:30 WIB"
- */
-function formatMatchKickoffWIB(isoString: string): string {
-  if (!isoString) return '-';
-  try {
-    const d = new Date(isoString);
-    if (isNaN(d.getTime())) return isoString;
-
-    const weekdayStr = d.toLocaleDateString('id-ID', { weekday: 'long', timeZone: 'Asia/Jakarta' });
-    const day = d.toLocaleDateString('id-ID', { day: 'numeric', timeZone: 'Asia/Jakarta' });
-    const month = d.toLocaleDateString('id-ID', { month: 'short', timeZone: 'Asia/Jakarta' });
-    const year = d.toLocaleDateString('id-ID', { year: 'numeric', timeZone: 'Asia/Jakarta' });
-
-    const hours = d.toLocaleTimeString('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: 'Asia/Jakarta'
-    });
-
-    return `${weekdayStr}, ${day} ${month} ${year} • ${hours} WIB`;
-  } catch {
-    return isoString;
-  }
-}
 
 /**
  * Breakdown order mapping and calculation from player stats

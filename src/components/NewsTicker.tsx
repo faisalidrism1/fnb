@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { TransformedLeagueData } from '../types.ts';
 import { useLanguage } from '../utils/i18n.ts';
 
+export type LiveNewsroomTier = 'P1' | 'P2' | 'P3' | 'P4' | 'FALLBACK';
+
 export interface NewsTickerStory {
   id: string;
   headline_id: string;
@@ -11,6 +13,8 @@ export interface NewsTickerStory {
   status_tayang?: 'Y' | 'N';
   fase?: string;
   gw?: number;
+  newsroom_tier?: LiveNewsroomTier;
+  score_sig?: string;
 }
 
 const EDITOR_TEMPLATE_PREFIXES = ['NS_', 'LM_', 'BM_', 'PV_', 'CF_'];
@@ -231,6 +235,8 @@ const getSavedPoolIdx = (): number => {
   const lastTimeRef = useRef<number>(0);
   const poolIdxRef = useRef<number>(getSavedPoolIdx());
   const nextUidRef = useRef<number>(1);
+  const lastAiredP3Ref = useRef<Map<string, { ts: number; text: string }>>(new Map());
+  const lastQueuedStoryIdRef = useRef<string | null>(null);
 
   // Helper to get text based on current active language, stripping any title prefix (e.g. "Judul: Isi" -> "Isi")
   // and ensuring strictly NO exclamation marks and NO mention of "poin bersih" / "net"
@@ -542,24 +548,62 @@ const getSavedPoolIdx = (): number => {
     [renderFormattedStory]
   );
 
-  // Get next story in round-robin sequence with persistent index (strictly Editor-sourced only)
+  // Get next story in sequence with persistent index, consecutive-duplicate guard,
+  // and 90-second identical-text P3 Heartbeat re-air guard (gracefully falling back when pool is tiny).
   // Note: poin_tayang increment is triggered only when the element physically finishes scrolling off the left edge.
   const getNextStory = useCallback((): { story: NewsTickerStory; isCycleEnd: boolean } | null => {
     const list = storiesRef.current;
     if (list.length === 0) {
       return null;
     }
-    const idx = poolIdxRef.current % list.length;
-    const item = list[idx];
-    const nextIdx = (idx + 1) % list.length;
+
+    const startIdx = poolIdxRef.current % list.length;
+    const now = Date.now();
+    const isThrottledP3 = (s: NewsTickerStory): boolean => {
+      if (s.newsroom_tier !== 'P3') return false;
+      const prev = lastAiredP3Ref.current.get(s.id);
+      if (!prev) return false;
+      const sigText = `${s.headline_id}|${s.headline_en}`;
+      return prev.text === sigText && now - prev.ts < 90000;
+    };
+
+    let pickedIdx = -1;
+    // Pass 1: respect both consecutive-duplicate guard and 90s P3 re-air guard
+    for (let offset = 0; offset < list.length; offset++) {
+      const idx = (startIdx + offset) % list.length;
+      const cand = list[idx];
+      if (list.length > 1 && cand.id === lastQueuedStoryIdRef.current) continue;
+      if (isThrottledP3(cand)) continue;
+      pickedIdx = idx;
+      break;
+    }
+
+    // Pass 2 fallback: respect at least consecutive-duplicate guard if all P3s are within cooldown
+    if (pickedIdx === -1) {
+      for (let offset = 0; offset < list.length; offset++) {
+        const idx = (startIdx + offset) % list.length;
+        if (list.length > 1 && list[idx].id === lastQueuedStoryIdRef.current) continue;
+        pickedIdx = idx;
+        break;
+      }
+    }
+
+    if (pickedIdx === -1) {
+      pickedIdx = startIdx;
+    }
+
+    const item = list[pickedIdx];
+    const nextIdx = (pickedIdx + 1) % list.length;
+    const wrappedCycle = nextIdx === 0 || pickedIdx < startIdx;
     poolIdxRef.current = nextIdx;
+    lastQueuedStoryIdRef.current = item.id;
     try {
       sessionStorage.setItem(POOL_IDX_STORAGE_KEY, String(poolIdxRef.current));
     } catch {}
 
     return {
       story: item,
-      isCycleEnd: nextIdx === 0,
+      isCycleEnd: wrappedCycle,
     };
   }, []);
 
@@ -572,6 +616,7 @@ const getSavedPoolIdx = (): number => {
     track.innerHTML = '';
     currentXRef.current = 0;
     track.style.transform = 'translate3d(0, 0, 0)';
+    lastQueuedStoryIdRef.current = null;
 
     if (storiesRef.current.length === 0) {
       return;
@@ -631,6 +676,8 @@ const getSavedPoolIdx = (): number => {
         setStories([]);
         if (isPhaseChanged || isGwChanged) {
           poolIdxRef.current = 0;
+          lastAiredP3Ref.current.clear();
+          lastQueuedStoryIdRef.current = null;
           try {
             sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
           } catch {}
@@ -648,6 +695,8 @@ const getSavedPoolIdx = (): number => {
         storiesRef.current = newStories;
         setStories(newStories);
         poolIdxRef.current = 0;
+        lastAiredP3Ref.current.clear();
+        lastQueuedStoryIdRef.current = null;
         try {
           sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
         } catch {}
@@ -665,6 +714,8 @@ const getSavedPoolIdx = (): number => {
         setStories(newStories);
         if (isPhaseChanged) {
           poolIdxRef.current = 0;
+          lastAiredP3Ref.current.clear();
+          lastQueuedStoryIdRef.current = null;
           try {
             sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
           } catch {}
@@ -675,19 +726,42 @@ const getSavedPoolIdx = (): number => {
         return;
       }
 
-      // Check for genuinely new stories OR existing stories whose template/text changed.
-      // Rule: LM_MATCH_SCORE_LIVE should NOT interrupt the queue mid-cycle; it stays scheduled once per cycle.
+      // Check for genuinely new breaking stories OR material score/breaking updates.
+      // Live Match rules:
+      // - Only P1 & P2 can trigger mid-cycle interrupt; P3, P4, FALLBACK never interrupt.
+      // - LM_MATCH_SCORE_LIVE interrupts ONLY when score_sig changes (actual goal or HT transition), NOT on minute ticks.
+      // - Incremental DC counts (e.g. 10->11->12) and Standings updates do NOT re-interrupt.
+      const isLiveMatchIncoming = normalizePhaseName(incomingPhase || prevPhase) === 'live match';
       const isLiveScoreStory = (s: NewsTickerStory) => s.id.startsWith('LM_MATCH_SCORE_LIVE');
+      const isInterruptibleTier = (s: NewsTickerStory): boolean => {
+        if (!isLiveMatchIncoming) return !isLiveScoreStory(s);
+        if (s.newsroom_tier) {
+          return s.newsroom_tier === 'P1' || s.newsroom_tier === 'P2';
+        }
+        return !isLiveScoreStory(s);
+      };
+
       const prevById = new Map<string, NewsTickerStory>(currentList.map((s) => [s.id, s]));
       const newIds = new Set(newStories.map((s) => s.id));
-      const freshStories = newStories.filter((s) => !prevById.has(s.id) && !isLiveScoreStory(s));
+      const freshStories = newStories.filter((s) => !prevById.has(s.id) && isInterruptibleTier(s));
       const updatedStories = newStories.filter((s) => {
-        if (isLiveScoreStory(s)) return false;
         const prev = prevById.get(s.id);
-        return (
-          prev !== undefined &&
-          (prev.headline_id !== s.headline_id || prev.headline_en !== s.headline_en)
-        );
+        if (!prev) return false;
+        if (isLiveMatchIncoming) {
+          if (isLiveScoreStory(s)) {
+            return Boolean(s.score_sig && prev.score_sig && s.score_sig !== prev.score_sig);
+          }
+          if (
+            s.id.startsWith('LM_MATCH_DEFENSIVE_CONTRIBUTION') ||
+            s.id.startsWith('LM_STANDINGS_')
+          ) {
+            return false;
+          }
+          if (!isInterruptibleTier(s)) return false;
+        } else if (isLiveScoreStory(s)) {
+          return false;
+        }
+        return prev.headline_id !== s.headline_id || prev.headline_en !== s.headline_en;
       });
       const hasRemovals = currentList.some((s) => !newIds.has(s.id));
 
@@ -697,15 +771,12 @@ const getSavedPoolIdx = (): number => {
 
       const isCycleRotation = Boolean(isCycleRotationArg && !isPhaseChanged && !isGwChanged);
 
-      // If neither phase change, cycle rotation, new breaking IDs, text updates, nor removals occurred:
+      // If neither phase change, cycle rotation, interrupt-eligible breaking IDs/updates, nor removals occurred:
       // DO NOT reset queue or playback position! Let the continuous conveyor keep scrolling uninterrupted.
       if (!isPhaseChanged && !isCycleRotation && freshStories.length === 0 && updatedStories.length === 0 && !hasRemovals) {
         return;
       }
 
-      // Genuinely fresh/edited stories arrived, cycle rotated, or phase changed:
-      // On phase change, cycle rotation, or removals, keep STRICTLY 1 currently-airing leading news item on screen
-      // so old-phase/old-cycle items cannot leak behind it, then queue new items immediately after it.
       if (!track || !container) return;
 
       const containerWidth = container.clientWidth || window.innerWidth || 1200;
@@ -746,21 +817,45 @@ const getSavedPoolIdx = (): number => {
       }
       toRemove.forEach((el) => track.removeChild(el));
 
+      const lastRetainedId =
+        activeChildren.length > 0
+          ? activeChildren[activeChildren.length - 1]?.dataset?.storyId || null
+          : null;
+      lastQueuedStoryIdRef.current = lastRetainedId;
+
       if (isPhaseChanged || isCycleRotation) {
         poolIdxRef.current = 0;
+        if (isPhaseChanged) {
+          lastAiredP3Ref.current.clear();
+        }
         try {
           sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
         } catch {}
       } else {
-        // Same phase mid-cycle: prioritize genuinely fresh / edited stories right after the active item
-        const priorityQueue = [...freshStories, ...updatedStories];
-        for (const storyItem of priorityQueue) {
-          const el = createStoryElement(storyItem, nextUidRef.current++);
-          track.appendChild(el);
+        // Same phase mid-cycle: inject P1/P2 interrupts right after visible items, transferring cycleEnd marker if present
+        const priorityQueue = [...freshStories, ...updatedStories].slice(0, 8);
+        if (priorityQueue.length > 0) {
+          let transferredCycleEnd = false;
+          for (const ac of activeChildren) {
+            if (ac.dataset.cycleEnd === '1') {
+              delete ac.dataset.cycleEnd;
+              transferredCycleEnd = true;
+            }
+          }
+          priorityQueue.forEach((storyItem, pIdx) => {
+            const isLastInjected = pIdx === priorityQueue.length - 1;
+            const el = createStoryElement(
+              storyItem,
+              nextUidRef.current++,
+              transferredCycleEnd && isLastInjected
+            );
+            track.appendChild(el);
+            lastQueuedStoryIdRef.current = storyItem.id;
+          });
         }
       }
 
-      // Fill track buffer up to minWidth continuing round-robin from newStories pool
+      // Fill track buffer up to minWidth continuing sequence from newStories pool
       const minWidth = containerWidth + 1200;
       let totalWidth = currentXRef.current;
       for (let i = 0; i < track.children.length; i++) {
@@ -840,8 +935,15 @@ const getSavedPoolIdx = (): number => {
             track.removeChild(firstChild);
             // 2. Compensate offset by exact exited width (zero jitter, zero void)
             currentXRef.current += itemWidth;
-            // 3. Increment poin_tayang strictly when story finishes scrolling on screen
+            // 3. Increment poin_tayang and record P3 Heartbeat cooldown strictly when story finishes scrolling on screen
             if (exitedStoryId) {
+              const exitedStory = storiesRef.current.find((s) => s.id === exitedStoryId);
+              if (exitedStory && exitedStory.newsroom_tier === 'P3') {
+                lastAiredP3Ref.current.set(exitedStoryId, {
+                  ts: Date.now(),
+                  text: `${exitedStory.headline_id}|${exitedStory.headline_en}`,
+                });
+              }
               reportStoryAiredRef.current(exitedStoryId);
             }
             // 4. When last item of a managed cycle (NS/LM/BM/PV/CF) exits, fetch next cycle batch

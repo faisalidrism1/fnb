@@ -1220,27 +1220,6 @@ export function useLanguage() {
 }
 
 /**
- * Direct translator function
- */
-export function t(
-  key: keyof Translations,
-  lang: Language = getSavedLanguage(),
-  params?: Record<string, string | number>
-): string {
-  const currentDict = TRANSLATIONS[lang] || TRANSLATIONS.fnb;
-  let text = (currentDict[key] as string) || (TRANSLATIONS.fnb[key] as string) || '';
-  if (params) {
-    const p = { ...params };
-    if (p.time !== undefined && p.jam === undefined) p.jam = p.time;
-    if (p.jam !== undefined && p.time === undefined) p.time = p.jam;
-    Object.entries(p).forEach(([paramKey, paramVal]) => {
-      text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramVal));
-    });
-  }
-  return text;
-}
-
-/**
  * Format deadline string based on selected language
  */
 export function formatDeadlineByLanguage(
@@ -1353,42 +1332,6 @@ export function formatGwDateRangeByLanguage(
   const s2 = formatPart(d2);
   return s1 === s2 ? s1 : `${s1} - ${s2}`;
 }
-
-/**
- * Official English labels for 30 FPL match metrics in TabMatches
- */
-export const MATCH_METRIC_LABELS_EN: Record<string, string> = {
-  pts: 'Total Points',
-  st: 'Starts',
-  mp: 'Minutes Played',
-  gs: 'Goals Scored',
-  a: 'Assists',
-  xg: 'Expected Goals (xG)',
-  xa: 'Expected Assists (xA)',
-  xgi: 'Expected Goal Involvement (xGI)',
-  cs: 'Clean Sheets',
-  gc: 'Goals Conceded',
-  xgc: 'Expected Goals Conceded (xGC)',
-  t: 'Tackles',
-  cbi: 'Clearances, Blocks & Interceptions (CBI)',
-  r: 'Recoveries',
-  dc: 'Defensive Contribution (DefCon)',
-  og: 'Own Goals',
-  ps: 'Penalties Saved',
-  pm: 'Penalties Missed',
-  yc: 'Yellow Cards',
-  rc: 'Red Cards',
-  s: 'Saves',
-  bp: 'Bonus Points',
-  bps: 'Bonus Points System (BPS)',
-  inf: 'Influence',
-  cre: 'Creativity',
-  thr: 'Threat',
-  ii: 'ICT Index',
-  nt: 'Net Transfers (FNB League)',
-  tsb: 'Teams Selected By (FNB League)',
-  cost: 'Player Price',
-};
 
 /**
  * Indonesian translations for 30 FPL match metrics in TabMatches

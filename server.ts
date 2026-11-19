@@ -8,22 +8,7 @@ import {
   initDatabase,
   executeSchemaSync,
   getOptimalDatabase,
-  getGwSnapshot,
-  getOptimalPlayerById,
-  getOptimalManagerById,
-  getDbStandings,
-  getDbGameweekChampions,
-  getDbOwnershipPlayers,
-  getDbOwnershipClubs,
-  getDbFansClubs,
-  getDbTemplateSquads,
-  getDbTransfers,
-  getDbLigaMinus,
-  getDbCaptainStats,
-  getDbChipsUsed,
-  getDbPlayerStats,
   getDbPlayerStatById,
-  getDbSyncMeta,
   getDatabaseStats,
   resetDatabaseState,
   getTransformedLeagueDataFromDb
@@ -54,8 +39,7 @@ import {
 import {
   getPhase1Templates,
   savePhase1Templates,
-  resetPhase1Templates,
-  Phase1TemplateItem
+  resetPhase1Templates
 } from './src/data/phase1Templates.ts';
 import { generatePhase1Stories } from './src/server/notStartedStoryGenerator.ts';
 import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.ts';
@@ -1100,223 +1084,6 @@ setInterval(async () => {
   }
 }, 20000);
 
-// Optimal Pre-Aggregated / Indexed Database Endpoints (O(1) Instant Access < 1ms)
-app.get('/api/db/optimal', (req, res) => {
-  try {
-    const data = getOptimalDatabase();
-    res.json({ success: true, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/gw/:gw', (req, res) => {
-  try {
-    const gw = Number(req.params.gw);
-    const snapshot = getGwSnapshot(gw);
-    if (!snapshot) {
-      return res.status(404).json({ success: false, error: `Snapshot for Gameweek ${gw} not found` });
-    }
-    res.json({ success: true, data: snapshot });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/player/:id', (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    const player = getOptimalPlayerById(id);
-    if (!player) {
-      return res.status(404).json({ success: false, error: `Player with ID ${id} not found` });
-    }
-    res.json({ success: true, data: player });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/manager/:id', (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    const manager = getOptimalManagerById(id);
-    if (!manager) {
-      return res.status(404).json({ success: false, error: `Manager with ID ${id} not found` });
-    }
-    res.json({ success: true, data: manager });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// Database Schema API Endpoints
-app.get('/api/db/stats', (req, res) => {
-  try {
-    const stats = getDatabaseStats();
-    res.json({ success: true, data: stats });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/standings', (req, res) => {
-  try {
-    const gw = req.query.gw ? Number(req.query.gw) : undefined;
-    const standings = getDbStandings(gw);
-    res.json({ success: true, count: standings.length, data: standings });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/gameweek-champions', (req, res) => {
-  try {
-    const gw = req.query.gw ? Number(req.query.gw) : undefined;
-    const data = getDbGameweekChampions(gw);
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/ownership-players', (req, res) => {
-  try {
-    const gw = req.query.gw ? Number(req.query.gw) : undefined;
-    const data = getDbOwnershipPlayers(gw);
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/ownership-clubs', (req, res) => {
-  try {
-    const gw = req.query.gw ? Number(req.query.gw) : undefined;
-    const data = getDbOwnershipClubs(gw);
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/fans-clubs', (req, res) => {
-  try {
-    const filter = req.query.filter ? String(req.query.filter) : undefined;
-    const data = getDbFansClubs(filter);
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/template-squads', (req, res) => {
-  try {
-    const gw = req.query.gw ? Number(req.query.gw) : undefined;
-    const data = getDbTemplateSquads(gw);
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/transfers', (req, res) => {
-  try {
-    const gw = req.query.gw ? Number(req.query.gw) : undefined;
-    const entryId = req.query.entryId ? Number(req.query.entryId) : undefined;
-    const data = getDbTransfers(gw, entryId);
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/liga-minus', (req, res) => {
-  try {
-    const data = getDbLigaMinus();
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/captain-stats', (req, res) => {
-  try {
-    const gw = req.query.gw ? Number(req.query.gw) : undefined;
-    const data = getDbCaptainStats(gw);
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/chips-used', (req, res) => {
-  try {
-    const entryId = req.query.entryId ? Number(req.query.entryId) : undefined;
-    const data = getDbChipsUsed(entryId);
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/player-stats', (req, res) => {
-  try {
-    const position = req.query.position ? String(req.query.position) : undefined;
-    const team = req.query.team ? String(req.query.team) : undefined;
-    const search = req.query.search ? String(req.query.search) : undefined;
-    const sortBy = req.query.sortBy ? String(req.query.sortBy) : undefined;
-    const limit = req.query.limit ? Number(req.query.limit) : undefined;
-
-    const data = getDbPlayerStats({ position, team, search, sortBy, limit });
-    res.json({ success: true, count: data.length, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/player-stats/:id', (req, res) => {
-  try {
-    const id = Number(req.params.id);
-    const player = getDbPlayerStatById(id);
-    if (!player) {
-      return res.status(404).json({ success: false, error: 'Player not found in database' });
-    }
-    res.json({ success: true, data: player });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-app.get('/api/db/sync-meta', (req, res) => {
-  try {
-    const data = getDbSyncMeta();
-    res.json({ success: true, data });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// Direct execution of DB Schema Sync
-const handleDbSync = async (req: express.Request, res: express.Response) => {
-  try {
-    console.log('[Server] /api/db/sync triggered - initiating fresh fetch and DB Schema execution');
-    const freshData = await triggerSync();
-    const stats = getDatabaseStats();
-    res.json({
-      success: true,
-      message: 'DB Schema executed and synchronized successfully',
-      stats,
-      last_synced: stats.lastSynced,
-      current_gw: stats.currentGw
-    });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-};
-
-app.post('/api/db/sync', handleDbSync);
-app.get('/api/db/sync', handleDbSync);
-
 // Dedicated Checker Endpoint: Live Match (LM) vs Between Match (BM) when GW status is Live
 // NOTE: Strictly inspects whether any match is currently running for News Ticker phase resolution;
 // does NOT mutate application GW status.
@@ -1705,41 +1472,6 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
       'Expires': '0',
     });
     res.json({ success: true, count: stories.length, data: stories });
-  } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// 1c. Live Pulse Match Events Generator Endpoint
-app.get('/api/admin/phase1-templates/pulse-live', async (req, res) => {
-  try {
-    const gw = req.query.gw ? Number(req.query.gw) : getCurrentGw();
-    const gwPulseMatches = loadPulseMatchesForGw(gw);
-    const matchId = req.query.matchId
-      ? Number(req.query.matchId)
-      : Number(gwPulseMatches[0]?.id || 0);
-    if (!matchId) {
-      return res.status(404).json({ success: false, error: `No Pulse match found for GW ${gw}` });
-    }
-    const { fetchPulseMatch, generateStoriesFromPulseMatch } = await import('./src/server/liveMatchStoryGenerator.ts');
-    const pulseData = await fetchPulseMatch(matchId);
-    if (!pulseData) {
-      return res.status(404).json({ success: false, error: `Match ${matchId} not found in Pulse API` });
-    }
-    const pulseGw = Number(pulseData?.gameweek?.gameweek || gw);
-    if (pulseGw !== gw) {
-      return res.status(400).json({ success: false, error: `Match ${matchId} belongs to GW ${pulseGw}, not GW ${gw}` });
-    }
-    const stories = generateStoriesFromPulseMatch(pulseData, gw);
-    res.json({
-      success: true,
-      matchId,
-      gw,
-      matchName: `${pulseData.teams?.[0]?.team?.name} vs ${pulseData.teams?.[1]?.team?.name}`,
-      totalEvents: pulseData.events?.length || 0,
-      generatedStoriesCount: stories.length,
-      data: stories
-    });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }

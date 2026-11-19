@@ -2,11 +2,6 @@ import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.
 import { fetchMatchesForGw, getCachedMatchesForGw } from './matchesFetcher.ts';
 import { getDbStandings, getOptimalDatabase, getGwSnapshot } from './db.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
-import {
-  fetchPulseMatchTextstream as fetchPulseMatchTextstreamShared,
-  fetchAndCachePulseMatch,
-  loadPulseMatchesForGw,
-} from './pulseMatchSync.ts';
 import type { MatchCardItem, MatchPlayerItem } from '../types.ts';
 
 export interface LiveMatchStory {
@@ -28,6 +23,15 @@ export interface LiveMatchStory {
   pulseMatchId?: number;
   minute?: string;
   clockSecs?: number;
+  cycle_meta?: Record<string, any>;
+}
+
+export function buildMatchKey(homeClub: string, awayClub: string): string {
+  return [homeClub, awayClub]
+    .map((s) => String(s || '').trim().toLowerCase())
+    .filter(Boolean)
+    .sort()
+    .join('__');
 }
 
 export interface FplPlayerLookup {
@@ -223,33 +227,6 @@ export function detectSurpriseLineupsForClub(
 }
 
 /**
- * Detects at most 1 fit popular starter (backward-compatible wrapper).
- */
-export function detectSurpriseLineupForClub(
-  club: string,
-  opponent: string,
-  starterFplIds: Set<number>,
-  benchFplIds: Set<number>,
-  starterCountRaw: number,
-  allPlayers: FplPlayerLookup[],
-  starterNamesNorm?: Set<string>,
-  benchNamesNorm?: Set<string>
-): SurpriseLineupDetection | null {
-  return (
-    detectSurpriseLineupsForClub(
-      club,
-      opponent,
-      starterFplIds,
-      benchFplIds,
-      starterCountRaw,
-      allPlayers,
-      starterNamesNorm,
-      benchNamesNorm
-    )[0] ?? null
-  );
-}
-
-/**
  * Matches a Premier League Pulse person to our FPL player database.
  */
 export function matchPulsePersonToFpl(
@@ -374,80 +351,6 @@ function resolveConditionalBlock(template: string, conditionName: string, vars: 
 }
 
 /**
- * Fetches match commentary textstream (EN) from Pulse API to capture VAR decisions and Penalty Won events.
- */
-export async function fetchPulseMatchTextstream(matchId: number): Promise<any[]> {
-  return fetchPulseMatchTextstreamShared(matchId);
-}
-
-/**
- * Fetches match data from Pulse API by match ID, using the centralized
- * `src/data/pulse_matches/gw{GW}_{HOME}_vs_{AWAY}_{ID}.json` disk cache.
- */
-export async function fetchPulseMatch(matchId: number): Promise<any | null> {
-  return fetchAndCachePulseMatch(matchId);
-}
-
-/**
- * Loads all active Live Match stories generated from the Subtab Editor Live Match templates.
- * Supports multi-match: loads all GW-scoped files from `src/data/pulse_matches/`.
- */
-export async function getAllLiveMatchStories(targetGw?: number): Promise<LiveMatchStory[]> {
-  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
-  if (!gw) return [];
-  try {
-    const allStories: LiveMatchStory[] = [];
-    const pulseMatches = loadPulseMatchesForGw(gw);
-    for (const content of pulseMatches) {
-      try {
-        const stories = generateStoriesFromPulseMatch(content, gw);
-        allStories.push(...stories);
-      } catch {}
-    }
-
-    // Include live match statistical threshold events (LM_MATCH_SAVES_GOALKEEPER & LM_MATCH_DEFENSIVE_CONTRIBUTION)
-    try {
-      const statStories = await fetchAndGenerateLiveMatchStatStories(gw, false);
-      allStories.push(...statStories);
-    } catch {}
-
-    // Include live team rank shift events (LM_STANDINGS_RANK_MOVEMENT) when matches are live
-    try {
-      const rankShiftStories = generateLiveTeamRankShiftStories(gw, { requireLiveMatch: true });
-      allStories.push(...rankShiftStories);
-    } catch {}
-
-    // Include ongoing live match score snapshots (LM_MATCH_SCORE_LIVE)
-    try {
-      const scoreStories = generateLiveMatchScoreStories(gw);
-      allStories.push(...scoreStories);
-    } catch {}
-
-    // Include live surprise lineup announcements (LM_LINEUP_SURPRISE_BENCHED)
-    try {
-      const existingIds = new Set(allStories.map((s) => s.id));
-      const lineupStories = generateLiveLineupSurpriseStories(gw);
-      for (const ls of lineupStories) {
-        if (!existingIds.has(ls.id)) {
-          allStories.push(ls);
-        }
-      }
-    } catch {}
-
-    // Include live title race duel (LM_STANDINGS_TITLE_RACE)
-    try {
-      const titleRaceStories = generateLiveTitleRaceStories(gw, { requireLiveMatch: true });
-      allStories.push(...titleRaceStories);
-    } catch {}
-
-    return allStories;
-  } catch (err: any) {
-    console.warn('[Pulse Match Generator] Error in getAllLiveMatchStories:', err.message);
-    return [];
-  }
-}
-
-/**
  * Main generator function: Generates Live Match news stories from Pulse API data
  * using the official Phase 1 Live Match templates (No. 17 to 29).
  */
@@ -526,6 +429,7 @@ export function generateStoriesFromPulseMatch(
   const events = Array.isArray(pulseData.events) ? pulseData.events : [];
   const matchId = pulseData.id;
   if (!matchId) return [];
+  const matchKey = buildMatchKey(homeClub, awayClub);
 
   // Track scorers up to current event (used for both Half Time and Full Time)
   const allScorersList: Array<{ name: string; pct: number; count: number; ogCount: number }> = [];
@@ -684,6 +588,7 @@ export function generateStoriesFromPulseMatch(
             pulseMatchId: matchId,
             minute: "0'",
             clockSecs: 0,
+            cycle_meta: { matchKey },
           });
         }
       }
@@ -721,7 +626,8 @@ export function generateStoriesFromPulseMatch(
       dramaScore: number,
       teams: string[],
       players: string[],
-      clockSecs: number
+      clockSecs: number,
+      extraMeta?: Record<string, any>
     ): LiveMatchStory => ({
       id: `${tmpl.id}_${storyId}`,
       headline_id: headlineId,
@@ -740,6 +646,10 @@ export function generateStoriesFromPulseMatch(
       pulseMatchId: matchId,
       minute: minuteStr,
       clockSecs,
+      cycle_meta: {
+        matchKey,
+        ...(extraMeta || {}),
+      },
     });
 
     const emitPopularCaptainAction = (
@@ -818,7 +728,8 @@ export function generateStoriesFromPulseMatch(
             85,
             [homeClub, awayClub],
             [],
-            ev.clock?.secs ?? 0
+            ev.clock?.secs ?? 0,
+            { isSecondHalf }
           )
         );
       }
@@ -875,7 +786,8 @@ export function generateStoriesFromPulseMatch(
             92,
             [homeClub, awayClub],
             allScorersList.map((s) => s.name).filter(Boolean),
-            ev.clock?.secs ?? (isFt ? 5400 : 2700)
+            ev.clock?.secs ?? (isFt ? 5400 : 2700),
+            { isHalfTime: !isFt, isFullTime: isFt }
           )
         );
       }
@@ -1162,7 +1074,8 @@ export function generateStoriesFromPulseMatch(
               isCsLost ? 88 : 85,
               [homeClub, awayClub],
               [topDef.name],
-              ev.clock?.secs ?? 0
+              ev.clock?.secs ?? 0,
+              { maxOwnerPct: topDef.pct }
             )
           );
         }
@@ -1277,7 +1190,8 @@ export function generateStoriesFromPulseMatch(
             90,
             [homeClub, awayClub],
             !isCancelled && fouled.name ? [fouled.name] : [],
-            ev.clock?.secs ?? 0
+            ev.clock?.secs ?? 0,
+            { isPenaltyCancelled: isCancelled }
           )
         );
       }
@@ -1373,7 +1287,8 @@ export function generateStoriesFromPulseMatch(
               75,
               [homeClub, awayClub],
               [player.name],
-              ev.clock?.secs ?? 0
+              ev.clock?.secs ?? 0,
+              { maxOwnerPct: player.pct }
             )
           );
         }
@@ -1445,7 +1360,11 @@ export function generateStoriesFromPulseMatch(
             isEarlySubMissedCs ? 82 : isCleanSheetLocked ? 80 : 70,
             [homeClub, awayClub],
             [playerIn.name, playerOut.name].filter((p) => p && p !== 'Player'),
-            ev.clock?.secs ?? 0
+            ev.clock?.secs ?? 0,
+            {
+              isCsSub: isCleanSheetLocked || isEarlySubMissedCs,
+              maxOwnerPct: Math.max(playerIn.pct || 0, playerOut.pct || 0),
+            }
           )
         );
       }
@@ -1621,6 +1540,7 @@ export function generateStoriesFromPulseMatch(
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
+            cycle_meta: { matchKey, isSecondHalf: false },
           });
         }
         continue;
@@ -1667,6 +1587,7 @@ export function generateStoriesFromPulseMatch(
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
+            cycle_meta: { matchKey },
           });
         }
         continue;
@@ -1703,6 +1624,7 @@ export function generateStoriesFromPulseMatch(
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
+            cycle_meta: { matchKey },
           });
         }
         continue;
@@ -1742,6 +1664,7 @@ export function generateStoriesFromPulseMatch(
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
+            cycle_meta: { matchKey },
           });
         }
         continue;
@@ -1786,6 +1709,7 @@ export function generateStoriesFromPulseMatch(
             pulseMatchId: matchId,
             minute: minuteStr,
             clockSecs: tvSecs,
+            cycle_meta: { matchKey, isPenaltyCancelled: false },
           });
         }
         continue;
@@ -1885,6 +1809,7 @@ export function generateStoriesFromPulseMatch(
         pulseMatchId: matchId,
         minute: minuteStr,
         clockSecs: tvSecs,
+        cycle_meta: { matchKey },
       });
     }
   }
@@ -1923,6 +1848,7 @@ export function generateLiveMatchStatStories(
     const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
     const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
     if (!homeClub || !awayClub) continue;
+    const matchKey = buildMatchKey(homeClub, awayClub);
     const minuteStr = m.clock_label || (m.minutes ? `${m.minutes}'` : 'Live');
     const clockSecs = (m.minutes || 0) * 60;
 
@@ -1956,7 +1882,7 @@ export function generateLiveMatchStatStories(
             const headlineId = fillPlaceholders(tmplSaves.template, vars);
             const headlineEn = `Goalkeeper [P:${playerName}] ([N:${playerPct}%]) made [N:${saves} Saves] for [C:${clubName}] against [C:${opponentName}], earning [N:+${savesPts} Pts].`;
             stories.push({
-              id: `${tmplSaves.id}_m${m.id}_p${p.id}`,
+              id: `${tmplSaves.id}_m${m.id}_p${p.id}_s${savesPts}`,
               headline_id: headlineId,
               headline_en: headlineEn,
               kategori: tmplSaves.category,
@@ -1973,6 +1899,11 @@ export function generateLiveMatchStatStories(
               pulseMatchId: m.id,
               minute: minuteStr,
               clockSecs,
+              cycle_meta: {
+                matchKey,
+                detectedClockSecs: clockSecs,
+                maxOwnerPct: playerPct,
+              },
             });
           }
         }
@@ -2012,6 +1943,11 @@ export function generateLiveMatchStatStories(
               pulseMatchId: m.id,
               minute: minuteStr,
               clockSecs,
+              cycle_meta: {
+                matchKey,
+                detectedClockSecs: clockSecs,
+                maxOwnerPct: playerPct,
+              },
             });
           }
         }
@@ -2135,6 +2071,10 @@ export function generateLiveTeamRankShiftStories(
       status_tayang: 'Y',
       keterangan_tidak_tayang: '',
       timestamp_produksi: nowIso,
+      cycle_meta: {
+        rankDiff,
+        hasRankChange: rankDiff > 0,
+      },
     });
   }
 
@@ -2278,6 +2218,12 @@ export function generateLiveMatchScoreStories(
       pulseMatchId: m.id,
       minute: minuteStr,
       clockSecs: (m.minutes || 0) * 60,
+      cycle_meta: {
+        matchKey: buildMatchKey(homeClub, awayClub),
+        hasGoals: totalGoals > 0,
+        isHalfTime: isHT,
+        scoreSig: `${homeScore}-${awayScore}-${isHT ? 'HT' : 'L'}`,
+      },
     });
   }
 
@@ -2368,6 +2314,7 @@ export function generateLiveLineupSurpriseStories(
           pulseMatchId: m.id,
           minute: "0'",
           clockSecs: 0,
+          cycle_meta: { matchKey: buildMatchKey(homeClub, awayClub) },
         });
       }
     }

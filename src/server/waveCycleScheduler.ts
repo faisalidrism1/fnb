@@ -3,6 +3,8 @@ import path from 'path';
 
 const TABLE_PATH = path.join(process.cwd(), 'src/data/news_ticker_table.json');
 
+export type LiveNewsroomTier = 'P1' | 'P2' | 'P3' | 'P4' | 'FALLBACK';
+
 export interface CycleMeta {
   chance?: number;
   ownersCount?: number;
@@ -10,7 +12,23 @@ export interface CycleMeta {
   specialRank?: number;
   pulseMatchId?: number;
   clockSecs?: number;
+  detectedClockSecs?: number;
   isLmFallback?: boolean;
+  maxOwnerPct?: number;
+  isCsSub?: boolean;
+  isHalfTime?: boolean;
+  isFullTime?: boolean;
+  isSecondHalf?: boolean;
+  hasGoals?: boolean;
+  hasRankChange?: boolean;
+  rankDiff?: number;
+  scoreSig?: string;
+  matchKey?: string;
+  newsroomTier?: LiveNewsroomTier;
+  isPenaltyCancelled?: boolean;
+  lastAiredAtMs?: number;
+  lastAiredScoreSig?: string;
+  lastAiredHeadline?: string;
 }
 
 export interface WaveSchedulableStory {
@@ -21,6 +39,8 @@ export interface WaveSchedulableStory {
   poin_tayang?: number;
   timestamp_produksi?: string;
   gw?: number;
+  newsroom_tier?: LiveNewsroomTier;
+  score_sig?: string;
   cycle_meta?: CycleMeta;
   [key: string]: any;
 }
@@ -586,128 +606,182 @@ export const LM_FALLBACK_NS_TEMPLATE_IDS = new Set<string>([
   'NS_LINEUP_DIFFERENTIAL_XI',
 ]);
 
-const LM_GROUP_A_ALWAYS_FULL = new Set<string>([
-  'LM_STANDINGS_TITLE_RACE',
-  'LM_MATCH_SCORE_LIVE',
-]);
-
-const LM_GROUP_A_QUOTA_CAPS: Record<string, number> = {
-  LM_STANDINGS_RANK_MOVEMENT: 3,
-  LM_MATCH_SAVES_GOALKEEPER: 2,
-  LM_MATCH_DEFENSIVE_CONTRIBUTION: 2,
-  LM_LINEUP_SURPRISE_BENCHED: 2,
-};
-
-const LM_GROUP_B_BREAKING = new Set<string>([
-  'LM_MATCH_GOAL_MILESTONE',
-  'LM_CAPTAIN_POPULAR_LIVE',
-  'LM_MATCH_PENALTY_GOAL',
-  'LM_MATCH_GOAL_OPEN_PLAY',
-  'LM_MATCH_GOAL_OWN',
+const LM_P1_BASE_IDS = new Set<string>([
   'LM_MATCH_VAR_REVIEW',
+  'LM_MATCH_GOAL_MILESTONE',
+  'LM_MATCH_GOAL_OPEN_PLAY',
+  'LM_MATCH_PENALTY_GOAL',
+  'LM_MATCH_GOAL_OWN',
+  'LM_CAPTAIN_POPULAR_LIVE',
   'LM_MATCH_PENALTY_SAVED',
   'LM_MATCH_PENALTY_MISSED',
+  'LM_MATCH_PENALTY_AWARDED',
   'LM_MATCH_CARD_STRAIGHT_RED',
   'LM_MATCH_CARD_SECOND_YELLOW',
-  'LM_MATCH_PENALTY_AWARDED',
-  'LM_MATCH_CLEAN_SHEET_LOST',
+]);
+
+const LM_P2_BASE_IDS = new Set<string>([
+  'LM_MATCH_SAVES_GOALKEEPER',
+  'LM_MATCH_DEFENSIVE_CONTRIBUTION',
+  'LM_LINEUP_SURPRISE_BENCHED',
   'LM_MATCH_PERIOD_END',
 ]);
 
-const LM_GROUP_C_MINOR = new Set<string>([
-  'LM_MATCH_PERIOD_START',
-  'LM_MATCH_CARD_YELLOW',
-  'LM_MATCH_SUBSTITUTION',
+const LM_P1_ANCHOR_IDS = new Set<string>([
+  'LM_MATCH_VAR_REVIEW',
+  'LM_MATCH_GOAL_MILESTONE',
+  'LM_MATCH_GOAL_OPEN_PLAY',
+  'LM_MATCH_PENALTY_GOAL',
+  'LM_MATCH_GOAL_OWN',
+  'LM_MATCH_PENALTY_SAVED',
+  'LM_MATCH_PENALTY_MISSED',
+  'LM_MATCH_PENALTY_AWARDED',
+  'LM_MATCH_CARD_STRAIGHT_RED',
+  'LM_MATCH_CARD_SECOND_YELLOW',
 ]);
 
+const LM_P1_FOLLOWER_IDS = new Set<string>([
+  'LM_CAPTAIN_POPULAR_LIVE',
+  'LM_MATCH_CLEAN_SHEET_LOST',
+]);
+
+export function classifyLiveMatchNewsroomTier(
+  parentId: string,
+  row: WaveSchedulableStory
+): LiveNewsroomTier {
+  if (LM_FALLBACK_NS_TEMPLATE_IDS.has(parentId) || row.cycle_meta?.isLmFallback) {
+    return 'FALLBACK';
+  }
+  if (LM_P1_BASE_IDS.has(parentId)) {
+    return 'P1';
+  }
+  if (parentId === 'LM_MATCH_CLEAN_SHEET_LOST') {
+    const pct = row.cycle_meta?.maxOwnerPct;
+    return pct === undefined || pct >= 10 ? 'P1' : 'P2';
+  }
+  if (LM_P2_BASE_IDS.has(parentId)) {
+    return 'P2';
+  }
+  if (parentId === 'LM_MATCH_SUBSTITUTION') {
+    return row.cycle_meta?.isCsSub ? 'P2' : 'P4';
+  }
+  if (parentId === 'LM_MATCH_SCORE_LIVE' || parentId === 'LM_STANDINGS_TITLE_RACE') {
+    return 'P3';
+  }
+  if (parentId === 'LM_STANDINGS_RANK_MOVEMENT') {
+    const rankDiff = row.cycle_meta?.rankDiff;
+    const hasRankChange =
+      row.cycle_meta?.hasRankChange ??
+      (typeof rankDiff === 'number'
+        ? rankDiff > 0
+        : !String((row as any).headline_id || (row as any).text_berita || '').toLowerCase().includes('bertahan'));
+    return hasRankChange ? 'P3' : 'P4';
+  }
+  if (parentId === 'LM_MATCH_PERIOD_START' || parentId === 'LM_MATCH_CARD_YELLOW') {
+    return 'P4';
+  }
+  return 'P2';
+}
+
 /**
- * Selects and interleaves a compact micro-cycle (~10–22 items) for Live Match:
- * - Group A (Snapshot Inti): Title Race & Live Scores 100%, Rank/Saves/DefCon/Lineup capped proportionally.
- * - Group B (Breaking Events): Breaking new items (poin=0) fast-tracked, retired from feed at poin >= 3.
- * - Group C (Minor Events): Strictly capped (1–2 per micro-cycle) and retired at poin >= 1 (or >= 2 for Kickoff / CS-impacting Subs).
- * - Group D (12 NS Fallback): Pulled strictly by poin_tayang ASC ONLY when total active LM picks < 10.
- * - Last-resort fallback: if total < 6 even after NS fallback, pulls retired Group B items by poin_tayang ASC.
+ * Two-Lane Live Match Editorial Newsroom Scheduler:
+ * - P1 (Breaking Instan): Goals, Pen, Red, VAR, Captain Live, CS Lost (>=10%).
+ *   Bound as Impact Chains ([Goal/Pen/Red] -> [Captain] -> [CS Lost]) without Heartbeat interruption.
+ *   Un-aired (poin=0) items lead immediately; replays (poin=1) follow only after P2 fresh items.
+ * - P2 (Hidden FPL Value & Transitions): Saves, DefCon, CS Sub (60+/<60), Surprise Lineup, HT/FT.
+ * - P3 (Contextual Heartbeat): Live Score (goal matches prioritized), Title Race, active Rank Movers.
+ *   Yields during P1 bursts, recaps after P1 storms, and spaces every 2-3 normal events.
+ * - P4 (Pelengkap Meja Redaksi): Kickoff, regular Subs/Yellows (high ownership >=10% first),
+ *   stagnant Rank Hold — stays available during quiet moments without interrupting hot moments.
+ * - FALLBACK (12 NS_*): Only fills calm windows when active LM stream < 8 items.
  */
+const SCORE_REFRESH_INTERVAL_MS = 15 * 60 * 1000;
+
 export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
   activeRows: T[],
-  knownTemplateIds: string[] = []
+  knownTemplateIds: string[] = [],
+  nowMs: number = Date.now()
 ): T[] {
   if (!Array.isArray(activeRows) || activeRows.length === 0) return [];
 
   const sortedKnownIds = [...knownTemplateIds].sort((a, b) => b.length - a.length);
   const getClockSecs = (r: T): number =>
     Number(r.cycle_meta?.clockSecs ?? (r as any).clockSecs ?? 0) || 0;
-  const getMatchId = (r: T): number =>
-    Number(r.cycle_meta?.pulseMatchId ?? (r as any).pulseMatchId ?? 0) || 0;
+  const getMatchKey = (r: T): string => {
+    if (r.cycle_meta?.matchKey) return r.cycle_meta.matchKey;
+    const teams: string[] = Array.isArray((r as any).teams) ? (r as any).teams : [];
+    if (teams.length >= 2) {
+      return [...teams].map((t) => String(t).trim().toLowerCase()).sort().join('__');
+    }
+    const pm = Number(r.cycle_meta?.pulseMatchId ?? (r as any).pulseMatchId ?? 0) || 0;
+    return pm ? `m_${pm}` : '';
+  };
 
-  type Wrapped = { row: T; parentId: string; originalIdx: number };
+  type Wrapped = {
+    row: T;
+    parentId: string;
+    tier: LiveNewsroomTier;
+    originalIdx: number;
+    matchKey: string;
+  };
 
-  const groupAFull: Wrapped[] = [];
-  const groupAQuotaMap = new Map<string, Wrapped[]>();
-  const groupBByTmpl = new Map<string, Wrapped[]>();
-  const expiredGroupB: Wrapped[] = [];
-  const groupCByTmpl = new Map<string, Wrapped[]>();
-  const groupDFallback: Wrapped[] = [];
+  const p1Fresh: Wrapped[] = [];
+  const p1Replay: Wrapped[] = [];
+  const p2Fresh: Wrapped[] = [];
+  const p2Replay: Wrapped[] = [];
+  const dueScores: Wrapped[] = [];
+  const dueStandings: Wrapped[] = [];
+  const p4Pool: Wrapped[] = [];
+  const staticFillerPool: Wrapped[] = [];
+  const retiredReplayPool: Wrapped[] = [];
 
   activeRows.forEach((row, originalIdx) => {
     const parentId = resolveParentTemplateId(row.id, sortedKnownIds);
-    const wrapped: Wrapped = { row, parentId, originalIdx };
+    const tier = classifyLiveMatchNewsroomTier(parentId, row);
+    const matchKey = getMatchKey(row);
+    const wrapped: Wrapped = { row, parentId, tier, originalIdx, matchKey };
+    const pts = Math.max(0, Number(row.poin_tayang) || 0);
 
-    if (LM_FALLBACK_NS_TEMPLATE_IDS.has(parentId) || row.cycle_meta?.isLmFallback) {
-      groupDFallback.push(wrapped);
-      return;
-    }
-
-    if (LM_GROUP_A_ALWAYS_FULL.has(parentId)) {
-      groupAFull.push(wrapped);
-      return;
-    }
-
-    if (LM_GROUP_A_QUOTA_CAPS[parentId] !== undefined) {
-      if (!groupAQuotaMap.has(parentId)) groupAQuotaMap.set(parentId, []);
-      groupAQuotaMap.get(parentId)!.push(wrapped);
-      return;
-    }
-
-    if (LM_GROUP_B_BREAKING.has(parentId)) {
-      if ((row.poin_tayang || 0) < 3) {
-        if (!groupBByTmpl.has(parentId)) groupBByTmpl.set(parentId, []);
-        groupBByTmpl.get(parentId)!.push(wrapped);
+    if (tier === 'FALLBACK') {
+      staticFillerPool.push(wrapped);
+    } else if (tier === 'P1') {
+      if (pts === 0) p1Fresh.push(wrapped);
+      else if (pts < 2) p1Replay.push(wrapped);
+      else retiredReplayPool.push(wrapped);
+    } else if (tier === 'P2') {
+      const maxP2Airings = parentId === 'LM_MATCH_PERIOD_END' ? 1 : 2;
+      if (pts === 0) p2Fresh.push(wrapped);
+      else if (pts < maxP2Airings) p2Replay.push(wrapped);
+      else retiredReplayPool.push(wrapped);
+    } else if (tier === 'P3') {
+      if (parentId === 'LM_MATCH_SCORE_LIVE') {
+        const lastAiredAt = Number(row.cycle_meta?.lastAiredAtMs || 0);
+        const curSig = String(row.cycle_meta?.scoreSig || '');
+        const prevSig = String(row.cycle_meta?.lastAiredScoreSig || '');
+        const scoreChanged = Boolean(curSig && prevSig && curSig !== prevSig);
+        const isOver15Min = lastAiredAt > 0 && nowMs - lastAiredAt > SCORE_REFRESH_INTERVAL_MS;
+        const isFirstAir = pts === 0;
+        if (isFirstAir || scoreChanged || isOver15Min) {
+          dueScores.push(wrapped);
+        } else {
+          // Within <= 15m and unchanged score -> demote to NS-equivalent static filler pool
+          staticFillerPool.push(wrapped);
+        }
       } else {
-        expiredGroupB.push(wrapped);
+        // Title Race & Active Rank Movers: promoted only on state/text change; static otherwise
+        const curHeadline = String((row as any).headline_id || (row as any).text_berita || '').trim();
+        const prevHeadline = String(row.cycle_meta?.lastAiredHeadline || '').trim();
+        const standingsChanged = pts === 0 || (Boolean(prevHeadline) && curHeadline !== prevHeadline);
+        if (standingsChanged) {
+          dueStandings.push(wrapped);
+        } else {
+          staticFillerPool.push(wrapped);
+        }
       }
-      return;
+    } else {
+      if (pts < 1) p4Pool.push(wrapped);
     }
-
-    if (LM_GROUP_C_MINOR.has(parentId)) {
-      const pts = row.poin_tayang || 0;
-      const drama = row.drama_score || 0;
-      const isEligible =
-        parentId === 'LM_MATCH_PERIOD_START'
-          ? pts < 2
-          : parentId === 'LM_MATCH_CARD_YELLOW'
-            ? pts < 1
-            : drama >= 80
-              ? pts < 2
-              : pts < 1;
-
-      if (isEligible) {
-        if (!groupCByTmpl.has(parentId)) groupCByTmpl.set(parentId, []);
-        groupCByTmpl.get(parentId)!.push(wrapped);
-      }
-      return;
-    }
-
-    // Any other custom LM_* template treated gracefully as capped snapshot
-    if (!groupAQuotaMap.has(parentId)) groupAQuotaMap.set(parentId, []);
-    groupAQuotaMap.get(parentId)!.push(wrapped);
   });
-
-  const compareSnapshot = (a: Wrapped, b: Wrapped): number =>
-    (a.row.poin_tayang || 0) - (b.row.poin_tayang || 0) ||
-    (b.row.drama_score || 0) - (a.row.drama_score || 0) ||
-    parseTimestampMs(b.row.timestamp_produksi) - parseTimestampMs(a.row.timestamp_produksi) ||
-    a.originalIdx - b.originalIdx;
 
   const compareEvent = (a: Wrapped, b: Wrapped): number =>
     (a.row.poin_tayang || 0) - (b.row.poin_tayang || 0) ||
@@ -716,134 +790,250 @@ export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
     parseTimestampMs(b.row.timestamp_produksi) - parseTimestampMs(a.row.timestamp_produksi) ||
     a.originalIdx - b.originalIdx;
 
-  const freshBreaking: Wrapped[] = [];
-  const mainBody: Wrapped[] = [];
+  // Build atomic Impact Chains for P1: [Anchor Goal/Pen/Red/VAR] -> [Captain] -> [CS Lost]
+  const buildImpactChains = (items: Wrapped[]): Wrapped[][] => {
+    const anchors = items.filter((w) => LM_P1_ANCHOR_IDS.has(w.parentId)).sort(compareEvent);
+    const followers = items.filter((w) => LM_P1_FOLLOWER_IDS.has(w.parentId)).sort(compareEvent);
+    const others = items
+      .filter((w) => !LM_P1_ANCHOR_IDS.has(w.parentId) && !LM_P1_FOLLOWER_IDS.has(w.parentId))
+      .sort(compareEvent);
 
-  // 1. Group A Full (Title Race + all Live Scores)
-  mainBody.push(...[...groupAFull].sort(compareSnapshot));
+    const usedFollowers = new Set<string>();
+    const chains: Wrapped[][] = [];
 
-  // 2. Group A Capped Snapshots
-  for (const [tid, list] of groupAQuotaMap.entries()) {
-    const cap = LM_GROUP_A_QUOTA_CAPS[tid] ?? 2;
-    const quota = Math.min(cap, getProportionalMultiQuota(list.length));
-    const sorted = [...list].sort(compareSnapshot);
-    mainBody.push(...sorted.slice(0, quota));
-  }
+    for (const anchor of anchors) {
+      const chain: Wrapped[] = [anchor];
+      const aClock = getClockSecs(anchor.row);
+      const matchingFollowers = followers.filter((f) => {
+        if (usedFollowers.has(f.row.id)) return false;
+        if (!anchor.matchKey || f.matchKey !== anchor.matchKey) return false;
+        return Math.abs(getClockSecs(f.row) - aClock) <= 90;
+      });
+      matchingFollowers.sort((a, b) => {
+        if (a.parentId === b.parentId) return (b.row.drama_score || 0) - (a.row.drama_score || 0);
+        return a.parentId === 'LM_CAPTAIN_POPULAR_LIVE' ? -1 : 1;
+      });
+      for (const mf of matchingFollowers) {
+        usedFollowers.add(mf.row.id);
+        chain.push(mf);
+      }
+      chains.push(chain);
+    }
 
-  // 3. Group B Breaking Events (poin = 0 fast-tracked up to 8 total across matches, else proportional 1..3)
-  let freshBreakingRemaining = 8;
-  const allGroupBFreshCandidates: Wrapped[] = [];
-  const groupBSeenIds = new Set<string>();
-
-  for (const list of groupBByTmpl.values()) {
-    for (const w of list) {
-      if ((w.row.poin_tayang || 0) === 0) {
-        allGroupBFreshCandidates.push(w);
+    for (const f of followers) {
+      if (!usedFollowers.has(f.row.id)) {
+        chains.push([f]);
       }
     }
-  }
-  allGroupBFreshCandidates.sort(compareEvent);
-  for (const w of allGroupBFreshCandidates) {
-    if (freshBreakingRemaining <= 0) break;
-    freshBreaking.push(w);
-    groupBSeenIds.add(w.row.id);
-    freshBreakingRemaining--;
-  }
-
-  for (const list of groupBByTmpl.values()) {
-    const remaining = list.filter((w) => !groupBSeenIds.has(w.row.id)).sort(compareEvent);
-    if (remaining.length === 0) continue;
-    const pickedFromTmplAlready = list.filter((w) => groupBSeenIds.has(w.row.id)).length;
-    const targetQuota = getProportionalMultiQuota(list.length);
-    const needed = Math.max(0, targetQuota - pickedFromTmplAlready);
-    if (needed > 0) {
-      mainBody.push(...remaining.slice(0, needed));
+    for (const o of others) {
+      chains.push([o]);
     }
-  }
 
-  // 4. Group C Minor Events (strict 1–2 cap)
-  for (const [tid, list] of groupCByTmpl.entries()) {
-    const quota =
-      tid === 'LM_MATCH_CARD_YELLOW'
-        ? list.length >= 4
-          ? 2
-          : 1
-        : Math.min(2, getProportionalMultiQuota(list.length));
-    const sorted = [...list].sort(compareEvent);
-    mainBody.push(...sorted.slice(0, quota));
-  }
+    const remaining = [...chains];
+    const orderedChains: Wrapped[][] = [];
+    let lastMatch = '';
+    while (remaining.length > 0) {
+      let pickIdx = remaining.findIndex((c) => !lastMatch || c[0].matchKey !== lastMatch);
+      if (pickIdx < 0) pickIdx = 0;
+      const [picked] = remaining.splice(pickIdx, 1);
+      orderedChains.push(picked);
+      if (picked[0].matchKey) lastMatch = picked[0].matchKey;
+    }
+    return orderedChains;
+  };
 
-  const pickedLmCount = freshBreaking.length + mainBody.length;
-
-  // 5. Group D 12 NS Fallback (STRICTLY only if picked LM < 10)
-  if (pickedLmCount < 10 && groupDFallback.length > 0) {
-    const needed = 10 - pickedLmCount;
-    const sortedFallback = [...groupDFallback].sort(
-      (a, b) =>
-        (a.row.poin_tayang || 0) - (b.row.poin_tayang || 0) ||
-        parseTimestampMs(b.row.timestamp_produksi) - parseTimestampMs(a.row.timestamp_produksi) ||
-        (b.row.drama_score || 0) - (a.row.drama_score || 0) ||
-        a.originalIdx - b.originalIdx
-    );
-    mainBody.push(...sortedFallback.slice(0, needed));
-  }
-
-  // 6. Last-resort fallback if still < 6 items (very quiet single match without chip fallback)
-  if (freshBreaking.length + mainBody.length < 6 && expiredGroupB.length > 0) {
-    const needed = 6 - (freshBreaking.length + mainBody.length);
-    const sortedExpired = [...expiredGroupB].sort(compareEvent);
-    mainBody.push(...sortedExpired.slice(0, needed));
-  }
-
-  // Interleave sequence so consecutive items avoid repeating the same category or match when alternatives exist
-  const interleavePool = (poolInput: Wrapped[], startPrevCat = '', startPrevMatchId = 0): Wrapped[] => {
-    const pool = [...poolInput];
+  const interleaveEvents = (items: Wrapped[], maxItems?: number): Wrapped[] => {
+    const pool = [...items];
     const out: Wrapped[] = [];
-    let prevCat = startPrevCat;
-    let prevMatchId = startPrevMatchId;
+    let prevCat = '';
+    let prevMatch = '';
+    const limit = maxItems ?? pool.length;
 
-    while (pool.length > 0) {
+    while (pool.length > 0 && out.length < limit) {
       let bestIdx = 0;
       let bestScore = -Infinity;
-
       for (let i = 0; i < pool.length; i++) {
         const cand = pool[i];
         const cat = String(cand.row.kategori || '').trim();
-        const matchId = getMatchId(cand.row);
-
-        const diffCatScore = prevCat && cat !== prevCat ? 10000 : 0;
-        const diffMatchScore = prevMatchId && matchId && matchId !== prevMatchId ? 2000 : 0;
-        const freshBonus = (cand.row.poin_tayang || 0) === 0 ? 500 : 0;
-        const score =
-          diffCatScore +
-          diffMatchScore +
-          freshBonus +
-          (cand.row.drama_score || 80) * 1 -
-          i * 0.01;
-
+        const diffCat = prevCat && cat !== prevCat ? 2000 : 0;
+        const diffMatch = prevMatch && cand.matchKey && cand.matchKey !== prevMatch ? 1000 : 0;
+        const score = diffCat + diffMatch + (cand.row.drama_score || 75) - i * 2;
         if (score > bestScore) {
           bestScore = score;
           bestIdx = i;
         }
       }
-
       const [picked] = pool.splice(bestIdx, 1);
       out.push(picked);
       prevCat = String(picked.row.kategori || '').trim();
-      const pickedMatchId = getMatchId(picked.row);
-      if (pickedMatchId) prevMatchId = pickedMatchId;
+      if (picked.matchKey) prevMatch = picked.matchKey;
     }
-
     return out;
   };
 
-  const orderedBreaking = interleavePool(freshBreaking);
-  const lastBreaking = orderedBreaking[orderedBreaking.length - 1];
-  const orderedBody = interleavePool(
-    mainBody,
-    lastBreaking ? String(lastBreaking.row.kategori || '').trim() : '',
-    lastBreaking ? getMatchId(lastBreaking.row) : 0
+  p2Fresh.sort(compareEvent);
+  p2Replay.sort(compareEvent);
+
+  // Sort due scores: goal/HT changes first, then oldest lastAiredAtMs (so all >15m overdue matches sweep cleanly)
+  dueScores.sort((a, b) => {
+    const aChanged =
+      a.row.cycle_meta?.scoreSig &&
+      a.row.cycle_meta?.lastAiredScoreSig &&
+      a.row.cycle_meta.scoreSig !== a.row.cycle_meta.lastAiredScoreSig
+        ? 1
+        : 0;
+    const bChanged =
+      b.row.cycle_meta?.scoreSig &&
+      b.row.cycle_meta?.lastAiredScoreSig &&
+      b.row.cycle_meta.scoreSig !== b.row.cycle_meta.lastAiredScoreSig
+        ? 1
+        : 0;
+    if (bChanged !== aChanged) return bChanged - aChanged;
+    const aLast = Number(a.row.cycle_meta?.lastAiredAtMs || 0);
+    const bLast = Number(b.row.cycle_meta?.lastAiredAtMs || 0);
+    if (aLast !== bLast) return aLast - bLast;
+    return (
+      (b.row.cycle_meta?.hasGoals ? 1 : 0) - (a.row.cycle_meta?.hasGoals ? 1 : 0) ||
+      (b.row.drama_score || 0) - (a.row.drama_score || 0)
+    );
+  });
+
+  // Sort due standings changes (max 3 movers + Title Race)
+  const cappedDueStandings = [
+    ...dueStandings
+      .filter((w) => w.parentId === 'LM_STANDINGS_TITLE_RACE'),
+    ...dueStandings
+      .filter((w) => w.parentId === 'LM_STANDINGS_RANK_MOVEMENT')
+      .sort((a, b) => (b.row.drama_score || 0) - (a.row.drama_score || 0))
+      .slice(0, 3),
+  ].sort(
+    (a, b) =>
+      (a.row.poin_tayang || 0) - (b.row.poin_tayang || 0) ||
+      (b.row.drama_score || 0) - (a.row.drama_score || 0)
   );
 
-  return [...orderedBreaking, ...orderedBody].map((w) => w.row);
+  // Sort P4 minor: high ownership (>=10%) Subs/Yellows first, Rank Hold last
+  p4Pool.sort((a, b) => {
+    const aIsRankHold = a.parentId === 'LM_STANDINGS_RANK_MOVEMENT' ? 1 : 0;
+    const bIsRankHold = b.parentId === 'LM_STANDINGS_RANK_MOVEMENT' ? 1 : 0;
+    if (aIsRankHold !== bIsRankHold) return aIsRankHold - bIsRankHold;
+
+    const aHighPct = (a.row.cycle_meta?.maxOwnerPct || 0) >= 10 ? 1 : 0;
+    const bHighPct = (b.row.cycle_meta?.maxOwnerPct || 0) >= 10 ? 1 : 0;
+    if (aHighPct !== bHighPct) return bHighPct - aHighPct;
+
+    return (
+      (b.row.cycle_meta?.maxOwnerPct || 0) - (a.row.cycle_meta?.maxOwnerPct || 0) ||
+      compareEvent(a, b)
+    );
+  });
+
+  const finalQueue: Wrapped[] = [];
+  const usedIds = new Set<string>();
+  const pushUnique = (w: Wrapped) => {
+    if (!usedIds.has(w.row.id)) {
+      usedIds.add(w.row.id);
+      finalQueue.push(w);
+    }
+  };
+
+  // 1. Urgent Important Breaking (P1 Fresh Impact Chains) — top priority, never interrupted
+  const p1FreshChains = buildImpactChains(p1Fresh);
+  for (const chain of p1FreshChains) {
+    for (const item of chain) {
+      pushUnique(item);
+    }
+  }
+
+  // Optional 1-item Post-Drama Recap right after a P1 goal/drama burst if standings or score changed
+  if (p1FreshChains.length > 0 && cappedDueStandings.length > 0) {
+    const recap = cappedDueStandings.shift();
+    if (recap) pushUnique(recap);
+  }
+
+  // 2. Remaining Important Queue (Fresh P2 -> P1 Replays -> P2 Replays)
+  const p1ReplayItems = buildImpactChains(p1Replay).flat();
+  const cappedP2Fresh = interleaveEvents(p2Fresh, 10);
+  const cappedP1Replays = p1ReplayItems.slice(0, 4);
+  const cappedP2Replays = interleaveEvents(p2Replay, 4);
+
+  for (const ev of [...cappedP2Fresh, ...cappedP1Replays, ...cappedP2Replays]) {
+    if (finalQueue.length >= 22) break;
+    pushUnique(ev);
+  }
+
+  // 3. Due Live Scoreboard Sweep (> 15m since last aired / score changed / first air) & Changed Standings
+  // Strictly BEHIND Important (P1/P2) and AHEAD of Unimportant (P4) & Filler (NS).
+  // All overdue matches play sequentially together unless interrupted by new P1/P2.
+  for (const sc of dueScores) {
+    if (finalQueue.length >= 24) break;
+    pushUnique(sc);
+  }
+  for (const st of cappedDueStandings) {
+    if (finalQueue.length >= 24) break;
+    pushUnique(st);
+  }
+
+  // 4. Unified Static Filler Pool (P3 within <=15m unchanged + static Standings + 12 NS_*)
+  // Demoted to NS level and rotated fairly by poin_tayang ASC
+  let staticRankMoversSeen = 0;
+  const normalizedFiller = staticFillerPool.filter((w) => {
+    if (w.parentId === 'LM_STANDINGS_RANK_MOVEMENT') {
+      staticRankMoversSeen++;
+      return staticRankMoversSeen <= 3;
+    }
+    return true;
+  });
+  normalizedFiller.sort(
+    (a, b) =>
+      (a.row.poin_tayang || 0) - (b.row.poin_tayang || 0) ||
+      (b.row.drama_score || 0) - (a.row.drama_score || 0) ||
+      a.originalIdx - b.originalIdx
+  );
+
+  // Cold-start Guard: if zero Important (P1/P2) AND zero Due Scores/Standings, open with 1 Filler item
+  // ahead of P4 minor yellow/sub so viewers don't immediately open onto a 1% yellow card.
+  if (finalQueue.length === 0 && normalizedFiller.length > 0) {
+    const leadFiller = normalizedFiller.shift();
+    if (leadFiller) pushUnique(leadFiller);
+  }
+
+  // 5. Unimportant Queue (P4 Minor: Kickoff, Subs, Yellow Cards, Rank Hold)
+  let rankHoldSeen = 0;
+  const filteredP4 = p4Pool.filter((w) => {
+    if (w.parentId === 'LM_STANDINGS_RANK_MOVEMENT') {
+      rankHoldSeen++;
+      return rankHoldSeen <= 2;
+    }
+    return true;
+  });
+  const cappedP4 = interleaveEvents(filteredP4, 8);
+  for (const minor of cappedP4) {
+    if (finalQueue.length >= 24) break;
+    pushUnique(minor);
+  }
+
+  // 6. Fill quiet periods up to 12 items with Unified NS-equivalent Static Filler (score <=15m, static standings, 12 NS_*)
+  if (finalQueue.length < 12 && normalizedFiller.length > 0) {
+    const interleavedFiller = interleaveEvents(normalizedFiller, 12 - finalQueue.length);
+    for (const fl of interleavedFiller) {
+      if (finalQueue.length >= 12) break;
+      pushUnique(fl);
+    }
+  }
+
+  // Last-resort emergency fallback if still < 6
+  if (finalQueue.length < 6 && retiredReplayPool.length > 0) {
+    const needed = 6 - finalQueue.length;
+    const sortedRetired = [...retiredReplayPool].sort(compareEvent);
+    for (const ret of sortedRetired.slice(0, needed)) {
+      pushUnique(ret);
+    }
+  }
+
+  return finalQueue.map((w) => ({
+    ...w.row,
+    newsroom_tier: w.tier,
+    ...(w.row.cycle_meta?.scoreSig ? { score_sig: w.row.cycle_meta.scoreSig } : {}),
+  }));
 }

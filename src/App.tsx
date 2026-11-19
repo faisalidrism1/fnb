@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ExternalLink, Clock } from 'lucide-react';
 import { Header } from './components/Header.tsx';
 import { TabStandings } from './components/TabStandings.tsx';
@@ -147,10 +147,6 @@ export default function App() {
     dataRef.current = data;
   }, [data]);
 
-  // Loading state when container is empty on initial publish/boot
-  const [isInitializing, setIsInitializing] = useState<boolean>(true);
-  const [smartLoadingMessage, setSmartLoadingMessage] = useState<string>(() => t('loading_connecting'));
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<MainTab>('STANDINGS');
   const [standingsSubTab, setStandingsSubTab] = useState<StandingsSubTab>('live-table');
   const hasSetInitialSubTabRef = useRef<boolean>(false);
@@ -158,9 +154,7 @@ export default function App() {
   const [transferSubTab, setTransferSubTab] = useState<TransferSubTab>('all-transfers');
   const [captainSubTab, setCaptainSubTab] = useState<CaptainSubTab>('most-captained-player');
   const [adminSubTab, setAdminSubTab] = useState<AdminSubTab>('editor');
-  const [selectedGW, setSelectedGW] = useState<number>(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [lastCheckedTime, setLastCheckedTime] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
     try {
@@ -269,17 +263,12 @@ export default function App() {
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      if (!isInitialBoot) {
-        setIsSyncing(true);
-      }
       const url = forceSync ? `/api/fpl-data?sync=1&_t=${Date.now()}` : `/api/fpl-data?_t=${Date.now()}`;
       const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
       clearTimeout(timeoutId);
 
       if (res.ok) {
         const json = await res.json();
-        const checkedAt = json.checked_at || json.data?.sync_status?.last_checked || new Date().toISOString();
-        setLastCheckedTime(checkedAt);
 
         if (json.data) {
           const cleanData = deduplicateLeagueData(json.data);
@@ -300,18 +289,6 @@ export default function App() {
             } else {
               setStandingsSubTab('live-table');
             }
-          }
-
-          // Update selectedGW if default
-          if (cleanData.available_gws && cleanData.available_gws.length > 0) {
-            setSelectedGW(prev => {
-              if (!cleanData.available_gws.includes(prev)) {
-                return Math.max(...cleanData.available_gws);
-              }
-              return prev;
-            });
-          } else if (cleanData.current_gw) {
-            setSelectedGW(cleanData.current_gw);
           }
 
           saveToIndexedDB(cleanData).catch(() => {});
@@ -362,9 +339,6 @@ export default function App() {
           }, 3000);
         }
       }
-    } finally {
-      setIsSyncing(false);
-      setIsInitializing(false);
     }
   }, []);
 
@@ -386,7 +360,6 @@ export default function App() {
               const cleanData = deduplicateLeagueData(payload.data);
               setData(cleanData);
               dataRef.current = cleanData;
-              setLastCheckedTime(payload.checked_at || new Date().toISOString());
               saveToIndexedDB(cleanData).catch(() => {});
 
               // Simultaneously broadcast to all mounted components, active tabs, subtabs, modals, and popups
@@ -466,50 +439,10 @@ export default function App() {
     return () => clearInterval(interval);
   }, [fetchData, isMatchLive]);
 
-  // Manual Sync trigger
-  const handleManualSync = async () => {
-    if (isSyncing) return;
-    setIsSyncing(true);
-    try {
-      const res = await fetch('/api/sync', { method: 'POST' });
-      if (res.ok) {
-        const json = await res.json();
-        const checkedAt = json.checked_at || json.last_synced || new Date().toISOString();
-        setLastCheckedTime(checkedAt);
-        if (json.data) {
-          const cleanData = deduplicateLeagueData(json.data);
-          setData(cleanData);
-          dataRef.current = cleanData;
-          saveToIndexedDB(cleanData).catch(() => {});
-          window.dispatchEvent(
-            new CustomEvent('fpl:data-synced', {
-              detail: {
-                lastSynced: cleanData.sync_status?.last_synced,
-                currentGW: cleanData.current_gw,
-                data: cleanData,
-              },
-            })
-          );
-          showToast(t('toast_sync_success'));
-        } else {
-          await fetchData(false);
-          showToast(t('toast_sync_success'));
-        }
-      } else {
-        throw new Error('Sync endpoint returned error');
-      }
-    } catch (err: any) {
-      console.error(err);
-      showToast(t('toast_sync_failed'));
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
   if (!data) {
     return (
       <SmartLoadingScreen
-        message={smartLoadingMessage}
+        message={t('loading_connecting')}
       />
     );
   }
@@ -531,10 +464,7 @@ export default function App() {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         syncStatus={data.sync_status}
-        isSyncing={isSyncing}
-        onManualSync={handleManualSync}
         currentGW={data.current_gw}
-        availableGWs={data.available_gws}
         gwStatus={data.gw_status}
         eventsStatus={data.events_status}
         standingsSubTab={standingsSubTab}

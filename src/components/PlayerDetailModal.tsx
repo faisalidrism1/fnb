@@ -17,7 +17,6 @@ import {
   DbPlayerStat,
   StandingsRow,
   TransferItem,
-  PlayerHistoryPast,
   GwEventStatus,
   SyncStatus,
 } from '../types.ts';
@@ -53,22 +52,7 @@ type OwnerSortField = 'team' | 'squad' | 'captain';
 type SortDirection = 'asc' | 'desc';
 
 // High-speed client cache to make modal transitions instantaneous (0ms)
-export const playerSummaryClientCache = new Map<string, PlayerSummaryDetail>();
-
-export const prefetchPlayerSummary = (playerId: number, gw: number) => {
-  if (!playerId) return;
-  const key = `${playerId}_${gw}`;
-  if (playerSummaryClientCache.has(key)) return;
-  fetch(`/api/fpl-player-summary/${playerId}?gw=${gw}`)
-    .then((res) => res.json())
-    .then((json) => {
-      if (json.success && json.data) {
-        playerSummaryClientCache.set(key, json.data);
-        playerSummaryClientCache.set(String(playerId), json.data);
-      }
-    })
-    .catch(() => {});
-};
+const playerSummaryClientCache = new Map<string, PlayerSummaryDetail>();
 
 const STAT_IDENTIFIER_LABELS: Record<string, string> = {
   minutes: 'Minutes Played',
@@ -1518,7 +1502,6 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     ? (summaryData.player_info.nowCost / 10).toFixed(1)
     : '-';
   const ownershipPct = currentGWPlayer ? currentGWPlayer.owned_percentage : 0;
-  const totalSeasonPoints = summaryData?.player_info?.totalPoints ?? playerMeta?.total_points ?? '-';
 
   // Player Availability Status & News directly from FPL
   const playerNews = useMemo(() => {
