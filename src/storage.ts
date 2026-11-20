@@ -128,6 +128,67 @@ export async function loadFromIndexedDB(): Promise<TransformedLeagueData | null>
   }
 }
 
+const KEY_MATCHES_BY_GW = 'latest_matches_by_gw';
+const KEY_PROJECTIONS_CORE = 'latest_projections_core';
+
+export async function saveMatchesByGwToIndexedDB(data: Record<number, any[]>): Promise<void> {
+  try {
+    const db = await openDB();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.put(data, KEY_MATCHES_BY_GW);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch {}
+}
+
+export async function loadMatchesByGwFromIndexedDB(): Promise<Record<number, any[]> | null> {
+  try {
+    const db = await openDB();
+    const result = await new Promise<Record<number, any[]> | null>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.get(KEY_MATCHES_BY_GW);
+      req.onsuccess = () => resolve((req.result as Record<number, any[]>) || null);
+      req.onerror = () => reject(req.error);
+    });
+    return result && typeof result === 'object' ? result : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveProjectionsCoreToIndexedDB(data: any): Promise<void> {
+  try {
+    const db = await openDB();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.put(data, KEY_PROJECTIONS_CORE);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch {}
+}
+
+export async function loadProjectionsCoreFromIndexedDB<T = any>(): Promise<T | null> {
+  try {
+    const db = await openDB();
+    const result = await new Promise<T | null>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.get(KEY_PROJECTIONS_CORE);
+      req.onsuccess = () => resolve((req.result as T) || null);
+      req.onerror = () => reject(req.error);
+    });
+    return result && typeof result === 'object' ? result : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Explicitly clears the local IndexedDB and localStorage cache
  */
@@ -138,6 +199,8 @@ export async function clearIndexedDBCache(): Promise<void> {
       const tx = db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
       const req = store.delete(KEY_NAME);
+      store.delete(KEY_MATCHES_BY_GW);
+      store.delete(KEY_PROJECTIONS_CORE);
       req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });

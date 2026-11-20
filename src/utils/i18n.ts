@@ -38,6 +38,13 @@ export interface Translations {
   tab_transfer: string;
   tab_captain: string;
   tab_chips: string;
+  tab_projection: string;
+  tab_review: string;
+  tab_scout: string;
+  subtab_projection_score: string;
+  subtab_projection_lineup: string;
+  subtab_projection_points: string;
+  subtab_review_mae: string;
 
   // 2. Tab STANDINGS
   // Subtabs
@@ -326,6 +333,13 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     tab_transfer: 'TRANSFER',
     tab_captain: 'CAPTAIN',
     tab_chips: 'CHIPS',
+    tab_projection: 'PROJECTION',
+    tab_review: 'REVIEW',
+    tab_scout: 'SCOUT',
+    subtab_projection_score: 'Score',
+    subtab_projection_lineup: 'Line Up',
+    subtab_projection_points: 'Points',
+    subtab_review_mae: 'MAE',
 
     // 2. Standings Subtabs
     subtab_status: 'Status',
@@ -612,6 +626,13 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     tab_transfer: 'TRANSFER',
     tab_captain: 'CAPTAIN',
     tab_chips: 'CHIPS',
+    tab_projection: 'PROJECTION',
+    tab_review: 'REVIEW',
+    tab_scout: 'SCOUT',
+    subtab_projection_score: 'Score',
+    subtab_projection_lineup: 'Line Up',
+    subtab_projection_points: 'Points',
+    subtab_review_mae: 'MAE',
 
     // 2. Standings Subtabs
     subtab_status: 'Status',
@@ -898,6 +919,13 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     tab_transfer: 'TRANSFER',
     tab_captain: 'KAPTEN',
     tab_chips: 'CHIPS',
+    tab_projection: 'PROJECTION',
+    tab_review: 'REVIEW',
+    tab_scout: 'SCOUT',
+    subtab_projection_score: 'Score',
+    subtab_projection_lineup: 'Line Up',
+    subtab_projection_points: 'Points',
+    subtab_review_mae: 'MAE',
 
     // 2. Standings Subtabs
     subtab_status: 'Status',

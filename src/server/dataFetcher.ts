@@ -1517,6 +1517,9 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
       status: el.status,
       chanceOfPlayingNextRound: el.chance_of_playing_next_round ?? null,
       chanceOfPlayingThisRound: el.chance_of_playing_this_round ?? null,
+      penaltiesOrder: el.penalties_order ?? null,
+      directFreekicksOrder: el.direct_freekicks_order ?? null,
+      cornersAndIndirectFreekicksOrder: el.corners_and_indirect_freekicks_order ?? null,
       news: el.news || '',
       newsAdded: el.news_added ?? null,
       photo: (el.code || (el.photo ? el.photo.replace('.jpg', '').replace(/^p/, '') : null))

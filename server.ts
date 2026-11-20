@@ -2,7 +2,17 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle } from './src/server/dataFetcher.ts';
-import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache } from './src/server/matchesFetcher.ts';
+import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache, prewarmMatchesCache, invalidateFixturesScheduleCache } from './src/server/matchesFetcher.ts';
+import {
+  computeProjectionEpochInfo,
+  getProjectionCacheEpochKey,
+  hasProjectionCoreCache,
+  invalidateProjectionEngine,
+  warmProjectionEngineIfNeeded,
+  getServerProjectionCore,
+  getServerReviewBundle,
+  getServerScoutSquads,
+} from './src/server/projectionEngineServer.ts';
 import { TransformedLeagueData } from './src/types.ts';
 import {
   initDatabase,
@@ -259,6 +269,7 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
   
   currentSyncPromise = (async () => {
     try {
+      const prevEpochKey = cachedData ? computeProjectionEpochInfo(cachedData).epochKey : getProjectionCacheEpochKey();
       let freshData: TransformedLeagueData;
       if (action === 'B_PARTIAL' && targetGW && cachedData) {
         // Action B: Download active GW only and merge with historical data in container
@@ -313,6 +324,30 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
 
       // Broadcast fresh data to all active clients immediately via Server-Sent Events (SSE)
       broadcastSyncComplete(freshData, action);
+
+      // Strict Epoch Sync Rule: ONLY invalidate/warm Projection/Review/Scout caches on:
+      //   1. Cold Start / Action A full download
+      //   2. Epoch shift (Live -> Provisional OR Provisional -> Confirmed)
+      // During ongoing Live auto-sync ticks (prevEpochKey === nextEpochKey), do ZERO invalidation or recompute!
+      const nextEpochKey = computeProjectionEpochInfo(cachedData).epochKey;
+      const shouldWarmProjections =
+        action === 'A_FULL' ||
+        !hasProjectionCoreCache() ||
+        prevEpochKey !== nextEpochKey;
+
+      if (shouldWarmProjections) {
+        if (action === 'A_FULL' || (prevEpochKey && prevEpochKey !== nextEpochKey)) {
+          invalidateFixturesScheduleCache();
+          invalidateProjectionEngine(`Epoch shift ${prevEpochKey ?? 'cold'} -> ${nextEpochKey}`);
+        }
+        setTimeout(() => {
+          prewarmMatchesCache(freshData.current_gw || getCurrentGw())
+            .catch(() => {})
+            .finally(() => {
+              warmProjectionEngineIfNeeded(cachedData);
+            });
+        }, 500);
+      }
 
       return freshData;
 
@@ -957,6 +992,94 @@ app.get('/api/fpl-matches/:gw', async (req, res) => {
   }
 });
 
+// Batch Match Center API: Returns matches map { [gw]: MatchCardItem[] } for multiple GWs at once
+app.get('/api/fpl-matches-batch', async (req, res) => {
+  try {
+    const force = req.query.force === '1' || req.query.sync === '1';
+    let targetGws: number[] = [];
+
+    if (typeof req.query.gws === 'string' && req.query.gws.trim()) {
+      targetGws = req.query.gws
+        .split(',')
+        .map((s) => Number(s.trim()))
+        .filter((n) => Number.isFinite(n) && n >= 1 && n <= 38);
+    } else {
+      const maxGw = Math.min(Math.max(Number(req.query.max) || (cachedData?.current_gw || 1), 1), 38);
+      targetGws = Array.from({ length: maxGw }, (_, i) => i + 1);
+    }
+
+    targetGws = Array.from(new Set(targetGws)).sort((a, b) => a - b);
+
+    const results: Record<number, any[]> = {};
+    await Promise.all(
+      targetGws.map(async (gw) => {
+        if (force) invalidateMatchesCache(gw);
+        results[gw] = await fetchMatchesForGw(gw).catch(() => []);
+      })
+    );
+
+    res.json({
+      success: true,
+      count: targetGws.length,
+      data: results
+    });
+  } catch (err: any) {
+    console.error('Error in /api/fpl-matches-batch:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ============================================================================
+// SERVER-SIDE PROJECTION, REVIEW & SCOUT SOLVER ENDPOINTS
+// Computed & cached strictly by GW lifecycle epoch (Live -> Provisional, Provisional -> Confirmed)
+// ============================================================================
+app.get('/api/projections-core', async (req, res) => {
+  try {
+    if (!cachedData) {
+      return res.status(503).json({ success: false, error: 'Database not initialized yet' });
+    }
+    const force = req.query.force === '1' || req.query.sync === '1';
+    if (force) {
+      invalidateFixturesScheduleCache();
+      invalidateProjectionEngine('manual force');
+    }
+    const payload = await getServerProjectionCore(cachedData, force);
+    res.json({ success: true, data: payload });
+  } catch (err: any) {
+    console.error('Error in /api/projections-core:', err);
+    res.status(500).json({ success: false, error: err?.message || 'Projection core error' });
+  }
+});
+
+app.get('/api/projections-review', async (req, res) => {
+  try {
+    if (!cachedData) {
+      return res.status(503).json({ success: false, error: 'Database not initialized yet' });
+    }
+    const force = req.query.force === '1' || req.query.sync === '1';
+    const gwParam = req.query.gw ? Number(req.query.gw) : undefined;
+    const payload = await getServerReviewBundle(cachedData, gwParam, force);
+    res.json({ success: true, data: payload });
+  } catch (err: any) {
+    console.error('Error in /api/projections-review:', err);
+    res.status(500).json({ success: false, error: err?.message || 'Review bundle error' });
+  }
+});
+
+app.get('/api/projections-scout-squads', async (req, res) => {
+  try {
+    if (!cachedData) {
+      return res.status(503).json({ success: false, error: 'Database not initialized yet' });
+    }
+    const force = req.query.force === '1' || req.query.sync === '1';
+    const payload = await getServerScoutSquads(cachedData, force);
+    res.json({ success: true, data: payload });
+  } catch (err: any) {
+    console.error('Error in /api/projections-scout-squads:', err);
+    res.status(500).json({ success: false, error: err?.message || 'Scout solver error' });
+  }
+});
+
 
 // Support both GET and POST so external cron services (cron-job.org, Cloud Scheduler, uptime bots) can easily trigger sync
 const handleSyncRequest = async (req: express.Request, res: express.Response) => {
@@ -997,6 +1120,8 @@ app.all('/api/container/clear', (req, res) => {
   clearNewsTickerTable();
   clearAllPulseMatchFiles();
   invalidateMatchesCache();
+  invalidateFixturesScheduleCache();
+  invalidateProjectionEngine('container cleared');
   playerSummaryCache.clear();
   eventLiveCache.clear();
   fixturesCache.clear();
@@ -1615,6 +1740,15 @@ async function startServer() {
 
     setTimeout(() => {
       prewarmShirtCache().catch(() => {});
+      dbReadyPromise.then(() => {
+        if (cachedData?.current_gw) {
+          prewarmMatchesCache(cachedData.current_gw)
+            .catch(() => {})
+            .finally(() => {
+              warmProjectionEngineIfNeeded(cachedData);
+            });
+        }
+      });
     }, 2500);
   });
 

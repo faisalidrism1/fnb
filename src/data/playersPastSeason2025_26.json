@@ -1,0 +1,3858 @@
+{
+  "1": {
+    "id": 1,
+    "total_points": 162,
+    "minutes": 3330,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 19
+  },
+  "2": {
+    "id": 2,
+    "total_points": 2,
+    "minutes": 90,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "3": {
+    "id": 3,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "4": {
+    "id": 4,
+    "total_points": 209,
+    "minutes": 2750,
+    "goals_scored": 3,
+    "assists": 5,
+    "clean_sheets": 18
+  },
+  "5": {
+    "id": 5,
+    "total_points": 149,
+    "minutes": 2452,
+    "goals_scored": 3,
+    "assists": 6,
+    "clean_sheets": 13
+  },
+  "6": {
+    "id": 6,
+    "total_points": 137,
+    "minutes": 2614,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 15
+  },
+  "7": {
+    "id": 7,
+    "total_points": 29,
+    "minutes": 697,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "8": {
+    "id": 8,
+    "total_points": 109,
+    "minutes": 1697,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 13
+  },
+  "9": {
+    "id": 9,
+    "total_points": 87,
+    "minutes": 1787,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 5
+  },
+  "10": {
+    "id": 10,
+    "total_points": 45,
+    "minutes": 699,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "11": {
+    "id": 11,
+    "total_points": 40,
+    "minutes": 986,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 3
+  },
+  "12": {
+    "id": 12,
+    "total_points": 157,
+    "minutes": 2218,
+    "goals_scored": 7,
+    "assists": 10,
+    "clean_sheets": 12
+  },
+  "13": {
+    "id": 13,
+    "total_points": 184,
+    "minutes": 3093,
+    "goals_scored": 4,
+    "assists": 9,
+    "clean_sheets": 18
+  },
+  "14": {
+    "id": 14,
+    "total_points": 113,
+    "minutes": 1885,
+    "goals_scored": 7,
+    "assists": 3,
+    "clean_sheets": 11
+  },
+  "15": {
+    "id": 15,
+    "total_points": 74,
+    "minutes": 1363,
+    "goals_scored": 1,
+    "assists": 7,
+    "clean_sheets": 6
+  },
+  "16": {
+    "id": 16,
+    "total_points": 72,
+    "minutes": 1205,
+    "goals_scored": 3,
+    "assists": 1,
+    "clean_sheets": 8
+  },
+  "17": {
+    "id": 17,
+    "total_points": 67,
+    "minutes": 1024,
+    "goals_scored": 4,
+    "assists": 3,
+    "clean_sheets": 4
+  },
+  "18": {
+    "id": 18,
+    "total_points": 57,
+    "minutes": 1065,
+    "goals_scored": 1,
+    "assists": 5,
+    "clean_sheets": 2
+  },
+  "19": {
+    "id": 19,
+    "total_points": 133,
+    "minutes": 2991,
+    "goals_scored": 5,
+    "assists": 1,
+    "clean_sheets": 16
+  },
+  "20": {
+    "id": 20,
+    "total_points": 16,
+    "minutes": 152,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "21": {
+    "id": 21,
+    "total_points": 7,
+    "minutes": 101,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "22": {
+    "id": 22,
+    "total_points": 8,
+    "minutes": 165,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "23": {
+    "id": 23,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "24": {
+    "id": 24,
+    "total_points": 13,
+    "minutes": 118,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 0
+  },
+  "25": {
+    "id": 25,
+    "total_points": 128,
+    "minutes": 2217,
+    "goals_scored": 14,
+    "assists": 1,
+    "clean_sheets": 12
+  },
+  "26": {
+    "id": 26,
+    "total_points": 36,
+    "minutes": 577,
+    "goals_scored": 2,
+    "assists": 3,
+    "clean_sheets": 4
+  },
+  "27": {
+    "id": 27,
+    "total_points": 24,
+    "minutes": 418,
+    "goals_scored": 3,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "28": {
+    "id": 28,
+    "total_points": 120,
+    "minutes": 2835,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 7
+  },
+  "29": {
+    "id": 29,
+    "total_points": 16,
+    "minutes": 585,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "30": {
+    "id": 30,
+    "total_points": 97,
+    "minutes": 1842,
+    "goals_scored": 0,
+    "assists": 7,
+    "clean_sheets": 7
+  },
+  "31": {
+    "id": 31,
+    "total_points": 100,
+    "minutes": 3035,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 9
+  },
+  "32": {
+    "id": 32,
+    "total_points": 117,
+    "minutes": 3016,
+    "goals_scored": 3,
+    "assists": 3,
+    "clean_sheets": 8
+  },
+  "33": {
+    "id": 33,
+    "total_points": 50,
+    "minutes": 1322,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "34": {
+    "id": 34,
+    "total_points": 64,
+    "minutes": 1673,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 5
+  },
+  "35": {
+    "id": 35,
+    "total_points": 40,
+    "minutes": 1042,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "36": {
+    "id": 36,
+    "total_points": 54,
+    "minutes": 1590,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "37": {
+    "id": 37,
+    "total_points": 29,
+    "minutes": 942,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "38": {
+    "id": 38,
+    "total_points": 5,
+    "minutes": 83,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "40": {
+    "id": 40,
+    "total_points": 169,
+    "minutes": 3280,
+    "goals_scored": 10,
+    "assists": 8,
+    "clean_sheets": 9
+  },
+  "41": {
+    "id": 41,
+    "total_points": 102,
+    "minutes": 1753,
+    "goals_scored": 6,
+    "assists": 2,
+    "clean_sheets": 3
+  },
+  "42": {
+    "id": 42,
+    "total_points": 44,
+    "minutes": 909,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 2
+  },
+  "43": {
+    "id": 43,
+    "total_points": 68,
+    "minutes": 1857,
+    "goals_scored": 0,
+    "assists": 4,
+    "clean_sheets": 4
+  },
+  "44": {
+    "id": 44,
+    "total_points": 21,
+    "minutes": 450,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 0
+  },
+  "45": {
+    "id": 45,
+    "total_points": 103,
+    "minutes": 2136,
+    "goals_scored": 5,
+    "assists": 4,
+    "clean_sheets": 8
+  },
+  "46": {
+    "id": 46,
+    "total_points": 56,
+    "minutes": 844,
+    "goals_scored": 3,
+    "assists": 2,
+    "clean_sheets": 1
+  },
+  "47": {
+    "id": 47,
+    "total_points": 61,
+    "minutes": 1410,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 5
+  },
+  "48": {
+    "id": 48,
+    "total_points": 76,
+    "minutes": 1755,
+    "goals_scored": 2,
+    "assists": 0,
+    "clean_sheets": 6
+  },
+  "49": {
+    "id": 49,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "50": {
+    "id": 50,
+    "total_points": 1,
+    "minutes": 16,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "51": {
+    "id": 51,
+    "total_points": 2,
+    "minutes": 25,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "52": {
+    "id": 52,
+    "total_points": 3,
+    "minutes": 47,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "54": {
+    "id": 54,
+    "total_points": 107,
+    "minutes": 2829,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 4
+  },
+  "55": {
+    "id": 55,
+    "total_points": 167,
+    "minutes": 2833,
+    "goals_scored": 16,
+    "assists": 4,
+    "clean_sheets": 9
+  },
+  "56": {
+    "id": 56,
+    "total_points": 23,
+    "minutes": 278,
+    "goals_scored": 2,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "57": {
+    "id": 57,
+    "total_points": 124,
+    "minutes": 3420,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 11
+  },
+  "58": {
+    "id": 58,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "59": {
+    "id": 59,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "60": {
+    "id": 60,
+    "total_points": 110,
+    "minutes": 2102,
+    "goals_scored": 0,
+    "assists": 3,
+    "clean_sheets": 8
+  },
+  "61": {
+    "id": 61,
+    "total_points": 165,
+    "minutes": 3378,
+    "goals_scored": 1,
+    "assists": 6,
+    "clean_sheets": 11
+  },
+  "62": {
+    "id": 62,
+    "total_points": 46,
+    "minutes": 1275,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 4
+  },
+  "63": {
+    "id": 63,
+    "total_points": 19,
+    "minutes": 367,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "64": {
+    "id": 64,
+    "total_points": 58,
+    "minutes": 1073,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "65": {
+    "id": 65,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "66": {
+    "id": 66,
+    "total_points": 3,
+    "minutes": 34,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "67": {
+    "id": 67,
+    "total_points": 67,
+    "minutes": 1110,
+    "goals_scored": 5,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "68": {
+    "id": 68,
+    "total_points": 137,
+    "minutes": 2732,
+    "goals_scored": 7,
+    "assists": 4,
+    "clean_sheets": 11
+  },
+  "69": {
+    "id": 69,
+    "total_points": 136,
+    "minutes": 2848,
+    "goals_scored": 3,
+    "assists": 2,
+    "clean_sheets": 11
+  },
+  "70": {
+    "id": 70,
+    "total_points": 41,
+    "minutes": 945,
+    "goals_scored": 2,
+    "assists": 0,
+    "clean_sheets": 4
+  },
+  "71": {
+    "id": 71,
+    "total_points": 40,
+    "minutes": 872,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "72": {
+    "id": 72,
+    "total_points": 11,
+    "minutes": 105,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 0
+  },
+  "73": {
+    "id": 73,
+    "total_points": 77,
+    "minutes": 1769,
+    "goals_scored": 2,
+    "assists": 2,
+    "clean_sheets": 7
+  },
+  "74": {
+    "id": 74,
+    "total_points": 59,
+    "minutes": 1188,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 5
+  },
+  "75": {
+    "id": 75,
+    "total_points": 47,
+    "minutes": 978,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "76": {
+    "id": 76,
+    "total_points": 8,
+    "minutes": 135,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "77": {
+    "id": 77,
+    "total_points": 67,
+    "minutes": 1074,
+    "goals_scored": 3,
+    "assists": 2,
+    "clean_sheets": 3
+  },
+  "78": {
+    "id": 78,
+    "total_points": 113,
+    "minutes": 1663,
+    "goals_scored": 13,
+    "assists": 0,
+    "clean_sheets": 10
+  },
+  "79": {
+    "id": 79,
+    "total_points": 115,
+    "minutes": 2741,
+    "goals_scored": 6,
+    "assists": 7,
+    "clean_sheets": 11
+  },
+  "80": {
+    "id": 80,
+    "total_points": 27,
+    "minutes": 214,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "82": {
+    "id": 82,
+    "total_points": 143,
+    "minutes": 3330,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 10
+  },
+  "83": {
+    "id": 83,
+    "total_points": 1,
+    "minutes": 90,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "84": {
+    "id": 84,
+    "total_points": 129,
+    "minutes": 2971,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 9
+  },
+  "85": {
+    "id": 85,
+    "total_points": 113,
+    "minutes": 2761,
+    "goals_scored": 0,
+    "assists": 3,
+    "clean_sheets": 8
+  },
+  "86": {
+    "id": 86,
+    "total_points": 115,
+    "minutes": 1960,
+    "goals_scored": 3,
+    "assists": 4,
+    "clean_sheets": 9
+  },
+  "87": {
+    "id": 87,
+    "total_points": 76,
+    "minutes": 1805,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 5
+  },
+  "88": {
+    "id": 88,
+    "total_points": 113,
+    "minutes": 3258,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 10
+  },
+  "89": {
+    "id": 89,
+    "total_points": 52,
+    "minutes": 1322,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 4
+  },
+  "90": {
+    "id": 90,
+    "total_points": 37,
+    "minutes": 679,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "91": {
+    "id": 91,
+    "total_points": 14,
+    "minutes": 318,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "92": {
+    "id": 92,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "94": {
+    "id": 94,
+    "total_points": 125,
+    "minutes": 2744,
+    "goals_scored": 8,
+    "assists": 5,
+    "clean_sheets": 11
+  },
+  "95": {
+    "id": 95,
+    "total_points": 136,
+    "minutes": 2271,
+    "goals_scored": 7,
+    "assists": 8,
+    "clean_sheets": 6
+  },
+  "96": {
+    "id": 96,
+    "total_points": 113,
+    "minutes": 2046,
+    "goals_scored": 4,
+    "assists": 4,
+    "clean_sheets": 5
+  },
+  "97": {
+    "id": 97,
+    "total_points": 98,
+    "minutes": 2239,
+    "goals_scored": 3,
+    "assists": 2,
+    "clean_sheets": 9
+  },
+  "98": {
+    "id": 98,
+    "total_points": 74,
+    "minutes": 1434,
+    "goals_scored": 1,
+    "assists": 4,
+    "clean_sheets": 5
+  },
+  "99": {
+    "id": 99,
+    "total_points": 1,
+    "minutes": 45,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "100": {
+    "id": 100,
+    "total_points": 13,
+    "minutes": 100,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "101": {
+    "id": 101,
+    "total_points": 76,
+    "minutes": 1911,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 6
+  },
+  "102": {
+    "id": 102,
+    "total_points": 104,
+    "minutes": 2652,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 8
+  },
+  "103": {
+    "id": 103,
+    "total_points": 2,
+    "minutes": 2,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "104": {
+    "id": 104,
+    "total_points": 12,
+    "minutes": 88,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 0
+  },
+  "105": {
+    "id": 105,
+    "total_points": 127,
+    "minutes": 2717,
+    "goals_scored": 8,
+    "assists": 4,
+    "clean_sheets": 4
+  },
+  "106": {
+    "id": 106,
+    "total_points": 181,
+    "minutes": 3282,
+    "goals_scored": 22,
+    "assists": 1,
+    "clean_sheets": 10
+  },
+  "107": {
+    "id": 107,
+    "total_points": 1,
+    "minutes": 1,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "108": {
+    "id": 108,
+    "total_points": 80,
+    "minutes": 1234,
+    "goals_scored": 7,
+    "assists": 2,
+    "clean_sheets": 1
+  },
+  "109": {
+    "id": 109,
+    "total_points": 130,
+    "minutes": 3420,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 10
+  },
+  "110": {
+    "id": 110,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "111": {
+    "id": 111,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "112": {
+    "id": 112,
+    "total_points": 148,
+    "minutes": 3210,
+    "goals_scored": 3,
+    "assists": 3,
+    "clean_sheets": 10
+  },
+  "113": {
+    "id": 113,
+    "total_points": 118,
+    "minutes": 3130,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 10
+  },
+  "114": {
+    "id": 114,
+    "total_points": 39,
+    "minutes": 799,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "115": {
+    "id": 115,
+    "total_points": 84,
+    "minutes": 1404,
+    "goals_scored": 2,
+    "assists": 3,
+    "clean_sheets": 5
+  },
+  "116": {
+    "id": 116,
+    "total_points": 100,
+    "minutes": 2837,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 7
+  },
+  "117": {
+    "id": 117,
+    "total_points": 10,
+    "minutes": 193,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "118": {
+    "id": 118,
+    "total_points": 6,
+    "minutes": 103,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "121": {
+    "id": 121,
+    "total_points": 62,
+    "minutes": 1714,
+    "goals_scored": 3,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "122": {
+    "id": 122,
+    "total_points": 117,
+    "minutes": 2389,
+    "goals_scored": 3,
+    "assists": 8,
+    "clean_sheets": 11
+  },
+  "123": {
+    "id": 123,
+    "total_points": 91,
+    "minutes": 1736,
+    "goals_scored": 4,
+    "assists": 5,
+    "clean_sheets": 7
+  },
+  "124": {
+    "id": 124,
+    "total_points": 78,
+    "minutes": 1636,
+    "goals_scored": 1,
+    "assists": 6,
+    "clean_sheets": 6
+  },
+  "125": {
+    "id": 125,
+    "total_points": 87,
+    "minutes": 1776,
+    "goals_scored": 3,
+    "assists": 5,
+    "clean_sheets": 7
+  },
+  "126": {
+    "id": 126,
+    "total_points": 16,
+    "minutes": 202,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "127": {
+    "id": 127,
+    "total_points": 97,
+    "minutes": 2117,
+    "goals_scored": 5,
+    "assists": 1,
+    "clean_sheets": 8
+  },
+  "128": {
+    "id": 128,
+    "total_points": 3,
+    "minutes": 81,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "129": {
+    "id": 129,
+    "total_points": 98,
+    "minutes": 1921,
+    "goals_scored": 3,
+    "assists": 4,
+    "clean_sheets": 6
+  },
+  "130": {
+    "id": 130,
+    "total_points": 94,
+    "minutes": 1901,
+    "goals_scored": 2,
+    "assists": 4,
+    "clean_sheets": 6
+  },
+  "131": {
+    "id": 131,
+    "total_points": 56,
+    "minutes": 1646,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 7
+  },
+  "132": {
+    "id": 132,
+    "total_points": 4,
+    "minutes": 92,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "133": {
+    "id": 133,
+    "total_points": 5,
+    "minutes": 57,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "134": {
+    "id": 134,
+    "total_points": 1,
+    "minutes": 1,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "136": {
+    "id": 136,
+    "total_points": 126,
+    "minutes": 2249,
+    "goals_scored": 13,
+    "assists": 1,
+    "clean_sheets": 10
+  },
+  "137": {
+    "id": 137,
+    "total_points": 16,
+    "minutes": 132,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 0
+  },
+  "138": {
+    "id": 138,
+    "total_points": 35,
+    "minutes": 351,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "139": {
+    "id": 139,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "140": {
+    "id": 140,
+    "total_points": 113,
+    "minutes": 3040,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 9
+  },
+  "141": {
+    "id": 141,
+    "total_points": 9,
+    "minutes": 378,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "142": {
+    "id": 142,
+    "total_points": 115,
+    "minutes": 1957,
+    "goals_scored": 2,
+    "assists": 6,
+    "clean_sheets": 8
+  },
+  "143": {
+    "id": 143,
+    "total_points": 136,
+    "minutes": 2780,
+    "goals_scored": 3,
+    "assists": 1,
+    "clean_sheets": 9
+  },
+  "144": {
+    "id": 144,
+    "total_points": 96,
+    "minutes": 2255,
+    "goals_scored": 2,
+    "assists": 3,
+    "clean_sheets": 7
+  },
+  "145": {
+    "id": 145,
+    "total_points": 65,
+    "minutes": 1718,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 4
+  },
+  "146": {
+    "id": 146,
+    "total_points": 7,
+    "minutes": 470,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "147": {
+    "id": 147,
+    "total_points": 34,
+    "minutes": 788,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "148": {
+    "id": 148,
+    "total_points": 19,
+    "minutes": 1139,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "149": {
+    "id": 149,
+    "total_points": 8,
+    "minutes": 225,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "150": {
+    "id": 150,
+    "total_points": 3,
+    "minutes": 100,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "151": {
+    "id": 151,
+    "total_points": 39,
+    "minutes": 657,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "153": {
+    "id": 153,
+    "total_points": 49,
+    "minutes": 1254,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 6
+  },
+  "154": {
+    "id": 154,
+    "total_points": 114,
+    "minutes": 1954,
+    "goals_scored": 10,
+    "assists": 2,
+    "clean_sheets": 3
+  },
+  "155": {
+    "id": 155,
+    "total_points": 157,
+    "minutes": 3114,
+    "goals_scored": 10,
+    "assists": 5,
+    "clean_sheets": 8
+  },
+  "156": {
+    "id": 156,
+    "total_points": 125,
+    "minutes": 2629,
+    "goals_scored": 5,
+    "assists": 7,
+    "clean_sheets": 11
+  },
+  "157": {
+    "id": 157,
+    "total_points": 58,
+    "minutes": 839,
+    "goals_scored": 2,
+    "assists": 5,
+    "clean_sheets": 4
+  },
+  "158": {
+    "id": 158,
+    "total_points": 25,
+    "minutes": 486,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 1
+  },
+  "159": {
+    "id": 159,
+    "total_points": 110,
+    "minutes": 2796,
+    "goals_scored": 3,
+    "assists": 1,
+    "clean_sheets": 6
+  },
+  "160": {
+    "id": 160,
+    "total_points": 56,
+    "minutes": 1261,
+    "goals_scored": 1,
+    "assists": 4,
+    "clean_sheets": 4
+  },
+  "161": {
+    "id": 161,
+    "total_points": 13,
+    "minutes": 374,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "162": {
+    "id": 162,
+    "total_points": 47,
+    "minutes": 1247,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "163": {
+    "id": 163,
+    "total_points": 1,
+    "minutes": 26,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "165": {
+    "id": 165,
+    "total_points": 177,
+    "minutes": 2658,
+    "goals_scored": 15,
+    "assists": 9,
+    "clean_sheets": 10
+  },
+  "166": {
+    "id": 166,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "167": {
+    "id": 167,
+    "total_points": 45,
+    "minutes": 1092,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 2
+  },
+  "168": {
+    "id": 168,
+    "total_points": 13,
+    "minutes": 265,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 0
+  },
+  "169": {
+    "id": 169,
+    "total_points": 1,
+    "minutes": 1,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "190": {
+    "id": 190,
+    "total_points": 59,
+    "minutes": 1259,
+    "goals_scored": 2,
+    "assists": 2,
+    "clean_sheets": 2
+  },
+  "198": {
+    "id": 198,
+    "total_points": 131,
+    "minutes": 3330,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 11
+  },
+  "199": {
+    "id": 199,
+    "total_points": 7,
+    "minutes": 90,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "200": {
+    "id": 200,
+    "total_points": 154,
+    "minutes": 3085,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 11
+  },
+  "201": {
+    "id": 201,
+    "total_points": 136,
+    "minutes": 2400,
+    "goals_scored": 4,
+    "assists": 4,
+    "clean_sheets": 10
+  },
+  "202": {
+    "id": 202,
+    "total_points": 128,
+    "minutes": 2825,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 11
+  },
+  "203": {
+    "id": 203,
+    "total_points": 72,
+    "minutes": 1331,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 5
+  },
+  "204": {
+    "id": 204,
+    "total_points": 135,
+    "minutes": 3253,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 12
+  },
+  "205": {
+    "id": 205,
+    "total_points": 6,
+    "minutes": 99,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "206": {
+    "id": 206,
+    "total_points": 20,
+    "minutes": 550,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "208": {
+    "id": 208,
+    "total_points": 117,
+    "minutes": 2173,
+    "goals_scored": 9,
+    "assists": 2,
+    "clean_sheets": 9
+  },
+  "209": {
+    "id": 209,
+    "total_points": 65,
+    "minutes": 1710,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 6
+  },
+  "210": {
+    "id": 210,
+    "total_points": 112,
+    "minutes": 2552,
+    "goals_scored": 1,
+    "assists": 6,
+    "clean_sheets": 8
+  },
+  "211": {
+    "id": 211,
+    "total_points": 77,
+    "minutes": 2074,
+    "goals_scored": 2,
+    "assists": 2,
+    "clean_sheets": 7
+  },
+  "212": {
+    "id": 212,
+    "total_points": 45,
+    "minutes": 1560,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "213": {
+    "id": 213,
+    "total_points": 69,
+    "minutes": 1722,
+    "goals_scored": 0,
+    "assists": 5,
+    "clean_sheets": 7
+  },
+  "214": {
+    "id": 214,
+    "total_points": 67,
+    "minutes": 1899,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "215": {
+    "id": 215,
+    "total_points": 36,
+    "minutes": 785,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "216": {
+    "id": 216,
+    "total_points": 4,
+    "minutes": 40,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "217": {
+    "id": 217,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "218": {
+    "id": 218,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "219": {
+    "id": 219,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "220": {
+    "id": 220,
+    "total_points": 2,
+    "minutes": 90,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "221": {
+    "id": 221,
+    "total_points": 2,
+    "minutes": 7,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "222": {
+    "id": 222,
+    "total_points": 75,
+    "minutes": 2301,
+    "goals_scored": 4,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "223": {
+    "id": 223,
+    "total_points": 114,
+    "minutes": 2210,
+    "goals_scored": 12,
+    "assists": 0,
+    "clean_sheets": 8
+  },
+  "224": {
+    "id": 224,
+    "total_points": 23,
+    "minutes": 414,
+    "goals_scored": 2,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "225": {
+    "id": 225,
+    "total_points": 17,
+    "minutes": 159,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 0
+  },
+  "226": {
+    "id": 226,
+    "total_points": 135,
+    "minutes": 3420,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 11
+  },
+  "227": {
+    "id": 227,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "228": {
+    "id": 228,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "229": {
+    "id": 229,
+    "total_points": 170,
+    "minutes": 3330,
+    "goals_scored": 2,
+    "assists": 3,
+    "clean_sheets": 11
+  },
+  "230": {
+    "id": 230,
+    "total_points": 32,
+    "minutes": 678,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "231": {
+    "id": 231,
+    "total_points": 131,
+    "minutes": 2588,
+    "goals_scored": 3,
+    "assists": 1,
+    "clean_sheets": 7
+  },
+  "232": {
+    "id": 232,
+    "total_points": 116,
+    "minutes": 3118,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 10
+  },
+  "233": {
+    "id": 233,
+    "total_points": 95,
+    "minutes": 2959,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 9
+  },
+  "234": {
+    "id": 234,
+    "total_points": 22,
+    "minutes": 238,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "235": {
+    "id": 235,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "236": {
+    "id": 236,
+    "total_points": 151,
+    "minutes": 2629,
+    "goals_scored": 8,
+    "assists": 7,
+    "clean_sheets": 8
+  },
+  "237": {
+    "id": 237,
+    "total_points": 128,
+    "minutes": 2781,
+    "goals_scored": 6,
+    "assists": 3,
+    "clean_sheets": 8
+  },
+  "238": {
+    "id": 238,
+    "total_points": 79,
+    "minutes": 1627,
+    "goals_scored": 2,
+    "assists": 6,
+    "clean_sheets": 7
+  },
+  "239": {
+    "id": 239,
+    "total_points": 159,
+    "minutes": 3413,
+    "goals_scored": 2,
+    "assists": 7,
+    "clean_sheets": 11
+  },
+  "240": {
+    "id": 240,
+    "total_points": 68,
+    "minutes": 1477,
+    "goals_scored": 0,
+    "assists": 3,
+    "clean_sheets": 8
+  },
+  "241": {
+    "id": 241,
+    "total_points": 53,
+    "minutes": 1161,
+    "goals_scored": 0,
+    "assists": 3,
+    "clean_sheets": 6
+  },
+  "242": {
+    "id": 242,
+    "total_points": 16,
+    "minutes": 351,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "243": {
+    "id": 243,
+    "total_points": 29,
+    "minutes": 679,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "244": {
+    "id": 244,
+    "total_points": 21,
+    "minutes": 524,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "245": {
+    "id": 245,
+    "total_points": 18,
+    "minutes": 349,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "246": {
+    "id": 246,
+    "total_points": 36,
+    "minutes": 675,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "248": {
+    "id": 248,
+    "total_points": 104,
+    "minutes": 1551,
+    "goals_scored": 9,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "249": {
+    "id": 249,
+    "total_points": 95,
+    "minutes": 1898,
+    "goals_scored": 8,
+    "assists": 0,
+    "clean_sheets": 7
+  },
+  "250": {
+    "id": 250,
+    "total_points": 122,
+    "minutes": 3420,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 9
+  },
+  "251": {
+    "id": 251,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "252": {
+    "id": 252,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "253": {
+    "id": 253,
+    "total_points": 123,
+    "minutes": 2882,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 8
+  },
+  "254": {
+    "id": 254,
+    "total_points": 65,
+    "minutes": 1487,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 4
+  },
+  "255": {
+    "id": 255,
+    "total_points": 39,
+    "minutes": 935,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "256": {
+    "id": 256,
+    "total_points": 81,
+    "minutes": 1791,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 6
+  },
+  "257": {
+    "id": 257,
+    "total_points": 103,
+    "minutes": 2532,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 7
+  },
+  "258": {
+    "id": 258,
+    "total_points": 61,
+    "minutes": 1838,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 3
+  },
+  "259": {
+    "id": 259,
+    "total_points": 31,
+    "minutes": 812,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "260": {
+    "id": 260,
+    "total_points": 168,
+    "minutes": 2674,
+    "goals_scored": 10,
+    "assists": 9,
+    "clean_sheets": 9
+  },
+  "261": {
+    "id": 261,
+    "total_points": 103,
+    "minutes": 2420,
+    "goals_scored": 4,
+    "assists": 3,
+    "clean_sheets": 5
+  },
+  "262": {
+    "id": 262,
+    "total_points": 80,
+    "minutes": 1909,
+    "goals_scored": 3,
+    "assists": 1,
+    "clean_sheets": 6
+  },
+  "263": {
+    "id": 263,
+    "total_points": 49,
+    "minutes": 1030,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 4
+  },
+  "264": {
+    "id": 264,
+    "total_points": 42,
+    "minutes": 1030,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 4
+  },
+  "265": {
+    "id": 265,
+    "total_points": 91,
+    "minutes": 2904,
+    "goals_scored": 0,
+    "assists": 3,
+    "clean_sheets": 8
+  },
+  "266": {
+    "id": 266,
+    "total_points": 41,
+    "minutes": 756,
+    "goals_scored": 2,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "267": {
+    "id": 267,
+    "total_points": 67,
+    "minutes": 1730,
+    "goals_scored": 1,
+    "assists": 4,
+    "clean_sheets": 6
+  },
+  "268": {
+    "id": 268,
+    "total_points": 63,
+    "minutes": 1290,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 5
+  },
+  "269": {
+    "id": 269,
+    "total_points": 95,
+    "minutes": 1816,
+    "goals_scored": 3,
+    "assists": 3,
+    "clean_sheets": 6
+  },
+  "270": {
+    "id": 270,
+    "total_points": 15,
+    "minutes": 89,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "271": {
+    "id": 271,
+    "total_points": 36,
+    "minutes": 987,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "272": {
+    "id": 272,
+    "total_points": 6,
+    "minutes": 49,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "297": {
+    "id": 297,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "325": {
+    "id": 325,
+    "total_points": 71,
+    "minutes": 1980,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 5
+  },
+  "326": {
+    "id": 326,
+    "total_points": 43,
+    "minutes": 1440,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 3
+  },
+  "327": {
+    "id": 327,
+    "total_points": 99,
+    "minutes": 1888,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 5
+  },
+  "328": {
+    "id": 328,
+    "total_points": 108,
+    "minutes": 2935,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 7
+  },
+  "329": {
+    "id": 329,
+    "total_points": 109,
+    "minutes": 2952,
+    "goals_scored": 2,
+    "assists": 0,
+    "clean_sheets": 6
+  },
+  "330": {
+    "id": 330,
+    "total_points": 96,
+    "minutes": 2795,
+    "goals_scored": 1,
+    "assists": 5,
+    "clean_sheets": 6
+  },
+  "331": {
+    "id": 331,
+    "total_points": 68,
+    "minutes": 2637,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 5
+  },
+  "332": {
+    "id": 332,
+    "total_points": 94,
+    "minutes": 1893,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 6
+  },
+  "333": {
+    "id": 333,
+    "total_points": 25,
+    "minutes": 429,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "335": {
+    "id": 335,
+    "total_points": 137,
+    "minutes": 2369,
+    "goals_scored": 5,
+    "assists": 6,
+    "clean_sheets": 7
+  },
+  "336": {
+    "id": 336,
+    "total_points": 109,
+    "minutes": 1553,
+    "goals_scored": 8,
+    "assists": 3,
+    "clean_sheets": 6
+  },
+  "337": {
+    "id": 337,
+    "total_points": 126,
+    "minutes": 2449,
+    "goals_scored": 4,
+    "assists": 8,
+    "clean_sheets": 9
+  },
+  "338": {
+    "id": 338,
+    "total_points": 134,
+    "minutes": 3119,
+    "goals_scored": 1,
+    "assists": 4,
+    "clean_sheets": 8
+  },
+  "339": {
+    "id": 339,
+    "total_points": 56,
+    "minutes": 1003,
+    "goals_scored": 2,
+    "assists": 2,
+    "clean_sheets": 1
+  },
+  "340": {
+    "id": 340,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "341": {
+    "id": 341,
+    "total_points": 32,
+    "minutes": 521,
+    "goals_scored": 0,
+    "assists": 3,
+    "clean_sheets": 1
+  },
+  "342": {
+    "id": 342,
+    "total_points": 12,
+    "minutes": 262,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "343": {
+    "id": 343,
+    "total_points": 23,
+    "minutes": 547,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "344": {
+    "id": 344,
+    "total_points": 56,
+    "minutes": 1318,
+    "goals_scored": 0,
+    "assists": 4,
+    "clean_sheets": 5
+  },
+  "345": {
+    "id": 345,
+    "total_points": 67,
+    "minutes": 1307,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "346": {
+    "id": 346,
+    "total_points": 142,
+    "minutes": 2721,
+    "goals_scored": 14,
+    "assists": 2,
+    "clean_sheets": 8
+  },
+  "347": {
+    "id": 347,
+    "total_points": 73,
+    "minutes": 1065,
+    "goals_scored": 6,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "348": {
+    "id": 348,
+    "total_points": 17,
+    "minutes": 244,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "349": {
+    "id": 349,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "350": {
+    "id": 350,
+    "total_points": 91,
+    "minutes": 2340,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 8
+  },
+  "351": {
+    "id": 351,
+    "total_points": 34,
+    "minutes": 867,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "352": {
+    "id": 352,
+    "total_points": 6,
+    "minutes": 212,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "353": {
+    "id": 353,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "356": {
+    "id": 356,
+    "total_points": 175,
+    "minutes": 3420,
+    "goals_scored": 6,
+    "assists": 1,
+    "clean_sheets": 10
+  },
+  "357": {
+    "id": 357,
+    "total_points": 63,
+    "minutes": 1032,
+    "goals_scored": 0,
+    "assists": 5,
+    "clean_sheets": 5
+  },
+  "358": {
+    "id": 358,
+    "total_points": 85,
+    "minutes": 2251,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 6
+  },
+  "359": {
+    "id": 359,
+    "total_points": 33,
+    "minutes": 594,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 2
+  },
+  "360": {
+    "id": 360,
+    "total_points": 42,
+    "minutes": 928,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 4
+  },
+  "361": {
+    "id": 361,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "363": {
+    "id": 363,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "364": {
+    "id": 364,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "365": {
+    "id": 365,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "366": {
+    "id": 366,
+    "total_points": 125,
+    "minutes": 2374,
+    "goals_scored": 5,
+    "assists": 4,
+    "clean_sheets": 10
+  },
+  "367": {
+    "id": 367,
+    "total_points": 131,
+    "minutes": 2736,
+    "goals_scored": 7,
+    "assists": 5,
+    "clean_sheets": 10
+  },
+  "368": {
+    "id": 368,
+    "total_points": 160,
+    "minutes": 3232,
+    "goals_scored": 6,
+    "assists": 7,
+    "clean_sheets": 9
+  },
+  "369": {
+    "id": 369,
+    "total_points": 43,
+    "minutes": 547,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "370": {
+    "id": 370,
+    "total_points": 37,
+    "minutes": 317,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 0
+  },
+  "371": {
+    "id": 371,
+    "total_points": 144,
+    "minutes": 2991,
+    "goals_scored": 5,
+    "assists": 5,
+    "clean_sheets": 9
+  },
+  "372": {
+    "id": 372,
+    "total_points": 108,
+    "minutes": 2654,
+    "goals_scored": 2,
+    "assists": 5,
+    "clean_sheets": 7
+  },
+  "373": {
+    "id": 373,
+    "total_points": 81,
+    "minutes": 1923,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 3
+  },
+  "374": {
+    "id": 374,
+    "total_points": 12,
+    "minutes": 170,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "375": {
+    "id": 375,
+    "total_points": 6,
+    "minutes": 21,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "376": {
+    "id": 376,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "378": {
+    "id": 378,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "379": {
+    "id": 379,
+    "total_points": 41,
+    "minutes": 694,
+    "goals_scored": 3,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "380": {
+    "id": 380,
+    "total_points": 125,
+    "minutes": 1797,
+    "goals_scored": 11,
+    "assists": 4,
+    "clean_sheets": 7
+  },
+  "382": {
+    "id": 382,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "383": {
+    "id": 383,
+    "total_points": 5,
+    "minutes": 110,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "384": {
+    "id": 384,
+    "total_points": 135,
+    "minutes": 3060,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 15
+  },
+  "385": {
+    "id": 385,
+    "total_points": 13,
+    "minutes": 360,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "386": {
+    "id": 386,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "387": {
+    "id": 387,
+    "total_points": 160,
+    "minutes": 2643,
+    "goals_scored": 5,
+    "assists": 4,
+    "clean_sheets": 14
+  },
+  "388": {
+    "id": 388,
+    "total_points": 179,
+    "minutes": 3150,
+    "goals_scored": 3,
+    "assists": 5,
+    "clean_sheets": 14
+  },
+  "389": {
+    "id": 389,
+    "total_points": 154,
+    "minutes": 2861,
+    "goals_scored": 1,
+    "assists": 8,
+    "clean_sheets": 12
+  },
+  "390": {
+    "id": 390,
+    "total_points": 113,
+    "minutes": 2139,
+    "goals_scored": 2,
+    "assists": 0,
+    "clean_sheets": 12
+  },
+  "391": {
+    "id": 391,
+    "total_points": 79,
+    "minutes": 1370,
+    "goals_scored": 2,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "392": {
+    "id": 392,
+    "total_points": 60,
+    "minutes": 971,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 5
+  },
+  "393": {
+    "id": 393,
+    "total_points": 67,
+    "minutes": 1427,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 6
+  },
+  "394": {
+    "id": 394,
+    "total_points": 5,
+    "minutes": 135,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "395": {
+    "id": 395,
+    "total_points": 19,
+    "minutes": 401,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "396": {
+    "id": 396,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "397": {
+    "id": 397,
+    "total_points": 202,
+    "minutes": 3200,
+    "goals_scored": 17,
+    "assists": 6,
+    "clean_sheets": 12
+  },
+  "398": {
+    "id": 398,
+    "total_points": 131,
+    "minutes": 2078,
+    "goals_scored": 7,
+    "assists": 5,
+    "clean_sheets": 11
+  },
+  "399": {
+    "id": 399,
+    "total_points": 135,
+    "minutes": 1772,
+    "goals_scored": 4,
+    "assists": 13,
+    "clean_sheets": 8
+  },
+  "400": {
+    "id": 400,
+    "total_points": 120,
+    "minutes": 1773,
+    "goals_scored": 5,
+    "assists": 8,
+    "clean_sheets": 8
+  },
+  "401": {
+    "id": 401,
+    "total_points": 56,
+    "minutes": 691,
+    "goals_scored": 3,
+    "assists": 3,
+    "clean_sheets": 4
+  },
+  "402": {
+    "id": 402,
+    "total_points": 69,
+    "minutes": 1510,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "403": {
+    "id": 403,
+    "total_points": 43,
+    "minutes": 817,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 3
+  },
+  "404": {
+    "id": 404,
+    "total_points": 92,
+    "minutes": 1623,
+    "goals_scored": 5,
+    "assists": 3,
+    "clean_sheets": 7
+  },
+  "405": {
+    "id": 405,
+    "total_points": 63,
+    "minutes": 1561,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 7
+  },
+  "406": {
+    "id": 406,
+    "total_points": 9,
+    "minutes": 125,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 0
+  },
+  "407": {
+    "id": 407,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "408": {
+    "id": 408,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "409": {
+    "id": 409,
+    "total_points": 2,
+    "minutes": 25,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "411": {
+    "id": 411,
+    "total_points": 239,
+    "minutes": 2953,
+    "goals_scored": 27,
+    "assists": 8,
+    "clean_sheets": 13
+  },
+  "412": {
+    "id": 412,
+    "total_points": 109,
+    "minutes": 2880,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 8
+  },
+  "413": {
+    "id": 413,
+    "total_points": 11,
+    "minutes": 540,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "414": {
+    "id": 414,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "415": {
+    "id": 415,
+    "total_points": 95,
+    "minutes": 1440,
+    "goals_scored": 4,
+    "assists": 4,
+    "clean_sheets": 4
+  },
+  "416": {
+    "id": 416,
+    "total_points": 43,
+    "minutes": 1170,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "417": {
+    "id": 417,
+    "total_points": 111,
+    "minutes": 2609,
+    "goals_scored": 1,
+    "assists": 6,
+    "clean_sheets": 7
+  },
+  "418": {
+    "id": 418,
+    "total_points": 90,
+    "minutes": 1649,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 7
+  },
+  "419": {
+    "id": 419,
+    "total_points": 51,
+    "minutes": 1229,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 5
+  },
+  "420": {
+    "id": 420,
+    "total_points": 56,
+    "minutes": 1730,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "421": {
+    "id": 421,
+    "total_points": 42,
+    "minutes": 920,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "422": {
+    "id": 422,
+    "total_points": 53,
+    "minutes": 977,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 5
+  },
+  "423": {
+    "id": 423,
+    "total_points": 113,
+    "minutes": 3220,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 10
+  },
+  "424": {
+    "id": 424,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "425": {
+    "id": 425,
+    "total_points": 1,
+    "minutes": 2,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "426": {
+    "id": 426,
+    "total_points": 235,
+    "minutes": 3065,
+    "goals_scored": 9,
+    "assists": 24,
+    "clean_sheets": 7
+  },
+  "427": {
+    "id": 427,
+    "total_points": 148,
+    "minutes": 2611,
+    "goals_scored": 11,
+    "assists": 3,
+    "clean_sheets": 8
+  },
+  "428": {
+    "id": 428,
+    "total_points": 143,
+    "minutes": 2493,
+    "goals_scored": 10,
+    "assists": 4,
+    "clean_sheets": 8
+  },
+  "429": {
+    "id": 429,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "430": {
+    "id": 430,
+    "total_points": 58,
+    "minutes": 1010,
+    "goals_scored": 3,
+    "assists": 0,
+    "clean_sheets": 5
+  },
+  "431": {
+    "id": 431,
+    "total_points": 91,
+    "minutes": 2339,
+    "goals_scored": 2,
+    "assists": 5,
+    "clean_sheets": 6
+  },
+  "432": {
+    "id": 432,
+    "total_points": 73,
+    "minutes": 1653,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "433": {
+    "id": 433,
+    "total_points": 38,
+    "minutes": 876,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "434": {
+    "id": 434,
+    "total_points": 3,
+    "minutes": 107,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "435": {
+    "id": 435,
+    "total_points": 3,
+    "minutes": 40,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "436": {
+    "id": 436,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "437": {
+    "id": 437,
+    "total_points": 1,
+    "minutes": 15,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "438": {
+    "id": 438,
+    "total_points": 2,
+    "minutes": 17,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "439": {
+    "id": 439,
+    "total_points": 111,
+    "minutes": 1630,
+    "goals_scored": 11,
+    "assists": 2,
+    "clean_sheets": 2
+  },
+  "440": {
+    "id": 440,
+    "total_points": 42,
+    "minutes": 607,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "441": {
+    "id": 441,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "442": {
+    "id": 442,
+    "total_points": 96,
+    "minutes": 2416,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 7
+  },
+  "443": {
+    "id": 443,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "445": {
+    "id": 445,
+    "total_points": 126,
+    "minutes": 2963,
+    "goals_scored": 4,
+    "assists": 0,
+    "clean_sheets": 5
+  },
+  "446": {
+    "id": 446,
+    "total_points": 51,
+    "minutes": 1089,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 4
+  },
+  "447": {
+    "id": 447,
+    "total_points": 89,
+    "minutes": 1834,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "448": {
+    "id": 448,
+    "total_points": 93,
+    "minutes": 2195,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 6
+  },
+  "449": {
+    "id": 449,
+    "total_points": 79,
+    "minutes": 2176,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 4
+  },
+  "450": {
+    "id": 450,
+    "total_points": 59,
+    "minutes": 1326,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 6
+  },
+  "451": {
+    "id": 451,
+    "total_points": 2,
+    "minutes": 7,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "452": {
+    "id": 452,
+    "total_points": 154,
+    "minutes": 2456,
+    "goals_scored": 9,
+    "assists": 7,
+    "clean_sheets": 6
+  },
+  "453": {
+    "id": 453,
+    "total_points": 106,
+    "minutes": 1951,
+    "goals_scored": 7,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "454": {
+    "id": 454,
+    "total_points": 48,
+    "minutes": 1302,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "455": {
+    "id": 455,
+    "total_points": 81,
+    "minutes": 2534,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 7
+  },
+  "456": {
+    "id": 456,
+    "total_points": 62,
+    "minutes": 1441,
+    "goals_scored": 2,
+    "assists": 3,
+    "clean_sheets": 1
+  },
+  "457": {
+    "id": 457,
+    "total_points": 82,
+    "minutes": 1606,
+    "goals_scored": 3,
+    "assists": 2,
+    "clean_sheets": 8
+  },
+  "458": {
+    "id": 458,
+    "total_points": 73,
+    "minutes": 1950,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "459": {
+    "id": 459,
+    "total_points": 72,
+    "minutes": 1493,
+    "goals_scored": 1,
+    "assists": 4,
+    "clean_sheets": 2
+  },
+  "460": {
+    "id": 460,
+    "total_points": 38,
+    "minutes": 972,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 3
+  },
+  "463": {
+    "id": 463,
+    "total_points": 108,
+    "minutes": 1896,
+    "goals_scored": 8,
+    "assists": 4,
+    "clean_sheets": 8
+  },
+  "464": {
+    "id": 464,
+    "total_points": 27,
+    "minutes": 517,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "465": {
+    "id": 465,
+    "total_points": 76,
+    "minutes": 805,
+    "goals_scored": 7,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "466": {
+    "id": 466,
+    "total_points": 1,
+    "minutes": 13,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "467": {
+    "id": 467,
+    "total_points": 105,
+    "minutes": 2667,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 7
+  },
+  "468": {
+    "id": 468,
+    "total_points": 11,
+    "minutes": 437,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "469": {
+    "id": 469,
+    "total_points": 128,
+    "minutes": 3203,
+    "goals_scored": 2,
+    "assists": 3,
+    "clean_sheets": 9
+  },
+  "470": {
+    "id": 470,
+    "total_points": 53,
+    "minutes": 1340,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "471": {
+    "id": 471,
+    "total_points": 119,
+    "minutes": 3375,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 9
+  },
+  "472": {
+    "id": 472,
+    "total_points": 83,
+    "minutes": 2130,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 6
+  },
+  "473": {
+    "id": 473,
+    "total_points": 67,
+    "minutes": 1587,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "474": {
+    "id": 474,
+    "total_points": 13,
+    "minutes": 514,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "475": {
+    "id": 475,
+    "total_points": 39,
+    "minutes": 1025,
+    "goals_scored": 2,
+    "assists": 0,
+    "clean_sheets": 3
+  },
+  "476": {
+    "id": 476,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "477": {
+    "id": 477,
+    "total_points": 3,
+    "minutes": 165,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "478": {
+    "id": 478,
+    "total_points": 11,
+    "minutes": 353,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "480": {
+    "id": 480,
+    "total_points": 188,
+    "minutes": 3101,
+    "goals_scored": 15,
+    "assists": 4,
+    "clean_sheets": 10
+  },
+  "481": {
+    "id": 481,
+    "total_points": 180,
+    "minutes": 3332,
+    "goals_scored": 4,
+    "assists": 5,
+    "clean_sheets": 10
+  },
+  "482": {
+    "id": 482,
+    "total_points": 88,
+    "minutes": 1838,
+    "goals_scored": 3,
+    "assists": 4,
+    "clean_sheets": 6
+  },
+  "483": {
+    "id": 483,
+    "total_points": 50,
+    "minutes": 1167,
+    "goals_scored": 1,
+    "assists": 2,
+    "clean_sheets": 2
+  },
+  "484": {
+    "id": 484,
+    "total_points": 82,
+    "minutes": 1676,
+    "goals_scored": 1,
+    "assists": 7,
+    "clean_sheets": 6
+  },
+  "485": {
+    "id": 485,
+    "total_points": 26,
+    "minutes": 549,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 2
+  },
+  "486": {
+    "id": 486,
+    "total_points": 17,
+    "minutes": 288,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 0
+  },
+  "487": {
+    "id": 487,
+    "total_points": 48,
+    "minutes": 1168,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "488": {
+    "id": 488,
+    "total_points": 89,
+    "minutes": 2073,
+    "goals_scored": 2,
+    "assists": 2,
+    "clean_sheets": 8
+  },
+  "489": {
+    "id": 489,
+    "total_points": 30,
+    "minutes": 602,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 0
+  },
+  "490": {
+    "id": 490,
+    "total_points": 41,
+    "minutes": 896,
+    "goals_scored": 3,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "491": {
+    "id": 491,
+    "total_points": 114,
+    "minutes": 2293,
+    "goals_scored": 6,
+    "assists": 6,
+    "clean_sheets": 9
+  },
+  "492": {
+    "id": 492,
+    "total_points": 43,
+    "minutes": 480,
+    "goals_scored": 4,
+    "assists": 2,
+    "clean_sheets": 1
+  },
+  "493": {
+    "id": 493,
+    "total_points": 9,
+    "minutes": 89,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "494": {
+    "id": 494,
+    "total_points": 90,
+    "minutes": 2790,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 7
+  },
+  "495": {
+    "id": 495,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "496": {
+    "id": 496,
+    "total_points": 20,
+    "minutes": 630,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 2
+  },
+  "497": {
+    "id": 497,
+    "total_points": 96,
+    "minutes": 3150,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 4
+  },
+  "498": {
+    "id": 498,
+    "total_points": 175,
+    "minutes": 3288,
+    "goals_scored": 0,
+    "assists": 6,
+    "clean_sheets": 11
+  },
+  "499": {
+    "id": 499,
+    "total_points": 117,
+    "minutes": 2793,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 9
+  },
+  "500": {
+    "id": 500,
+    "total_points": 91,
+    "minutes": 1869,
+    "goals_scored": 4,
+    "assists": 1,
+    "clean_sheets": 5
+  },
+  "501": {
+    "id": 501,
+    "total_points": 63,
+    "minutes": 1489,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 4
+  },
+  "502": {
+    "id": 502,
+    "total_points": 55,
+    "minutes": 1165,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 4
+  },
+  "503": {
+    "id": 503,
+    "total_points": 116,
+    "minutes": 3041,
+    "goals_scored": 4,
+    "assists": 1,
+    "clean_sheets": 9
+  },
+  "504": {
+    "id": 504,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "505": {
+    "id": 505,
+    "total_points": 78,
+    "minutes": 2049,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 9
+  },
+  "506": {
+    "id": 506,
+    "total_points": 29,
+    "minutes": 1335,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 1
+  },
+  "507": {
+    "id": 507,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "508": {
+    "id": 508,
+    "total_points": 10,
+    "minutes": 136,
+    "goals_scored": 1,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "509": {
+    "id": 509,
+    "total_points": 1,
+    "minutes": 1,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "510": {
+    "id": 510,
+    "total_points": 1,
+    "minutes": 1,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "511": {
+    "id": 511,
+    "total_points": 3,
+    "minutes": 142,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "512": {
+    "id": 512,
+    "total_points": 75,
+    "minutes": 1535,
+    "goals_scored": 2,
+    "assists": 6,
+    "clean_sheets": 7
+  },
+  "513": {
+    "id": 513,
+    "total_points": 80,
+    "minutes": 1747,
+    "goals_scored": 2,
+    "assists": 5,
+    "clean_sheets": 4
+  },
+  "514": {
+    "id": 514,
+    "total_points": 78,
+    "minutes": 1334,
+    "goals_scored": 4,
+    "assists": 2,
+    "clean_sheets": 3
+  },
+  "515": {
+    "id": 515,
+    "total_points": 3,
+    "minutes": 34,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "516": {
+    "id": 516,
+    "total_points": 86,
+    "minutes": 1880,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 8
+  },
+  "517": {
+    "id": 517,
+    "total_points": 46,
+    "minutes": 972,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 2
+  },
+  "518": {
+    "id": 518,
+    "total_points": 71,
+    "minutes": 1388,
+    "goals_scored": 2,
+    "assists": 4,
+    "clean_sheets": 3
+  },
+  "519": {
+    "id": 519,
+    "total_points": 44,
+    "minutes": 1183,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "520": {
+    "id": 520,
+    "total_points": 49,
+    "minutes": 955,
+    "goals_scored": 1,
+    "assists": 3,
+    "clean_sheets": 3
+  },
+  "521": {
+    "id": 521,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "522": {
+    "id": 522,
+    "total_points": 61,
+    "minutes": 1471,
+    "goals_scored": 2,
+    "assists": 2,
+    "clean_sheets": 5
+  },
+  "523": {
+    "id": 523,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "524": {
+    "id": 524,
+    "total_points": 1,
+    "minutes": 14,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "525": {
+    "id": 525,
+    "total_points": 135,
+    "minutes": 3017,
+    "goals_scored": 3,
+    "assists": 4,
+    "clean_sheets": 8
+  },
+  "526": {
+    "id": 526,
+    "total_points": 40,
+    "minutes": 997,
+    "goals_scored": 3,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "527": {
+    "id": 527,
+    "total_points": 119,
+    "minutes": 1954,
+    "goals_scored": 11,
+    "assists": 4,
+    "clean_sheets": 7
+  },
+  "528": {
+    "id": 528,
+    "total_points": 2,
+    "minutes": 7,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "529": {
+    "id": 529,
+    "total_points": 136,
+    "minutes": 3150,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 10
+  },
+  "530": {
+    "id": 530,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "531": {
+    "id": 531,
+    "total_points": 16,
+    "minutes": 270,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "532": {
+    "id": 532,
+    "total_points": 116,
+    "minutes": 2144,
+    "goals_scored": 2,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "533": {
+    "id": 533,
+    "total_points": 151,
+    "minutes": 2784,
+    "goals_scored": 3,
+    "assists": 5,
+    "clean_sheets": 9
+  },
+  "534": {
+    "id": 534,
+    "total_points": 110,
+    "minutes": 3032,
+    "goals_scored": 2,
+    "assists": 1,
+    "clean_sheets": 9
+  },
+  "535": {
+    "id": 535,
+    "total_points": 125,
+    "minutes": 2797,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 10
+  },
+  "536": {
+    "id": 536,
+    "total_points": 74,
+    "minutes": 1966,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "537": {
+    "id": 537,
+    "total_points": 2,
+    "minutes": 133,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "538": {
+    "id": 538,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "539": {
+    "id": 539,
+    "total_points": 26,
+    "minutes": 565,
+    "goals_scored": 0,
+    "assists": 1,
+    "clean_sheets": 2
+  },
+  "540": {
+    "id": 540,
+    "total_points": 1,
+    "minutes": 125,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "542": {
+    "id": 542,
+    "total_points": 147,
+    "minutes": 2930,
+    "goals_scored": 5,
+    "assists": 6,
+    "clean_sheets": 10
+  },
+  "543": {
+    "id": 543,
+    "total_points": 65,
+    "minutes": 1403,
+    "goals_scored": 2,
+    "assists": 6,
+    "clean_sheets": 5
+  },
+  "544": {
+    "id": 544,
+    "total_points": 124,
+    "minutes": 2901,
+    "goals_scored": 1,
+    "assists": 6,
+    "clean_sheets": 9
+  },
+  "545": {
+    "id": 545,
+    "total_points": 80,
+    "minutes": 2891,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 9
+  },
+  "546": {
+    "id": 546,
+    "total_points": 34,
+    "minutes": 649,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 4
+  },
+  "547": {
+    "id": 547,
+    "total_points": 14,
+    "minutes": 399,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "548": {
+    "id": 548,
+    "total_points": 36,
+    "minutes": 758,
+    "goals_scored": 1,
+    "assists": 1,
+    "clean_sheets": 3
+  },
+  "549": {
+    "id": 549,
+    "total_points": 83,
+    "minutes": 1553,
+    "goals_scored": 4,
+    "assists": 2,
+    "clean_sheets": 7
+  },
+  "550": {
+    "id": 550,
+    "total_points": 1,
+    "minutes": 38,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "551": {
+    "id": 551,
+    "total_points": 13,
+    "minutes": 401,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 1
+  },
+  "552": {
+    "id": 552,
+    "total_points": 92,
+    "minutes": 1920,
+    "goals_scored": 7,
+    "assists": 2,
+    "clean_sheets": 6
+  },
+  "553": {
+    "id": 553,
+    "total_points": 74,
+    "minutes": 1148,
+    "goals_scored": 6,
+    "assists": 1,
+    "clean_sheets": 4
+  },
+  "555": {
+    "id": 555,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "556": {
+    "id": 556,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "560": {
+    "id": 560,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "561": {
+    "id": 561,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "564": {
+    "id": 564,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "571": {
+    "id": 571,
+    "total_points": 84,
+    "minutes": 2100,
+    "goals_scored": 0,
+    "assists": 2,
+    "clean_sheets": 2
+  },
+  "578": {
+    "id": 578,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "590": {
+    "id": 590,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "591": {
+    "id": 591,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "601": {
+    "id": 601,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "603": {
+    "id": 603,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "604": {
+    "id": 604,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "605": {
+    "id": 605,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "606": {
+    "id": 606,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "609": {
+    "id": 609,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "611": {
+    "id": 611,
+    "total_points": 67,
+    "minutes": 2080,
+    "goals_scored": 0,
+    "assists": 3,
+    "clean_sheets": 3
+  },
+  "620": {
+    "id": 620,
+    "total_points": 104,
+    "minutes": 2706,
+    "goals_scored": 0,
+    "assists": 6,
+    "clean_sheets": 9
+  },
+  "621": {
+    "id": 621,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "623": {
+    "id": 623,
+    "total_points": 6,
+    "minutes": 270,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "625": {
+    "id": 625,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "640": {
+    "id": 640,
+    "total_points": 99,
+    "minutes": 1764,
+    "goals_scored": 11,
+    "assists": 0,
+    "clean_sheets": 3
+  },
+  "654": {
+    "id": 654,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "656": {
+    "id": 656,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "657": {
+    "id": 657,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "660": {
+    "id": 660,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "661": {
+    "id": 661,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "663": {
+    "id": 663,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "667": {
+    "id": 667,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "668": {
+    "id": 668,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  },
+  "669": {
+    "id": 669,
+    "total_points": 0,
+    "minutes": 0,
+    "goals_scored": 0,
+    "assists": 0,
+    "clean_sheets": 0
+  }
+}

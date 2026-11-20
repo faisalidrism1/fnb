@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { ExternalLink, Clock } from 'lucide-react';
 import { Header } from './components/Header.tsx';
 import { TabStandings } from './components/TabStandings.tsx';
@@ -13,6 +13,7 @@ import { PlayerDetailModal } from './components/PlayerDetailModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
 import { SmartLoadingScreen } from './components/SmartLoadingScreen.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
+import { useSeasonProjections } from './hooks/useSeasonProjections.ts';
 import {
   saveToIndexedDB,
   loadFromIndexedDB,
@@ -25,11 +26,46 @@ import {
   OwnershipSubTab,
   TransferSubTab,
   CaptainSubTab,
+  ProjectionSubTab,
+  ReviewSubTab,
+  ScoutSubTab,
   AdminSubTab,
 } from './types.ts';
 import { getGameweekStatus } from './utils/gwStatus.ts';
 import { requestWakeLock, releaseWakeLock } from './utils/wakeLock.ts';
 import { useLanguage, Language } from './utils/i18n.ts';
+
+function lazyWithRetry<T extends React.ComponentType<any>>(
+  importer: () => Promise<{ default: T }>,
+  retries = 3
+) {
+  return lazy(async () => {
+    let lastError: unknown;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await importer();
+      } catch (err) {
+        lastError = err;
+        if (attempt < retries) {
+          await new Promise((resolve) => setTimeout(resolve, 300 * (attempt + 1)));
+        }
+      }
+    }
+    throw lastError;
+  });
+}
+
+const TabProjection = lazyWithRetry(() => import('./components/TabProjection.tsx').then((m) => ({ default: m.TabProjection })));
+const TabReview = lazyWithRetry(() => import('./components/TabReview.tsx').then((m) => ({ default: m.TabReview })));
+const TabScout = lazyWithRetry(() => import('./components/TabScout.tsx').then((m) => ({ default: m.TabScout })));
+
+function TabLoadingFallback() {
+  return (
+    <div className="bg-white dark:bg-[#1a0f2e] rounded-2xl border border-slate-200 dark:border-white/10 p-8 flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-[#37003c] dark:border-[#00ff87] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 function formatLastUpdated(isoString: string | undefined, lang: Language): string {
   if (!isoString) return lang === 'id' ? 'Baru saja' : 'Just now';
@@ -148,14 +184,28 @@ export default function App() {
   }, [data]);
 
   const [activeTab, setActiveTab] = useState<MainTab>('STANDINGS');
+  const [visitedTabs, setVisitedTabs] = useState<Set<MainTab>>(() => new Set(['STANDINGS']));
   const [standingsSubTab, setStandingsSubTab] = useState<StandingsSubTab>('live-table');
   const hasSetInitialSubTabRef = useRef<boolean>(false);
   const [ownershipSubTab, setOwnershipSubTab] = useState<OwnershipSubTab>('most-owned-players');
   const [transferSubTab, setTransferSubTab] = useState<TransferSubTab>('all-transfers');
   const [captainSubTab, setCaptainSubTab] = useState<CaptainSubTab>('most-captained-player');
+  const [projectionSubTab, setProjectionSubTab] = useState<ProjectionSubTab>('line-up');
+  const [reviewSubTab, setReviewSubTab] = useState<ReviewSubTab>('line-up');
+  const [scoutSubTab, setScoutSubTab] = useState<ScoutSubTab>('picks');
   const [adminSubTab, setAdminSubTab] = useState<AdminSubTab>('editor');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+
+  const handleSelectTab = useCallback((tab: MainTab) => {
+    setActiveTab(tab);
+    setVisitedTabs((prev) => {
+      if (prev.has(tab)) return prev;
+      const next = new Set(prev);
+      next.add(tab);
+      return next;
+    });
+  }, []);
   const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
     try {
       return localStorage.getItem('fnb_admin_unlocked') === 'true';
@@ -439,6 +489,19 @@ export default function App() {
     return () => clearInterval(interval);
   }, [fetchData, isMatchLive]);
 
+  const isProjectionTabActive =
+    activeTab === 'PROJECTION' || activeTab === 'REVIEW' || activeTab === 'SCOUT';
+
+  const seasonEngine = useSeasonProjections({
+    leagueData: data ?? undefined,
+    currentGW: data?.current_gw,
+    availableGWs: data?.available_gws,
+    gwStatus: data?.gw_status,
+    eventsStatus: data?.events_status,
+    syncStatus: data?.sync_status,
+    enabled: Boolean(data) && isProjectionTabActive,
+  });
+
   if (!data) {
     return (
       <SmartLoadingScreen
@@ -462,7 +525,7 @@ export default function App() {
       {/* Official Header with integrated minimalist tabs */}
       <Header
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={handleSelectTab}
         syncStatus={data.sync_status}
         currentGW={data.current_gw}
         gwStatus={data.gw_status}
@@ -475,6 +538,12 @@ export default function App() {
         onSelectTransferSubTab={setTransferSubTab}
         captainSubTab={captainSubTab}
         onSelectCaptainSubTab={setCaptainSubTab}
+        projectionSubTab={projectionSubTab}
+        onSelectProjectionSubTab={setProjectionSubTab}
+        reviewSubTab={reviewSubTab}
+        onSelectReviewSubTab={setReviewSubTab}
+        scoutSubTab={scoutSubTab}
+        onSelectScoutSubTab={setScoutSubTab}
         adminSubTab={adminSubTab}
         onSelectAdminSubTab={setAdminSubTab}
         onOpenSettings={() => setIsSettingsOpen(true)}
@@ -566,6 +635,82 @@ export default function App() {
               onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
             />
           </div>
+
+          {visitedTabs.has('PROJECTION') && (
+            <div className={activeTab === 'PROJECTION' ? 'block' : 'hidden'}>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabProjection
+                  leagueData={data}
+                  currentGW={data.current_gw}
+                  availableGWs={data.available_gws}
+                  subTab={projectionSubTab}
+                  onSelectSubTab={setProjectionSubTab}
+                  onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
+                  onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
+                  gwStatus={data.gw_status}
+                  eventsStatus={data.events_status}
+                  syncStatus={data.sync_status}
+                  sharedEngine={seasonEngine}
+                />
+              </Suspense>
+            </div>
+          )}
+
+          {visitedTabs.has('REVIEW') && (
+            <div className={activeTab === 'REVIEW' ? 'block' : 'hidden'}>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabReview
+                  leagueData={data}
+                  currentGW={data.current_gw}
+                  availableGWs={data.available_gws}
+                  subTab={reviewSubTab}
+                  onSelectSubTab={setReviewSubTab}
+                  onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
+                  onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
+                  gwStatus={data.gw_status}
+                  eventsStatus={data.events_status}
+                  syncStatus={data.sync_status}
+                  active={activeTab === 'REVIEW'}
+                  sharedEpochKey={seasonEngine.targetEpochKey}
+                  sharedMaxReviewGW={seasonEngine.maxReviewGW}
+                  sharedClubs={seasonEngine.clubs}
+                  sharedScheduleByGw={seasonEngine.scheduleByGw}
+                  sharedClubGwMatchProjections={seasonEngine.clubGwMatchProjections}
+                  sharedProjectFixture={seasonEngine.projectFixture}
+                  playerProjections={seasonEngine.allPlayerFullSeasonProjections}
+                />
+              </Suspense>
+            </div>
+          )}
+
+          {visitedTabs.has('SCOUT') && (
+            <div className={activeTab === 'SCOUT' ? 'block' : 'hidden'}>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabScout
+                  leagueData={data}
+                  currentGW={data.current_gw}
+                  availableGWs={data.available_gws}
+                  subTab={scoutSubTab}
+                  onSelectSubTab={setScoutSubTab}
+                  onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
+                  onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
+                  gwStatus={data.gw_status}
+                  eventsStatus={data.events_status}
+                  syncStatus={data.sync_status}
+                  active={activeTab === 'SCOUT'}
+                  sharedEpochKey={seasonEngine.targetEpochKey}
+                  sharedClubs={seasonEngine.clubs}
+                  sharedBaseHistoricalGW={seasonEngine.baseHistoricalGW}
+                  sharedTargetNextGW={seasonEngine.targetNextGW}
+                  sharedClubNextMatchesMap={seasonEngine.clubNextMatchesMap}
+                  sharedScheduleByGw={seasonEngine.scheduleByGw}
+                  sharedClubGwMatchProjections={seasonEngine.clubGwMatchProjections}
+                  playerProjections={seasonEngine.allPlayerFullSeasonProjections}
+                  sharedProjectFixture={seasonEngine.projectFixture}
+                />
+              </Suspense>
+            </div>
+          )}
 
           <div className={activeTab === 'ADMIN' ? 'block' : 'hidden'}>
             <TabAdmin

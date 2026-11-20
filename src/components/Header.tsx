@@ -7,6 +7,9 @@ import {
   TransferSubTab,
   CaptainSubTab,
   AdminSubTab,
+  ProjectionSubTab,
+  ReviewSubTab,
+  ScoutSubTab,
   GwEventStatus,
   SyncStatus,
   TransformedLeagueData,
@@ -34,6 +37,12 @@ interface HeaderProps {
   onSelectTransferSubTab?: (sub: TransferSubTab) => void;
   captainSubTab?: CaptainSubTab;
   onSelectCaptainSubTab?: (sub: CaptainSubTab) => void;
+  projectionSubTab?: ProjectionSubTab;
+  onSelectProjectionSubTab?: (sub: ProjectionSubTab) => void;
+  reviewSubTab?: ReviewSubTab;
+  onSelectReviewSubTab?: (sub: ReviewSubTab) => void;
+  scoutSubTab?: ScoutSubTab;
+  onSelectScoutSubTab?: (sub: ScoutSubTab) => void;
   adminSubTab?: AdminSubTab;
   onSelectAdminSubTab?: (sub: AdminSubTab) => void;
   onOpenSettings?: () => void;
@@ -56,6 +65,12 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectTransferSubTab,
   captainSubTab = 'most-captained-player',
   onSelectCaptainSubTab,
+  projectionSubTab = 'line-up',
+  onSelectProjectionSubTab,
+  reviewSubTab = 'line-up',
+  onSelectReviewSubTab,
+  scoutSubTab = 'picks',
+  onSelectScoutSubTab,
   adminSubTab = 'news-ticker',
   onSelectAdminSubTab,
   onOpenSettings,
@@ -80,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (activeBtn) {
       scrollTabIntoView(subNavRef.current, activeBtn);
     }
-  }, [activeTab, standingsSubTab, ownershipSubTab, transferSubTab, captainSubTab]);
+  }, [activeTab, standingsSubTab, ownershipSubTab, transferSubTab, captainSubTab, projectionSubTab, reviewSubTab, scoutSubTab, adminSubTab]);
 
   // Determine current active Gameweek status (Not Started, Live, Provisional, Confirmed)
   const effectiveGW = currentGW || 1;
@@ -106,6 +121,9 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'TRANSFER', label: t('tab_transfer') },
     { id: 'CAPTAIN', label: t('tab_captain') },
     { id: 'CHIPS', label: t('tab_chips') },
+    { id: 'PROJECTION', label: t('tab_projection') },
+    { id: 'REVIEW', label: t('tab_review') },
+    { id: 'SCOUT', label: t('tab_scout') },
   ];
 
   if (isAdminUnlocked) {
@@ -225,6 +243,27 @@ export const Header: React.FC<HeaderProps> = ({
         onClick: () => onSelectCaptainSubTab?.('most-captained-club-players'),
         isActive: captainSubTab === 'most-captained-club-players',
       },
+    ];
+  } else if (activeTab === 'PROJECTION') {
+    subTabs = [
+      { id: 'line-up', label: t('subtab_projection_lineup'), onClick: () => onSelectProjectionSubTab?.('line-up'), isActive: projectionSubTab === 'line-up' },
+      { id: 'score', label: t('subtab_projection_score'), onClick: () => onSelectProjectionSubTab?.('score'), isActive: projectionSubTab === 'score' },
+      { id: 'points', label: t('subtab_projection_points'), onClick: () => onSelectProjectionSubTab?.('points'), isActive: projectionSubTab === 'points' },
+    ];
+  } else if (activeTab === 'REVIEW') {
+    subTabs = [
+      { id: 'line-up', label: t('subtab_projection_lineup'), onClick: () => onSelectReviewSubTab?.('line-up'), isActive: reviewSubTab === 'line-up' },
+      { id: 'score', label: t('subtab_projection_score'), onClick: () => onSelectReviewSubTab?.('score'), isActive: reviewSubTab === 'score' },
+      { id: 'points', label: t('subtab_projection_points'), onClick: () => onSelectReviewSubTab?.('points'), isActive: reviewSubTab === 'points' },
+      { id: 'mae', label: t('subtab_review_mae'), onClick: () => onSelectReviewSubTab?.('mae'), isActive: reviewSubTab === 'mae' },
+    ];
+  } else if (activeTab === 'SCOUT') {
+    subTabs = [
+      { id: 'picks', label: 'Picks', onClick: () => onSelectScoutSubTab?.('picks'), isActive: scoutSubTab === 'picks' },
+      { id: 'captain', label: 'Captain', onClick: () => onSelectScoutSubTab?.('captain'), isActive: scoutSubTab === 'captain' },
+      { id: 'differential', label: 'Differential', onClick: () => onSelectScoutSubTab?.('differential'), isActive: scoutSubTab === 'differential' },
+      { id: 'chips', label: 'Chips', onClick: () => onSelectScoutSubTab?.('chips'), isActive: scoutSubTab === 'chips' },
+      { id: 'transfer', label: 'Transfer', onClick: () => onSelectScoutSubTab?.('transfer'), isActive: scoutSubTab === 'transfer' },
     ];
   } else if (activeTab === 'ADMIN') {
     subTabs = [

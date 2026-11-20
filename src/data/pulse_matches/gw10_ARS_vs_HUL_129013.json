@@ -99,6 +99,7 @@
           "matchPosition": "G",
           "info": {
             "position": "G",
+            "positionInfo": "Goalkeeper",
             "shirtNum": 1
           },
           "captain": false,
@@ -117,6 +118,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 6
           },
           "captain": false,
@@ -135,6 +137,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 8
           },
           "captain": true,
@@ -153,6 +156,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 12
           },
           "captain": false,
@@ -171,6 +175,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 15
           },
           "captain": false,
@@ -189,6 +194,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 17
           },
           "captain": false,
@@ -207,6 +213,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 20
           },
           "captain": false,
@@ -225,6 +232,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
+            "positionInfo": "Forward",
             "shirtNum": 29
           },
           "captain": false,
@@ -243,6 +251,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 33
           },
           "captain": false,
@@ -261,6 +270,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 39
           },
           "captain": false,
@@ -279,6 +289,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 41
           },
           "captain": false,
@@ -299,6 +310,7 @@
           "matchPosition": "G",
           "info": {
             "position": "G",
+            "positionInfo": "Goalkeeper",
             "shirtNum": 13
           },
           "captain": false,
@@ -317,6 +329,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 3
           },
           "captain": false,
@@ -335,6 +348,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 4
           },
           "captain": false,
@@ -353,6 +367,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 5
           },
           "captain": false,
@@ -371,6 +386,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 10
           },
           "captain": false,
@@ -389,6 +405,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
+            "positionInfo": "Forward",
             "shirtNum": 14
           },
           "captain": false,
@@ -407,6 +424,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 23
           },
           "captain": false,
@@ -425,6 +443,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 36
           },
           "captain": false,
@@ -443,6 +462,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 49
           },
           "captain": false,
@@ -502,6 +522,7 @@
           "matchPosition": "G",
           "info": {
             "position": "G",
+            "positionInfo": "Goalkeeper",
             "shirtNum": 19
           },
           "captain": false,
@@ -520,6 +541,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 2
           },
           "captain": true,
@@ -538,6 +560,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 6
           },
           "captain": false,
@@ -556,6 +579,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 15
           },
           "captain": false,
@@ -574,6 +598,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 21
           },
           "captain": false,
@@ -592,6 +617,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 27
           },
           "captain": false,
@@ -610,6 +636,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 29
           },
           "captain": false,
@@ -628,6 +655,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 32
           },
           "captain": false,
@@ -646,6 +674,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 42
           },
           "captain": false,
@@ -664,6 +693,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
+            "positionInfo": "Forward",
             "shirtNum": 50
           },
           "captain": false,
@@ -682,6 +712,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
+            "positionInfo": "Forward",
             "shirtNum": 9
           },
           "captain": false,
@@ -702,6 +733,7 @@
           "matchPosition": "G",
           "info": {
             "position": "G",
+            "positionInfo": "Goalkeeper",
             "shirtNum": 1
           },
           "captain": false,
@@ -720,6 +752,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 3
           },
           "captain": false,
@@ -738,6 +771,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
+            "positionInfo": "Forward",
             "shirtNum": 7
           },
           "captain": false,
@@ -756,6 +790,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
+            "positionInfo": "Forward",
             "shirtNum": 11
           },
           "captain": false,
@@ -774,6 +809,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 14
           },
           "captain": false,
@@ -792,6 +828,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 18
           },
           "captain": false,
@@ -810,6 +847,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
+            "positionInfo": "Defender",
             "shirtNum": 22
           },
           "captain": false,
@@ -828,6 +866,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
+            "positionInfo": "Midfielder",
             "shirtNum": 36
           },
           "captain": false,
@@ -846,6 +885,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
+            "positionInfo": "Forward",
             "shirtNum": 47
           },
           "captain": false,
@@ -1116,6 +1156,14 @@
       "clock": {
         "label": "87'",
         "secs": 5220
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "1",
+      "clock": {
+        "secs": 0,
+        "label": "1'"
       }
     },
     {

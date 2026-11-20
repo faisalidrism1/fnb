@@ -374,6 +374,8 @@ export interface GwFixtureItem {
   event?: number;
   home_team: string;
   away_team: string;
+  team_h?: number;
+  team_a?: number;
   kickoff_time: string;
   started?: boolean;
   finished?: boolean;
@@ -455,12 +457,18 @@ export interface DbPlayerStat {
   transfersIn: number;
   transfersOut: number;
 
+  doubleDigitHauls?: number;
+  penaltiesOrder?: number | null;
+  directFreekicksOrder?: number | null;
+  cornersAndIndirectFreekicksOrder?: number | null;
+
   gwHistory?: Array<{
     round: number;
     points: number;
     minutes: number;
     goals: number;
     assists: number;
+    cleanSheets?: number;
     bps: number;
     bonus: number;
   }>;
@@ -519,7 +527,21 @@ export interface TransformedLeagueData {
   player_stats?: DbPlayerStat[];
 }
 
-export type MainTab = 'STANDINGS' | 'MATCHES' | 'OWNERSHIP' | 'TRANSFER' | 'CAPTAIN' | 'CHIPS' | 'ADMIN';
+export type MainTab =
+  | 'STANDINGS'
+  | 'MATCHES'
+  | 'OWNERSHIP'
+  | 'TRANSFER'
+  | 'CAPTAIN'
+  | 'CHIPS'
+  | 'PROJECTION'
+  | 'REVIEW'
+  | 'SCOUT'
+  | 'ADMIN';
+
+export type ProjectionSubTab = 'score' | 'line-up' | 'points';
+export type ReviewSubTab = 'score' | 'line-up' | 'points' | 'mae';
+export type ScoutSubTab = 'picks' | 'captain' | 'differential' | 'chips' | 'transfer';
 
 export type MatchStatMetric = 
   | 'pts'
@@ -579,6 +601,10 @@ export interface MatchPlayerItem {
   web_name: string;
   full_name: string;
   position: PositionType;
+  pulse_position?: PositionType;
+  pulse_position_info?: string;
+  formation_row?: number;
+  formation_col?: number;
   team: number;
   team_short_name: string;
   now_cost: number;
@@ -653,6 +679,10 @@ export interface MatchCardItem {
   home_bench: MatchPlayerItem[];
   away_lineup: MatchPlayerItem[];
   away_bench: MatchPlayerItem[];
+  home_formation?: string;
+  away_formation?: string;
+  home_formation_rows?: number[][];
+  away_formation_rows?: number[][];
 }
 
 export type StandingsSubTab = 'status' | 'live-table' | 'gw-champions' | 'most-gw-champions' | 'chart' | 'liga-minus';
@@ -763,3 +793,267 @@ export interface DbChipUsed {
   gw: number;
   points: number;
 }
+
+// ============================================================================
+// SERVER PROJECTION / REVIEW / SCOUT ENGINE TYPES (DGW & BGW READY)
+// ============================================================================
+
+export type FplProvenTier = 'ELITE' | 'ESTABLISHED' | 'REGULAR' | 'ROTATION' | 'UNPROVEN';
+
+export interface FplProvenStatus {
+  playerId?: number;
+  webName?: string;
+  tier: FplProvenTier;
+  isProven: boolean;
+  score: number;
+  guardFactor: number;
+  maxBlankDropPenalty: number;
+  provenXpFloor: number;
+  badgeLabel: string;
+  badgeClass: string;
+  pastPoints: number;
+  pastMinutes: number;
+  returnRate: number;
+  doubleDigitHauls: number;
+  guardDescription: string;
+  reason?: string;
+}
+
+export interface DeadBallDutyStatus {
+  isPrimaryPen: boolean;
+  isSecondaryPen: boolean;
+  isFkTaker: boolean;
+  isCornerTaker: boolean;
+}
+
+export interface ProjectionClubItem {
+  id: number;
+  name: string;
+  short: string;
+  badgeUrl: string;
+}
+
+export interface ClubNextMatchEntry {
+  fixtureId?: number;
+  opponentShort: string;
+  opponentName: string;
+  isHome: boolean;
+  kickoffTime: string;
+}
+
+export interface ScheduleTeamSummary {
+  id: number;
+  name: string;
+  short_name: string;
+  code?: number;
+  badge_url?: string;
+}
+
+export interface ScheduleFixtureSummary {
+  id: number;
+  event: number;
+  kickoff_time?: string;
+  started?: boolean;
+  finished?: boolean;
+  finished_provisional?: boolean;
+  minutes?: number;
+  team_h?: number;
+  team_a?: number;
+  team_h_difficulty?: number | null;
+  team_a_difficulty?: number | null;
+  team_h_score: number | null;
+  team_a_score: number | null;
+  home_team: ScheduleTeamSummary;
+  away_team: ScheduleTeamSummary;
+}
+
+export interface ProjectedFixtureOutcome {
+  homeGoals: number;
+  awayGoals: number;
+  homeWinProb?: number;
+  drawProb?: number;
+  awayWinProb?: number;
+  homeCsProb: number;
+  awayCsProb: number;
+  homeCsProbRaw?: number;
+  awayCsProbRaw?: number;
+  lambdaH: number;
+  lambdaA: number;
+  homeExpGcPenalty: number;
+  awayExpGcPenalty: number;
+}
+
+export interface PlayerGwMatchDetail {
+  fixtureId?: number;
+  oppShort: string;
+  oppName?: string;
+  oppLabel?: string;
+  isHome: boolean;
+  kickoffTime?: string;
+  xp: number;
+  baseXp: number;
+  spikeMod: number;
+  teamLambda?: number;
+  oppLambda?: number;
+  csProb?: number;
+}
+
+export interface PlayerGwProjectionCell {
+  opp: string;
+  oppShort?: string;
+  isHome: boolean;
+  xp: number;
+  baseXp?: number;
+  spikeMod?: number;
+  matchCount: number;
+  isDgw?: boolean;
+  isBlank?: boolean;
+  matches?: PlayerGwMatchDetail[];
+}
+
+export interface ClubGwMatchProjectionItem {
+  fixtureId?: number;
+  oppShort: string;
+  oppName: string;
+  isHome: boolean;
+  kickoffTime: string;
+  teamLambda: number;
+  oppLambda: number;
+  teamGoals: number;
+  oppGoals: number;
+  csProb: number;
+  csProbPct?: number;
+  expGcPenalty: number;
+}
+
+export interface ProjectedSquadPlayer {
+  id: number;
+  code: number;
+  webName: string;
+  fullName: string;
+  position: PositionType;
+  shirtNum: number;
+  teamShort: string;
+  nowCost: number;
+  si: number;
+  baseSi: number;
+  isRotation5050: boolean;
+  starts: number;
+  sub: number;
+  unused: number;
+  bench: number;
+  outOfSquad: number;
+  status: string;
+  chance: number | null;
+  news: string;
+  expectedReturnDate: string | null;
+  role: 'starting' | 'bench' | 'out';
+  tacticalSlotIndex?: number;
+  projectedFormation?: string;
+  doubleDigitHauls: number;
+  maxGwPoints: number;
+  haulRate: number;
+  explosiveIndex: number;
+  proven?: FplProvenStatus;
+  photo: string;
+}
+
+export interface ProjectedPlayerCoreItem {
+  id: number;
+  code: number;
+  webName: string;
+  fullName: string;
+  position: PositionType;
+  teamShort: string;
+  teamName?: string;
+  nowCost: number;
+  status: string;
+  chance: number | null;
+  news: string;
+  photo: string;
+  seasonPts?: number;
+  totalProjSeason?: number;
+  totalUpcomingProj?: number;
+  doubleDigitHauls: number;
+  maxGwPoints: number;
+  haulRate: number;
+  explosiveIndex: number;
+  proven: FplProvenStatus;
+  deadBall: DeadBallDutyStatus;
+  baseSi?: number;
+  si: number;
+  fullSeasonPointsMap: Record<number, PlayerGwProjectionCell>;
+}
+
+export interface ServerProjectionCorePayload {
+  epochKey: string;
+  generatedAt: string;
+  lifecycleStatus: string;
+  isCurrentGwFinishedOrConfirmed: boolean;
+  baseHistoricalGW: number;
+  targetNextGW: number;
+  maxReviewGW: number;
+  clubs: ProjectionClubItem[];
+  scheduleByGw: Record<number, ScheduleFixtureSummary[]>;
+  fixtureProjectionsByKey: Record<string, ProjectedFixtureOutcome>;
+  clubNextMatchesMap: Record<string, ClubNextMatchEntry[]>;
+  clubGwMatchProjections: Record<string, ClubGwMatchProjectionItem[]>;
+  clubSquadProjections: Record<string, ProjectedSquadPlayer[]>;
+  allPlayerFullSeasonProjections: ProjectedPlayerCoreItem[];
+}
+
+export interface ActualMatchReviewEntry {
+  gw: number;
+  fixtureId?: number;
+  isHome: boolean;
+  oppShort: string;
+  oppName?: string;
+  teamScore: number | null;
+  oppScore: number | null;
+  scoreText: string;
+  result: 'W' | 'D' | 'L' | null;
+  cleanSheet: boolean;
+  finished: boolean;
+  kickoff: string;
+}
+
+export interface ActualPlayerReviewStat {
+  pts: number;
+  mins: number;
+  wasStarter: boolean;
+  wasSub: boolean;
+  matchCount?: number;
+}
+
+export interface ServerReviewBundlePayload {
+  epochKey: string;
+  generatedAt: string;
+  maxReviewGW: number;
+  lineupGw: number;
+  actualMatchLookup: Record<string, ActualMatchReviewEntry[]>;
+  actualPlayerStatsMap: Record<number, Record<number, ActualPlayerReviewStat>>;
+  lineupReviewPerClub: Record<string, any[]>;
+  lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number };
+  maeRecapRows: any[];
+}
+
+export interface SolvedScoutSquadResult {
+  starterIds: number[];
+  benchIds: number[];
+  xiCost: number;
+  xiBudget: number;
+  totalCost: number;
+  budget: number;
+  xiXp: number;
+  formation: string;
+}
+
+export interface ServerScoutSquadsPayload {
+  epochKey: string;
+  generatedAt: string;
+  targetNextGW: number;
+  fhTarget: SolvedScoutSquadResult;
+  wcTarget: SolvedScoutSquadResult;
+  chipSetByGw: Record<number, { fhSquadIds: number[]; wcSquadIds: number[] }>;
+}
+

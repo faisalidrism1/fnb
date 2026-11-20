@@ -1,4 +1,6 @@
-import { MatchCardItem, MatchPlayerItem, MatchPlayerEvent, PositionType } from '../types.ts';
+import fs from 'fs';
+import path from 'path';
+import { MatchCardItem, MatchPlayerItem, MatchPlayerEvent, PositionType, ScheduleFixtureSummary, ScheduleTeamSummary } from '../types.ts';
 
 export const FPL_BASE = 'https://fantasy.premierleague.com/api';
 export const FPL_HEADERS = {
@@ -37,20 +39,95 @@ const POSITION_SORT_ORDER: Record<string, number> = {
 // In-memory cache for transformed matches by GW
 const matchesGwCache = new Map<number, { data: MatchCardItem[]; time: number; isAllFinished: boolean; isFuture?: boolean }>();
 
+const MATCHES_DISK_CACHE_PATH = path.join(process.cwd(), 'src/data/cachedMatchesByGw.json');
+let diskPersistTimer: NodeJS.Timeout | null = null;
+
+// Seed finished GWs with complete Pulse formations from disk on startup (<5ms)
+try {
+  if (fs.existsSync(MATCHES_DISK_CACHE_PATH)) {
+    const raw = fs.readFileSync(MATCHES_DISK_CACHE_PATH, 'utf-8');
+    const parsed = JSON.parse(raw) as Record<string, MatchCardItem[]>;
+    const nowSeed = Date.now();
+    let seededCount = 0;
+    for (const [gwStr, list] of Object.entries(parsed || {})) {
+      const gwNum = Number(gwStr);
+      if (gwNum > 0 && Array.isArray(list) && list.length > 0) {
+        const hasMissingPulse = list.some((m) => (m.finished || m.started) && (!m.home_formation || !m.away_formation));
+        const allFinished = list.every((m) => Boolean(m.finished));
+        if (allFinished && !hasMissingPulse) {
+          matchesGwCache.set(gwNum, { data: list, time: nowSeed, isAllFinished: true });
+          seededCount++;
+        }
+      }
+    }
+    if (seededCount > 0) {
+      console.log(`[MatchesCache] Pre-seeded ${seededCount} finished GW(s) with Pulse formations from disk.`);
+    }
+  }
+} catch (err: any) {
+  console.warn('[MatchesCache] Failed to read disk cache:', err?.message);
+}
+
+function scheduleMatchesDiskPersist(): void {
+  if (diskPersistTimer) clearTimeout(diskPersistTimer);
+  diskPersistTimer = setTimeout(async () => {
+    try {
+      const snapshot: Record<number, MatchCardItem[]> = {};
+      for (const [gwNum, entry] of matchesGwCache.entries()) {
+        if (!entry.isAllFinished) continue;
+        const hasMissingPulse = entry.data.some((m) => (m.finished || m.started) && (!m.home_formation || !m.away_formation));
+        if (!hasMissingPulse && entry.data.length > 0) {
+          snapshot[gwNum] = entry.data;
+        }
+      }
+      if (Object.keys(snapshot).length === 0) return;
+      await fs.promises.mkdir(path.dirname(MATCHES_DISK_CACHE_PATH), { recursive: true });
+      const tmpPath = `${MATCHES_DISK_CACHE_PATH}.tmp.${Date.now()}`;
+      await fs.promises.writeFile(tmpPath, JSON.stringify(snapshot), 'utf-8');
+      await fs.promises.rename(tmpPath, MATCHES_DISK_CACHE_PATH);
+    } catch (err: any) {
+      console.warn('[MatchesCache] Disk persist error:', err?.message);
+    }
+  }, 500);
+}
+
+export async function prewarmMatchesCache(maxGw: number): Promise<void> {
+  const safeMax = Math.min(Math.max(Number(maxGw) || 0, 1), 38);
+  const gws = Array.from({ length: safeMax }, (_, i) => i + 1);
+  await Promise.all(
+    gws.map(async (gw) => {
+      try {
+        await fetchMatchesForGw(gw);
+      } catch {}
+    })
+  );
+}
+
 // Cache for FPL bootstrap-static (2.5MB) to prevent redundant heavy network downloads on every GW transition
 let cachedBootstrapStatic: { data: any; time: number } | null = null;
+let inFlightBootstrap: Promise<any> | null = null;
 
 async function getCachedBootstrapStatic(force: boolean = false): Promise<any> {
   const now = Date.now();
   if (!force && cachedBootstrapStatic && now - cachedBootstrapStatic.time < 3600000 * 2) { // 2 hours TTL
     return cachedBootstrapStatic.data;
   }
-  const data = await fetchJson(`${FPL_BASE}/bootstrap-static/`, FPL_HEADERS);
-  if (data && Array.isArray(data.teams) && Array.isArray(data.elements)) {
-    cachedBootstrapStatic = { data, time: now };
-    return data;
+  if (!force && inFlightBootstrap) {
+    return inFlightBootstrap;
   }
-  return cachedBootstrapStatic?.data || null;
+  inFlightBootstrap = (async () => {
+    try {
+      const data = await fetchJson(`${FPL_BASE}/bootstrap-static/`, FPL_HEADERS, 1);
+      if (data && Array.isArray(data.teams) && Array.isArray(data.elements)) {
+        cachedBootstrapStatic = { data, time: Date.now() };
+        return data;
+      }
+      return cachedBootstrapStatic?.data || null;
+    } finally {
+      inFlightBootstrap = null;
+    }
+  })();
+  return inFlightBootstrap;
 }
 
 // Cache for Pulse compSeason ID (e.g. 841 for 2026/2027)
@@ -68,6 +145,29 @@ let pulseSeasonFixturesCache: {
 // Cache for individual Pulse match details (lineups & events)
 const pulseMatchDetailsCache = new Map<number, { data: any; time: number; isFinished: boolean }>();
 
+// In-flight deduplication maps
+let inFlightPulseIndex: Promise<Map<string, number>> | null = null;
+const inFlightGwFetches = new Map<number, Promise<MatchCardItem[]>>();
+
+// Global concurrency limiter for Pulse match detail fetches to avoid burst rate-limits
+const MAX_PULSE_CONCURRENT = 8;
+let activePulseFetches = 0;
+const pulseWaitQueue: Array<() => void> = [];
+
+async function withPulseSlot<T>(fn: () => Promise<T>): Promise<T> {
+  if (activePulseFetches >= MAX_PULSE_CONCURRENT) {
+    await new Promise<void>((resolve) => pulseWaitQueue.push(resolve));
+  }
+  activePulseFetches++;
+  try {
+    return await fn();
+  } finally {
+    activePulseFetches--;
+    const next = pulseWaitQueue.shift();
+    if (next) next();
+  }
+}
+
 /**
  * Synchronously returns cached matches for a GW if already loaded in memory
  */
@@ -84,6 +184,11 @@ export function invalidateMatchesCache(gw?: number): void {
   } else {
     matchesGwCache.clear();
     cachedBootstrapStatic = null;
+    try {
+      if (fs.existsSync(MATCHES_DISK_CACHE_PATH)) {
+        fs.unlinkSync(MATCHES_DISK_CACHE_PATH);
+      }
+    } catch {}
   }
   for (const [id, item] of pulseMatchDetailsCache.entries()) {
     if (!item.isFinished) {
@@ -92,20 +197,31 @@ export function invalidateMatchesCache(gw?: number): void {
   }
 }
 
-async function fetchJson(url: string, headers: Record<string, string>): Promise<any> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000);
-  try {
-    const res = await fetch(url, { headers, signal: controller.signal });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      return await res.json();
+async function fetchJson(url: string, headers: Record<string, string>, retries: number = 0): Promise<any> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    try {
+      const res = await fetch(url, { headers, signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        return await res.json();
+      }
+      if (attempt < retries && (res.status === 429 || res.status >= 500)) {
+        await new Promise((r) => setTimeout(r, 200 + attempt * 250 + Math.random() * 150));
+        continue;
+      }
+      return null;
+    } catch {
+      clearTimeout(timeoutId);
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, 200 + attempt * 250 + Math.random() * 150));
+        continue;
+      }
+      return null;
     }
-    return null;
-  } catch {
-    clearTimeout(timeoutId);
-    return null;
   }
+  return null;
 }
 
 /**
@@ -150,40 +266,49 @@ export async function getPulseSeasonFixturesIndex(): Promise<Map<string, number>
   if (pulseSeasonFixturesCache && pulseSeasonFixturesCache.seasonId === season.id && now - pulseSeasonFixturesCache.time < 3600000) { // 1 hour TTL
     return pulseSeasonFixturesCache.indexByGwAndTeams;
   }
-
-  const index = new Map<string, number>();
-  const optaByPulseId = new Map<number, number>();
-  try {
-    const data = await fetchJson(`${PULSE_BASE}/fixtures?comps=1&compSeasons=${season.id}&page=0&pageSize=400&altIds=true`, PULSE_HEADERS);
-    if (data && Array.isArray(data.content)) {
-      for (const fix of data.content) {
-        const gw = fix.gameweek?.gameweek;
-        const homeShort = fix.teams?.[0]?.team?.club?.abbr || fix.teams?.[0]?.team?.shortName;
-        const awayShort = fix.teams?.[1]?.team?.club?.abbr || fix.teams?.[1]?.team?.shortName;
-        if (gw && homeShort && awayShort && fix.id) {
-          index.set(`${gw}_${homeShort}_${awayShort}`, fix.id);
-        }
-        if (fix.id && fix.altIds?.opta) {
-          const optaCode = parseInt(String(fix.altIds.opta).replace(/\D/g, ''), 10);
-          if (!isNaN(optaCode) && optaCode > 0) {
-            optaByPulseId.set(Number(fix.id), optaCode);
-          }
-        }
-      }
-      pulseSeasonFixturesCache = {
-        seasonId: season.id,
-        fixtures: data.content,
-        indexByGwAndTeams: index,
-        optaByPulseId,
-        time: now
-      };
-      return index;
-    }
-  } catch (err: any) {
-    console.warn('[Pulse API] Failed to fetch season fixtures index:', err.message);
+  if (inFlightPulseIndex) {
+    return inFlightPulseIndex;
   }
 
-  return pulseSeasonFixturesCache?.indexByGwAndTeams || index;
+  inFlightPulseIndex = (async () => {
+    const index = new Map<string, number>();
+    const optaByPulseId = new Map<number, number>();
+    try {
+      const data = await fetchJson(`${PULSE_BASE}/fixtures?comps=1&compSeasons=${season.id}&page=0&pageSize=400&altIds=true`, PULSE_HEADERS, 1);
+      if (data && Array.isArray(data.content)) {
+        for (const fix of data.content) {
+          const gw = fix.gameweek?.gameweek;
+          const homeShort = fix.teams?.[0]?.team?.club?.abbr || fix.teams?.[0]?.team?.shortName;
+          const awayShort = fix.teams?.[1]?.team?.club?.abbr || fix.teams?.[1]?.team?.shortName;
+          if (gw && homeShort && awayShort && fix.id) {
+            index.set(`${gw}_${homeShort}_${awayShort}`, fix.id);
+          }
+          if (fix.id && fix.altIds?.opta) {
+            const optaCode = parseInt(String(fix.altIds.opta).replace(/\D/g, ''), 10);
+            if (!isNaN(optaCode) && optaCode > 0) {
+              optaByPulseId.set(Number(fix.id), optaCode);
+            }
+          }
+        }
+        pulseSeasonFixturesCache = {
+          seasonId: season.id,
+          fixtures: data.content,
+          indexByGwAndTeams: index,
+          optaByPulseId,
+          time: Date.now()
+        };
+        return index;
+      }
+    } catch (err: any) {
+      console.warn('[Pulse API] Failed to fetch season fixtures index:', err.message);
+    } finally {
+      inFlightPulseIndex = null;
+    }
+
+    return pulseSeasonFixturesCache?.indexByGwAndTeams || index;
+  })();
+
+  return inFlightPulseIndex;
 }
 
 export async function getOptaMatchCodeForPulseId(pulseId: number): Promise<number | null> {
@@ -221,6 +346,7 @@ function mapSdpPlayerToPulse(p: any): any {
     matchPosition: posChar,
     info: {
       position: posChar,
+      positionInfo: typeof p?.positionInfo === 'string' ? p.positionInfo : (typeof effectivePos === 'string' ? effectivePos : undefined),
       shirtNum: Number(p?.shirtNum) || 0
     },
     captain: Boolean(p?.isCaptain),
@@ -453,16 +579,16 @@ async function fetchPulseMatchDetails(
   try {
     let data: any = null;
     if (optaMatchCode && optaMatchCode > 0) {
-      data = await fetchSdpNormalizedMatch(optaMatchCode, pulseMatchId, gwHint);
+      data = await withPulseSlot(() => fetchSdpNormalizedMatch(optaMatchCode, pulseMatchId, gwHint));
     }
     if (!data && pulseMatchId && pulseMatchId > 0) {
-      data = await fetchJson(`${PULSE_BASE}/fixtures/${pulseMatchId}`, PULSE_HEADERS);
+      data = await withPulseSlot(() => fetchJson(`${PULSE_BASE}/fixtures/${pulseMatchId}/`, PULSE_HEADERS, 2));
     }
     if (data) {
       const isFinished = Boolean(isMatchFinished || data.status === 'C');
       pulseMatchDetailsCache.set(cacheKey, {
         data,
-        time: now,
+        time: Date.now(),
         isFinished
       });
       return data;
@@ -510,8 +636,11 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
   const now = Date.now();
   const cachedGw = matchesGwCache.get(gw);
   if (cachedGw) {
-    const ttl = cachedGw.isAllFinished
-      ? 3600000 * 24 // 24 hours for past finished GWs
+    const hasMissingPulse = cachedGw.data.some((m) => (m.finished || m.started) && (!m.home_formation || !m.away_formation));
+    const ttl = cachedGw.isAllFinished && !hasMissingPulse
+      ? 3600000 * 24 // 24 hours for past finished GWs with complete Pulse formations
+      : cachedGw.isAllFinished && hasMissingPulse
+      ? 30000 // 30s retry if any finished match missed Pulse formations
       : cachedGw.isFuture
       ? 1800000 // 30 minutes for future unstarted GWs
       : 15000; // 15 seconds during live matches
@@ -519,6 +648,14 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       return cachedGw.data;
     }
   }
+
+  const existingInFlight = inFlightGwFetches.get(gw);
+  if (existingInFlight) {
+    return existingInFlight;
+  }
+
+  const runPromise = (async (): Promise<MatchCardItem[]> => {
+    try {
 
   // Fetch FPL fixtures for this GW and retrieve cached bootstrap-static (instant RAM retrieval)
   const [fixturesRaw, bootstrapRaw] = await Promise.all([
@@ -1109,6 +1246,17 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
 
       const playerCode = fplEl ? fplEl.code : (pulsePlayer?.id || 0);
       const nowCost = fplEl ? fplEl.now_cost : 0;
+      const pulsePosRaw = pulsePlayer?.matchPosition;
+      const pulsePosition: PositionType | undefined =
+        pulsePosRaw === 'G' ? 'GKP'
+        : pulsePosRaw === 'D' ? 'DEF'
+        : pulsePosRaw === 'M' ? 'MID'
+        : pulsePosRaw === 'F' ? 'FWD'
+        : undefined;
+      const pulsePositionInfo: string | undefined =
+        typeof pulsePlayer?.info?.positionInfo === 'string' && pulsePlayer.info.positionInfo.trim()
+          ? pulsePlayer.info.positionInfo.trim()
+          : undefined;
 
       return {
         id: elId,
@@ -1116,6 +1264,8 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         web_name: webName,
         full_name: fullName,
         position: pos,
+        ...(pulsePosition ? { pulse_position: pulsePosition } : {}),
+        ...(pulsePositionInfo ? { pulse_position_info: pulsePositionInfo } : {}),
         team: assignedTeamId,
         team_short_name: assignedTeamShort,
         now_cost: nowCost,
@@ -1162,6 +1312,8 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     let homeBench: MatchPlayerItem[] = [];
     let awayLineup: MatchPlayerItem[] = [];
     let awayBench: MatchPlayerItem[] = [];
+    let homeFormation: { label: string; rows: number[][] } | undefined;
+    let awayFormation: { label: string; rows: number[][] } | undefined;
     let hasLineup = false;
 
     // Build lineup from official Pulse API if available
@@ -1224,12 +1376,60 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
           return null;
         };
 
+        // Supports both Legacy Pulse ({ label, players }) and SDP Pulse ({ formation, lineup }) schemas
+        const resolveTeamFormation = (
+          rawFormation: any,
+          rawStarters: any[],
+          lineupItems: MatchPlayerItem[]
+        ): { label: string; rows: number[][] } | undefined => {
+          const labelStr = typeof rawFormation?.label === 'string'
+            ? rawFormation.label
+            : typeof rawFormation?.formation === 'string'
+            ? rawFormation.formation
+            : '';
+          const rawGrid = Array.isArray(rawFormation?.players)
+            ? rawFormation.players
+            : Array.isArray(rawFormation?.lineup)
+            ? rawFormation.lineup
+            : null;
+          if (!rawFormation || !labelStr.trim() || !rawGrid) {
+            return undefined;
+          }
+          const pulseIdToItem = new Map<number, MatchPlayerItem>();
+          rawStarters.forEach((p: any, idx: number) => {
+            const pidNum = Number(p?.id);
+            if (pidNum && lineupItems[idx]) {
+              pulseIdToItem.set(pidNum, lineupItems[idx]);
+            }
+          });
+          const rows: number[][] = [];
+          rawGrid.forEach((rowIds: any, rIdx: number) => {
+            if (!Array.isArray(rowIds)) return;
+            const resolvedRow: number[] = [];
+            rowIds.forEach((pulseId: any, cIdx: number) => {
+              const item = pulseIdToItem.get(Number(pulseId));
+              if (item) {
+                item.formation_row = rIdx;
+                item.formation_col = cIdx;
+                resolvedRow.push(item.id);
+              }
+            });
+            if (resolvedRow.length > 0) {
+              rows.push(resolvedRow);
+            }
+          });
+          if (rows.length === 0) return undefined;
+          return { label: labelStr.trim(), rows };
+        };
+
         // Build Home Starters
-        homeLineup = rawHomeStarters.map((p: any) => {
+        const builtHomeStarters = rawHomeStarters.map((p: any) => {
           const fplEl = matchPulsePlayerToFpl(p);
           const subInfo = subEventsByPersonId.get(p.id);
           return buildMatchPlayer(fplEl, p, true, false, Boolean(subInfo?.off), true);
         });
+        homeFormation = resolveTeamFormation(homeTl.formation, rawHomeStarters, builtHomeStarters);
+        homeLineup = [...builtHomeStarters];
 
         // Tactical sort for home starters: GKP -> DEF -> MID -> FWD
         homeLineup.sort((a, b) => {
@@ -1253,11 +1453,13 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         });
 
         // Build Away Starters
-        awayLineup = rawAwayStarters.map((p: any) => {
+        const builtAwayStarters = rawAwayStarters.map((p: any) => {
           const fplEl = matchPulsePlayerToFpl(p);
           const subInfo = subEventsByPersonId.get(p.id);
           return buildMatchPlayer(fplEl, p, false, false, Boolean(subInfo?.off), true);
         });
+        awayFormation = resolveTeamFormation(awayTl.formation, rawAwayStarters, builtAwayStarters);
+        awayLineup = [...builtAwayStarters];
 
         // Tactical sort for away starters: GKP -> DEF -> MID -> FWD
         awayLineup.sort((a, b) => {
@@ -1357,7 +1559,9 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       home_lineup: homeLineup,
       home_bench: homeBench,
       away_lineup: awayLineup,
-      away_bench: awayBench
+      away_bench: awayBench,
+      ...(homeFormation ? { home_formation: homeFormation.label, home_formation_rows: homeFormation.rows } : {}),
+      ...(awayFormation ? { away_formation: awayFormation.label, away_formation_rows: awayFormation.rows } : {})
     });
   }
 
@@ -1368,5 +1572,141 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     isAllFinished: allMatchesFinished
   });
 
+  const hasMissingPulse = matchCards.some((m) => (m.finished || m.started) && (!m.home_formation || !m.away_formation));
+  if (allMatchesFinished && !hasMissingPulse) {
+    scheduleMatchesDiskPersist();
+  }
+
   return matchCards;
+    } finally {
+      inFlightGwFetches.delete(gw);
+    }
+  })();
+
+  inFlightGwFetches.set(gw, runPromise);
+  return runPromise;
 }
+
+// ============================================================================
+// LIVE 38-GW SEASON FIXTURES SCHEDULE (BGW / DGW / RESCHEDULED AWARE)
+// ============================================================================
+let seasonScheduleCache: {
+  data: {
+    teams: ScheduleTeamSummary[];
+    matchesByGW: Record<number, ScheduleFixtureSummary[]>;
+    fetchedAt: string;
+  };
+  time: number;
+} | null = null;
+let inFlightSeasonSchedule: Promise<{
+  teams: ScheduleTeamSummary[];
+  matchesByGW: Record<number, ScheduleFixtureSummary[]>;
+  fetchedAt: string;
+}> | null = null;
+
+export function invalidateFixturesScheduleCache(): void {
+  seasonScheduleCache = null;
+}
+
+/**
+ * Fetches complete live Premier League 38-GW fixtures from /api/fixtures/
+ * + team metadata from cached bootstrap-static.
+ * Matches with `event == null` (postponed / unscheduled) are excluded so BGW & DGW
+ * are accurately reflected in real time when Premier League reschedules fixtures.
+ */
+export async function fetchAllSeasonFixturesSchedule(force: boolean = false): Promise<{
+  teams: ScheduleTeamSummary[];
+  matchesByGW: Record<number, ScheduleFixtureSummary[]>;
+  fetchedAt: string;
+} | null> {
+  const now = Date.now();
+  if (!force && seasonScheduleCache && now - seasonScheduleCache.time < 30 * 60 * 1000) {
+    return seasonScheduleCache.data;
+  }
+  if (!force && inFlightSeasonSchedule) {
+    return inFlightSeasonSchedule;
+  }
+
+  inFlightSeasonSchedule = (async () => {
+    try {
+      const [bootstrapRaw, fixturesRaw] = await Promise.all([
+        getCachedBootstrapStatic(force),
+        fetchJson(`${FPL_BASE}/fixtures/`, FPL_HEADERS, 1)
+      ]);
+      if (!bootstrapRaw || !Array.isArray(bootstrapRaw.teams) || !Array.isArray(fixturesRaw)) {
+        return seasonScheduleCache?.data || null;
+      }
+
+      const teamMap = new Map<number, any>();
+      const teams: ScheduleTeamSummary[] = bootstrapRaw.teams.map((t: any) => {
+        teamMap.set(Number(t.id), t);
+        return {
+          id: Number(t.id),
+          name: String(t.name),
+          short_name: String(t.short_name)
+        };
+      });
+
+      const matchesByGW: Record<number, ScheduleFixtureSummary[]> = {};
+      for (let g = 1; g <= 38; g++) {
+        matchesByGW[g] = [];
+      }
+
+      for (const fix of fixturesRaw) {
+        const gw = Number(fix?.event);
+        if (!Number.isFinite(gw) || gw < 1 || gw > 38) continue; // Postponed (`event: null`) skipped -> natural BGW
+        const hTeam = teamMap.get(Number(fix.team_h));
+        const aTeam = teamMap.get(Number(fix.team_a));
+        if (!hTeam || !aTeam) continue;
+
+        matchesByGW[gw].push({
+          id: Number(fix.id),
+          event: gw,
+          kickoff_time: fix.kickoff_time ? String(fix.kickoff_time) : undefined,
+          started: Boolean(fix.started),
+          finished: Boolean(fix.finished),
+          finished_provisional: Boolean(fix.finished_provisional),
+          team_h_difficulty: fix.team_h_difficulty ?? undefined,
+          team_a_difficulty: fix.team_a_difficulty ?? undefined,
+          team_h_score: fix.team_h_score ?? null,
+          team_a_score: fix.team_a_score ?? null,
+          home_team: {
+            id: Number(hTeam.id),
+            name: String(hTeam.name),
+            short_name: String(hTeam.short_name)
+          },
+          away_team: {
+            id: Number(aTeam.id),
+            name: String(aTeam.name),
+            short_name: String(aTeam.short_name)
+          }
+        });
+      }
+
+      for (let g = 1; g <= 38; g++) {
+        matchesByGW[g].sort((a, b) => {
+          const ta = a.kickoff_time ? Date.parse(a.kickoff_time) : 0;
+          const tb = b.kickoff_time ? Date.parse(b.kickoff_time) : 0;
+          if (ta !== tb) return ta - tb;
+          return a.id - b.id;
+        });
+      }
+
+      const payload = {
+        teams,
+        matchesByGW,
+        fetchedAt: new Date().toISOString()
+      };
+      seasonScheduleCache = { data: payload, time: Date.now() };
+      return payload;
+    } catch (err: any) {
+      console.warn('[ScheduleCache] Failed to fetch live 38-GW schedule:', err?.message);
+      return seasonScheduleCache?.data || null;
+    } finally {
+      inFlightSeasonSchedule = null;
+    }
+  })();
+
+  return inFlightSeasonSchedule;
+}
+
