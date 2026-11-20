@@ -20,6 +20,7 @@ import {
 import { getGameweekStatus } from '../utils/gwStatus.ts';
 import {
   ClubSplitStats,
+  PROJECTION_FORMULA_VERSION,
   buildClubSplitStatsMap,
   buildClubLineupAttackMods,
   projectEnhancedFixture,
@@ -90,24 +91,24 @@ interface EngineClubMeta {
 const PREMIER_LEAGUE_CLUBS: EngineClubMeta[] = [
   { id: 1, name: 'Arsenal', short: 'ARS', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t3.png' },
   { id: 2, name: 'Aston Villa', short: 'AVL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t7.png' },
-  { id: 3, name: 'Burnley', short: 'BUR', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t90.png' },
-  { id: 4, name: 'Bournemouth', short: 'BOU', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t91.png' },
-  { id: 5, name: 'Brentford', short: 'BRE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t94.png' },
-  { id: 6, name: 'Brighton', short: 'BHA', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t36.png' },
-  { id: 7, name: 'Chelsea', short: 'CHE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t8.png' },
+  { id: 3, name: 'Bournemouth', short: 'BOU', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t91.png' },
+  { id: 4, name: 'Brentford', short: 'BRE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t94.png' },
+  { id: 5, name: 'Brighton', short: 'BHA', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t36.png' },
+  { id: 6, name: 'Chelsea', short: 'CHE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t8.png' },
+  { id: 7, name: 'Coventry City', short: 'COV', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t9.png' },
   { id: 8, name: 'Crystal Palace', short: 'CRY', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t31.png' },
   { id: 9, name: 'Everton', short: 'EVE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t11.png' },
   { id: 10, name: 'Fulham', short: 'FUL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t54.png' },
-  { id: 11, name: 'Leeds', short: 'LEE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t2.png' },
-  { id: 12, name: 'Liverpool', short: 'LIV', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t14.png' },
-  { id: 13, name: 'Man City', short: 'MCI', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t43.png' },
-  { id: 14, name: 'Man Utd', short: 'MUN', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t1.png' },
-  { id: 15, name: 'Newcastle', short: 'NEW', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t4.png' },
-  { id: 16, name: "Nott'm Forest", short: 'NFO', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t17.png' },
-  { id: 17, name: 'Sunderland', short: 'SUN', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t56.png' },
-  { id: 18, name: 'Spurs', short: 'TOT', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t6.png' },
-  { id: 19, name: 'West Ham', short: 'WHU', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t21.png' },
-  { id: 20, name: 'Wolves', short: 'WOL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t39.png' },
+  { id: 11, name: 'Hull City', short: 'HUL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t88.png' },
+  { id: 12, name: 'Ipswich Town', short: 'IPS', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t40.png' },
+  { id: 13, name: 'Leeds', short: 'LEE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t2.png' },
+  { id: 14, name: 'Liverpool', short: 'LIV', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t14.png' },
+  { id: 15, name: 'Man City', short: 'MCI', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t43.png' },
+  { id: 16, name: 'Man Utd', short: 'MUN', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t1.png' },
+  { id: 17, name: 'Newcastle', short: 'NEW', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t4.png' },
+  { id: 18, name: "Nott'm Forest", short: 'NFO', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t17.png' },
+  { id: 19, name: 'Spurs', short: 'TOT', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t6.png' },
+  { id: 20, name: 'Sunderland', short: 'SUN', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t56.png' },
 ];
 
 function getPositionalPrior(
@@ -127,19 +128,19 @@ function getPositionalPrior(
 
   let priorXa90 =
     pos === 'MID'
-      ? costMil >= 10 ? 0.28 : costMil >= 8 ? 0.22 : costMil >= 6.5 ? 0.15 : costMil >= 5 ? 0.09 : 0.04
+      ? costMil >= 10 ? 0.34 : costMil >= 8 ? 0.24 : costMil >= 6.5 ? 0.16 : costMil >= 5 ? 0.10 : 0.06
       : pos === 'FWD'
-      ? costMil >= 11 ? 0.18 : costMil >= 8 ? 0.14 : costMil >= 6 ? 0.10 : 0.06
+      ? costMil >= 12 ? 0.18 : costMil >= 9 ? 0.16 : costMil >= 7 ? 0.14 : costMil >= 5.5 ? 0.10 : 0.08
       : pos === 'DEF'
-      ? costMil >= 6 ? 0.12 : costMil >= 5 ? 0.08 : costMil >= 4.5 ? 0.04 : 0.02
+      ? costMil >= 6 ? 0.12 : costMil >= 5 ? 0.08 : costMil >= 4.5 ? 0.05 : 0.02
       : 0;
 
   if (past && past.minutes >= 900) {
-    const pastXg90 = (past.goals_scored / past.minutes) * 90;
-    const pastXa90 = (past.assists / past.minutes) * 90;
-    const pastWeight = provenTier === 'ELITE' ? 0.55 : provenTier === 'ESTABLISHED' ? 0.45 : 0.35;
-    priorXg90 = (1 - pastWeight) * priorXg90 + pastWeight * pastXg90;
-    priorXa90 = (1 - pastWeight) * priorXa90 + pastWeight * pastXa90;
+    const pastG90 = (past.goals_scored / past.minutes) * 90;
+    const pastA90 = (past.assists / past.minutes) * 90;
+    const priceWeight = provenTier === 'ELITE' ? 0.45 : provenTier === 'ESTABLISHED' ? 0.55 : 0.60;
+    priorXg90 = priceWeight * priorXg90 + (1 - priceWeight) * pastG90;
+    priorXa90 = priceWeight * priorXa90 + (1 - priceWeight) * pastA90;
   }
 
   return { priorXg90, priorXa90 };
@@ -195,7 +196,7 @@ export function computeProjectionEpochInfo(cachedData: TransformedLeagueData | n
   const targetNextGW = Math.min(baseHistoricalGW + 1, 38);
   const effectiveEpochStatus =
     baseHistoricalGW === curr && lifecycleStatus === 'Provisional' ? 'Provisional' : 'Confirmed';
-  const epochKey = `${baseHistoricalGW}:${effectiveEpochStatus}`;
+  const epochKey = `${baseHistoricalGW}:${effectiveEpochStatus}:${PROJECTION_FORMULA_VERSION}`;
 
   return {
     epochKey,
@@ -242,6 +243,10 @@ export function hasProjectionCoreCache(): boolean {
   return cachedCoreContext !== null;
 }
 
+export function hasProjectionScoutCache(): boolean {
+  return cachedScoutPayload !== null;
+}
+
 export function getProjectionCacheEpochKey(): string | null {
   return cachedCoreContext?.epoch.epochKey ?? null;
 }
@@ -262,12 +267,18 @@ export function invalidateProjectionEngine(reason?: string): void {
 export function warmProjectionEngineIfNeeded(cachedData: TransformedLeagueData | null): void {
   if (!cachedData) return;
   const epochInfo = computeProjectionEpochInfo(cachedData);
-  if (cachedCoreContext && cachedCoreContext.epoch.epochKey === epochInfo.epochKey) {
+  const coreWarm = Boolean(cachedCoreContext && cachedCoreContext.epoch.epochKey === epochInfo.epochKey);
+  const scoutWarm = Boolean(cachedScoutPayload && cachedScoutPayload.epochKey === epochInfo.epochKey);
+  if (coreWarm && scoutWarm) {
     return;
   }
-  getOrBuildCoreContext(cachedData, false)
+  const warmTask = coreWarm
+    ? getServerScoutSquads(cachedData, false)
+    : getOrBuildCoreContext(cachedData, false).then(() => getServerScoutSquads(cachedData, false));
+
+  warmTask
     .then(() => {
-      console.log(`[ProjectionEngine] Background warm completed for epoch ${epochInfo.epochKey}`);
+      console.log(`[ProjectionEngine] Background warm completed (Core + Scout Squads) for epoch ${epochInfo.epochKey}`);
     })
     .catch((err: any) => {
       console.warn(`[ProjectionEngine] Background warm warning:`, err?.message || err);
@@ -1520,18 +1531,25 @@ function buildLineupReviewForGw(
       const costMil = (p.nowCost || 50) / 10;
       let startsBefore = 0;
       let matchesBefore = 0;
+      let inSquadBefore = 0;
       for (let g = 1; g < gw; g++) {
         const gMatches = actualMatchLookup[`${g}_${c.short}`] || [];
         if (gMatches.length > 0) {
           matchesBefore += 1;
           const gStat = actualPlayerStatsMap[p.id]?.[g];
+          if (gStat) inSquadBefore += 1;
           if (gStat?.wasStarter) startsBefore += 1;
         }
       }
 
       const past = pastSeasonMap[String(p.id)];
       const priorRate = past ? Math.min(1.0, past.minutes / 3420) : 0.20;
-      const baselineRate = matchesBefore > 0 ? startsBefore / matchesBefore : priorRate;
+      const baselineRate =
+        inSquadBefore > 0
+          ? startsBefore / inSquadBefore
+          : matchesBefore > 0
+          ? startsBefore / matchesBefore
+          : priorRate;
 
       let sPrev1 = 0;
       let hasPrev1 = false;
@@ -1565,9 +1583,13 @@ function buildLineupReviewForGw(
       if (hasPrev1 && hasPrev2) compositeRate = 0.50 * baselineRate + 0.30 * sPrev1 + 0.20 * sPrev2;
       else if (hasPrev1) compositeRate = 0.60 * baselineRate + 0.40 * sPrev1;
 
+      const provenStatus = getFplProvenStatus(p);
+
       let momentum = 0;
       if (startedPrev1 && startedPrev2) momentum = 8;
-      else if (hasPrev1 && hasPrev2 && sPrev1 === 0 && sPrev2 === 0 && matchesBefore >= 2) momentum = -8;
+      else if (hasPrev1 && hasPrev2 && sPrev1 === 0 && sPrev2 === 0 && inSquadBefore >= 2) {
+        momentum = provenStatus.isProven ? 0 : -8;
+      }
 
       const isHistoricalPast = gw < maxReviewGW || isMatchPlayed;
       const isAvailable = isHistoricalPast
@@ -1583,7 +1605,7 @@ function buildLineupReviewForGw(
       const baseSi = Math.min(99, Math.max(5, Math.round(compositeRate * 100) + momentum));
       const finalSi = isAvailable ? Math.round(baseSi * discount) : 0;
 
-      return { p, costMil, totalStarts: startsBefore, si: finalSi, isAvailable };
+      return { p, costMil, totalStarts: startsBefore, si: finalSi, isAvailable, provenTier: provenStatus.tier };
     });
 
     rawSquad.sort((a, b) => b.si - a.si || b.totalStarts - a.totalStarts || b.costMil - a.costMil);
@@ -1611,7 +1633,7 @@ function buildLineupReviewForGw(
         starts: item.totalStarts,
         bench: 0,
         nowCost: item.costMil,
-        provenTier: getFplProvenStatus(item.p).tier,
+        provenTier: item.provenTier,
       })),
       tacticalIndex
     );
@@ -1649,7 +1671,8 @@ function buildLineupReviewForGw(
           const target = formationTarget[cand.p.position] || 0;
           const cur = cand.p.position === 'DEF' ? curDef : cand.p.position === 'MID' ? curMid : curFwd;
           const quotaGap = Math.max(0, target - cur);
-          (cand as any).flexScore = cand.si + 8 * quotaGap;
+          const provenPriority = cand.provenTier === 'ELITE' ? 14 : cand.provenTier === 'ESTABLISHED' ? 8 : 0;
+          (cand as any).flexScore = cand.si + 8 * quotaGap + provenPriority;
         });
         flexCandidates.sort(
           (a, b) =>

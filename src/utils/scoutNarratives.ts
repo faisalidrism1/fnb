@@ -103,7 +103,7 @@ export function resolveClubName(short: string, clubNameMap?: Record<string, stri
 }
 
 const BIG_SIX_CLUBS = new Set(['ARS', 'CHE', 'LIV', 'MCI', 'MUN', 'TOT']);
-const BOTTOM_HALF_CLUBS = new Set(['SOU', 'IPS', 'LEI', 'WOL', 'EVE', 'CRY', 'BRE', 'SUN', 'BUR', 'HUL', 'COV']);
+const BOTTOM_HALF_CLUBS = new Set(['IPS', 'EVE', 'CRY', 'BRE', 'SUN', 'HUL', 'COV', 'LEE', 'BOU', 'FUL']);
 
 interface PlayerHistoryProfile {
   consecutiveGoals: number;

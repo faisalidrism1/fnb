@@ -130,6 +130,7 @@ export async function loadFromIndexedDB(): Promise<TransformedLeagueData | null>
 
 const KEY_MATCHES_BY_GW = 'latest_matches_by_gw';
 const KEY_PROJECTIONS_CORE = 'latest_projections_core';
+const KEY_SCOUT_SQUADS = 'latest_scout_squads';
 
 export async function saveMatchesByGwToIndexedDB(data: Record<number, any[]>): Promise<void> {
   try {
@@ -189,6 +190,35 @@ export async function loadProjectionsCoreFromIndexedDB<T = any>(): Promise<T | n
   }
 }
 
+export async function saveScoutSquadsToIndexedDB(data: any): Promise<void> {
+  try {
+    const db = await openDB();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.put(data, KEY_SCOUT_SQUADS);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  } catch {}
+}
+
+export async function loadScoutSquadsFromIndexedDB<T = any>(): Promise<T | null> {
+  try {
+    const db = await openDB();
+    const result = await new Promise<T | null>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const req = store.get(KEY_SCOUT_SQUADS);
+      req.onsuccess = () => resolve((req.result as T) || null);
+      req.onerror = () => reject(req.error);
+    });
+    return result && typeof result === 'object' ? result : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Explicitly clears the local IndexedDB and localStorage cache
  */
@@ -201,6 +231,7 @@ export async function clearIndexedDBCache(): Promise<void> {
       const req = store.delete(KEY_NAME);
       store.delete(KEY_MATCHES_BY_GW);
       store.delete(KEY_PROJECTIONS_CORE);
+      store.delete(KEY_SCOUT_SQUADS);
       req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });

@@ -1486,24 +1486,42 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
     });
   }
 
+  const existingPlayerById = new Map<number, DbPlayerStat>(
+    (existingData?.player_stats || []).map((ep) => [ep.id, ep])
+  );
+
   // Build complete player stats for all Premier League players
   const playerStatsList: DbPlayerStat[] = bootstrap.elements.map((el: any) => {
     const t = teamMap.get(el.team);
-    const history: any[] = [];
+    const historyByRound = new Map<number, any>();
+
+    // On Action B (targetOnlyGW) partial sync, preserve already-synced historical GWs
+    if (targetOnlyGW && existingData?.player_stats) {
+      const prevPlayer = existingPlayerById.get(el.id);
+      for (const prevH of prevPlayer?.gwHistory || []) {
+        if (prevH?.round && prevH.round !== targetOnlyGW) {
+          historyByRound.set(prevH.round, prevH);
+        }
+      }
+    }
+
     for (const gw of availableGWs) {
       const gwStats = gwLiveStatsMap.get(gw)?.get(el.id);
       if (gwStats) {
-        history.push({
+        historyByRound.set(gw, {
           round: gw,
           points: gwStats.total_points ?? 0,
           minutes: gwStats.minutes ?? 0,
           goals: gwStats.goals_scored ?? 0,
           assists: gwStats.assists ?? 0,
+          cleanSheets: gwStats.clean_sheets ?? 0,
           bps: gwStats.bps ?? 0,
           bonus: gwStats.bonus ?? 0
         });
       }
     }
+
+    const history = Array.from(historyByRound.values()).sort((a, b) => a.round - b.round);
 
     return {
       id: el.id,
@@ -1520,6 +1538,7 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
       penaltiesOrder: el.penalties_order ?? null,
       directFreekicksOrder: el.direct_freekicks_order ?? null,
       cornersAndIndirectFreekicksOrder: el.corners_and_indirect_freekicks_order ?? null,
+      defensiveContribution: el.defensive_contribution ?? 0,
       news: el.news || '',
       newsAdded: el.news_added ?? null,
       photo: (el.code || (el.photo ? el.photo.replace('.jpg', '').replace(/^p/, '') : null))

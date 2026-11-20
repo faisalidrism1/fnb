@@ -1,6 +1,8 @@
 import { PositionType, DbPlayerStat } from '../types.ts';
 import precalculatedReviewDataRaw from '../data/precalculatedReviewMatches.json';
 
+export const PROJECTION_FORMULA_VERSION = '2026.3';
+
 // ============================================================================
 // PREMIER LEAGUE 2026/2027 DEAD-BALL HIERARCHY CATALOG (20 CLUBS)
 // Used for penalty taker conversion boost (~79% historic PL rate) and
@@ -220,18 +222,22 @@ function seededPrng(seed: number): () => number {
 
 /**
  * Calculates projected match score from the joint Bivariate Poisson probability
- * distribution P(H=h, A=a), strictly aligned with expected goals (lambdaH/lambdaA)
- * and Clean Sheet probabilities so projected winners and goal counts never contradict xG/CS%.
+ * distribution P(H=h, A=a), calibrated so 380-match rounded score totals align
+ * with Premier League season benchmarks (~1,045 goals, ~194 team CS) while
+ * leaving raw expected goals (lambdaH/lambdaA), CS%, and player xP untouched.
  */
 export function calculatePoissonScore(
   lambdaH: number,
   lambdaA: number,
   seedKey?: string
 ): { homeGoals: number; awayGoals: number } {
-  const rho = Math.min(lambdaH, lambdaA) * 0.02;
-  const l1 = Math.max(0.05, lambdaH - rho);
-  const l2 = Math.max(0.05, lambdaA - rho);
-  const maxG = 6;
+  // Calibrate discrete score-sampler lambdas (leaves continuous lambdaH/lambdaA & xP intact)
+  const lH = Math.max(0.05, lambdaH * 0.94);
+  const lA = Math.max(0.05, lambdaA * 0.94);
+  const rho = Math.min(lH, lA) * 0.03;
+  const l1 = Math.max(0.05, lH - rho);
+  const l2 = Math.max(0.05, lA - rho);
+  const maxG = 7;
 
   const p1 = Array.from({ length: maxG + 1 }, (_, k) => poissonProb(l1, k));
   const p2 = Array.from({ length: maxG + 1 }, (_, k) => poissonProb(l2, k));
@@ -246,45 +252,30 @@ export function calculatePoissonScore(
       for (let s = 0; s <= minHA; s++) {
         jointP += p1[h - s] * p2[a - s] * p3[s];
       }
-      grid.push({ h, a, jointP });
+      // Dixon-Coles low-score zero-zero adjustment for realistic goalless draw rate
+      const weight = h === 0 && a === 0 ? jointP * 1.10 : jointP;
+      grid.push({ h, a, jointP: weight });
     }
   }
 
-  const diff = lambdaH - lambdaA;
+  const diff = lH - lA;
 
   const matchesDirection = (h: number, a: number): boolean => {
-    if (diff >= 0.28) return h > a;
-    if (diff <= -0.28) return a > h;
-    if (diff >= 0.08) return h >= a;
-    if (diff <= -0.08) return a >= h;
-    return Math.abs(h - a) <= 1;
+    if (diff >= 0.55) return h > a;
+    if (diff <= -0.55) return a > h;
+    if (diff >= 0.10) return h >= a;
+    if (diff <= -0.10) return a >= h;
+    return Math.abs(h - a) <= 2;
   };
 
   let candidates = grid.filter((o) => {
     if (!matchesDirection(o.h, o.a)) return false;
 
-    // Keep each team's projected goals tightly anchored to its expected goals (xG)
-    if (Math.abs(o.h - lambdaH) > 1.25 || Math.abs(o.a - lambdaA) > 1.25) return false;
-    if (o.h === 0 && lambdaH >= 1.55) return false;
-    if (o.a === 0 && lambdaA >= 1.55) return false;
-    if (o.h >= 2 && lambdaH < 1.20) return false;
-    if (o.a >= 2 && lambdaA < 1.20) return false;
-    if (o.h >= 3 && lambdaH < 2.00) return false;
-    if (o.a >= 3 && lambdaA < 2.00) return false;
-    if (o.h >= 4 && lambdaH < 2.55) return false;
-    if (o.a >= 4 && lambdaA < 2.55) return false;
+    // Keep discrete goals within realistic Poisson deviation of calibrated team expectation
+    if (Math.abs(o.h - lH) > 2.5 || Math.abs(o.a - lA) > 2.5) return false;
 
-    // Keep winning margin proportional to xG gap
-    if (o.h - o.a >= 2 && diff < 0.45) return false;
-    if (o.a - o.h >= 2 && diff > -0.45) return false;
-    if (o.h - o.a >= 3 && diff < 1.20) return false;
-    if (o.a - o.h >= 3 && diff > -1.20) return false;
-    if (o.h - o.a >= 4 && diff < 1.75) return false;
-    if (o.a - o.h >= 4 && diff > -1.75) return false;
-
-    // Prevent unrealistic 0-0 in high-xG matches or inflated high-scoring draws
-    if (o.h === 0 && o.a === 0 && lambdaH + lambdaA >= 2.65) return false;
-    if (o.h >= 2 && o.h === o.a && (lambdaH < 1.50 || lambdaA < 1.50)) return false;
+    // Prevent 0-0 only in very high total-xG fixtures
+    if (o.h === 0 && o.a === 0 && lH + lA >= 3.30) return false;
 
     return true;
   });
@@ -295,12 +286,12 @@ export function calculatePoissonScore(
 
   candidates.sort((a, b) => b.jointP - a.jointP);
   const topAlignedP = candidates[0]?.jointP ?? 0;
-  const tightBand = candidates.filter((o) => o.jointP >= topAlignedP * 0.55);
+  const tightBand = candidates.filter((o) => o.jointP >= topAlignedP * 0.05);
   const pool = tightBand.length > 0 ? tightBand : candidates;
 
   let totalWeight = 0;
   const outcomes = pool.map((o) => {
-    const w = Math.pow(o.jointP, 1.35);
+    const w = o.jointP;
     totalWeight += w;
     return { h: o.h, a: o.a, w };
   });
@@ -317,8 +308,8 @@ export function calculatePoissonScore(
   }
 
   return {
-    homeGoals: outcomes[0]?.h ?? Math.round(lambdaH),
-    awayGoals: outcomes[0]?.a ?? Math.round(lambdaA)
+    homeGoals: outcomes[0]?.h ?? Math.round(lH),
+    awayGoals: outcomes[0]?.a ?? Math.round(lA)
   };
 }
 
@@ -962,16 +953,18 @@ export function calculatePlayerMatchExpectedPoints(input: PlayerExpectedPointsIn
   }
 
   // 1. Continuous Non-linear Probability of 60+ minutes & Appearance Points
+  // Starting GKPs almost never get subbed before 60' (~98.5% completion when fit & starting)
   const isStarter = starterIndexProb >= 0.70;
   const pPlay60 = isStarter
-    ? Math.min(0.95, starterIndexProb * 0.94)
+    ? Math.min(pos === 'GKP' ? 0.985 : 0.95, starterIndexProb * (pos === 'GKP' ? 0.985 : 0.94))
     : Math.max(0.02, 0.94 * starterIndexProb * Math.pow(starterIndexProb / 0.70, 0.45));
 
   const pPlayAny = Math.min(1.0, starterIndexProb + (1 - starterIndexProb) * (pos === 'GKP' ? 0.02 : 0.32));
   const expAppearance = pPlay60 * 2.0 + Math.max(0, pPlayAny - pPlay60) * 1.0;
 
   // Expected Minutes
-  const xMins = pPlay60 * starterMins + Math.max(0, pPlayAny - pPlay60) * (pos === 'GKP' ? 5 : 20);
+  const effStarterMins = pos === 'GKP' && isStarter ? 90 : starterMins;
+  const xMins = pPlay60 * effStarterMins + Math.max(0, pPlayAny - pPlay60) * (pos === 'GKP' ? 5 : 20);
 
   // 2. Dead-Ball & Goal/Assist Adjustments using Threat & Creativity
   // For players with high historical goal share, penalty duties are already largely baked into their xG.
@@ -994,7 +987,7 @@ export function calculatePlayerMatchExpectedPoints(input: PlayerExpectedPointsIn
     chanceCreationBoost = Math.min(0.14, (creativityPer90 / 180) * 0.18);
   } else if (pos === 'MID' || pos === 'FWD') {
     aerialThreatBoost = Math.min(0.04, (threatPer90 / 250) * 0.05);
-    chanceCreationBoost = Math.min(0.04, (creativityPer90 / 200) * 0.05);
+    chanceCreationBoost = Math.min(0.06, (creativityPer90 / 200) * 0.075);
   }
 
   // Calibrated goal share limit
@@ -1007,7 +1000,7 @@ export function calculatePlayerMatchExpectedPoints(input: PlayerExpectedPointsIn
   const effectiveAssistShare = Math.min(0.35, playerAssistShare + chanceCreationBoost + (setPieceXaBoost / Math.max(teamLambda, 0.5)));
 
   const expGoals = teamLambda * effectiveGoalShare * (xMins / 90);
-  const expAssists = teamLambda * 0.75 * effectiveAssistShare * (xMins / 90);
+  const expAssists = teamLambda * 0.77 * effectiveAssistShare * (xMins / 90);
 
   const goalPts = expGoals * (pos === 'FWD' ? 4 : pos === 'MID' ? 5 : 6);
   const assistPts = expAssists * 3.0;
@@ -1017,10 +1010,13 @@ export function calculatePlayerMatchExpectedPoints(input: PlayerExpectedPointsIn
   const csPts = (pos === 'GKP' || pos === 'DEF') ? eligibleCsProb * 4.0 : pos === 'MID' ? eligibleCsProb * 1.0 : 0;
   const gcPenalty = (pos === 'GKP' || pos === 'DEF') ? -(pPlay60 * expGcPenalty) : 0;
 
-  // 4. Defensive Contribution (Influence CBI) & Goalkeeper Shot-Stopping Saves
-  // CBs with high clearances/blocks/interceptions have high influence (e.g., Gabriel, Saliba, Tarkowski)
+  // 4. Defensive Contribution (+2 pts at CBIT >= 10 DEF / CBIRT >= 12 MID) & Goalkeeper Shot-Stopping Saves
   const influenceFactor = influencePer90 > 0 ? Math.min(0.45, (influencePer90 / 25) * 0.35) : pDc * 0.35;
-  const defConPts = pos === 'DEF' ? pPlay60 * influenceFactor : pos === 'MID' ? pPlay60 * (influenceFactor * 0.5) : 0;
+  const defConPts = pos === 'DEF'
+    ? pPlay60 * Math.max(influenceFactor, pDc * 1.55)
+    : pos === 'MID'
+    ? pPlay60 * (influenceFactor * 0.50)
+    : 0;
 
   // Goalkeepers face shots proportional to opponent attack lambda, blended with player's actual save rate
   const expShotsOnTarget = oppLambda * 2.8;
@@ -1029,18 +1025,19 @@ export function calculatePlayerMatchExpectedPoints(input: PlayerExpectedPointsIn
   const savesPts = pos === 'GKP' ? pPlay60 * (expSaves / 3.0) : 0;
 
   // 5. Dynamic Bonus Point System (BPS) Modeling
-  // Players with higher baseline BPS (CBs winning duels, creative FBs, shot-stopping GKPs) earn distinct bonus
+  // Calibrated to official FPL BPS tournament dynamics (FWD 24 BPS/goal vs MID 18 BPS/goal)
   const minsScale = Math.min(1.0, xMins / 78);
   let expBonus = 0;
   if (pos === 'GKP') {
-    const gkpBpsMod = bpsPer90 > 0 ? Math.min(1.5, Math.max(0.4, bpsPer90 / 18)) : 1.0;
-    expBonus = (eligibleCsProb * 0.25 * gkpBpsMod) + pPlay60 * (expSaves >= 4 ? 0.30 : 0.08);
+    const gkpBpsMod = bpsPer90 > 0 ? Math.min(1.6, Math.max(0.4, bpsPer90 / 18)) : 1.0;
+    expBonus = (eligibleCsProb * 0.42 * gkpBpsMod) + pPlay60 * (expSaves >= 4 ? 0.30 : 0.14) * gkpBpsMod;
   } else if (pos === 'DEF') {
-    const defBpsMod = bpsPer90 > 0 ? Math.min(1.8, Math.max(0.25, bpsPer90 / 16)) : 0.75;
-    expBonus = (eligibleCsProb * 0.28 * defBpsMod) + expGoals * 1.0 + expAssists * 0.50;
+    const defBpsMod = bpsPer90 > 0 ? Math.min(1.85, Math.max(0.25, bpsPer90 / 16)) : 0.75;
+    expBonus = (eligibleCsProb * 0.41 * defBpsMod) + expGoals * 1.0 + expAssists * 0.50;
   } else {
-    const attBpsMod = (bpsPer90 > 0 ? (bpsPer90 / 25) * 0.12 : 0.08) * minsScale;
-    expBonus = expGoals * 0.90 + expAssists * 0.45 + attBpsMod;
+    const goalBpsWeight = pos === 'FWD' ? 1.22 : 0.96;
+    const attBpsMod = (bpsPer90 > 0 ? Math.pow(bpsPer90 / 24, 2.0) * 0.135 : 0.08) * minsScale;
+    expBonus = expGoals * goalBpsWeight + expAssists * 0.45 + attBpsMod;
   }
   const bonusPts = Math.min(expBonus, pos === 'DEF' ? 1.5 : (pos === 'GKP' ? 1.2 : 2.0));
 

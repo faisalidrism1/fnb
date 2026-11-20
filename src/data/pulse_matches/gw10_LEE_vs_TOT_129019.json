@@ -643,25 +643,6 @@
           "shirtNumber": 18
         },
         {
-          "id": 438234,
-          "altIds": {
-            "opta": "p438234"
-          },
-          "name": {
-            "first": "Omar Khaled Mohamed Abdelsalam",
-            "last": "Marmoush",
-            "display": "Omar Khaled Mohamed Abdelsalam Marmoush"
-          },
-          "matchPosition": "F",
-          "info": {
-            "position": "F",
-            "positionInfo": "Forward",
-            "shirtNum": 22
-          },
-          "captain": false,
-          "shirtNumber": 22
-        },
-        {
           "id": 460842,
           "altIds": {
             "opta": "p460842"
@@ -679,6 +660,25 @@
           },
           "captain": false,
           "shirtNumber": 20
+        },
+        {
+          "id": 438234,
+          "altIds": {
+            "opta": "p438234"
+          },
+          "name": {
+            "first": "Omar Khaled Mohamed Abdelsalam",
+            "last": "Marmoush",
+            "display": "Omar Khaled Mohamed Abdelsalam Marmoush"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Forward",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22
         },
         {
           "id": 441164,

@@ -8,7 +8,6 @@ import {
   CaptainSubTab,
   AdminSubTab,
   ProjectionSubTab,
-  ReviewSubTab,
   ScoutSubTab,
   GwEventStatus,
   SyncStatus,
@@ -39,8 +38,6 @@ interface HeaderProps {
   onSelectCaptainSubTab?: (sub: CaptainSubTab) => void;
   projectionSubTab?: ProjectionSubTab;
   onSelectProjectionSubTab?: (sub: ProjectionSubTab) => void;
-  reviewSubTab?: ReviewSubTab;
-  onSelectReviewSubTab?: (sub: ReviewSubTab) => void;
   scoutSubTab?: ScoutSubTab;
   onSelectScoutSubTab?: (sub: ScoutSubTab) => void;
   adminSubTab?: AdminSubTab;
@@ -67,8 +64,6 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectCaptainSubTab,
   projectionSubTab = 'line-up',
   onSelectProjectionSubTab,
-  reviewSubTab = 'line-up',
-  onSelectReviewSubTab,
   scoutSubTab = 'picks',
   onSelectScoutSubTab,
   adminSubTab = 'news-ticker',
@@ -95,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (activeBtn) {
       scrollTabIntoView(subNavRef.current, activeBtn);
     }
-  }, [activeTab, standingsSubTab, ownershipSubTab, transferSubTab, captainSubTab, projectionSubTab, reviewSubTab, scoutSubTab, adminSubTab]);
+  }, [activeTab, standingsSubTab, ownershipSubTab, transferSubTab, captainSubTab, projectionSubTab, scoutSubTab, adminSubTab]);
 
   // Determine current active Gameweek status (Not Started, Live, Provisional, Confirmed)
   const effectiveGW = currentGW || 1;
@@ -122,7 +117,6 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'CAPTAIN', label: t('tab_captain') },
     { id: 'CHIPS', label: t('tab_chips') },
     { id: 'PROJECTION', label: t('tab_projection') },
-    { id: 'REVIEW', label: t('tab_review') },
     { id: 'SCOUT', label: t('tab_scout') },
   ];
 
@@ -250,13 +244,6 @@ export const Header: React.FC<HeaderProps> = ({
       { id: 'score', label: t('subtab_projection_score'), onClick: () => onSelectProjectionSubTab?.('score'), isActive: projectionSubTab === 'score' },
       { id: 'points', label: t('subtab_projection_points'), onClick: () => onSelectProjectionSubTab?.('points'), isActive: projectionSubTab === 'points' },
     ];
-  } else if (activeTab === 'REVIEW') {
-    subTabs = [
-      { id: 'line-up', label: t('subtab_projection_lineup'), onClick: () => onSelectReviewSubTab?.('line-up'), isActive: reviewSubTab === 'line-up' },
-      { id: 'score', label: t('subtab_projection_score'), onClick: () => onSelectReviewSubTab?.('score'), isActive: reviewSubTab === 'score' },
-      { id: 'points', label: t('subtab_projection_points'), onClick: () => onSelectReviewSubTab?.('points'), isActive: reviewSubTab === 'points' },
-      { id: 'mae', label: t('subtab_review_mae'), onClick: () => onSelectReviewSubTab?.('mae'), isActive: reviewSubTab === 'mae' },
-    ];
   } else if (activeTab === 'SCOUT') {
     subTabs = [
       { id: 'picks', label: 'Picks', onClick: () => onSelectScoutSubTab?.('picks'), isActive: scoutSubTab === 'picks' },
@@ -278,6 +265,30 @@ export const Header: React.FC<HeaderProps> = ({
         label: 'News Ticker',
         onClick: () => onSelectAdminSubTab?.('news-ticker'),
         isActive: adminSubTab === 'news-ticker',
+      },
+      {
+        id: 'line-up',
+        label: t('subtab_projection_lineup'),
+        onClick: () => onSelectAdminSubTab?.('line-up'),
+        isActive: adminSubTab === 'line-up',
+      },
+      {
+        id: 'score',
+        label: t('subtab_projection_score'),
+        onClick: () => onSelectAdminSubTab?.('score'),
+        isActive: adminSubTab === 'score',
+      },
+      {
+        id: 'points',
+        label: t('subtab_projection_points'),
+        onClick: () => onSelectAdminSubTab?.('points'),
+        isActive: adminSubTab === 'points',
+      },
+      {
+        id: 'mae',
+        label: t('subtab_review_mae'),
+        onClick: () => onSelectAdminSubTab?.('mae'),
+        isActive: adminSubTab === 'mae',
       },
     ];
   }

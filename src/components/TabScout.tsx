@@ -26,6 +26,8 @@ import {
   MatchProjInput,
 } from '../utils/scoutNarratives.ts';
 import { Star, ArrowRight, Zap, CheckCircle, X } from 'lucide-react';
+import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
+import { loadScoutSquadsFromIndexedDB, saveScoutSquadsToIndexedDB } from '../storage.ts';
 
 interface TabScoutProps {
   leagueData?: TransformedLeagueData;
@@ -49,6 +51,8 @@ interface TabScoutProps {
   playerProjections?: ProjectedPlayerCoreItem[];
   sharedMatchesByGW?: Record<number, any[]>;
   sharedProjectFixture?: (homeShort: string, awayShort: string, gw?: number) => ProjectedFixtureOutcome;
+  sharedScoutSquads?: ServerScoutSquadsPayload | null;
+  isLoadingSharedScoutSquads?: boolean;
 }
 
 const DEFAULT_UNPROVEN_STATUS: FplProvenStatus = {
@@ -83,6 +87,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
   sharedClubNextMatchesMap,
   sharedClubGwMatchProjections,
   playerProjections,
+  sharedScoutSquads,
+  isLoadingSharedScoutSquads = false,
 }) => {
   const { language } = useLanguage();
   // FNB League default ('fnb') and Indonesian ('id') both use Bahasa Indonesia for narratives
@@ -116,7 +122,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
     const curr = currentGW || baseHistoricalGW;
     const ev = eventsStatus?.[curr] || (gwStatus?.event === curr ? gwStatus : undefined);
     const st = baseHistoricalGW === curr && ev?.status === 'Provisional' ? 'Provisional' : 'Confirmed';
-    return `${baseHistoricalGW}:${st}`;
+    return `${baseHistoricalGW}:${st}:${PROJECTION_FORMULA_VERSION}`;
   }, [sharedEpochKey, currentGW, baseHistoricalGW, eventsStatus, gwStatus]);
 
   // Active fixture breakdown popover player ID
@@ -511,25 +517,47 @@ export const TabScout: React.FC<TabScoutProps> = ({
   // 1. SUBTAB: PICKS (Server-Solved Free Hit vs Wildcard)
   // ==========================================
   const [picksType, setPicksType] = useState<'FH' | 'WC'>('FH');
-  const [scoutSquadsPayload, setScoutSquadsPayload] = useState<ServerScoutSquadsPayload | null>(null);
-  const [isLoadingScoutSquads, setIsLoadingScoutSquads] = useState<boolean>(false);
+  const [localScoutSquadsPayload, setLocalScoutSquadsPayload] = useState<ServerScoutSquadsPayload | null>(null);
+  const [isLoadingLocalScoutSquads, setIsLoadingLocalScoutSquads] = useState<boolean>(false);
   const scoutSquadsCacheRef = useRef<Map<string, ServerScoutSquadsPayload>>(new Map());
   const inFlightScoutEpochRef = useRef<string | null>(null);
 
+  // Hydrate fallback from IndexedDB immediately if mounted without sharedScoutSquads
   useEffect(() => {
-    if (!active || !leagueData) return;
-    if (subTab !== 'picks' && subTab !== 'chips') return;
+    if (sharedScoutSquads) return;
+    let mounted = true;
+    loadScoutSquadsFromIndexedDB<ServerScoutSquadsPayload>()
+      .then((cached) => {
+        if (!mounted || !cached?.epochKey) return;
+        scoutSquadsCacheRef.current.set(cached.epochKey, cached);
+        setLocalScoutSquadsPayload((prev) => prev || cached);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, [sharedScoutSquads]);
+
+  useEffect(() => {
+    if (!leagueData) return;
+    if (sharedScoutSquads && sharedScoutSquads.epochKey === effectiveEpochKey) {
+      scoutSquadsCacheRef.current.set(effectiveEpochKey, sharedScoutSquads);
+      return;
+    }
 
     const cached = scoutSquadsCacheRef.current.get(effectiveEpochKey);
     if (cached) {
-      setScoutSquadsPayload(cached);
+      setLocalScoutSquadsPayload(cached);
+      return;
+    }
+    if (sharedScoutSquads !== undefined && isLoadingSharedScoutSquads) {
       return;
     }
     if (inFlightScoutEpochRef.current === effectiveEpochKey) return;
 
     let mounted = true;
     inFlightScoutEpochRef.current = effectiveEpochKey;
-    setIsLoadingScoutSquads(true);
+    setIsLoadingLocalScoutSquads(true);
 
     fetch('/api/projections-scout-squads')
       .then((res) => (res.ok ? res.json() : null))
@@ -540,7 +568,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
         if (payload.epochKey) {
           scoutSquadsCacheRef.current.set(payload.epochKey, payload);
         }
-        setScoutSquadsPayload(payload);
+        setLocalScoutSquadsPayload(payload);
+        saveScoutSquadsToIndexedDB(payload).catch(() => {});
       })
       .catch(() => {})
       .finally(() => {
@@ -548,14 +577,22 @@ export const TabScout: React.FC<TabScoutProps> = ({
           inFlightScoutEpochRef.current = null;
         }
         if (mounted) {
-          setIsLoadingScoutSquads(false);
+          setIsLoadingLocalScoutSquads(false);
         }
       });
 
     return () => {
       mounted = false;
     };
-  }, [active, leagueData, subTab, effectiveEpochKey]);
+  }, [leagueData, effectiveEpochKey, sharedScoutSquads, isLoadingSharedScoutSquads]);
+
+  const scoutSquadsPayload =
+    sharedScoutSquads && sharedScoutSquads.epochKey === effectiveEpochKey
+      ? sharedScoutSquads
+      : (sharedScoutSquads || localScoutSquadsPayload);
+  const isLoadingScoutSquads = Boolean(
+    !scoutSquadsPayload && (isLoadingSharedScoutSquads || isLoadingLocalScoutSquads)
+  );
 
   const playerPoolById = useMemo(() => {
     return new Map(playerPool.map((p) => [p.id, p]));

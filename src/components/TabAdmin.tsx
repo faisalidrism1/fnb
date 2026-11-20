@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import {
   Search,
   RefreshCw,
@@ -14,12 +14,44 @@ import {
   ArrowDown,
   Cpu
 } from 'lucide-react';
-import { AdminSubTab, NewsTickerDbRow } from '../types.ts';
+import {
+  AdminSubTab,
+  ReviewSubTab,
+  NewsTickerDbRow,
+  TransformedLeagueData,
+  GwEventStatus,
+  SyncStatus,
+  ProjectionClubItem,
+  ScheduleFixtureSummary,
+  ClubGwMatchProjectionItem,
+  ProjectedFixtureOutcome,
+  ProjectedPlayerCoreItem,
+} from '../types.ts';
 import { TabAdminEditor } from './TabAdminEditor.tsx';
+
+const LazyTabReview = lazy(() =>
+  import('./TabReview.tsx').then((m) => ({ default: m.TabReview }))
+);
 
 interface TabAdminProps {
   subTab?: AdminSubTab;
   onSelectSubTab?: (sub: AdminSubTab) => void;
+  leagueData?: TransformedLeagueData;
+  currentGW?: number;
+  availableGWs?: number[];
+  gwStatus?: GwEventStatus;
+  eventsStatus?: Record<number, GwEventStatus>;
+  syncStatus?: SyncStatus;
+  active?: boolean;
+  onSelectManager?: (managerId: number, gw?: number) => void;
+  onSelectPlayer?: (playerId: number, gw?: number) => void;
+  sharedEpochKey?: string;
+  sharedMaxReviewGW?: number;
+  sharedClubs?: ProjectionClubItem[];
+  sharedScheduleByGw?: Record<number, ScheduleFixtureSummary[]>;
+  sharedClubGwMatchProjections?: Record<string, ClubGwMatchProjectionItem[]>;
+  sharedProjectFixture?: (homeShort: string, awayShort: string, gw?: number) => ProjectedFixtureOutcome;
+  playerProjections?: ProjectedPlayerCoreItem[];
 }
 
 type SortColumn =
@@ -1192,9 +1224,77 @@ const TabAdminNewsTable: React.FC = () => {
   );
 };
 
-export const TabAdmin: React.FC<TabAdminProps> = ({ subTab = 'editor', onSelectSubTab }) => {
-  if (subTab === 'news-ticker') {
-    return <TabAdminNewsTable />;
-  }
-  return <TabAdminEditor />;
+const REVIEW_SUBTABS = new Set<AdminSubTab>(['line-up', 'score', 'points', 'mae']);
+
+export const TabAdmin: React.FC<TabAdminProps> = ({
+  subTab = 'editor',
+  onSelectSubTab,
+  leagueData,
+  currentGW,
+  availableGWs = [],
+  gwStatus,
+  eventsStatus,
+  syncStatus,
+  active = false,
+  onSelectManager,
+  onSelectPlayer,
+  sharedEpochKey,
+  sharedMaxReviewGW,
+  sharedClubs,
+  sharedScheduleByGw,
+  sharedClubGwMatchProjections,
+  sharedProjectFixture,
+  playerProjections,
+}) => {
+  const isReviewSubTab = REVIEW_SUBTABS.has(subTab);
+  const [hasVisitedReview, setHasVisitedReview] = useState<boolean>(() => isReviewSubTab);
+  const [lastReviewSubTab, setLastReviewSubTab] = useState<ReviewSubTab>(() =>
+    isReviewSubTab ? (subTab as ReviewSubTab) : 'line-up'
+  );
+
+  useEffect(() => {
+    if (isReviewSubTab) {
+      setHasVisitedReview(true);
+      setLastReviewSubTab(subTab as ReviewSubTab);
+    }
+  }, [isReviewSubTab, subTab]);
+
+  return (
+    <>
+      {subTab === 'editor' && <TabAdminEditor />}
+      {subTab === 'news-ticker' && <TabAdminNewsTable />}
+      {hasVisitedReview && (
+        <div className={isReviewSubTab ? 'block' : 'hidden'}>
+          <Suspense
+            fallback={
+              <div className="bg-white dark:bg-[#1a0f2e] rounded-2xl border border-slate-200 dark:border-white/10 p-8 flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-[#37003c] dark:border-[#00ff87] border-t-transparent rounded-full animate-spin" />
+              </div>
+            }
+          >
+            <LazyTabReview
+              leagueData={leagueData}
+              currentGW={currentGW}
+              availableGWs={availableGWs}
+              subTab={isReviewSubTab ? (subTab as ReviewSubTab) : lastReviewSubTab}
+              onSelectSubTab={(nextSub) => onSelectSubTab?.(nextSub)}
+              onSelectManager={onSelectManager}
+              onSelectPlayer={onSelectPlayer}
+              gwStatus={gwStatus}
+              eventsStatus={eventsStatus}
+              syncStatus={syncStatus}
+              active={Boolean(active) && isReviewSubTab}
+              sharedEpochKey={sharedEpochKey}
+              sharedMaxReviewGW={sharedMaxReviewGW}
+              sharedClubs={sharedClubs}
+              sharedScheduleByGw={sharedScheduleByGw}
+              sharedClubGwMatchProjections={sharedClubGwMatchProjections}
+              sharedProjectFixture={sharedProjectFixture}
+              playerProjections={playerProjections}
+            />
+          </Suspense>
+        </div>
+      )}
+    </>
+  );
 };

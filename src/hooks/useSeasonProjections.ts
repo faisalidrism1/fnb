@@ -4,6 +4,7 @@ import {
   GwEventStatus,
   SyncStatus,
   ServerProjectionCorePayload,
+  ServerScoutSquadsPayload,
   ScheduleFixtureSummary,
   ProjectedFixtureOutcome,
   ClubNextMatchEntry,
@@ -15,7 +16,10 @@ import { getGameweekStatus } from '../utils/gwStatus.ts';
 import {
   loadProjectionsCoreFromIndexedDB,
   saveProjectionsCoreToIndexedDB,
+  loadScoutSquadsFromIndexedDB,
+  saveScoutSquadsToIndexedDB,
 } from '../storage.ts';
+import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
 
 interface UseSeasonProjectionsParams {
   enabled?: boolean;
@@ -50,16 +54,26 @@ export function useSeasonProjections({
   syncStatus,
 }: UseSeasonProjectionsParams) {
   const [corePayload, setCorePayload] = useState<ServerProjectionCorePayload | null>(null);
+  const [scoutSquadsPayload, setScoutSquadsPayload] = useState<ServerScoutSquadsPayload | null>(null);
   const [isLoadingMatches, setIsLoadingMatches] = useState<boolean>(false);
+  const [isLoadingScoutSquads, setIsLoadingScoutSquads] = useState<boolean>(false);
   const inFlightEpochRef = useRef<string | null>(null);
+  const inFlightScoutEpochRef = useRef<string | null>(null);
 
-  // Hydrate instantly from persistent IndexedDB on mount
+  // Hydrate both core projections and scout squads instantly from persistent IndexedDB on mount
   useEffect(() => {
     let mounted = true;
     loadProjectionsCoreFromIndexedDB<ServerProjectionCorePayload>()
       .then((cached) => {
         if (mounted && cached && cached.epochKey && Array.isArray(cached.allPlayerFullSeasonProjections)) {
           setCorePayload((prev) => prev || cached);
+        }
+      })
+      .catch(() => {});
+    loadScoutSquadsFromIndexedDB<ServerScoutSquadsPayload>()
+      .then((cached) => {
+        if (mounted && cached && cached.epochKey && cached.fhTarget && cached.wcTarget) {
+          setScoutSquadsPayload((prev) => prev || cached);
         }
       })
       .catch(() => {});
@@ -106,7 +120,7 @@ export function useSeasonProjections({
     const targetNextGW = Math.min(baseHistoricalGW + 1, 38);
     const effectiveEpochStatus =
       baseHistoricalGW === curr && lifecycleStatus === 'Provisional' ? 'Provisional' : 'Confirmed';
-    const epochKey = `${baseHistoricalGW}:${effectiveEpochStatus}`;
+    const epochKey = `${baseHistoricalGW}:${effectiveEpochStatus}:${PROJECTION_FORMULA_VERSION}`;
 
     return {
       epochKey,
@@ -118,7 +132,7 @@ export function useSeasonProjections({
     };
   }, [availableGWs, currentGW, eventsStatus, gwStatus, syncStatus, leagueData?.available_gws, leagueData?.events_status, leagueData?.gw_status, leagueData?.sync_status]);
 
-  // Lazy fetch from server ONLY when user views one of the 3 projection tabs AND epoch changed
+  // Background fetch /api/projections-core once leagueData is available & epoch changed
   useEffect(() => {
     if (!enabled || !leagueData) return;
     if (corePayload && corePayload.epochKey === epochInfo.epochKey) return;
@@ -150,6 +164,39 @@ export function useSeasonProjections({
       mounted = false;
     };
   }, [enabled, leagueData, epochInfo.epochKey, corePayload?.epochKey]);
+
+  // Background fetch /api/projections-scout-squads once leagueData is available & epoch changed
+  useEffect(() => {
+    if (!enabled || !leagueData) return;
+    if (scoutSquadsPayload && scoutSquadsPayload.epochKey === epochInfo.epochKey) return;
+    if (inFlightScoutEpochRef.current === epochInfo.epochKey) return;
+
+    let mounted = true;
+    inFlightScoutEpochRef.current = epochInfo.epochKey;
+    setIsLoadingScoutSquads(true);
+
+    fetch('/api/projections-scout-squads')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (!mounted || !json?.success || !json.data) return;
+        const payload = json.data as ServerScoutSquadsPayload;
+        setScoutSquadsPayload(payload);
+        saveScoutSquadsToIndexedDB(payload).catch(() => {});
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (inFlightScoutEpochRef.current === epochInfo.epochKey) {
+          inFlightScoutEpochRef.current = null;
+        }
+        if (mounted) {
+          setIsLoadingScoutSquads(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [enabled, leagueData, epochInfo.epochKey, scoutSquadsPayload?.epochKey]);
 
   const scheduleByGw: Record<number, ScheduleFixtureSummary[]> = useMemo(
     () => corePayload?.scheduleByGw || {},
@@ -216,6 +263,8 @@ export function useSeasonProjections({
     targetNextGW,
     maxReviewGW,
     isLoadingMatches,
+    scoutSquadsPayload,
+    isLoadingScoutSquads,
     scheduleByGw,
     matchesByGW: scheduleByGw,
     fixtureProjectionsByKey: corePayload?.fixtureProjectionsByKey || {},

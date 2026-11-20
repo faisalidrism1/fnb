@@ -27,7 +27,6 @@ import {
   TransferSubTab,
   CaptainSubTab,
   ProjectionSubTab,
-  ReviewSubTab,
   ScoutSubTab,
   AdminSubTab,
 } from './types.ts';
@@ -56,7 +55,6 @@ function lazyWithRetry<T extends React.ComponentType<any>>(
 }
 
 const TabProjection = lazyWithRetry(() => import('./components/TabProjection.tsx').then((m) => ({ default: m.TabProjection })));
-const TabReview = lazyWithRetry(() => import('./components/TabReview.tsx').then((m) => ({ default: m.TabReview })));
 const TabScout = lazyWithRetry(() => import('./components/TabScout.tsx').then((m) => ({ default: m.TabScout })));
 
 function TabLoadingFallback() {
@@ -191,7 +189,6 @@ export default function App() {
   const [transferSubTab, setTransferSubTab] = useState<TransferSubTab>('all-transfers');
   const [captainSubTab, setCaptainSubTab] = useState<CaptainSubTab>('most-captained-player');
   const [projectionSubTab, setProjectionSubTab] = useState<ProjectionSubTab>('line-up');
-  const [reviewSubTab, setReviewSubTab] = useState<ReviewSubTab>('line-up');
   const [scoutSubTab, setScoutSubTab] = useState<ScoutSubTab>('picks');
   const [adminSubTab, setAdminSubTab] = useState<AdminSubTab>('editor');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -489,9 +486,6 @@ export default function App() {
     return () => clearInterval(interval);
   }, [fetchData, isMatchLive]);
 
-  const isProjectionTabActive =
-    activeTab === 'PROJECTION' || activeTab === 'REVIEW' || activeTab === 'SCOUT';
-
   const seasonEngine = useSeasonProjections({
     leagueData: data ?? undefined,
     currentGW: data?.current_gw,
@@ -499,8 +493,18 @@ export default function App() {
     gwStatus: data?.gw_status,
     eventsStatus: data?.events_status,
     syncStatus: data?.sync_status,
-    enabled: Boolean(data) && isProjectionTabActive,
+    enabled: Boolean(data),
   });
+
+  // Preload lazy Projection & Scout chunks right after league data renders so tab switches are instant
+  useEffect(() => {
+    if (!data) return;
+    const timer = setTimeout(() => {
+      import('./components/TabProjection.tsx').catch(() => {});
+      import('./components/TabScout.tsx').catch(() => {});
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [Boolean(data)]);
 
   if (!data) {
     return (
@@ -540,8 +544,6 @@ export default function App() {
         onSelectCaptainSubTab={setCaptainSubTab}
         projectionSubTab={projectionSubTab}
         onSelectProjectionSubTab={setProjectionSubTab}
-        reviewSubTab={reviewSubTab}
-        onSelectReviewSubTab={setReviewSubTab}
         scoutSubTab={scoutSubTab}
         onSelectScoutSubTab={setScoutSubTab}
         adminSubTab={adminSubTab}
@@ -656,33 +658,6 @@ export default function App() {
             </div>
           )}
 
-          {visitedTabs.has('REVIEW') && (
-            <div className={activeTab === 'REVIEW' ? 'block' : 'hidden'}>
-              <Suspense fallback={<TabLoadingFallback />}>
-                <TabReview
-                  leagueData={data}
-                  currentGW={data.current_gw}
-                  availableGWs={data.available_gws}
-                  subTab={reviewSubTab}
-                  onSelectSubTab={setReviewSubTab}
-                  onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
-                  onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
-                  gwStatus={data.gw_status}
-                  eventsStatus={data.events_status}
-                  syncStatus={data.sync_status}
-                  active={activeTab === 'REVIEW'}
-                  sharedEpochKey={seasonEngine.targetEpochKey}
-                  sharedMaxReviewGW={seasonEngine.maxReviewGW}
-                  sharedClubs={seasonEngine.clubs}
-                  sharedScheduleByGw={seasonEngine.scheduleByGw}
-                  sharedClubGwMatchProjections={seasonEngine.clubGwMatchProjections}
-                  sharedProjectFixture={seasonEngine.projectFixture}
-                  playerProjections={seasonEngine.allPlayerFullSeasonProjections}
-                />
-              </Suspense>
-            </div>
-          )}
-
           {visitedTabs.has('SCOUT') && (
             <div className={activeTab === 'SCOUT' ? 'block' : 'hidden'}>
               <Suspense fallback={<TabLoadingFallback />}>
@@ -707,6 +682,8 @@ export default function App() {
                   sharedClubGwMatchProjections={seasonEngine.clubGwMatchProjections}
                   playerProjections={seasonEngine.allPlayerFullSeasonProjections}
                   sharedProjectFixture={seasonEngine.projectFixture}
+                  sharedScoutSquads={seasonEngine.scoutSquadsPayload}
+                  isLoadingSharedScoutSquads={seasonEngine.isLoadingScoutSquads}
                 />
               </Suspense>
             </div>
@@ -716,6 +693,22 @@ export default function App() {
             <TabAdmin
               subTab={adminSubTab}
               onSelectSubTab={setAdminSubTab}
+              leagueData={data}
+              currentGW={data.current_gw}
+              availableGWs={data.available_gws}
+              gwStatus={data.gw_status}
+              eventsStatus={data.events_status}
+              syncStatus={data.sync_status}
+              active={activeTab === 'ADMIN'}
+              onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
+              onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
+              sharedEpochKey={seasonEngine.targetEpochKey}
+              sharedMaxReviewGW={seasonEngine.maxReviewGW}
+              sharedClubs={seasonEngine.clubs}
+              sharedScheduleByGw={seasonEngine.scheduleByGw}
+              sharedClubGwMatchProjections={seasonEngine.clubGwMatchProjections}
+              sharedProjectFixture={seasonEngine.projectFixture}
+              playerProjections={seasonEngine.allPlayerFullSeasonProjections}
             />
           </div>
         </ErrorBoundary>

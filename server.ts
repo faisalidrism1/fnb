@@ -7,6 +7,7 @@ import {
   computeProjectionEpochInfo,
   getProjectionCacheEpochKey,
   hasProjectionCoreCache,
+  hasProjectionScoutCache,
   invalidateProjectionEngine,
   warmProjectionEngineIfNeeded,
   getServerProjectionCore,
@@ -333,6 +334,7 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
       const shouldWarmProjections =
         action === 'A_FULL' ||
         !hasProjectionCoreCache() ||
+        !hasProjectionScoutCache() ||
         prevEpochKey !== nextEpochKey;
 
       if (shouldWarmProjections) {
@@ -340,13 +342,10 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
           invalidateFixturesScheduleCache();
           invalidateProjectionEngine(`Epoch shift ${prevEpochKey ?? 'cold'} -> ${nextEpochKey}`);
         }
+        warmProjectionEngineIfNeeded(cachedData);
         setTimeout(() => {
-          prewarmMatchesCache(freshData.current_gw || getCurrentGw())
-            .catch(() => {})
-            .finally(() => {
-              warmProjectionEngineIfNeeded(cachedData);
-            });
-        }, 500);
+          prewarmMatchesCache(freshData.current_gw || getCurrentGw()).catch(() => {});
+        }, 100);
       }
 
       return freshData;
@@ -1747,9 +1746,11 @@ async function startServer() {
             .finally(() => {
               warmProjectionEngineIfNeeded(cachedData);
             });
+        } else if (cachedData) {
+          warmProjectionEngineIfNeeded(cachedData);
         }
       });
-    }, 2500);
+    }, 300);
   });
 
   httpServer.on('error', (err: any) => {

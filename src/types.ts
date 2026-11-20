@@ -458,6 +458,8 @@ export interface DbPlayerStat {
   transfersOut: number;
 
   doubleDigitHauls?: number;
+  defensiveContribution?: number;
+  defensive_contribution?: number;
   penaltiesOrder?: number | null;
   directFreekicksOrder?: number | null;
   cornersAndIndirectFreekicksOrder?: number | null;
@@ -535,7 +537,6 @@ export type MainTab =
   | 'CAPTAIN'
   | 'CHIPS'
   | 'PROJECTION'
-  | 'REVIEW'
   | 'SCOUT'
   | 'ADMIN';
 
@@ -689,7 +690,7 @@ export type StandingsSubTab = 'status' | 'live-table' | 'gw-champions' | 'most-g
 export type OwnershipSubTab = 'most-owned-players' | 'most-owned-clubs' | 'fans-club' | 'template-squad';
 export type TransferSubTab = 'all-transfers' | 'transferred-in' | 'transferred-out';
 export type CaptainSubTab = 'most-captained-player' | 'most-captained-club-players';
-export type AdminSubTab = 'news-ticker' | 'editor';
+export type AdminSubTab = 'news-ticker' | 'editor' | 'line-up' | 'score' | 'points' | 'mae';
 
 export interface NewsTickerDbRow {
   id: string;

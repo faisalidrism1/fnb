@@ -145,7 +145,11 @@ export function transformToOptimalDbSchema(fplData: TransformedLeagueData): Opti
               pointsPerGame: 0,
               selectedByPercent: p.owned_percentage || 0,
               transfersIn: 0,
-              transfersOut: 0
+              transfersOut: 0,
+              defensiveContribution: 0,
+              penaltiesOrder: null,
+              directFreekicksOrder: null,
+              cornersAndIndirectFreekicksOrder: null
             };
           }
           if (gw === fplData.current_gw) {
