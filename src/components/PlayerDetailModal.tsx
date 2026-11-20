@@ -183,6 +183,11 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   const { t, language } = useLanguage();
   const userProfileId = useUserProfileId();
   const [activeGW, setActiveGW] = useState<number>(initialGW);
+  const [activeMatchIndex, setActiveMatchIndex] = useState<number>(0);
+  const pendingMatchTargetRef = useRef<{
+    gw: number;
+    target: 'first' | 'last' | { fixtureId: number };
+  } | null>(null);
   const [isGWDropdownOpen, setIsGWDropdownOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<ModalTab>('overview');
   const [ownerSearch, setOwnerSearch] = useState<string>('');
@@ -204,84 +209,10 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   const effectiveCurrentGW = currentGW || maxGW;
   const activeGWIndex = sortedGWs.indexOf(activeGW);
 
-  const canGoPrev = activeGWIndex > 0;
-  const canGoNext = activeGWIndex < sortedGWs.length - 1 && activeGWIndex !== -1;
-
-  const handlePrevGW = useCallback(() => {
-    if (canGoPrev) {
-      setActiveGW(sortedGWs[activeGWIndex - 1]);
-    }
-  }, [canGoPrev, sortedGWs, activeGWIndex]);
-
-  const handleNextGW = useCallback(() => {
-    if (canGoNext) {
-      setActiveGW(sortedGWs[activeGWIndex + 1]);
-    }
-  }, [canGoNext, sortedGWs, activeGWIndex]);
-
-  // Keyboard navigation for desktop (ArrowLeft / ArrowRight)
-  useEffect(() => {
-    if (!playerId) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) return;
-      if (e.key === 'ArrowLeft') {
-        if (canGoPrev) handlePrevGW();
-      } else if (e.key === 'ArrowRight') {
-        if (canGoNext) handleNextGW();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [playerId, canGoPrev, canGoNext, handlePrevGW, handleNextGW]);
-
   // Close dropdown on tab change or player change
   useEffect(() => {
     setIsGWDropdownOpen(false);
   }, [playerId, activeTab]);
-
-  // Reusable floating Gameweek dropdown filter
-  const renderGWDropdown = (positionClass = 'left-1/2 -translate-x-1/2') => {
-    if (!isGWDropdownOpen) return null;
-    return (
-      <>
-        <div
-          className="fixed inset-0 z-40"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsGWDropdownOpen(false);
-          }}
-        />
-        <div className={`absolute top-full ${positionClass} mt-1.5 w-36 bg-white dark:bg-[#190a2a] border border-slate-200 dark:border-purple-800/80 text-slate-800 dark:text-slate-100 shadow-2xl rounded-xl z-50 p-1.5 animate-in fade-in zoom-in-95 space-y-0.5 max-h-60 overflow-y-auto`}>
-          {sortedGWs.map((gw) => {
-            const isSelected = gw === activeGW;
-            return (
-              <button
-                key={gw}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveGW(gw);
-                  setIsGWDropdownOpen(false);
-                }}
-                className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer gap-2 ${
-                  isSelected
-                    ? 'bg-purple-50 dark:bg-purple-900/60 text-purple-900 dark:text-[#00ff87] font-bold'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-purple-900/30 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <span>GW {gw}</span>
-                {gw === maxGW && (
-                  <span className="text-[10px] font-bold text-emerald-600 dark:text-[#00ff87] font-mono">
-                    {language === 'id' ? 'Terkini' : 'Current'}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </>
-    );
-  };
 
   // Synchronous cache lookup for instantaneous 0ms frame-0 render without 1-frame flash
   const initialCacheKey = playerId ? `${playerId}_${initialGW}` : '';
@@ -296,6 +227,8 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     const cached = playerId ? (playerSummaryClientCache.get(`${playerId}_${activeGW}`) || playerSummaryClientCache.get(String(playerId)) || null) : null;
     setSummaryData(cached);
     setLoadingSummary(!cached);
+    setActiveMatchIndex(0);
+    pendingMatchTargetRef.current = null;
   }
 
   const [photoError, setPhotoError] = useState<boolean>(false);
@@ -317,6 +250,8 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   // Sync initialGW if changed from props
   useEffect(() => {
     setActiveGW(initialGW);
+    setActiveMatchIndex(0);
+    pendingMatchTargetRef.current = null;
   }, [initialGW]);
 
   // Handle device back button to close modal cleanly without double-back or auto-close
@@ -374,6 +309,259 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     }
     return found || null;
   }, [playerId, activeGW, ownershipPlayers, availableGWs]);
+
+  const playerStatsObj = useMemo(() => {
+    if (!playerId || !playerStats) return null;
+    return playerStats.find((p) => p.id === playerId) || null;
+  }, [playerId, playerStats]);
+
+  const resolvedPlayerTeamId = useMemo(() => {
+    return (
+      (playerMeta as any)?.team ||
+      summaryData?.player_info?.teamId ||
+      (playerStatsObj as any)?.teamId ||
+      (playerStatsObj as any)?.team ||
+      (playerMeta?.team_code
+        ? Object.values(FPL_TEAMS_BY_ID).find((t) => t.code === playerMeta.team_code)?.id
+        : undefined) ||
+      (playerMeta?.team_short_name
+        ? Object.values(FPL_TEAMS_BY_ID).find(
+            (t) => t.short_name.toLowerCase() === playerMeta.team_short_name.toLowerCase()
+          )?.id
+        : undefined) ||
+      summaryData?.history?.find((h) => (h as any).player_team)?.player_team
+    );
+  }, [playerMeta, summaryData?.player_info, summaryData?.history, playerStatsObj]);
+
+  // Build ordered list of fixtures for a given GW (combines summary.history + any unplayed DGW/activeGW fixtures)
+  const getMatchesForGW = useCallback(
+    (gw: number) => {
+      const historyInGW = (summaryData?.history || []).filter((h) => h.round === gw);
+      const result: any[] = [...historyInGW];
+      const seenFixtureIds = new Set<number>(
+        historyInGW.map((h) => Number(h.fixture)).filter((id) => !isNaN(id) && id > 0)
+      );
+
+      const appendSynthesizedFixture = (f: any) => {
+        const fixId = Number(f?.id);
+        if (!fixId || seenFixtureIds.has(fixId)) return;
+        seenFixtureIds.add(fixId);
+        const isHome =
+          typeof f.is_home === 'boolean'
+            ? f.is_home
+            : resolvedPlayerTeamId
+            ? Number(f.team_h) === Number(resolvedPlayerTeamId)
+            : true;
+        const oppId = isHome ? f.team_a : f.team_h;
+        const homeInfo = f.team_h ? FPL_TEAMS_BY_ID[f.team_h] : null;
+        const awayInfo = f.team_a ? FPL_TEAMS_BY_ID[f.team_a] : null;
+        const oppInfo = oppId ? FPL_TEAMS_BY_ID[oppId] : null;
+        const playerTeam = resolvedPlayerTeamId || (isHome ? f.team_h : f.team_a);
+        const playerTeamInfo = playerTeam ? FPL_TEAMS_BY_ID[playerTeam] : null;
+
+        result.push({
+          element: playerId || 0,
+          fixture: fixId,
+          opponent_team: oppId,
+          opponent_short_name: oppInfo?.short_name || (oppId ? `T${oppId}` : undefined),
+          player_team: playerTeam,
+          player_team_short_name: playerTeamInfo?.short_name,
+          home_team_id: f.team_h,
+          away_team_id: f.team_a,
+          home_short_name: homeInfo?.short_name,
+          away_short_name: awayInfo?.short_name,
+          total_points: 0,
+          was_home: isHome,
+          kickoff_time: f.kickoff_time || '',
+          team_h_score: f.team_h_score ?? null,
+          team_a_score: f.team_a_score ?? null,
+          round: gw,
+          minutes: 0,
+          goals_scored: 0,
+          assists: 0,
+          clean_sheets: 0,
+          goals_conceded: 0,
+          own_goals: 0,
+          penalties_saved: 0,
+          penalties_missed: 0,
+          yellow_cards: 0,
+          red_cards: 0,
+          saves: 0,
+          bonus: 0,
+          bps: 0,
+          starts: 0,
+          fixture_started: f.started,
+          fixture_finished: f.finished,
+          fixture_finished_provisional: f.finished_provisional,
+          fixture_minutes: f.minutes,
+          fixture_phase: f.phase,
+          fixture_clock_label: f.clock_label,
+          fixture_is_half_time: f.is_half_time,
+          _isUpcomingFallback: true,
+        });
+      };
+
+      // Check upcoming fixtures from summary.fixtures for this GW
+      if (Array.isArray(summaryData?.fixtures)) {
+        for (const f of summaryData.fixtures) {
+          if (f.event === gw) {
+            appendSynthesizedFixture(f);
+          }
+        }
+      }
+
+      // Check active GW fixtures list (when viewing activeGW and summary.gw matches or gwFixtures prop covers activeGW)
+      if (gw === activeGW && resolvedPlayerTeamId) {
+        const activeFixSource =
+          summaryData?.gw === gw && Array.isArray(summaryData?.gw_fixtures)
+            ? summaryData.gw_fixtures
+            : gw === effectiveCurrentGW && Array.isArray(gwFixtures)
+            ? gwFixtures
+            : [];
+        for (const f of activeFixSource) {
+          if (
+            (f.event == null || f.event === gw) &&
+            (Number(f.team_h) === Number(resolvedPlayerTeamId) ||
+              Number(f.team_a) === Number(resolvedPlayerTeamId))
+          ) {
+            appendSynthesizedFixture(f);
+          }
+        }
+      }
+
+      result.sort((a, b) => {
+        const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+        const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+        if (tA !== tB) return tA - tB;
+        return (Number(a.fixture) || 0) - (Number(b.fixture) || 0);
+      });
+
+      return result;
+    },
+    [summaryData, resolvedPlayerTeamId, playerId, activeGW, effectiveCurrentGW, gwFixtures]
+  );
+
+  const activeGWMatches = useMemo(() => getMatchesForGW(activeGW), [getMatchesForGW, activeGW]);
+
+  // Resolve pending match selection after switching GW (e.g., landing on last fixture when pressing < into a DGW)
+  useEffect(() => {
+    const pending = pendingMatchTargetRef.current;
+    if (!pending || pending.gw !== activeGW) return;
+    if (activeGWMatches.length === 0) return;
+
+    if (pending.target === 'first') {
+      setActiveMatchIndex(0);
+    } else if (pending.target === 'last') {
+      setActiveMatchIndex(activeGWMatches.length - 1);
+    } else if (typeof pending.target === 'object' && pending.target.fixtureId) {
+      const idx = activeGWMatches.findIndex(
+        (m) => Number(m.fixture) === Number((pending.target as { fixtureId: number }).fixtureId)
+      );
+      setActiveMatchIndex(idx >= 0 ? idx : 0);
+    }
+    pendingMatchTargetRef.current = null;
+  }, [activeGW, activeGWMatches]);
+
+  const safeMatchIndex =
+    activeGWMatches.length > 0 ? Math.min(activeMatchIndex, activeGWMatches.length - 1) : 0;
+
+  const canGoPrev = safeMatchIndex > 0 || activeGWIndex > 0;
+  const canGoNext =
+    (activeGWMatches.length > 1 && safeMatchIndex < activeGWMatches.length - 1) ||
+    (activeGWIndex < sortedGWs.length - 1 && activeGWIndex !== -1);
+
+  const handlePrevGW = useCallback(() => {
+    if (!canGoPrev) return;
+    if (safeMatchIndex > 0) {
+      pendingMatchTargetRef.current = null;
+      setActiveMatchIndex(safeMatchIndex - 1);
+      return;
+    }
+    if (activeGWIndex > 0) {
+      const prevGw = sortedGWs[activeGWIndex - 1];
+      const prevMatches = getMatchesForGW(prevGw);
+      const targetIdx = prevMatches.length > 1 ? prevMatches.length - 1 : 0;
+      pendingMatchTargetRef.current = { gw: prevGw, target: 'last' };
+      setActiveMatchIndex(targetIdx);
+      setActiveGW(prevGw);
+    }
+  }, [canGoPrev, safeMatchIndex, activeGWIndex, sortedGWs, getMatchesForGW]);
+
+  const handleNextGW = useCallback(() => {
+    if (!canGoNext) return;
+    if (activeGWMatches.length > 1 && safeMatchIndex < activeGWMatches.length - 1) {
+      pendingMatchTargetRef.current = null;
+      setActiveMatchIndex(safeMatchIndex + 1);
+      return;
+    }
+    if (activeGWIndex < sortedGWs.length - 1 && activeGWIndex !== -1) {
+      const nextGw = sortedGWs[activeGWIndex + 1];
+      pendingMatchTargetRef.current = { gw: nextGw, target: 'first' };
+      setActiveMatchIndex(0);
+      setActiveGW(nextGw);
+    }
+  }, [canGoNext, activeGWMatches.length, safeMatchIndex, activeGWIndex, sortedGWs]);
+
+  // Keyboard navigation for desktop (ArrowLeft / ArrowRight)
+  useEffect(() => {
+    if (!playerId) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) return;
+      if (e.key === 'ArrowLeft') {
+        if (canGoPrev) handlePrevGW();
+      } else if (e.key === 'ArrowRight') {
+        if (canGoNext) handleNextGW();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [playerId, canGoPrev, canGoNext, handlePrevGW, handleNextGW]);
+
+  // Reusable floating Gameweek dropdown filter (always selects Fixture 1 of chosen GW)
+  const renderGWDropdown = (positionClass = 'left-1/2 -translate-x-1/2') => {
+    if (!isGWDropdownOpen) return null;
+    return (
+      <>
+        <div
+          className="fixed inset-0 z-40"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsGWDropdownOpen(false);
+          }}
+        />
+        <div className={`absolute top-full ${positionClass} mt-1.5 w-36 bg-white dark:bg-[#190a2a] border border-slate-200 dark:border-purple-800/80 text-slate-800 dark:text-slate-100 shadow-2xl rounded-xl z-50 p-1.5 animate-in fade-in zoom-in-95 space-y-0.5 max-h-60 overflow-y-auto`}>
+          {sortedGWs.map((gw) => {
+            const isSelected = gw === activeGW;
+            return (
+              <button
+                key={gw}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  pendingMatchTargetRef.current = { gw, target: 'first' };
+                  setActiveMatchIndex(0);
+                  setActiveGW(gw);
+                  setIsGWDropdownOpen(false);
+                }}
+                className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer gap-2 ${
+                  isSelected
+                    ? 'bg-purple-50 dark:bg-purple-900/60 text-purple-900 dark:text-[#00ff87] font-bold'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-purple-900/30 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <span>GW {gw}</span>
+                {gw === maxGW && (
+                  <span className="text-[10px] font-bold text-emerald-600 dark:text-[#00ff87] font-mono">
+                    {language === 'id' ? 'Terkini' : 'Current'}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </>
+    );
+  };
 
   // Reusable function to refresh player stats with cache-busting
   const refreshPlayerStats = useCallback(async () => {
@@ -723,10 +911,16 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     []
   );
 
-  // GW History sorted descending by Gameweek
+  // GW History sorted descending by Gameweek, then kickoff time & fixture desc for DGW
   const sortedHistory = useMemo(() => {
     if (!summaryData?.history) return [];
-    return [...summaryData.history].sort((a, b) => b.round - a.round);
+    return [...summaryData.history].sort((a, b) => {
+      if (b.round !== a.round) return b.round - a.round;
+      const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : 0;
+      const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : 0;
+      if (tB !== tA) return tB - tA;
+      return (Number(b.fixture) || 0) - (Number(a.fixture) || 0);
+    });
   }, [summaryData?.history]);
 
   // Previous seasons sorted descending by season_name (e.g. 2024/25, 2023/24)
@@ -735,18 +929,88 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     return [...summaryData.history_past].sort((a, b) => b.season_name.localeCompare(a.season_name));
   }, [summaryData?.history_past]);
 
-  // Upcoming fixtures sorted ascending by Gameweek (and kickoff time for double GWs)
-  const sortedFixtures = useMemo(() => {
-    if (!summaryData?.fixtures || summaryData.fixtures.length === 0) return [];
-    return [...summaryData.fixtures].sort((a, b) => {
-      const evA = a.event != null ? Number(a.event) : 999;
-      const evB = b.event != null ? Number(b.event) : 999;
-      if (evA !== evB) return evA - evB;
-      const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
-      const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
-      return tA - tB;
-    });
-  }, [summaryData?.fixtures]);
+  // Upcoming fixtures sorted ascending by Gameweek, including No Fixture gap rows and DGW detection
+  const upcomingFixtureRows = useMemo(() => {
+    const rawFixtures = summaryData?.fixtures || [];
+    const scheduled = rawFixtures.filter((f) => f.event != null && Number(f.event) > 0);
+    const unscheduled = rawFixtures
+      .filter((f) => f.event == null || Number(f.event) <= 0)
+      .sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
+
+    const gwFixtureMap = new Map<number, any[]>();
+    for (const f of scheduled) {
+      const ev = Number(f.event);
+      if (!gwFixtureMap.has(ev)) gwFixtureMap.set(ev, []);
+      gwFixtureMap.get(ev)!.push(f);
+    }
+
+    for (const [, list] of gwFixtureMap) {
+      list.sort((a, b) => {
+        const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+        const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+        if (tA !== tB) return tA - tB;
+        return (Number(a.id) || 0) - (Number(b.id) || 0);
+      });
+    }
+
+    const currentGwStatus =
+      eventsStatus?.[effectiveCurrentGW] ||
+      (effectiveCurrentGW === currentGW ? gwStatus : undefined);
+    const isCurrentGwConfirmed =
+      currentGwStatus?.status === 'Confirmed' ||
+      Boolean(currentGwStatus?.data_checked && currentGwStatus?.leagues_status === 'Updated');
+    const hasCurrentGwHistory = (summaryData?.history || []).some(
+      (h) => Number(h.round) === effectiveCurrentGW
+    );
+
+    type FixtureDisplayRow =
+      | { kind: 'fixture'; fixture: any; isDgw: boolean }
+      | { kind: 'no_fixture'; event: number };
+
+    const rows: FixtureDisplayRow[] = [];
+
+    if (gwFixtureMap.size > 0) {
+      const scheduledGWs = Array.from(gwFixtureMap.keys());
+      const minScheduledGw = Math.min(...scheduledGWs);
+      const maxScheduledGw = Math.max(...scheduledGWs);
+      const shouldIncludeCurrentGw =
+        effectiveCurrentGW > 0 &&
+        effectiveCurrentGW < minScheduledGw &&
+        !isCurrentGwConfirmed &&
+        !hasCurrentGwHistory;
+
+      const startGw = shouldIncludeCurrentGw ? effectiveCurrentGW : minScheduledGw;
+      const endGw = Math.max(maxScheduledGw, 38);
+
+      for (let gw = startGw; gw <= endGw; gw++) {
+        const matches = gwFixtureMap.get(gw);
+        if (matches && matches.length > 0) {
+          const isDgw = matches.length > 1;
+          for (const f of matches) {
+            rows.push({ kind: 'fixture', fixture: f, isDgw });
+          }
+        } else {
+          rows.push({ kind: 'no_fixture', event: gw });
+        }
+      }
+    } else if (
+      summaryData &&
+      effectiveCurrentGW > 0 &&
+      effectiveCurrentGW <= 38 &&
+      !isCurrentGwConfirmed &&
+      !hasCurrentGwHistory &&
+      Array.isArray(gwFixtures) &&
+      gwFixtures.length > 0
+    ) {
+      rows.push({ kind: 'no_fixture', event: effectiveCurrentGW });
+    }
+
+    for (const f of unscheduled) {
+      rows.push({ kind: 'fixture', fixture: f, isDgw: false });
+    }
+
+    return rows;
+  }, [summaryData, effectiveCurrentGW, currentGW, gwStatus, eventsStatus, gwFixtures]);
 
   const getFdrBadgeClass = useCallback((difficulty?: number | null) => {
     switch (Number(difficulty)) {
@@ -849,6 +1113,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     let wins = 0;
     let draws = 0;
     let losses = 0;
+    const seenRounds = new Set<number>();
 
     for (const h of list) {
       pts += h.total_points || 0;
@@ -886,8 +1151,11 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
         else if (res.outcome === 'L') losses++;
       }
 
-      const m = getFnbMetrics(h.round);
-      nt += m.netTransfers;
+      if (!seenRounds.has(h.round)) {
+        seenRounds.add(h.round);
+        const m = getFnbMetrics(h.round);
+        nt += m.netTransfers;
+      }
     }
 
     const latestRound = sortedHistory[0]?.round || activeGW;
@@ -931,48 +1199,310 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
   if (!playerId) return null;
 
-  // Selected GW Round stats from history
-  const roundHistory = summaryData?.history?.find((h) => h.round === activeGW);
+  // Selected match in activeGW (supports SGW = 1 match, DGW = Match 1 / Match 2, BGW = undefined)
+  const isDgwActive = activeGWMatches.length >= 2;
+  const roundHistory = activeGWMatches[safeMatchIndex];
+  const isFallbackMatch = Boolean((roundHistory as any)?._isUpcomingFallback);
 
-  // Live stats or fallback to round history
+  // Live stats or fallback to round history (isolated strictly per fixture during DGW)
   const liveStats = summaryData?.live_stats;
-  const explainList: PlayerExplainStatItem[] = summaryData?.live_explain?.[0]?.stats || [];
+  const gwFixturesSource =
+    summaryData?.gw === activeGW && Array.isArray(summaryData?.gw_fixtures)
+      ? summaryData.gw_fixtures
+      : activeGW === effectiveCurrentGW
+      ? gwFixtures
+      : [];
 
-  // Effective GW stats
-  const starts = liveStats?.starts ?? roundHistory?.starts ?? 0;
-  const minutesPlayed = liveStats?.minutes ?? roundHistory?.minutes ?? 0;
-  const goalsScored = liveStats?.goals_scored ?? roundHistory?.goals_scored ?? 0;
-  const assists = liveStats?.assists ?? roundHistory?.assists ?? 0;
-  const cleanSheets = liveStats?.clean_sheets ?? roundHistory?.clean_sheets ?? 0;
-  const defCon = liveStats?.defensive_contribution ?? roundHistory?.defensive_contribution ?? 0;
-  const goalsConceded = liveStats?.goals_conceded ?? roundHistory?.goals_conceded ?? 0;
-  const yellowCards = liveStats?.yellow_cards ?? roundHistory?.yellow_cards ?? 0;
-  const redCards = liveStats?.red_cards ?? roundHistory?.red_cards ?? 0;
-  const saves = liveStats?.saves ?? roundHistory?.saves ?? 0;
-  const penaltiesSaved = liveStats?.penalties_saved ?? roundHistory?.penalties_saved ?? 0;
-  const penaltiesMissed = liveStats?.penalties_missed ?? roundHistory?.penalties_missed ?? 0;
-  const ownGoals = liveStats?.own_goals ?? roundHistory?.own_goals ?? 0;
-  const bonus = liveStats?.bonus ?? roundHistory?.bonus ?? 0;
-  const bps = liveStats?.bps ?? roundHistory?.bps ?? 0;
+  const isFixtureStarted = (m: any): boolean => {
+    if (!m) return false;
+    const fObj =
+      m.fixture_started !== undefined
+        ? {
+            started: Boolean(m.fixture_started),
+            finished: Boolean(m.fixture_finished),
+            finished_provisional: Boolean(m.fixture_finished_provisional),
+            minutes: Number(m.fixture_minutes || 0),
+          }
+        : (gwFixturesSource || []).find((f: any) => Number(f.id) === Number(m.fixture));
+    if (fObj) {
+      return Boolean(fObj.started || fObj.finished || fObj.finished_provisional || (fObj.minutes || 0) > 0);
+    }
+    return !m._isUpcomingFallback && (m.team_h_score != null || (m.minutes || 0) > 0);
+  };
 
-  // Effective GW Points: prefer liveStats, then roundHistory, then playerMeta.gw_points
-  const effectiveGWPoints =
-    liveStats?.total_points ?? roundHistory?.total_points ?? playerMeta?.gw_points ?? 0;
+  const isCurrentFixtureStarted = roundHistory
+    ? activeGW < effectiveCurrentGW
+      ? !isFallbackMatch
+      : isFixtureStarted(roundHistory)
+    : false;
 
-  // Advanced & underlying stats in activeGW
-  const expectedGoals = Number(liveStats?.expected_goals ?? roundHistory?.expected_goals ?? 0).toFixed(2);
-  const expectedAssists = Number(liveStats?.expected_assists ?? roundHistory?.expected_assists ?? 0).toFixed(2);
-  const expectedGoalInvolvements = Number(liveStats?.expected_goal_involvements ?? roundHistory?.expected_goal_involvements ?? 0).toFixed(2);
-  const expectedGoalsConceded = Number(liveStats?.expected_goals_conceded ?? roundHistory?.expected_goals_conceded ?? 0).toFixed(2);
+  const startedFixturesCountInGW = isDgwActive
+    ? activeGWMatches.filter((m) => isFixtureStarted(m)).length
+    : isCurrentFixtureStarted
+    ? 1
+    : 0;
 
-  const cbi = liveStats?.clearances_blocks_interceptions ?? (roundHistory as any)?.clearances_blocks_interceptions ?? 0;
-  const tackles = liveStats?.tackles ?? (roundHistory as any)?.tackles ?? 0;
-  const recoveries = liveStats?.recoveries ?? (roundHistory as any)?.recoveries ?? 0;
+  const matchedExplainEntry = roundHistory?.fixture
+    ? summaryData?.live_explain?.find((e) => Number(e.fixture) === Number(roundHistory.fixture))
+    : undefined;
 
-  const influence = Number(liveStats?.influence ?? roundHistory?.influence ?? 0).toFixed(1);
-  const creativity = Number(liveStats?.creativity ?? roundHistory?.creativity ?? 0).toFixed(1);
-  const threat = Number(liveStats?.threat ?? roundHistory?.threat ?? 0).toFixed(1);
-  const ictIndex = Number(liveStats?.ict_index ?? roundHistory?.ict_index ?? 0).toFixed(1);
+  const explainList: PlayerExplainStatItem[] = isDgwActive
+    ? isCurrentFixtureStarted
+      ? matchedExplainEntry?.stats || []
+      : []
+    : matchedExplainEntry?.stats || summaryData?.live_explain?.[0]?.stats || [];
+
+  const getExplainValue = (identifier: string): number | undefined => {
+    const found = explainList.find((st) => st.identifier === identifier);
+    return found !== undefined ? Number(found.value || 0) : undefined;
+  };
+
+  const hasHistoryRecordStats = Boolean(
+    roundHistory &&
+      !isFallbackMatch &&
+      ((roundHistory.minutes || 0) > 0 ||
+        (roundHistory.bps || 0) > 0 ||
+        activeGW < effectiveCurrentGW)
+  );
+
+  // Use liveStats directly only for SGW, or when DGW has at most 1 started match and this is it
+  const canReadCumulativeLiveStats = Boolean(
+    liveStats &&
+      (!isDgwActive ||
+        (isCurrentFixtureStarted && startedFixturesCountInGW <= 1 && activeGW >= effectiveCurrentGW))
+  );
+
+  // Effective match stats
+  const minutesPlayed = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('minutes') ?? (!isFallbackMatch ? roundHistory.minutes : 0) ?? 0
+    : liveStats?.minutes ?? roundHistory?.minutes ?? 0;
+
+  const starts = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted || minutesPlayed <= 0
+      ? 0
+      : hasHistoryRecordStats && roundHistory.starts !== undefined
+      ? roundHistory.starts
+      : canReadCumulativeLiveStats && liveStats?.starts !== undefined
+      ? liveStats.starts
+      : minutesPlayed >= 45
+      ? 1
+      : 0
+    : liveStats?.starts ?? roundHistory?.starts ?? 0;
+
+  const goalsScored = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('goals_scored') ?? (!isFallbackMatch ? roundHistory.goals_scored : 0) ?? 0
+    : liveStats?.goals_scored ?? roundHistory?.goals_scored ?? 0;
+
+  const assists = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('assists') ?? (!isFallbackMatch ? roundHistory.assists : 0) ?? 0
+    : liveStats?.assists ?? roundHistory?.assists ?? 0;
+
+  const cleanSheets = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('clean_sheets') ?? (!isFallbackMatch ? roundHistory.clean_sheets : 0) ?? 0
+    : liveStats?.clean_sheets ?? roundHistory?.clean_sheets ?? 0;
+
+  const defCon = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('defensive_contribution') ??
+        (!isFallbackMatch ? roundHistory.defensive_contribution : 0) ??
+        (canReadCumulativeLiveStats ? liveStats?.defensive_contribution : 0) ??
+        0
+    : liveStats?.defensive_contribution ?? roundHistory?.defensive_contribution ?? 0;
+
+  const goalsConceded = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('goals_conceded') ?? (!isFallbackMatch ? roundHistory.goals_conceded : 0) ?? 0
+    : liveStats?.goals_conceded ?? roundHistory?.goals_conceded ?? 0;
+
+  const yellowCards = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('yellow_cards') ?? (!isFallbackMatch ? roundHistory.yellow_cards : 0) ?? 0
+    : liveStats?.yellow_cards ?? roundHistory?.yellow_cards ?? 0;
+
+  const redCards = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('red_cards') ?? (!isFallbackMatch ? roundHistory.red_cards : 0) ?? 0
+    : liveStats?.red_cards ?? roundHistory?.red_cards ?? 0;
+
+  const saves = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('saves') ?? (!isFallbackMatch ? roundHistory.saves : 0) ?? 0
+    : liveStats?.saves ?? roundHistory?.saves ?? 0;
+
+  const penaltiesSaved = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('penalties_saved') ?? (!isFallbackMatch ? roundHistory.penalties_saved : 0) ?? 0
+    : liveStats?.penalties_saved ?? roundHistory?.penalties_saved ?? 0;
+
+  const penaltiesMissed = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('penalties_missed') ?? (!isFallbackMatch ? roundHistory.penalties_missed : 0) ?? 0
+    : liveStats?.penalties_missed ?? roundHistory?.penalties_missed ?? 0;
+
+  const ownGoals = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('own_goals') ?? (!isFallbackMatch ? roundHistory.own_goals : 0) ?? 0
+    : liveStats?.own_goals ?? roundHistory?.own_goals ?? 0;
+
+  const bonus = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : getExplainValue('bonus') ?? (!isFallbackMatch ? roundHistory.bonus : 0) ?? 0
+    : liveStats?.bonus ?? roundHistory?.bonus ?? 0;
+
+  const bps = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : hasHistoryRecordStats
+      ? roundHistory.bps ?? 0
+      : canReadCumulativeLiveStats
+      ? liveStats?.bps ?? 0
+      : getExplainValue('bps') ?? 0
+    : liveStats?.bps ?? roundHistory?.bps ?? 0;
+
+  // Effective Match Points
+  const effectiveGWPoints = !roundHistory
+    ? 0
+    : isDgwActive
+    ? !isCurrentFixtureStarted
+      ? 0
+      : explainList.length > 0
+      ? explainList.reduce((sum, st) => sum + (Number(st.points) || 0), 0)
+      : !isFallbackMatch
+      ? roundHistory.total_points ?? 0
+      : 0
+    : liveStats?.total_points ?? roundHistory?.total_points ?? playerMeta?.gw_points ?? 0;
+
+  // Advanced & underlying stats in active match (per-match from history once recorded, else cumulative live only if 1 match started)
+  const useHistoryOpticalFirst = Boolean(roundHistory && !isFallbackMatch && (hasHistoryRecordStats || isDgwActive));
+  const expectedGoals = Number(
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? roundHistory.expected_goals ?? (canReadCumulativeLiveStats ? liveStats?.expected_goals : 0) ?? 0
+      : liveStats?.expected_goals ?? roundHistory?.expected_goals ?? 0
+  ).toFixed(2);
+  const expectedAssists = Number(
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? roundHistory.expected_assists ?? (canReadCumulativeLiveStats ? liveStats?.expected_assists : 0) ?? 0
+      : liveStats?.expected_assists ?? roundHistory?.expected_assists ?? 0
+  ).toFixed(2);
+  const expectedGoalInvolvements = Number(
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? roundHistory.expected_goal_involvements ??
+        (canReadCumulativeLiveStats ? liveStats?.expected_goal_involvements : 0) ??
+        0
+      : liveStats?.expected_goal_involvements ?? roundHistory?.expected_goal_involvements ?? 0
+  ).toFixed(2);
+  const expectedGoalsConceded = Number(
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? roundHistory.expected_goals_conceded ??
+        (canReadCumulativeLiveStats ? liveStats?.expected_goals_conceded : 0) ??
+        0
+      : liveStats?.expected_goals_conceded ?? roundHistory?.expected_goals_conceded ?? 0
+  ).toFixed(2);
+
+  const cbi =
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? (roundHistory as any).clearances_blocks_interceptions ??
+        (canReadCumulativeLiveStats ? liveStats?.clearances_blocks_interceptions : 0) ??
+        0
+      : liveStats?.clearances_blocks_interceptions ?? (roundHistory as any)?.clearances_blocks_interceptions ?? 0;
+  const tackles =
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? (roundHistory as any).tackles ?? (canReadCumulativeLiveStats ? liveStats?.tackles : 0) ?? 0
+      : liveStats?.tackles ?? (roundHistory as any)?.tackles ?? 0;
+  const recoveries =
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? (roundHistory as any).recoveries ?? (canReadCumulativeLiveStats ? liveStats?.recoveries : 0) ?? 0
+      : liveStats?.recoveries ?? (roundHistory as any)?.recoveries ?? 0;
+
+  const influence = Number(
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? roundHistory.influence ?? (canReadCumulativeLiveStats ? liveStats?.influence : 0) ?? 0
+      : liveStats?.influence ?? roundHistory?.influence ?? 0
+  ).toFixed(1);
+  const creativity = Number(
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? roundHistory.creativity ?? (canReadCumulativeLiveStats ? liveStats?.creativity : 0) ?? 0
+      : liveStats?.creativity ?? roundHistory?.creativity ?? 0
+  ).toFixed(1);
+  const threat = Number(
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? roundHistory.threat ?? (canReadCumulativeLiveStats ? liveStats?.threat : 0) ?? 0
+      : liveStats?.threat ?? roundHistory?.threat ?? 0
+  ).toFixed(1);
+  const ictIndex = Number(
+    !roundHistory || (isDgwActive && !isCurrentFixtureStarted)
+      ? 0
+      : useHistoryOpticalFirst
+      ? roundHistory.ict_index ?? (canReadCumulativeLiveStats ? liveStats?.ict_index : 0) ?? 0
+      : liveStats?.ict_index ?? roundHistory?.ict_index ?? 0
+  ).toFixed(1);
 
   const isGk =
     playerMeta?.position === 'GKP' ||
@@ -1158,61 +1688,116 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   }, []);
 
   // Combined Statistics & Insights: All 30 GW History fields transposed top-to-bottom with full names
+  // Form & Season are calculated strictly by match up to the currently selected match (round + fixture)
   const combinedStatsData = useMemo(() => {
     const historyList = summaryData?.history || [];
-    const currentRound = historyList.find((h) => h.round === activeGW);
-    // 1. Season matches: Dari pertandingan pertama musim ini s.d. pertandingan terakhir di GW yang dipilih (activeGW)
-    const historyUpToGW = historyList.filter((h) => h.round <= activeGW);
-    const matchesInActiveGW = historyList.filter((h) => h.round === activeGW);
+    const sortedAscHistory = [...historyList].sort((a, b) => {
+      if (a.round !== b.round) return a.round - b.round;
+      const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : 0;
+      const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : 0;
+      if (tA !== tB) return tA - tB;
+      return (Number(a.fixture) || 0) - (Number(b.fixture) || 0);
+    });
+
+    const currentRound =
+      roundHistory && !isFallbackMatch
+        ? roundHistory
+        : sortedAscHistory.find((h) => h.round === activeGW);
+
+    // 1. Season matches: up to the selected match chronologically (by match, not leaking Fixture 2 into Fixture 1)
+    let historyUpToMatch = sortedAscHistory.filter((h) => h.round < activeGW);
+    if (roundHistory && !isFallbackMatch) {
+      const selectedIdx = roundHistory.fixture
+        ? sortedAscHistory.findIndex(
+            (h) => h.round === activeGW && Number(h.fixture) === Number(roundHistory.fixture)
+          )
+        : sortedAscHistory.findIndex((h) => h.round === activeGW);
+      if (selectedIdx >= 0) {
+        historyUpToMatch = sortedAscHistory.slice(0, selectedIdx + 1);
+      } else {
+        historyUpToMatch = sortedAscHistory.filter((h) => h.round <= activeGW);
+      }
+    } else if (roundHistory && isFallbackMatch) {
+      // Viewing an unplayed upcoming fixture: include earlier fixtures of this GW (if any) before this slot
+      const precedingIds = new Set<number>(
+        activeGWMatches
+          .slice(0, safeMatchIndex)
+          .filter((m) => !m._isUpcomingFallback && m.fixture)
+          .map((m) => Number(m.fixture))
+      );
+      const precedingInGW = sortedAscHistory.filter(
+        (h) => h.round === activeGW && precedingIds.has(Number(h.fixture))
+      );
+      historyUpToMatch = [...historyUpToMatch, ...precedingInGW];
+    }
+
+    const matchesInActiveGW = sortedAscHistory.filter((h) => h.round === activeGW);
 
     // 2. Titik acuan waktu (anchor timestamp):
-    // Jika melihat Gameweek aktif terkini (activeGW >= maxGW), titik acuan adalah waktu sekarang (Date.now())
-    // sesuai standar resmi FPL (rolling 30 calendar days from now).
-    // Jika melihat Gameweek lampau (activeGW < maxGW), acuan waktu adalah kick-off pertandingan terakhir di GW tersebut.
-    const isCurrentActiveGW = activeGW >= maxGW;
+    // Jika berada di pertandingan terakhir pada GW aktif terkini, gunakan waktu sekarang (rolling 30 hari resmi FPL).
+    // Jika melihat laga lebih awal (GW lampau atau Laga 1 dari DGW saat Laga 2 sudah berlangsung), hentikan tepat di kickoff laga yang dipilih.
+    const isLatestMatchOfMaxGW =
+      activeGW >= maxGW &&
+      (activeGWMatches.length <= 1 || safeMatchIndex >= activeGWMatches.length - 1);
     let targetAnchorTime: number;
 
-    if (isCurrentActiveGW) {
+    if (isLatestMatchOfMaxGW) {
       targetAnchorTime = Date.now();
+    } else if (roundHistory?.kickoff_time) {
+      targetAnchorTime = new Date(roundHistory.kickoff_time).getTime();
+    } else if (matchesInActiveGW.length > 0) {
+      const times = matchesInActiveGW
+        .map((m) => (m.kickoff_time ? new Date(m.kickoff_time).getTime() : 0))
+        .filter((t) => t > 0);
+      targetAnchorTime = times.length > 0 ? Math.max(...times) : Date.now();
     } else {
-      if (matchesInActiveGW.length > 0) {
-        const times = matchesInActiveGW
-          .map((m) => (m.kickoff_time ? new Date(m.kickoff_time).getTime() : 0))
-          .filter((t) => t > 0);
-        targetAnchorTime = times.length > 0 ? Math.max(...times) : Date.now();
+      const previousPlayed = historyUpToMatch.filter((h) => h.kickoff_time);
+      if (previousPlayed.length > 0) {
+        const times = previousPlayed.map((m) => new Date(m.kickoff_time).getTime());
+        targetAnchorTime = Math.max(...times);
       } else {
-        const previousPlayed = historyUpToGW.filter((h) => h.kickoff_time);
-        if (previousPlayed.length > 0) {
-          const times = previousPlayed.map((m) => new Date(m.kickoff_time).getTime());
-          targetAnchorTime = Math.max(...times);
-        } else {
-          targetAnchorTime = Date.now();
-        }
+        targetAnchorTime = Date.now();
       }
     }
 
-    // 3. Form window: 30 hari ke belakang dari pertandingan terakhir di GW yang dipilih
+    // 3. Form window: 30 hari ke belakang dari titik acuan, dihitung rata-rata per pertandingan (by match)
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-    const formMatchesRaw = historyUpToGW.filter((h) => {
+    const formMatchesRaw = historyUpToMatch.filter((h) => {
       if (!h.kickoff_time) return false;
       const matchTime = new Date(h.kickoff_time).getTime();
-      return matchTime <= targetAnchorTime && matchTime >= (targetAnchorTime - thirtyDaysMs);
+      return matchTime <= targetAnchorTime && matchTime >= targetAnchorTime - thirtyDaysMs;
     });
     const effectiveFormMatches =
       formMatchesRaw.length > 0
         ? formMatchesRaw
-        : matchesInActiveGW.length > 0
-        ? matchesInActiveGW
-        : historyUpToGW.slice(-1);
+        : roundHistory && !isFallbackMatch
+        ? [roundHistory]
+        : historyUpToMatch.slice(-1);
 
     const formCount = effectiveFormMatches.length;
-    const seasonCount = historyUpToGW.length || 1;
+    const seasonCount = historyUpToMatch.length || 1;
+    const historyUpToGW = historyUpToMatch;
 
     const calcAvg = (items: typeof historyList, extractor: (h: any) => number) => {
       if (!items || items.length === 0) return 0;
       const sum = items.reduce((acc, h) => acc + (extractor(h) || 0), 0);
       return sum / items.length;
     };
+
+    // Deduplicate by GW (round) for GW-level metrics (NT, TSB%, Price) so DGW rounds aren't counted twice
+    const deduplicateByRound = (items: typeof historyList) => {
+      const seen = new Set<number>();
+      const unique: typeof historyList = [];
+      for (const item of items) {
+        if (!seen.has(item.round)) {
+          seen.add(item.round);
+          unique.push(item);
+        }
+      }
+      return unique;
+    };
+    const uniqueFormGWs = deduplicateByRound(effectiveFormMatches);
+    const uniqueSeasonGWs = deduplicateByRound(historyUpToGW);
 
     // 1. Total Points
     const ptsGW = effectiveGWPoints;
@@ -1349,21 +1934,21 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     const iiForm = calcAvg(effectiveFormMatches, (h) => parseFloat(String(h.ict_index || 0)));
     const iiSeason = calcAvg(historyUpToGW, (h) => parseFloat(String(h.ict_index || 0)));
 
-    // 28. Net Transfers (FNB League)
+    // 28. Net Transfers (FNB League) - GW-level metric deduplicated per round
     const fnbGWMetrics = getFnbMetrics(activeGW);
     const ntGW = fnbGWMetrics.netTransfers;
-    const ntForm = calcAvg(effectiveFormMatches, (h) => getFnbMetrics(h.round).netTransfers);
-    const ntSeason = calcAvg(historyUpToGW, (h) => getFnbMetrics(h.round).netTransfers);
+    const ntForm = calcAvg(uniqueFormGWs, (h) => getFnbMetrics(h.round).netTransfers);
+    const ntSeason = calcAvg(uniqueSeasonGWs, (h) => getFnbMetrics(h.round).netTransfers);
 
-    // 29. Teams Selected By (FNB League Ownership %)
+    // 29. Teams Selected By (FNB League Ownership %) - GW-level metric deduplicated per round
     const tsbGW = parseFloat(fnbGWMetrics.tsb) || 0;
-    const tsbForm = calcAvg(effectiveFormMatches, (h) => parseFloat(getFnbMetrics(h.round).tsb) || 0);
-    const tsbSeason = calcAvg(historyUpToGW, (h) => parseFloat(getFnbMetrics(h.round).tsb) || 0);
+    const tsbForm = calcAvg(uniqueFormGWs, (h) => parseFloat(getFnbMetrics(h.round).tsb) || 0);
+    const tsbSeason = calcAvg(uniqueSeasonGWs, (h) => parseFloat(getFnbMetrics(h.round).tsb) || 0);
 
-    // 30. Price (£m)
+    // 30. Price (£m) - GW-level metric deduplicated per round
     const priceGW = currentRound?.value ? currentRound.value / 10 : (playerMeta?.now_cost ? playerMeta.now_cost / 10 : 0);
-    const priceForm = calcAvg(effectiveFormMatches, (h) => (h.value ? h.value / 10 : 0));
-    const priceSeason = calcAvg(historyUpToGW, (h) => (h.value ? h.value / 10 : 0));
+    const priceForm = calcAvg(uniqueFormGWs, (h) => (h.value ? h.value / 10 : 0));
+    const priceSeason = calcAvg(uniqueSeasonGWs, (h) => (h.value ? h.value / 10 : 0));
 
     const rows = [
       { key: 'pts', label: 'Total Points', gw: `${ptsGW}`, form: ptsForm.toFixed(1), season: ptsSeason.toFixed(1), gwNum: ptsGW, formNum: ptsForm, seasonNum: ptsSeason },
@@ -1406,7 +1991,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   }, [
     summaryData?.history,
     activeGW,
+    activeGWMatches,
+    safeMatchIndex,
+    roundHistory,
+    isFallbackMatch,
     effectiveGWPoints,
+    starts,
     minutesPlayed,
     goalsScored,
     assists,
@@ -1436,11 +2026,6 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     playerMeta?.now_cost,
     maxGW,
   ]);
-
-  const playerStatsObj = useMemo(() => {
-    if (!playerId || !playerStats) return null;
-    return playerStats.find((p) => p.id === playerId) || null;
-  }, [playerId, playerStats]);
 
   const teamCode =
     playerMeta?.team_code ||
@@ -1837,6 +2422,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
                   // State B: Not loading, but roundHistory is absent (Blank Gameweek)
                   if (!roundHistory) {
+                    const prevArrowTitle = canGoPrev && activeGWIndex > 0
+                      ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex - 1]}` : `Jump to GW ${sortedGWs[activeGWIndex - 1]}`)
+                      : undefined;
+                    const nextArrowTitle = canGoNext && activeGWIndex < sortedGWs.length - 1
+                      ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex + 1]}` : `Jump to GW ${sortedGWs[activeGWIndex + 1]}`)
+                      : undefined;
                     return (
                       <>
                         <div className="w-full flex items-center justify-between gap-1.5 sm:gap-2.5 relative select-none">
@@ -1846,7 +2437,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             onClick={handlePrevGW}
                             disabled={!canGoPrev}
                             className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-                            title={canGoPrev ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex - 1]}` : `Jump to GW ${sortedGWs[activeGWIndex - 1]}`) : undefined}
+                            title={prevArrowTitle}
                             aria-label="Previous Gameweek"
                           >
                             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -1863,10 +2454,10 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                                 GW {activeGW}
                               </span>
                               <span className="font-black text-base sm:text-lg text-white tracking-tight leading-none">
-                                Blank GW
+                                No Fixture
                               </span>
                               <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
-                                {language === 'id' ? 'Tidak Ada Pertandingan' : 'No Fixture'}
+                                {language === 'id' ? 'Tidak Ada Pertandingan' : '-'}
                               </span>
                             </button>
                             {renderGWDropdown()}
@@ -1878,7 +2469,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             onClick={handleNextGW}
                             disabled={!canGoNext}
                             className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-                            title={canGoNext ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex + 1]}` : `Jump to GW ${sortedGWs[activeGWIndex + 1]}`) : undefined}
+                            title={nextArrowTitle}
                             aria-label="Next Gameweek"
                           >
                             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -1888,7 +2479,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                         <div className="mt-2.5 pt-2.5 border-t border-purple-500/25 flex flex-row items-stretch gap-2.5">
                           <div className="bg-[#12001a] border border-purple-500/50 rounded-lg px-1 py-1 h-[68px] max-h-[68px] w-[59px] min-w-[59px] max-w-[59px] shrink-0 self-start text-center shadow-inner flex flex-col items-center justify-center">
                             <span className="text-[36px] font-black text-[#00ff87] leading-none tracking-tight">
-                              {effectiveGWPoints}
+                              0
                             </span>
                             <span className="font-medium text-[11px] sm:text-xs text-slate-300 tracking-wider select-none leading-tight mt-0.5">
                               {t('modal_plyr_match_points')}
@@ -1897,7 +2488,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
                           <div className="flex-1 min-w-0">
                             <div className="bg-black/20 rounded-lg p-2.5 h-[68px] flex items-center justify-center text-center text-xs text-purple-300/70 italic border border-purple-500/20">
-                              Blank Gameweek ({effectiveGWPoints} {language === 'id' ? 'poin' : 'pts'})
+                              No Fixture (0 {language === 'id' ? 'poin' : 'pts'})
                             </div>
                           </div>
                         </div>
@@ -2062,6 +2653,30 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                     }
                   }
 
+                  const prevArrowTitle = canGoPrev
+                    ? safeMatchIndex > 0
+                      ? (language === 'id'
+                          ? `Laga ${safeMatchIndex}/${activeGWMatches.length} (GW ${activeGW})`
+                          : `Match ${safeMatchIndex}/${activeGWMatches.length} (GW ${activeGW})`)
+                      : activeGWIndex > 0
+                      ? (language === 'id'
+                          ? `Lompat ke GW ${sortedGWs[activeGWIndex - 1]}`
+                          : `Jump to GW ${sortedGWs[activeGWIndex - 1]}`)
+                      : undefined
+                    : undefined;
+
+                  const nextArrowTitle = canGoNext
+                    ? activeGWMatches.length > 1 && safeMatchIndex < activeGWMatches.length - 1
+                      ? (language === 'id'
+                          ? `Laga ${safeMatchIndex + 2}/${activeGWMatches.length} (GW ${activeGW})`
+                          : `Match ${safeMatchIndex + 2}/${activeGWMatches.length} (GW ${activeGW})`)
+                      : activeGWIndex < sortedGWs.length - 1
+                      ? (language === 'id'
+                          ? `Lompat ke GW ${sortedGWs[activeGWIndex + 1]}`
+                          : `Jump to GW ${sortedGWs[activeGWIndex + 1]}`)
+                      : undefined
+                    : undefined;
+
                   return (
                     <>
                       <div className="w-full flex items-center justify-between gap-1.5 sm:gap-2.5 relative select-none">
@@ -2071,7 +2686,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                           onClick={handlePrevGW}
                           disabled={!canGoPrev}
                           className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-                          title={canGoPrev ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex - 1]}` : `Jump to GW ${sortedGWs[activeGWIndex - 1]}`) : undefined}
+                          title={prevArrowTitle}
                           aria-label="Previous Gameweek"
                         >
                           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -2110,7 +2725,9 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                             >
                               {/* 1. Text GW di atas skor pertandingan: font, ukuran, format sama persis dengan GW Status */}
                               <span className="font-medium text-[11px] sm:text-xs text-slate-300 group-hover:text-white transition-colors tracking-wider select-none leading-tight">
-                                GW {activeGW}
+                                {activeGWMatches.length > 1
+                                  ? `GW ${activeGW} (${safeMatchIndex + 1}/${activeGWMatches.length})`
+                                  : `GW ${activeGW}`}
                               </span>
 
                               {/* 2. Skor pertandingan */}
@@ -2181,7 +2798,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                           onClick={handleNextGW}
                           disabled={!canGoNext}
                           className="shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/85 dark:bg-purple-950/85 hover:bg-slate-700 dark:hover:bg-purple-900 border border-slate-600/70 dark:border-purple-600/70 text-white shadow-md flex items-center justify-center transition-all cursor-pointer disabled:opacity-20 disabled:pointer-events-none active:scale-95"
-                          title={canGoNext ? (language === 'id' ? `Lompat ke GW ${sortedGWs[activeGWIndex + 1]}` : `Jump to GW ${sortedGWs[activeGWIndex + 1]}`) : undefined}
+                          title={nextArrowTitle}
                           aria-label="Next Gameweek"
                         >
                           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -2241,7 +2858,11 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                     <thead>
                       <tr className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[11px] font-extrabold tracking-wider border-b border-slate-200 dark:border-purple-900/40 select-none">
                         <th className="py-2.5 px-3 text-left w-[43%] sm:w-[46%]">{language === 'id' ? 'Statistik' : 'Statistic'}</th>
-                        <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">GW {activeGW}</th>
+                        <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">
+                          {activeGWMatches.length > 1
+                            ? `GW ${activeGW} (${safeMatchIndex + 1}/${activeGWMatches.length})`
+                            : `GW ${activeGW}`}
+                        </th>
                         <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">{language === 'id' ? 'Performa' : 'Form'}</th>
                         <th className="py-2.5 px-2.5 text-right w-[19%] sm:w-[18%]">{language === 'id' ? 'Musim' : 'Season'}</th>
                       </tr>
@@ -2283,7 +2904,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                 <CustomPopoverSelect
                   id="player-owners-gw-filter"
                   value={activeGW}
-                  onChange={(val) => setActiveGW(Number(val))}
+                  onChange={(val) => {
+                    const nextGw = Number(val);
+                    pendingMatchTargetRef.current = { gw: nextGw, target: 'first' };
+                    setActiveMatchIndex(0);
+                    setActiveGW(nextGw);
+                  }}
                   className="bg-white dark:bg-[#1b0d2d] border border-slate-300 dark:border-purple-800/60 hover:border-purple-600 dark:hover:border-[#00ff87] rounded-lg text-xs font-bold text-slate-800 dark:text-slate-100 py-1.5 px-1.5 shadow-2xs flex items-center justify-between gap-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#37003c] dark:focus:ring-[#00ff87] transition-colors"
                   options={sortedGWs.map((gw) => ({
                     value: gw,
@@ -2583,14 +3209,24 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-purple-900/30">
-                        {sortedHistory.map((h) => {
-                          const isCurrent = h.round === activeGW;
+                        {sortedHistory.map((h, idx) => {
+                          const isCurrent =
+                            h.round === activeGW &&
+                            (!roundHistory?.fixture || !h.fixture || Number(h.fixture) === Number(roundHistory.fixture));
                           const res = getMatchResultDetails(h);
                           const fnb = getFnbMetrics(h.round);
                           return (
                             <tr
-                              key={h.round}
+                              key={`${h.round}_${h.fixture ?? idx}`}
                               onClick={() => {
+                                const targetMatches = getMatchesForGW(h.round);
+                                const matchedIdx = h.fixture
+                                  ? targetMatches.findIndex((m) => Number(m.fixture) === Number(h.fixture))
+                                  : 0;
+                                pendingMatchTargetRef.current = h.fixture
+                                  ? { gw: h.round, target: { fixtureId: Number(h.fixture) } }
+                                  : { gw: h.round, target: 'first' };
+                                setActiveMatchIndex(matchedIdx >= 0 ? matchedIdx : 0);
                                 setActiveGW(h.round);
                                 setActiveTab('overview');
                               }}
@@ -3070,7 +3706,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
           {/* TAB 4: FIXTURES (SIMPLE TABLE WITH FDR COLORING, GW ASC) */}
           {activeTab === 'fixtures' && (
             <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl overflow-hidden shadow-2xs">
-              {sortedFixtures.length > 0 ? (
+              {upcomingFixtureRows.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
                     <thead className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[10.5px] font-extrabold tracking-wider border-b border-slate-200 dark:border-purple-900/40 select-none">
@@ -3086,7 +3722,32 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-purple-900/30">
-                      {sortedFixtures.map((f, idx) => {
+                      {upcomingFixtureRows.map((row, idx) => {
+                        if (row.kind === 'no_fixture') {
+                          return (
+                            <tr
+                              key={`no_fixture_${row.event}`}
+                              className="bg-slate-100/90 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500"
+                            >
+                              <td className="py-1.5 px-2.5 sm:px-3 font-bold text-slate-500 dark:text-slate-400">
+                                GW {row.event}
+                              </td>
+                              <td className="py-1.5 px-2.5 text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+                                No Fixture
+                              </td>
+                              <td className="py-1.5 px-2.5">
+                                <span className="inline-block w-[92px] text-center font-bold text-slate-400 dark:text-slate-500">
+                                  -
+                                </span>
+                              </td>
+                              <td className="py-1.5 px-2.5 sm:px-3 text-center font-bold text-slate-400 dark:text-slate-500">
+                                -
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        const f = row.fixture;
                         const oppId = f.is_home ? f.team_a : f.team_h;
                         const oppInfo = oppId ? FPL_TEAMS_BY_ID[oppId] : null;
                         const oppShortName = oppInfo?.short_name || (oppId ? `T${oppId}` : 'TBD');
@@ -3100,7 +3761,11 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                         return (
                           <tr
                             key={f.id ?? `${f.event ?? 'tbd'}_${idx}`}
-                            className="hover:bg-slate-50/70 dark:hover:bg-purple-950/25 transition-colors"
+                            className={
+                              row.isDgw
+                                ? 'bg-cyan-50/80 dark:bg-cyan-950/40 hover:bg-cyan-100/75 dark:hover:bg-cyan-950/60 transition-colors'
+                                : 'hover:bg-slate-50/70 dark:hover:bg-purple-950/25 transition-colors'
+                            }
                           >
                             <td className="py-1.5 px-2.5 sm:px-3 font-black text-slate-900 dark:text-white">
                               {f.event != null ? `GW ${f.event}` : 'TBD'}

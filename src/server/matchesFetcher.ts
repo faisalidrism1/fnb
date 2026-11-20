@@ -617,12 +617,38 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
     elementByCodeMap.set(el.code, el);
   }
 
-  // Build live elements map for this GW
-  const liveStatsMap = new Map<number, any>();
+  // Track per-team fixture counts in this GW (identifies DGW clubs with >= 2 fixtures)
+  const teamFixtureCountMap = new Map<number, number>();
+  const teamStartedCountMap = new Map<number, number>();
+  for (const f of fixturesRaw) {
+    teamFixtureCountMap.set(f.team_h, (teamFixtureCountMap.get(f.team_h) || 0) + 1);
+    teamFixtureCountMap.set(f.team_a, (teamFixtureCountMap.get(f.team_a) || 0) + 1);
+    if (f.started) {
+      teamStartedCountMap.set(f.team_h, (teamStartedCountMap.get(f.team_h) || 0) + 1);
+      teamStartedCountMap.set(f.team_a, (teamStartedCountMap.get(f.team_a) || 0) + 1);
+    }
+  }
+
+  // Build live elements map for this GW (preserving both GW cumulative stats and per-fixture explain)
+  const liveStatsMap = new Map<number, {
+    points: number;
+    stats: any;
+    explainByFixture: Map<number, Array<{ identifier: string; points: number; value: number }>>;
+  }>();
   for (const item of liveRaw?.elements || []) {
+    const explainByFixture = new Map<number, Array<{ identifier: string; points: number; value: number }>>();
+    if (Array.isArray(item.explain)) {
+      for (const expl of item.explain) {
+        const fixId = Number(expl?.fixture);
+        if (fixId && Array.isArray(expl?.stats)) {
+          explainByFixture.set(fixId, expl.stats);
+        }
+      }
+    }
     liveStatsMap.set(item.id, {
       points: item.stats?.total_points || 0,
-      stats: item.stats || {}
+      stats: item.stats || {},
+      explainByFixture
     });
   }
 
@@ -853,7 +879,9 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       ownGoals: number;
       penMissed: number;
       penSaved: number;
+      saves: number;
       bonus: number;
+      bps: number;
     }>();
 
     for (const st of fix.stats || []) {
@@ -871,7 +899,9 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
             ownGoals: 0,
             penMissed: 0,
             penSaved: 0,
-            bonus: 0
+            saves: 0,
+            bonus: 0,
+            bps: 0
           });
         }
         const rec = fixStatEventsMap.get(elId)!;
@@ -882,23 +912,63 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         else if (iden === 'own_goals') rec.ownGoals += entry.value;
         else if (iden === 'penalties_missed') rec.penMissed += entry.value;
         else if (iden === 'penalties_saved') rec.penSaved += entry.value;
+        else if (iden === 'saves') rec.saves += entry.value;
         else if (iden === 'bonus') rec.bonus += entry.value;
+        else if (iden === 'bps') rec.bps += entry.value;
       }
     }
 
-    // Helper to build a MatchPlayerItem
+    // Helper to build a MatchPlayerItem scoped strictly to this fixture.id
     const buildMatchPlayer = (
       fplEl: any | null,
       pulsePlayer: any | null,
       isHome: boolean,
       isSubbedOn = false,
-      isSubbedOff = false
+      isSubbedOff = false,
+      isStarterInLineup = false
     ): MatchPlayerItem => {
       const elId = fplEl ? fplEl.id : (pulsePlayer?.id ? -Math.abs(Number(pulsePlayer.id)) : 0);
       const live = fplEl ? liveStatsMap.get(fplEl.id) : null;
       const fixEvents = fplEl ? fixStatEventsMap.get(fplEl.id) : null;
       const statsObj = live?.stats || {};
-      const gwPoints = live?.points || 0;
+
+      // Assign team corresponding to this match (handles transferred players and DGW fixture count)
+      const assignedTeamId = isHome ? homeTeam.id : awayTeam.id;
+      const assignedTeamShort = isHome ? homeTeam.short_name : awayTeam.short_name;
+
+      const teamTotalFixtures = teamFixtureCountMap.get(assignedTeamId) || 1;
+      const teamStartedFixtures = teamStartedCountMap.get(assignedTeamId) || 0;
+      const isClubMultiFixtureActive =
+        teamTotalFixtures >= 2 && (teamStartedFixtures >= 2 || !fix.started);
+
+      const explainStats = live?.explainByFixture.get(fix.id);
+      const getExplain = (identifier: string) =>
+        explainStats?.find((st) => st.identifier === identifier);
+
+      let playedExplainFixturesCount = 0;
+      if (live?.explainByFixture) {
+        for (const explArr of live.explainByFixture.values()) {
+          const minSt = explArr.find((st) => st.identifier === 'minutes');
+          if ((minSt?.value || 0) > 0) {
+            playedExplainFixturesCount++;
+          }
+        }
+      }
+
+      // If this fixture hasn't started yet (e.g. DGW Match 2 UPCOMING), never leak Match 1 stats
+      const useExplainOnly = !fix.started || isClubMultiFixtureActive;
+
+      const minutesVal = !fix.started
+        ? 0
+        : useExplainOnly
+          ? (getExplain('minutes')?.value ?? 0)
+          : (getExplain('minutes')?.value ?? statsObj.minutes ?? 0);
+
+      const fixturePoints = !fix.started
+        ? 0
+        : explainStats
+          ? explainStats.reduce((sum, st) => sum + (Number(st.points) || 0), 0)
+          : (useExplainOnly ? 0 : (live?.points || 0));
 
       // Position resolution: prefer FPL element_type, fallback to Pulse matchPosition / info.position
       let pos: PositionType = 'MID';
@@ -912,42 +982,103 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         else pos = 'MID';
       }
 
-      // DefCon calculation per official rule: DEF >= 10, MID/FWD >= 12
-      const dcVal = statsObj.defensive_contribution || 0;
-      const isDefConEligible = (pos === 'DEF' && dcVal >= 10) || ((pos === 'MID' || pos === 'FWD') && dcVal >= 12);
+      const startsVal = !fix.started || minutesVal <= 0
+        ? 0
+        : isStarterInLineup
+          ? 1
+          : isSubbedOn
+            ? 0
+            : useExplainOnly
+              ? (minutesVal >= 45 ? 1 : 0)
+              : (statsObj.starts !== undefined ? Number(statsObj.starts) : 1);
+
+      const cleanSheetsVal = !fix.started
+        ? 0
+        : useExplainOnly
+          ? (getExplain('clean_sheets')?.value ?? 0)
+          : (getExplain('clean_sheets')?.value ?? statsObj.clean_sheets ?? 0);
+
+      const goalsConcededVal = !fix.started
+        ? 0
+        : useExplainOnly
+          ? (getExplain('goals_conceded')?.value ?? 0)
+          : (getExplain('goals_conceded')?.value ?? statsObj.goals_conceded ?? 0);
+
+      const savesVal = !fix.started
+        ? 0
+        : useExplainOnly
+          ? (getExplain('saves')?.value ?? fixEvents?.saves ?? 0)
+          : (getExplain('saves')?.value ?? fixEvents?.saves ?? statsObj.saves ?? 0);
+
+      const bpsVal = !fix.started
+        ? 0
+        : useExplainOnly
+          ? (fixEvents?.bps ?? getExplain('bps')?.value ?? 0)
+          : (fixEvents?.bps ?? getExplain('bps')?.value ?? statsObj.bps ?? 0);
+
+      // DefCon calculation per official rule: DEF >= 10, MID/FWD >= 12 (strictly per fixture)
+      const explainDc = getExplain('defensive_contribution');
+      const canUseCumulativeOpticalStats =
+        fix.started &&
+        minutesVal > 0 &&
+        (!isClubMultiFixtureActive || playedExplainFixturesCount <= 1);
+      const dcVal = !fix.started
+        ? 0
+        : explainDc
+          ? Number(explainDc.value || 0)
+          : (canUseCumulativeOpticalStats ? Number(statsObj.defensive_contribution || 0) : 0);
+      const isDefConEligible =
+        fix.started &&
+        (Number(explainDc?.points || 0) > 0 ||
+          (pos === 'DEF' && dcVal >= 10) ||
+          ((pos === 'MID' || pos === 'FWD') && dcVal >= 12));
 
       const eventBadges: MatchPlayerEvent[] = [];
-      const goalsCount = fixEvents?.goals || statsObj.goals_scored || 0;
+      const goalsCount = !fix.started
+        ? 0
+        : (fixEvents?.goals ?? getExplain('goals_scored')?.value ?? (useExplainOnly ? 0 : (statsObj.goals_scored || 0)));
       if (goalsCount > 0) {
         eventBadges.push({ type: 'goal', count: goalsCount });
       }
 
-      const assistsCount = fixEvents?.assists || statsObj.assists || 0;
+      const assistsCount = !fix.started
+        ? 0
+        : (fixEvents?.assists ?? getExplain('assists')?.value ?? (useExplainOnly ? 0 : (statsObj.assists || 0)));
       if (assistsCount > 0) {
         eventBadges.push({ type: 'assist', count: assistsCount });
       }
 
-      const yellowsCount = fixEvents?.yellows || statsObj.yellow_cards || 0;
+      const yellowsCount = !fix.started
+        ? 0
+        : (fixEvents?.yellows ?? getExplain('yellow_cards')?.value ?? (useExplainOnly ? 0 : (statsObj.yellow_cards || 0)));
       if (yellowsCount > 0) {
         eventBadges.push({ type: 'yellow_card', count: yellowsCount });
       }
 
-      const redsCount = fixEvents?.reds || statsObj.red_cards || 0;
+      const redsCount = !fix.started
+        ? 0
+        : (fixEvents?.reds ?? getExplain('red_cards')?.value ?? (useExplainOnly ? 0 : (statsObj.red_cards || 0)));
       if (redsCount > 0) {
         eventBadges.push({ type: 'red_card', count: redsCount });
       }
 
-      const ogCount = fixEvents?.ownGoals || statsObj.own_goals || 0;
+      const ogCount = !fix.started
+        ? 0
+        : (fixEvents?.ownGoals ?? getExplain('own_goals')?.value ?? (useExplainOnly ? 0 : (statsObj.own_goals || 0)));
       if (ogCount > 0) {
         eventBadges.push({ type: 'own_goal', count: ogCount });
       }
 
-      const pmCount = fixEvents?.penMissed || statsObj.penalties_missed || 0;
+      const pmCount = !fix.started
+        ? 0
+        : (fixEvents?.penMissed ?? getExplain('penalties_missed')?.value ?? (useExplainOnly ? 0 : (statsObj.penalties_missed || 0)));
       if (pmCount > 0) {
         eventBadges.push({ type: 'pen_missed', count: pmCount });
       }
 
-      const psCount = fixEvents?.penSaved || statsObj.penalties_saved || 0;
+      const psCount = !fix.started
+        ? 0
+        : (fixEvents?.penSaved ?? getExplain('penalties_saved')?.value ?? (useExplainOnly ? 0 : (statsObj.penalties_saved || 0)));
       if (psCount > 0) {
         eventBadges.push({ type: 'pen_saved', count: psCount });
       }
@@ -956,7 +1087,9 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         eventBadges.push({ type: 'def_con', count: 1 });
       }
 
-      const bonusPts = fixEvents?.bonus || statsObj.bonus || 0;
+      const bonusPts = !fix.started
+        ? 0
+        : (fixEvents?.bonus ?? getExplain('bonus')?.value ?? (useExplainOnly ? 0 : (statsObj.bonus || 0)));
       if (bonusPts > 0) {
         const bonusRank: 1 | 2 | 3 = bonusPts === 3 ? 1 : bonusPts === 2 ? 2 : 3;
         eventBadges.push({ type: 'bonus', count: 1, bonusRank });
@@ -974,10 +1107,6 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         ? `${fplEl.first_name} ${fplEl.second_name}`.trim()
         : (pulsePlayer?.name?.display || `${pulsePlayer?.name?.first || ''} ${pulsePlayer?.name?.last || ''}`.trim());
 
-      // Assign team corresponding to this match (handles transferred players like Ndiaye correctly)
-      const assignedTeamId = isHome ? homeTeam.id : awayTeam.id;
-      const assignedTeamShort = isHome ? homeTeam.short_name : awayTeam.short_name;
-
       const playerCode = fplEl ? fplEl.code : (pulsePlayer?.id || 0);
       const nowCost = fplEl ? fplEl.now_cost : 0;
 
@@ -990,35 +1119,35 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         team: assignedTeamId,
         team_short_name: assignedTeamShort,
         now_cost: nowCost,
-        gw_points: gwPoints,
+        gw_points: fixturePoints,
         stats: {
-          total_points: gwPoints,
-          starts: statsObj.starts !== undefined ? Number(statsObj.starts) : (statsObj.minutes > 0 ? 1 : 0),
-          minutes: statsObj.minutes || 0,
+          total_points: fixturePoints,
+          starts: startsVal,
+          minutes: minutesVal,
           goals_scored: goalsCount,
           assists: assistsCount,
-          expected_goals: statsObj.expected_goals !== undefined ? parseFloat(String(statsObj.expected_goals)) : 0,
-          expected_assists: statsObj.expected_assists !== undefined ? parseFloat(String(statsObj.expected_assists)) : 0,
-          expected_goal_involvements: statsObj.expected_goal_involvements !== undefined ? parseFloat(String(statsObj.expected_goal_involvements)) : 0,
-          clean_sheets: statsObj.clean_sheets || 0,
-          goals_conceded: statsObj.goals_conceded || 0,
-          expected_goals_conceded: statsObj.expected_goals_conceded !== undefined ? parseFloat(String(statsObj.expected_goals_conceded)) : 0,
-          tackles: statsObj.tackles || 0,
-          clearances_blocks_interceptions: statsObj.clearances_blocks_interceptions || 0,
-          recoveries: statsObj.recoveries || 0,
+          expected_goals: canUseCumulativeOpticalStats && statsObj.expected_goals !== undefined ? parseFloat(String(statsObj.expected_goals)) : 0,
+          expected_assists: canUseCumulativeOpticalStats && statsObj.expected_assists !== undefined ? parseFloat(String(statsObj.expected_assists)) : 0,
+          expected_goal_involvements: canUseCumulativeOpticalStats && statsObj.expected_goal_involvements !== undefined ? parseFloat(String(statsObj.expected_goal_involvements)) : 0,
+          clean_sheets: cleanSheetsVal,
+          goals_conceded: goalsConcededVal,
+          expected_goals_conceded: canUseCumulativeOpticalStats && statsObj.expected_goals_conceded !== undefined ? parseFloat(String(statsObj.expected_goals_conceded)) : 0,
+          tackles: canUseCumulativeOpticalStats ? (statsObj.tackles || 0) : 0,
+          clearances_blocks_interceptions: canUseCumulativeOpticalStats ? (statsObj.clearances_blocks_interceptions || 0) : 0,
+          recoveries: canUseCumulativeOpticalStats ? (statsObj.recoveries || 0) : 0,
           defensive_contribution: dcVal,
           own_goals: ogCount,
           penalties_saved: psCount,
           penalties_missed: pmCount,
           yellow_cards: yellowsCount,
           red_cards: redsCount,
-          saves: statsObj.saves || 0,
+          saves: savesVal,
           bonus: bonusPts,
-          bps: statsObj.bps || 0,
-          influence: statsObj.influence !== undefined ? parseFloat(String(statsObj.influence)) : 0,
-          creativity: statsObj.creativity !== undefined ? parseFloat(String(statsObj.creativity)) : 0,
-          threat: statsObj.threat !== undefined ? parseFloat(String(statsObj.threat)) : 0,
-          ict_index: statsObj.ict_index !== undefined ? parseFloat(String(statsObj.ict_index)) : 0,
+          bps: bpsVal,
+          influence: canUseCumulativeOpticalStats && statsObj.influence !== undefined ? parseFloat(String(statsObj.influence)) : 0,
+          creativity: canUseCumulativeOpticalStats && statsObj.creativity !== undefined ? parseFloat(String(statsObj.creativity)) : 0,
+          threat: canUseCumulativeOpticalStats && statsObj.threat !== undefined ? parseFloat(String(statsObj.threat)) : 0,
+          ict_index: canUseCumulativeOpticalStats && statsObj.ict_index !== undefined ? parseFloat(String(statsObj.ict_index)) : 0,
           net_transfers: fplEl ? (fplEl.transfers_in_event || 0) - (fplEl.transfers_out_event || 0) : 0,
           teams_selected_by: fplEl ? parseFloat(fplEl.selected_by_percent || '0') : 0,
           price: nowCost ? nowCost / 10 : 0,
@@ -1099,7 +1228,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         homeLineup = rawHomeStarters.map((p: any) => {
           const fplEl = matchPulsePlayerToFpl(p);
           const subInfo = subEventsByPersonId.get(p.id);
-          return buildMatchPlayer(fplEl, p, true, false, Boolean(subInfo?.off));
+          return buildMatchPlayer(fplEl, p, true, false, Boolean(subInfo?.off), true);
         });
 
         // Tactical sort for home starters: GKP -> DEF -> MID -> FWD
@@ -1113,7 +1242,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         homeBench = rawHomeBench.map((p: any) => {
           const fplEl = matchPulsePlayerToFpl(p);
           const subInfo = subEventsByPersonId.get(p.id);
-          return buildMatchPlayer(fplEl, p, true, Boolean(subInfo?.on), false);
+          return buildMatchPlayer(fplEl, p, true, Boolean(subInfo?.on), false, false);
         });
 
         // Tactical sort for home bench: GKP -> DEF -> MID -> FWD
@@ -1127,7 +1256,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         awayLineup = rawAwayStarters.map((p: any) => {
           const fplEl = matchPulsePlayerToFpl(p);
           const subInfo = subEventsByPersonId.get(p.id);
-          return buildMatchPlayer(fplEl, p, false, false, Boolean(subInfo?.off));
+          return buildMatchPlayer(fplEl, p, false, false, Boolean(subInfo?.off), true);
         });
 
         // Tactical sort for away starters: GKP -> DEF -> MID -> FWD
@@ -1141,7 +1270,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         awayBench = rawAwayBench.map((p: any) => {
           const fplEl = matchPulsePlayerToFpl(p);
           const subInfo = subEventsByPersonId.get(p.id);
-          return buildMatchPlayer(fplEl, p, false, Boolean(subInfo?.on), false);
+          return buildMatchPlayer(fplEl, p, false, Boolean(subInfo?.on), false, false);
         });
 
         // Tactical sort for away bench: GKP -> DEF -> MID -> FWD
@@ -1159,26 +1288,39 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       const allAwayTeamElements = (bootstrapRaw.elements || []).filter((e: any) => e.team === fix.team_a);
 
       const buildFallback = (allTeamElements: any[], isHome: boolean) => {
+        const teamId = isHome ? fix.team_h : fix.team_a;
+        const isDgwTeam = (teamFixtureCountMap.get(teamId) || 1) >= 2 && (teamStartedCountMap.get(teamId) || 0) >= 2;
+        const getFixMins = (elId: number) => {
+          const live = liveStatsMap.get(elId);
+          const expl = live?.explainByFixture.get(fix.id);
+          if (expl) {
+            return expl.find((st) => st.identifier === 'minutes')?.value ?? 0;
+          }
+          return isDgwTeam ? 0 : (live?.stats?.minutes || 0);
+        };
+
         const rawStarters = allTeamElements.filter((el: any) => {
           const live = liveStatsMap.get(el.id);
-          return live?.stats?.starts === 1;
+          const mins = getFixMins(el.id);
+          if (isDgwTeam) return mins >= 45;
+          return live?.stats?.starts === 1 || mins >= 45;
         });
+        const starterIds = new Set(rawStarters.map((e: any) => e.id));
         const rawSubsPlayed = allTeamElements.filter((el: any) => {
-          const live = liveStatsMap.get(el.id);
-          return live?.stats?.starts !== 1 && (live?.stats?.minutes || 0) > 0;
+          const mins = getFixMins(el.id);
+          return !starterIds.has(el.id) && mins > 0;
         });
 
         const starters = rawStarters
           .sort((a: any, b: any) => a.element_type - b.element_type)
           .map((el: any) => {
-            const live = liveStatsMap.get(el.id);
-            const mins = live?.stats?.minutes || 0;
-            return buildMatchPlayer(el, null, isHome, false, mins > 0 && mins < 90);
+            const mins = getFixMins(el.id);
+            return buildMatchPlayer(el, null, isHome, false, mins > 0 && mins < 90, true);
           });
 
         const bench = rawSubsPlayed
           .sort((a: any, b: any) => a.element_type - b.element_type)
-          .map((el: any) => buildMatchPlayer(el, null, isHome, true, false));
+          .map((el: any) => buildMatchPlayer(el, null, isHome, true, false, false));
 
         return { starters, bench, has: starters.length > 0 };
       };

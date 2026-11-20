@@ -18,7 +18,8 @@ import {
   PlayerOwnerItem,
   TransferItem,
   DbPlayerStat,
-  GwFixtureItem
+  GwFixtureItem,
+  MatchCardItem
 } from '../types.ts';
 
 interface PastSeasonItem {
@@ -110,6 +111,17 @@ const managerDetailClientCache = new Map<number, ManagerDetailData>();
 // In-memory cache for player summaries for 0ms quick point breakdown
 const playerSummaryMemoryCache = new Map<string, any>();
 
+// In-memory cache for per-GW match cards (handles past, live, and DGW/BGW fixtures cleanly)
+const matchesByGwClientCache = new Map<number, MatchCardItem[]>();
+
+interface PitchMatchEntry {
+  fixtureId: number;
+  oppLabel: string;
+  rawPoints: number;
+  matchStatus: 'upcoming' | 'live' | 'ft';
+  isBlank?: boolean;
+}
+
 const BREAKDOWN_ORDER_MAP: Record<string, number> = {
   MP: 1,
   GS: 2,
@@ -133,15 +145,129 @@ interface BreakdownItem {
   order: number;
 }
 
+function buildBreakdownFromSingleStat(
+  roundStat: any,
+  position: string
+): BreakdownItem[] {
+  const items: BreakdownItem[] = [];
+  if (!roundStat) return items;
+
+  const isDef = position === 'DEF' || position === 'GKP';
+  const isMid = position === 'MID';
+  const goalPts = isDef ? 6 : isMid ? 5 : 4;
+  const csPts = isDef ? 4 : isMid ? 1 : 0;
+
+  if (roundStat.minutes > 0) {
+    const mPts = roundStat.minutes >= 60 ? 2 : 1;
+    items.push({ code: 'MP', value: roundStat.minutes, points: mPts, order: BREAKDOWN_ORDER_MAP.MP });
+  }
+  if (roundStat.goals_scored > 0) {
+    items.push({ code: 'GS', value: roundStat.goals_scored, points: roundStat.goals_scored * goalPts, order: BREAKDOWN_ORDER_MAP.GS });
+  }
+  if (roundStat.assists > 0) {
+    items.push({ code: 'A', value: roundStat.assists, points: roundStat.assists * 3, order: BREAKDOWN_ORDER_MAP.A });
+  }
+  if (roundStat.clean_sheets > 0 && csPts > 0) {
+    items.push({ code: 'CS', value: roundStat.clean_sheets || 1, points: roundStat.clean_sheets * csPts, order: BREAKDOWN_ORDER_MAP.CS });
+  }
+  if (roundStat.saves > 0) {
+    const sPts = Math.floor(roundStat.saves / 3);
+    if (sPts > 0) items.push({ code: 'S', value: roundStat.saves, points: sPts, order: BREAKDOWN_ORDER_MAP.S });
+  }
+  if (roundStat.penalties_saved > 0) {
+    items.push({ code: 'PS', value: roundStat.penalties_saved, points: roundStat.penalties_saved * 5, order: BREAKDOWN_ORDER_MAP.PS });
+  }
+  if (roundStat.defensive_contribution > 0) {
+    const dcThreshold = isDef ? 10 : 12;
+    const dcPts = (position !== 'GKP' && roundStat.defensive_contribution >= dcThreshold) ? 2 : 0;
+    if (dcPts > 0) {
+      items.push({ code: 'DC', value: roundStat.defensive_contribution, points: dcPts, order: BREAKDOWN_ORDER_MAP.DC });
+    }
+  }
+  if (roundStat.goals_conceded >= 2 && isDef) {
+    const gcPts = -Math.floor(roundStat.goals_conceded / 2);
+    items.push({ code: 'GC', value: roundStat.goals_conceded, points: gcPts, order: BREAKDOWN_ORDER_MAP.GC });
+  }
+  if (roundStat.own_goals > 0) {
+    items.push({ code: 'OG', value: roundStat.own_goals, points: roundStat.own_goals * -2, order: BREAKDOWN_ORDER_MAP.OG });
+  }
+  if (roundStat.penalties_missed > 0) {
+    items.push({ code: 'PM', value: roundStat.penalties_missed, points: roundStat.penalties_missed * -2, order: BREAKDOWN_ORDER_MAP.PM });
+  }
+  if (roundStat.yellow_cards > 0) {
+    items.push({ code: 'YC', value: roundStat.yellow_cards, points: roundStat.yellow_cards * -1, order: BREAKDOWN_ORDER_MAP.YC });
+  }
+  if (roundStat.red_cards > 0) {
+    items.push({ code: 'RC', value: roundStat.red_cards, points: roundStat.red_cards * -3, order: BREAKDOWN_ORDER_MAP.RC });
+  }
+  if (roundStat.bonus > 0) {
+    items.push({ code: 'BP', value: roundStat.bonus, points: roundStat.bonus, order: BREAKDOWN_ORDER_MAP.BP });
+  }
+  return items;
+}
+
 function formatPointsBreakdown(
   summaryData: any,
   gw: number,
-  position: string
+  position: string,
+  fixtureId?: number
 ): Array<{ code: string; value: string | number; points: number }> {
+  // Blank GW marker always has MP 0 0
+  if (fixtureId === -1) {
+    return [{ code: 'MP', value: 0, points: 0 }];
+  }
   if (!summaryData) return [];
-  const items: BreakdownItem[] = [];
 
-  // 1. Try live_explain stats first (handles single GW and multi-match DGW) - Raw base points without multiplier
+  const mapExplainStatToItem = (id: string, val: number, pts: number): BreakdownItem | null => {
+    if (val === 0 && pts === 0) return null;
+    if (id === 'minutes') return { code: 'MP', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.MP };
+    if (id === 'goals_scored') return { code: 'GS', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.GS };
+    if (id === 'assists') return { code: 'A', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.A };
+    if (id === 'clean_sheets') return { code: 'CS', value: val > 0 ? val : 1, points: pts, order: BREAKDOWN_ORDER_MAP.CS };
+    if (id === 'saves') return { code: 'S', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.S };
+    if (id === 'penalties_saved') return { code: 'PS', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.PS };
+    if (id === 'defensive_contribution') return { code: 'DC', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.DC };
+    if (id === 'goals_conceded') return { code: 'GC', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.GC };
+    if (id === 'own_goals') return { code: 'OG', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.OG };
+    if (id === 'penalties_missed') return { code: 'PM', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.PM };
+    if (id === 'yellow_cards') return { code: 'YC', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.YC };
+    if (id === 'red_cards') return { code: 'RC', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.RC };
+    if (id === 'bonus') return { code: 'BP', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.BP };
+    return null;
+  };
+
+  let items: BreakdownItem[] = [];
+
+  // Strict per-fixture mode when fixtureId > 0
+  if (fixtureId && fixtureId > 0) {
+    const rawExplains = summaryData?.live_explain;
+    if (Array.isArray(rawExplains)) {
+      const matchedExpl = rawExplains.find((e: any) => Number(e?.fixture) === Number(fixtureId));
+      if (matchedExpl && Array.isArray(matchedExpl.stats)) {
+        for (const st of matchedExpl.stats) {
+          const mapped = mapExplainStatToItem(st.identifier, Number(st.value) || 0, Number(st.points) || 0);
+          if (mapped) items.push(mapped);
+        }
+      }
+    }
+
+    if (items.length === 0) {
+      const roundStat = (summaryData?.history || []).find(
+        (h: any) => h.round === gw && Number(h.fixture) === Number(fixtureId)
+      );
+      if (roundStat) {
+        items = buildBreakdownFromSingleStat(roundStat, position);
+      }
+    }
+
+    if (items.length === 0) {
+      items.push({ code: 'MP', value: 0, points: 0, order: BREAKDOWN_ORDER_MAP.MP });
+    }
+    items.sort((a, b) => a.order - b.order);
+    return items.map(({ code, value, points }) => ({ code, value, points }));
+  }
+
+  // Fallback aggregate mode when no specific fixtureId is provided
   const rawExplains = summaryData?.live_explain;
   if (Array.isArray(rawExplains) && rawExplains.length > 0) {
     const statAggregator: Record<string, { value: number; points: number }> = {};
@@ -159,106 +285,46 @@ function formatPointsBreakdown(
     }
 
     for (const [id, agg] of Object.entries(statAggregator)) {
-      const val = agg.value;
-      const pts = agg.points;
-      if (val === 0 && pts === 0) continue;
-
-      if (id === 'minutes') {
-        items.push({ code: 'MP', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.MP });
-      } else if (id === 'goals_scored') {
-        items.push({ code: 'GS', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.GS });
-      } else if (id === 'assists') {
-        items.push({ code: 'A', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.A });
-      } else if (id === 'clean_sheets') {
-        items.push({ code: 'CS', value: val > 0 ? val : 1, points: pts, order: BREAKDOWN_ORDER_MAP.CS });
-      } else if (id === 'saves') {
-        items.push({ code: 'S', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.S });
-      } else if (id === 'penalties_saved') {
-        items.push({ code: 'PS', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.PS });
-      } else if (id === 'defensive_contribution') {
-        items.push({ code: 'DC', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.DC });
-      } else if (id === 'goals_conceded') {
-        items.push({ code: 'GC', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.GC });
-      } else if (id === 'own_goals') {
-        items.push({ code: 'OG', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.OG });
-      } else if (id === 'penalties_missed') {
-        items.push({ code: 'PM', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.PM });
-      } else if (id === 'yellow_cards') {
-        items.push({ code: 'YC', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.YC });
-      } else if (id === 'red_cards') {
-        items.push({ code: 'RC', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.RC });
-      } else if (id === 'bonus') {
-        items.push({ code: 'BP', value: val, points: pts, order: BREAKDOWN_ORDER_MAP.BP });
-      }
+      const mapped = mapExplainStatToItem(id, agg.value, agg.points);
+      if (mapped) items.push(mapped);
     }
   }
 
-  // 2. If explainStats was empty (e.g. past gameweeks), fallback to round history or live_stats
   if (items.length === 0) {
-    const roundStat = (summaryData?.history || []).find((h: any) => h.round === gw) || summaryData?.live_stats;
-    if (roundStat) {
-      const isDef = position === 'DEF' || position === 'GKP';
-      const isMid = position === 'MID';
-      const goalPts = isDef ? 6 : isMid ? 5 : 4;
-      const csPts = isDef ? 4 : isMid ? 1 : 0;
-
-      if (roundStat.minutes > 0) {
-        const mPts = roundStat.minutes >= 60 ? 2 : 1;
-        items.push({ code: 'MP', value: roundStat.minutes, points: mPts, order: BREAKDOWN_ORDER_MAP.MP });
-      }
-      if (roundStat.goals_scored > 0) {
-        items.push({ code: 'GS', value: roundStat.goals_scored, points: roundStat.goals_scored * goalPts, order: BREAKDOWN_ORDER_MAP.GS });
-      }
-      if (roundStat.assists > 0) {
-        items.push({ code: 'A', value: roundStat.assists, points: roundStat.assists * 3, order: BREAKDOWN_ORDER_MAP.A });
-      }
-      if (roundStat.clean_sheets > 0 && csPts > 0) {
-        items.push({ code: 'CS', value: roundStat.clean_sheets || 1, points: roundStat.clean_sheets * csPts, order: BREAKDOWN_ORDER_MAP.CS });
-      }
-      if (roundStat.saves > 0) {
-        const sPts = Math.floor(roundStat.saves / 3);
-        if (sPts > 0) items.push({ code: 'S', value: roundStat.saves, points: sPts, order: BREAKDOWN_ORDER_MAP.S });
-      }
-      if (roundStat.penalties_saved > 0) {
-        items.push({ code: 'PS', value: roundStat.penalties_saved, points: roundStat.penalties_saved * 5, order: BREAKDOWN_ORDER_MAP.PS });
-      }
-      if (roundStat.defensive_contribution > 0) {
-        const dcThreshold = isDef ? 10 : 12;
-        const dcPts = (position !== 'GKP' && roundStat.defensive_contribution >= dcThreshold) ? 2 : 0;
-        if (dcPts > 0) {
-          items.push({ code: 'DC', value: roundStat.defensive_contribution, points: dcPts, order: BREAKDOWN_ORDER_MAP.DC });
+    const roundHistories = (summaryData?.history || []).filter((h: any) => h.round === gw);
+    if (roundHistories.length > 0) {
+      const statSums: Record<string, number> = {
+        minutes: 0,
+        goals_scored: 0,
+        assists: 0,
+        clean_sheets: 0,
+        saves: 0,
+        penalties_saved: 0,
+        defensive_contribution: 0,
+        goals_conceded: 0,
+        own_goals: 0,
+        penalties_missed: 0,
+        yellow_cards: 0,
+        red_cards: 0,
+        bonus: 0,
+      };
+      for (const rh of roundHistories) {
+        for (const k of Object.keys(statSums)) {
+          statSums[k] += Number(rh[k]) || 0;
         }
       }
-      if (roundStat.goals_conceded >= 2 && isDef) {
-        const gcPts = -Math.floor(roundStat.goals_conceded / 2);
-        items.push({ code: 'GC', value: roundStat.goals_conceded, points: gcPts, order: BREAKDOWN_ORDER_MAP.GC });
-      }
-      if (roundStat.own_goals > 0) {
-        items.push({ code: 'OG', value: roundStat.own_goals, points: roundStat.own_goals * -2, order: BREAKDOWN_ORDER_MAP.OG });
-      }
-      if (roundStat.penalties_missed > 0) {
-        items.push({ code: 'PM', value: roundStat.penalties_missed, points: roundStat.penalties_missed * -2, order: BREAKDOWN_ORDER_MAP.PM });
-      }
-      if (roundStat.yellow_cards > 0) {
-        items.push({ code: 'YC', value: roundStat.yellow_cards, points: roundStat.yellow_cards * -1, order: BREAKDOWN_ORDER_MAP.YC });
-      }
-      if (roundStat.red_cards > 0) {
-        items.push({ code: 'RC', value: roundStat.red_cards, points: roundStat.red_cards * -3, order: BREAKDOWN_ORDER_MAP.RC });
-      }
-      if (roundStat.bonus > 0) {
-        items.push({ code: 'BP', value: roundStat.bonus, points: roundStat.bonus, order: BREAKDOWN_ORDER_MAP.BP });
-      }
+      items = buildBreakdownFromSingleStat(statSums, position);
+    } else if (summaryData?.live_stats) {
+      items = buildBreakdownFromSingleStat(summaryData.live_stats, position);
     }
   }
 
-  // If player did not play (0 minutes, 0 stats), present MP 0 0
   if (items.length === 0) {
     items.push({ code: 'MP', value: 0, points: 0, order: BREAKDOWN_ORDER_MAP.MP });
   }
 
-  // Sort by the established standard hierarchy 1 to 13
   items.sort((a, b) => a.order - b.order);
-  return items;
+  return items.map(({ code, value, points }) => ({ code, value, points }));
 }
 
 // Preload and pre-decode team badge in memory to eliminate any badge appearance delay (0ms)
@@ -337,59 +403,18 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     return map;
   }, [playerStats]);
 
-  // Lookup match status and opponent info for a player in a specific GW
-  const getPlayerMatchInfo = useCallback(
-    (player: PlayerOwnershipItem, gw: number) => {
-      const pId = player.id;
-      const pInfo = playerTeamMap.get(pId);
-      const teamShort = pInfo?.teamShort || player.team_short_name || '';
+  const [matchesByGwMap, setMatchesByGwMap] = useState<Record<number, MatchCardItem[]>>(() => {
+    const cached = matchesByGwClientCache.get(selectedGW);
+    return cached ? { [selectedGW]: cached } : {};
+  });
+  const [summaryVersion, setSummaryVersion] = useState<number>(0);
 
-      // Find match fixture in gwFixtures for this event
-      const fixList = Array.isArray(gwFixtures) ? gwFixtures : [];
-      const matchFixture = fixList.find((f: any) => {
-        if (f.event !== undefined && f.event !== gw) return false;
-        if (pInfo?.teamId) {
-          return f.team_h === pInfo.teamId || f.team_a === pInfo.teamId;
-        }
-        return f.home_team === teamShort || f.away_team === teamShort;
-      });
-
-      if (!matchFixture) {
-        return {
-          oppLabel: teamShort,
-          matchStatus: 'ft' as const,
-        };
-      }
-
-      const isHome = pInfo?.teamId
-        ? matchFixture.team_h === pInfo.teamId
-        : matchFixture.home_team === teamShort;
-
-      const oppShort = isHome
-        ? (matchFixture.away_team || 'OPP')
-        : (matchFixture.home_team || 'OPP');
-
-      const oppLabel = isHome ? `${oppShort} (H)` : `${oppShort} (A)`;
-
-      const isFt = Boolean(matchFixture.finished || matchFixture.finished_provisional);
-      const isLive = Boolean(matchFixture.started && !isFt);
-
-      const matchStatus: 'upcoming' | 'live' | 'ft' = isFt
-        ? 'ft'
-        : isLive
-        ? 'live'
-        : 'upcoming';
-
-      return {
-        oppLabel,
-        matchStatus,
-      };
-    },
-    [playerTeamMap, gwFixtures]
-  );
-
-  // Quick Point Breakdown state for players on the pitch/bench
-  const [activeBreakdownPlayerId, setActiveBreakdownPlayerId] = useState<number | null>(null);
+  // Quick Point Breakdown state for players on the pitch/bench (keyed per player + fixtureId)
+  const [activeBreakdownTarget, setActiveBreakdownTarget] = useState<{
+    playerId: number;
+    fixtureId: number;
+  } | null>(null);
+  const activeBreakdownPlayerId = activeBreakdownTarget?.playerId ?? null;
   const [breakdownDataMap, setBreakdownDataMap] = useState<Record<string, Array<{ code: string; value: string | number; points: number }>>>({});
   const [loadingBreakdownId, setLoadingBreakdownId] = useState<number | null>(null);
 
@@ -399,9 +424,251 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     setActiveTab('overview');
     setBadgeImgError(false);
     setIsGWDropdownOpen(false);
-    setActiveBreakdownPlayerId(null);
+    setActiveBreakdownTarget(null);
     setBreakdownDataMap({});
   }, [selectedGW, entryId]);
+
+  useEffect(() => {
+    setActiveBreakdownTarget(null);
+  }, [activeGW]);
+
+  // Fetch /api/fpl-matches/:gw so DGW (2 matches) & BGW (0 matches) & past GW fixtures/points load accurately
+  const fetchMatchesForActiveGW = useCallback(async (gw: number, bypassCache = false) => {
+    if (!gw) return;
+    if (!bypassCache && matchesByGwClientCache.has(gw)) {
+      const cached = matchesByGwClientCache.get(gw)!;
+      setMatchesByGwMap((prev) => (prev[gw] === cached ? prev : { ...prev, [gw]: cached }));
+      return;
+    }
+    try {
+      const res = await fetch(`/api/fpl-matches/${gw}?_t=${Date.now()}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          matchesByGwClientCache.set(gw, json.data);
+          setMatchesByGwMap((prev) => ({ ...prev, [gw]: json.data }));
+        }
+      }
+    } catch {
+      // Graceful fallback to gwFixtures / summary
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!entryId || !activeGW) return;
+    const cached = matchesByGwClientCache.get(activeGW);
+    if (cached) {
+      setMatchesByGwMap((prev) => (prev[activeGW] === cached ? prev : { ...prev, [activeGW]: cached }));
+    }
+    fetchMatchesForActiveGW(activeGW, false);
+  }, [entryId, activeGW, fetchMatchesForActiveGW]);
+
+  // Lookup ALL match entries for a player in a specific GW (0 = BGW, 1 = SGW, 2+ = DGW)
+  const getPlayerMatchEntries = useCallback(
+    (player: PlayerOwnershipItem, gw: number): PitchMatchEntry[] => {
+      const pId = player.id;
+      const pInfo = playerTeamMap.get(pId);
+      const teamId = pInfo?.teamId;
+      const teamShort = pInfo?.teamShort || player.team_short_name || '';
+      const summary = playerSummaryMemoryCache.get(`${pId}_${gw}`);
+
+      const resolveSummaryMatchPoints = (fixtureId: number): number | null => {
+        if (!summary) return null;
+        if (Array.isArray(summary.live_explain)) {
+          const expl = summary.live_explain.find((e: any) => Number(e?.fixture) === Number(fixtureId));
+          if (expl && Array.isArray(expl.stats)) {
+            return expl.stats.reduce((sum: number, st: any) => sum + (Number(st.points) || 0), 0);
+          }
+        }
+        if (Array.isArray(summary.history)) {
+          const h = summary.history.find(
+            (row: any) => row.round === gw && Number(row.fixture) === Number(fixtureId)
+          );
+          if (h) return Number(h.total_points || 0);
+        }
+        return null;
+      };
+
+      // 1. Prefer MatchCardItem[] from /api/fpl-matches/:gw (has per-fixture isolated points & live/ft/upcoming)
+      const gwMatchCards = matchesByGwMap[gw] || matchesByGwClientCache.get(gw);
+      if (Array.isArray(gwMatchCards) && gwMatchCards.length > 0) {
+        const clubMatches = gwMatchCards
+          .filter((m) => {
+            if (teamId) {
+              return Number(m.home_team?.id) === Number(teamId) || Number(m.away_team?.id) === Number(teamId);
+            }
+            return (
+              Boolean(teamShort) &&
+              (m.home_team?.short_name === teamShort || m.away_team?.short_name === teamShort)
+            );
+          })
+          .sort((a, b) => {
+            const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+            const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+            if (tA !== tB) return tA - tB;
+            return Number(a.id) - Number(b.id);
+          });
+
+        if (clubMatches.length === 0) {
+          // BGW: Player has 0 matches in this GW -> label '-', 0 pts, FT-style green box
+          return [
+            {
+              fixtureId: -1,
+              oppLabel: '-',
+              rawPoints: 0,
+              matchStatus: 'ft',
+              isBlank: true,
+            },
+          ];
+        }
+
+        const isDgw = clubMatches.length >= 2;
+        return clubMatches.map((m) => {
+          const isHome = teamId
+            ? Number(m.home_team?.id) === Number(teamId)
+            : m.home_team?.short_name === teamShort;
+          const oppShort = isHome ? (m.away_team?.short_name || 'OPP') : (m.home_team?.short_name || 'OPP');
+          const oppLabel = isHome ? `${oppShort} (H)` : `${oppShort} (A)`;
+          const isFt = Boolean(m.finished || m.finished_provisional || m.phase === 'FT');
+          const isLive = Boolean(m.started && !isFt);
+          const matchStatus: 'upcoming' | 'live' | 'ft' = isFt ? 'ft' : isLive ? 'live' : 'upcoming';
+
+          let rawPoints = 0;
+          if (matchStatus === 'upcoming') {
+            rawPoints = 0;
+          } else if (!isDgw) {
+            // SGW: keep 100% parity with player.gw_points
+            rawPoints = player.gw_points || 0;
+          } else {
+            const summaryPts = resolveSummaryMatchPoints(m.id);
+            if (summaryPts !== null) {
+              rawPoints = summaryPts;
+            } else {
+              const sidePlayers = isHome
+                ? [...(m.home_lineup || []), ...(m.home_bench || [])]
+                : [...(m.away_lineup || []), ...(m.away_bench || [])];
+              const mp = sidePlayers.find((item) => item.id === pId);
+              rawPoints = mp ? Number(mp.gw_points || 0) : 0;
+            }
+          }
+
+          return {
+            fixtureId: m.id,
+            oppLabel,
+            rawPoints,
+            matchStatus,
+          };
+        });
+      }
+
+      // 2. Fallback to gwFixtures prop (instant 0ms for currentGW before /api/fpl-matches responds)
+      const fixList = Array.isArray(gwFixtures)
+        ? gwFixtures.filter((f: any) => f.event === undefined || f.event === gw)
+        : [];
+      if (fixList.length > 0) {
+        const clubFixtures = fixList
+          .filter((f: any) => {
+            if (teamId) return Number(f.team_h) === Number(teamId) || Number(f.team_a) === Number(teamId);
+            return Boolean(teamShort) && (f.home_team === teamShort || f.away_team === teamShort);
+          })
+          .sort((a: any, b: any) => {
+            const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+            const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+            if (tA !== tB) return tA - tB;
+            return Number(a.id || 0) - Number(b.id || 0);
+          });
+
+        if (clubFixtures.length === 0) {
+          return [
+            {
+              fixtureId: -1,
+              oppLabel: '-',
+              rawPoints: 0,
+              matchStatus: 'ft',
+              isBlank: true,
+            },
+          ];
+        }
+
+        const isDgw = clubFixtures.length >= 2;
+        return clubFixtures.map((f: any) => {
+          const isHome = teamId ? Number(f.team_h) === Number(teamId) : f.home_team === teamShort;
+          const oppShort = isHome ? (f.away_team || 'OPP') : (f.home_team || 'OPP');
+          const oppLabel = isHome ? `${oppShort} (H)` : `${oppShort} (A)`;
+          const isFt = Boolean(f.finished || f.finished_provisional);
+          const isLive = Boolean(f.started && !isFt);
+          const matchStatus: 'upcoming' | 'live' | 'ft' = isFt ? 'ft' : isLive ? 'live' : 'upcoming';
+
+          let rawPoints = 0;
+          if (matchStatus === 'upcoming') {
+            rawPoints = 0;
+          } else if (!isDgw) {
+            rawPoints = player.gw_points || 0;
+          } else {
+            rawPoints = f.id ? (resolveSummaryMatchPoints(Number(f.id)) ?? 0) : 0;
+          }
+
+          return {
+            fixtureId: Number(f.id) || 0,
+            oppLabel,
+            rawPoints,
+            matchStatus,
+          };
+        });
+      }
+
+      // 3. Fallback when gwFixtures isn't for this GW (brief load before /api/fpl-matches resolves)
+      if (summary && Array.isArray(summary.history)) {
+        const roundHistories = summary.history
+          .filter((h: any) => h.round === gw)
+          .sort((a: any, b: any) => {
+            const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+            const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : Number.MAX_SAFE_INTEGER;
+            if (tA !== tB) return tA - tB;
+            return Number(a.fixture || 0) - Number(b.fixture || 0);
+          });
+        if (roundHistories.length > 0) {
+          return roundHistories.map((h: any) => {
+            const oppShort = h.opponent_short_name || `T${h.opponent_team}`;
+            const oppLabel = h.was_home ? `${oppShort} (H)` : `${oppShort} (A)`;
+            const isFt = h.fixture_finished !== undefined ? Boolean(h.fixture_finished || h.fixture_finished_provisional) : true;
+            const isLive = Boolean(h.fixture_started && !isFt);
+            return {
+              fixtureId: Number(h.fixture) || 0,
+              oppLabel,
+              rawPoints: roundHistories.length === 1 ? (player.gw_points ?? h.total_points ?? 0) : Number(h.total_points ?? 0),
+              matchStatus: isFt ? 'ft' : isLive ? 'live' : 'upcoming',
+            };
+          });
+        }
+        const hasSummaryUpcomingInGw = Array.isArray(summary.fixtures)
+          ? summary.fixtures.some((f: any) => Number(f?.event) === gw)
+          : false;
+        if (!hasSummaryUpcomingInGw && (summary.history.length > 0 || (Array.isArray(summary.fixtures) && summary.fixtures.length > 0))) {
+          return [
+            {
+              fixtureId: -1,
+              oppLabel: '-',
+              rawPoints: 0,
+              matchStatus: 'ft',
+              isBlank: true,
+            },
+          ];
+        }
+      }
+
+      return [
+        {
+          fixtureId: 0,
+          oppLabel: '-',
+          rawPoints: player.gw_points || 0,
+          matchStatus: 'ft',
+        },
+      ];
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [playerTeamMap, gwFixtures, matchesByGwMap, summaryVersion]
+  );
 
   // Extract 15 squad players from ownershipPlayers for activeGW
   const squad = useMemo(() => {
@@ -438,15 +705,61 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     return [...squad.starters, ...squad.bench];
   }, [squad.starters, squad.bench]);
 
-  // Fetch or refresh breakdown for a player
+  // Store breakdown items from a player summary across both aggregate (0) and every fixture in activeGW
+  const cacheSummaryBreakdowns = useCallback(
+    (pId: number, gw: number, playerPos: string, summaryData: any) => {
+      const fixtureIds = new Set<number>([0]);
+      if (Array.isArray(summaryData?.live_explain)) {
+        for (const e of summaryData.live_explain) {
+          if (e?.fixture) fixtureIds.add(Number(e.fixture));
+        }
+      }
+      if (Array.isArray(summaryData?.history)) {
+        for (const h of summaryData.history) {
+          if (h.round === gw && h.fixture) fixtureIds.add(Number(h.fixture));
+        }
+      }
+      if (Array.isArray(summaryData?.gw_fixtures)) {
+        for (const f of summaryData.gw_fixtures) {
+          if (f?.id) fixtureIds.add(Number(f.id));
+        }
+      }
+
+      const updates: Record<string, Array<{ code: string; value: string | number; points: number }>> = {};
+      for (const fixId of fixtureIds) {
+        const key = `${pId}_${gw}_${fixId}`;
+        updates[key] = formatPointsBreakdown(summaryData, gw, playerPos, fixId);
+      }
+
+      setBreakdownDataMap((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const [k, val] of Object.entries(updates)) {
+          if (JSON.stringify(prev[k]) !== JSON.stringify(val)) {
+            next[k] = val;
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    },
+    []
+  );
+
+  // Fetch or refresh breakdown for a player & optional specific fixtureId
   const fetchPlayerBreakdown = useCallback(
-    async (pId: number, playerPos: string, bypassCache = false) => {
-      const cacheKey = `${pId}_${activeGW}`;
-      if (!bypassCache && playerSummaryMemoryCache.has(cacheKey)) {
-        const summary = playerSummaryMemoryCache.get(cacheKey);
-        const formatted = formatPointsBreakdown(summary, activeGW, playerPos);
-        setBreakdownDataMap((prev) => ({ ...prev, [cacheKey]: formatted }));
-        return formatted;
+    async (pId: number, playerPos: string, fixtureId = 0, bypassCache = false) => {
+      const summaryCacheKey = `${pId}_${activeGW}`;
+      if (fixtureId === -1) {
+        const blankItems = [{ code: 'MP', value: 0, points: 0 }];
+        setBreakdownDataMap((prev) => ({ ...prev, [`${pId}_${activeGW}_-1`]: blankItems }));
+        return blankItems;
+      }
+
+      if (!bypassCache && playerSummaryMemoryCache.has(summaryCacheKey)) {
+        const summary = playerSummaryMemoryCache.get(summaryCacheKey);
+        cacheSummaryBreakdowns(pId, activeGW, playerPos, summary);
+        return formatPointsBreakdown(summary, activeGW, playerPos, fixtureId);
       }
 
       try {
@@ -457,16 +770,10 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
         if (res.ok) {
           const json = await res.json();
           if (json.success && json.data) {
-            playerSummaryMemoryCache.set(cacheKey, json.data);
-            const formatted = formatPointsBreakdown(json.data, activeGW, playerPos);
-            setBreakdownDataMap((prev) => {
-              const current = prev[cacheKey];
-              if (JSON.stringify(current) !== JSON.stringify(formatted)) {
-                return { ...prev, [cacheKey]: formatted };
-              }
-              return prev;
-            });
-            return formatted;
+            playerSummaryMemoryCache.set(summaryCacheKey, json.data);
+            setSummaryVersion((v) => v + 1);
+            cacheSummaryBreakdowns(pId, activeGW, playerPos, json.data);
+            return formatPointsBreakdown(json.data, activeGW, playerPos, fixtureId);
           }
         }
       } catch {
@@ -474,69 +781,73 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
       }
       return null;
     },
-    [activeGW]
+    [activeGW, cacheSummaryBreakdowns]
   );
 
   const handleToggleBreakdown = useCallback(
-    async (pId: number, playerPos: string) => {
-      if (activeBreakdownPlayerId === pId) {
-        setActiveBreakdownPlayerId(null);
+    async (pId: number, playerPos: string, fixtureId = 0) => {
+      if (
+        activeBreakdownTarget &&
+        activeBreakdownTarget.playerId === pId &&
+        activeBreakdownTarget.fixtureId === fixtureId
+      ) {
+        setActiveBreakdownTarget(null);
         return;
       }
-      setActiveBreakdownPlayerId(pId);
+      setActiveBreakdownTarget({ playerId: pId, fixtureId });
 
-      const cacheKey = `${pId}_${activeGW}`;
-      if (breakdownDataMap[cacheKey] && breakdownDataMap[cacheKey].length > 0) {
+      if (fixtureId === -1) {
+        setBreakdownDataMap((prev) => ({
+          ...prev,
+          [`${pId}_${activeGW}_-1`]: [{ code: 'MP', value: 0, points: 0 }],
+        }));
         return;
       }
 
-      // Instant 0ms response: If player has 0 points, immediately show MP 0
+      const breakdownKey = `${pId}_${activeGW}_${fixtureId}`;
+      if (breakdownDataMap[breakdownKey] && breakdownDataMap[breakdownKey].length > 0) {
+        return;
+      }
+
+      const summaryCacheKey = `${pId}_${activeGW}`;
+      if (playerSummaryMemoryCache.has(summaryCacheKey)) {
+        const summary = playerSummaryMemoryCache.get(summaryCacheKey);
+        cacheSummaryBreakdowns(pId, activeGW, playerPos, summary);
+        return;
+      }
+
       const squadItem = all15SquadPlayers.find((m) => m.player.id === pId);
       const gwPts = squadItem?.player?.gw_points;
       if (gwPts === 0 || gwPts === undefined) {
         setBreakdownDataMap((prev) => ({
           ...prev,
-          [cacheKey]: [{ code: 'MP', value: 0, points: 0 }]
+          [breakdownKey]: [{ code: 'MP', value: 0, points: 0 }]
         }));
-      }
-
-      if (playerSummaryMemoryCache.has(cacheKey)) {
-        const summary = playerSummaryMemoryCache.get(cacheKey);
-        const formatted = formatPointsBreakdown(summary, activeGW, playerPos);
-        setBreakdownDataMap((prev) => ({ ...prev, [cacheKey]: formatted }));
-        return;
       }
 
       setLoadingBreakdownId(pId);
       try {
-        await fetchPlayerBreakdown(pId, playerPos, false);
+        await fetchPlayerBreakdown(pId, playerPos, fixtureId, false);
       } finally {
         setLoadingBreakdownId(null);
       }
     },
-    [activeBreakdownPlayerId, activeGW, all15SquadPlayers, breakdownDataMap, fetchPlayerBreakdown]
+    [
+      activeBreakdownTarget,
+      activeGW,
+      all15SquadPlayers,
+      breakdownDataMap,
+      cacheSummaryBreakdowns,
+      fetchPlayerBreakdown,
+    ]
   );
 
   // 1. Background prefetch player breakdown summaries for ALL 15 squad players in activeGW
-  // Eliminates modal opening delays and height jumps so clicking any card is instant (0ms)
+  // Eliminates modal opening delays and height jumps so clicking any card/match is instant (0ms)
   useEffect(() => {
     if (!all15SquadPlayers.length) return;
     let isCancelled = false;
 
-    // Immediately pre-populate MP 0 for all 0-point squad players in 0ms
-    const immediatePrecomputed: Record<string, Array<{ code: string; value: string | number; points: number }>> = {};
-    for (const item of all15SquadPlayers) {
-      const pl = item.player;
-      const key = `${pl.id}_${activeGW}`;
-      if ((pl.gw_points === 0 || pl.gw_points === undefined) && !breakdownDataMap[key]) {
-        immediatePrecomputed[key] = [{ code: 'MP', value: 0, points: 0 }];
-      }
-    }
-    if (Object.keys(immediatePrecomputed).length > 0) {
-      setBreakdownDataMap((prev) => ({ ...prev, ...immediatePrecomputed }));
-    }
-
-    // Prefetch all 15 squad players: prioritize players with points > 0 first, then 0-point players
     const sortedSquad = [...all15SquadPlayers].sort(
       (a, b) => (b.player.gw_points || 0) - (a.player.gw_points || 0)
     );
@@ -545,7 +856,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
       const chunkSize = 5;
       for (let i = 0; i < sortedSquad.length; i += chunkSize) {
         if (isCancelled) break;
-        const chunk = sortedSquad.slice(i, i + chunkSize);
+        const chunk = sortedSquad.slice(i, chunkSize + i);
         await Promise.all(
           chunk.map(async (item) => {
             if (isCancelled) return;
@@ -553,9 +864,8 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
             const cacheKey = `${pl.id}_${activeGW}`;
             if (playerSummaryMemoryCache.has(cacheKey)) {
               const summary = playerSummaryMemoryCache.get(cacheKey);
-              const formatted = formatPointsBreakdown(summary, activeGW, pl.position);
               if (!isCancelled) {
-                setBreakdownDataMap((prev) => ({ ...prev, [cacheKey]: formatted }));
+                cacheSummaryBreakdowns(pl.id, activeGW, pl.position, summary);
               }
               return;
             }
@@ -565,9 +875,9 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                 const json = await res.json();
                 if (json.success && json.data) {
                   playerSummaryMemoryCache.set(cacheKey, json.data);
-                  const formatted = formatPointsBreakdown(json.data, activeGW, pl.position);
                   if (!isCancelled) {
-                    setBreakdownDataMap((prev) => ({ ...prev, [cacheKey]: formatted }));
+                    setSummaryVersion((v) => v + 1);
+                    cacheSummaryBreakdowns(pl.id, activeGW, pl.position, json.data);
                   }
                 }
               }
@@ -584,31 +894,41 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     return () => {
       isCancelled = true;
     };
-  }, [activeGW, all15SquadPlayers]);
+  }, [activeGW, all15SquadPlayers, cacheSummaryBreakdowns]);
 
   // 2. Real-time auto-refresh when popup is open and points update during live match
-  // Requirement: "Saat live dan ada perubahan poin saat pop up terbuka, poinnya langsung terupdate otomatis tanpa harus buka tutup popup"
   const activeSquadItem = useMemo(() => {
-    if (activeBreakdownPlayerId === null) return null;
-    return all15SquadPlayers.find((m) => m.player.id === activeBreakdownPlayerId) || null;
-  }, [all15SquadPlayers, activeBreakdownPlayerId]);
+    if (!activeBreakdownTarget) return null;
+    return all15SquadPlayers.find((m) => m.player.id === activeBreakdownTarget.playerId) || null;
+  }, [all15SquadPlayers, activeBreakdownTarget]);
 
   const activePlayerPoints = activeSquadItem?.player.gw_points;
   const activePlayerPos = activeSquadItem?.player.position || 'MID';
 
   // Immediate refresh when points change for the open player in ownershipPlayers (from sync, SSE, or parent fetch)
   useEffect(() => {
-    if (activeBreakdownPlayerId === null) return;
-    fetchPlayerBreakdown(activeBreakdownPlayerId, activePlayerPos, true);
-  }, [activeBreakdownPlayerId, activePlayerPoints, activePlayerPos, fetchPlayerBreakdown]);
+    if (!activeBreakdownTarget) return;
+    fetchPlayerBreakdown(
+      activeBreakdownTarget.playerId,
+      activePlayerPos,
+      activeBreakdownTarget.fixtureId,
+      true
+    );
+  }, [activeBreakdownTarget, activePlayerPoints, activePlayerPos, fetchPlayerBreakdown]);
 
   // Periodic live polling while breakdown popup is open (every 15s)
   useEffect(() => {
-    if (activeBreakdownPlayerId === null) return;
+    if (!activeBreakdownTarget) return;
 
     const refreshLive = () => {
-      if (document.visibilityState === 'visible' && activeBreakdownPlayerId !== null) {
-        fetchPlayerBreakdown(activeBreakdownPlayerId, activePlayerPos, true);
+      if (document.visibilityState === 'visible' && activeBreakdownTarget) {
+        fetchPlayerBreakdown(
+          activeBreakdownTarget.playerId,
+          activePlayerPos,
+          activeBreakdownTarget.fixtureId,
+          true
+        );
+        fetchMatchesForActiveGW(activeGW, true);
       }
     };
 
@@ -624,22 +944,22 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVis);
     };
-  }, [activeBreakdownPlayerId, activePlayerPos, fetchPlayerBreakdown]);
+  }, [activeBreakdownTarget, activePlayerPos, activeGW, fetchPlayerBreakdown, fetchMatchesForActiveGW]);
 
   // Click outside breakdown card to dismiss active breakdown
   useEffect(() => {
-    if (activeBreakdownPlayerId === null) return;
+    if (!activeBreakdownTarget) return;
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest('[data-breakdown-card]')) {
-        setActiveBreakdownPlayerId(null);
+        setActiveBreakdownTarget(null);
       }
     };
     document.addEventListener('pointerdown', handleClickOutside);
     return () => {
       document.removeEventListener('pointerdown', handleClickOutside);
     };
-  }, [activeBreakdownPlayerId]);
+  }, [activeBreakdownTarget]);
 
   // Handle device back button to close modal
   const onCloseRef = useRef(onClose);
@@ -668,8 +988,8 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (activeBreakdownPlayerId !== null) {
-          setActiveBreakdownPlayerId(null);
+        if (activeBreakdownTarget !== null) {
+          setActiveBreakdownTarget(null);
           return;
         }
         onCloseRef.current();
@@ -749,10 +1069,17 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
 
     const performSyncRefresh = () => {
       playerSummaryMemoryCache.clear();
+      matchesByGwClientCache.clear();
       managerDetailClientCache.delete(entryId);
       refreshManagerDetail();
-      if (activeBreakdownPlayerId !== null) {
-        fetchPlayerBreakdown(activeBreakdownPlayerId, activePlayerPos, true);
+      fetchMatchesForActiveGW(activeGW, true);
+      if (activeBreakdownTarget !== null) {
+        fetchPlayerBreakdown(
+          activeBreakdownTarget.playerId,
+          activePlayerPos,
+          activeBreakdownTarget.fixtureId,
+          true
+        );
       }
     };
 
@@ -766,7 +1093,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     return () => {
       window.removeEventListener('fpl:data-synced', handleGlobalSync);
     };
-  }, [entryId, lastSynced, activeBreakdownPlayerId, activePlayerPos, refreshManagerDetail, fetchPlayerBreakdown]);
+  }, [entryId, lastSynced, activeGW, activeBreakdownTarget, activePlayerPos, refreshManagerDetail, fetchMatchesForActiveGW, fetchPlayerBreakdown]);
 
   // Sorted list of available gameweeks
   const sortedGWs = useMemo(() => {
@@ -1245,9 +1572,11 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
             <div className={`relative ${isStarterBreakdownOpen ? 'z-40' : 'z-10'} space-y-3 sm:space-y-5 md:space-y-6`}>
               {/* Line 1: GKP */}
               <div>
-                <div className="flex justify-center items-center gap-6 sm:gap-12 md:gap-16">
+                <div className="flex justify-center items-start gap-6 sm:gap-12 md:gap-16">
                   {startersByPosition.gks.map(({ player, ownerInfo }) => {
-                    const matchInfo = getPlayerMatchInfo(player, gw);
+                    const matchEntries = getPlayerMatchEntries(player, gw);
+                    const isOpenForPlayer = activeBreakdownTarget?.playerId === player.id;
+                    const activeFixId = isOpenForPlayer ? activeBreakdownTarget!.fixtureId : null;
                     return (
                       <PitchPlayerCard
                         key={player.id}
@@ -1256,12 +1585,12 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                         gw={gw}
                         isTcActive={isTc}
                         onSelectPlayer={onSelectPlayer}
-                        isBreakdownOpen={activeBreakdownPlayerId === player.id}
-                        breakdownItems={breakdownDataMap[`${player.id}_${activeGW}`]}
+                        isBreakdownOpen={isOpenForPlayer}
+                        activeBreakdownFixtureId={activeFixId}
+                        breakdownItems={isOpenForPlayer ? breakdownDataMap[`${player.id}_${activeGW}_${activeFixId}`] : undefined}
                         isLoadingBreakdown={loadingBreakdownId === player.id}
                         onToggleBreakdown={handleToggleBreakdown}
-                        opponentLabel={matchInfo.oppLabel}
-                        matchStatus={matchInfo.matchStatus}
+                        matchEntries={matchEntries}
                       />
                     );
                   })}
@@ -1270,9 +1599,11 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
 
               {/* Line 2: DEF */}
               <div>
-                <div className="flex justify-center items-center gap-0.5 sm:gap-1.5 md:gap-2">
+                <div className="flex justify-center items-start gap-0.5 sm:gap-1.5 md:gap-2">
                   {startersByPosition.defs.map(({ player, ownerInfo }) => {
-                    const matchInfo = getPlayerMatchInfo(player, gw);
+                    const matchEntries = getPlayerMatchEntries(player, gw);
+                    const isOpenForPlayer = activeBreakdownTarget?.playerId === player.id;
+                    const activeFixId = isOpenForPlayer ? activeBreakdownTarget!.fixtureId : null;
                     return (
                       <PitchPlayerCard
                         key={player.id}
@@ -1281,12 +1612,12 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                         gw={gw}
                         isTcActive={isTc}
                         onSelectPlayer={onSelectPlayer}
-                        isBreakdownOpen={activeBreakdownPlayerId === player.id}
-                        breakdownItems={breakdownDataMap[`${player.id}_${activeGW}`]}
+                        isBreakdownOpen={isOpenForPlayer}
+                        activeBreakdownFixtureId={activeFixId}
+                        breakdownItems={isOpenForPlayer ? breakdownDataMap[`${player.id}_${activeGW}_${activeFixId}`] : undefined}
                         isLoadingBreakdown={loadingBreakdownId === player.id}
                         onToggleBreakdown={handleToggleBreakdown}
-                        opponentLabel={matchInfo.oppLabel}
-                        matchStatus={matchInfo.matchStatus}
+                        matchEntries={matchEntries}
                       />
                     );
                   })}
@@ -1295,9 +1626,11 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
 
               {/* Line 3: MID */}
               <div>
-                <div className="flex justify-center items-center gap-0.5 sm:gap-1.5 md:gap-2">
+                <div className="flex justify-center items-start gap-0.5 sm:gap-1.5 md:gap-2">
                   {startersByPosition.mids.map(({ player, ownerInfo }) => {
-                    const matchInfo = getPlayerMatchInfo(player, gw);
+                    const matchEntries = getPlayerMatchEntries(player, gw);
+                    const isOpenForPlayer = activeBreakdownTarget?.playerId === player.id;
+                    const activeFixId = isOpenForPlayer ? activeBreakdownTarget!.fixtureId : null;
                     return (
                       <PitchPlayerCard
                         key={player.id}
@@ -1306,12 +1639,12 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                         gw={gw}
                         isTcActive={isTc}
                         onSelectPlayer={onSelectPlayer}
-                        isBreakdownOpen={activeBreakdownPlayerId === player.id}
-                        breakdownItems={breakdownDataMap[`${player.id}_${activeGW}`]}
+                        isBreakdownOpen={isOpenForPlayer}
+                        activeBreakdownFixtureId={activeFixId}
+                        breakdownItems={isOpenForPlayer ? breakdownDataMap[`${player.id}_${activeGW}_${activeFixId}`] : undefined}
                         isLoadingBreakdown={loadingBreakdownId === player.id}
                         onToggleBreakdown={handleToggleBreakdown}
-                        opponentLabel={matchInfo.oppLabel}
-                        matchStatus={matchInfo.matchStatus}
+                        matchEntries={matchEntries}
                       />
                     );
                   })}
@@ -1320,9 +1653,11 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
 
               {/* Line 4: FWD */}
               <div>
-                <div className="flex justify-center items-center gap-3 sm:gap-6 md:gap-8">
+                <div className="flex justify-center items-start gap-3 sm:gap-6 md:gap-8">
                   {startersByPosition.fwds.map(({ player, ownerInfo }) => {
-                    const matchInfo = getPlayerMatchInfo(player, gw);
+                    const matchEntries = getPlayerMatchEntries(player, gw);
+                    const isOpenForPlayer = activeBreakdownTarget?.playerId === player.id;
+                    const activeFixId = isOpenForPlayer ? activeBreakdownTarget!.fixtureId : null;
                     return (
                       <PitchPlayerCard
                         key={player.id}
@@ -1331,12 +1666,12 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                         gw={gw}
                         isTcActive={isTc}
                         onSelectPlayer={onSelectPlayer}
-                        isBreakdownOpen={activeBreakdownPlayerId === player.id}
-                        breakdownItems={breakdownDataMap[`${player.id}_${activeGW}`]}
+                        isBreakdownOpen={isOpenForPlayer}
+                        activeBreakdownFixtureId={activeFixId}
+                        breakdownItems={isOpenForPlayer ? breakdownDataMap[`${player.id}_${activeGW}_${activeFixId}`] : undefined}
                         isLoadingBreakdown={loadingBreakdownId === player.id}
                         onToggleBreakdown={handleToggleBreakdown}
-                        opponentLabel={matchInfo.oppLabel}
-                        matchStatus={matchInfo.matchStatus}
+                        matchEntries={matchEntries}
                       />
                     );
                   })}
@@ -1397,12 +1732,14 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
               </>
             )}
 
-            <div className={`relative ${isBenchBreakdownOpen ? 'z-40' : 'z-10'} flex justify-center items-center gap-2 sm:gap-4 md:gap-6 max-w-lg mx-auto`}>
+            <div className={`relative ${isBenchBreakdownOpen ? 'z-40' : 'z-10'} flex justify-center items-start gap-2 sm:gap-4 md:gap-6 max-w-lg mx-auto`}>
               {bench.map(({ player, ownerInfo }) => {
                 const posLabel = player.position || (player.element_type === 1 ? 'GKP' : player.element_type === 2 ? 'DEF' : player.element_type === 3 ? 'MID' : 'FWD');
-                const matchInfo = getPlayerMatchInfo(player, gw);
+                const matchEntries = getPlayerMatchEntries(player, gw);
+                const isOpenForPlayer = activeBreakdownTarget?.playerId === player.id;
+                const activeFixId = isOpenForPlayer ? activeBreakdownTarget!.fixtureId : null;
                 return (
-                  <div key={player.id} className={`flex flex-col items-center relative ${activeBreakdownPlayerId === player.id ? 'z-50' : 'z-10'}`}>
+                  <div key={player.id} className={`flex flex-col items-center relative ${isOpenForPlayer ? 'z-50' : 'z-10'}`}>
                     <span className="text-[8px] sm:text-[9px] font-black uppercase text-white/90 bg-black/40 px-1.5 py-0.5 rounded-xs mb-1 leading-none shadow-2xs">
                       {posLabel}
                     </span>
@@ -1412,12 +1749,12 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                       gw={gw}
                       isTcActive={isTc}
                       onSelectPlayer={onSelectPlayer}
-                      isBreakdownOpen={activeBreakdownPlayerId === player.id}
-                      breakdownItems={breakdownDataMap[`${player.id}_${activeGW}`]}
+                      isBreakdownOpen={isOpenForPlayer}
+                      activeBreakdownFixtureId={activeFixId}
+                      breakdownItems={isOpenForPlayer ? breakdownDataMap[`${player.id}_${activeGW}_${activeFixId}`] : undefined}
                       isLoadingBreakdown={loadingBreakdownId === player.id}
                       onToggleBreakdown={handleToggleBreakdown}
-                      opponentLabel={matchInfo.oppLabel}
-                      matchStatus={matchInfo.matchStatus}
+                      matchEntries={matchEntries}
                     />
                   </div>
                 );
@@ -1803,12 +2140,24 @@ interface PitchPlayerCardProps {
   isTcActive?: boolean;
   onSelectPlayer?: (playerId: number, gw?: number) => void;
   isBreakdownOpen?: boolean;
+  activeBreakdownFixtureId?: number | null;
   breakdownItems?: Array<{ code: string; value: string | number; points: number }>;
   isLoadingBreakdown?: boolean;
-  onToggleBreakdown?: (playerId: number, position: string) => void;
-  opponentLabel?: string;
-  matchStatus?: 'upcoming' | 'live' | 'ft';
+  onToggleBreakdown?: (playerId: number, position: string, fixtureId: number) => void;
+  matchEntries: PitchMatchEntry[];
 }
+
+const getPointsBoxStyle = (matchStatus: 'upcoming' | 'live' | 'ft', isLast: boolean) => {
+  const radius = isLast ? 'rounded-b' : '';
+  const bottomBorder = isLast ? 'border-b' : '';
+  if (matchStatus === 'upcoming') {
+    return `bg-white hover:bg-slate-100 text-slate-900 border-x ${bottomBorder} border-slate-200 shadow-sm ${radius}`;
+  }
+  if (matchStatus === 'live') {
+    return `bg-[#e90052] hover:bg-[#d00049] text-white border-x ${bottomBorder} border-[#e90052] shadow-sm ${radius}`;
+  }
+  return `bg-[#00ff87] hover:bg-[#34fab0] text-[#200024] border-x ${bottomBorder} border-[#00c968] shadow-sm ${radius}`;
+};
 
 const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
   player,
@@ -1820,13 +2169,11 @@ const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
   breakdownItems,
   isLoadingBreakdown = false,
   onToggleBreakdown,
-  opponentLabel,
-  matchStatus = 'ft',
+  matchEntries,
 }) => {
   const { t, language } = useLanguage();
   const isGk = player.position === 'GKP' || player.element_type === 1;
   const multiplier = ownerInfo.multiplier || 1;
-  const displayPoints = (player.gw_points || 0) * multiplier;
 
   const isCaptain = ownerInfo.is_captain;
   const isViceCaptain = ownerInfo.is_vice_captain;
@@ -1840,18 +2187,17 @@ const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
     ? `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}_1-220.webp`
     : `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}-220.webp`;
 
-  // Dynamic point box styling based on match status:
-  // - Upcoming: Putih (bg-white text-slate-900 border border-slate-200)
-  // - Live: Red rose (bg-[#e90052] text-white border border-rose-600)
-  // - Full Time: Warna saat ini (bg-[#00ff87] text-[#200024] border border-[#00c968])
-  const pointsBoxStyle =
-    matchStatus === 'upcoming'
-      ? 'bg-white group-hover/name:bg-slate-100 text-slate-900 border-x border-b border-slate-200 shadow-sm'
-      : matchStatus === 'live'
-      ? 'bg-[#e90052] group-hover/name:bg-[#d00049] text-white border-x border-b border-[#e90052] shadow-sm'
-      : 'bg-[#00ff87] group-hover/name:bg-[#34fab0] text-[#200024] border-x border-b border-[#00c968] shadow-sm';
-
-  const opponentDisplay = opponentLabel || player.team_short_name;
+  const effectiveEntries: PitchMatchEntry[] =
+    matchEntries && matchEntries.length > 0
+      ? matchEntries
+      : [
+          {
+            fixtureId: 0,
+            oppLabel: '-',
+            rawPoints: player.gw_points || 0,
+            matchStatus: 'ft',
+          },
+        ];
 
   return (
     <div
@@ -1919,15 +2265,8 @@ const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
         )}
       </div>
 
-      {/* Ramping Name and Info Box: Overlapping on top of bottom 1/3 of the jersey - Klik nama / poin membuka breakdown */}
-      <div
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleBreakdown && onToggleBreakdown(player.id, player.position);
-        }}
-        className="relative z-10 -mt-[23px] sm:-mt-[28px] md:-mt-[34px] w-full text-center cursor-pointer group/name"
-        title={t('modal_mgr_tooltip_breakdown')}
-      >
+      {/* Ramping Name and Info Box: Overlapping on top of bottom 1/3 of the jersey */}
+      <div className="relative z-10 -mt-[23px] sm:-mt-[28px] md:-mt-[34px] w-full text-center">
         {/* QUICK POINT BREAKDOWN POPUP (MENEMPEL TEPAT DI ATAS BOX NAMA, LEBAR SAMA PERSIS, BORDER TIPIS 3 SISI) */}
         {isBreakdownOpen && (
           <div
@@ -1984,22 +2323,41 @@ const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
           </div>
         )}
 
-        {/* Web name in 1 row without wrap - Tanpa penambahan border saat dipilih */}
+        {/* Web name in 1 row without wrap */}
         <div
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleBreakdown && onToggleBreakdown(player.id, player.position, effectiveEntries[0].fixtureId);
+          }}
           title={player.web_name}
-          className="bg-[#37003c] group-hover/name:bg-purple-900 text-white text-[8.5px] sm:text-[10px] md:text-[11px] font-bold py-0.5 px-0.5 rounded-t truncate whitespace-nowrap shadow-sm border-x border-t border-purple-900 leading-tight transition-colors"
+          className="bg-[#37003c] hover:bg-purple-900 text-white text-[8.5px] sm:text-[10px] md:text-[11px] font-bold py-0.5 px-0.5 rounded-t truncate whitespace-nowrap shadow-sm border-x border-t border-purple-900 leading-tight transition-colors cursor-pointer"
         >
           {player.web_name}
         </div>
-        {/* Opponent club with H/A and Points in 1 row - Dynamic background based on match status */}
-        <div
-          className={`text-[7.5px] sm:text-[8.5px] md:text-[9.5px] font-black py-0.5 px-1 rounded-b flex items-center justify-between whitespace-nowrap leading-tight transition-colors ${pointsBoxStyle}`}
-        >
-          <span className="truncate pr-0.5" title={opponentDisplay}>
-            {opponentDisplay}
-          </span>
-          <span className="shrink-0">{displayPoints} pts</span>
-        </div>
+
+        {/* Opponent club with H/A and Points row(s) - 1 row for SGW/BGW, 2 rows stacked for DGW */}
+        {effectiveEntries.map((entry, idx) => {
+          const isLast = idx === effectiveEntries.length - 1;
+          const displayMatchPoints = (entry.rawPoints || 0) * multiplier;
+          const boxStyle = getPointsBoxStyle(entry.matchStatus, isLast);
+          const rowDivider = idx > 0 ? 'border-t border-black/15' : '';
+          return (
+            <div
+              key={`${entry.fixtureId}_${idx}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleBreakdown && onToggleBreakdown(player.id, player.position, entry.fixtureId);
+              }}
+              title={t('modal_mgr_tooltip_breakdown')}
+              className={`text-[7.5px] sm:text-[8.5px] md:text-[9.5px] font-black py-0.5 px-1 flex items-center justify-between whitespace-nowrap leading-tight transition-colors cursor-pointer ${rowDivider} ${boxStyle}`}
+            >
+              <span className="truncate pr-0.5" title={entry.oppLabel}>
+                {entry.oppLabel}
+              </span>
+              <span className="shrink-0">{displayMatchPoints} pts</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
