@@ -8,6 +8,7 @@ import {
   generateLiveMatchScoreStories,
   generateLiveLineupSurpriseStories,
   generateLiveTitleRaceStories,
+  extractPulseClockContext,
   buildMatchKey,
 } from './liveMatchStoryGenerator.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
@@ -16,7 +17,7 @@ import { generateBetweenMatchStories } from './betweenMatchStoryGenerator.ts';
 import { generateProvisionalStories } from './provisionalStoryGenerator.ts';
 import { getPhase1Templates } from '../data/phase1Templates.ts';
 import { getOptimalDatabase } from './db.ts';
-import { checkLiveBetweenMatchPhase, isMatchCardRunning } from './liveBetweenMatchChecker.ts';
+import { checkLiveBetweenMatchPhase, isMatchCardRunning, isMatchCardFinished } from './liveBetweenMatchChecker.ts';
 import { loadPulseMatchesForGw } from './pulseMatchSync.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import {
@@ -26,6 +27,17 @@ import {
   CycleMeta,
   LM_FALLBACK_NS_TEMPLATE_IDS,
 } from './waveCycleScheduler.ts';
+import {
+  MatchPeriod,
+  DEFAULT_HALF_TIME_SECS,
+  MIN_HALF_TIME_SECS,
+  MAX_HALF_TIME_SECS,
+  resolveCardPeriodAndClockSecs,
+  computeContinuousMatchSecs,
+  computeMatchElapsedSecs,
+  resolveStoryPeriodAndClock,
+  periodSortRank,
+} from '../utils/matchClock.ts';
 import type { MatchCardItem } from '../types.ts';
 
 export { checkLiveBetweenMatchPhase, ensureLiveMatchesAndCheckPhase } from './liveBetweenMatchChecker.ts';
@@ -61,6 +73,13 @@ let lastBuiltAt = 0;
 // Server-side cooldown registry to prevent multi-tab / multi-device duplicate +1 increments within the same cycle
 const lastIncrementByRowKey = new Map<string, number>();
 
+interface HtTimingTracker {
+  firstHalfEndSecs: number;
+  htStartMs: number;
+  htEndMs: number;
+}
+const htTimingByMatchKey = new Map<string, HtTimingTracker>();
+
 export function clearNewsTickerMemoryCache(): void {
   memoryTableCache = null;
   lastBuiltGw = null;
@@ -75,6 +94,7 @@ export function clearNewsTickerMemoryCache(): void {
 export function clearNewsTickerTable(): void {
   clearNewsTickerMemoryCache();
   lastIncrementByRowKey.clear();
+  htTimingByMatchKey.clear();
   try {
     const dir = path.dirname(TABLE_FILE_PATH);
     if (!fs.existsSync(dir)) {
@@ -974,7 +994,7 @@ export function extractGwFromStory(headlineId: string, headlineEn: string, id: s
  */
 export function rebuildNewsTickerTable(
   phaseOverride?: string,
-  options?: { clearExisting?: boolean }
+  options?: { clearExisting?: boolean; nowMs?: number; matchesOverride?: MatchCardItem[] | null }
 ): NewsTickerDbRow[] {
   try {
     invalidateEditorTemplateIdCache();
@@ -1226,6 +1246,18 @@ export function rebuildNewsTickerTable(
                 ...(existing.cycle_meta?.detectedClockSecs !== undefined
                   ? { detectedClockSecs: existing.cycle_meta.detectedClockSecs }
                   : {}),
+                ...(existing.cycle_meta?.detectedPeriod !== undefined
+                  ? { detectedPeriod: existing.cycle_meta.detectedPeriod }
+                  : {}),
+                ...(existing.cycle_meta?.detectedHtOffsetSecs !== undefined
+                  ? { detectedHtOffsetSecs: existing.cycle_meta.detectedHtOffsetSecs }
+                  : {}),
+                ...(existing.cycle_meta?.firstHalfEndSecs !== undefined
+                  ? { firstHalfEndSecs: existing.cycle_meta.firstHalfEndSecs }
+                  : {}),
+                ...(existing.cycle_meta?.htDurationSecs !== undefined
+                  ? { htDurationSecs: existing.cycle_meta.htDurationSecs }
+                  : {}),
                 ...(existing.cycle_meta?.lastAiredAtMs !== undefined
                   ? { lastAiredAtMs: existing.cycle_meta.lastAiredAtMs }
                   : {}),
@@ -1274,12 +1306,22 @@ export function rebuildNewsTickerTable(
       // while finished matches stay eligible for an 8-minute Post-FT Grace Window so FT / 85'+ / Saves / DC can finish airing.
       try {
         const POST_FT_GRACE_MS = 8 * 60 * 1000;
-        const nowMs = Date.now();
-        const cachedMatches = getCachedMatchesForGw(feedGw);
+        const nowMs = typeof options?.nowMs === 'number' && Number.isFinite(options.nowMs)
+          ? options.nowMs
+          : Date.now();
+        const cachedMatches =
+          options?.matchesOverride !== undefined
+            ? options.matchesOverride
+            : getCachedMatchesForGw(feedGw);
         const allPulseMatches = loadPulseMatchesForGw(feedGw);
 
         interface LiveMatchClockState {
+          period: MatchPeriod;
           currentClockSecs: number;
+          firstHalfEndSecs: number;
+          htDurationSecs: number;
+          htOffsetSecs: number;
+          continuousClockSecs: number;
           isHalfTime: boolean;
           isSecondHalfStarted: boolean;
           isFinished: boolean;
@@ -1288,6 +1330,9 @@ export function rebuildNewsTickerTable(
           isStarted: boolean;
         }
         const matchStateByKey = new Map<string, LiveMatchClockState>();
+        const finishedMatchKeys = new Set<string>();
+        const finishedMatchIds = new Set<number>();
+        const runningStatMatchKeys = new Set<string>();
 
         // Seed first-seen FT timestamps & active match keys from previously saved table rows
         // so already-finished matches from earlier kickoffs are NEVER falsely treated as newly finished.
@@ -1340,6 +1385,7 @@ export function rebuildNewsTickerTable(
           if (!mKey) continue;
 
           const events: any[] = Array.isArray(pulseData?.events) ? pulseData.events : [];
+          const pulseClockCtx = extractPulseClockContext(pulseData);
           const status = String(pulseData?.status || '').trim().toUpperCase();
           const phase = String(pulseData?.phase || '').trim().toUpperCase();
           const clockLabel = String(pulseData?.clock?.label || '').trim().toUpperCase();
@@ -1353,12 +1399,8 @@ export function rebuildNewsTickerTable(
           const ftEvent = events.find(
             (e: any) => e?.type === 'PE' && (e?.phase === '2' || e?.phase === '2H')
           );
-          const maxEventClockSecs = events.reduce(
-            (mx: number, e: any) => Math.max(mx, Number(e?.clock?.secs) || 0),
-            0
-          );
-          const pulseClockSecs = Math.max(Number(pulseData?.clock?.secs) || 0, maxEventClockSecs);
-          const isExplicitlyLiveAndUnder90 = status === 'L' && pulseClockSecs < 5400;
+          const rawTopClockSecs = Number(pulseData?.clock?.secs) || 0;
+          const isExplicitlyLiveAndUnder90 = status === 'L' && rawTopClockSecs < 5400 && phase !== 'F' && phase !== 'FT';
           const isPulseFinished =
             !isExplicitlyLiveAndUnder90 &&
             (status === 'C' ||
@@ -1369,6 +1411,86 @@ export function rebuildNewsTickerTable(
               clockLabel === 'FT' ||
               clockLabel.includes('FULL'));
           const isPulseRunning = isPulseMatchCurrentlyLive(pulseData, cachedMatches);
+          const isHalfTimeNow = Boolean(
+            !isPulseFinished &&
+              !hasSecondHalfStart &&
+              (status === 'HT' || phase === 'HT' || phase === 'H' || (hasHalfTimeEnd && phase !== '1' && phase !== '1H'))
+          );
+          const pulsePeriod: MatchPeriod =
+            isPulseFinished && !isPulseRunning
+              ? 'FT'
+              : hasSecondHalfStart
+                ? '2H'
+                : isHalfTimeNow
+                  ? 'HT'
+                  : '1H';
+
+          // Measure clock strictly within the active half so 1H stoppage (e.g. 45+4' = 2940s)
+          // never freezes a 2H 46' (2760s) clock back at 2940s.
+          let samePeriodMaxEventClockSecs = 0;
+          for (const ev of events) {
+            const evPh = String(ev?.phase || '').trim().toUpperCase();
+            const clk = Number(ev?.clock?.secs) || 0;
+            if (pulsePeriod === '1H' && (evPh === '1' || evPh === '1H')) {
+              samePeriodMaxEventClockSecs = Math.max(samePeriodMaxEventClockSecs, clk);
+            } else if ((pulsePeriod === '2H' || pulsePeriod === 'FT') && (evPh === '2' || evPh === '2H')) {
+              samePeriodMaxEventClockSecs = Math.max(samePeriodMaxEventClockSecs, clk);
+            }
+          }
+
+          const pulseClockSecs =
+            pulsePeriod === 'HT'
+              ? pulseClockCtx.firstHalfEndSecs
+              : pulsePeriod === '2H'
+                ? Math.max(2700, rawTopClockSecs, samePeriodMaxEventClockSecs)
+                : pulsePeriod === 'FT'
+                  ? Math.max(5400, rawTopClockSecs, samePeriodMaxEventClockSecs)
+                  : Math.max(rawTopClockSecs, samePeriodMaxEventClockSecs);
+
+          const htTracker = htTimingByMatchKey.get(mKey) || {
+            firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+            htStartMs: 0,
+            htEndMs: 0,
+          };
+          htTracker.firstHalfEndSecs = Math.max(htTracker.firstHalfEndSecs, pulseClockCtx.firstHalfEndSecs);
+          if (pulsePeriod === 'HT') {
+            const hasPlausiblePulseHtStart =
+              pulseClockCtx.firstHalfEndMs > 0 &&
+              Math.abs(nowMs - pulseClockCtx.firstHalfEndMs) <= 3 * 60 * 60 * 1000;
+            if (hasPlausiblePulseHtStart) {
+              htTracker.htStartMs = pulseClockCtx.firstHalfEndMs;
+            } else if (!htTracker.htStartMs) {
+              htTracker.htStartMs = nowMs;
+            }
+          } else if (pulsePeriod === '2H' || pulsePeriod === 'FT') {
+            if (htTracker.htStartMs > 0 && !htTracker.htEndMs) {
+              htTracker.htEndMs = nowMs;
+            }
+          }
+          htTimingByMatchKey.set(mKey, htTracker);
+
+          let htDurationSecs = pulseClockCtx.htDurationSecs;
+          if (
+            htDurationSecs === DEFAULT_HALF_TIME_SECS &&
+            htTracker.htStartMs > 0 &&
+            htTracker.htEndMs > htTracker.htStartMs
+          ) {
+            const wallHtDiff = Math.round((htTracker.htEndMs - htTracker.htStartMs) / 1000);
+            if (wallHtDiff >= MIN_HALF_TIME_SECS && wallHtDiff <= MAX_HALF_TIME_SECS) {
+              htDurationSecs = wallHtDiff;
+            }
+          }
+          const htOffsetSecs =
+            pulsePeriod === 'HT' && htTracker.htStartMs > 0
+              ? Math.min(htDurationSecs, Math.max(0, Math.round((nowMs - htTracker.htStartMs) / 1000)))
+              : 0;
+          const continuousClockSecs = computeContinuousMatchSecs(
+            pulsePeriod,
+            pulseClockSecs,
+            htOffsetSecs,
+            { firstHalfEndSecs: htTracker.firstHalfEndSecs, htDurationSecs }
+          );
+
           const ftEventMs = Number(ftEvent?.time?.millis || 0);
           if (ftEventMs > 0) {
             ftEventMillisByMatchKey.set(mKey, ftEventMs);
@@ -1376,7 +1498,8 @@ export function rebuildNewsTickerTable(
           const kickoffMs = Number(pulseData?.kickoff?.millis || 0);
           const estimatedFinishedMs =
             kickoffMs > 0 ? Math.min(nowMs, kickoffMs + 115 * 60 * 1000) : 1;
-          const finishedAtMs = isPulseFinished
+          const isFinalPulseFinished = isPulseFinished && !isPulseRunning;
+          const finishedAtMs = isFinalPulseFinished
             ? ftEventMs > 0
               ? ftEventMs
               : existingFtSeenAtByMatchKey.get(mKey) ??
@@ -1392,13 +1515,23 @@ export function rebuildNewsTickerTable(
             isPulseFinished ||
             isPulseRunning;
 
+          if (isFinalPulseFinished) {
+            finishedMatchKeys.add(mKey);
+            if (Number(pulseData?.id) > 0) finishedMatchIds.add(Number(pulseData.id));
+          }
+
           matchStateByKey.set(mKey, {
+            period: pulsePeriod,
             currentClockSecs: pulseClockSecs,
-            isHalfTime: Boolean(!isPulseFinished && (status === 'HT' || phase === 'HT' || (hasHalfTimeEnd && !hasSecondHalfStart))),
+            firstHalfEndSecs: htTracker.firstHalfEndSecs,
+            htDurationSecs,
+            htOffsetSecs,
+            continuousClockSecs,
+            isHalfTime: pulsePeriod === 'HT',
             isSecondHalfStarted: Boolean(hasSecondHalfStart),
-            isFinished: isPulseFinished && !isPulseRunning,
+            isFinished: isFinalPulseFinished,
             finishedAtMs,
-            isRunning: isPulseRunning,
+            isRunning: isPulseRunning && !isFinalPulseFinished,
             isStarted: isPulseStarted,
           });
         }
@@ -1411,16 +1544,8 @@ export function rebuildNewsTickerTable(
             if (!mKey) continue;
 
             const cardRunning = isMatchCardRunning(card);
-            const cardFinished = Boolean(
-              card.finished || card.finished_provisional || card.phase === 'FT'
-            );
-            const cardClockSecs = (card.minutes || 0) * 60;
-            const cardHT = Boolean(
-              !cardFinished &&
-                (card.is_half_time ||
-                  String(card.clock_label || '').toLowerCase() === 'ht' ||
-                  String(card.clock_label || '').toLowerCase().includes('half'))
-            );
+            const cardFinished = isMatchCardFinished(card);
+            const { period: cardPeriod, clockSecs: cardClockSecs } = resolveCardPeriodAndClockSecs(card);
             const prev = matchStateByKey.get(mKey);
             const isFinished = cardFinished || Boolean(prev?.isFinished && !cardRunning);
             const cardKickoffMs = card.kickoff_time ? Date.parse(card.kickoff_time) : 0;
@@ -1434,13 +1559,81 @@ export function rebuildNewsTickerTable(
                 (liveTrackedMatchKeysInExistingTable.has(mKey) ? nowMs : estimatedCardFtMs)
               : 0;
 
-            const secondHalfStarted = Boolean(
-              prev?.isSecondHalfStarted || (!cardHT && (card.minutes || 0) > 45)
+            const mergedPeriod: MatchPeriod = isFinished
+              ? 'FT'
+              : prev && periodSortRank(prev.period) > periodSortRank(cardPeriod)
+                ? prev.period
+                : cardPeriod;
+
+            const htTracker = htTimingByMatchKey.get(mKey) || {
+              firstHalfEndSecs: prev?.firstHalfEndSecs || 2700,
+              htStartMs: 0,
+              htEndMs: 0,
+            };
+            if (cardPeriod === '1H' && cardClockSecs > htTracker.firstHalfEndSecs) {
+              htTracker.firstHalfEndSecs = cardClockSecs;
+            }
+            if (mergedPeriod === 'HT') {
+              if (!htTracker.htStartMs) htTracker.htStartMs = nowMs;
+            } else if (mergedPeriod === '2H' || mergedPeriod === 'FT') {
+              if (htTracker.htStartMs > 0 && !htTracker.htEndMs) {
+                htTracker.htEndMs = nowMs;
+              }
+            }
+            htTimingByMatchKey.set(mKey, htTracker);
+
+            let htDurationSecs = prev?.htDurationSecs || DEFAULT_HALF_TIME_SECS;
+            if (
+              htDurationSecs === DEFAULT_HALF_TIME_SECS &&
+              htTracker.htStartMs > 0 &&
+              htTracker.htEndMs > htTracker.htStartMs
+            ) {
+              const wallHtDiff = Math.round((htTracker.htEndMs - htTracker.htStartMs) / 1000);
+              if (wallHtDiff >= MIN_HALF_TIME_SECS && wallHtDiff <= MAX_HALF_TIME_SECS) {
+                htDurationSecs = wallHtDiff;
+              }
+            }
+            const htOffsetSecs =
+              mergedPeriod === 'HT'
+                ? prev?.htOffsetSecs ||
+                  (htTracker.htStartMs > 0
+                    ? Math.min(htDurationSecs, Math.max(0, Math.round((nowMs - htTracker.htStartMs) / 1000)))
+                    : 0)
+                : 0;
+
+            const mergedClockSecs =
+              mergedPeriod === 'HT'
+                ? htTracker.firstHalfEndSecs
+                : prev && prev.period === mergedPeriod
+                  ? Math.max(prev.currentClockSecs, cardClockSecs)
+                  : prev && periodSortRank(prev.period) > periodSortRank(cardPeriod)
+                    ? prev.currentClockSecs
+                    : cardClockSecs;
+
+            const continuousClockSecs = computeContinuousMatchSecs(
+              mergedPeriod,
+              mergedClockSecs,
+              htOffsetSecs,
+              { firstHalfEndSecs: htTracker.firstHalfEndSecs, htDurationSecs }
             );
+
+            if (isFinished) {
+              finishedMatchKeys.add(mKey);
+              if (Number(card.id) > 0) finishedMatchIds.add(Number(card.id));
+            } else if (cardRunning) {
+              finishedMatchKeys.delete(mKey);
+              runningStatMatchKeys.add(mKey);
+            }
+
             matchStateByKey.set(mKey, {
-              currentClockSecs: Math.max(prev?.currentClockSecs || 0, cardClockSecs),
-              isHalfTime: Boolean(!isFinished && !secondHalfStarted && (cardHT || prev?.isHalfTime)),
-              isSecondHalfStarted: secondHalfStarted,
+              period: mergedPeriod,
+              currentClockSecs: mergedClockSecs,
+              firstHalfEndSecs: htTracker.firstHalfEndSecs,
+              htDurationSecs,
+              htOffsetSecs,
+              continuousClockSecs,
+              isHalfTime: mergedPeriod === 'HT',
+              isSecondHalfStarted: mergedPeriod === '2H' || mergedPeriod === 'FT' || Boolean(prev?.isSecondHalfStarted),
               isFinished,
               finishedAtMs,
               isRunning: cardRunning && !isFinished,
@@ -1449,7 +1642,37 @@ export function rebuildNewsTickerTable(
           }
         }
 
+        // Cross-check DB synced gw_fixtures so any finished fixture with missing/stale cache is still detected as finished
+        const dbFixtures = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
+          ? db.meta.sync_status.gw_fixtures
+          : [];
+        for (const f of dbFixtures) {
+          if (Number(f?.event) !== feedGw) continue;
+          const isDbFt = Boolean(f?.finished || f?.finished_provisional);
+          if (!isDbFt) continue;
+          const fHome = resolveClubName(String(f?.home_team || ''));
+          const fAway = resolveClubName(String(f?.away_team || ''));
+          const mKey = fHome && fAway ? buildMatchKey(fHome, fAway) : '';
+          const prev = mKey ? matchStateByKey.get(mKey) : undefined;
+          // Only respect DB FT when cachedMatches did not actively report this match as running
+          if (mKey && !runningStatMatchKeys.has(mKey)) {
+            finishedMatchKeys.add(mKey);
+            if (Number(f?.id) > 0) finishedMatchIds.add(Number(f.id));
+            if (prev && !prev.isFinished) {
+              matchStateByKey.set(mKey, {
+                ...prev,
+                period: 'FT',
+                isHalfTime: false,
+                isFinished: true,
+                isRunning: false,
+                finishedAtMs: prev.finishedAtMs || existingFtSeenAtByMatchKey.get(mKey) || nowMs,
+              });
+            }
+          }
+        }
+
         const isMatchCurrentlyLive = (mKey: string, pulseData?: any, card?: MatchCardItem): boolean => {
+          if (mKey && finishedMatchKeys.has(mKey)) return false;
           const state = mKey ? matchStateByKey.get(mKey) : undefined;
           if (state?.isFinished) return false;
           if (card) return isMatchCardRunning(card);
@@ -1512,6 +1735,7 @@ export function rebuildNewsTickerTable(
 
         if (cachedMatches && cachedMatches.length > 0) {
           const statEligibleMatches = cachedMatches.filter((m) => {
+            if (isMatchCardFinished(m)) return false;
             const mKey = buildMatchKey(
               resolveClubName(m.home_team?.name || m.home_team?.short_name),
               resolveClubName(m.away_team?.name || m.away_team?.short_name)
@@ -1585,13 +1809,31 @@ export function rebuildNewsTickerTable(
             }
           } else {
             // Guard against transient empty matches cache (e.g. during invalidateMatchesCache + failed/in-flight fetch):
-            // Never drop existing cached-match-derived rows and wipe their poin_tayang/detectedClockSecs back to 0.
+            // Never resurrect LM_MATCH_SAVES_GOALKEEPER / LM_MATCH_DEFENSIVE_CONTRIBUTION / LM_MATCH_SCORE_LIVE
+            // for matches already finished or no longer running.
             const preservedCachedMatchRows = Array.from(existingTableMap.values()).filter((er) => {
               const pid = resolveParentTemplateId(er.id, sortedEditorTemplateIds);
-              return (
+              if (
                 pid === 'LM_MATCH_SAVES_GOALKEEPER' ||
                 pid === 'LM_MATCH_DEFENSIVE_CONTRIBUTION' ||
-                pid === 'LM_MATCH_SCORE_LIVE' ||
+                pid === 'LM_MATCH_SCORE_LIVE'
+              ) {
+                const erKey =
+                  er.cycle_meta?.matchKey ||
+                  (Array.isArray(er.teams) && er.teams.length >= 2
+                    ? buildMatchKey(er.teams[0], er.teams[1])
+                    : '');
+                const erMatchId = Number(er.cycle_meta?.pulseMatchId || 0);
+                if (!erKey || finishedMatchKeys.has(erKey) || (erMatchId > 0 && finishedMatchIds.has(erMatchId))) {
+                  return false;
+                }
+                const st = matchStateByKey.get(erKey);
+                if (!st || st.isFinished || !st.isRunning) {
+                  return false;
+                }
+                return true;
+              }
+              return (
                 pid === 'LM_LINEUP_SURPRISE_BENCHED' ||
                 pid === 'LM_STANDINGS_RANK_MOVEMENT' ||
                 pid === 'LM_STANDINGS_TITLE_RACE'
@@ -1625,6 +1867,24 @@ export function rebuildNewsTickerTable(
           console.warn('[News Table Service] Warning generating LM NS fallback stories:', fbErr.message);
         }
 
+        // Stamp live HT offset onto newly detected stat rows detected during Half Time
+        for (const r of tableRows) {
+          if (r.cycle_meta?.detectedPeriod === 'HT' && r.cycle_meta.detectedHtOffsetSecs === undefined) {
+            const mKey =
+              r.cycle_meta.matchKey ||
+              (Array.isArray(r.teams) && r.teams.length >= 2 ? buildMatchKey(r.teams[0], r.teams[1]) : '');
+            const st = mKey ? matchStateByKey.get(mKey) : undefined;
+            if (st && st.period === 'HT') {
+              r.cycle_meta = {
+                ...r.cycle_meta,
+                detectedHtOffsetSecs: st.htOffsetSecs,
+                firstHalfEndSecs: st.firstHalfEndSecs,
+                htDurationSecs: st.htDurationSecs,
+              };
+            }
+          }
+        }
+
         // Apply Two-Lane Live Match Editorial Newsroom TTL & Supersede Expiry rules.
         // Rows remain stored in Meja Redaksi with status_tayang='N' + descriptive reason so nothing is silently deleted.
         const executedPenClocksByMatch = new Map<string, number[]>();
@@ -1639,9 +1899,13 @@ export function rebuildNewsTickerTable(
               r.cycle_meta?.matchKey ||
               (Array.isArray(r.teams) && r.teams.length >= 2 ? buildMatchKey(r.teams[0], r.teams[1]) : '');
             if (mKey) {
-              const clk = Number(r.cycle_meta?.clockSecs ?? 0) || 0;
+              const st = matchStateByKey.get(mKey);
+              const contClk = resolveStoryPeriodAndClock(
+                r,
+                st ? { firstHalfEndSecs: st.firstHalfEndSecs, htDurationSecs: st.htDurationSecs } : undefined
+              ).continuousClockSecs;
               const arr = executedPenClocksByMatch.get(mKey) || [];
-              arr.push(clk);
+              arr.push(contClk);
               executedPenClocksByMatch.set(mKey, arr);
             }
           }
@@ -1667,10 +1931,48 @@ export function rebuildNewsTickerTable(
               : '');
           const mState = mKey ? matchStateByKey.get(mKey) : undefined;
           const pts = Math.max(0, Number(row.poin_tayang) || 0);
-          const eventClock =
-            Number(row.cycle_meta?.detectedClockSecs ?? row.cycle_meta?.clockSecs ?? 0) || 0;
-          const curClock = mState?.currentClockSecs ?? eventClock;
-          const elapsedSecs = Math.max(0, curClock - eventClock);
+
+          // 0. Strict FT suppression for live stats (Saves & Defensive Contribution):
+          // Never display once their own match finishes, preventing carry-over into subsequent matches' LM phase.
+          if (
+            parentId === 'LM_MATCH_SAVES_GOALKEEPER' ||
+            parentId === 'LM_MATCH_DEFENSIVE_CONTRIBUTION'
+          ) {
+            const rowMatchId = Number(row.cycle_meta?.pulseMatchId || 0);
+            const isStatMatchFinished =
+              Boolean(mState?.isFinished) ||
+              (Boolean(mKey) && finishedMatchKeys.has(mKey)) ||
+              (rowMatchId > 0 && finishedMatchIds.has(rowMatchId)) ||
+              (Array.isArray(cachedMatches) &&
+                cachedMatches.length > 0 &&
+                Boolean(mKey) &&
+                !runningStatMatchKeys.has(mKey));
+            if (isStatMatchFinished) {
+              markExpired(row, 'Expired: Laga sudah selesai (FT)');
+              continue;
+            }
+          }
+
+          const matchCtx = mState
+            ? { firstHalfEndSecs: mState.firstHalfEndSecs, htDurationSecs: mState.htDurationSecs }
+            : {
+                firstHalfEndSecs: row.cycle_meta?.firstHalfEndSecs ?? 2700,
+                htDurationSecs: row.cycle_meta?.htDurationSecs ?? DEFAULT_HALF_TIME_SECS,
+              };
+          const resolvedEventClock = resolveStoryPeriodAndClock(row, matchCtx);
+          const curClock = mState?.currentClockSecs ?? resolvedEventClock.clockSecs;
+          const elapsedSecs = mState
+            ? computeMatchElapsedSecs({
+                eventPeriod: resolvedEventClock.period,
+                eventClockSecs: resolvedEventClock.clockSecs,
+                eventHtOffsetSecs: resolvedEventClock.htOffsetSecs,
+                curPeriod: mState.period,
+                curClockSecs: mState.currentClockSecs,
+                curHtOffsetSecs: mState.htOffsetSecs,
+                firstHalfEndSecs: mState.firstHalfEndSecs,
+                htDurationSecs: mState.htDurationSecs,
+              })
+            : 0;
 
           // 1. Half Time / Full Time (LM_MATCH_PERIOD_END) — cukup 1x tayang
           if (parentId === 'LM_MATCH_PERIOD_END') {
@@ -1693,22 +1995,34 @@ export function rebuildNewsTickerTable(
             continue;
           }
 
-          // 2. Kickoff (LM_MATCH_PERIOD_START) — measure strictly against real kickoff clockSecs (0s for 1H, 2700s for 2H)
-          // so accessing mid-half (e.g. minute 30') never resurrects 0' kickoff news.
+          // 2. Kickoff (LM_MATCH_PERIOD_START) — measure strictly against its own half kickoff (1H: 0s, 2H: 2700s + HT)
+          // so accessing mid-half never resurrects 0' kickoff news and 1H stoppage / HT never corrupt 2H kickoff TTL.
           if (parentId === 'LM_MATCH_PERIOD_START') {
+            const isSecondHalfKo = Boolean(row.cycle_meta?.isSecondHalf);
+            const kickoffPeriod: MatchPeriod = isSecondHalfKo ? '2H' : '1H';
             const kickoffClock =
-              Number(row.cycle_meta?.clockSecs ?? (row.cycle_meta?.isSecondHalf ? 2700 : 0)) || 0;
-            const kickoffElapsed = Math.max(0, curClock - kickoffClock);
+              Number(row.cycle_meta?.clockSecs ?? (isSecondHalfKo ? 2700 : 0)) || 0;
+            const kickoffElapsed = mState
+              ? computeMatchElapsedSecs({
+                  eventPeriod: kickoffPeriod,
+                  eventClockSecs: kickoffClock,
+                  curPeriod: mState.period,
+                  curClockSecs: mState.currentClockSecs,
+                  curHtOffsetSecs: mState.htOffsetSecs,
+                  firstHalfEndSecs: mState.firstHalfEndSecs,
+                  htDurationSecs: mState.htDurationSecs,
+                })
+              : 0;
             if (pts >= 1) {
               markExpired(row, 'Expired: Kickoff sudah tayang');
             } else if (mState?.isFinished) {
               markExpired(row, 'Expired: Laga sudah usai');
             } else if (
-              !row.cycle_meta?.isSecondHalf &&
+              !isSecondHalfKo &&
               (mState?.isHalfTime || mState?.isSecondHalfStarted || kickoffElapsed > 600)
             ) {
               markExpired(row, 'Expired: Kickoff Babak 1 melewati TTL 10 menit');
-            } else if (row.cycle_meta?.isSecondHalf && kickoffElapsed > 600) {
+            } else if (isSecondHalfKo && kickoffElapsed > 600) {
               markExpired(row, 'Expired: Kickoff Babak 2 melewati TTL 10 menit');
             }
             continue;
@@ -1741,16 +2055,16 @@ export function rebuildNewsTickerTable(
             const effPts = getEffectiveLmLineupSurprisePts(row);
             if (effPts >= 2) {
               markExpired(row, 'Expired: Lineup kejutan sudah tayang 2x');
-            } else if (mState?.isFinished || curClock >= 900) {
+            } else if (mState?.isFinished || (mState ? mState.continuousClockSecs >= 900 : curClock >= 900)) {
               markExpired(row, 'Expired: Lineup kejutan melewati menit 15');
             }
             continue;
           }
 
-          // 4. Penalty Awarded (supersede immediately once executed)
+          // 4. Penalty Awarded (supersede immediately once executed, using continuous timeline so halves never collide)
           if (parentId === 'LM_MATCH_PENALTY_AWARDED' && !row.cycle_meta?.isPenaltyCancelled) {
             const execClocks = mKey ? executedPenClocksByMatch.get(mKey) : undefined;
-            if (execClocks && execClocks.some((execClk) => execClk >= eventClock - 30)) {
+            if (execClocks && execClocks.some((execContClk) => execContClk >= resolvedEventClock.continuousClockSecs - 30)) {
               markExpired(row, 'Expired: Eksekusi penalti sudah selesai');
               continue;
             }
@@ -1762,7 +2076,7 @@ export function rebuildNewsTickerTable(
             continue;
           }
 
-          // 6. General Two-Tier Match-Clock TTL & Max-Airings
+          // 6. General Two-Tier Match-Clock TTL & Max-Airings (accounting for period & HT break)
           if (tier === 'P4') {
             if (pts >= 1) {
               markExpired(row, 'Expired: Berita minor (P4) sudah tayang 1x');
@@ -1887,6 +2201,68 @@ function isTableStaleForCurrentState(rows: NewsTickerDbRow[]): boolean {
     ) {
       return true;
     }
+  }
+
+  return false;
+}
+
+/**
+ * Checks if a live match stat story (LM_MATCH_SAVES_GOALKEEPER or LM_MATCH_DEFENSIVE_CONTRIBUTION)
+ * belongs to a match that has already finished (or is no longer running when live matches cache exists).
+ */
+export function isLiveStatRowForFinishedMatch(
+  row: NewsTickerDbRow,
+  targetGw?: number,
+  matchesOverride?: MatchCardItem[] | null
+): boolean {
+  const id = String(row?.id || '');
+  if (
+    !id.startsWith('LM_MATCH_SAVES_GOALKEEPER') &&
+    !id.startsWith('LM_MATCH_DEFENSIVE_CONTRIBUTION')
+  ) {
+    return false;
+  }
+
+  const gw = Number(targetGw || row.gw || getCurrentGw()) || 0;
+  if (!gw) return false;
+
+  const mKey =
+    row.cycle_meta?.matchKey ||
+    (Array.isArray(row.teams) && row.teams.length >= 2
+      ? buildMatchKey(row.teams[0], row.teams[1])
+      : '');
+  const rowMatchId = Number(row.cycle_meta?.pulseMatchId || 0);
+
+  const cachedMatches =
+    matchesOverride !== undefined ? matchesOverride : getCachedMatchesForGw(gw);
+  if (Array.isArray(cachedMatches) && cachedMatches.length > 0) {
+    const matchedCard = cachedMatches.find((m) => {
+      if (rowMatchId > 0 && Number(m.id) === rowMatchId) return true;
+      if (!mKey) return false;
+      const cKey = buildMatchKey(
+        resolveClubName(m.home_team?.name || m.home_team?.short_name),
+        resolveClubName(m.away_team?.name || m.away_team?.short_name)
+      );
+      return cKey === mKey;
+    });
+    if (!matchedCard) return true;
+    return isMatchCardFinished(matchedCard) || !isMatchCardRunning(matchedCard);
+  }
+
+  const db = getOptimalDatabase();
+  const dbFixtures = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
+    ? db.meta.sync_status.gw_fixtures
+    : [];
+  const matchedFix = dbFixtures.find((f: any) => {
+    if (Number(f?.event) !== gw) return false;
+    if (rowMatchId > 0 && Number(f?.id) === rowMatchId) return true;
+    if (!mKey) return false;
+    const fHome = resolveClubName(String(f?.home_team || ''));
+    const fAway = resolveClubName(String(f?.away_team || ''));
+    return Boolean(fHome && fAway && buildMatchKey(fHome, fAway) === mKey);
+  });
+  if (matchedFix && (matchedFix.finished || matchedFix.finished_provisional)) {
+    return true;
   }
 
   return false;

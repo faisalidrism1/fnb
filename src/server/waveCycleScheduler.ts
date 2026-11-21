@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { MatchPeriod, resolveStoryPeriodAndClock } from '../utils/matchClock.ts';
 
 const TABLE_PATH = path.join(process.cwd(), 'src/data/news_ticker_table.json');
 
@@ -13,6 +14,12 @@ export interface CycleMeta {
   pulseMatchId?: number;
   clockSecs?: number;
   detectedClockSecs?: number;
+  period?: MatchPeriod;
+  detectedPeriod?: MatchPeriod;
+  detectedHtOffsetSecs?: number;
+  continuousClockSecs?: number;
+  firstHalfEndSecs?: number;
+  htDurationSecs?: number;
   isLmFallback?: boolean;
   maxOwnerPct?: number;
   isCsSub?: boolean;
@@ -732,8 +739,7 @@ export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
   if (!Array.isArray(activeRows) || activeRows.length === 0) return [];
 
   const sortedKnownIds = [...knownTemplateIds].sort((a, b) => b.length - a.length);
-  const getClockSecs = (r: T): number =>
-    Number(r.cycle_meta?.clockSecs ?? (r as any).clockSecs ?? 0) || 0;
+  const getClockSecs = (r: T): number => resolveStoryPeriodAndClock(r).continuousClockSecs;
   const getMatchKey = (r: T): string => {
     if (r.cycle_meta?.matchKey) return r.cycle_meta.matchKey;
     const teams: string[] = Array.isArray((r as any).teams) ? (r as any).teams : [];

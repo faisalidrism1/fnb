@@ -27,20 +27,17 @@ export interface LiveBetweenMatchCheckResult {
   checkedAt: string;
 }
 
-export function isMatchCardRunning(match: MatchCardItem): boolean {
-  if (!match) return false;
-  const isFinished = Boolean(
-    match.finished ||
-    match.finished_provisional ||
-    match.phase === 'FT'
-  );
-  if (isFinished) return false;
-  return Boolean(match.started && match.phase !== 'UPCOMING');
-}
-
 export function isMatchCardFinished(match: MatchCardItem): boolean {
   if (!match) return false;
-  return Boolean(match.finished || match.finished_provisional || match.phase === 'FT');
+  const clockUpper = String(match.clock_label || '').trim().toUpperCase();
+  const isFullTimeClock = clockUpper === 'FT' || clockUpper.includes('FULL TIME') || clockUpper.includes('FULLTIME');
+  return Boolean(match.finished || match.finished_provisional || match.phase === 'FT' || isFullTimeClock);
+}
+
+export function isMatchCardRunning(match: MatchCardItem): boolean {
+  if (!match) return false;
+  if (isMatchCardFinished(match)) return false;
+  return Boolean(match.started && match.phase !== 'UPCOMING');
 }
 
 export function isDbFixtureRunning(fixture: any): boolean {

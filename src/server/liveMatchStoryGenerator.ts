@@ -3,6 +3,18 @@ import { fetchMatchesForGw, getCachedMatchesForGw } from './matchesFetcher.ts';
 import { loadPulseMatchesForGw } from './pulseMatchSync.ts';
 import { getDbStandings, getOptimalDatabase, getGwSnapshot } from './db.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
+import { isMatchCardFinished } from './liveBetweenMatchChecker.ts';
+import {
+  MatchPeriod,
+  DEFAULT_HALF_TIME_SECS,
+  MIN_HALF_TIME_SECS,
+  MAX_HALF_TIME_SECS,
+  normalizeMatchPeriod,
+  parseClockLabelInfo,
+  resolveCardPeriodAndClockSecs,
+  computeContinuousMatchSecs,
+  periodSortRank,
+} from '../utils/matchClock.ts';
 import type { MatchCardItem, MatchPlayerItem } from '../types.ts';
 
 export interface LiveMatchStory {
@@ -33,6 +45,75 @@ export function buildMatchKey(homeClub: string, awayClub: string): string {
     .filter(Boolean)
     .sort()
     .join('__');
+}
+
+export interface PulseClockContext {
+  firstHalfEndSecs: number;
+  htDurationSecs: number;
+  firstHalfEndMs: number;
+  secondHalfStartMs: number;
+}
+
+/**
+ * Extracts 1st-half end clock (including stoppage time) and actual Half-Time duration
+ * (from PE phase 1 -> PS phase 2 timestamps when present, defaulting to 15 mins / 900s).
+ */
+export function extractPulseClockContext(pulseData: any): PulseClockContext {
+  const events: any[] = Array.isArray(pulseData?.events) ? pulseData.events : [];
+  const textEvents: any[] = Array.isArray(pulseData?.textstreamEvents) ? pulseData.textstreamEvents : [];
+
+  let firstHalfEndSecs = 2700;
+  let firstHalfEndMs = 0;
+  let secondHalfStartMs = 0;
+
+  for (const ev of events) {
+    const ph = String(ev?.phase || '').trim().toUpperCase();
+    const clkSecs = Number(ev?.clock?.secs) || 0;
+    const parsedLbl = parseClockLabelInfo(ev?.clock?.label || ev?.time?.label);
+    const effectiveSecs = Math.max(clkSecs, parsedLbl?.secs || 0);
+
+    if (ph === '1' || ph === '1H') {
+      if (effectiveSecs > firstHalfEndSecs) {
+        firstHalfEndSecs = effectiveSecs;
+      }
+      if (ev?.type === 'PE') {
+        const ms = Number(ev?.time?.millis || 0);
+        if (ms > 0) firstHalfEndMs = ms;
+      }
+    } else if (ev?.type === 'PS' && (ph === '2' || ph === '2H')) {
+      const ms = Number(ev?.time?.millis || 0);
+      if (ms > 0 && !secondHalfStartMs) secondHalfStartMs = ms;
+    }
+  }
+
+  for (const tv of textEvents) {
+    const tvType = String(tv?.type?.text || tv?.type || '').trim().toLowerCase();
+    const tvText = String(tv?.text || '');
+    if (tvType === 'end 1' || /First Half ends/i.test(tvText)) {
+      const tvSecs = Number(tv?.time?.secs || 0);
+      const parsedLbl = parseClockLabelInfo(tv?.time?.label);
+      const eff = Math.max(tvSecs, parsedLbl?.secs || 0);
+      if (eff > firstHalfEndSecs) {
+        firstHalfEndSecs = eff;
+      }
+      break;
+    }
+  }
+
+  let htDurationSecs = DEFAULT_HALF_TIME_SECS;
+  if (firstHalfEndMs > 0 && secondHalfStartMs > firstHalfEndMs) {
+    const diffSecs = Math.round((secondHalfStartMs - firstHalfEndMs) / 1000);
+    if (diffSecs >= MIN_HALF_TIME_SECS && diffSecs <= MAX_HALF_TIME_SECS) {
+      htDurationSecs = diffSecs;
+    }
+  }
+
+  return {
+    firstHalfEndSecs,
+    htDurationSecs,
+    firstHalfEndMs,
+    secondHalfStartMs,
+  };
 }
 
 export interface FplPlayerLookup {
@@ -627,6 +708,7 @@ export function generateStoriesFromPulseMatch(
 
   let runningHomeGoals = 0;
   let runningAwayGoals = 0;
+  const pulseClockCtx = extractPulseClockContext(pulseData);
   const textEventsRaw: any[] = Array.isArray(pulseData.textstreamEvents) ? pulseData.textstreamEvents : [];
   const textstreamOwnGoals = textEventsRaw.filter(
     (tv: any) => String(tv?.type?.text || tv?.type || '').toLowerCase() === 'own goal'
@@ -636,6 +718,7 @@ export function generateStoriesFromPulseMatch(
   const emittedOgRecords: Array<{ secs: number; nameNorm: string }> = [];
   const emittedPenSavedSecs: number[] = [];
   const emittedPenMissedSecs: number[] = [];
+  let runningTrackedPeriod: MatchPeriod = '1H';
 
   for (let idx = 0; idx < events.length; idx++) {
     const ev = events[idx];
@@ -648,6 +731,35 @@ export function generateStoriesFromPulseMatch(
         : baseMin > 0
           ? baseMin * 60
           : 0;
+
+    const rawEvPhase = String(ev.phase || '').trim().toUpperCase();
+    let evPeriod: MatchPeriod;
+    if (ev.type === 'PE' && (rawEvPhase === '1' || rawEvPhase === '1H')) {
+      evPeriod = 'HT';
+      runningTrackedPeriod = 'HT';
+    } else if (ev.type === 'PS' && (rawEvPhase === '2' || rawEvPhase === '2H')) {
+      evPeriod = '2H';
+      runningTrackedPeriod = '2H';
+    } else if (ev.type === 'PE' && (rawEvPhase === '2' || rawEvPhase === '2H')) {
+      evPeriod = 'FT';
+      runningTrackedPeriod = 'FT';
+    } else if (rawEvPhase) {
+      evPeriod = normalizeMatchPeriod(rawEvPhase, {
+        clockLabel: minuteStr,
+        clockSecs: evClockSecs,
+      });
+      if (evPeriod === '2H') runningTrackedPeriod = '2H';
+    } else {
+      evPeriod =
+        runningTrackedPeriod === '2H'
+          ? '2H'
+          : normalizeMatchPeriod(undefined, {
+              clockLabel: minuteStr,
+              clockSecs: evClockSecs,
+            });
+    }
+    const evContinuousSecs = computeContinuousMatchSecs(evPeriod, evClockSecs, 0, pulseClockCtx);
+
     const homeScore = ev.score?.homeScore ?? pulseData.teams?.[0]?.score ?? 0;
     const awayScore = ev.score?.awayScore ?? pulseData.teams?.[1]?.score ?? 0;
 
@@ -685,6 +797,10 @@ export function generateStoriesFromPulseMatch(
       clockSecs,
       cycle_meta: {
         matchKey,
+        period: evPeriod,
+        continuousClockSecs: evContinuousSecs,
+        firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+        htDurationSecs: pulseClockCtx.htDurationSecs,
         ...(extraMeta || {}),
       },
     });
@@ -835,13 +951,17 @@ export function generateStoriesFromPulseMatch(
       const isPenalty = ev.type === 'P' || ev.description === 'PG' || ev.subType === 'PENALTY_GOAL';
       const candidateScorer = !isPenalty ? resolvePlayer(ev.personId) : null;
       const scorerNorm = candidateScorer?.name ? normalizeDiacritics(candidateScorer.name) : '';
-      const evSecs = Number(ev.clock?.secs ?? 0);
+      const evSecs = evContinuousSecs;
       const matchedTsOg =
         !isPenalty &&
         scorerNorm.length >= 3 &&
         textstreamOwnGoals.some((ts: any) => {
-          const tsSecs = Number(ts.time?.secs ?? 0);
-          return Math.abs(tsSecs - evSecs) <= 120 && normalizeDiacritics(String(ts.text || '')).includes(scorerNorm);
+          const tsRawSecs = Number(ts.time?.secs ?? 0);
+          const tsLabelInfo = parseClockLabelInfo(ts.time?.label);
+          const tsMatchesApproxClock =
+            Math.abs(tsRawSecs - evClockSecs) <= 120 ||
+            Math.abs((tsLabelInfo?.secs || tsRawSecs) - evClockSecs) <= 120;
+          return tsMatchesApproxClock && normalizeDiacritics(String(ts.text || '')).includes(scorerNorm);
         });
       const isOwnGoal =
         ev.type === 'O' ||
@@ -928,7 +1048,7 @@ export function generateStoriesFromPulseMatch(
         const existingScorer = allScorersList.find((s) => s.name === scorer.name);
         if (existingScorer) existingScorer.ogCount++;
         else if (scorer.name) allScorersList.push({ name: scorer.name, pct: scorer.pct, count: 0, ogCount: 1 });
-        emittedOgRecords.push({ secs: evClockSecs, nameNorm: normalizeDiacritics(scorer.name) });
+        emittedOgRecords.push({ secs: evContinuousSecs, nameNorm: normalizeDiacritics(scorer.name) });
 
         if (tmpl) {
           const vars = {
@@ -1138,7 +1258,7 @@ export function generateStoriesFromPulseMatch(
       addDeltaPts(keeper.fpl?.id, 5);
       addDeltaPts(taker.fpl?.id, -2);
       emitPopularCaptainAction(taker, 'Penalti Gagal', 'cap_pen_miss');
-      emittedPenSavedSecs.push(Number(ev.clock?.secs ?? 0));
+      emittedPenSavedSecs.push(evContinuousSecs);
 
       if (tmpl) {
         // In real Pulse API, SP event's personId is the penalty taker; find opposing GK from teamLists if keeperId absent
@@ -1168,7 +1288,7 @@ export function generateStoriesFromPulseMatch(
       const taker = resolvePlayer(ev.personId || ev.takerId);
       addDeltaPts(taker.fpl?.id, -2);
       emitPopularCaptainAction(taker, 'Penalti Gagal', 'cap_pen_miss');
-      emittedPenMissedSecs.push(evClockSecs);
+      emittedPenMissedSecs.push(evContinuousSecs);
       if (tmpl) {
         const clubName = taker.club || eventTeamName;
         const vars = {
@@ -1606,12 +1726,76 @@ export function generateStoriesFromPulseMatch(
       return { name: rawName, pct: 0, club: rawClub, fpl: null };
     };
 
-    // Sort chronologically so paired entries deduplicate cleanly
-    const sortedTextEvents = [...textEvents].sort(
-      (a, b) => (a.time?.secs ?? 0) - (b.time?.secs ?? 0)
+    // Assign half/period to each textstream event in natural chronological feed order BEFORE sorting,
+    // so 2H minute 46' (secs: 2700) NEVER sorts earlier than 1H stoppage 45+4' (secs: 2924).
+    const firstTvSecs = Number(textEvents[0]?.time?.secs ?? 0);
+    const lastTvSecs = Number(textEvents[textEvents.length - 1]?.time?.secs ?? 0);
+    const looksReversed = textEvents.length > 2 && firstTvSecs > lastTvSecs + 600;
+    const orderedSourceIndices = looksReversed
+      ? textEvents.map((_, i) => textEvents.length - 1 - i)
+      : textEvents.map((_, i) => i);
+
+    let trackedTextPeriod: MatchPeriod = '1H';
+    const textEntriesWithPeriod: Array<{
+      tv: any;
+      period: MatchPeriod;
+      rawSecs: number;
+      continuousSecs: number;
+      seqIdx: number;
+    }> = [];
+
+    for (let step = 0; step < orderedSourceIndices.length; step++) {
+      const origIdx = orderedSourceIndices[step];
+      const tv = textEvents[origIdx];
+      const tvTypeLower = String(tv?.type?.text || tv?.type || '').trim().toLowerCase();
+      const tvText = String(tv?.text || '');
+      const rawSecs = Number(tv?.time?.secs ?? 0);
+      const parsedLabel = parseClockLabelInfo(tv?.time?.label);
+
+      if (tvTypeLower === 'start' && /First Half/i.test(tvText)) {
+        trackedTextPeriod = '1H';
+      } else if (tvTypeLower === 'start' && /Second Half/i.test(tvText)) {
+        trackedTextPeriod = '2H';
+      } else if (
+        trackedTextPeriod === '1H' &&
+        !parsedLabel?.isPlus45 &&
+        /Substitution.*Half/i.test(tvText)
+      ) {
+        trackedTextPeriod = '2H';
+      } else if (trackedTextPeriod === '1H' && rawSecs === 2700 && parsedLabel?.baseMin === 46 && !parsedLabel?.isPlus45) {
+        // Explicit 46' at secs=2700 signals start of 2H (e.g. halftime sub just before 'Second Half begins')
+        trackedTextPeriod = '2H';
+      }
+
+      const tvPeriod: MatchPeriod =
+        parsedLabel?.isPlus45
+          ? '1H'
+          : trackedTextPeriod === '2H' || (parsedLabel && parsedLabel.baseMin > 46)
+            ? '2H'
+            : '1H';
+
+      const continuousSecs = computeContinuousMatchSecs(tvPeriod, rawSecs, 0, pulseClockCtx);
+      textEntriesWithPeriod.push({
+        tv,
+        period: tvPeriod,
+        rawSecs,
+        continuousSecs,
+        seqIdx: step,
+      });
+
+      if (tvTypeLower === 'end 1' || /First Half ends/i.test(tvText)) {
+        trackedTextPeriod = '2H';
+      }
+    }
+
+    textEntriesWithPeriod.sort(
+      (a, b) =>
+        periodSortRank(a.period) - periodSortRank(b.period) ||
+        a.rawSecs - b.rawSecs ||
+        a.seqIdx - b.seqIdx
     );
 
-    const getScoreForVar = (targetSecs: number, condName: string, txt: string): { h: number; a: number } => {
+    const getScoreForVar = (targetContinuousSecs: number, condName: string, txt: string): { h: number; a: number } => {
       // 1. Prefer explicit score in Pulse textstream (e.g. "VAR Decision: Goal Home 2-1 Away" or "Goal! Home 2, Away 1.")
       const dashMatch = /\b(?:No Goal|Goal)\s+.+?\s+(\d+)\s*-\s*(\d+)(?:\s|$|\.)/i.exec(txt);
       if (dashMatch) {
@@ -1622,14 +1806,13 @@ export function generateStoriesFromPulseMatch(
         return { h: Number(commaScoreMatch[1]), a: Number(commaScoreMatch[2]) };
       }
 
-      // 2. Look at nearby textstream goal/VAR scorelines up to windowSecs
-      const windowSecs = condName === 'Gol Dinyatakan Sah' ? targetSecs + 120 : targetSecs;
+      // 2. Look at nearby textstream goal/VAR scorelines up to windowSecs (in continuous match timeline)
+      const windowSecs = condName === 'Gol Dinyatakan Sah' ? targetContinuousSecs + 120 : targetContinuousSecs;
       let tsH: number | null = null;
       let tsA: number | null = null;
-      for (const tvItem of sortedTextEvents) {
-        const s = Number(tvItem?.time?.secs ?? 0);
-        if (s > windowSecs) break;
-        const itemTxt = String(tvItem?.text || '');
+      for (const entry of textEntriesWithPeriod) {
+        if (entry.continuousSecs > windowSecs) break;
+        const itemTxt = String(entry.tv?.text || '');
         const dm = /\b(?:No Goal|Goal)\s+.+?\s+(\d+)\s*-\s*(\d+)(?:\s|$|\.)/i.exec(itemTxt);
         if (dm) {
           tsH = Number(dm[1]);
@@ -1646,12 +1829,36 @@ export function generateStoriesFromPulseMatch(
       // 3. Fallback to Pulse events[] score OR count goal events chronologically when ev.score is absent (cached SDP files)
       let h = 0;
       let a = 0;
-      const sortedEvents = [...events].sort(
-        (evA, evB) => (Number(evA?.clock?.secs) || 0) - (Number(evB?.clock?.secs) || 0)
-      );
-      for (const ev of sortedEvents) {
-        const evSecs = Number(ev?.clock?.secs ?? 0);
-        if (evSecs > windowSecs) continue;
+      let evWalkPeriod: MatchPeriod = '1H';
+      const eventsWithCont = events.map((ev: any, evIdx: number) => {
+        const ph = String(ev?.phase || '').trim().toUpperCase();
+        const clkSecs = Number(ev?.clock?.secs ?? 0);
+        let per: MatchPeriod = evWalkPeriod;
+        if (ev?.type === 'PE' && (ph === '1' || ph === '1H')) {
+          per = 'HT';
+          evWalkPeriod = 'HT';
+        } else if (ev?.type === 'PS' && (ph === '2' || ph === '2H')) {
+          per = '2H';
+          evWalkPeriod = '2H';
+        } else if (ph === '2' || ph === '2H') {
+          per = '2H';
+          evWalkPeriod = '2H';
+        } else if (ph === '1' || ph === '1H') {
+          per = '1H';
+        } else if (evWalkPeriod === '1H' && clkSecs > 2700 && !parseClockLabelInfo(ev?.clock?.label)?.isPlus45) {
+          per = '2H';
+        }
+        return {
+          ev,
+          evIdx,
+          period: per,
+          contSecs: computeContinuousMatchSecs(per, clkSecs, 0, pulseClockCtx),
+        };
+      });
+      eventsWithCont.sort((evA, evB) => evA.contSecs - evB.contSecs || evA.evIdx - evB.evIdx);
+
+      for (const { ev, contSecs } of eventsWithCont) {
+        if (contSecs > windowSecs) continue;
         if (ev.score && (ev.score.homeScore !== undefined || ev.score.awayScore !== undefined)) {
           h = Number(ev.score.homeScore ?? h);
           a = Number(ev.score.awayScore ?? a);
@@ -1686,12 +1893,16 @@ export function generateStoriesFromPulseMatch(
     let emittedTsHalf2Start = false;
     let lastVarHint: { cond: string; secs: number; club: string; player: { name: string; pct: number; club: string; fpl: FplPlayerLookup | null } } | null = null;
 
-    for (let tIdx = 0; tIdx < sortedTextEvents.length; tIdx++) {
-      const tv = sortedTextEvents[tIdx];
+    for (let tIdx = 0; tIdx < textEntriesWithPeriod.length; tIdx++) {
+      const entry = textEntriesWithPeriod[tIdx];
+      const tv = entry.tv;
+      const tvPeriod = entry.period;
+      const tvRawSecs = entry.rawSecs;
+      const tvContSecs = entry.continuousSecs;
       const tvType = String(tv.type?.text || tv.type || '');
       const tvTypeLower = tvType.trim().toLowerCase();
       const tvText = String(tv.text || '');
-      const tvSecs = Number(tv.time?.secs ?? 0);
+      const tvSecs = tvContSecs;
       const minuteStr = formatTextstreamMinute(tv.time?.label);
       const primaryPid = Array.isArray(tv.playerIds) && tv.playerIds.length > 0 ? Number(tv.playerIds[0]) : undefined;
       let resolvedPlayer = resolvePlayer(primaryPid);
@@ -1737,8 +1948,15 @@ export function generateStoriesFromPulseMatch(
             timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
-            clockSecs: tvSecs,
-            cycle_meta: { matchKey, isSecondHalf: false },
+            clockSecs: tvRawSecs,
+            cycle_meta: {
+              matchKey,
+              isSecondHalf: false,
+              period: '1H',
+              continuousClockSecs: computeContinuousMatchSecs('1H', tvRawSecs, 0, pulseClockCtx),
+              firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+              htDurationSecs: pulseClockCtx.htDurationSecs,
+            },
           });
         }
         continue;
@@ -1749,7 +1967,8 @@ export function generateStoriesFromPulseMatch(
         const tmplPs = tmplMap.get('LM_MATCH_PERIOD_START');
         if (tmplPs) {
           emittedTsHalf2Start = true;
-          const { h: ps2H, a: ps2A } = getScoreForVar(tvSecs || 2700, 'Kickoff Babak 2', tvText);
+          const ps2ContSecs = computeContinuousMatchSecs('2H', tvRawSecs || 2700, 0, pulseClockCtx);
+          const { h: ps2H, a: ps2A } = getScoreForVar(ps2ContSecs, 'Kickoff Babak 2', tvText);
           const text = resolveConditionalBlock(tmplPs.template, 'Kickoff Babak 2', {
             minute: "45'",
             gw,
@@ -1776,8 +1995,15 @@ export function generateStoriesFromPulseMatch(
             timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: "45'",
-            clockSecs: tvSecs || 2700,
-            cycle_meta: { matchKey, isSecondHalf: true },
+            clockSecs: tvRawSecs || 2700,
+            cycle_meta: {
+              matchKey,
+              isSecondHalf: true,
+              period: '2H',
+              continuousClockSecs: ps2ContSecs,
+              firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+              htDurationSecs: pulseClockCtx.htDurationSecs,
+            },
           });
         }
         continue;
@@ -1823,8 +2049,14 @@ export function generateStoriesFromPulseMatch(
             timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
-            clockSecs: tvSecs,
-            cycle_meta: { matchKey },
+            clockSecs: tvRawSecs,
+            cycle_meta: {
+              matchKey,
+              period: tvPeriod,
+              continuousClockSecs: tvContSecs,
+              firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+              htDurationSecs: pulseClockCtx.htDurationSecs,
+            },
           });
         }
         // Do NOT skip Step 2 if this own goal commentary also states a VAR review confirmation
@@ -1863,8 +2095,14 @@ export function generateStoriesFromPulseMatch(
             timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
-            clockSecs: tvSecs,
-            cycle_meta: { matchKey },
+            clockSecs: tvRawSecs,
+            cycle_meta: {
+              matchKey,
+              period: tvPeriod,
+              continuousClockSecs: tvContSecs,
+              firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+              htDurationSecs: pulseClockCtx.htDurationSecs,
+            },
           });
         }
         continue;
@@ -1903,8 +2141,14 @@ export function generateStoriesFromPulseMatch(
             timestamp_produksi: nowIso,
             pulseMatchId: matchId,
             minute: minuteStr,
-            clockSecs: tvSecs,
-            cycle_meta: { matchKey },
+            clockSecs: tvRawSecs,
+            cycle_meta: {
+              matchKey,
+              period: tvPeriod,
+              continuousClockSecs: tvContSecs,
+              firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+              htDurationSecs: pulseClockCtx.htDurationSecs,
+            },
           });
         }
         continue;
@@ -1947,8 +2191,15 @@ export function generateStoriesFromPulseMatch(
               timestamp_produksi: nowIso,
               pulseMatchId: matchId,
               minute: minuteStr,
-              clockSecs: tvSecs,
-              cycle_meta: { matchKey, isPenaltyCancelled: false },
+              clockSecs: tvRawSecs,
+              cycle_meta: {
+                matchKey,
+                isPenaltyCancelled: false,
+                period: tvPeriod,
+                continuousClockSecs: tvContSecs,
+                firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+                htDurationSecs: pulseClockCtx.htDurationSecs,
+              },
             });
           }
         }
@@ -2062,9 +2313,9 @@ export function generateStoriesFromPulseMatch(
       else if (/offside/i.test(tvText)) reason = 'offside';
 
       if (!reason && cond === 'Gol Dibatalkan') {
-        for (const adj of sortedTextEvents) {
-          const adjSecs = Number(adj?.time?.secs ?? 0);
-          if (Math.abs(adjSecs - tvSecs) > 90) continue;
+        for (const adjEntry of textEntriesWithPeriod) {
+          if (Math.abs(adjEntry.continuousSecs - tvContSecs) > 90) continue;
+          const adj = adjEntry.tv;
           const adjType = String(adj?.type?.text || adj?.type || '').toLowerCase();
           const adjTxt = String(adj?.text || '');
           if (/handball/i.test(adjTxt)) {
@@ -2123,8 +2374,14 @@ export function generateStoriesFromPulseMatch(
         timestamp_produksi: nowIso,
         pulseMatchId: matchId,
         minute: minuteStr,
-        clockSecs: tvSecs,
-        cycle_meta: { matchKey },
+        clockSecs: tvRawSecs,
+        cycle_meta: {
+          matchKey,
+          period: tvPeriod,
+          continuousClockSecs: tvContSecs,
+          firstHalfEndSecs: pulseClockCtx.firstHalfEndSecs,
+          htDurationSecs: pulseClockCtx.htDurationSecs,
+        },
       });
     }
   }
@@ -2157,7 +2414,8 @@ export function generateLiveMatchStatStories(
   const nowIso = new Date().toISOString();
 
   for (const m of matches) {
-    const isEligibleMatch = m.started && (includeFinished || (!m.finished && !m.finished_provisional));
+    const isFinished = isMatchCardFinished(m);
+    const isEligibleMatch = m.started && (includeFinished || !isFinished);
     if (!isEligibleMatch) continue;
 
     const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
@@ -2165,7 +2423,7 @@ export function generateLiveMatchStatStories(
     if (!homeClub || !awayClub) continue;
     const matchKey = buildMatchKey(homeClub, awayClub);
     const minuteStr = m.clock_label || (m.minutes ? `${m.minutes}'` : 'Live');
-    const clockSecs = (m.minutes || 0) * 60;
+    const { period: cardPeriod, clockSecs } = resolveCardPeriodAndClockSecs(m);
 
     const processTeamPlayers = (players: MatchPlayerItem[], clubName: string, opponentName: string) => {
       const seenIds = new Set<number>();
@@ -2216,6 +2474,8 @@ export function generateLiveMatchStatStories(
               clockSecs,
               cycle_meta: {
                 matchKey,
+                period: cardPeriod,
+                detectedPeriod: cardPeriod,
                 detectedClockSecs: clockSecs,
                 maxOwnerPct: playerPct,
               },
@@ -2260,6 +2520,8 @@ export function generateLiveMatchStatStories(
               clockSecs,
               cycle_meta: {
                 matchKey,
+                period: cardPeriod,
+                detectedPeriod: cardPeriod,
                 detectedClockSecs: clockSecs,
                 maxOwnerPct: playerPct,
               },
@@ -2419,7 +2681,7 @@ export function generateLiveMatchScoreStories(
   const stories: LiveMatchStory[] = [];
 
   for (const m of matches) {
-    const isEligible = m.started && (includeFinished || (!m.finished && !m.finished_provisional));
+    const isEligible = m.started && (includeFinished || !isMatchCardFinished(m));
     if (!isEligible) continue;
 
     const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
@@ -2429,11 +2691,8 @@ export function generateLiveMatchScoreStories(
     const awayScore = m.team_a_score ?? 0;
     const totalGoals = homeScore + awayScore;
     const minuteStr = m.clock_label || (m.minutes ? `${m.minutes}'` : 'Live');
-    const isHT = Boolean(
-      m.is_half_time ||
-        minuteStr.toLowerCase().includes('half') ||
-        minuteStr.toLowerCase() === 'ht'
-    );
+    const { period: cardPeriod, clockSecs: cardClockSecs } = resolveCardPeriodAndClockSecs(m);
+    const isHT = cardPeriod === 'HT';
 
     const allPlayers = [
       ...(m.home_lineup || []),
@@ -2532,9 +2791,11 @@ export function generateLiveMatchScoreStories(
       timestamp_produksi: nowIso,
       pulseMatchId: m.id,
       minute: minuteStr,
-      clockSecs: (m.minutes || 0) * 60,
+      clockSecs: cardClockSecs,
       cycle_meta: {
         matchKey: buildMatchKey(homeClub, awayClub),
+        period: cardPeriod,
+        isSecondHalf: cardPeriod === '2H',
         hasGoals: totalGoals > 0,
         isHalfTime: isHT,
         scoreSig: `${homeScore}-${awayScore}-${isHT ? 'HT' : 'L'}`,
@@ -2747,17 +3008,17 @@ export function generateLiveLineupSurpriseStories(
     const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
     if (!homeClub || !awayClub) continue;
     const matchKey = buildMatchKey(homeClub, awayClub);
-    if (m.started || m.finished || m.finished_provisional) {
+    const isCardFt = isMatchCardFinished(m);
+    if (m.started || isCardFt) {
       startedOrFinishedMatchKeys.add(matchKey);
     }
 
-    const isEligible =
-      includeFinished || (!m.finished && !m.finished_provisional && m.phase !== 'FT');
+    const isEligible = includeFinished || !isCardFt;
     if (!isEligible || !m.has_lineup) continue;
     if ((m.home_lineup?.length || 0) < 10 || (m.away_lineup?.length || 0) < 10) continue;
 
     coveredMatchKeys.add(matchKey);
-    const isUpcomingMatch = !m.started && !m.finished && !m.finished_provisional;
+    const isUpcomingMatch = !m.started && !isCardFt;
     const kickoffMs = m.kickoff_time ? new Date(m.kickoff_time).getTime() : 0;
     const kickoffTimeMs = Number.isFinite(kickoffMs) && kickoffMs > 0 ? kickoffMs : 0;
 

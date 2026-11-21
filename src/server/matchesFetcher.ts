@@ -486,17 +486,48 @@ export async function fetchSdpNormalizedMatch(
       }
     }
 
+    const maxFirstHalfSecs = Math.max(
+      2700,
+      ...rawEvents
+        .filter((e) => e.phase === '1')
+        .map((e) => Number(e.clock?.secs) || 0)
+    );
+    const firstHalfEndLabel =
+      maxFirstHalfSecs > 2700
+        ? `45+${Math.max(1, Math.round((maxFirstHalfSecs - 2700) / 60))}'`
+        : "45'";
+
     if (isFirstHalf || isHt || isSecondHalf || isFt) {
       rawEvents.push({ type: 'PS', phase: '1', clock: { secs: 0, label: "1'" }, _order: 0 });
     }
     if (isHt || isSecondHalf || isFt) {
-      rawEvents.push({ type: 'PE', phase: '1', clock: { secs: 2700, label: "45'" }, _order: 3 });
+      rawEvents.push({
+        type: 'PE',
+        phase: '1',
+        clock: { secs: maxFirstHalfSecs, label: firstHalfEndLabel },
+        _order: 99,
+      });
     }
     if (isSecondHalf || isFt) {
-      rawEvents.push({ type: 'PS', phase: '2', clock: { secs: 2700, label: "45'" }, _order: 4 });
+      rawEvents.push({ type: 'PS', phase: '2', clock: { secs: 2700, label: "45'" }, _order: 0 });
     }
     if (isFt) {
-      rawEvents.push({ type: 'PE', phase: '2', clock: { secs: 5400, label: "90'" }, _order: 5 });
+      const maxSecondHalfSecs = Math.max(
+        5400,
+        ...rawEvents
+          .filter((e) => e.phase === '2')
+          .map((e) => Number(e.clock?.secs) || 0)
+      );
+      const secondHalfEndLabel =
+        maxSecondHalfSecs > 5400
+          ? `90+${Math.max(1, Math.round((maxSecondHalfSecs - 5400) / 60))}'`
+          : "90'";
+      rawEvents.push({
+        type: 'PE',
+        phase: '2',
+        clock: { secs: maxSecondHalfSecs, label: secondHalfEndLabel },
+        _order: 99,
+      });
     }
 
     const phaseSortRank = (ph?: string): number => {
@@ -1042,7 +1073,7 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
       ? 'HT'
       : !fix.started
       ? 'UPCOMING'
-      : (hasSecondHalfStart || fix.minutes > 45 || pulseMatchData?.phase === '2' || pulseMatchData?.phase === '2H')
+      : (hasSecondHalfStart || pulseMatchData?.phase === '2' || pulseMatchData?.phase === '2H' || (!isFirstHalfActive && fix.minutes > 45))
       ? '2H'
       : '1H';
 

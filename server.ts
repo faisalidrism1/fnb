@@ -38,7 +38,8 @@ import {
   getNewsTickerLastBuiltAt,
   getNewsTickerBuiltState,
   checkLiveBetweenMatchPhase,
-  ensureLiveMatchesAndCheckPhase
+  ensureLiveMatchesAndCheckPhase,
+  isLiveStatRowForFinishedMatch
 } from './src/server/newsTickerTableService.ts';
 import {
   syncPulseMatchesForActiveGw,
@@ -1407,6 +1408,9 @@ app.get('/api/news-ticker/feed', async (req, res) => {
         (preKickoffWindowActive && Date.now() - getNewsTickerLastBuiltAt() >= 30000));
 
     let containerRows = getNewsTickerTable();
+    const hasFinishedStatRowsStillActive =
+      isPhaseActive('Live Match', currentPhase) &&
+      containerRows.some((r) => r.status_tayang === 'Y' && isLiveStatRowForFinishedMatch(r, currentGw));
     if (
       force ||
       phase ||
@@ -1415,6 +1419,7 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       liveNeedsRefresh ||
       bmNeedsRefresh ||
       nsNeedsRefresh ||
+      hasFinishedStatRowsStillActive ||
       containerRows.length === 0 ||
       containerRows.some(
         (r) =>
@@ -1434,6 +1439,7 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       if (r.sumber !== 'Sys' || !isEditorTemplateId(r.id)) return false;
       if (!r.gw || Number(r.gw) !== currentGw) return false;
       if (!r.fase || r.fase.trim() === '' || r.fase === '-') return false;
+      if (isPhaseActive('Live Match', currentPhase) && isLiveStatRowForFinishedMatch(r, currentGw)) return false;
       return isPhaseActive(r.fase, currentPhase);
     });
 
