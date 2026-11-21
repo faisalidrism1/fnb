@@ -182,27 +182,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 }) => {
   const { t, language } = useLanguage();
   const userProfileId = useUserProfileId();
-  // Sorted list of available gameweeks
-  const sortedGWs = useMemo(() => {
-    if (availableGWs && availableGWs.length > 0) {
-      return [...availableGWs].sort((a, b) => a - b);
-    }
-    const gwKeys = Object.keys(standings || {})
-      .map(Number)
-      .filter((n) => !isNaN(n));
-    return gwKeys.length > 0 ? gwKeys.sort((a, b) => a - b) : [initialGW];
-  }, [availableGWs, standings, initialGW]);
-
-  // Guard initialGW so any GW outside available_gws safely falls back within sortedGWs (preventing index -1)
-  const safeInitialGW = useMemo(() => {
-    if (sortedGWs.length === 0) return initialGW;
-    if (sortedGWs.includes(initialGW)) return initialGW;
-    if (currentGW && sortedGWs.includes(currentGW)) return currentGW;
-    const maxAvail = sortedGWs[sortedGWs.length - 1];
-    return initialGW > maxAvail ? maxAvail : sortedGWs[0];
-  }, [sortedGWs, initialGW, currentGW]);
-
-  const [activeGW, setActiveGW] = useState<number>(safeInitialGW);
+  const [activeGW, setActiveGW] = useState<number>(initialGW);
   const [activeMatchIndex, setActiveMatchIndex] = useState<number>(0);
   const pendingMatchTargetRef = useRef<{
     gw: number;
@@ -214,9 +194,30 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   const [ownerSortField, setOwnerSortField] = useState<OwnerSortField | null>(null);
   const [ownerSortDirection, setOwnerSortDirection] = useState<SortDirection>('asc');
 
+  // Sorted list of available gameweeks
+  const sortedGWs = useMemo(() => {
+    if (availableGWs && availableGWs.length > 0) {
+      return [...availableGWs].sort((a, b) => a - b);
+    }
+    const gwKeys = Object.keys(standings || {})
+      .map(Number)
+      .filter((n) => !isNaN(n));
+    return gwKeys.length > 0 ? gwKeys.sort((a, b) => a - b) : [initialGW];
+  }, [availableGWs, standings, initialGW]);
+
   const maxGW = sortedGWs[sortedGWs.length - 1] ?? activeGW;
   const effectiveCurrentGW = currentGW || maxGW;
   const activeGWIndex = sortedGWs.indexOf(activeGW);
+
+  const normalizeInitialGW = useCallback(
+    (gw: number) => {
+      if (sortedGWs.length === 0 || sortedGWs.includes(gw) || gw === effectiveCurrentGW) {
+        return gw;
+      }
+      return gw > maxGW ? maxGW : sortedGWs[0];
+    },
+    [sortedGWs, effectiveCurrentGW, maxGW]
+  );
 
   // Close dropdown on tab change or player change
   useEffect(() => {
@@ -224,7 +225,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   }, [playerId, activeTab]);
 
   // Synchronous cache lookup for instantaneous 0ms frame-0 render without 1-frame flash
-  const initialCacheKey = playerId ? `${playerId}_${safeInitialGW}` : '';
+  const initialCacheKey = playerId ? `${playerId}_${initialGW}` : '';
   const initialCached = initialCacheKey ? (playerSummaryClientCache.get(initialCacheKey) || playerSummaryClientCache.get(String(playerId)) || null) : null;
   const [summaryData, setSummaryData] = useState<PlayerSummaryDetail | null>(initialCached);
   const [loadingSummary, setLoadingSummary] = useState<boolean>(!initialCached);
@@ -256,12 +257,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     setPhotoError(false);
   }, [playerId, activeGW]);
 
-  // Sync safeInitialGW if changed from props
+  // Sync initialGW if changed from props
   useEffect(() => {
-    setActiveGW(safeInitialGW);
+    setActiveGW(normalizeInitialGW(initialGW));
     setActiveMatchIndex(0);
     pendingMatchTargetRef.current = null;
-  }, [safeInitialGW]);
+  }, [initialGW, normalizeInitialGW]);
 
   // Handle device back button to close modal cleanly without double-back or auto-close
   const onCloseRef = useRef(onClose);
@@ -474,10 +475,14 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   const safeMatchIndex =
     activeGWMatches.length > 0 ? Math.min(activeMatchIndex, activeGWMatches.length - 1) : 0;
 
-  const canGoPrev = safeMatchIndex > 0 || activeGWIndex > 0;
+  const canGoPrev =
+    safeMatchIndex > 0 ||
+    activeGWIndex > 0 ||
+    (activeGWIndex === -1 && sortedGWs.some((g) => g < activeGW));
   const canGoNext =
     (activeGWMatches.length > 1 && safeMatchIndex < activeGWMatches.length - 1) ||
-    (activeGWIndex < sortedGWs.length - 1 && activeGWIndex !== -1);
+    (activeGWIndex !== -1 && activeGWIndex < sortedGWs.length - 1) ||
+    (activeGWIndex === -1 && sortedGWs.some((g) => g > activeGW));
 
   const handlePrevGW = useCallback(() => {
     if (!canGoPrev) return;
@@ -486,15 +491,18 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
       setActiveMatchIndex(safeMatchIndex - 1);
       return;
     }
-    if (activeGWIndex > 0) {
-      const prevGw = sortedGWs[activeGWIndex - 1];
+    const prevGw =
+      activeGWIndex > 0
+        ? sortedGWs[activeGWIndex - 1]
+        : [...sortedGWs].reverse().find((g) => g < activeGW);
+    if (prevGw !== undefined) {
       const prevMatches = getMatchesForGW(prevGw);
       const targetIdx = prevMatches.length > 1 ? prevMatches.length - 1 : 0;
       pendingMatchTargetRef.current = { gw: prevGw, target: 'last' };
       setActiveMatchIndex(targetIdx);
       setActiveGW(prevGw);
     }
-  }, [canGoPrev, safeMatchIndex, activeGWIndex, sortedGWs, getMatchesForGW]);
+  }, [canGoPrev, safeMatchIndex, activeGWIndex, sortedGWs, activeGW, getMatchesForGW]);
 
   const handleNextGW = useCallback(() => {
     if (!canGoNext) return;
@@ -503,13 +511,16 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
       setActiveMatchIndex(safeMatchIndex + 1);
       return;
     }
-    if (activeGWIndex < sortedGWs.length - 1 && activeGWIndex !== -1) {
-      const nextGw = sortedGWs[activeGWIndex + 1];
+    const nextGw =
+      activeGWIndex !== -1 && activeGWIndex < sortedGWs.length - 1
+        ? sortedGWs[activeGWIndex + 1]
+        : sortedGWs.find((g) => g > activeGW);
+    if (nextGw !== undefined) {
       pendingMatchTargetRef.current = { gw: nextGw, target: 'first' };
       setActiveMatchIndex(0);
       setActiveGW(nextGw);
     }
-  }, [canGoNext, activeGWMatches.length, safeMatchIndex, activeGWIndex, sortedGWs]);
+  }, [canGoNext, activeGWMatches.length, safeMatchIndex, activeGWIndex, sortedGWs, activeGW]);
 
   // Keyboard navigation for desktop (ArrowLeft / ArrowRight)
   useEffect(() => {

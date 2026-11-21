@@ -220,6 +220,24 @@ export async function loadScoutSquadsFromIndexedDB<T = any>(): Promise<T | null>
 }
 
 /**
+ * Explicitly clears only stale projection & scout IndexedDB caches (used on formula version/rollback change)
+ */
+export async function clearProjectionCachesFromIndexedDB(): Promise<void> {
+  try {
+    const db = await openDB();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const req1 = store.delete(KEY_PROJECTIONS_CORE);
+      const req2 = store.delete(KEY_SCOUT_SQUADS);
+      req2.onsuccess = () => resolve();
+      req1.onerror = () => reject(req1.error);
+      req2.onerror = () => reject(req2.error);
+    });
+  } catch {}
+}
+
+/**
  * Explicitly clears the local IndexedDB and localStorage cache
  */
 export async function clearIndexedDBCache(): Promise<void> {

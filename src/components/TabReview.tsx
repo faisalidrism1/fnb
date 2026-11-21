@@ -102,6 +102,43 @@ export const TabReview: React.FC<TabReviewProps> = ({
     [sharedClubs]
   );
 
+  // Lookup player IDs by (webName, teamShort) for MAE drilldown cards
+  const playerLookupIndex = useMemo(() => {
+    const byNameTeam = new Map<string, number>();
+    const byName = new Map<string, number>();
+    for (const p of playerProjections || []) {
+      const keyName = (p.webName || '').trim().toLowerCase();
+      const keyTeam = (p.teamShort || '').trim().toUpperCase();
+      if (keyName) {
+        if (keyTeam) byNameTeam.set(`${keyName}|${keyTeam}`, p.id);
+        if (!byName.has(keyName)) byName.set(keyName, p.id);
+      }
+    }
+    for (const p of leagueData?.player_stats || []) {
+      const keyName = (p.webName || '').trim().toLowerCase();
+      const keyTeam = (p.teamShort || '').trim().toUpperCase();
+      if (keyName) {
+        if (keyTeam && !byNameTeam.has(`${keyName}|${keyTeam}`)) byNameTeam.set(`${keyName}|${keyTeam}`, p.id);
+        if (!byName.has(keyName)) byName.set(keyName, p.id);
+      }
+    }
+    return { byNameTeam, byName };
+  }, [playerProjections, leagueData?.player_stats]);
+
+  const resolveReviewPlayerId = useCallback(
+    (idCandidate: number | undefined, webName: string, teamShort?: string): number | null => {
+      if (typeof idCandidate === 'number' && idCandidate > 0) return idCandidate;
+      const keyName = (webName || '').trim().toLowerCase();
+      if (!keyName) return null;
+      if (teamShort) {
+        const byTeam = playerLookupIndex.byNameTeam.get(`${keyName}|${teamShort.trim().toUpperCase()}`);
+        if (byTeam) return byTeam;
+      }
+      return playerLookupIndex.byName.get(keyName) ?? null;
+    },
+    [playerLookupIndex]
+  );
+
   // User profile owned player IDs (for green row highlights & My Team filter)
   const ownedPlayerIds = useMemo(() => {
     const set = new Set<number>();
@@ -174,46 +211,6 @@ export const TabReview: React.FC<TabReviewProps> = ({
     return map;
   }, [clubs, leagueData]);
 
-  // Resolve player ID for MAE drawer entries (prefers explicit id, falls back to webName + teamShort lookup)
-  const reviewPlayerLookup = useMemo(() => {
-    const byNameTeam = new Map<string, number>();
-    const byName = new Map<string, number>();
-    if (playerProjections) {
-      for (const p of playerProjections) {
-        if (!p?.id || !p?.webName) continue;
-        const n = p.webName.trim().toLowerCase();
-        const t = (p.teamShort || '').trim().toUpperCase();
-        if (t) byNameTeam.set(`${n}__${t}`, p.id);
-        if (!byName.has(n)) byName.set(n, p.id);
-      }
-    }
-    if (leagueData?.player_stats) {
-      for (const p of leagueData.player_stats) {
-        if (!p?.id || !p?.webName) continue;
-        const n = p.webName.trim().toLowerCase();
-        const t = (p.teamShort || '').trim().toUpperCase();
-        if (t && !byNameTeam.has(`${n}__${t}`)) byNameTeam.set(`${n}__${t}`, p.id);
-        if (!byName.has(n)) byName.set(n, p.id);
-      }
-    }
-    return { byNameTeam, byName };
-  }, [playerProjections, leagueData?.player_stats]);
-
-  const resolveReviewPlayerId = useCallback(
-    (explicitId?: number, webName?: string, teamShort?: string): number | undefined => {
-      if (typeof explicitId === 'number' && explicitId > 0) return explicitId;
-      if (!webName) return undefined;
-      const n = webName.trim().toLowerCase();
-      const t = (teamShort || '').trim().toUpperCase();
-      if (t) {
-        const exact = reviewPlayerLookup.byNameTeam.get(`${n}__${t}`);
-        if (exact) return exact;
-      }
-      return reviewPlayerLookup.byName.get(n);
-    },
-    [reviewPlayerLookup]
-  );
-
   // Keep bounds in sync if maxReviewGW changes
   useEffect(() => {
     setScoreGwStart((prev) => Math.min(Math.max(prev, 1), maxReviewGW));
@@ -279,6 +276,14 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
   useEffect(() => {
     if (active === false || !leagueData) return;
+    if (
+      reviewBundle &&
+      reviewBundle.epochKey &&
+      reviewBundle.epochKey !== targetEpochKey &&
+      !targetEpochKey.startsWith('fallback:')
+    ) {
+      setReviewBundle(null);
+    }
     const reqGw = subTab === 'line-up' ? lineupReviewGW : maxReviewGW;
     const exactKey = `${targetEpochKey}:${reqGw}`;
     const exactCached = reviewCacheRef.current.get(exactKey);
@@ -295,7 +300,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
     setIsLoadingReview(true);
     let cancelled = false;
 
-    fetch(`/api/projections-review?gw=${reqGw}`)
+    fetch(`/api/projections-review?gw=${reqGw}&_t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         if (cancelled || !json?.success || !json.data) return;
@@ -2841,9 +2846,9 @@ export const TabReview: React.FC<TabReviewProps> = ({
                                             <span>
                                               <span className="font-semibold text-rose-500">{isIdLang ? 'Meleset: ' : 'Missed: '}</span>
                                               {c.missedStarters.map((m: any, mIdx: number) => {
-                                                const pid = resolveReviewPlayerId(m?.id, m?.name, c.club?.short);
+                                                const pid = resolveReviewPlayerId(m.id, m.name, c.club.short);
                                                 return (
-                                                  <React.Fragment key={`${m?.name || mIdx}-${mIdx}`}>
+                                                  <React.Fragment key={`${m.name}_${mIdx}`}>
                                                     {mIdx > 0 && ', '}
                                                     {pid && onSelectPlayer ? (
                                                       <button
@@ -2852,7 +2857,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
                                                           e.stopPropagation();
                                                           onSelectPlayer(pid, row.gw);
                                                         }}
-                                                        className="font-semibold text-slate-700 dark:text-slate-200 hover:text-[#37003c] dark:hover:text-[#00ff87] hover:underline cursor-pointer transition-colors"
+                                                        className="font-semibold text-slate-700 dark:text-slate-300 hover:text-[#37003c] dark:hover:text-[#00ff87] hover:underline cursor-pointer"
                                                       >
                                                         {m.name}
                                                       </button>
@@ -2895,29 +2900,32 @@ export const TabReview: React.FC<TabReviewProps> = ({
                                         </span>
                                         <div className="space-y-1">
                                           {row.topOverperformers.map((p: any, idx: number) => {
-                                            const pid = resolveReviewPlayerId(p?.id, p?.webName, p?.teamShort);
-                                            const canClick = Boolean(pid && onSelectPlayer);
+                                            const pid = resolveReviewPlayerId(p.id, p.webName, p.teamShort);
+                                            const clickable = Boolean(pid && onSelectPlayer);
                                             return (
-                                              <button
+                                              <div
                                                 key={idx}
-                                                type="button"
-                                                disabled={!canClick}
-                                                onClick={() => {
-                                                  if (pid && onSelectPlayer) onSelectPlayer(pid, row.gw);
-                                                }}
-                                                className={`w-full flex items-center justify-between text-left rounded px-1 -mx-1 py-0.5 text-slate-800 dark:text-slate-200 transition-colors ${
-                                                  canClick
-                                                    ? 'hover:bg-emerald-50 dark:hover:bg-emerald-500/10 cursor-pointer'
-                                                    : 'cursor-default'
+                                                onClick={
+                                                  clickable
+                                                    ? (e) => {
+                                                        e.stopPropagation();
+                                                        onSelectPlayer?.(pid!, row.gw);
+                                                      }
+                                                    : undefined
+                                                }
+                                                className={`flex items-center justify-between text-slate-800 dark:text-slate-200 ${
+                                                  clickable
+                                                    ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-white/10 rounded px-1 -mx-1 py-0.5 transition-colors'
+                                                    : ''
                                                 }`}
                                               >
-                                                <span className="font-semibold truncate max-w-[160px] hover:underline">
+                                                <span className="font-semibold truncate max-w-[160px]">
                                                   {p.webName} <span className="text-[10px] text-slate-400">({p.teamShort})</span>
                                                 </span>
                                                 <span className="tabular-nums font-bold text-emerald-600 dark:text-emerald-400">
                                                   +{p.diff} <span className="text-[10px] text-slate-400 font-normal">(P {p.xp} → {p.realPts})</span>
                                                 </span>
-                                              </button>
+                                              </div>
                                             );
                                           })}
                                         </div>
@@ -2929,29 +2937,32 @@ export const TabReview: React.FC<TabReviewProps> = ({
                                         </span>
                                         <div className="space-y-1">
                                           {row.topUnderperformers.map((p: any, idx: number) => {
-                                            const pid = resolveReviewPlayerId(p?.id, p?.webName, p?.teamShort);
-                                            const canClick = Boolean(pid && onSelectPlayer);
+                                            const pid = resolveReviewPlayerId(p.id, p.webName, p.teamShort);
+                                            const clickable = Boolean(pid && onSelectPlayer);
                                             return (
-                                              <button
+                                              <div
                                                 key={idx}
-                                                type="button"
-                                                disabled={!canClick}
-                                                onClick={() => {
-                                                  if (pid && onSelectPlayer) onSelectPlayer(pid, row.gw);
-                                                }}
-                                                className={`w-full flex items-center justify-between text-left rounded px-1 -mx-1 py-0.5 text-slate-800 dark:text-slate-200 transition-colors ${
-                                                  canClick
-                                                    ? 'hover:bg-rose-50 dark:hover:bg-rose-500/10 cursor-pointer'
-                                                    : 'cursor-default'
+                                                onClick={
+                                                  clickable
+                                                    ? (e) => {
+                                                        e.stopPropagation();
+                                                        onSelectPlayer?.(pid!, row.gw);
+                                                      }
+                                                    : undefined
+                                                }
+                                                className={`flex items-center justify-between text-slate-800 dark:text-slate-200 ${
+                                                  clickable
+                                                    ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-white/10 rounded px-1 -mx-1 py-0.5 transition-colors'
+                                                    : ''
                                                 }`}
                                               >
-                                                <span className="font-semibold truncate max-w-[160px] hover:underline">
+                                                <span className="font-semibold truncate max-w-[160px]">
                                                   {p.webName} <span className="text-[10px] text-slate-400">({p.teamShort})</span>
                                                 </span>
                                                 <span className="tabular-nums font-bold text-rose-600 dark:text-rose-400">
                                                   {p.diff} <span className="text-[10px] text-slate-400 font-normal">(P {p.xp} → {p.realPts})</span>
                                                 </span>
-                                              </button>
+                                              </div>
                                             );
                                           })}
                                         </div>

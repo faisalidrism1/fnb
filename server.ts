@@ -367,10 +367,21 @@ const sseClients = new Set<express.Response>();
 
 function broadcastSyncComplete(freshData: TransformedLeagueData, action: string) {
   if (sseClients.size === 0) return;
+  const projectionEpochKey = computeProjectionEpochInfo(cachedData || freshData).epochKey;
+  const enrichedData = freshData?.sync_status
+    ? {
+        ...freshData,
+        sync_status: {
+          ...freshData.sync_status,
+          projection_epoch_key: projectionEpochKey,
+        },
+      }
+    : freshData;
   const payload = JSON.stringify({
     type: 'SYNC_COMPLETE',
     action,
-    data: freshData,
+    data: enrichedData,
+    projection_epoch_key: projectionEpochKey,
     last_synced: freshData.sync_status?.last_synced,
     checked_at: new Date().toISOString()
   });
@@ -462,6 +473,7 @@ app.get('/api/fpl-data', async (req, res) => {
     const nowIso = new Date().toISOString();
     if (cachedData && cachedData.sync_status) {
       cachedData.sync_status.last_checked = nowIso;
+      cachedData.sync_status.projection_epoch_key = computeProjectionEpochInfo(cachedData).epochKey;
     }
 
     res.set({
@@ -1043,6 +1055,11 @@ app.get('/api/projections-core', async (req, res) => {
       invalidateProjectionEngine('manual force');
     }
     const payload = await getServerProjectionCore(cachedData, force);
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
     res.json({ success: true, data: payload });
   } catch (err: any) {
     console.error('Error in /api/projections-core:', err);
@@ -1058,6 +1075,11 @@ app.get('/api/projections-review', async (req, res) => {
     const force = req.query.force === '1' || req.query.sync === '1';
     const gwParam = req.query.gw ? Number(req.query.gw) : undefined;
     const payload = await getServerReviewBundle(cachedData, gwParam, force);
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
     res.json({ success: true, data: payload });
   } catch (err: any) {
     console.error('Error in /api/projections-review:', err);
@@ -1072,6 +1094,11 @@ app.get('/api/projections-scout-squads', async (req, res) => {
     }
     const force = req.query.force === '1' || req.query.sync === '1';
     const payload = await getServerScoutSquads(cachedData, force);
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
     res.json({ success: true, data: payload });
   } catch (err: any) {
     console.error('Error in /api/projections-scout-squads:', err);
@@ -1157,6 +1184,7 @@ app.get('/api/events', (req, res) => {
   res.write(`event: connected\ndata: ${JSON.stringify({
     type: 'CONNECTED',
     sync_status: cachedData?.sync_status || null,
+    projection_epoch_key: cachedData ? computeProjectionEpochInfo(cachedData).epochKey : null,
     last_synced: cachedData?.sync_status?.last_synced || null,
     checked_at: new Date().toISOString()
   })}\n\n`);

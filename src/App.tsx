@@ -399,6 +399,18 @@ export default function App() {
       try {
         eventSource = new EventSource('/api/events');
 
+        eventSource.addEventListener('connected', (event: MessageEvent) => {
+          try {
+            const payload = JSON.parse(event.data);
+            const serverEpochKey = payload?.projection_epoch_key;
+            const currentEpochKey = dataRef.current?.sync_status?.projection_epoch_key;
+            if (serverEpochKey && dataRef.current && serverEpochKey !== currentEpochKey) {
+              console.log(`[SSE Connected] Server projection epoch changed (${currentEpochKey ?? 'none'} -> ${serverEpochKey}). Refreshing...`);
+              fetchData(false, false);
+            }
+          } catch {}
+        });
+
         eventSource.addEventListener('sync_complete', (event: MessageEvent) => {
           try {
             const payload = JSON.parse(event.data);

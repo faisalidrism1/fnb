@@ -501,6 +501,7 @@ export interface SyncStatus {
   total_teams: number;
   league_name: string;
   league_id: number;
+  projection_epoch_key?: string;
   db_stats?: DatabaseStatsInfo;
 }
 

@@ -13,7 +13,7 @@ import {
   Info,
   Copy,
 } from 'lucide-react';
-import { TransformedLeagueData } from '../types.ts';
+import { DbPlayerStat } from '../types.ts';
 
 export interface Phase1TemplateItem {
   no: number;
@@ -297,8 +297,8 @@ function buildRealExampleForRow(
  */
 function renderFormattedExample(
   text: string,
-  resolvePlayerId?: (playerName: string) => number | undefined,
-  onSelectPlayer?: (playerId: number) => void
+  resolvePlayerId?: (webName: string) => number | null,
+  onSelectPlayer?: (playerId: number, gw?: number) => void
 ): React.ReactNode {
   if (!text) return null;
 
@@ -329,18 +329,15 @@ function renderFormattedExample(
           );
           break;
         case 'P': {
-          const playerId = resolvePlayerId?.(tagContent);
-          if (playerId && onSelectPlayer) {
+          const pid = resolvePlayerId && onSelectPlayer ? resolvePlayerId(tagContent) : null;
+          if (pid && onSelectPlayer) {
             parts.push(
               <button
                 key={key}
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectPlayer(playerId);
-                }}
-                className="inline-flex items-center px-1 rounded font-bold text-[12px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60 hover:ring-2 hover:ring-cyan-400/70 cursor-pointer transition-all"
-                title={`Buka profil ${tagContent}`}
+                onClick={() => onSelectPlayer(pid)}
+                className="inline-flex items-center px-1 rounded font-bold text-[12px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60 hover:underline hover:brightness-110 cursor-pointer"
+                title={`Klik untuk detail ${tagContent}`}
               >
                 {tagContent}
               </button>
@@ -434,41 +431,33 @@ const FLOATING_TAG_OPTIONS = [
 
 interface TabAdminEditorProps {
   onSelectPlayer?: (playerId: number, gw?: number) => void;
-  leagueData?: TransformedLeagueData;
+  playerStats?: DbPlayerStat[];
 }
 
-export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({ onSelectPlayer, leagueData }) => {
-  const playerIdByWebName = useMemo(() => {
-    const map = new Map<string, { id: number; score: number }>();
-    if (leagueData?.player_stats) {
-      for (const p of leagueData.player_stats) {
-        if (!p?.id || !p?.webName) continue;
-        const key = p.webName.trim().toLowerCase();
-        const score = Number(p.minutes ?? 0) + Number(p.totalPoints ?? 0) * 0.1;
-        const prev = map.get(key);
-        if (!prev || score > prev.score) {
-          map.set(key, { id: p.id, score });
-        }
+export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
+  onSelectPlayer,
+  playerStats = [],
+}) => {
+  const playerIdByName = useMemo(() => {
+    const map = new Map<string, { id: number; totalPoints: number }>();
+    for (const p of playerStats) {
+      const key = (p.webName || '').trim().toLowerCase();
+      if (!key) continue;
+      const existing = map.get(key);
+      if (!existing || (p.totalPoints || 0) > existing.totalPoints) {
+        map.set(key, { id: p.id, totalPoints: p.totalPoints || 0 });
       }
     }
-    if (leagueData?.ownership_players) {
-      for (const gwKey of Object.keys(leagueData.ownership_players)) {
-        for (const p of leagueData.ownership_players[Number(gwKey)] || []) {
-          if (!p?.id || !p?.web_name) continue;
-          const key = p.web_name.trim().toLowerCase();
-          if (!map.has(key)) {
-            map.set(key, { id: p.id, score: Number(p.owned_count ?? 0) });
-          }
-        }
-      }
-    }
-    const resolved = new Map<string, number>();
-    for (const [k, v] of map.entries()) {
-      resolved.set(k, v.id);
-    }
-    return resolved;
-  }, [leagueData]);
+    return map;
+  }, [playerStats]);
 
+  const resolvePlayerId = useCallback(
+    (webName: string): number | null => {
+      const found = playerIdByName.get(webName.trim().toLowerCase());
+      return found ? found.id : null;
+    },
+    [playerIdByName]
+  );
   // Last saved data state
   const [savedRows, setSavedRows] = useState<Phase1TemplateItem[]>([]);
   // Currently edited data state
@@ -1280,13 +1269,7 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({ onSelectPlayer, 
                       {/* 5. Example (Fixed 4-line height with vertical scroll like template) */}
                       <td className="py-2.5 px-3 border-r border-slate-200 dark:border-purple-900/30 w-[360px] max-w-[360px]">
                         <div className="editor-uniform-text w-full h-[96px] min-h-[96px] max-h-[96px] p-2.5 rounded-md bg-slate-50 dark:bg-[#120522] border border-slate-200 dark:border-purple-950 text-[12px] font-medium text-slate-800 dark:text-slate-200 leading-relaxed font-sans overflow-y-auto scrollbar-thin select-text whitespace-pre-wrap break-words">
-                          {renderFormattedExample(
-                            displayExample,
-                            previewMode === 'real' && onSelectPlayer
-                              ? (name) => playerIdByWebName.get(name.trim().toLowerCase())
-                              : undefined,
-                            onSelectPlayer ? (pid) => onSelectPlayer(pid) : undefined
-                          )}
+                          {renderFormattedExample(displayExample, resolvePlayerId, onSelectPlayer)}
                         </div>
                       </td>
 

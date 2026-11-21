@@ -119,11 +119,14 @@ export const TabScout: React.FC<TabScoutProps> = ({
 
   const effectiveEpochKey = useMemo(() => {
     if (sharedEpochKey) return sharedEpochKey;
+    if (leagueData?.sync_status?.projection_epoch_key) {
+      return leagueData.sync_status.projection_epoch_key;
+    }
     const curr = currentGW || baseHistoricalGW;
     const ev = eventsStatus?.[curr] || (gwStatus?.event === curr ? gwStatus : undefined);
     const st = baseHistoricalGW === curr && ev?.status === 'Provisional' ? 'Provisional' : 'Confirmed';
     return `${baseHistoricalGW}:${st}:${PROJECTION_FORMULA_VERSION}`;
-  }, [sharedEpochKey, currentGW, baseHistoricalGW, eventsStatus, gwStatus]);
+  }, [sharedEpochKey, leagueData?.sync_status?.projection_epoch_key, currentGW, baseHistoricalGW, eventsStatus, gwStatus]);
 
   // Resolve effective populated GW keys (resilient during live GW rollover before new picks finish syncing)
   const effectiveStandingsGW = useMemo(() => {
@@ -506,21 +509,25 @@ export const TabScout: React.FC<TabScoutProps> = ({
   const scoutSquadsCacheRef = useRef<Map<string, ServerScoutSquadsPayload>>(new Map());
   const inFlightScoutEpochRef = useRef<string | null>(null);
 
-  // Hydrate fallback from IndexedDB immediately if mounted without sharedScoutSquads
+  // Hydrate fallback from IndexedDB immediately ONLY when epochKey matches effectiveEpochKey
   useEffect(() => {
-    if (sharedScoutSquads) return;
+    if (sharedScoutSquads && sharedScoutSquads.epochKey === effectiveEpochKey) return;
     let mounted = true;
     loadScoutSquadsFromIndexedDB<ServerScoutSquadsPayload>()
       .then((cached) => {
         if (!mounted || !cached?.epochKey) return;
-        scoutSquadsCacheRef.current.set(cached.epochKey, cached);
-        setLocalScoutSquadsPayload((prev) => prev || cached);
+        if (cached.epochKey === effectiveEpochKey) {
+          scoutSquadsCacheRef.current.set(cached.epochKey, cached);
+          setLocalScoutSquadsPayload((prev) =>
+            prev && prev.epochKey === effectiveEpochKey ? prev : cached
+          );
+        }
       })
       .catch(() => {});
     return () => {
       mounted = false;
     };
-  }, [sharedScoutSquads]);
+  }, [sharedScoutSquads, effectiveEpochKey]);
 
   useEffect(() => {
     if (!leagueData) return;
@@ -530,7 +537,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
     }
 
     const cached = scoutSquadsCacheRef.current.get(effectiveEpochKey);
-    if (cached) {
+    if (cached && cached.epochKey === effectiveEpochKey) {
       setLocalScoutSquadsPayload(cached);
       return;
     }
@@ -543,15 +550,15 @@ export const TabScout: React.FC<TabScoutProps> = ({
     inFlightScoutEpochRef.current = effectiveEpochKey;
     setIsLoadingLocalScoutSquads(true);
 
-    fetch('/api/projections-scout-squads')
+    fetch(`/api/projections-scout-squads?_t=${Date.now()}`, { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         if (!mounted || !json?.success || !json.data) return;
         const payload = json.data as ServerScoutSquadsPayload;
-        scoutSquadsCacheRef.current.set(effectiveEpochKey, payload);
         if (payload.epochKey) {
           scoutSquadsCacheRef.current.set(payload.epochKey, payload);
         }
+        scoutSquadsCacheRef.current.set(effectiveEpochKey, payload);
         setLocalScoutSquadsPayload(payload);
         saveScoutSquadsToIndexedDB(payload).catch(() => {});
       })
@@ -573,7 +580,9 @@ export const TabScout: React.FC<TabScoutProps> = ({
   const scoutSquadsPayload =
     sharedScoutSquads && sharedScoutSquads.epochKey === effectiveEpochKey
       ? sharedScoutSquads
-      : (sharedScoutSquads || localScoutSquadsPayload);
+      : localScoutSquadsPayload && localScoutSquadsPayload.epochKey === effectiveEpochKey
+      ? localScoutSquadsPayload
+      : null;
   const isLoadingScoutSquads = Boolean(
     !scoutSquadsPayload && (isLoadingSharedScoutSquads || isLoadingLocalScoutSquads)
   );
@@ -2804,16 +2813,16 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
       </div>
 
       {/* Strip Area (Dark Premier League Purple/Black Name Strip + Neon Green Cost & xP Strip) */}
-      <div className="relative w-full transition-transform active:scale-95 group/strip">
+      <div className="relative w-full">
         {/* Name Strip (Dark Premier League Purple/Black) */}
-        <div className="w-full bg-[#37003c] group-hover/strip:bg-[#4d0054] text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center">
+        <div className="w-full bg-[#37003c] group-hover:bg-[#4d0054] text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center">
           <span className="block text-[9px] sm:text-[10.5px] font-extrabold truncate leading-tight">
             {player.webName}
           </span>
         </div>
 
         {/* Cost & Projected Points Strip (Neon Green) */}
-        <div className="w-full bg-[#00ff87] group-hover/strip:bg-[#2eff9e] text-[#37003c] text-center py-0.5 px-1 rounded-b-md flex items-center justify-between font-black text-[8.5px] sm:text-[9.5px] leading-tight transition-colors">
+        <div className="w-full bg-[#00ff87] group-hover:bg-[#2eff9e] text-[#37003c] text-center py-0.5 px-1 rounded-b-md flex items-center justify-between font-black text-[8.5px] sm:text-[9.5px] leading-tight transition-colors">
           <span>£{player.cost.toFixed(1)}</span>
           <span>{displayXp}</span>
         </div>

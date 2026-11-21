@@ -26,6 +26,7 @@ import {
   ClubGwMatchProjectionItem,
   ProjectedFixtureOutcome,
   ProjectedPlayerCoreItem,
+  DbPlayerStat,
 } from '../types.ts';
 import { TabAdminEditor } from './TabAdminEditor.tsx';
 
@@ -73,10 +74,15 @@ type SortDirection = 'asc' | 'desc';
 
 interface TabAdminNewsTableProps {
   onSelectPlayer?: (playerId: number, gw?: number) => void;
-  leagueData?: TransformedLeagueData;
+  playerStats?: DbPlayerStat[];
+  availableGWs?: number[];
 }
 
-const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({ onSelectPlayer, leagueData }) => {
+const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
+  onSelectPlayer,
+  playerStats = [],
+  availableGWs = [],
+}) => {
   const [newsRows, setNewsRows] = useState<NewsTickerDbRow[]>(() => {
     try {
       const cached = sessionStorage.getItem('fnb_news_ticker_admin_cache');
@@ -289,40 +295,42 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({ onSelectPlayer, l
     }
   };
 
-  // Lookup player ID by web_name (prefer highest minutes if duplicate web_name exists)
-  const playerIdByWebName = useMemo(() => {
-    const map = new Map<string, { id: number; score: number }>();
-    if (leagueData?.player_stats) {
-      for (const p of leagueData.player_stats) {
-        if (!p?.id || !p?.webName) continue;
-        const key = p.webName.trim().toLowerCase();
-        const score = Number(p.minutes ?? 0) + Number(p.totalPoints ?? 0) * 0.1;
-        const prev = map.get(key);
-        if (!prev || score > prev.score) {
-          map.set(key, { id: p.id, score });
-        }
+  const playerLookupByName = useMemo(() => {
+    const map = new Map<string, DbPlayerStat[]>();
+    for (const p of playerStats) {
+      const key = (p.webName || '').trim().toLowerCase();
+      if (!key) continue;
+      const list = map.get(key) || [];
+      list.push(p);
+      map.set(key, list);
+    }
+    map.forEach((list) => {
+      list.sort((a, b) => (b.totalPoints || 0) - (a.totalPoints || 0));
+    });
+    return map;
+  }, [playerStats]);
+
+  const resolvePlayerIdFromHeadline = useCallback(
+    (webName: string, rowTeams?: string[]): number | null => {
+      const candidates = playerLookupByName.get(webName.trim().toLowerCase());
+      if (!candidates || candidates.length === 0) return null;
+      if (candidates.length === 1) return candidates[0].id;
+      if (rowTeams && rowTeams.length > 0) {
+        const teamSet = new Set(rowTeams.map((t) => t.trim().toLowerCase()));
+        const clubMatch = candidates.find(
+          (c) =>
+            teamSet.has((c.teamName || '').toLowerCase()) ||
+            teamSet.has((c.teamShort || '').toLowerCase())
+        );
+        if (clubMatch) return clubMatch.id;
       }
-    }
-    if (leagueData?.ownership_players) {
-      for (const gwKey of Object.keys(leagueData.ownership_players)) {
-        for (const p of leagueData.ownership_players[Number(gwKey)] || []) {
-          if (!p?.id || !p?.web_name) continue;
-          const key = p.web_name.trim().toLowerCase();
-          if (!map.has(key)) {
-            map.set(key, { id: p.id, score: Number(p.owned_count ?? 0) });
-          }
-        }
-      }
-    }
-    const resolved = new Map<string, number>();
-    for (const [k, v] of map.entries()) {
-      resolved.set(k, v.id);
-    }
-    return resolved;
-  }, [leagueData]);
+      return candidates[0].id;
+    },
+    [playerLookupByName]
+  );
 
   // Helper to render text with entity syntax tags ([T:Team], [P:Player], [C:Club], [N:Number])
-  const renderFormattedHeadline = (text: string, rowGw?: number) => {
+  const renderFormattedHeadline = (text: string, rowGw?: number, rowTeams?: string[]) => {
     if (!text) return null;
 
     const parts: React.ReactNode[] = [];
@@ -351,18 +359,19 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({ onSelectPlayer, l
           );
           break;
         case 'P': { // Player Name
-          const playerId = playerIdByWebName.get(tagContent.trim().toLowerCase());
-          if (playerId && onSelectPlayer) {
+          const resolvedPlayerId = onSelectPlayer
+            ? resolvePlayerIdFromHeadline(tagContent, rowTeams)
+            : null;
+          if (resolvedPlayerId && onSelectPlayer) {
+            const targetGw =
+              rowGw && availableGWs.includes(rowGw) ? rowGw : undefined;
             parts.push(
               <button
                 key={key}
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectPlayer(playerId, rowGw && rowGw > 0 ? rowGw : undefined);
-                }}
-                className="inline-flex items-center px-1 rounded font-bold text-[11px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60 hover:ring-2 hover:ring-cyan-400/70 cursor-pointer transition-all"
-                title={`Buka profil ${tagContent}`}
+                onClick={() => onSelectPlayer(resolvedPlayerId, targetGw)}
+                className="inline-flex items-center px-1 rounded font-bold text-[11px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60 hover:underline hover:brightness-110 cursor-pointer"
+                title={`Klik untuk detail ${tagContent}`}
               >
                 {tagContent}
               </button>
@@ -1223,7 +1232,7 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({ onSelectPlayer, l
                             {isCopied ? <Check className="w-3 h-3 text-[#00ff87]" /> : <Copy className="w-3 h-3" />}
                           </button>
                           <div className="whitespace-nowrap font-medium text-[11.5px]" title={activeText}>
-                            {renderFormattedHeadline(activeText, Number(row.gw) || undefined)}
+                            {renderFormattedHeadline(activeText, row.gw, row.teams)}
                           </div>
                         </div>
                       </td>
@@ -1318,10 +1327,17 @@ export const TabAdmin: React.FC<TabAdminProps> = ({
   return (
     <>
       {subTab === 'editor' && (
-        <TabAdminEditor onSelectPlayer={onSelectPlayer} leagueData={leagueData} />
+        <TabAdminEditor
+          onSelectPlayer={onSelectPlayer}
+          playerStats={leagueData?.player_stats}
+        />
       )}
       {subTab === 'news-ticker' && (
-        <TabAdminNewsTable onSelectPlayer={onSelectPlayer} leagueData={leagueData} />
+        <TabAdminNewsTable
+          onSelectPlayer={onSelectPlayer}
+          playerStats={leagueData?.player_stats}
+          availableGWs={availableGWs}
+        />
       )}
       {hasVisitedReview && (
         <div className={isReviewSubTab ? 'block' : 'hidden'}>
