@@ -708,6 +708,33 @@ export function isPulseMatchCurrentlyLive(
 ): boolean {
   if (!pulseData) return false;
 
+  const status = String(pulseData?.status || '').trim().toUpperCase();
+  const phase = String(pulseData?.phase || '').trim().toUpperCase();
+  const clockLabel = String(pulseData?.clock?.label || '').trim().toUpperCase();
+  const clockSecs = Number(pulseData?.clock?.secs) || 0;
+  const hasOutcome = typeof pulseData?.outcome === 'string' && pulseData.outcome.trim().length > 0;
+  const events: any[] = Array.isArray(pulseData?.events) ? pulseData.events : [];
+  const hasSecondHalfEnd = events.some(
+    (e: any) =>
+      e?.type === 'PE' &&
+      (e?.phase === '2' || e?.phase === '2H') &&
+      (Boolean(e?.clock?.secs && Number(e.clock.secs) >= 5400) || Boolean(e?.time?.millis))
+  );
+
+  const isExplicitlyLiveAndUnder90 = status === 'L' && clockSecs < 5400;
+  const isFinished =
+    (status === 'C' ||
+      phase === 'F' ||
+      phase === 'FT' ||
+      hasOutcome ||
+      hasSecondHalfEnd ||
+      clockLabel === 'FT' ||
+      clockLabel.includes('FULL')) &&
+    !isExplicitlyLiveAndUnder90;
+
+  if (isFinished) return false;
+  if (status === 'U' || phase === 'U') return false;
+
   // Cross-check against fresh MatchCardItem state when available
   if (Array.isArray(cachedMatches) && cachedMatches.length > 0) {
     const pHomeRaw =
@@ -736,33 +763,6 @@ export function isPulseMatchCurrentlyLive(
       }
     }
   }
-
-  const status = String(pulseData?.status || '').trim().toUpperCase();
-  const phase = String(pulseData?.phase || '').trim().toUpperCase();
-  const clockLabel = String(pulseData?.clock?.label || '').trim().toUpperCase();
-  const clockSecs = Number(pulseData?.clock?.secs) || 0;
-  const hasOutcome = typeof pulseData?.outcome === 'string' && pulseData.outcome.trim().length > 0;
-  const events: any[] = Array.isArray(pulseData?.events) ? pulseData.events : [];
-  const hasSecondHalfEnd = events.some(
-    (e: any) =>
-      e?.type === 'PE' &&
-      (e?.phase === '2' || e?.phase === '2H') &&
-      (Boolean(e?.clock?.secs && Number(e.clock.secs) >= 5400) || Boolean(e?.time?.millis))
-  );
-
-  const isExplicitlyLiveAndUnder90 = status === 'L' && clockSecs < 5400;
-  const isFinished =
-    (status === 'C' ||
-      phase === 'F' ||
-      phase === 'FT' ||
-      hasOutcome ||
-      hasSecondHalfEnd ||
-      clockLabel === 'FT' ||
-      clockLabel.includes('FULL')) &&
-    !isExplicitlyLiveAndUnder90;
-
-  if (isFinished) return false;
-  if (status === 'U' || phase === 'U') return false;
 
   return Boolean(
     status === 'L' ||
@@ -1295,20 +1295,29 @@ export function rebuildNewsTickerTable(
         }
         const matchStateByKey = new Map<string, LiveMatchClockState>();
 
-        // Seed first-seen FT timestamps from previously saved table rows so 8m grace window survives refreshes
+        // Seed first-seen FT timestamps & active match keys from previously saved table rows
+        // so already-finished matches from earlier kickoffs are NEVER falsely treated as newly finished.
         const existingFtSeenAtByMatchKey = new Map<string, number>();
+        const liveTrackedMatchKeysInExistingTable = new Set<string>();
         for (const existingRow of existingTableMap.values()) {
-          if (
+          const mKey =
+            existingRow.cycle_meta?.matchKey ||
+            (Array.isArray(existingRow.teams) && existingRow.teams.length >= 2
+              ? buildMatchKey(existingRow.teams[0], existingRow.teams[1])
+              : '');
+          if (!mKey) continue;
+
+          const isFullTimeRow =
             existingRow.id.startsWith('LM_MATCH_PERIOD_END') &&
-            (existingRow.cycle_meta?.isFullTime || /\bFull\s*Time\b/i.test(existingRow.text_berita || ''))
-          ) {
-            const mKey =
-              existingRow.cycle_meta?.matchKey ||
-              (Array.isArray(existingRow.teams) && existingRow.teams.length >= 2
-                ? buildMatchKey(existingRow.teams[0], existingRow.teams[1])
-                : '');
+            (existingRow.cycle_meta?.isFullTime || /\bFull\s*Time\b/i.test(existingRow.text_berita || ''));
+
+          if (existingRow.cycle_meta?.isUpcomingMatch !== true && !isFullTimeRow) {
+            liveTrackedMatchKeysInExistingTable.add(mKey);
+          }
+
+          if (isFullTimeRow) {
             const tsMs = Date.parse(existingRow.timestamp_produksi || '');
-            if (mKey && Number.isFinite(tsMs) && tsMs > 0) {
+            if (Number.isFinite(tsMs) && tsMs > 0) {
               const prev = existingFtSeenAtByMatchKey.get(mKey);
               if (prev === undefined || tsMs < prev) {
                 existingFtSeenAtByMatchKey.set(mKey, tsMs);
@@ -1317,6 +1326,7 @@ export function rebuildNewsTickerTable(
           }
         }
 
+        const ftEventMillisByMatchKey = new Map<string, number>();
         for (const pulseData of allPulseMatches) {
           const pHomeRaw =
             pulseData?.teams?.[0]?.team?.shortName ||
@@ -1361,8 +1371,17 @@ export function rebuildNewsTickerTable(
               clockLabel.includes('FULL'));
           const isPulseRunning = isPulseMatchCurrentlyLive(pulseData, cachedMatches);
           const ftEventMs = Number(ftEvent?.time?.millis || 0);
+          if (ftEventMs > 0) {
+            ftEventMillisByMatchKey.set(mKey, ftEventMs);
+          }
+          const kickoffMs = Number(pulseData?.kickoff?.millis || 0);
+          const estimatedFinishedMs =
+            kickoffMs > 0 ? Math.min(nowMs, kickoffMs + 115 * 60 * 1000) : 1;
           const finishedAtMs = isPulseFinished
-            ? (ftEventMs > 0 ? ftEventMs : existingFtSeenAtByMatchKey.get(mKey) ?? nowMs)
+            ? ftEventMs > 0
+              ? ftEventMs
+              : existingFtSeenAtByMatchKey.get(mKey) ??
+                (liveTrackedMatchKeysInExistingTable.has(mKey) ? nowMs : estimatedFinishedMs)
             : 0;
           const isPulseStarted =
             status === 'L' ||
@@ -1393,7 +1412,9 @@ export function rebuildNewsTickerTable(
             if (!mKey) continue;
 
             const cardRunning = isMatchCardRunning(card);
-            const cardFinished = Boolean(card.started && (card.finished || card.finished_provisional));
+            const cardFinished = Boolean(
+              card.finished || card.finished_provisional || card.phase === 'FT'
+            );
             const cardClockSecs = (card.minutes || 0) * 60;
             const cardHT = Boolean(
               !cardFinished &&
@@ -1403,8 +1424,15 @@ export function rebuildNewsTickerTable(
             );
             const prev = matchStateByKey.get(mKey);
             const isFinished = cardFinished || Boolean(prev?.isFinished && !cardRunning);
+            const cardKickoffMs = card.kickoff_time ? Date.parse(card.kickoff_time) : 0;
+            const estimatedCardFtMs =
+              Number.isFinite(cardKickoffMs) && cardKickoffMs > 0
+                ? Math.min(nowMs, cardKickoffMs + 115 * 60 * 1000)
+                : 1;
             const finishedAtMs = isFinished
-              ? (prev?.finishedAtMs || existingFtSeenAtByMatchKey.get(mKey) || nowMs)
+              ? prev?.finishedAtMs ||
+                existingFtSeenAtByMatchKey.get(mKey) ||
+                (liveTrackedMatchKeysInExistingTable.has(mKey) ? nowMs : estimatedCardFtMs)
               : 0;
 
             const secondHalfStarted = Boolean(
@@ -1416,24 +1444,34 @@ export function rebuildNewsTickerTable(
               isSecondHalfStarted: secondHalfStarted,
               isFinished,
               finishedAtMs,
-              isRunning: cardRunning || Boolean(prev?.isRunning && !cardFinished),
+              isRunning: cardRunning && !isFinished,
               isStarted: Boolean(card.started || cardFinished || cardRunning || prev?.isStarted),
             });
           }
         }
 
-        const isMatchLiveOrInGrace = (mKey: string, pulseData?: any, card?: MatchCardItem): boolean => {
+        const isMatchCurrentlyLive = (mKey: string, pulseData?: any, card?: MatchCardItem): boolean => {
           const state = mKey ? matchStateByKey.get(mKey) : undefined;
-          if (card && isMatchCardRunning(card)) return true;
-          if (pulseData && isPulseMatchCurrentlyLive(pulseData, cachedMatches)) return true;
-          if (state?.isRunning) return true;
-          if (state?.isFinished && state.finishedAtMs > 0 && nowMs - state.finishedAtMs <= POST_FT_GRACE_MS) {
-            return true;
-          }
-          return false;
+          if (state?.isFinished) return false;
+          if (card) return isMatchCardRunning(card);
+          if (pulseData) return isPulseMatchCurrentlyLive(pulseData, cachedMatches);
+          return Boolean(state?.isRunning);
         };
 
-        const pulseMatches = allPulseMatches.filter((pulseData) => {
+        const shouldEmitFullTimeBannerOnly = (mKey: string): boolean => {
+          const state = mKey ? matchStateByKey.get(mKey) : undefined;
+          if (!state?.isFinished || state.isRunning) return false;
+          if (!state.finishedAtMs || nowMs - state.finishedAtMs > POST_FT_GRACE_MS) return false;
+          const ftMs = ftEventMillisByMatchKey.get(mKey) || 0;
+          const hasRecentRealFtEvent = ftMs > 0 && nowMs - ftMs <= POST_FT_GRACE_MS;
+          return (
+            liveTrackedMatchKeysInExistingTable.has(mKey) ||
+            existingFtSeenAtByMatchKey.has(mKey) ||
+            hasRecentRealFtEvent
+          );
+        };
+
+        for (const pulseData of allPulseMatches) {
           const pHome = resolveClubName(
             pulseData?.teams?.[0]?.team?.shortName ||
               pulseData?.teams?.[0]?.team?.club?.shortName ||
@@ -1448,13 +1486,19 @@ export function rebuildNewsTickerTable(
               pulseData?.teams?.[1]?.team?.name ||
               ''
           );
-          return isMatchLiveOrInGrace(buildMatchKey(pHome, pAway), pulseData);
-        });
+          const mKey = buildMatchKey(pHome, pAway);
+          const matchLive = isMatchCurrentlyLive(mKey, pulseData);
+          const emitFtOnly = !matchLive && shouldEmitFullTimeBannerOnly(mKey);
+          if (!matchLive && !emitFtOnly) continue;
 
-        for (const pulseData of pulseMatches) {
           try {
             const liveStories = generateStoriesFromPulseMatch(pulseData, feedGw);
             for (const ls of liveStories) {
+              if (emitFtOnly) {
+                const isFullTimeStory =
+                  ls.id.startsWith('LM_MATCH_PERIOD_END') && Boolean(ls.cycle_meta?.isFullTime);
+                if (!isFullTimeStory) continue;
+              }
               const records = createStoryRecordsForPhases({
                 ...ls,
                 sumber: (ls.sumber as any) || 'Sys',
@@ -1473,11 +1517,11 @@ export function rebuildNewsTickerTable(
               resolveClubName(m.home_team?.name || m.home_team?.short_name),
               resolveClubName(m.away_team?.name || m.away_team?.short_name)
             );
-            return isMatchLiveOrInGrace(mKey, undefined, m);
+            return isMatchCurrentlyLive(mKey, undefined, m);
           });
 
           const liveStatStories = generateLiveMatchStatStories(feedGw, {
-            includeFinished: true,
+            includeFinished: false,
             matchesOverride: statEligibleMatches,
           });
           for (const ls of liveStatStories) {
@@ -1730,9 +1774,9 @@ export function rebuildNewsTickerTable(
             }
           }
 
-          // 5. Post-FT Grace Cutoff on non-FT match events
-          if (mState?.isFinished && mState.finishedAtMs > 0 && nowMs - mState.finishedAtMs > POST_FT_GRACE_MS) {
-            markExpired(row, 'Expired: Laga sudah FT melewati grace window 8 menit');
+          // 5. Immediately expire ALL on-pitch events from any finished match (do not carry finished-match events into running matches)
+          if (mState?.isFinished) {
+            markExpired(row, 'Expired: Laga sudah selesai (FT)');
             continue;
           }
 

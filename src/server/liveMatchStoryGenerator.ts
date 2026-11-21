@@ -2745,7 +2745,8 @@ export function generateLiveLineupSurpriseStories(
       startedOrFinishedMatchKeys.add(matchKey);
     }
 
-    const isEligible = includeFinished || (!m.finished && !m.finished_provisional);
+    const isEligible =
+      includeFinished || (!m.finished && !m.finished_provisional && m.phase !== 'FT');
     if (!isEligible || !m.has_lineup) continue;
     if ((m.home_lineup?.length || 0) < 10 || (m.away_lineup?.length || 0) < 10) continue;
 
