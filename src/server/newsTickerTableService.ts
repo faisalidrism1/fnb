@@ -1250,8 +1250,8 @@ export function rebuildNewsTickerTable(
           const records = createStoryRecordsForPhases({
             ...p1,
             sumber: (p1.sumber as any) || 'Sys',
-            gw: p1.gw || feedGw,
-          }, p1.gw || feedGw, currentActivePhase);
+            gw: feedGw,
+          }, feedGw, currentActivePhase);
           addRows(records);
         }
       } catch (err: any) {
@@ -1429,8 +1429,8 @@ export function rebuildNewsTickerTable(
               const records = createStoryRecordsForPhases({
                 ...ls,
                 sumber: (ls.sumber as any) || 'Sys',
-                gw: ls.gw || feedGw,
-              }, ls.gw || feedGw, currentActivePhase);
+                gw: feedGw,
+              }, feedGw, currentActivePhase);
               addRows(records);
             }
           } catch (fileErr: any) {
@@ -1455,8 +1455,8 @@ export function rebuildNewsTickerTable(
             const records = createStoryRecordsForPhases({
               ...ls,
               sumber: (ls.sumber as any) || 'Sys',
-              gw: ls.gw || feedGw,
-            }, ls.gw || feedGw, currentActivePhase);
+              gw: feedGw,
+            }, feedGw, currentActivePhase);
             addRows(records);
           }
 
@@ -1468,8 +1468,8 @@ export function rebuildNewsTickerTable(
             const records = createStoryRecordsForPhases({
               ...ls,
               sumber: (ls.sumber as any) || 'Sys',
-              gw: ls.gw || feedGw,
-            }, ls.gw || feedGw, currentActivePhase);
+              gw: feedGw,
+            }, feedGw, currentActivePhase);
             addRows(records);
           }
 
@@ -1481,8 +1481,8 @@ export function rebuildNewsTickerTable(
             const records = createStoryRecordsForPhases({
               ...ls,
               sumber: (ls.sumber as any) || 'Sys',
-              gw: ls.gw || feedGw,
-            }, ls.gw || feedGw, currentActivePhase);
+              gw: feedGw,
+            }, feedGw, currentActivePhase);
             addRows(records);
           }
 
@@ -1494,8 +1494,8 @@ export function rebuildNewsTickerTable(
             const records = createStoryRecordsForPhases({
               ...ls,
               sumber: (ls.sumber as any) || 'Sys',
-              gw: ls.gw || feedGw,
-            }, ls.gw || feedGw, currentActivePhase);
+              gw: feedGw,
+            }, feedGw, currentActivePhase);
             addRows(records);
           }
 
@@ -1507,8 +1507,8 @@ export function rebuildNewsTickerTable(
             const records = createStoryRecordsForPhases({
               ...ls,
               sumber: (ls.sumber as any) || 'Sys',
-              gw: ls.gw || feedGw,
-            }, ls.gw || feedGw, currentActivePhase);
+              gw: feedGw,
+            }, feedGw, currentActivePhase);
             addRows(records);
           }
         }
@@ -1522,14 +1522,14 @@ export function rebuildNewsTickerTable(
             const records = createStoryRecordsForPhases({
               ...fb,
               sumber: (fb.sumber as any) || 'Sys',
-              gw: fb.gw || feedGw,
+              gw: feedGw,
               waktu_tayang: ['Live Match'],
               fase: 'Live Match',
               cycle_meta: {
                 ...(fb.cycle_meta || {}),
                 isLmFallback: true,
               },
-            }, fb.gw || feedGw, currentActivePhase);
+            }, feedGw, currentActivePhase);
             addRows(records);
           }
         } catch (fbErr: any) {
@@ -1678,8 +1678,8 @@ export function rebuildNewsTickerTable(
           const records = createStoryRecordsForPhases({
             ...bm,
             sumber: (bm.sumber as any) || 'Sys',
-            gw: bm.gw || feedGw,
-          }, bm.gw || feedGw, currentActivePhase);
+            gw: feedGw,
+          }, feedGw, currentActivePhase);
           addRows(records);
         }
       } catch (err: any) {
@@ -1693,8 +1693,8 @@ export function rebuildNewsTickerTable(
           const records = createStoryRecordsForPhases({
             ...pv,
             sumber: (pv.sumber as any) || 'Sys',
-            gw: pv.gw || feedGw,
-          }, pv.gw || feedGw, currentActivePhase);
+            gw: feedGw,
+          }, feedGw, currentActivePhase);
           addRows(records);
         }
       } catch (err: any) {
@@ -1708,8 +1708,8 @@ export function rebuildNewsTickerTable(
           const records = createStoryRecordsForPhases({
             ...cs,
             sumber: (cs.sumber as any) || 'Sys',
-            gw: cs.gw || feedGw,
-          }, cs.gw || feedGw, currentActivePhase);
+            gw: feedGw,
+          }, feedGw, currentActivePhase);
           addRows(records);
         }
       } catch (err: any) {
