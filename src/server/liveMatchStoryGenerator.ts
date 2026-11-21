@@ -642,6 +642,12 @@ export function generateStoriesFromPulseMatch(
     const clockLabel = formatPulseClockLabel(ev.clock?.label || ev.time?.label);
     const minuteStr = clockLabel ? `${clockLabel}` : "0'";
     const baseMin = parseInt(minuteStr.split('+')[0].replace(/\D/g, ''), 10) || 0;
+    const evClockSecs =
+      ev.clock?.secs !== undefined && ev.clock?.secs !== null
+        ? Number(ev.clock.secs)
+        : baseMin > 0
+          ? baseMin * 60
+          : 0;
     const homeScore = ev.score?.homeScore ?? pulseData.teams?.[0]?.score ?? 0;
     const awayScore = ev.score?.awayScore ?? pulseData.teams?.[1]?.score ?? 0;
 
@@ -723,7 +729,7 @@ export function generateStoriesFromPulseMatch(
           96,
           [homeClub, awayClub],
           [capPlayer.name],
-          ev.clock?.secs ?? 0
+          evClockSecs
         )
       );
     };
@@ -759,7 +765,7 @@ export function generateStoriesFromPulseMatch(
             91,
             [homeClub, awayClub],
             [],
-            ev.clock?.secs ?? 0,
+            ev.clock?.secs ?? (isSecondHalf ? 2700 : 0),
             { isSecondHalf }
           )
         );
@@ -897,7 +903,7 @@ export function generateStoriesFromPulseMatch(
               goalsCount >= 3 ? 99 : 97,
               [homeClub, awayClub],
               [scorer.name],
-              ev.clock?.secs ?? 0
+              evClockSecs
             )
           );
         } else if (tmplPen) {
@@ -911,7 +917,7 @@ export function generateStoriesFromPulseMatch(
               96,
               [homeClub, awayClub],
               [scorer.name],
-              ev.clock?.secs ?? 0
+              evClockSecs
             )
           );
         }
@@ -922,7 +928,7 @@ export function generateStoriesFromPulseMatch(
         const existingScorer = allScorersList.find((s) => s.name === scorer.name);
         if (existingScorer) existingScorer.ogCount++;
         else if (scorer.name) allScorersList.push({ name: scorer.name, pct: scorer.pct, count: 0, ogCount: 1 });
-        emittedOgRecords.push({ secs: Number(ev.clock?.secs ?? 0), nameNorm: normalizeDiacritics(scorer.name) });
+        emittedOgRecords.push({ secs: evClockSecs, nameNorm: normalizeDiacritics(scorer.name) });
 
         if (tmpl) {
           const vars = {
@@ -944,7 +950,7 @@ export function generateStoriesFromPulseMatch(
               95,
               [homeClub, awayClub],
               [scorer.name],
-              ev.clock?.secs ?? 0
+              evClockSecs
             )
           );
         }
@@ -1015,7 +1021,7 @@ export function generateStoriesFromPulseMatch(
               goalsCount >= 3 ? 99 : 97,
               [homeClub, awayClub],
               assister ? [scorer.name, assister.name] : [scorer.name],
-              ev.clock?.secs ?? 0
+              evClockSecs
             )
           );
         } else if (tmpl) {
@@ -1033,7 +1039,7 @@ export function generateStoriesFromPulseMatch(
               95,
               [homeClub, awayClub],
               assister ? [scorer.name, assister.name] : [scorer.name],
-              ev.clock?.secs ?? 0
+              evClockSecs
             )
           );
         }
@@ -1105,7 +1111,7 @@ export function generateStoriesFromPulseMatch(
               isCsLost ? 88 : 85,
               [homeClub, awayClub],
               [topDef.name],
-              ev.clock?.secs ?? 0,
+              evClockSecs,
               { maxOwnerPct: topDef.pct }
             )
           );
@@ -1153,7 +1159,7 @@ export function generateStoriesFromPulseMatch(
             94,
             [homeClub, awayClub],
             [vars.keeper, vars.taker].filter(Boolean),
-            ev.clock?.secs ?? 0
+            evClockSecs
           )
         );
       }
@@ -1162,7 +1168,7 @@ export function generateStoriesFromPulseMatch(
       const taker = resolvePlayer(ev.personId || ev.takerId);
       addDeltaPts(taker.fpl?.id, -2);
       emitPopularCaptainAction(taker, 'Penalti Gagal', 'cap_pen_miss');
-      emittedPenMissedSecs.push(Number(ev.clock?.secs ?? 0));
+      emittedPenMissedSecs.push(evClockSecs);
       if (tmpl) {
         const clubName = taker.club || eventTeamName;
         const vars = {
@@ -1181,7 +1187,7 @@ export function generateStoriesFromPulseMatch(
             92,
             [homeClub, awayClub],
             [vars.taker].filter(Boolean),
-            ev.clock?.secs ?? 0
+            evClockSecs
           )
         );
       }
@@ -1221,7 +1227,7 @@ export function generateStoriesFromPulseMatch(
             90,
             [homeClub, awayClub],
             !isCancelled && fouled.name ? [fouled.name] : [],
-            ev.clock?.secs ?? 0,
+            evClockSecs,
             { isPenaltyCancelled: isCancelled }
           )
         );
@@ -1259,7 +1265,7 @@ export function generateStoriesFromPulseMatch(
               90,
               [homeClub, awayClub],
               [player.name],
-              ev.clock?.secs ?? 0
+              evClockSecs
             )
           );
         }
@@ -1287,7 +1293,7 @@ export function generateStoriesFromPulseMatch(
               94,
               [homeClub, awayClub],
               [player.name],
-              ev.clock?.secs ?? 0
+              evClockSecs
             )
           );
         }
@@ -1318,7 +1324,7 @@ export function generateStoriesFromPulseMatch(
               75,
               [homeClub, awayClub],
               [player.name],
-              ev.clock?.secs ?? 0,
+              evClockSecs,
               { maxOwnerPct: player.pct }
             )
           );
@@ -1391,7 +1397,7 @@ export function generateStoriesFromPulseMatch(
             isEarlySubMissedCs ? 82 : isCleanSheetLocked ? 80 : 70,
             [homeClub, awayClub],
             [playerIn.name, playerOut.name].filter((p) => p && p !== 'Player'),
-            ev.clock?.secs ?? 0,
+            evClockSecs,
             {
               isCsSub: isCleanSheetLocked || isEarlySubMissedCs,
               maxOwnerPct: Math.max(playerIn.pct || 0, playerOut.pct || 0),
@@ -1454,7 +1460,7 @@ export function generateStoriesFromPulseMatch(
             95,
             [homeClub, awayClub],
             hasPlayerName ? [player.name] : [],
-            ev.clock?.secs ?? 0
+            evClockSecs
           )
         );
       }

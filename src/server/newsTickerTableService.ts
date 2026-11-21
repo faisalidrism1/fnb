@@ -1188,9 +1188,6 @@ export function rebuildNewsTickerTable(
 
     const isLiveMatchPhase = isPhaseActive('Live Match', currentActivePhase);
 
-    // Track newly inserted IDs in this build so post-generation steps can stamp live match detection clocks cleanly
-    const newlyAddedIds = new Set<string>();
-
     // Helper to safely add rows strictly for feedGw and currentActivePhase while restoring poin_tayang & original timestamp
     const addRows = (rows: NewsTickerDbRow[]) => {
       for (const r of rows) {
@@ -1241,16 +1238,13 @@ export function rebuildNewsTickerTable(
                 ...(resolvedBaseline !== undefined ? { preKickoffPtsBaseline: resolvedBaseline } : {}),
               };
             }
-          } else {
-            newlyAddedIds.add(r.id);
-            if (!isLiveMatchPhase && r.status_tayang === 'Y' && r.poin_tayang === 0) {
-              // Untuk fase non-LM, berita baru di tengah fase mewarisi poin_tayang minimum pool template-nya.
-              // Untuk fase Live Match, event baru tetap mulai dari 0 agar gol/kejadian baru langsung prioritas.
-              const parentTid = resolveParentTemplateId(r.id, sortedEditorTemplateIds);
-              const poolMin = minPoinByTemplate.get(parentTid);
-              if (poolMin !== undefined && poolMin > 0) {
-                r.poin_tayang = poolMin;
-              }
+          } else if (!isLiveMatchPhase && r.status_tayang === 'Y' && r.poin_tayang === 0) {
+            // Untuk fase non-LM, berita baru di tengah fase mewarisi poin_tayang minimum pool template-nya.
+            // Untuk fase Live Match, event baru tetap mulai dari 0 agar gol/kejadian baru langsung prioritas.
+            const parentTid = resolveParentTemplateId(r.id, sortedEditorTemplateIds);
+            const poolMin = minPoinByTemplate.get(parentTid);
+            if (poolMin !== undefined && poolMin > 0) {
+              r.poin_tayang = poolMin;
             }
           }
           tableRows.push(r);
@@ -1346,19 +1340,24 @@ export function rebuildNewsTickerTable(
           if (!mKey) continue;
 
           const events: any[] = Array.isArray(pulseData?.events) ? pulseData.events : [];
-          const hasHalfTimeEnd = events.some(
-            (e: any) => e?.type === 'PE' && (e?.phase === '1' || e?.phase === '1H')
-          );
-          const hasSecondHalfStart = events.some(
-            (e: any) => e?.type === 'PS' && (e?.phase === '2' || e?.phase === '2H')
-          );
-          const ftEvent = events.find(
-            (e: any) => e?.type === 'PE' && (e?.phase === '2' || e?.phase === '2H')
-          );
           const status = String(pulseData?.status || '').trim().toUpperCase();
           const phase = String(pulseData?.phase || '').trim().toUpperCase();
           const clockLabel = String(pulseData?.clock?.label || '').trim().toUpperCase();
-          const pulseClockSecs = Number(pulseData?.clock?.secs) || 0;
+          const hasHalfTimeEnd = events.some(
+            (e: any) => e?.type === 'PE' && (e?.phase === '1' || e?.phase === '1H')
+          );
+          const hasSecondHalfStart =
+            phase === '2' ||
+            phase === '2H' ||
+            events.some((e: any) => e?.type === 'PS' && (e?.phase === '2' || e?.phase === '2H'));
+          const ftEvent = events.find(
+            (e: any) => e?.type === 'PE' && (e?.phase === '2' || e?.phase === '2H')
+          );
+          const maxEventClockSecs = events.reduce(
+            (mx: number, e: any) => Math.max(mx, Number(e?.clock?.secs) || 0),
+            0
+          );
+          const pulseClockSecs = Math.max(Number(pulseData?.clock?.secs) || 0, maxEventClockSecs);
           const isExplicitlyLiveAndUnder90 = status === 'L' && pulseClockSecs < 5400;
           const isPulseFinished =
             !isExplicitlyLiveAndUnder90 &&
@@ -1648,30 +1647,6 @@ export function rebuildNewsTickerTable(
           }
         }
 
-        // Stamp detectedClockSecs for newly detected Kickoff events so 2nd-half/delayed detections get the full 10-min TTL
-        for (const row of tableRows) {
-          const parentId = resolveParentTemplateId(row.id, sortedEditorTemplateIds);
-          if (
-            parentId === 'LM_MATCH_PERIOD_START' &&
-            (newlyAddedIds.has(row.id) || row.cycle_meta?.detectedClockSecs === undefined)
-          ) {
-            const mKey =
-              row.cycle_meta?.matchKey ||
-              (Array.isArray(row.teams) && row.teams.length >= 2
-                ? buildMatchKey(row.teams[0], row.teams[1])
-                : '');
-            const mState = mKey ? matchStateByKey.get(mKey) : undefined;
-            const stampedClock = Math.max(
-              Number(row.cycle_meta?.clockSecs ?? 0) || 0,
-              mState?.currentClockSecs || 0
-            );
-            row.cycle_meta = {
-              ...(row.cycle_meta || {}),
-              detectedClockSecs: stampedClock,
-            };
-          }
-        }
-
         const markExpired = (row: NewsTickerDbRow, reason: string) => {
           row.status_tayang = 'N';
           row.keterangan_tidak_tayang = reason;
@@ -1718,15 +1693,22 @@ export function rebuildNewsTickerTable(
             continue;
           }
 
-          // 2. Kickoff (LM_MATCH_PERIOD_START) — P2 priority with 10-min TTL so 2H kickoff isn't missed
+          // 2. Kickoff (LM_MATCH_PERIOD_START) — measure strictly against real kickoff clockSecs (0s for 1H, 2700s for 2H)
+          // so accessing mid-half (e.g. minute 30') never resurrects 0' kickoff news.
           if (parentId === 'LM_MATCH_PERIOD_START') {
+            const kickoffClock =
+              Number(row.cycle_meta?.clockSecs ?? (row.cycle_meta?.isSecondHalf ? 2700 : 0)) || 0;
+            const kickoffElapsed = Math.max(0, curClock - kickoffClock);
             if (pts >= 1) {
               markExpired(row, 'Expired: Kickoff sudah tayang');
             } else if (mState?.isFinished) {
               markExpired(row, 'Expired: Laga sudah usai');
-            } else if (!row.cycle_meta?.isSecondHalf && (mState?.isHalfTime || mState?.isSecondHalfStarted || elapsedSecs > 600)) {
+            } else if (
+              !row.cycle_meta?.isSecondHalf &&
+              (mState?.isHalfTime || mState?.isSecondHalfStarted || kickoffElapsed > 600)
+            ) {
               markExpired(row, 'Expired: Kickoff Babak 1 melewati TTL 10 menit');
-            } else if (row.cycle_meta?.isSecondHalf && elapsedSecs > 600) {
+            } else if (row.cycle_meta?.isSecondHalf && kickoffElapsed > 600) {
               markExpired(row, 'Expired: Kickoff Babak 2 melewati TTL 10 menit');
             }
             continue;
