@@ -182,18 +182,6 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 }) => {
   const { t, language } = useLanguage();
   const userProfileId = useUserProfileId();
-  const [activeGW, setActiveGW] = useState<number>(initialGW);
-  const [activeMatchIndex, setActiveMatchIndex] = useState<number>(0);
-  const pendingMatchTargetRef = useRef<{
-    gw: number;
-    target: 'first' | 'last' | { fixtureId: number };
-  } | null>(null);
-  const [isGWDropdownOpen, setIsGWDropdownOpen] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<ModalTab>('overview');
-  const [ownerSearch, setOwnerSearch] = useState<string>('');
-  const [ownerSortField, setOwnerSortField] = useState<OwnerSortField | null>(null);
-  const [ownerSortDirection, setOwnerSortDirection] = useState<SortDirection>('asc');
-
   // Sorted list of available gameweeks
   const sortedGWs = useMemo(() => {
     if (availableGWs && availableGWs.length > 0) {
@@ -205,6 +193,27 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     return gwKeys.length > 0 ? gwKeys.sort((a, b) => a - b) : [initialGW];
   }, [availableGWs, standings, initialGW]);
 
+  // Guard initialGW so any GW outside available_gws safely falls back within sortedGWs (preventing index -1)
+  const safeInitialGW = useMemo(() => {
+    if (sortedGWs.length === 0) return initialGW;
+    if (sortedGWs.includes(initialGW)) return initialGW;
+    if (currentGW && sortedGWs.includes(currentGW)) return currentGW;
+    const maxAvail = sortedGWs[sortedGWs.length - 1];
+    return initialGW > maxAvail ? maxAvail : sortedGWs[0];
+  }, [sortedGWs, initialGW, currentGW]);
+
+  const [activeGW, setActiveGW] = useState<number>(safeInitialGW);
+  const [activeMatchIndex, setActiveMatchIndex] = useState<number>(0);
+  const pendingMatchTargetRef = useRef<{
+    gw: number;
+    target: 'first' | 'last' | { fixtureId: number };
+  } | null>(null);
+  const [isGWDropdownOpen, setIsGWDropdownOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<ModalTab>('overview');
+  const [ownerSearch, setOwnerSearch] = useState<string>('');
+  const [ownerSortField, setOwnerSortField] = useState<OwnerSortField | null>(null);
+  const [ownerSortDirection, setOwnerSortDirection] = useState<SortDirection>('asc');
+
   const maxGW = sortedGWs[sortedGWs.length - 1] ?? activeGW;
   const effectiveCurrentGW = currentGW || maxGW;
   const activeGWIndex = sortedGWs.indexOf(activeGW);
@@ -215,7 +224,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   }, [playerId, activeTab]);
 
   // Synchronous cache lookup for instantaneous 0ms frame-0 render without 1-frame flash
-  const initialCacheKey = playerId ? `${playerId}_${initialGW}` : '';
+  const initialCacheKey = playerId ? `${playerId}_${safeInitialGW}` : '';
   const initialCached = initialCacheKey ? (playerSummaryClientCache.get(initialCacheKey) || playerSummaryClientCache.get(String(playerId)) || null) : null;
   const [summaryData, setSummaryData] = useState<PlayerSummaryDetail | null>(initialCached);
   const [loadingSummary, setLoadingSummary] = useState<boolean>(!initialCached);
@@ -247,12 +256,12 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     setPhotoError(false);
   }, [playerId, activeGW]);
 
-  // Sync initialGW if changed from props
+  // Sync safeInitialGW if changed from props
   useEffect(() => {
-    setActiveGW(initialGW);
+    setActiveGW(safeInitialGW);
     setActiveMatchIndex(0);
     pendingMatchTargetRef.current = null;
-  }, [initialGW]);
+  }, [safeInitialGW]);
 
   // Handle device back button to close modal cleanly without double-back or auto-close
   const onCloseRef = useRef(onClose);

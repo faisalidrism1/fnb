@@ -317,25 +317,6 @@
           "shirtNumber": 12
         },
         {
-          "id": 568420,
-          "altIds": {
-            "opta": "p568420"
-          },
-          "name": {
-            "first": "Ousmane",
-            "last": "Diomande",
-            "display": "Ousmane Diomande"
-          },
-          "matchPosition": "D",
-          "info": {
-            "position": "D",
-            "positionInfo": "Defender",
-            "shirtNum": 2
-          },
-          "captain": false,
-          "shirtNumber": 2
-        },
-        {
           "id": 210462,
           "altIds": {
             "opta": "p210462"
@@ -353,6 +334,25 @@
           },
           "captain": false,
           "shirtNumber": 6
+        },
+        {
+          "id": 568420,
+          "altIds": {
+            "opta": "p568420"
+          },
+          "name": {
+            "first": "Ousmane",
+            "last": "Diomande",
+            "display": "Ousmane Diomande"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2
         },
         {
           "id": 209046,

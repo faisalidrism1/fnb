@@ -23,6 +23,7 @@ import {
   PROJECTION_FORMULA_VERSION,
   buildClubSplitStatsMap,
   buildClubLineupAttackMods,
+  buildClubLineupDefenseMods,
   projectEnhancedFixture,
   calculatePlayerMatchExpectedPoints,
   parseExpectedReturnDate,
@@ -144,6 +145,69 @@ function getPositionalPrior(
   }
 
   return { priorXg90, priorXa90 };
+}
+
+const POS_STARTER_MINS_PRIOR: Record<PositionType, number> = {
+  GKP: 89.5,
+  DEF: 85.0,
+  MID: 77.0,
+  FWD: 79.0,
+};
+
+function computeShrunkStarterMinutes(
+  pos: PositionType,
+  starterMinsSum: number,
+  starterStartsCount: number,
+  fallbackTotalMins?: number,
+  fallbackStarts?: number
+): number {
+  const prior = POS_STARTER_MINS_PRIOR[pos] ?? 78.0;
+  let sampleSum = starterMinsSum;
+  let sampleCnt = starterStartsCount;
+  if (sampleCnt === 0 && fallbackStarts && fallbackStarts > 0 && fallbackTotalMins && fallbackTotalMins > 0) {
+    const avg = Math.min(90, Math.max(55, fallbackTotalMins / fallbackStarts));
+    sampleSum = avg * fallbackStarts;
+    sampleCnt = fallbackStarts;
+  }
+  const shrunk = (sampleSum + 4 * prior) / (sampleCnt + 4);
+  return Number(Math.min(90, Math.max(60, shrunk)).toFixed(1));
+}
+
+interface BonusPoolItem {
+  detail: PlayerGwMatchDetail;
+  cell?: PlayerGwProjectionCell;
+  expBonus: number;
+}
+
+function normalizeFixtureBonusPool(entriesByFixKey: Map<string, BonusPoolItem[]>): void {
+  const dirtyCells = new Set<PlayerGwProjectionCell>();
+  for (const list of entriesByFixKey.values()) {
+    if (list.length === 0) continue;
+    let sumExpBonus = 0;
+    for (const item of list) sumExpBonus += item.expBonus;
+    if (sumExpBonus <= 0.6) continue;
+
+    // A Premier League match distributes ~6.35 BPS bonus points on average (3+2+1 plus ties)
+    const scale = Math.min(1.42, Math.max(0.62, 6.35 / sumExpBonus));
+    if (Math.abs(scale - 1.0) <= 0.02) continue;
+
+    for (const item of list) {
+      if (item.expBonus <= 0) continue;
+      const delta = (scale - 1.0) * item.expBonus;
+      const nextBaseXp = Math.max(0.0, Math.round((item.detail.baseXp + delta) * 10) / 10);
+      item.detail.baseXp = nextBaseXp;
+      item.detail.xp = Math.max(0.0, Math.round((nextBaseXp + item.detail.spikeMod) * 10) / 10);
+      if (item.cell) dirtyCells.add(item.cell);
+    }
+  }
+
+  for (const cell of dirtyCells) {
+    if (!Array.isArray(cell.matches) || cell.matches.length === 0) continue;
+    const sumXp = cell.matches.reduce((s, d) => s + (d.xp || 0), 0);
+    const sumBase = cell.matches.reduce((s, d) => s + (d.baseXp || 0), 0);
+    cell.xp = Number(sumXp.toFixed(1));
+    cell.baseXp = Number(sumBase.toFixed(1));
+  }
 }
 
 export interface ProjectionEpochInfo {
@@ -542,10 +606,18 @@ async function getOrBuildCoreContext(
       targetNextGW,
       combinedScheduleForMods
     );
+    const clubLineupDefenseMods = buildClubLineupDefenseMods(
+      cachedData.player_stats || [],
+      baseHistoricalGW,
+      targetNextGW,
+      combinedScheduleForMods
+    );
 
     const projectFixture = (homeShort: string, awayShort: string, gw: number = targetNextGW): ProjectedFixtureOutcome => {
-      const hMod = clubLineupAttackMods[homeShort]?.[gw] ?? 1.0;
-      const aMod = clubLineupAttackMods[awayShort]?.[gw] ?? 1.0;
+      const hAttMod = clubLineupAttackMods[homeShort]?.[gw] ?? 1.0;
+      const aAttMod = clubLineupAttackMods[awayShort]?.[gw] ?? 1.0;
+      const hDefMod = clubLineupDefenseMods[homeShort]?.[gw] ?? 1.0;
+      const aDefMod = clubLineupDefenseMods[awayShort]?.[gw] ?? 1.0;
       return projectEnhancedFixture(
         homeShort,
         awayShort,
@@ -554,8 +626,10 @@ async function getOrBuildCoreContext(
         leagueAvgAwayGoals,
         baseHistoricalGW,
         gw,
-        hMod,
-        aMod
+        hAttMod,
+        aAttMod,
+        hDefMod,
+        aDefMod
       );
     };
 
@@ -651,6 +725,8 @@ async function getOrBuildCoreContext(
     const liveCoveredMatchKeySet = new Set<string>();
     const liveCoveredPlayerGwSet = new Set<string>();
     const livePtsByPlayerGw = new Map<number, Map<number, number>>();
+    const starterMinsAccumById = new Map<number, { minsSum: number; count: number }>();
+    const starterSampleCoveredGwSet = new Set<string>();
 
     for (let gw = 1; gw <= baseHistoricalGW; gw++) {
       const matches = matchesWithLineupsByGw[gw] || [];
@@ -670,8 +746,16 @@ async function getOrBuildCoreContext(
           if (!pulsePlayerStats[p.id]) pulsePlayerStats[p.id] = { starts: 0, sub: 0, unused: 0, bench: 0 };
           pulsePlayerStats[p.id].starts += 1;
           liveCoveredPlayerGwSet.add(`${p.id}_${gw}`);
+          starterSampleCoveredGwSet.add(`${p.id}_${gw}`);
 
           const mins = p.stats?.minutes ?? p.minutes ?? 90;
+          if (mins > 0) {
+            const sm = starterMinsAccumById.get(p.id) || { minsSum: 0, count: 0 };
+            sm.minsSum += Math.min(90, mins);
+            sm.count += 1;
+            starterMinsAccumById.set(p.id, sm);
+          }
+
           const prevLive = livePlayerGwMap.get(`${p.id}_${gw}`);
           livePlayerGwMap.set(`${p.id}_${gw}`, {
             wasStarter: Boolean(prevLive?.wasStarter) || true,
@@ -732,7 +816,16 @@ async function getOrBuildCoreContext(
           continue;
         }
         if (!pulsePlayerStats[pId]) pulsePlayerStats[pId] = { starts: 0, sub: 0, unused: 0, bench: 0 };
-        if (stat.wasStarter) pulsePlayerStats[pId].starts += 1;
+        if (stat.wasStarter) {
+          pulsePlayerStats[pId].starts += 1;
+          if (!starterSampleCoveredGwSet.has(`${pId}_${gw}`) && stat.mins > 0) {
+            starterSampleCoveredGwSet.add(`${pId}_${gw}`);
+            const sm = starterMinsAccumById.get(pId) || { minsSum: 0, count: 0 };
+            sm.minsSum += Math.min(90, stat.mins);
+            sm.count += 1;
+            starterMinsAccumById.set(pId, sm);
+          }
+        }
         else if (stat.wasSub) {
           pulsePlayerStats[pId].sub += 1;
           pulsePlayerStats[pId].bench += 1;
@@ -1173,6 +1266,7 @@ async function getOrBuildCoreContext(
       }
     }
 
+    const coreBonusPoolByFixKey = new Map<string, BonusPoolItem[]>();
     const allPlayerFullSeasonProjections: ProjectedPlayerCoreItem[] = allPlayers.map((p) => {
       const cShort = p.teamShort;
       const pos = p.position as PositionType;
@@ -1198,27 +1292,41 @@ async function getOrBuildCoreContext(
       const { priorXg90, priorXa90 } = getPositionalPrior(pos, costMil, past, provenStatus.tier);
 
       const mins = p.minutes || (p.starts ? p.starts * 75 : 0);
-      const sampleXg90 = mins > 0 ? ((p.expectedGoals || p.goalsScored || 0) / mins) * 90 : priorXg90;
-      const sampleXa90 = mins > 0 ? ((p.expectedAssists || p.assists || 0) / mins) * 90 : priorXa90;
+      const rawGoals = p.goalsScored || 0;
+      const rawXg = p.expectedGoals || 0;
+      const rawAssists = p.assists || 0;
+      const rawXa = p.expectedAssists || 0;
+      const blendedG = rawXg > 0 ? (0.72 * rawXg + 0.28 * rawGoals) : rawGoals;
+      const blendedA = rawXa > 0 ? (0.70 * rawXa + 0.30 * rawAssists) : rawAssists;
+      const sampleXg90 = mins > 0 ? (blendedG / mins) * 90 : priorXg90;
+      const sampleXa90 = mins > 0 ? (blendedA / mins) * 90 : priorXa90;
 
-      const w = mins / (mins + 540);
+      const w = mins / (mins + 300);
       const postXg90 = w * sampleXg90 + (1 - w) * priorXg90;
       const postXa90 = w * sampleXa90 + (1 - w) * priorXa90;
 
-      // Use cStats.totalMatches as divisor so BGW/DGW clubs don't get skewed attacking rates!
+      // Use cStats.totalMatches as divisor and shrink toward PL mean (1.38) consistently with projectEnhancedFixture
       const cStats = clubStatsMap[cShort] || { xg: 10, gf: 10, totalMatches: baseHistoricalGW };
       const clubMatchDivisor = Math.max(cStats.totalMatches || baseHistoricalGW, 1);
-      const teamXgPerMatch = Math.max(1.1, (cStats.xg * 0.7 + cStats.gf * 0.3) / clubMatchDivisor);
+      const rawClubXgPerMatch = (cStats.xg * 0.7 + cStats.gf * 0.3) / clubMatchDivisor;
+      const clubW = clubMatchDivisor / (clubMatchDivisor + 5);
+      const teamXgPerMatch = Math.min(1.95, Math.max(1.15, clubW * rawClubXgPerMatch + (1 - clubW) * 1.38));
       const goalShareCap = pos === 'FWD' ? (costMil >= 11.0 ? 0.60 : 0.55) : pos === 'MID' && costMil >= 10.0 ? 0.52 : 0.48;
       const playerGoalShare = Math.min(goalShareCap, postXg90 / teamXgPerMatch);
-      const playerAssistShare = Math.min(0.40, postXa90 / teamXgPerMatch);
+      const playerAssistShare = Math.min(0.42, postXa90 / teamXgPerMatch);
 
       const pForm = Number(p.form || 0);
       const pPpg = Number(p.pointsPerGame || 0);
-      const formDelta = Math.max(-0.6, Math.min(0.8, (pForm - pPpg) * 0.2));
+      const formSlope = pForm < pPpg && pPpg >= 4.5 ? 0.06 : 0.10;
+      const formDelta = Math.max(-0.20, Math.min(0.25, (pForm - pPpg) * formSlope));
       const expTotalInvolvement = (p.expectedGoals || 0) + (p.expectedAssists || 0);
       const actualTotalInvolvement = (p.goalsScored || 0) + (p.assists || 0);
-      const regressionBounce = expTotalInvolvement > actualTotalInvolvement + 0.6 ? 0.4 : 0.0;
+      const regressionBounce = expTotalInvolvement > actualTotalInvolvement + 1.5 ? 0.15 : 0.0;
+
+      const nonStartEvents = Math.max(1, baseHistoricalGW - (squadPlayer?.starts ?? startsCount));
+      const subAppRate = squadPlayer && baseHistoricalGW >= 3
+        ? (squadPlayer.sub === 0 ? 0.02 : Math.min(0.60, squadPlayer.sub / nonStartEvents))
+        : undefined;
 
       const pChanceThis = (p as any).chanceOfPlayingThisRound;
       const pChanceNext = p.chanceOfPlayingNextRound;
@@ -1229,9 +1337,32 @@ async function getOrBuildCoreContext(
         isSuspended = false;
       }
 
-      const starterMins = costMil >= 10.0 || pos === 'GKP' ? 86 : costMil >= 6.0 ? 78 : 74;
-      const avgDc = ((p as any).defensive_contribution || (p as any).defensiveContribution || 0) / clubMatchDivisor;
-      const pDc = pos === 'DEF' ? (avgDc >= 10 ? 0.75 : avgDc >= 7 ? 0.45 : 0.20) : avgDc >= 12 ? 0.40 : avgDc >= 9 ? 0.25 : 0.05;
+      // Backfill starter sample mins from gwHistory when neither live match nor precalc covered a GW
+      const starterAccum = { ...(starterMinsAccumById.get(p.id) || { minsSum: 0, count: 0 }) };
+      for (const h of p.gwHistory || []) {
+        if (h.round <= baseHistoricalGW && h.minutes >= 55 && !starterSampleCoveredGwSet.has(`${p.id}_${h.round}`)) {
+          starterAccum.minsSum += Math.min(90, h.minutes);
+          starterAccum.count += 1;
+        }
+      }
+
+      const starterMins = computeShrunkStarterMinutes(
+        pos,
+        starterAccum.minsSum,
+        starterAccum.count,
+        p.minutes,
+        p.starts
+      );
+
+      const rawDc = Number((p as any).defensive_contribution ?? (p as any).defensiveContribution ?? 0);
+      const dcPer90 = mins >= 90 && rawDc > 0 ? Number(((rawDc / mins) * 90).toFixed(2)) : 0;
+      const avgDcMatch = mins >= 90 && rawDc > 0 ? (rawDc / mins) * 90 : rawDc / clubMatchDivisor;
+      const pDc =
+        pos === 'DEF'
+          ? (avgDcMatch >= 10 ? 0.75 : avgDcMatch >= 7 ? 0.45 : 0.20)
+          : pos === 'MID' || pos === 'FWD'
+          ? (avgDcMatch >= 12 ? 0.40 : avgDcMatch >= 9 ? 0.25 : 0.05)
+          : 0;
 
       const sampleMins = Math.max(mins, 90);
       const threatPer90 = Number((((Number(p.threat) || 0) / sampleMins) * 90).toFixed(2));
@@ -1261,6 +1392,7 @@ async function getOrBuildCoreContext(
         }
 
         const matchDetails: PlayerGwMatchDetail[] = [];
+        const pendingBonusRefs: Array<{ detail: PlayerGwMatchDetail; fixKey: string; expBonus: number }> = [];
         let sumXp = 0;
         let sumBaseXp = 0;
         let sumSpikeMod = 0;
@@ -1270,7 +1402,12 @@ async function getOrBuildCoreContext(
           const matchDate = new Date(kickoffTime);
 
           let gwIsOut = false;
-          let gwSiProb = baseSi / 100;
+          let gwSiProb =
+            squadPlayer?.role === 'out' && p.status === 'a'
+              ? Math.min(baseSi, 8) / 100
+              : squadPlayer?.role === 'bench' && p.status === 'a'
+              ? Math.min(baseSi, 38) / 100
+              : baseSi / 100;
 
           if (isInjured || isSuspended) {
             if (expectedReturn) {
@@ -1363,6 +1500,7 @@ async function getOrBuildCoreContext(
             isFkTaker: deadBall.isFkTaker,
             isCornerTaker: deadBall.isCornerTaker,
             pDc,
+            dcPer90,
             isHome,
             formDelta,
             regressionBounce,
@@ -1372,6 +1510,7 @@ async function getOrBuildCoreContext(
             bpsPer90,
             savesPer90,
             yellowsPer90,
+            subAppRate,
             horizonOffset: Math.max(0, gw - targetNextGW),
             provenGuard: {
               guardFactor: provenStatus.guardFactor,
@@ -1386,7 +1525,8 @@ async function getOrBuildCoreContext(
           sumBaseXp += xpCalc.baseXp;
           sumSpikeMod += xpCalc.spikeMod;
 
-          matchDetails.push({
+          const detailObj: PlayerGwMatchDetail = {
+            fixtureId: matchInfo.fixtureId,
             oppShort,
             isHome,
             oppLabel: `${oppShort} (${isHome ? 'H' : 'A'})`,
@@ -1396,11 +1536,19 @@ async function getOrBuildCoreContext(
             teamLambda: Number(teamLambda.toFixed(2)),
             oppLambda: Number(oppLambda.toFixed(2)),
             csProb: matchInfo.csProbPct,
-          });
+          };
+          matchDetails.push(detailObj);
+
+          const fixKey = matchInfo.fixtureId
+            ? `${gw}_id_${matchInfo.fixtureId}`
+            : `${gw}_${isHome ? cShort : oppShort}_${isHome ? oppShort : cShort}`;
+          if (xpCalc.expBonus >= 0.04) {
+            pendingBonusRefs.push({ detail: detailObj, fixKey, expBonus: xpCalc.expBonus });
+          }
         }
 
         const combinedOpp = matchDetails.map((d) => d.oppLabel).join(' + ');
-        fullSeasonPointsMap[gw] = {
+        const gwCell: PlayerGwProjectionCell = {
           opp: combinedOpp,
           isHome: matchDetails[0]?.isHome ?? true,
           xp: Number(sumXp.toFixed(1)),
@@ -1410,6 +1558,16 @@ async function getOrBuildCoreContext(
           matchCount: matchDetails.length,
           matches: matchDetails,
         };
+        fullSeasonPointsMap[gw] = gwCell;
+
+        for (const ref of pendingBonusRefs) {
+          if (!coreBonusPoolByFixKey.has(ref.fixKey)) coreBonusPoolByFixKey.set(ref.fixKey, []);
+          coreBonusPoolByFixKey.get(ref.fixKey)!.push({
+            detail: ref.detail,
+            cell: gwCell,
+            expBonus: ref.expBonus,
+          });
+        }
       }
 
       return {
@@ -1434,6 +1592,8 @@ async function getOrBuildCoreContext(
         fullSeasonPointsMap,
       };
     });
+
+    normalizeFixtureBonusPool(coreBonusPoolByFixKey);
 
     const corePayload: ServerProjectionCorePayload = {
       epochKey: epoch.epochKey,
@@ -2030,9 +2190,444 @@ async function getOrBuildReviewBase(
       }
     }
 
-    // 3. Precompute full MAE Recap Rows (GW 1..maxReviewGW) with confirmed-GW memoization
-    const allPlayers = cachedData.player_stats || [];
-    const projPlayers = corePayload.allPlayerFullSeasonProjections;
+    // 3. Precompute full Walk-Forward Out-of-Sample MAE Recap Rows (GW 1..maxReviewGW)
+    // Strictly forbids look-ahead leakage: GW `t` uses ONLY GW `1..(t-1)` match stats & prior season data!
+    const allPlayers = (cachedData.player_stats || []).filter((p) => p.status !== 'u');
+
+    const buildWalkForwardGwPredictions = (
+      gw: number,
+      lineupPerClub: Record<string, any[]>
+    ): {
+      fixtureProjectionsByKey: Record<string, ProjectedFixtureOutcome>;
+      playerXpById: Map<number, number>;
+    } => {
+      const prevGw = gw - 1;
+      const histMatches: Record<number, any[]> = {};
+      for (let g = 1; g <= prevGw; g++) {
+        if (matchesWithLineupsByGw[g]?.length) {
+          histMatches[g] = matchesWithLineupsByGw[g];
+        } else if (corePayload.scheduleByGw[g]?.length) {
+          histMatches[g] = corePayload.scheduleByGw[g];
+        }
+      }
+
+      // Accumulate strictly < gw per-player metrics from matchesWithLineupsByGw, precalc, and gwHistory
+      interface WfPlayerAgg {
+        mins: number;
+        starts: number;
+        goals: number;
+        assists: number;
+        xg: number;
+        xa: number;
+        gc: number;
+        cs: number;
+        xgc: number;
+        bps: number;
+        saves: number;
+        yellows: number;
+        threat: number;
+        creativity: number;
+        influence: number;
+        dc: number;
+        pts: number;
+        hauls: number;
+        starterMinsSum: number;
+        starterCount: number;
+        gwPts: Map<number, number>;
+        coveredGws: Set<number>;
+      }
+      const wfAggMap = new Map<number, WfPlayerAgg>();
+      const ensureAgg = (pId: number): WfPlayerAgg => {
+        let a = wfAggMap.get(pId);
+        if (!a) {
+          a = {
+            mins: 0, starts: 0, goals: 0, assists: 0, xg: 0, xa: 0, gc: 0, cs: 0, xgc: 0,
+            bps: 0, saves: 0, yellows: 0, threat: 0, creativity: 0, influence: 0, dc: 0,
+            pts: 0, hauls: 0, starterMinsSum: 0, starterCount: 0,
+            gwPts: new Map(), coveredGws: new Set(),
+          };
+          wfAggMap.set(pId, a);
+        }
+        return a;
+      };
+
+      for (let g = 1; g <= prevGw; g++) {
+        const gMatches = matchesWithLineupsByGw[g] || [];
+        for (const m of gMatches) {
+          const hScore = Number(m.team_h_score ?? 0);
+          const aScore = Number(m.team_a_score ?? 0);
+          const ingestList = (list: any[] | undefined, isStarterList: boolean, conceded: number) => {
+            if (!Array.isArray(list)) return;
+            for (const lp of list) {
+              if (!lp?.id) continue;
+              const agg = ensureAgg(lp.id);
+              const st = lp.stats || {};
+              const mins = Number(st.minutes ?? lp.minutes ?? (isStarterList ? 90 : 0));
+              const pts = typeof lp.gw_points === 'number' ? lp.gw_points : Number(st.total_points ?? 0);
+              agg.mins += mins;
+              if (isStarterList) {
+                agg.starts += 1;
+                if (mins > 0) {
+                  agg.starterMinsSum += Math.min(90, mins);
+                  agg.starterCount += 1;
+                }
+              }
+              agg.goals += Number(st.goals_scored || 0);
+              agg.assists += Number(st.assists || 0);
+              agg.xg += Number(st.expected_goals || 0);
+              agg.xa += Number(st.expected_assists || 0);
+              agg.gc += Number(st.goals_conceded ?? (mins > 0 ? conceded : 0));
+              agg.cs += Number(st.clean_sheets ?? (mins >= 60 && conceded === 0 ? 1 : 0));
+              agg.xgc += Number(st.expected_goals_conceded || 0);
+              agg.bps += Number(st.bps || 0);
+              agg.saves += Number(st.saves || 0);
+              agg.yellows += Number(st.yellow_cards || 0);
+              agg.threat += Number(st.threat || 0);
+              agg.creativity += Number(st.creativity || 0);
+              agg.influence += Number(st.influence || 0);
+              agg.dc += Number(st.defensive_contribution || 0);
+              agg.pts += pts;
+              agg.gwPts.set(g, (agg.gwPts.get(g) || 0) + pts);
+              agg.coveredGws.add(g);
+            }
+          };
+          ingestList(m.home_lineup, true, aScore);
+          ingestList(m.home_bench, false, aScore);
+          ingestList(m.away_lineup, true, hScore);
+          ingestList(m.away_bench, false, hScore);
+        }
+      }
+
+      // Overlay missing < gw rounds from p.gwHistory & precalculatedReviewData
+      const syntheticHistPlayers: DbPlayerStat[] = [];
+      for (const p of allPlayers) {
+        const agg = ensureAgg(p.id);
+        const filteredHistory = (p.gwHistory || []).filter((h) => h.round < gw);
+        for (const h of filteredHistory) {
+          if (agg.coveredGws.has(h.round)) continue;
+          agg.coveredGws.add(h.round);
+          const mins = Number(h.minutes || 0);
+          const pts = Number(h.points || 0);
+          agg.mins += mins;
+          if (mins >= 55) {
+            agg.starts += 1;
+            agg.starterMinsSum += Math.min(90, mins);
+            agg.starterCount += 1;
+          }
+          agg.goals += Number((h as any).goals_scored || 0);
+          agg.assists += Number((h as any).assists || 0);
+          agg.xg += Number((h as any).expected_goals || 0);
+          agg.xa += Number((h as any).expected_assists || 0);
+          agg.bps += Number((h as any).bps || 0);
+          agg.pts += pts;
+          agg.gwPts.set(h.round, (agg.gwPts.get(h.round) || 0) + pts);
+        }
+        const precalcGws = precalculatedReviewData.players[String(p.id)] || {};
+        for (let g = 1; g <= prevGw; g++) {
+          if (agg.coveredGws.has(g)) continue;
+          const ps = precalcGws[String(g)];
+          if (!ps) continue;
+          agg.coveredGws.add(g);
+          agg.mins += ps.mins;
+          if (ps.wasStarter) {
+            agg.starts += 1;
+            if (ps.mins > 0) {
+              agg.starterMinsSum += Math.min(90, ps.mins);
+              agg.starterCount += 1;
+            }
+          }
+          agg.pts += ps.pts;
+          agg.gwPts.set(g, (agg.gwPts.get(g) || 0) + ps.pts);
+        }
+
+        for (const pts of agg.gwPts.values()) {
+          if (pts >= 10) agg.hauls += 1;
+        }
+
+        if (prevGw > 0) {
+          syntheticHistPlayers.push({
+            ...p,
+            totalPoints: agg.pts,
+            minutes: agg.mins,
+            starts: agg.starts,
+            goalsScored: agg.goals,
+            assists: agg.assists,
+            cleanSheets: agg.cs,
+            goalsConceded: agg.gc,
+            expectedGoals: agg.xg,
+            expectedAssists: agg.xa,
+            expectedGoalsConceded: agg.xgc,
+            bps: agg.bps,
+            saves: agg.saves,
+            yellowCards: agg.yellows,
+            threat: agg.threat,
+            creativity: agg.creativity,
+            influence: agg.influence,
+            gwHistory: filteredHistory,
+          });
+        }
+      }
+
+      const {
+        clubStatsMap: wfClubStats,
+        leagueAvgHomeGoals: wfAvgHome,
+        leagueAvgAwayGoals: wfAvgAway,
+      } = buildClubSplitStatsMap(
+        corePayload.clubs,
+        prevGw > 0 ? syntheticHistPlayers : [],
+        histMatches,
+        prevGw
+      );
+
+      // Build walk-forward SI & role map from gwLineupBuilt (strictly < gw)
+      const wfSiByPlayerId = new Map<number, number>();
+      const wfRoleByPlayerId = new Map<number, string>();
+      for (const squadList of Object.values(lineupPerClub)) {
+        for (const sp of squadList) {
+          wfSiByPlayerId.set(sp.id, Number(sp.si ?? 50));
+          wfRoleByPlayerId.set(sp.id, String(sp.role || 'bench'));
+        }
+      }
+
+      // Project all matches in target GW `gw` strictly from < gw knowledge
+      const wfFixtureProjectionsByKey: Record<string, ProjectedFixtureOutcome> = {};
+      const wfClubMatches: Record<string, Array<{
+        fixtureId?: number;
+        oppShort: string;
+        isHome: boolean;
+        teamLambda: number;
+        oppLambda: number;
+        csProb: number;
+        expGcPenalty: number;
+      }>> = {};
+
+      const targetMatches =
+        (corePayload.scheduleByGw[gw]?.length ? corePayload.scheduleByGw[gw] : matchesWithLineupsByGw[gw]) || [];
+      for (const m of targetMatches) {
+        const hShort = m.home_team?.short_name || '';
+        const aShort = m.away_team?.short_name || '';
+        if (!hShort || !aShort) continue;
+        const proj = projectEnhancedFixture(
+          hShort,
+          aShort,
+          wfClubStats,
+          wfAvgHome,
+          wfAvgAway,
+          prevGw,
+          gw,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        );
+        wfFixtureProjectionsByKey[`${gw}_${hShort}_${aShort}`] = proj;
+        const hCsRaw = proj.homeCsProbRaw ?? proj.homeCsProb / 100;
+        const aCsRaw = proj.awayCsProbRaw ?? proj.awayCsProb / 100;
+        if (!wfClubMatches[hShort]) wfClubMatches[hShort] = [];
+        if (!wfClubMatches[aShort]) wfClubMatches[aShort] = [];
+        wfClubMatches[hShort].push({
+          fixtureId: m.id,
+          oppShort: aShort,
+          isHome: true,
+          teamLambda: proj.lambdaH,
+          oppLambda: proj.lambdaA,
+          csProb: hCsRaw,
+          expGcPenalty: proj.homeExpGcPenalty,
+        });
+        wfClubMatches[aShort].push({
+          fixtureId: m.id,
+          oppShort: hShort,
+          isHome: false,
+          teamLambda: proj.lambdaA,
+          oppLambda: proj.lambdaH,
+          csProb: aCsRaw,
+          expGcPenalty: proj.awayExpGcPenalty,
+        });
+      }
+
+      const bonusPool = new Map<string, BonusPoolItem[]>();
+      const playerDetailsMap = new Map<number, PlayerGwMatchDetail[]>();
+
+      for (const p of allPlayers) {
+        const cShort = p.teamShort;
+        const matchList = wfClubMatches[cShort] || [];
+        if (matchList.length === 0) continue;
+
+        const agg = wfAggMap.get(p.id);
+        const pos = p.position as PositionType;
+        const costMil = (p.nowCost || 50) / 10;
+        const past = pastSeasonMap[String(p.id)];
+        const filteredHist = (p.gwHistory || []).filter((h) => h.round < gw);
+
+        const wfProven = getFplProvenStatus({
+          id: p.id,
+          webName: p.webName,
+          position: pos,
+          nowCost: p.nowCost,
+          totalPoints: agg?.pts || 0,
+          minutes: agg?.mins || 0,
+          doubleDigitHauls: agg?.hauls || 0,
+          gwHistory: filteredHist,
+        });
+
+        const { priorXg90, priorXa90 } = getPositionalPrior(pos, costMil, past, wfProven.tier);
+        const mins = agg?.mins || 0;
+        const wfGoals = agg?.goals || 0;
+        const wfXg = agg?.xg || 0;
+        const wfAssists = agg?.assists || 0;
+        const wfXa = agg?.xa || 0;
+        const wfBlendG = wfXg > 0 ? (0.72 * wfXg + 0.28 * wfGoals) : wfGoals;
+        const wfBlendA = wfXa > 0 ? (0.70 * wfXa + 0.30 * wfAssists) : wfAssists;
+        const sampleXg90 = mins > 0 ? (wfBlendG / mins) * 90 : priorXg90;
+        const sampleXa90 = mins > 0 ? (wfBlendA / mins) * 90 : priorXa90;
+
+        const w = mins / (mins + 300);
+        const postXg90 = w * sampleXg90 + (1 - w) * priorXg90;
+        const postXa90 = w * sampleXa90 + (1 - w) * priorXa90;
+
+        const cStats = wfClubStats[cShort] || { xg: 1.4, gf: 1.4, totalMatches: 1 };
+        const clubDiv = Math.max(cStats.totalMatches || prevGw, 1);
+        const rawWfClubXgPerMatch = prevGw > 0 ? (cStats.xg * 0.7 + cStats.gf * 0.3) / clubDiv : 1.38;
+        const wfClubW = prevGw > 0 ? clubDiv / (clubDiv + 5) : 0;
+        const teamXgPerMatch = Math.min(1.95, Math.max(1.15, wfClubW * rawWfClubXgPerMatch + (1 - wfClubW) * 1.38));
+        const goalShareCap = pos === 'FWD' ? (costMil >= 11.0 ? 0.60 : 0.55) : pos === 'MID' && costMil >= 10.0 ? 0.52 : 0.48;
+        const playerGoalShare = Math.min(goalShareCap, postXg90 / teamXgPerMatch);
+        const playerAssistShare = Math.min(0.42, postXa90 / teamXgPerMatch);
+
+        // Compute formDelta strictly from gw-3..gw-1 vs seasonal 1..gw-1
+        let recentSum = 0;
+        let recentCnt = 0;
+        for (let g = Math.max(1, prevGw - 2); g <= prevGw; g++) {
+          const pts = agg?.gwPts.get(g);
+          if (pts !== undefined) {
+            recentSum += pts;
+            recentCnt += 1;
+          }
+        }
+        const totalGwsCount = agg?.gwPts.size || 0;
+        const recentFormPpg = recentCnt > 0 ? recentSum / recentCnt : 0;
+        const seasonPpg = totalGwsCount > 0 ? (agg?.pts || 0) / totalGwsCount : 0;
+        const wfSlope = recentFormPpg < seasonPpg && seasonPpg >= 4.5 ? 0.06 : 0.10;
+        const formDelta = prevGw > 0 ? Math.max(-0.20, Math.min(0.25, (recentFormPpg - seasonPpg) * wfSlope)) : 0;
+
+        const expInvolv = (agg?.xg || 0) + (agg?.xa || 0);
+        const actInvolv = (agg?.goals || 0) + (agg?.assists || 0);
+        const regressionBounce = expInvolv > actInvolv + 1.5 ? 0.15 : 0.0;
+
+        const starterMins = computeShrunkStarterMinutes(
+          pos,
+          agg?.starterMinsSum || 0,
+          agg?.starterCount || 0
+        );
+        const rawDc = agg?.dc || 0;
+        const dcPer90 = mins >= 90 && rawDc > 0 ? Number(((rawDc / mins) * 90).toFixed(2)) : 0;
+        const wfAvgDcMatch = mins >= 90 && rawDc > 0 ? (rawDc / mins) * 90 : rawDc / clubDiv;
+        const wfPDc =
+          pos === 'DEF'
+            ? (wfAvgDcMatch >= 10 ? 0.75 : wfAvgDcMatch >= 7 ? 0.45 : 0.20)
+            : pos === 'MID' || pos === 'FWD'
+            ? (wfAvgDcMatch >= 12 ? 0.40 : wfAvgDcMatch >= 9 ? 0.25 : 0.05)
+            : 0;
+        const sampleMins = Math.max(mins, 90);
+        const threatPer90 = mins > 0 ? Number((((agg?.threat || 0) / sampleMins) * 90).toFixed(2)) : 0;
+        const creativityPer90 = mins > 0 ? Number((((agg?.creativity || 0) / sampleMins) * 90).toFixed(2)) : 0;
+        const influencePer90 = mins > 0 ? Number((((agg?.influence || 0) / sampleMins) * 90).toFixed(2)) : 0;
+        const bpsPer90 = mins > 0 ? Number((((agg?.bps || 0) / sampleMins) * 90).toFixed(2)) : 0;
+        const savesPer90 = mins > 0 ? Number((((agg?.saves || 0) / sampleMins) * 90).toFixed(2)) : 0;
+        const yellowsPer90 = mins > 0 ? Number((((agg?.yellows || 0) / sampleMins) * 90).toFixed(2)) : 0;
+
+        const deadBall = resolveDeadBallDuties(p.webName, p.fullName, cShort, p);
+        const wfRole = wfRoleByPlayerId.get(p.id) || 'bench';
+        const rawWfSi = wfSiByPlayerId.get(p.id) ?? (wfRole === 'starting' ? 80 : 15);
+        const effWfSi = prevGw === 0 && wfRole === 'starting'
+          ? Math.max(rawWfSi, 82)
+          : wfRole === 'out'
+          ? Math.min(rawWfSi, (agg?.mins || 0) === 0 && prevGw >= 2 ? 3 : 8)
+          : wfRole === 'bench'
+          ? Math.min(rawWfSi, 35)
+          : rawWfSi;
+        const gwSiProb = wfRole === 'out'
+          ? Math.min(0.08, Math.max(0.01, effWfSi / 100))
+          : Math.min(0.99, Math.max(0.01, effWfSi / 100));
+        const wfSubApps = Math.max(0, (agg?.gwPts.size || 0) - (agg?.starterCount || 0));
+        const wfNonStart = Math.max(1, prevGw - (agg?.starterCount || 0));
+        const wfSubAppRate = prevGw >= 3
+          ? (wfSubApps === 0 ? 0.02 : Math.min(0.55, wfSubApps / wfNonStart))
+          : (wfRole === 'out' ? 0.01 : wfRole === 'bench' ? 0.06 : undefined);
+        const dgwRot = matchList.length >= 2 && costMil < 9.5 && pos !== 'GKP' ? 0.94 : 1.0;
+
+        const details: PlayerGwMatchDetail[] = [];
+        for (const matchInfo of matchList) {
+          const xpCalc = calculatePlayerMatchExpectedPoints({
+            pos,
+            costMil,
+            starterIndexProb: Math.min(0.99, gwSiProb * dgwRot),
+            isInjuredOrOut: false,
+            starterMins,
+            teamLambda: matchInfo.teamLambda,
+            oppLambda: matchInfo.oppLambda,
+            csProb: matchInfo.csProb,
+            expGcPenalty: matchInfo.expGcPenalty,
+            playerGoalShare,
+            playerAssistShare,
+            isPrimaryPen: deadBall.isPrimaryPen,
+            isSecondaryPen: deadBall.isSecondaryPen,
+            isFkTaker: deadBall.isFkTaker,
+            isCornerTaker: deadBall.isCornerTaker,
+            pDc: wfPDc,
+            dcPer90,
+            isHome: matchInfo.isHome,
+            formDelta,
+            regressionBounce,
+            threatPer90,
+            creativityPer90,
+            influencePer90,
+            bpsPer90,
+            savesPer90,
+            yellowsPer90,
+            subAppRate: wfSubAppRate,
+            horizonOffset: 0,
+            provenGuard: {
+              guardFactor: wfProven.guardFactor,
+              maxBlankDropPenalty: wfProven.maxBlankDropPenalty,
+              provenXpFloor: wfProven.provenXpFloor,
+              isProven: wfProven.isProven,
+              tier: wfProven.tier,
+            },
+          });
+
+          const det: PlayerGwMatchDetail = {
+            fixtureId: matchInfo.fixtureId,
+            oppShort: matchInfo.oppShort,
+            isHome: matchInfo.isHome,
+            xp: Number(xpCalc.xpTotal.toFixed(1)),
+            baseXp: Number(xpCalc.baseXp.toFixed(1)),
+            spikeMod: Number(xpCalc.spikeMod.toFixed(1)),
+          };
+          details.push(det);
+
+          const fixKey = matchInfo.fixtureId
+            ? `${gw}_id_${matchInfo.fixtureId}`
+            : `${gw}_${matchInfo.isHome ? cShort : matchInfo.oppShort}_${matchInfo.isHome ? matchInfo.oppShort : cShort}`;
+          if (xpCalc.expBonus >= 0.04) {
+            if (!bonusPool.has(fixKey)) bonusPool.set(fixKey, []);
+            bonusPool.get(fixKey)!.push({ detail: det, expBonus: xpCalc.expBonus });
+          }
+        }
+        playerDetailsMap.set(p.id, details);
+      }
+
+      normalizeFixtureBonusPool(bonusPool);
+
+      const playerXpById = new Map<number, number>();
+      for (const [pId, details] of playerDetailsMap.entries()) {
+        const total = details.reduce((s, d) => s + (d.xp || 0), 0);
+        playerXpById.set(pId, Number(total.toFixed(1)));
+      }
+
+      return { fixtureProjectionsByKey: wfFixtureProjectionsByKey, playerXpById };
+    };
+
     const maeRecapRows: any[] = [];
 
     for (let gw = 1; gw <= maxReviewGW; gw++) {
@@ -2045,6 +2640,20 @@ async function getOrBuildReviewBase(
         maeRecapRows.push(confirmedMaeRowCache.get(gw)!.row);
         continue;
       }
+
+      // Lineup accuracy evaluation for GW (already strictly walk-forward from 1..gw-1)
+      const gwLineupBuilt = buildLineupReviewForGw(
+        gw,
+        maxReviewGW,
+        corePayload.clubs,
+        allPlayers,
+        actualMatchLookup,
+        actualPlayerStatsMap,
+        matchesWithLineupsByGw
+      );
+
+      // Strictly Out-of-Sample Walk-Forward Match & Player xP Predictions for GW `gw`
+      const wfPred = buildWalkForwardGwPredictions(gw, gwLineupBuilt.lineupReviewPerClub);
 
       const matchesInGw = (matchesWithLineupsByGw[gw]?.length ? matchesWithLineupsByGw[gw] : corePayload.scheduleByGw[gw]) || [];
       const matchesDetail: any[] = [];
@@ -2060,7 +2669,7 @@ async function getOrBuildReviewBase(
         const aShort = m.away_team?.short_name || '';
         if (!hShort || !aShort) continue;
 
-        const proj = corePayload.fixtureProjectionsByKey[`${gw}_${hShort}_${aShort}`] || {
+        const proj = wfPred.fixtureProjectionsByKey[`${gw}_${hShort}_${aShort}`] || {
           homeGoals: 1,
           awayGoals: 1,
           homeCsProb: 30,
@@ -2130,17 +2739,6 @@ async function getOrBuildReviewBase(
         });
       }
 
-      // Lineup accuracy evaluation for GW
-      const gwLineupBuilt = buildLineupReviewForGw(
-        gw,
-        maxReviewGW,
-        corePayload.clubs,
-        allPlayers,
-        actualMatchLookup,
-        actualPlayerStatsMap,
-        matchesWithLineupsByGw
-      );
-
       let totalStartersHit = 0;
       let totalStartersPredicted = 0;
       const clubsLineupDetail: any[] = [];
@@ -2153,10 +2751,10 @@ async function getOrBuildReviewBase(
         const squad = gwLineupBuilt.lineupReviewPerClub[club.short] || [];
         const starters = squad.filter((s) => s.role === 'starting');
         const clubStartersHit = starters.filter((s) => s.realStarted).length;
-        const missedStarters = starters.filter((s) => !s.realStarted).map((s) => ({ name: s.webName, pos: s.position }));
+        const missedStarters = starters.filter((s) => !s.realStarted).map((s) => ({ id: s.id, name: s.webName, pos: s.position }));
         const unexpectedStarters = squad
           .filter((s) => s.role !== 'starting' && s.realStarted)
-          .map((s) => ({ name: s.webName, pos: s.position }));
+          .map((s) => ({ id: s.id, name: s.webName, pos: s.position }));
 
         totalStartersHit += clubStartersHit;
         totalStartersPredicted += 11;
@@ -2171,7 +2769,7 @@ async function getOrBuildReviewBase(
         });
       }
 
-      // Points MAE evaluation for GW
+      // Points MAE evaluation for GW (strictly out-of-sample walk-forward)
       let startersSumAbsDiff = 0;
       let startersCount = 0;
       let activeSumAbsDiff = 0;
@@ -2180,9 +2778,9 @@ async function getOrBuildReviewBase(
       const posCountMap: Record<PositionType, number> = { GKP: 0, DEF: 0, MID: 0, FWD: 0 };
       let totalProjPts = 0;
       let totalRealPts = 0;
-      const playerPerformances: Array<{ webName: string; teamShort: string; pos: PositionType; xp: number; realPts: number; diff: number }> = [];
+      const playerPerformances: Array<{ id: number; webName: string; teamShort: string; pos: PositionType; xp: number; realPts: number; diff: number }> = [];
 
-      for (const p of projPlayers) {
+      for (const p of allPlayers) {
         const cShort = p.teamShort;
         const clubProjMatches = corePayload.clubGwMatchProjections[`${cShort}_${gw}`] || [];
         if (clubProjMatches.length === 0) continue;
@@ -2191,8 +2789,7 @@ async function getOrBuildReviewBase(
         if (!realStat) continue;
 
         const pos = p.position as PositionType;
-        const projCell = p.fullSeasonPointsMap?.[gw];
-        const xp = projCell ? projCell.xp ?? 0 : 0;
+        const xp = wfPred.playerXpById.get(p.id) ?? 0;
 
         const realPts = realStat.pts;
         const realMins = realStat.mins;
@@ -2215,6 +2812,7 @@ async function getOrBuildReviewBase(
           activeSumAbsDiff += absDiff;
           activeCount += 1;
           playerPerformances.push({
+            id: p.id,
             webName: p.webName,
             teamShort: cShort,
             pos,

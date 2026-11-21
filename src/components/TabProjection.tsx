@@ -1159,7 +1159,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                     return (
                                     <div
                                       key={p.id}
-                                      onClick={() => onSelectPlayer?.(p.id, targetNextGW)}
+                                      onClick={() => onSelectPlayer?.(p.id)}
                                       className="group flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 select-none min-w-0 shrink-0 w-[calc((100%-16px)/5)] max-w-[82px] sm:max-w-none sm:w-22 md:w-24"
                                     >
                                       {/* Player Photo */}
@@ -1216,7 +1216,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                     <button
                                       key={p.id}
                                       type="button"
-                                      onClick={() => onSelectPlayer?.(p.id, targetNextGW)}
+                                      onClick={() => onSelectPlayer?.(p.id)}
                                       className={`inline-flex items-center gap-1.5 text-left text-[11px] sm:text-xs ${isOwned ? 'text-[#00ff87] bg-white/10 px-1.5 py-0.5 rounded' : 'text-white/95'} hover:text-[#00ff87] transition-colors cursor-pointer max-w-full`}
                                     >
                                       <span className="px-1 py-0.2 rounded text-[9px] font-black bg-white/15 text-[#00ff87] shrink-0 w-8 text-center">
@@ -1247,7 +1247,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                       <button
                                         key={p.id}
                                         type="button"
-                                        onClick={() => onSelectPlayer?.(p.id, targetNextGW)}
+                                        onClick={() => onSelectPlayer?.(p.id)}
                                         className={`inline-flex items-center justify-end gap-1.5 text-right text-[11px] sm:text-xs ${isOwned ? 'text-[#00ff87] bg-white/10 px-1.5 py-0.5 rounded' : 'text-white/90'} hover:text-rose-200 transition-colors cursor-pointer max-w-full`}
                                       >
                                         <span className="font-mono text-[9.5px] font-bold text-rose-200/90 shrink-0 tabular-nums">
@@ -1375,7 +1375,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                             return (
                               <tr
                                 key={player.id}
-                                onClick={() => onSelectPlayer?.(player.id, targetNextGW)}
+                                onClick={() => onSelectPlayer?.(player.id)}
                                 className={`transition-colors cursor-pointer whitespace-nowrap leading-none ${
                                   isOwned
                                     ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
@@ -2160,7 +2160,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                   return (
                   <tr
                     key={player.id}
-                    onClick={() => onSelectPlayer?.(player.id, targetNextGW)}
+                    onClick={() => onSelectPlayer?.(player.id)}
                     className={`transition-colors cursor-pointer whitespace-nowrap leading-none ${
                       isOwned ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}` : 'hover:bg-slate-50 dark:hover:bg-white/[0.02]'
                     }`}

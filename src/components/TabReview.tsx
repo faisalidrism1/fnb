@@ -174,6 +174,46 @@ export const TabReview: React.FC<TabReviewProps> = ({
     return map;
   }, [clubs, leagueData]);
 
+  // Resolve player ID for MAE drawer entries (prefers explicit id, falls back to webName + teamShort lookup)
+  const reviewPlayerLookup = useMemo(() => {
+    const byNameTeam = new Map<string, number>();
+    const byName = new Map<string, number>();
+    if (playerProjections) {
+      for (const p of playerProjections) {
+        if (!p?.id || !p?.webName) continue;
+        const n = p.webName.trim().toLowerCase();
+        const t = (p.teamShort || '').trim().toUpperCase();
+        if (t) byNameTeam.set(`${n}__${t}`, p.id);
+        if (!byName.has(n)) byName.set(n, p.id);
+      }
+    }
+    if (leagueData?.player_stats) {
+      for (const p of leagueData.player_stats) {
+        if (!p?.id || !p?.webName) continue;
+        const n = p.webName.trim().toLowerCase();
+        const t = (p.teamShort || '').trim().toUpperCase();
+        if (t && !byNameTeam.has(`${n}__${t}`)) byNameTeam.set(`${n}__${t}`, p.id);
+        if (!byName.has(n)) byName.set(n, p.id);
+      }
+    }
+    return { byNameTeam, byName };
+  }, [playerProjections, leagueData?.player_stats]);
+
+  const resolveReviewPlayerId = useCallback(
+    (explicitId?: number, webName?: string, teamShort?: string): number | undefined => {
+      if (typeof explicitId === 'number' && explicitId > 0) return explicitId;
+      if (!webName) return undefined;
+      const n = webName.trim().toLowerCase();
+      const t = (teamShort || '').trim().toUpperCase();
+      if (t) {
+        const exact = reviewPlayerLookup.byNameTeam.get(`${n}__${t}`);
+        if (exact) return exact;
+      }
+      return reviewPlayerLookup.byName.get(n);
+    },
+    [reviewPlayerLookup]
+  );
+
   // Keep bounds in sync if maxReviewGW changes
   useEffect(() => {
     setScoreGwStart((prev) => Math.min(Math.max(prev, 1), maxReviewGW));
@@ -2800,7 +2840,28 @@ export const TabReview: React.FC<TabReviewProps> = ({
                                           {c.missedStarters.length > 0 ? (
                                             <span>
                                               <span className="font-semibold text-rose-500">{isIdLang ? 'Meleset: ' : 'Missed: '}</span>
-                                              {c.missedStarters.map((m) => m.name).join(', ')}
+                                              {c.missedStarters.map((m: any, mIdx: number) => {
+                                                const pid = resolveReviewPlayerId(m?.id, m?.name, c.club?.short);
+                                                return (
+                                                  <React.Fragment key={`${m?.name || mIdx}-${mIdx}`}>
+                                                    {mIdx > 0 && ', '}
+                                                    {pid && onSelectPlayer ? (
+                                                      <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          onSelectPlayer(pid, row.gw);
+                                                        }}
+                                                        className="font-semibold text-slate-700 dark:text-slate-200 hover:text-[#37003c] dark:hover:text-[#00ff87] hover:underline cursor-pointer transition-colors"
+                                                      >
+                                                        {m.name}
+                                                      </button>
+                                                    ) : (
+                                                      <span>{m.name}</span>
+                                                    )}
+                                                  </React.Fragment>
+                                                );
+                                              })}
                                             </span>
                                           ) : (
                                             <span className="text-emerald-600 dark:text-emerald-400 font-bold">
@@ -2833,16 +2894,32 @@ export const TabReview: React.FC<TabReviewProps> = ({
                                           {isIdLang ? 'Melebihi Proyeksi' : 'Top Overperformers'}
                                         </span>
                                         <div className="space-y-1">
-                                          {row.topOverperformers.map((p, idx) => (
-                                            <div key={idx} className="flex items-center justify-between text-slate-800 dark:text-slate-200">
-                                              <span className="font-semibold truncate max-w-[160px]">
-                                                {p.webName} <span className="text-[10px] text-slate-400">({p.teamShort})</span>
-                                              </span>
-                                              <span className="tabular-nums font-bold text-emerald-600 dark:text-emerald-400">
-                                                +{p.diff} <span className="text-[10px] text-slate-400 font-normal">(P {p.xp} → {p.realPts})</span>
-                                              </span>
-                                            </div>
-                                          ))}
+                                          {row.topOverperformers.map((p: any, idx: number) => {
+                                            const pid = resolveReviewPlayerId(p?.id, p?.webName, p?.teamShort);
+                                            const canClick = Boolean(pid && onSelectPlayer);
+                                            return (
+                                              <button
+                                                key={idx}
+                                                type="button"
+                                                disabled={!canClick}
+                                                onClick={() => {
+                                                  if (pid && onSelectPlayer) onSelectPlayer(pid, row.gw);
+                                                }}
+                                                className={`w-full flex items-center justify-between text-left rounded px-1 -mx-1 py-0.5 text-slate-800 dark:text-slate-200 transition-colors ${
+                                                  canClick
+                                                    ? 'hover:bg-emerald-50 dark:hover:bg-emerald-500/10 cursor-pointer'
+                                                    : 'cursor-default'
+                                                }`}
+                                              >
+                                                <span className="font-semibold truncate max-w-[160px] hover:underline">
+                                                  {p.webName} <span className="text-[10px] text-slate-400">({p.teamShort})</span>
+                                                </span>
+                                                <span className="tabular-nums font-bold text-emerald-600 dark:text-emerald-400">
+                                                  +{p.diff} <span className="text-[10px] text-slate-400 font-normal">(P {p.xp} → {p.realPts})</span>
+                                                </span>
+                                              </button>
+                                            );
+                                          })}
                                         </div>
                                       </div>
 
@@ -2851,16 +2928,32 @@ export const TabReview: React.FC<TabReviewProps> = ({
                                           {isIdLang ? 'Di Bawah Proyeksi' : 'Top Underperformers'}
                                         </span>
                                         <div className="space-y-1">
-                                          {row.topUnderperformers.map((p, idx) => (
-                                            <div key={idx} className="flex items-center justify-between text-slate-800 dark:text-slate-200">
-                                              <span className="font-semibold truncate max-w-[160px]">
-                                                {p.webName} <span className="text-[10px] text-slate-400">({p.teamShort})</span>
-                                              </span>
-                                              <span className="tabular-nums font-bold text-rose-600 dark:text-rose-400">
-                                                {p.diff} <span className="text-[10px] text-slate-400 font-normal">(P {p.xp} → {p.realPts})</span>
-                                              </span>
-                                            </div>
-                                          ))}
+                                          {row.topUnderperformers.map((p: any, idx: number) => {
+                                            const pid = resolveReviewPlayerId(p?.id, p?.webName, p?.teamShort);
+                                            const canClick = Boolean(pid && onSelectPlayer);
+                                            return (
+                                              <button
+                                                key={idx}
+                                                type="button"
+                                                disabled={!canClick}
+                                                onClick={() => {
+                                                  if (pid && onSelectPlayer) onSelectPlayer(pid, row.gw);
+                                                }}
+                                                className={`w-full flex items-center justify-between text-left rounded px-1 -mx-1 py-0.5 text-slate-800 dark:text-slate-200 transition-colors ${
+                                                  canClick
+                                                    ? 'hover:bg-rose-50 dark:hover:bg-rose-500/10 cursor-pointer'
+                                                    : 'cursor-default'
+                                                }`}
+                                              >
+                                                <span className="font-semibold truncate max-w-[160px] hover:underline">
+                                                  {p.webName} <span className="text-[10px] text-slate-400">({p.teamShort})</span>
+                                                </span>
+                                                <span className="tabular-nums font-bold text-rose-600 dark:text-rose-400">
+                                                  {p.diff} <span className="text-[10px] text-slate-400 font-normal">(P {p.xp} → {p.realPts})</span>
+                                                </span>
+                                              </button>
+                                            );
+                                          })}
                                         </div>
                                       </div>
                                     </div>

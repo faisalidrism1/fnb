@@ -125,22 +125,6 @@ export const TabScout: React.FC<TabScoutProps> = ({
     return `${baseHistoricalGW}:${st}:${PROJECTION_FORMULA_VERSION}`;
   }, [sharedEpochKey, currentGW, baseHistoricalGW, eventsStatus, gwStatus]);
 
-  // Active fixture breakdown popover player ID
-  const [activePopupPlayerId, setActivePopupPlayerId] = useState<number | null>(null);
-
-  // Click outside to dismiss active fixture popover (only bound while open)
-  useEffect(() => {
-    if (activePopupPlayerId === null) return;
-    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('[data-scout-player-strip]')) {
-        setActivePopupPlayerId(null);
-      }
-    };
-    document.addEventListener('pointerdown', handleOutsideClick);
-    return () => document.removeEventListener('pointerdown', handleOutsideClick);
-  }, [activePopupPlayerId]);
-
   // Resolve effective populated GW keys (resilient during live GW rollover before new picks finish syncing)
   const effectiveStandingsGW = useMemo(() => {
     if (leagueData?.standings?.[currentGW]?.length) return currentGW;
@@ -2315,64 +2299,48 @@ export const TabScout: React.FC<TabScoutProps> = ({
               <div className="relative z-10 space-y-2.5 sm:space-y-3.5">
                 {/* 1. GKP */}
                 <div className="flex justify-center items-center gap-1.5 sm:gap-3 flex-nowrap">
-                  {pitchStarters.gks.map((p, idx, arr) => (
+                  {pitchStarters.gks.map((p) => (
                     <ScoutPitchCard
                       key={p.id}
                       player={p}
                       picksType={picksType}
                       onClick={() => onSelectPlayer?.(p.id)}
-                      isOpen={activePopupPlayerId === p.id}
-                      onTogglePopup={() => setActivePopupPlayerId((prev) => (prev === p.id ? null : p.id))}
-                      placement="bottom"
-                      align={idx === 0 ? 'left' : idx === arr.length - 1 ? 'right' : 'center'}
                     />
                   ))}
                 </div>
 
                 {/* 2. DEF (Up to 5 in 1 single horizontal row) */}
                 <div className="flex justify-center items-center gap-1 sm:gap-2.5 md:gap-3.5 flex-nowrap">
-                  {pitchStarters.defs.map((p, idx, arr) => (
+                  {pitchStarters.defs.map((p) => (
                     <ScoutPitchCard
                       key={p.id}
                       player={p}
                       picksType={picksType}
                       onClick={() => onSelectPlayer?.(p.id)}
-                      isOpen={activePopupPlayerId === p.id}
-                      onTogglePopup={() => setActivePopupPlayerId((prev) => (prev === p.id ? null : p.id))}
-                      placement="top"
-                      align={idx === 0 ? 'left' : idx === arr.length - 1 ? 'right' : 'center'}
                     />
                   ))}
                 </div>
 
                 {/* 3. MID (Up to 5 in 1 single horizontal row) */}
                 <div className="flex justify-center items-center gap-1 sm:gap-2.5 md:gap-3.5 flex-nowrap">
-                  {pitchStarters.mids.map((p, idx, arr) => (
+                  {pitchStarters.mids.map((p) => (
                     <ScoutPitchCard
                       key={p.id}
                       player={p}
                       picksType={picksType}
                       onClick={() => onSelectPlayer?.(p.id)}
-                      isOpen={activePopupPlayerId === p.id}
-                      onTogglePopup={() => setActivePopupPlayerId((prev) => (prev === p.id ? null : p.id))}
-                      placement="top"
-                      align={idx === 0 ? 'left' : idx === arr.length - 1 ? 'right' : 'center'}
                     />
                   ))}
                 </div>
 
                 {/* 4. FWD (Up to 3 in 1 single horizontal row) */}
                 <div className="flex justify-center items-center gap-1 sm:gap-2.5 md:gap-3.5 flex-nowrap">
-                  {pitchStarters.fwds.map((p, idx, arr) => (
+                  {pitchStarters.fwds.map((p) => (
                     <ScoutPitchCard
                       key={p.id}
                       player={p}
                       picksType={picksType}
                       onClick={() => onSelectPlayer?.(p.id)}
-                      isOpen={activePopupPlayerId === p.id}
-                      onTogglePopup={() => setActivePopupPlayerId((prev) => (prev === p.id ? null : p.id))}
-                      placement="top"
-                      align={idx === 0 ? 'left' : idx === arr.length - 1 ? 'right' : 'center'}
                     />
                   ))}
                 </div>
@@ -2382,17 +2350,13 @@ export const TabScout: React.FC<TabScoutProps> = ({
             {/* Bench Dugout (4 players cleanly on 1 row) */}
             <div className="bg-[#005a2b] border-t border-[#007038] px-1.5 sm:px-3 py-2">
               <div className="flex justify-center items-center gap-1.5 sm:gap-4 flex-nowrap">
-                {picksSquad.bench.map((p, idx, arr) => (
+                {picksSquad.bench.map((p) => (
                   <ScoutPitchCard
                     key={p.id}
                     player={p}
                     picksType={picksType}
                     isBench
                     onClick={() => onSelectPlayer?.(p.id)}
-                    isOpen={activePopupPlayerId === p.id}
-                    onTogglePopup={() => setActivePopupPlayerId((prev) => (prev === p.id ? null : p.id))}
-                    placement="top"
-                    align={idx === 0 ? 'left' : idx === arr.length - 1 ? 'right' : 'center'}
                   />
                 ))}
               </div>
@@ -2801,10 +2765,6 @@ interface ScoutPitchCardProps {
   picksType: 'FH' | 'WC';
   isBench?: boolean;
   onClick?: () => void;
-  isOpen?: boolean;
-  onTogglePopup?: () => void;
-  placement?: 'top' | 'bottom';
-  align?: 'left' | 'center' | 'right';
 }
 
 const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
@@ -2812,10 +2772,6 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
   picksType,
   isBench = false,
   onClick,
-  isOpen = false,
-  onTogglePopup,
-  placement = 'top',
-  align = 'center',
 }) => {
   const displayXp = picksType === 'FH' ? player.xP1 : player.avgXp6;
 
@@ -2848,71 +2804,7 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
       </div>
 
       {/* Strip Area (Dark Premier League Purple/Black Name Strip + Neon Green Cost & xP Strip) */}
-      <div
-        data-scout-player-strip={player.id}
-        onClick={(e) => {
-          e.stopPropagation();
-          onTogglePopup?.();
-        }}
-        className="relative w-full cursor-pointer transition-transform active:scale-95 group/strip"
-        title="Klik untuk melihat detail fixture"
-      >
-        {/* Inline Fixture Popover (Menempel tepat di atas/bawah kotak poin) */}
-        {isOpen && (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className={`absolute ${
-              placement === 'bottom' ? 'top-full mt-1.5' : 'bottom-full mb-1.5'
-            } ${
-              align === 'left'
-                ? 'left-0'
-                : align === 'right'
-                ? 'right-0'
-                : 'left-1/2 -translate-x-1/2'
-            } w-[140px] sm:w-[155px] bg-[#1a0528]/95 dark:bg-[#12001a]/98 backdrop-blur-md rounded-lg shadow-2xl p-2 z-50 border border-purple-500/40 text-slate-100 animate-in fade-in zoom-in-95 duration-100`}
-          >
-            {/* Header: Nama Pemain, Klub, dan xP */}
-            <div className="flex items-center justify-between border-b border-purple-500/30 pb-1 mb-1.5">
-              <div className="flex items-center gap-1 min-w-0">
-                <span className="font-bold text-[10.5px] sm:text-[11px] text-white truncate max-w-[85px]">
-                  {player.webName}
-                </span>
-                <span className="text-[9px] font-black px-1 py-0.2 rounded bg-white/15 text-[#00ff87]">
-                  {player.teamShort}
-                </span>
-              </div>
-              <span className="font-black text-[10px] sm:text-[10.5px] text-[#00ff87] font-mono shrink-0">
-                {picksType === 'FH' ? `${player.xP1} xP` : `${player.avgXp6} xP`}
-              </span>
-            </div>
-
-            {/* List Fixture */}
-            <div className="space-y-1 text-[10px] font-mono leading-tight">
-              {(picksType === 'FH' ? player.fixtures1 : player.fixtures6).map((f) => (
-                <div
-                  key={f.gw}
-                  className="flex items-center justify-between gap-1 text-[9.5px] sm:text-[10px]"
-                >
-                  <span className="text-slate-200 font-bold whitespace-nowrap">
-                    GW {f.gw} {f.opp === 'Blank' ? 'Blank' : `vs ${f.opp}`}
-                  </span>
-                  <span className="text-[#00ff87] font-black text-right whitespace-nowrap">
-                    {f.xp.toFixed(1)} xP
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Wildcard 6-GW Average Summary Footer */}
-            {picksType === 'WC' && (
-              <div className="border-t border-purple-500/30 pt-1 mt-1.5 flex items-center justify-between text-[9px] sm:text-[9.5px] font-semibold text-slate-300">
-                <span>Rata-rata 6 GW</span>
-                <span className="font-black text-[#00ff87] font-mono">{player.avgXp6} xP</span>
-              </div>
-            )}
-          </div>
-        )}
-
+      <div className="relative w-full transition-transform active:scale-95 group/strip">
         {/* Name Strip (Dark Premier League Purple/Black) */}
         <div className="w-full bg-[#37003c] group-hover/strip:bg-[#4d0054] text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center">
           <span className="block text-[9px] sm:text-[10.5px] font-extrabold truncate leading-tight">
