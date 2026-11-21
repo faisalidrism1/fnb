@@ -194,7 +194,14 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
+  const isPublished = import.meta.env.PROD;
+  const showProjectionAndScout = !isPublished;
+
   const handleSelectTab = useCallback((tab: MainTab) => {
+    if (!showProjectionAndScout && (tab === 'PROJECTION' || tab === 'SCOUT')) {
+      setActiveTab('STANDINGS');
+      return;
+    }
     setActiveTab(tab);
     setVisitedTabs((prev) => {
       if (prev.has(tab)) return prev;
@@ -202,7 +209,7 @@ export default function App() {
       next.add(tab);
       return next;
     });
-  }, []);
+  }, [showProjectionAndScout]);
   const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
     try {
       return localStorage.getItem('fnb_admin_unlocked') === 'true';
@@ -505,18 +512,18 @@ export default function App() {
     gwStatus: data?.gw_status,
     eventsStatus: data?.events_status,
     syncStatus: data?.sync_status,
-    enabled: Boolean(data),
+    enabled: Boolean(data) && (showProjectionAndScout || isAdminUnlocked),
   });
 
   // Preload lazy Projection & Scout chunks right after league data renders so tab switches are instant
   useEffect(() => {
-    if (!data) return;
+    if (!data || !showProjectionAndScout) return;
     const timer = setTimeout(() => {
       import('./components/TabProjection.tsx').catch(() => {});
       import('./components/TabScout.tsx').catch(() => {});
     }, 250);
     return () => clearTimeout(timer);
-  }, [Boolean(data)]);
+  }, [Boolean(data), showProjectionAndScout]);
 
   if (!data) {
     return (
@@ -563,6 +570,7 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         leagueData={data}
         isAdminUnlocked={isAdminUnlocked}
+        showProjectionAndScout={showProjectionAndScout}
       />
 
       {/* Main Content Area - Preserves mounted tab instances and user filters */}
@@ -650,7 +658,7 @@ export default function App() {
             />
           </div>
 
-          {visitedTabs.has('PROJECTION') && (
+          {showProjectionAndScout && visitedTabs.has('PROJECTION') && (
             <div className={activeTab === 'PROJECTION' ? 'block' : 'hidden'}>
               <Suspense fallback={<TabLoadingFallback />}>
                 <TabProjection
@@ -670,7 +678,7 @@ export default function App() {
             </div>
           )}
 
-          {visitedTabs.has('SCOUT') && (
+          {showProjectionAndScout && visitedTabs.has('SCOUT') && (
             <div className={activeTab === 'SCOUT' ? 'block' : 'hidden'}>
               <Suspense fallback={<TabLoadingFallback />}>
                 <TabScout

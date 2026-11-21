@@ -429,63 +429,111 @@ export async function fetchSdpNormalizedMatch(
     const homeTeamId = Number(lineups?.home_team?.teamId || matchV2?.homeTeam?.id) || 0;
     const awayTeamId = Number(lineups?.away_team?.teamId || matchV2?.awayTeam?.id) || 0;
 
-    const normalizedEvents: any[] = [];
-    for (const side of [sdpEvents?.homeTeam, sdpEvents?.awayTeam]) {
+    const rawEvents: any[] = [];
+    const sides: Array<{ side: any; isHome: boolean }> = [
+      { side: sdpEvents?.homeTeam, isHome: true },
+      { side: sdpEvents?.awayTeam, isHome: false },
+    ];
+    for (const { side, isHome } of sides) {
       if (!side) continue;
       for (const s of side.subs || []) {
         const phase = mapSdpPeriodToPhase(s.period);
         const clock = parseSdpClockToLabelAndSecs(s.time);
         if (s.playerOnId) {
-          normalizedEvents.push({
+          rawEvents.push({
             type: 'S',
             personId: Number(s.playerOnId),
             description: 'ON',
             phase,
-            clock
+            clock,
+            _isHome: isHome,
+            _order: 2,
           });
         }
         if (s.playerOffId) {
-          normalizedEvents.push({
+          rawEvents.push({
             type: 'S',
             personId: Number(s.playerOffId),
             description: 'OFF',
             phase,
-            clock
+            clock,
+            _isHome: isHome,
+            _order: 2,
           });
         }
       }
       for (const g of side.goals || []) {
         const gtLower = String(g.goalType || '').toLowerCase();
-        normalizedEvents.push({
+        rawEvents.push({
           type: gtLower.includes('own') ? 'O' : gtLower.includes('pen') ? 'P' : 'G',
           personId: Number(g.playerId),
           assistId: g.assistPlayerId ? Number(g.assistPlayerId) : undefined,
           phase: mapSdpPeriodToPhase(g.period),
-          clock: parseSdpClockToLabelAndSecs(g.time)
+          clock: parseSdpClockToLabelAndSecs(g.time),
+          _isHome: isHome,
+          _order: 1,
         });
       }
       for (const c of side.cards || []) {
-        normalizedEvents.push({
+        rawEvents.push({
           type: c.type === 'Yellow' ? 'Y' : c.type === 'SecondYellow' ? 'YR' : 'R',
           personId: Number(c.playerId),
           phase: mapSdpPeriodToPhase(c.period),
-          clock: parseSdpClockToLabelAndSecs(c.time)
+          clock: parseSdpClockToLabelAndSecs(c.time),
+          _isHome: isHome,
+          _order: 2,
         });
       }
     }
 
     if (isFirstHalf || isHt || isSecondHalf || isFt) {
-      normalizedEvents.push({ type: 'PS', phase: '1', clock: { secs: 0, label: "1'" } });
+      rawEvents.push({ type: 'PS', phase: '1', clock: { secs: 0, label: "1'" }, _order: 0 });
     }
     if (isHt || isSecondHalf || isFt) {
-      normalizedEvents.push({ type: 'PE', phase: '1', clock: { secs: 2700, label: "45'" } });
+      rawEvents.push({ type: 'PE', phase: '1', clock: { secs: 2700, label: "45'" }, _order: 3 });
     }
     if (isSecondHalf || isFt) {
-      normalizedEvents.push({ type: 'PS', phase: '2', clock: { secs: 2700, label: "45'" } });
+      rawEvents.push({ type: 'PS', phase: '2', clock: { secs: 2700, label: "45'" }, _order: 4 });
     }
     if (isFt) {
-      normalizedEvents.push({ type: 'PE', phase: '2', clock: { secs: 5400, label: "90'" } });
+      rawEvents.push({ type: 'PE', phase: '2', clock: { secs: 5400, label: "90'" }, _order: 5 });
     }
+
+    const phaseSortRank = (ph?: string): number => {
+      if (ph === '1') return 1;
+      if (ph === 'HT') return 2;
+      if (ph === '2') return 3;
+      if (ph === 'F') return 4;
+      return 2;
+    };
+
+    rawEvents.sort((a, b) => {
+      const pDiff = phaseSortRank(a.phase) - phaseSortRank(b.phase);
+      if (pDiff !== 0) return pDiff;
+      const sDiff = (Number(a.clock?.secs) || 0) - (Number(b.clock?.secs) || 0);
+      if (sDiff !== 0) return sDiff;
+      return (a._order ?? 2) - (b._order ?? 2);
+    });
+
+    let runningHomeScore = 0;
+    let runningAwayScore = 0;
+    const normalizedEvents = rawEvents.map((ev) => {
+      if (ev.type === 'G' || ev.type === 'P') {
+        if (ev._isHome) runningHomeScore++;
+        else runningAwayScore++;
+      } else if (ev.type === 'O') {
+        if (ev._isHome) runningAwayScore++;
+        else runningHomeScore++;
+      }
+      const { _isHome, _order, ...cleanEv } = ev;
+      return {
+        ...cleanEv,
+        score: {
+          homeScore: runningHomeScore,
+          awayScore: runningAwayScore,
+        },
+      };
+    });
 
     const kickoffStr = matchV2?.kickoff ? String(matchV2.kickoff).replace(' ', 'T') + 'Z' : '';
     const kickoffMillis = kickoffStr ? Date.parse(kickoffStr) : 0;

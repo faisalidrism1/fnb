@@ -381,21 +381,66 @@ export function generateStoriesFromPulseMatch(
 
   const venueName = pulseData.ground?.name || '';
 
-  // Build person directory from teamLists
+  // Build person directory from teamLists (indexed by both id and pulseId when SDP-normalized)
   const pulsePersons = new Map<number, { person: any; teamName: string; teamShort: string; teamId: number }>();
+  const pulsePersonsByName = new Map<string, Array<{ person: any; teamName: string; teamShort: string; teamId: number }>>();
+  const isHomeSideTeam = (teamId?: number, idx?: number): boolean => {
+    if (teamId && homeTeamRaw?.id && Number(teamId) === Number(homeTeamRaw.id)) return true;
+    if (teamId && awayTeamRaw?.id && Number(teamId) === Number(awayTeamRaw.id)) return false;
+    return idx === 0;
+  };
   if (Array.isArray(pulseData.teamLists)) {
-    for (const tl of pulseData.teamLists) {
-      const isHome = tl.teamId === homeTeamRaw?.id || (tl.teamId !== awayTeamRaw?.id && tl === pulseData.teamLists[0]);
+    pulseData.teamLists.forEach((tl: any, tlIdx: number) => {
+      const isHome = isHomeSideTeam(tl?.teamId, tlIdx);
       const tName = isHome ? homeClub : awayClub;
       const tShort = isHome ? homeShort : awayShort;
       const tId = tl.teamId || (isHome ? homeTeamRaw?.id : awayTeamRaw?.id) || 0;
       for (const p of [...(tl.lineup || []), ...(tl.substitutes || [])]) {
-        if (p && p.id) {
-          pulsePersons.set(p.id, { person: p, teamName: tName, teamShort: tShort, teamId: tId });
+        if (p && (p.id || p.pulseId)) {
+          const entry = { person: p, teamName: tName, teamShort: tShort, teamId: tId };
+          if (p.id) pulsePersons.set(Number(p.id), entry);
+          if (p.pulseId) pulsePersons.set(Number(p.pulseId), entry);
+          const dispKey = normalizeDiacritics(p?.name?.display || '');
+          if (dispKey) {
+            const list = pulsePersonsByName.get(dispKey) || [];
+            list.push(entry);
+            pulsePersonsByName.set(dispKey, list);
+          }
+          const lastKey = normalizeDiacritics(p?.name?.last || '');
+          if (lastKey) {
+            const list = pulsePersonsByName.get(lastKey) || [];
+            list.push(entry);
+            pulsePersonsByName.set(lastKey, list);
+          }
         }
       }
-    }
+    });
   }
+
+  const resolvePersonEntry = (pInfo: { person: any; teamName: string; teamShort: string; teamId: number } | undefined | null): {
+    name: string;
+    pct: number;
+    club: string;
+    fpl: FplPlayerLookup | null;
+  } => {
+    if (!pInfo) return { name: '', pct: 0, club: '', fpl: null };
+    const matchedFpl = matchPulsePersonToFpl(pInfo.person, allPlayers, pInfo.teamShort);
+    if (matchedFpl) {
+      return {
+        name: matchedFpl.webName,
+        pct: matchedFpl.ownershipPct,
+        club: pInfo.teamName || resolveClubName(matchedFpl.teamShort),
+        fpl: matchedFpl,
+      };
+    }
+    const pulseName = pInfo.person?.name?.last || pInfo.person?.name?.display || '';
+    return {
+      name: pulseName,
+      pct: 0,
+      club: pInfo.teamName || '',
+      fpl: null,
+    };
+  };
 
   const resolvePlayer = (personId?: number): {
     name: string;
@@ -406,23 +451,7 @@ export function generateStoriesFromPulseMatch(
     if (!personId) {
       return { name: '', pct: 0, club: '', fpl: null };
     }
-    const pInfo = pulsePersons.get(personId);
-    const matchedFpl = matchPulsePersonToFpl(pInfo?.person, allPlayers, pInfo?.teamShort);
-    if (matchedFpl) {
-      return {
-        name: matchedFpl.webName,
-        pct: matchedFpl.ownershipPct,
-        club: pInfo?.teamName || resolveClubName(matchedFpl.teamShort),
-        fpl: matchedFpl,
-      };
-    }
-    const pulseName = pInfo?.person?.name?.last || pInfo?.person?.name?.display || '';
-    return {
-      name: pulseName,
-      pct: 0,
-      club: pInfo?.teamName || '',
-      fpl: null,
-    };
+    return resolvePersonEntry(pulsePersons.get(Number(personId)));
   };
 
   const stories: LiveMatchStory[] = [];
@@ -1433,20 +1462,150 @@ export function generateStoriesFromPulseMatch(
   // G. Textstream-sourced Live Events: VAR Decisions (LM_MATCH_VAR_REVIEW) & Penalty Awarded (LM_MATCH_PENALTY_AWARDED)
   const textEvents: any[] = Array.isArray(pulseData.textstreamEvents) ? pulseData.textstreamEvents : [];
   if (textEvents.length > 0) {
+    const matchClubString = (raw?: string): string => {
+      const cand = String(raw || '').trim();
+      if (!cand) return '';
+      const resolved = resolveClubName(cand, '');
+      if (resolved === homeClub) return homeClub;
+      if (resolved === awayClub) return awayClub;
+      const candLow = cand.toLowerCase();
+      const homeRaw = String(homeTeamRaw?.name || '').toLowerCase();
+      const awayRaw = String(awayTeamRaw?.name || '').toLowerCase();
+      if (homeClub && (candLow.includes(homeClub.toLowerCase()) || (homeRaw && candLow.includes(homeRaw)))) {
+        return homeClub;
+      }
+      if (awayClub && (candLow.includes(awayClub.toLowerCase()) || (awayRaw && candLow.includes(awayRaw)))) {
+        return awayClub;
+      }
+      return '';
+    };
+
     const inferClubFromText = (txt: string): string => {
-      const lower = String(txt || '').toLowerCase();
-      const homeRawName = String(homeTeamRaw?.name || '').toLowerCase();
-      const awayRawName = String(awayTeamRaw?.name || '').toLowerCase();
-      if (homeClub && lower.includes(homeClub.toLowerCase())) return homeClub;
-      if (awayClub && lower.includes(awayClub.toLowerCase())) return awayClub;
-      if (homeRawName && lower.includes(homeRawName)) return homeClub;
-      if (awayRawName && lower.includes(awayRawName)) return awayClub;
+      const str = String(txt || '');
+      // 1. Explicit club phrases in VAR / commentary text
+      const penClubMatch = /VAR Decision:\s*(?:No\s+)?Penalty(?:\s+(?:Awarded|Given|Confirmed|Cancelled|Overturned|Rescinded))?\s+([^.(]+?)(?:\s*\(|\s*\.|$)/i.exec(str);
+      if (penClubMatch) {
+        const mc = matchClubString(penClubMatch[1]);
+        if (mc) return mc;
+      }
+      const varGoalClubMatch = /VAR Decision:\s*Goal\s+([^-]+?)\s*-/i.exec(str);
+      if (varGoalClubMatch) {
+        const mc = matchClubString(varGoalClubMatch[1]);
+        if (mc) return mc;
+      }
+      const parenMatches = Array.from(str.matchAll(/\(([^)]+)\)/g));
+      for (const pm of parenMatches) {
+        const mc = matchClubString(pm[1]);
+        if (mc) return mc;
+      }
+
+      // 2. Earliest / unambiguous mention of either club
+      const lower = str.toLowerCase();
+      const homeTerms = [homeClub, String(homeTeamRaw?.name || ''), String(homeTeamRaw?.shortName || '')]
+        .map((s) => s.trim().toLowerCase())
+        .filter((s) => s.length >= 3);
+      const awayTerms = [awayClub, String(awayTeamRaw?.name || ''), String(awayTeamRaw?.shortName || '')]
+        .map((s) => s.trim().toLowerCase())
+        .filter((s) => s.length >= 3);
+
+      let homeIdx = Infinity;
+      for (const term of homeTerms) {
+        const idxPos = lower.indexOf(term);
+        if (idxPos >= 0 && idxPos < homeIdx) homeIdx = idxPos;
+      }
+      let awayIdx = Infinity;
+      for (const term of awayTerms) {
+        const idxPos = lower.indexOf(term);
+        if (idxPos >= 0 && idxPos < awayIdx) awayIdx = idxPos;
+      }
+      if (homeIdx < awayIdx) return homeClub;
+      if (awayIdx < homeIdx) return awayClub;
       return homeClub;
     };
 
+    const findFplByTextName = (rawName: string, clubHint?: string): FplPlayerLookup | null => {
+      const norm = normalizeDiacritics(rawName);
+      if (!norm) return null;
+      const scoped = clubHint
+        ? allPlayers.filter((p) => p.clubName === clubHint)
+        : allPlayers;
+      const searchPool = scoped.length > 0 ? scoped : allPlayers;
+      return (
+        searchPool.find((p) => normalizeDiacritics(p.fullName) === norm) ||
+        searchPool.find((p) => normalizeDiacritics(p.webName) === norm) ||
+        searchPool.find(
+          (p) => norm.includes(normalizeDiacritics(p.webName)) && normalizeDiacritics(p.webName).length >= 4
+        ) ||
+        allPlayers.find((p) => normalizeDiacritics(p.fullName) === norm) ||
+        allPlayers.find((p) => normalizeDiacritics(p.webName) === norm) ||
+        null
+      );
+    };
+
+    const resolvePlayerFromText = (
+      txt: string,
+      clubHint?: string
+    ): { name: string; pct: number; club: string; fpl: FplPlayerLookup | null } => {
+      const patterns = [
+        /GOAL OVERTURNED BY VAR:\s*([^(]+?)\s*\(([^)]+)\)/i,
+        /VAR Decision:\s*(?:Card\s+(?:upgraded|rescinded|downgraded)|Red Card(?:\s+(?:overturned|cancelled|rescinded|given|awarded))?)\s+([^(.,]+?)(?:\s*\(([^)]+)\))?(?:\.|$)/i,
+        /VAR Decision:\s*Goal\s+[^()]+?\(([^)]+)\)\s*\.?$/i,
+        /(?:Goal!|Own Goal by)\s*[^.]*?\.\s*([^(.,]+?)\s*\(([^)]+)\)/i,
+        /^([^(.,]{3,40}?)\s*\(([^)]+)\)\s+(?:scores|wins|is shown|fails|misses|converts)/i,
+      ];
+      let rawName = '';
+      let rawClub = clubHint || '';
+      for (const pat of patterns) {
+        const m = pat.exec(txt);
+        if (m) {
+          rawName = String(m[1] || '').trim();
+          if (m[2]) {
+            const matchedC = matchClubString(m[2]);
+            if (matchedC) rawClub = matchedC;
+          }
+          break;
+        }
+      }
+      if (!rawName) {
+        const ogM = /Own Goal by ([^,]+),\s*([^.]+)\./i.exec(txt);
+        if (ogM) {
+          rawName = ogM[1].trim();
+          const matchedC = matchClubString(ogM[2]);
+          if (matchedC) rawClub = matchedC;
+        }
+      }
+      if (!rawName) return { name: '', pct: 0, club: rawClub, fpl: null };
+
+      const nameKey = normalizeDiacritics(rawName);
+      const pulseCands = nameKey ? pulsePersonsByName.get(nameKey) : undefined;
+      if (pulseCands && pulseCands.length > 0) {
+        const preferred = rawClub
+          ? pulseCands.find((c) => c.teamName === rawClub) || pulseCands[0]
+          : pulseCands[0];
+        const resolved = resolvePersonEntry(preferred);
+        if (resolved.name) return resolved;
+      }
+
+      const fpl = findFplByTextName(rawName, rawClub);
+      if (fpl) {
+        return {
+          name: fpl.webName,
+          pct: fpl.ownershipPct,
+          club: rawClub || fpl.clubName,
+          fpl,
+        };
+      }
+      return { name: rawName, pct: 0, club: rawClub, fpl: null };
+    };
+
+    // Sort chronologically so paired entries deduplicate cleanly
+    const sortedTextEvents = [...textEvents].sort(
+      (a, b) => (a.time?.secs ?? 0) - (b.time?.secs ?? 0)
+    );
+
     const getScoreForVar = (targetSecs: number, condName: string, txt: string): { h: number; a: number } => {
       // 1. Prefer explicit score in Pulse textstream (e.g. "VAR Decision: Goal Home 2-1 Away" or "Goal! Home 2, Away 1.")
-      const dashMatch = /\b(?:No Goal|Goal)\s+.+?\s+(\d+)\s*-\s*(\d+)\s+/i.exec(txt);
+      const dashMatch = /\b(?:No Goal|Goal)\s+.+?\s+(\d+)\s*-\s*(\d+)(?:\s|$|\.)/i.exec(txt);
       if (dashMatch) {
         return { h: Number(dashMatch[1]), a: Number(dashMatch[2]) };
       }
@@ -1455,15 +1614,53 @@ export function generateStoriesFromPulseMatch(
         return { h: Number(commaScoreMatch[1]), a: Number(commaScoreMatch[2]) };
       }
 
-      // 2. Fallback to Pulse events[] score (allow +120s window for confirmed goals whose clock.secs lags textstream)
+      // 2. Look at nearby textstream goal/VAR scorelines up to windowSecs
       const windowSecs = condName === 'Gol Dinyatakan Sah' ? targetSecs + 120 : targetSecs;
+      let tsH: number | null = null;
+      let tsA: number | null = null;
+      for (const tvItem of sortedTextEvents) {
+        const s = Number(tvItem?.time?.secs ?? 0);
+        if (s > windowSecs) break;
+        const itemTxt = String(tvItem?.text || '');
+        const dm = /\b(?:No Goal|Goal)\s+.+?\s+(\d+)\s*-\s*(\d+)(?:\s|$|\.)/i.exec(itemTxt);
+        if (dm) {
+          tsH = Number(dm[1]);
+          tsA = Number(dm[2]);
+          continue;
+        }
+        const cm = /(?:Goal!|Own Goal by[^.]+\.)\s*[^,]+?\s+(\d+)\s*,\s*[^.]+?\s+(\d+)/i.exec(itemTxt);
+        if (cm) {
+          tsH = Number(cm[1]);
+          tsA = Number(cm[2]);
+        }
+      }
+
+      // 3. Fallback to Pulse events[] score OR count goal events chronologically when ev.score is absent (cached SDP files)
       let h = 0;
       let a = 0;
-      for (const ev of events) {
-        if ((ev.clock?.secs ?? 0) <= windowSecs && ev.score) {
-          h = ev.score.homeScore ?? h;
-          a = ev.score.awayScore ?? a;
+      const sortedEvents = [...events].sort(
+        (evA, evB) => (Number(evA?.clock?.secs) || 0) - (Number(evB?.clock?.secs) || 0)
+      );
+      for (const ev of sortedEvents) {
+        const evSecs = Number(ev?.clock?.secs ?? 0);
+        if (evSecs > windowSecs) continue;
+        if (ev.score && (ev.score.homeScore !== undefined || ev.score.awayScore !== undefined)) {
+          h = Number(ev.score.homeScore ?? h);
+          a = Number(ev.score.awayScore ?? a);
+        } else if (ev.type === 'G' || ev.type === 'P' || ev.type === 'O') {
+          const pInfoEv = ev.personId ? pulsePersons.get(Number(ev.personId)) : null;
+          const evClub = pInfoEv?.teamName || (ev.teamId === awayTeamRaw?.id ? awayClub : homeClub);
+          if (ev.type === 'O') {
+            if (evClub === homeClub) a++;
+            else h++;
+          } else {
+            if (evClub === homeClub) h++;
+            else a++;
+          }
         }
+      }
+      if (tsH !== null && tsA !== null && h === 0 && a === 0) {
+        return { h: tsH, a: tsA };
       }
       return { h, a };
     };
@@ -1475,41 +1672,33 @@ export function generateStoriesFromPulseMatch(
       return `${cleaned}'`;
     };
 
-    const seenVarKeys = new Set<string>();
+    const seenVarRecords: Array<{ cond: string; secs: number; pid: number; club: string }> = [];
     const seenPenAwardKeys = new Set<string>();
     let emittedTsHalf1Start = false;
-
-    const findFplByTextName = (rawName: string): FplPlayerLookup | null => {
-      const norm = normalizeDiacritics(rawName);
-      if (!norm) return null;
-      return (
-        allPlayers.find((p) => normalizeDiacritics(p.fullName) === norm) ||
-        allPlayers.find((p) => normalizeDiacritics(p.webName) === norm) ||
-        allPlayers.find((p) => norm.includes(normalizeDiacritics(p.webName)) && normalizeDiacritics(p.webName).length >= 4) ||
-        null
-      );
-    };
-
-    // Sort chronologically so 'VAR cancelled goal' / 'contentious referee decisions' deduplicate cleanly
-    const sortedTextEvents = [...textEvents].sort(
-      (a, b) => (a.time?.secs ?? 0) - (b.time?.secs ?? 0)
-    );
+    let lastVarHint: { cond: string; secs: number; club: string; player: { name: string; pct: number; club: string; fpl: FplPlayerLookup | null } } | null = null;
 
     for (let tIdx = 0; tIdx < sortedTextEvents.length; tIdx++) {
       const tv = sortedTextEvents[tIdx];
       const tvType = String(tv.type?.text || tv.type || '');
+      const tvTypeLower = tvType.trim().toLowerCase();
       const tvText = String(tv.text || '');
       const tvSecs = Number(tv.time?.secs ?? 0);
       const minuteStr = formatTextstreamMinute(tv.time?.label);
       const primaryPid = Array.isArray(tv.playerIds) && tv.playerIds.length > 0 ? Number(tv.playerIds[0]) : undefined;
-      const resolvedPlayer = resolvePlayer(primaryPid);
+      let resolvedPlayer = resolvePlayer(primaryPid);
+      if (!resolvedPlayer.name) {
+        const textPlayer = resolvePlayerFromText(tvText);
+        if (textPlayer.name || textPlayer.club) {
+          resolvedPlayer = textPlayer;
+        }
+      }
       let resolvedClub = resolvedPlayer.club || inferClubFromText(tvText);
-      if (tvType === 'own goal' && resolvedPlayer.club) {
+      if (tvTypeLower === 'own goal' && resolvedPlayer.club) {
         resolvedClub = resolvedPlayer.club === homeClub ? awayClub : homeClub;
       }
 
       // 0a. First Half Start Fallback when Pulse events omitted PS phase 1
-      if (!hasPsHalf1 && !emittedTsHalf1Start && tvType === 'start' && /First Half/i.test(tvText)) {
+      if (!hasPsHalf1 && !emittedTsHalf1Start && tvTypeLower === 'start' && /First Half/i.test(tvText)) {
         const tmplPs = tmplMap.get('LM_MATCH_PERIOD_START');
         if (tmplPs) {
           emittedTsHalf1Start = true;
@@ -1547,7 +1736,7 @@ export function generateStoriesFromPulseMatch(
       }
 
       // 0b. Own Goal Fallback when events omitted 'O'
-      if (tvType === 'own goal') {
+      if (tvTypeLower === 'own goal') {
         const tmplOg = tmplMap.get('LM_MATCH_GOAL_OWN');
         const nameMatch = /Own Goal by ([^,]+),/i.exec(tvText);
         const fplOg = resolvedPlayer.fpl || (nameMatch ? findFplByTextName(nameMatch[1]) : null);
@@ -1590,11 +1779,14 @@ export function generateStoriesFromPulseMatch(
             cycle_meta: { matchKey },
           });
         }
-        continue;
+        // Do NOT skip Step 2 if this own goal commentary also states a VAR review confirmation
+        if (!/\bVAR\b/i.test(tvText)) {
+          continue;
+        }
       }
 
       // 0c. Penalty Saved Fallback when SP event absent
-      if (tvType === 'penalty saved' || (tvType === 'attempt saved' && /Penalty\s+saved/i.test(tvText))) {
+      if (tvTypeLower === 'penalty saved' || (tvTypeLower === 'attempt saved' && /Penalty\s+saved/i.test(tvText))) {
         const tmplPs = tmplMap.get('LM_MATCH_PENALTY_SAVED');
         const alreadySaved = emittedPenSavedSecs.some((s) => Math.abs(s - tvSecs) <= 180);
         if (tmplPs && !alreadySaved) {
@@ -1631,7 +1823,7 @@ export function generateStoriesFromPulseMatch(
       }
 
       // 0d. Penalty Missed Fallback when MP event absent
-      if (tvType === 'penalty missed' || ((tvType === 'miss' || tvType === 'post') && /Penalty\s+(?:missed|saved)/i.test(tvText))) {
+      if (tvTypeLower === 'penalty missed' || ((tvTypeLower === 'miss' || tvTypeLower === 'post') && /Penalty\s+(?:missed|saved)/i.test(tvText))) {
         const tmplPm = tmplMap.get('LM_MATCH_PENALTY_MISSED');
         const alreadyMissedOrSaved =
           emittedPenMissedSecs.some((s) => Math.abs(s - tvSecs) <= 180) ||
@@ -1671,55 +1863,68 @@ export function generateStoriesFromPulseMatch(
       }
 
       // 1. Penalty Won -> LM_MATCH_PENALTY_AWARDED (Hadiah Penalti / Umum)
-      if (tvType === 'penalty won') {
+      if (tvTypeLower === 'penalty won') {
         const tmplPen = tmplMap.get('LM_MATCH_PENALTY_AWARDED');
         if (tmplPen) {
-          const dedupKey = `${Math.floor(tvSecs / 120)}_${resolvedClub}_${primaryPid || 0}`;
-          if (seenPenAwardKeys.has(dedupKey)) continue;
-          seenPenAwardKeys.add(dedupKey);
+          const dedupKey = `${Math.floor(tvSecs / 120)}_${resolvedClub}_${primaryPid || resolvedPlayer.name || 0}`;
+          if (!seenPenAwardKeys.has(dedupKey)) {
+            seenPenAwardKeys.add(dedupKey);
+            const hasFouledName = Boolean(resolvedPlayer.name);
+            const cond = hasFouledName ? 'Hadiah Penalti' : 'Hadiah Penalti (Umum)';
+            const vars = {
+              minute: minuteStr,
+              club: resolvedClub,
+              fouled_player: resolvedPlayer.name,
+              fouled_player_pct: resolvedPlayer.pct,
+            };
+            const text = resolveConditionalBlock(tmplPen.template, cond, vars);
+            const enText = hasFouledName
+              ? `[N:${minuteStr}] Penalty awarded to [C:${resolvedClub}] after a foul on [P:${resolvedPlayer.name}] ([N:${resolvedPlayer.pct}%]).`
+              : `[N:${minuteStr}] Penalty awarded to [C:${resolvedClub}] after the referee points to the spot.`;
 
-          const hasFouledName = Boolean(resolvedPlayer.name);
-          const cond = hasFouledName ? 'Hadiah Penalti' : 'Hadiah Penalti (Umum)';
-          const vars = {
-            minute: minuteStr,
-            club: resolvedClub,
-            fouled_player: resolvedPlayer.name,
-            fouled_player_pct: resolvedPlayer.pct,
-          };
-          const text = resolveConditionalBlock(tmplPen.template, cond, vars);
-          const enText = hasFouledName
-            ? `[N:${minuteStr}] Penalty awarded to [C:${resolvedClub}] after a foul on [P:${resolvedPlayer.name}] ([N:${resolvedPlayer.pct}%]).`
-            : `[N:${minuteStr}] Penalty awarded to [C:${resolvedClub}] after the referee points to the spot.`;
-
-          stories.push({
-            id: `${tmplPen.id}_pulse_${matchId}_ts_pen_${tv.id || tIdx}`,
-            headline_id: text,
-            headline_en: enText,
-            kategori: tmplPen.category,
-            sub_kategori: tmplPen.subcategory,
-            drama_score: 90,
-            waktu_tayang: tmplPen.gw_phase ? [tmplPen.gw_phase] : ['Live Match'],
-            gw,
-            teams: [homeClub, awayClub],
-            players: hasFouledName ? [resolvedPlayer.name] : [],
-            sumber: (tmplPen.source as any) || 'Sys',
-            status_tayang: 'Y',
-            keterangan_tidak_tayang: '',
-            timestamp_produksi: nowIso,
-            pulseMatchId: matchId,
-            minute: minuteStr,
-            clockSecs: tvSecs,
-            cycle_meta: { matchKey, isPenaltyCancelled: false },
-          });
+            stories.push({
+              id: `${tmplPen.id}_pulse_${matchId}_ts_pen_${tv.id || tIdx}`,
+              headline_id: text,
+              headline_en: enText,
+              kategori: tmplPen.category,
+              sub_kategori: tmplPen.subcategory,
+              drama_score: 90,
+              waktu_tayang: tmplPen.gw_phase ? [tmplPen.gw_phase] : ['Live Match'],
+              gw,
+              teams: [homeClub, awayClub],
+              players: hasFouledName ? [resolvedPlayer.name] : [],
+              sumber: (tmplPen.source as any) || 'Sys',
+              status_tayang: 'Y',
+              keterangan_tidak_tayang: '',
+              timestamp_produksi: nowIso,
+              pulseMatchId: matchId,
+              minute: minuteStr,
+              clockSecs: tvSecs,
+              cycle_meta: { matchKey, isPenaltyCancelled: false },
+            });
+          }
         }
-        continue;
+        if (!/\bVAR\b/i.test(tvText)) {
+          continue;
+        }
       }
 
       // 2. VAR Decisions -> LM_MATCH_VAR_REVIEW
       const isVarEvent =
-        tvType === 'VAR cancelled goal' ||
-        (tvType === 'contentious referee decisions' && /\bVAR\b/i.test(tvText)) ||
-        (/\bVAR\s+(?:Decision|Review)\b/i.test(tvText) && (tvType === 'goal' || tvType === 'own goal'));
+        tvTypeLower === 'var cancelled goal' ||
+        tvTypeLower === 'var' ||
+        tvTypeLower === 'var decision' ||
+        tvTypeLower === 'var review' ||
+        tvTypeLower === 'disallowed goal' ||
+        (tvTypeLower === 'contentious referee decisions' && /\bVAR\b/i.test(tvText)) ||
+        (/\bVAR\b/i.test(tvText) &&
+          !/\bVAR\s+checking\b/i.test(tvText) &&
+          (tvTypeLower === 'goal' ||
+            tvTypeLower === 'own goal' ||
+            tvTypeLower === 'penalty won' ||
+            tvTypeLower === 'red card' ||
+            tvTypeLower === 'second yellow card' ||
+            tvTypeLower === 'yellow card'));
 
       if (!isVarEvent) continue;
 
@@ -1728,47 +1933,109 @@ export function generateStoriesFromPulseMatch(
 
       let cond = '';
       if (
-        tvType === 'VAR cancelled goal' ||
-        /VAR Decision:\s*No Goal\b/i.test(tvText) ||
+        tvTypeLower === 'var cancelled goal' ||
+        tvTypeLower === 'disallowed goal' ||
+        /VAR Decision:\s*(?:No Goal|Goal\s+(?:Disallowed|Cancelled|Overturned))\b/i.test(tvText) ||
         /GOAL OVERTURNED BY VAR/i.test(tvText) ||
-        /ruled out after a VAR review/i.test(tvText)
+        /(?:ruled out|disallowed|cancelled|overturned)\s+(?:after|following|by)\s+(?:a\s+)?VAR/i.test(tvText)
       ) {
         cond = 'Gol Dibatalkan';
       } else if (
-        /VAR Decision:\s*No Penalty\b/i.test(tvText) ||
-        /Penalty\s+(?:overturned|cancelled)/i.test(tvText)
+        /VAR Decision:\s*(?:No Penalty|Penalty\s+(?:Cancelled|Overturned|Rescinded))\b/i.test(tvText) ||
+        /Penalty\s+(?:overturned|cancelled|rescinded)/i.test(tvText)
       ) {
         cond = 'Penalti Dibatalkan';
-      } else if (/VAR Decision:\s*Penalty\b/i.test(tvText)) {
+      } else if (
+        /VAR Decision:\s*Penalty\b/i.test(tvText) ||
+        /Penalty\s+(?:awarded|given|confirmed)\s+(?:by|after|following)\s+(?:a\s+)?VAR/i.test(tvText)
+      ) {
         cond = 'Penalti Diberikan';
       } else if (
-        /VAR Decision:\s*(?:No Red Card|Card rescinded|Red Card overturned|Card downgraded)/i.test(tvText)
+        /VAR Decision:\s*(?:No Red Card|Card\s+(?:rescinded|downgraded|overturned|cancelled)|Red Card\s+(?:overturned|rescinded|cancelled|downgraded))/i.test(tvText) ||
+        /Red Card\s+(?:overturned|rescinded|cancelled|downgraded)\s+(?:by|after|following)\s+(?:a\s+)?VAR/i.test(tvText)
       ) {
         cond = 'Kartu Merah Dibatalkan';
       } else if (
-        /VAR Decision:\s*(?:Card upgraded|Red Card)\b/i.test(tvText)
+        /VAR Decision:\s*(?:Card upgraded|Red Card(?:\s+(?:Given|Awarded))?)\b/i.test(tvText) ||
+        /(?:Card upgraded|Red Card\s+(?:given|awarded))\s+.*?\bVAR\b/i.test(tvText)
       ) {
         cond = 'Kartu Merah Diberikan';
       } else if (
-        /VAR Decision:\s*Goal\b/i.test(tvText) ||
-        /Goal\s+(?:confirmed|awarded)\s+following\s+VAR/i.test(tvText)
+        /VAR Decision:\s*Goal\b(?!\s*(?:Disallowed|Cancelled|Overturned))/i.test(tvText) ||
+        /Goal\s+(?:confirmed|awarded|stands)\s+(?:following|after|by)\s+(?:a\s+)?VAR/i.test(tvText)
       ) {
         cond = 'Gol Dinyatakan Sah';
       }
 
       if (!cond) continue;
 
-      // Deduplicate paired entries (e.g. 'VAR cancelled goal' + 'VAR Decision: No Goal' at same minute/player)
-      const varKey = `${cond}_${Math.floor(tvSecs / 180)}_${primaryPid || resolvedClub}`;
-      if (seenVarKeys.has(varKey)) continue;
-      seenVarKeys.add(varKey);
+      // For explicit club-level Penalty VAR decisions ("VAR Decision: Penalty Club." / "No Penalty Club."),
+      // trust the explicitly named club first because playerIds[0] can sometimes be the defending player.
+      if (cond === 'Penalti Diberikan' || cond === 'Penalti Dibatalkan') {
+        const penExplicitMatch = /VAR Decision:\s*(?:No\s+)?Penalty(?:\s+\w+)?\s+([^.(]+?)(?:\s*\(|\s*\.|$)/i.exec(tvText);
+        if (penExplicitMatch) {
+          const explicitClub = matchClubString(penExplicitMatch[1]);
+          if (explicitClub) {
+            resolvedClub = explicitClub;
+          }
+        }
+      }
+
+      // If a paired 'VAR cancelled goal' / 'goal' arrived earlier at ~same clock without player on the 2nd text, reuse it
+      if (
+        lastVarHint &&
+        lastVarHint.cond === cond &&
+        Math.abs(lastVarHint.secs - tvSecs) <= 240
+      ) {
+        if (!resolvedPlayer.name && lastVarHint.player.name) {
+          resolvedPlayer = lastVarHint.player;
+        }
+        if (lastVarHint.club) {
+          resolvedClub = lastVarHint.club;
+        }
+      }
+
+      lastVarHint = { cond, secs: tvSecs, club: resolvedClub, player: resolvedPlayer };
+
+      // Deduplicate paired entries (e.g. 'VAR cancelled goal' + 'VAR Decision: No Goal') using a 240s sliding window
+      const isDuplicateVar = seenVarRecords.some(
+        (prev) =>
+          prev.cond === cond &&
+          Math.abs(prev.secs - tvSecs) <= 240 &&
+          ((primaryPid && prev.pid === primaryPid) || prev.club === resolvedClub)
+      );
+      if (isDuplicateVar) continue;
+      seenVarRecords.push({ cond, secs: tvSecs, pid: primaryPid || 0, club: resolvedClub });
 
       const { h: hScore, a: aScore } = getScoreForVar(tvSecs, cond, tvText);
-      let reason = 'offside';
+      let reason = '';
       if (/handball/i.test(tvText)) reason = 'handball';
       else if (/foul/i.test(tvText)) reason = 'pelanggaran';
+      else if (/offside/i.test(tvText)) reason = 'offside';
 
-      const hasVarPlayer = Boolean(resolvedPlayer.name && resolvedPlayer.name !== 'Player');
+      if (!reason && cond === 'Gol Dibatalkan') {
+        for (const adj of sortedTextEvents) {
+          const adjSecs = Number(adj?.time?.secs ?? 0);
+          if (Math.abs(adjSecs - tvSecs) > 90) continue;
+          const adjType = String(adj?.type?.text || adj?.type || '').toLowerCase();
+          const adjTxt = String(adj?.text || '');
+          if (/handball/i.test(adjTxt)) {
+            reason = 'handball';
+            break;
+          }
+          if (adjType === 'offside' || /\boffside\b/i.test(adjTxt)) {
+            reason = 'offside';
+            break;
+          }
+          if ((adjType === 'free kick lost' || /\bfoul\b/i.test(adjTxt)) && (!resolvedClub || inferClubFromText(adjTxt) === resolvedClub)) {
+            reason = 'pelanggaran';
+          }
+        }
+      }
+      if (!reason) reason = 'offside';
+
+      const isOwnGoalVar = tvTypeLower === 'own goal';
+      const hasVarPlayer = !isOwnGoalVar && Boolean(resolvedPlayer.name && resolvedPlayer.name !== 'Player');
       const playerBoundVarConds = new Set([
         'Gol Dibatalkan',
         'Gol Dinyatakan Sah',

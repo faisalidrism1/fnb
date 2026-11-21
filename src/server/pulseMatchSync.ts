@@ -269,30 +269,126 @@ export function findPulseMatchFileById(matchId: number): { filePath: string; dat
 
 /**
  * Fetches match commentary textstream (EN) from Pulse API to capture VAR decisions and Penalty Won events.
+ * Paginates automatically if `numPages > 1` so late-match / stoppage-time events are never truncated.
  */
 export async function fetchPulseMatchTextstream(matchId: number): Promise<any[]> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
-  try {
-    const res = await fetch(`${PULSE_BASE}/fixtures/${matchId}/textstream/EN?pageSize=250`, {
-      headers: PULSE_HEADERS,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data?.events?.content)) {
-        return data.events.content;
+  const fetchPage = async (page: number): Promise<any | null> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    try {
+      const res = await fetch(
+        `${PULSE_BASE}/fixtures/${matchId}/textstream/EN?pageSize=250&page=${page}`,
+        {
+          headers: PULSE_HEADERS,
+          signal: controller.signal,
+        }
+      );
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        return await res.json();
       }
-      if (Array.isArray(data?.content)) {
-        return data.content;
+      return null;
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      if (page === 0) {
+        console.warn(`[Pulse Sync] Failed to fetch textstream for match ${matchId}:`, err.message);
+      }
+      return null;
+    }
+  };
+
+  const firstPage = await fetchPage(0);
+  if (!firstPage) return [];
+
+  const firstContent: any[] = Array.isArray(firstPage?.events?.content)
+    ? firstPage.events.content
+    : Array.isArray(firstPage?.content)
+      ? firstPage.content
+      : [];
+  const numPages = Number(firstPage?.events?.pageInfo?.numPages ?? firstPage?.pageInfo?.numPages ?? 1) || 1;
+  if (numPages <= 1) return firstContent;
+
+  const extraPages = await Promise.all(
+    Array.from({ length: Math.min(numPages - 1, 5) }, (_, idx) => fetchPage(idx + 1))
+  );
+  const combined = [...firstContent];
+  const seenIds = new Set(firstContent.map((e: any) => e?.id).filter(Boolean));
+  for (const pg of extraPages) {
+    const items: any[] = Array.isArray(pg?.events?.content)
+      ? pg.events.content
+      : Array.isArray(pg?.content)
+        ? pg.content
+        : [];
+    for (const item of items) {
+      if (item?.id && seenIds.has(item.id)) continue;
+      if (item?.id) seenIds.add(item.id);
+      combined.push(item);
+    }
+  }
+  return combined;
+}
+
+function normalizePersonKey(str?: string): string {
+  return String(str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * Attaches `pulseId` (matching `textstreamEvents[].playerIds`) onto SDP-normalized `teamLists` players
+ * using Pulse fixture lineups matched by team index + shirt number or normalized name.
+ */
+function attachPulsePersonIdsFromFixture(sdpData: any, pulseFixture: any): void {
+  if (!sdpData || !Array.isArray(sdpData.teamLists) || !Array.isArray(pulseFixture?.teamLists)) {
+    return;
+  }
+  for (let i = 0; i < sdpData.teamLists.length; i++) {
+    const sdpTl = sdpData.teamLists[i];
+    const pulseTl = pulseFixture.teamLists[i];
+    if (!sdpTl || !pulseTl) continue;
+
+    const pulseRoster: any[] = [...(pulseTl.lineup || []), ...(pulseTl.substitutes || [])];
+    const byShirt = new Map<number, number>();
+    const byDisplay = new Map<string, number>();
+    const byLast = new Map<string, number[]>();
+
+    for (const pp of pulseRoster) {
+      const pid = Number(pp?.id) || 0;
+      if (!pid) continue;
+      const shirt = Number(pp?.shirtNumber ?? pp?.info?.shirtNum) || 0;
+      if (shirt > 0) byShirt.set(shirt, pid);
+      const disp = normalizePersonKey(pp?.name?.display);
+      if (disp) byDisplay.set(disp, pid);
+      const last = normalizePersonKey(pp?.name?.last);
+      if (last) {
+        const list = byLast.get(last) || [];
+        list.push(pid);
+        byLast.set(last, list);
       }
     }
-    return [];
-  } catch (err: any) {
-    clearTimeout(timeoutId);
-    console.warn(`[Pulse Sync] Failed to fetch textstream for match ${matchId}:`, err.message);
-    return [];
+
+    for (const sp of [...(sdpTl.lineup || []), ...(sdpTl.substitutes || [])]) {
+      if (!sp) continue;
+      const disp = normalizePersonKey(sp?.name?.display);
+      const last = normalizePersonKey(sp?.name?.last);
+      const shirt = Number(sp?.shirtNumber ?? sp?.info?.shirtNum) || 0;
+
+      let matchedPulseId = (disp && byDisplay.get(disp)) || 0;
+      if (!matchedPulseId && shirt > 0) {
+        matchedPulseId = byShirt.get(shirt) || 0;
+      }
+      if (!matchedPulseId && last) {
+        const cands = byLast.get(last);
+        if (cands && cands.length === 1) {
+          matchedPulseId = cands[0];
+        }
+      }
+      if (matchedPulseId > 0) {
+        sp.pulseId = matchedPulseId;
+      }
+    }
   }
 }
 
@@ -325,26 +421,25 @@ export async function fetchAndCachePulseMatch(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
   try {
-    const [optaCode, tsEvents] = await Promise.all([
+    const [optaCode, tsEvents, pulseFixture] = await Promise.all([
       getOptaMatchCodeForPulseId(matchId).catch(() => null),
       fetchPulseMatchTextstream(matchId),
+      fetchJsonSafe(`${PULSE_BASE}/fixtures/${matchId}`, PULSE_HEADERS, 8000),
     ]);
+    clearTimeout(timeoutId);
 
     let data: any = null;
     if (optaCode) {
       data = await fetchSdpNormalizedMatch(optaCode, matchId, options?.fallbackGw);
     }
 
-    if (!data) {
-      const fixtureRes = await fetch(`${PULSE_BASE}/fixtures/${matchId}`, {
-        headers: PULSE_HEADERS,
-        signal: controller.signal,
-      });
-      if (fixtureRes.ok) {
-        data = await fixtureRes.json();
-      }
+    if (data && pulseFixture) {
+      attachPulsePersonIdsFromFixture(data, pulseFixture);
     }
-    clearTimeout(timeoutId);
+
+    if (!data && pulseFixture) {
+      data = pulseFixture;
+    }
 
     if (data) {
       data.textstreamEvents = Array.isArray(tsEvents) ? tsEvents : [];

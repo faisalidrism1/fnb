@@ -88,6 +88,8 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
   const fetchFeedRef = useRef<(forceRefresh?: boolean) => Promise<void>>(async () => {});
   const cycleRefreshPendingRef = useRef<boolean>(false);
   const cycleRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastAirPromiseRef = useRef<Promise<void>>(Promise.resolve());
+  const fetchSeqRef = useRef<number>(0);
 
   const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
   useEffect(() => {
@@ -123,7 +125,7 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
     } catch {}
 
     const cycleSize = Math.max(1, storiesRef.current.length);
-    fetch('/api/admin/news-ticker/increment-point', {
+    const req = fetch('/api/admin/news-ticker/increment-point', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: storyId, cycleSize }),
@@ -148,19 +150,35 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         }
       })
       .catch(() => {});
+    lastAirPromiseRef.current = req;
   }, []);
 
   // Fetch news feed from backend
   useEffect(() => {
     let isMounted = true;
     const fetchFeed = async (forceRefresh = false) => {
+      // Avoid racing a background poll while a cycle rotation refresh is pending/in-flight
+      if (!forceRefresh && cycleRefreshPendingRef.current) {
+        return;
+      }
+      const seq = ++fetchSeqRef.current;
       try {
+        if (forceRefresh) {
+          // Ensure the final story's increment-point POST has settled (up to 800ms) before reading next cycle
+          await Promise.race([
+            lastAirPromiseRef.current,
+            new Promise<void>((resolve) => setTimeout(resolve, 800)),
+          ]);
+        }
+        if (!isMounted) return;
         const refreshParam = forceRefresh ? '&refresh=1' : '';
         const res = await fetch(`/api/news-ticker/feed?_t=${Date.now()}${refreshParam}`, {
           cache: 'no-store',
         });
         if (res.ok) {
           const json = await res.json();
+          // Ignore stale out-of-order responses if a newer request has started
+          if (seq !== fetchSeqRef.current) return;
           if (json.success && Array.isArray(json.data) && isMounted) {
             const incomingPhase = typeof json.gameweekPhase === 'string' ? json.gameweekPhase.trim() : null;
             const parsedGw = Number(json.gameweek ?? leagueData?.current_gw);
@@ -204,6 +222,7 @@ export const NewsTicker: React.FC<NewsTickerProps> = ({
         clearTimeout(cycleRefreshTimerRef.current);
         cycleRefreshTimerRef.current = null;
       }
+      cycleRefreshPendingRef.current = false;
       window.removeEventListener('fnb:news-ticker-updated', handleTickerUpdated);
       clearInterval(intervalId);
     };
@@ -523,6 +542,7 @@ const getSavedPoolIdx = (): number => {
         'inline-flex items-center whitespace-nowrap pr-8 leading-[1.25] shrink-0 align-middle select-none';
       span.dataset.uid = String(uid);
       span.dataset.storyId = story.id;
+      span.dataset.storySig = `${story.id}::${story.headline_id}|${story.headline_en}`;
       if (isCycleEnd) {
         span.dataset.cycleEnd = '1';
       }
@@ -781,31 +801,33 @@ const getSavedPoolIdx = (): number => {
 
       const containerWidth = container.clientWidth || window.innerWidth || 1200;
       let currentPos = currentXRef.current;
-      const visibleChildren: HTMLElement[] = [];
+      let keepEndIndex = -1;
 
+      // Preserve EVERY element from index 0 up through the rightmost element currently
+      // visible inside [0, containerWidth) so NO visible headline is ever cut off mid-scroll
+      // and currentXRef.current stays 100% aligned with track.children[0].
       for (let i = 0; i < track.children.length; i++) {
         const child = track.children[i] as HTMLElement;
         const childWidth = child.offsetWidth;
         const leftPos = currentPos;
-        const rightPos = currentPos + childWidth;
 
-        if (rightPos > 0 && leftPos < containerWidth) {
-          visibleChildren.push(child);
-        } else if (leftPos >= containerWidth) {
+        if (leftPos < containerWidth) {
+          keepEndIndex = i;
+        } else {
           break;
         }
 
         currentPos += childWidth;
       }
 
-      const activeChildren =
-        isPhaseChanged || isCycleRotation || hasRemovals
-          ? (visibleChildren.length > 0
-              ? [visibleChildren[0]]
-              : [track.firstElementChild as HTMLElement].filter(Boolean))
-          : (visibleChildren.length > 0
-              ? visibleChildren
-              : [track.firstElementChild as HTMLElement].filter(Boolean));
+      if (keepEndIndex < 0 && track.children.length > 0) {
+        keepEndIndex = 0;
+      }
+
+      const activeChildren: HTMLElement[] = [];
+      for (let i = 0; i <= keepEndIndex; i++) {
+        activeChildren.push(track.children[i] as HTMLElement);
+      }
 
       const keepSet = new Set(activeChildren);
       const toRemove: HTMLElement[] = [];
@@ -824,15 +846,60 @@ const getSavedPoolIdx = (): number => {
       lastQueuedStoryIdRef.current = lastRetainedId;
 
       if (isPhaseChanged || isCycleRotation) {
-        poolIdxRef.current = 0;
+        // Clear any stale cycleEnd marker on retained items so they don't re-trigger cycle refresh early
+        for (const ac of activeChildren) {
+          if (ac.dataset.cycleEnd === '1') {
+            delete ac.dataset.cycleEnd;
+          }
+        }
+
+        let nextCycleStartIdx = 0;
         if (isPhaseChanged) {
           lastAiredP3Ref.current.clear();
+        } else if (isCycleRotation && newStories.length > activeChildren.length + 1) {
+          // Skip leading stories of the new cycle that are already visibly airing on screen right now
+          const activeSigs = new Set(
+            activeChildren.map((el) => el.dataset.storySig || el.dataset.storyId || '')
+          );
+          while (
+            nextCycleStartIdx < newStories.length - 1 &&
+            activeSigs.has(
+              `${newStories[nextCycleStartIdx].id}::${newStories[nextCycleStartIdx].headline_id}|${newStories[nextCycleStartIdx].headline_en}`
+            )
+          ) {
+            nextCycleStartIdx++;
+          }
         }
+
+        poolIdxRef.current = nextCycleStartIdx;
         try {
-          sessionStorage.setItem(POOL_IDX_STORAGE_KEY, '0');
+          sessionStorage.setItem(POOL_IDX_STORAGE_KEY, String(nextCycleStartIdx));
         } catch {}
       } else {
-        // Same phase mid-cycle: inject P1/P2 interrupts right after visible items, transferring cycleEnd marker if present
+        // Same phase mid-cycle: keep poolIdx aligned with removed off-screen buffer items so none get skipped
+        let restoredIdx = -1;
+        for (const el of toRemove) {
+          const sid = el.dataset.storyId;
+          if (!sid) continue;
+          const found = newStories.findIndex((s) => s.id === sid);
+          if (found !== -1) {
+            restoredIdx = found;
+            break;
+          }
+        }
+        if (restoredIdx !== -1) {
+          poolIdxRef.current = restoredIdx;
+        } else if (lastRetainedId) {
+          const lastIdx = newStories.findIndex((s) => s.id === lastRetainedId);
+          poolIdxRef.current =
+            lastIdx !== -1
+              ? (lastIdx + 1) % newStories.length
+              : poolIdxRef.current % newStories.length;
+        } else {
+          poolIdxRef.current = poolIdxRef.current % newStories.length;
+        }
+
+        // Inject P1/P2 interrupts right after visible items, transferring cycleEnd marker if present
         const priorityQueue = [...freshStories, ...updatedStories].slice(0, 8);
         if (priorityQueue.length > 0) {
           let transferredCycleEnd = false;
@@ -920,13 +987,19 @@ const getSavedPoolIdx = (): number => {
       const track = trackRef.current;
       const container = containerRef.current;
 
-      if (!isHoveredRef.current && track && container && storiesRef.current.length > 0) {
+      if (
+        !isHoveredRef.current &&
+        track &&
+        container &&
+        container.clientWidth > 0 &&
+        storiesRef.current.length > 0
+      ) {
         currentXRef.current -= speed * deltaSec;
 
         const firstChild = track.firstElementChild as HTMLElement;
         if (firstChild) {
           const itemWidth = firstChild.offsetWidth;
-          if (-currentXRef.current >= itemWidth) {
+          if (itemWidth > 0 && -currentXRef.current >= itemWidth) {
             const exitedStoryId = firstChild.dataset.storyId || '';
             const exitedCycleEnd = firstChild.dataset.cycleEnd === '1';
 
@@ -967,7 +1040,7 @@ const getSavedPoolIdx = (): number => {
               cycleRefreshTimerRef.current = setTimeout(() => {
                 cycleRefreshTimerRef.current = null;
                 fetchFeedRef.current(true);
-              }, 600);
+              }, 200);
             }
             // 5. Append next story seamlessly to the right from ongoing round-robin pool
             const next = getNextStoryRef.current();

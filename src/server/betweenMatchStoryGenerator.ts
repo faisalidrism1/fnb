@@ -283,10 +283,93 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
   const nowIso = new Date().toISOString();
   const stories: GeneratedPhaseStory[] = [];
 
-  const finishedFixtures = fixtures.filter(
+  const allCachedMatches = getCachedMatchesForGw(currentGw) || [];
+  const cachedMatches = allCachedMatches.filter(
+    (m) => m.finished || m.finished_provisional || m.phase === 'FT'
+  );
+
+  // Overlay fresh live match-card states & player stats onto DB fixtures / playerMap
+  // so LM -> BM transitions work immediately even before a full Action B league sync completes.
+  const cachedByFixId = new Map<number, (typeof allCachedMatches)[number]>();
+  const cachedByClubs = new Map<string, (typeof allCachedMatches)[number]>();
+  for (const m of allCachedMatches) {
+    if (m.id) cachedByFixId.set(Number(m.id), m);
+    const hc = resolveClubName(m.home_team?.name || m.home_team?.short_name, '');
+    const ac = resolveClubName(m.away_team?.name || m.away_team?.short_name, '');
+    if (hc && ac) cachedByClubs.set(`${hc}__${ac}`, m);
+  }
+
+  const effectiveFixtures: any[] = [];
+  const seenFixKeys = new Set<string>();
+  for (const f of fixtures) {
+    const hClub = resolveClubName(f.home_team, '');
+    const aClub = resolveClubName(f.away_team, '');
+    const cm = (f.id ? cachedByFixId.get(Number(f.id)) : undefined) || (hClub && aClub ? cachedByClubs.get(`${hClub}__${aClub}`) : undefined);
+    if (cm) {
+      const isCmFinished = Boolean(cm.finished || cm.finished_provisional || cm.phase === 'FT');
+      effectiveFixtures.push({
+        ...f,
+        started: Boolean(cm.started || isCmFinished || f.started),
+        finished: Boolean(cm.finished || f.finished),
+        finished_provisional: Boolean(cm.finished_provisional || isCmFinished || f.finished_provisional),
+        minutes: isCmFinished ? Math.max(Number(cm.minutes) || 0, 90) : (cm.minutes ?? f.minutes ?? 0),
+        team_h_score: cm.team_h_score ?? f.team_h_score,
+        team_a_score: cm.team_a_score ?? f.team_a_score,
+        kickoff_time: cm.kickoff_time || f.kickoff_time,
+      });
+    } else {
+      effectiveFixtures.push(f);
+    }
+    if (hClub && aClub) seenFixKeys.add(`${hClub}__${aClub}`);
+  }
+  for (const m of allCachedMatches) {
+    const hc = resolveClubName(m.home_team?.name || m.home_team?.short_name, '');
+    const ac = resolveClubName(m.away_team?.name || m.away_team?.short_name, '');
+    if (!hc || !ac || seenFixKeys.has(`${hc}__${ac}`)) continue;
+    const isCmFinished = Boolean(m.finished || m.finished_provisional || m.phase === 'FT');
+    effectiveFixtures.push({
+      id: m.id,
+      event: currentGw,
+      home_team: hc,
+      away_team: ac,
+      started: Boolean(m.started || isCmFinished),
+      finished: Boolean(m.finished),
+      finished_provisional: Boolean(m.finished_provisional || isCmFinished),
+      minutes: isCmFinished ? Math.max(Number(m.minutes) || 0, 90) : (m.minutes || 0),
+      team_h_score: m.team_h_score ?? 0,
+      team_a_score: m.team_a_score ?? 0,
+      kickoff_time: m.kickoff_time || '',
+    });
+  }
+
+  for (const m of allCachedMatches) {
+    const isCmFinished = Boolean(m.finished || m.finished_provisional || m.phase === 'FT');
+    if (!m.started && !isCmFinished) continue;
+    for (const mp of [
+      ...(m.home_lineup || []),
+      ...(m.home_bench || []),
+      ...(m.away_lineup || []),
+      ...(m.away_bench || []),
+    ]) {
+      if (!mp?.id || !mp?.stats) continue;
+      const existing = playerMap.get(Number(mp.id));
+      if (!existing) continue;
+      const liveMins = Number(mp.stats.minutes) || 0;
+      if (isCmFinished || liveMins >= existing.minutes) {
+        existing.minutes = liveMins;
+        existing.points = Number(mp.stats.total_points ?? existing.points ?? 0);
+        existing.goals = Number(mp.stats.goals_scored ?? existing.goals ?? 0);
+        existing.assists = Number(mp.stats.assists ?? existing.assists ?? 0);
+        existing.bps = Number(mp.stats.bps ?? existing.bps ?? 0);
+        existing.bonus = Number(mp.stats.bonus ?? existing.bonus ?? 0);
+      }
+    }
+  }
+
+  const finishedFixtures = effectiveFixtures.filter(
     (f: any) => f.finished || f.finished_provisional || (f.started && (f.minutes || 0) >= 90)
   );
-  const upcomingFixtures = fixtures.filter((f: any) => !f.started);
+  const upcomingFixtures = effectiveFixtures.filter((f: any) => !f.started && !f.finished && !f.finished_provisional);
 
   // Build club -> fixture map for finished matches
   const finishedClubFixtureMap = new Map<string, {
@@ -322,10 +405,6 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
   // Load Pulse match files strictly matching currentGw for granular goal+assist events
   const pulseMatches: any[] = loadPulseMatchesForGw(currentGw);
 
-  const allCachedMatches = getCachedMatchesForGw(currentGw) || [];
-  const cachedMatches = allCachedMatches.filter(
-    (m) => m.finished || m.finished_provisional
-  );
   const upcomingLineupMatches = allCachedMatches.filter(
     (m) =>
       !m.started &&
@@ -567,13 +646,14 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
             });
           }
 
-          // Condition 2: Gol & Assist from Pulse Match events
+          // Condition 2: Gol & Assist from Pulse Match events (finished matches only)
           for (const pd of pulseMatches) {
             const homeRaw = pd.teams?.[0]?.team;
             const awayRaw = pd.teams?.[1]?.team;
             const homeClub = resolveClubName(homeRaw?.club?.abbr || homeRaw?.shortName || homeRaw?.name);
             const awayClub = resolveClubName(awayRaw?.club?.abbr || awayRaw?.shortName || awayRaw?.name);
             if (!homeClub || !awayClub) continue;
+            if (pd.status !== 'C' && !finishedClubFixtureMap.has(homeClub)) continue;
             const persons = new Map<number, { person: any; teamName: string; teamShort: string }>();
             for (const tl of pd.teamLists || []) {
               const isHome = tl.teamId === homeRaw?.id;

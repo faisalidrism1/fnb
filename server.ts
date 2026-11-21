@@ -310,6 +310,7 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
         }
         const activeGwForPulse = targetGW || getCurrentGw();
         await Promise.all([
+          fetchMatchesForGw(activeGwForPulse).catch(() => null),
           ensureLiveMatchesAndCheckPhase(activeGwForPulse).catch(() => null),
           syncPulseMatchesForActiveGw(activeGwForPulse, { cleanOldGws: action === 'A_FULL' }).catch((pErr: any) => {
             console.warn('[Server] Warning syncing Pulse match files:', pErr.message);
@@ -1264,12 +1265,54 @@ app.get('/api/news-ticker/phase-check', async (req, res) => {
   }
 });
 
+let lastBmAutoSyncAt = 0;
+let lastBmPulseSealAt = 0;
+
+async function ensureBetweenMatchSyncCatchup(currentGw: number, prevBuiltPhase: string | null): Promise<boolean> {
+  const now = Date.now();
+  const cachedMatches = getCachedMatchesForGw(currentGw) || [];
+  const db = getOptimalDatabase();
+  const dbFixtures: any[] = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
+    ? db.meta.sync_status.gw_fixtures.filter((f: any) => Number(f.event) === currentGw)
+    : [];
+
+  const cachedFinishedCount = cachedMatches.filter(
+    (m) => m.finished || m.finished_provisional || m.phase === 'FT'
+  ).length;
+  const dbFinishedCount = dbFixtures.filter(
+    (f: any) => f.finished || f.finished_provisional
+  ).length;
+
+  const justLeftLiveMatch = Boolean(prevBuiltPhase && isPhaseActive('Live Match', prevBuiltPhase));
+  const hasNewFinishedMatch = cachedFinishedCount > dbFinishedCount;
+  let pulseSealed = false;
+
+  if ((justLeftLiveMatch || hasNewFinishedMatch) && now - lastBmPulseSealAt >= 45000) {
+    lastBmPulseSealAt = now;
+    const sealRes = await ensureLivePulseMatchesSynced(currentGw, { force: true }).catch(() => null);
+    pulseSealed = Boolean(sealRes && sealRes.synced > 0);
+  }
+
+  if ((justLeftLiveMatch || hasNewFinishedMatch) && !isSyncing && cachedData && now - lastBmAutoSyncAt >= 45000) {
+    lastBmAutoSyncAt = now;
+    console.log(
+      `[Server LM->BM] Detected transition/newly finished match (cachedFT=${cachedFinishedCount}, dbFT=${dbFinishedCount}); triggering background Action B sync for GW ${currentGw}...`
+    );
+    triggerSync('B_PARTIAL', currentGw).catch((err: any) => {
+      console.warn('[Server LM->BM] Background Action B catch-up failed:', err?.message || err);
+    });
+  }
+
+  return pulseSealed;
+}
+
 // Endpoint News Ticker Feed (Directly served from database container)
 app.get('/api/news-ticker/feed', async (req, res) => {
   try {
     const force = req.query.refresh === '1' || req.query.force === '1';
     const phase = req.query.phase ? String(req.query.phase) : undefined;
     const currentGw = getCurrentGw();
+    const prevBuiltState = getNewsTickerBuiltState();
 
     // When GW status is Live (or fixtures are mid-GW), run the dedicated LM vs BM checker
     // with fresh match states BEFORE resolving News Ticker phase and reading the container table.
@@ -1278,19 +1321,28 @@ app.get('/api/news-ticker/feed', async (req, res) => {
     );
     const currentPhase = phase || getGameweekPhase(currentGw);
 
+    let livePulseSynced = false;
     if (isPhaseActive('Live Match', currentPhase)) {
       if (force) {
         invalidateMatchesCache(currentGw);
       }
-      await Promise.all([
+      const [, pulseSyncResult] = await Promise.all([
         !getCachedMatchesForGw(currentGw) || force
           ? fetchMatchesForGw(currentGw).catch(() => null)
           : Promise.resolve(null),
         ensureLivePulseMatchesSynced(currentGw, { force }).catch(() => null),
       ]);
+      livePulseSynced = Boolean(pulseSyncResult && pulseSyncResult.synced > 0);
+    } else if (isPhaseActive('Between Match', currentPhase)) {
+      if (force) {
+        invalidateMatchesCache(currentGw);
+      }
+      if (!getCachedMatchesForGw(currentGw) || force) {
+        await fetchMatchesForGw(currentGw).catch(() => null);
+      }
+      livePulseSynced = await ensureBetweenMatchSyncCatchup(currentGw, prevBuiltState.phase);
     } else if (
-      (isPhaseActive('Between Match', currentPhase) ||
-        isPhaseActive('Not started', currentPhase) ||
+      (isPhaseActive('Not started', currentPhase) ||
         isPhaseActive('Confirmed', currentPhase)) &&
       (!getCachedMatchesForGw(currentGw) || force)
     ) {
@@ -1310,7 +1362,10 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       builtState.phase !== null && !isPhaseActive(builtState.phase, currentPhase);
     const liveNeedsRefresh =
       isPhaseActive('Live Match', currentPhase) &&
-      Date.now() - getNewsTickerLastBuiltAt() >= 15000;
+      (livePulseSynced || Date.now() - getNewsTickerLastBuiltAt() >= 15000);
+    const bmNeedsRefresh =
+      isPhaseActive('Between Match', currentPhase) &&
+      (livePulseSynced || Date.now() - getNewsTickerLastBuiltAt() >= 60000);
 
     let containerRows = getNewsTickerTable();
     if (
@@ -1319,6 +1374,7 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       gwChanged ||
       phaseChanged ||
       liveNeedsRefresh ||
+      bmNeedsRefresh ||
       containerRows.length === 0 ||
       containerRows.some(
         (r) =>
@@ -1412,23 +1468,33 @@ app.get('/api/admin/news-ticker', async (req, res) => {
     const forceRefresh = req.query.refresh === '1';
     const phase = req.query.phase ? String(req.query.phase) : undefined;
     const currentGw = getCurrentGw();
+    const prevBuiltState = getNewsTickerBuiltState();
     if (!phase) {
       await ensureLiveMatchesAndCheckPhase(currentGw).catch(() => null);
     }
     const currentPhase = phase || getGameweekPhase(currentGw);
+    let livePulseSynced = false;
     if (isPhaseActive('Live Match', currentPhase)) {
       if (forceRefresh) {
         invalidateMatchesCache(currentGw);
       }
-      await Promise.all([
+      const [, pulseSyncResult] = await Promise.all([
         !getCachedMatchesForGw(currentGw) || forceRefresh
           ? fetchMatchesForGw(currentGw).catch(() => null)
           : Promise.resolve(null),
         ensureLivePulseMatchesSynced(currentGw, { force: forceRefresh }).catch(() => null),
       ]);
+      livePulseSynced = Boolean(pulseSyncResult && pulseSyncResult.synced > 0);
+    } else if (isPhaseActive('Between Match', currentPhase)) {
+      if (forceRefresh) {
+        invalidateMatchesCache(currentGw);
+      }
+      if (!getCachedMatchesForGw(currentGw) || forceRefresh) {
+        await fetchMatchesForGw(currentGw).catch(() => null);
+      }
+      livePulseSynced = await ensureBetweenMatchSyncCatchup(currentGw, prevBuiltState.phase);
     } else if (
-      (isPhaseActive('Between Match', currentPhase) ||
-        isPhaseActive('Not started', currentPhase) ||
+      (isPhaseActive('Not started', currentPhase) ||
         isPhaseActive('Confirmed', currentPhase)) &&
       (!getCachedMatchesForGw(currentGw) || forceRefresh)
     ) {
@@ -1448,9 +1514,12 @@ app.get('/api/admin/news-ticker', async (req, res) => {
       builtState.phase !== null && !isPhaseActive(builtState.phase, currentPhase);
     const liveNeedsRefresh =
       isPhaseActive('Live Match', currentPhase) &&
-      Date.now() - getNewsTickerLastBuiltAt() >= 15000;
+      (livePulseSynced || Date.now() - getNewsTickerLastBuiltAt() >= 15000);
+    const bmNeedsRefresh =
+      isPhaseActive('Between Match', currentPhase) &&
+      (livePulseSynced || Date.now() - getNewsTickerLastBuiltAt() >= 60000);
 
-    if (forceRefresh || phase || gwChanged || phaseChanged || liveNeedsRefresh) {
+    if (forceRefresh || phase || gwChanged || phaseChanged || liveNeedsRefresh || bmNeedsRefresh) {
       rebuildNewsTickerTable(phase);
     }
 

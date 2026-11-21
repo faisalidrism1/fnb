@@ -1147,8 +1147,8 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
                         <span>{t('match_status_halftime')}</span>
                       </span>
                     ) : isLive ? (
-                      <span className="text-[10px] sm:text-[11px] font-black text-rose-600 dark:text-rose-400 flex items-center gap-1 justify-center leading-none">
-                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                      <span className="text-[10px] sm:text-[11px] font-black text-[#ff2851] flex items-center gap-1 justify-center leading-none">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#ff2851] animate-pulse shadow-[0_0_6px_rgba(255,40,81,0.8)] shrink-0" />
                         <span>
                           {m.clock_label && m.clock_label !== 'Full Time' && m.clock_label !== 'Half Time'
                             ? (m.clock_label === "00'" ? "0'" : m.clock_label.replace(/^0([0-9]')/, '$1'))

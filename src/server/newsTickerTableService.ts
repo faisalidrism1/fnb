@@ -1503,15 +1503,32 @@ export function rebuildNewsTickerTable(
             requireLiveMatch: true,
             matchesOverride: cachedMatches,
           });
-          for (const ls of liveTitleRaceStories) {
-            const records = createStoryRecordsForPhases({
-              ...ls,
-              sumber: (ls.sumber as any) || 'Sys',
-              gw: feedGw,
-            }, feedGw, currentActivePhase);
-            addRows(records);
+            for (const ls of liveTitleRaceStories) {
+              const records = createStoryRecordsForPhases({
+                ...ls,
+                sumber: (ls.sumber as any) || 'Sys',
+                gw: feedGw,
+              }, feedGw, currentActivePhase);
+              addRows(records);
+            }
+          } else {
+            // Guard against transient empty matches cache (e.g. during invalidateMatchesCache + failed/in-flight fetch):
+            // Never drop existing cached-match-derived rows and wipe their poin_tayang/detectedClockSecs back to 0.
+            const preservedCachedMatchRows = Array.from(existingTableMap.values()).filter((er) => {
+              const pid = resolveParentTemplateId(er.id, sortedEditorTemplateIds);
+              return (
+                pid === 'LM_MATCH_SAVES_GOALKEEPER' ||
+                pid === 'LM_MATCH_DEFENSIVE_CONTRIBUTION' ||
+                pid === 'LM_MATCH_SCORE_LIVE' ||
+                pid === 'LM_LINEUP_SURPRISE_BENCHED' ||
+                pid === 'LM_STANDINGS_RANK_MOVEMENT' ||
+                pid === 'LM_STANDINGS_TITLE_RACE'
+              );
+            });
+            if (preservedCachedMatchRows.length > 0) {
+              addRows(preservedCachedMatchRows.map((row) => ({ ...row })));
+            }
           }
-        }
 
         // Also register the 12 post-deadline locked NS_* fallback items for quiet Live Match periods
         try {

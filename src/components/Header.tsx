@@ -45,6 +45,7 @@ interface HeaderProps {
   onOpenSettings?: () => void;
   leagueData?: TransformedLeagueData | null;
   isAdminUnlocked?: boolean;
+  showProjectionAndScout?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -71,6 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   leagueData,
   isAdminUnlocked = false,
+  showProjectionAndScout = !import.meta.env.PROD,
 }) => {
   const { t } = useLanguage();
   const navRef = useRef<HTMLElement>(null);
@@ -116,9 +118,14 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'TRANSFER', label: t('tab_transfer') },
     { id: 'CAPTAIN', label: t('tab_captain') },
     { id: 'CHIPS', label: t('tab_chips') },
-    { id: 'PROJECTION', label: t('tab_projection') },
-    { id: 'SCOUT', label: t('tab_scout') },
   ];
+
+  if (showProjectionAndScout) {
+    tabsList.push(
+      { id: 'PROJECTION', label: t('tab_projection') },
+      { id: 'SCOUT', label: t('tab_scout') }
+    );
+  }
 
   if (isAdminUnlocked) {
     tabsList.push({ id: 'ADMIN', label: 'ADMIN' });
@@ -238,13 +245,13 @@ export const Header: React.FC<HeaderProps> = ({
         isActive: captainSubTab === 'most-captained-club-players',
       },
     ];
-  } else if (activeTab === 'PROJECTION') {
+  } else if (showProjectionAndScout && activeTab === 'PROJECTION') {
     subTabs = [
       { id: 'line-up', label: t('subtab_projection_lineup'), onClick: () => onSelectProjectionSubTab?.('line-up'), isActive: projectionSubTab === 'line-up' },
       { id: 'score', label: t('subtab_projection_score'), onClick: () => onSelectProjectionSubTab?.('score'), isActive: projectionSubTab === 'score' },
       { id: 'points', label: t('subtab_projection_points'), onClick: () => onSelectProjectionSubTab?.('points'), isActive: projectionSubTab === 'points' },
     ];
-  } else if (activeTab === 'SCOUT') {
+  } else if (showProjectionAndScout && activeTab === 'SCOUT') {
     subTabs = [
       { id: 'picks', label: 'Picks', onClick: () => onSelectScoutSubTab?.('picks'), isActive: scoutSubTab === 'picks' },
       { id: 'captain', label: 'Captain', onClick: () => onSelectScoutSubTab?.('captain'), isActive: scoutSubTab === 'captain' },

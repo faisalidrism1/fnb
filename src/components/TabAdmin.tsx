@@ -330,8 +330,13 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
   );
 
   // Helper to render text with entity syntax tags ([T:Team], [P:Player], [C:Club], [N:Number])
-  const renderFormattedHeadline = (text: string, rowGw?: number, rowTeams?: string[]) => {
+  const renderFormattedHeadline = (text: string, rowGw?: number, rowTeams?: string[], rowFase?: string, rowId?: string) => {
     if (!text) return null;
+
+    const isLiveMatchRow =
+      (rowFase || '').trim().toLowerCase() === 'live match' ||
+      (rowFase || '').trim().toLowerCase() === 'live' ||
+      (rowId || '').trim().toUpperCase().startsWith('LM_');
 
     const parts: React.ReactNode[] = [];
     const regex = /\[([TPCN]):([^\]]+)\]/g;
@@ -398,16 +403,22 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
             </span>
           );
           break;
-        case 'N': // Numbers / Metrics
+        case 'N': { // Numbers / Metrics / LM Minutes
+          const isLiveMin = isLiveMatchRow && /^\d+(?:\s*\+\s*\d*)?'$/.test(tagContent.trim());
           parts.push(
             <span
               key={key}
-              className="inline-flex items-center px-1 rounded font-black text-[11px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
+              className={
+                isLiveMin
+                  ? 'inline-flex items-center px-1 rounded font-black text-[11px] bg-[#ff2851]/10 dark:bg-[#ff2851]/15 text-[#ff2851] border border-[#ff2851]/30'
+                  : 'inline-flex items-center px-1 rounded font-black text-[11px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
+              }
             >
               {tagContent}
             </span>
           );
           break;
+        }
         default:
           parts.push(tagContent);
       }
@@ -1232,7 +1243,7 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
                             {isCopied ? <Check className="w-3 h-3 text-[#00ff87]" /> : <Copy className="w-3 h-3" />}
                           </button>
                           <div className="whitespace-nowrap font-medium text-[11.5px]" title={activeText}>
-                            {renderFormattedHeadline(activeText, row.gw, row.teams)}
+                            {renderFormattedHeadline(activeText, row.gw, row.teams, row.fase, row.id)}
                           </div>
                         </div>
                       </td>
