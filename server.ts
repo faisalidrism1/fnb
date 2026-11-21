@@ -1306,6 +1306,29 @@ async function ensureBetweenMatchSyncCatchup(currentGw: number, prevBuiltPhase: 
   return pulseSealed;
 }
 
+function hasUpcomingMatchWithin95mOrLineup(currentGw: number): boolean {
+  const cached = getCachedMatchesForGw(currentGw);
+  const nowMs = Date.now();
+  const windowMs = 95 * 60 * 1000;
+  if (Array.isArray(cached) && cached.length > 0) {
+    return cached.some((m) => {
+      if (m.started || m.finished || m.finished_provisional) return false;
+      if (m.has_lineup) return true;
+      const koMs = m.kickoff_time ? Date.parse(m.kickoff_time) : NaN;
+      return Number.isFinite(koMs) && koMs - nowMs <= windowMs;
+    });
+  }
+  const db = getOptimalDatabase();
+  const fixtures: any[] = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
+    ? db.meta.sync_status.gw_fixtures
+    : [];
+  return fixtures.some((f) => {
+    if (Number(f.event) !== currentGw || f.started || f.finished) return false;
+    const koMs = f.kickoff_time ? Date.parse(f.kickoff_time) : NaN;
+    return Number.isFinite(koMs) && koMs - nowMs <= windowMs;
+  });
+}
+
 // Endpoint News Ticker Feed (Directly served from database container)
 app.get('/api/news-ticker/feed', async (req, res) => {
   try {
@@ -1322,14 +1345,13 @@ app.get('/api/news-ticker/feed', async (req, res) => {
     const currentPhase = phase || getGameweekPhase(currentGw);
 
     let livePulseSynced = false;
+    const preKickoffWindowActive = hasUpcomingMatchWithin95mOrLineup(currentGw);
     if (isPhaseActive('Live Match', currentPhase)) {
       if (force) {
         invalidateMatchesCache(currentGw);
       }
       const [, pulseSyncResult] = await Promise.all([
-        !getCachedMatchesForGw(currentGw) || force
-          ? fetchMatchesForGw(currentGw).catch(() => null)
-          : Promise.resolve(null),
+        fetchMatchesForGw(currentGw).catch(() => null),
         ensureLivePulseMatchesSynced(currentGw, { force }).catch(() => null),
       ]);
       livePulseSynced = Boolean(pulseSyncResult && pulseSyncResult.synced > 0);
@@ -1337,15 +1359,27 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       if (force) {
         invalidateMatchesCache(currentGw);
       }
-      if (!getCachedMatchesForGw(currentGw) || force) {
-        await fetchMatchesForGw(currentGw).catch(() => null);
+      const [, upcomingPulseSync] = await Promise.all([
+        fetchMatchesForGw(currentGw).catch(() => null),
+        preKickoffWindowActive
+          ? ensureLivePulseMatchesSynced(currentGw, { force, ttlMs: 30000 }).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+      const bmCatchupSynced = await ensureBetweenMatchSyncCatchup(currentGw, prevBuiltState.phase);
+      livePulseSynced =
+        bmCatchupSynced || Boolean(upcomingPulseSync && upcomingPulseSync.synced > 0);
+    } else if (isPhaseActive('Not started', currentPhase)) {
+      if (force) {
+        invalidateMatchesCache(currentGw);
       }
-      livePulseSynced = await ensureBetweenMatchSyncCatchup(currentGw, prevBuiltState.phase);
-    } else if (
-      (isPhaseActive('Not started', currentPhase) ||
-        isPhaseActive('Confirmed', currentPhase)) &&
-      (!getCachedMatchesForGw(currentGw) || force)
-    ) {
+      const [, nsPulseSync] = await Promise.all([
+        fetchMatchesForGw(currentGw).catch(() => null),
+        preKickoffWindowActive
+          ? ensureLivePulseMatchesSynced(currentGw, { force, ttlMs: 30000 }).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+      livePulseSynced = Boolean(nsPulseSync && nsPulseSync.synced > 0);
+    } else if (isPhaseActive('Confirmed', currentPhase) && (!getCachedMatchesForGw(currentGw) || force)) {
       if (force) {
         invalidateMatchesCache(currentGw);
       }
@@ -1365,7 +1399,12 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       (livePulseSynced || Date.now() - getNewsTickerLastBuiltAt() >= 15000);
     const bmNeedsRefresh =
       isPhaseActive('Between Match', currentPhase) &&
-      (livePulseSynced || Date.now() - getNewsTickerLastBuiltAt() >= 60000);
+      (livePulseSynced ||
+        Date.now() - getNewsTickerLastBuiltAt() >= (preKickoffWindowActive ? 30000 : 60000));
+    const nsNeedsRefresh =
+      isPhaseActive('Not started', currentPhase) &&
+      (livePulseSynced ||
+        (preKickoffWindowActive && Date.now() - getNewsTickerLastBuiltAt() >= 30000));
 
     let containerRows = getNewsTickerTable();
     if (
@@ -1375,6 +1414,7 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       phaseChanged ||
       liveNeedsRefresh ||
       bmNeedsRefresh ||
+      nsNeedsRefresh ||
       containerRows.length === 0 ||
       containerRows.some(
         (r) =>
@@ -1474,14 +1514,13 @@ app.get('/api/admin/news-ticker', async (req, res) => {
     }
     const currentPhase = phase || getGameweekPhase(currentGw);
     let livePulseSynced = false;
+    const preKickoffWindowActive = hasUpcomingMatchWithin95mOrLineup(currentGw);
     if (isPhaseActive('Live Match', currentPhase)) {
       if (forceRefresh) {
         invalidateMatchesCache(currentGw);
       }
       const [, pulseSyncResult] = await Promise.all([
-        !getCachedMatchesForGw(currentGw) || forceRefresh
-          ? fetchMatchesForGw(currentGw).catch(() => null)
-          : Promise.resolve(null),
+        fetchMatchesForGw(currentGw).catch(() => null),
         ensureLivePulseMatchesSynced(currentGw, { force: forceRefresh }).catch(() => null),
       ]);
       livePulseSynced = Boolean(pulseSyncResult && pulseSyncResult.synced > 0);
@@ -1489,13 +1528,28 @@ app.get('/api/admin/news-ticker', async (req, res) => {
       if (forceRefresh) {
         invalidateMatchesCache(currentGw);
       }
-      if (!getCachedMatchesForGw(currentGw) || forceRefresh) {
-        await fetchMatchesForGw(currentGw).catch(() => null);
+      const [, upcomingPulseSync] = await Promise.all([
+        fetchMatchesForGw(currentGw).catch(() => null),
+        preKickoffWindowActive
+          ? ensureLivePulseMatchesSynced(currentGw, { force: forceRefresh, ttlMs: 30000 }).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+      const bmCatchupSynced = await ensureBetweenMatchSyncCatchup(currentGw, prevBuiltState.phase);
+      livePulseSynced =
+        bmCatchupSynced || Boolean(upcomingPulseSync && upcomingPulseSync.synced > 0);
+    } else if (isPhaseActive('Not started', currentPhase)) {
+      if (forceRefresh) {
+        invalidateMatchesCache(currentGw);
       }
-      livePulseSynced = await ensureBetweenMatchSyncCatchup(currentGw, prevBuiltState.phase);
+      const [, nsPulseSync] = await Promise.all([
+        fetchMatchesForGw(currentGw).catch(() => null),
+        preKickoffWindowActive
+          ? ensureLivePulseMatchesSynced(currentGw, { force: forceRefresh, ttlMs: 30000 }).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+      livePulseSynced = Boolean(nsPulseSync && nsPulseSync.synced > 0);
     } else if (
-      (isPhaseActive('Not started', currentPhase) ||
-        isPhaseActive('Confirmed', currentPhase)) &&
+      isPhaseActive('Confirmed', currentPhase) &&
       (!getCachedMatchesForGw(currentGw) || forceRefresh)
     ) {
       if (forceRefresh) {
@@ -1517,9 +1571,14 @@ app.get('/api/admin/news-ticker', async (req, res) => {
       (livePulseSynced || Date.now() - getNewsTickerLastBuiltAt() >= 15000);
     const bmNeedsRefresh =
       isPhaseActive('Between Match', currentPhase) &&
-      (livePulseSynced || Date.now() - getNewsTickerLastBuiltAt() >= 60000);
+      (livePulseSynced ||
+        Date.now() - getNewsTickerLastBuiltAt() >= (preKickoffWindowActive ? 30000 : 60000));
+    const nsNeedsRefresh =
+      isPhaseActive('Not started', currentPhase) &&
+      (livePulseSynced ||
+        (preKickoffWindowActive && Date.now() - getNewsTickerLastBuiltAt() >= 30000));
 
-    if (forceRefresh || phase || gwChanged || phaseChanged || liveNeedsRefresh || bmNeedsRefresh) {
+    if (forceRefresh || phase || gwChanged || phaseChanged || liveNeedsRefresh || bmNeedsRefresh || nsNeedsRefresh) {
       rebuildNewsTickerTable(phase);
     }
 

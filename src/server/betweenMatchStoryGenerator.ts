@@ -9,6 +9,8 @@ import {
   matchPulsePersonToFpl,
   detectSurpriseLineupsForClub,
   normalizeDiacritics,
+  buildMatchKey,
+  getPulseUpcomingLineupSides,
 } from './liveMatchStoryGenerator.ts';
 import {
   formatInjuryDescription,
@@ -1218,10 +1220,63 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
 
         // 82. BM_LINEUP_SURPRISE_BENCHED
         case 'BM_LINEUP_SURPRISE_BENCHED': {
+          const coveredMatchKeys = new Set<string>();
+          const startedOrFinishedKeys = new Set<string>();
+          for (const cm of allCachedMatches) {
+            if (cm.started || cm.finished || cm.finished_provisional) {
+              const hc = resolveClubName(cm.home_team?.name || cm.home_team?.short_name);
+              const ac = resolveClubName(cm.away_team?.name || cm.away_team?.short_name);
+              if (hc && ac) startedOrFinishedKeys.add(buildMatchKey(hc, ac));
+            }
+          }
+
+          const pushBmSurprises = (
+            sideClub: string,
+            sideOpp: string,
+            starterFplIds: Set<number>,
+            benchFplIds: Set<number>,
+            starterCount: number,
+            starterNamesNorm: Set<string>,
+            benchNamesNorm: Set<string>
+          ) => {
+            const surprises = detectSurpriseLineupsForClub(
+              sideClub,
+              sideOpp,
+              starterFplIds,
+              benchFplIds,
+              starterCount,
+              fplDirPlayers,
+              starterNamesNorm,
+              benchNamesNorm
+            );
+            for (const surprise of surprises) {
+              const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
+              const headlineId = renderTemplateBranch(tmpl.template, cond, {
+                club: surprise.club,
+                player: surprise.player.webName,
+                starter_pct: surprise.player.starterPct,
+                opponent: surprise.opponent,
+              });
+              if (!headlineId) continue;
+
+              const headlineEn = surprise.isBenched
+                ? `[C:${surprise.club}] benches [P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) against [C:${surprise.opponent}].`
+                : `[P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) misses out from [C:${surprise.club}]'s matchday squad against [C:${surprise.opponent}].`;
+
+              produced.push({
+                id: `${tmpl.id}_${toStorySlug(surprise.club)}_${toStorySlug(surprise.player.webName)}_${surprise.player.id}`,
+                headlineId,
+                headlineEn,
+                dramaScore: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
+              });
+            }
+          };
+
           for (const m of upcomingLineupMatches) {
             const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
             const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
             if (!homeClub || !awayClub) continue;
+            coveredMatchKeys.add(buildMatchKey(homeClub, awayClub));
 
             const sides = [
               { club: homeClub, opponent: awayClub, lineup: m.home_lineup, bench: m.home_bench },
@@ -1233,38 +1288,31 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
               const benchFplIds = new Set<number>(side.bench.filter((p) => p.id > 0).map((p) => p.id));
               const starterNamesNorm = new Set<string>(side.lineup.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
               const benchNamesNorm = new Set<string>(side.bench.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
-
-              const surprises = detectSurpriseLineupsForClub(
+              pushBmSurprises(
                 side.club,
                 side.opponent,
                 starterFplIds,
                 benchFplIds,
                 side.lineup.length,
-                fplDirPlayers,
                 starterNamesNorm,
                 benchNamesNorm
               );
-              for (const surprise of surprises) {
-                const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
-                const headlineId = renderTemplateBranch(tmpl.template, cond, {
-                  club: surprise.club,
-                  player: surprise.player.webName,
-                  starter_pct: surprise.player.starterPct,
-                  opponent: surprise.opponent,
-                });
-                if (!headlineId) continue;
+            }
+          }
 
-                const headlineEn = surprise.isBenched
-                  ? `[C:${surprise.club}] benches [P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) against [C:${surprise.opponent}].`
-                  : `[P:${surprise.player.webName}] ([N:${surprise.player.starterPct}%] starter) misses out from [C:${surprise.club}]'s matchday squad against [C:${surprise.opponent}].`;
-
-                produced.push({
-                  id: `${tmpl.id}_${toStorySlug(surprise.club)}_${toStorySlug(surprise.player.webName)}_${surprise.player.id}`,
-                  headlineId,
-                  headlineEn,
-                  dramaScore: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
-                });
-              }
+          const excludeKeys = new Set<string>([...coveredMatchKeys, ...startedOrFinishedKeys]);
+          const pulseUpcoming = getPulseUpcomingLineupSides(currentGw, excludeKeys, fplDirPlayers);
+          for (const pm of pulseUpcoming) {
+            for (const side of pm.sides) {
+              pushBmSurprises(
+                side.club,
+                side.opponent,
+                side.starterFplIds,
+                side.benchFplIds,
+                side.starterCount,
+                side.starterNamesNorm,
+                side.benchNamesNorm
+              );
             }
           }
           break;

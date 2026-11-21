@@ -9,6 +9,8 @@ import {
   getFplPlayerDirectory,
   detectSurpriseLineupsForClub,
   normalizeDiacritics,
+  buildMatchKey,
+  getPulseUpcomingLineupSides,
 } from './liveMatchStoryGenerator.ts';
 
 /**
@@ -1417,63 +1419,113 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
               (m.home_lineup?.length || 0) >= 10 &&
               (m.away_lineup?.length || 0) >= 10
           );
-          if (preKickoffWithLineups.length > 0) {
-            const { allPlayers } = getFplPlayerDirectory(currentGw);
-            for (const m of preKickoffWithLineups) {
-              const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
-              const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
-              if (!homeClub || !awayClub) continue;
+          const { allPlayers } = getFplPlayerDirectory(currentGw);
+          const coveredMatchKeys = new Set<string>();
+          const startedOrFinishedKeys = new Set<string>();
+          for (const cm of cachedMatches) {
+            if (cm.started || cm.finished || cm.finished_provisional) {
+              const hc = resolveClubName(cm.home_team?.name || cm.home_team?.short_name);
+              const ac = resolveClubName(cm.away_team?.name || cm.away_team?.short_name);
+              if (hc && ac) startedOrFinishedKeys.add(buildMatchKey(hc, ac));
+            }
+          }
 
-              const sides = [
-                { club: homeClub, opponent: awayClub, lineup: m.home_lineup, bench: m.home_bench },
-                { club: awayClub, opponent: homeClub, lineup: m.away_lineup, bench: m.away_bench },
-              ];
-              for (const side of sides) {
-                const starterFplIds = new Set<number>(side.lineup.filter((p) => p.id > 0).map((p) => p.id));
-                const benchFplIds = new Set<number>(side.bench.filter((p) => p.id > 0).map((p) => p.id));
-                const starterNamesNorm = new Set<string>(side.lineup.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
-                const benchNamesNorm = new Set<string>(side.bench.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
+          const pushNsSurprises = (
+            homeClub: string,
+            awayClub: string,
+            sideClub: string,
+            sideOpp: string,
+            starterFplIds: Set<number>,
+            benchFplIds: Set<number>,
+            starterCount: number,
+            starterNamesNorm: Set<string>,
+            benchNamesNorm: Set<string>
+          ) => {
+            const surprises = detectSurpriseLineupsForClub(
+              sideClub,
+              sideOpp,
+              starterFplIds,
+              benchFplIds,
+              starterCount,
+              allPlayers,
+              starterNamesNorm,
+              benchNamesNorm
+            );
+            for (const surprise of surprises) {
+              const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
+              const headline = renderTemplateBranch(tmpl.template, cond, {
+                club: surprise.club,
+                player: surprise.player.webName,
+                starter_pct: surprise.player.starterPct,
+                opponent: surprise.opponent,
+              });
+              if (!headline) continue;
 
-                const surprises = detectSurpriseLineupsForClub(
-                  side.club,
-                  side.opponent,
-                  starterFplIds,
-                  benchFplIds,
-                  side.lineup.length,
-                  allPlayers,
-                  starterNamesNorm,
-                  benchNamesNorm
-                );
-                for (const surprise of surprises) {
-                  const cond = surprise.isBenched ? 'Dicadangkan' : 'Absen dari Skuad';
-                  const headline = renderTemplateBranch(tmpl.template, cond, {
-                    club: surprise.club,
-                    player: surprise.player.webName,
-                    starter_pct: surprise.player.starterPct,
-                    opponent: surprise.opponent,
-                  });
-                  if (!headline) continue;
+              const clubSlug = surprise.club.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+              const playerSlug = surprise.player.webName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+              surpriseLineupStories.push({
+                id: `${tmpl.id}_${clubSlug}_${playerSlug}_${surprise.player.id}`,
+                headline_id: headline,
+                headline_en: headline,
+                kategori: tmpl.category,
+                sub_kategori: tmpl.subcategory,
+                drama_score: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
+                waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
+                gw: currentGw,
+                teams: [homeClub, awayClub],
+                players: [surprise.player.webName],
+                sumber: 'Sys',
+                status_tayang: 'Y',
+                keterangan_tidak_tayang: '',
+                timestamp_produksi: nowIso,
+              });
+            }
+          };
 
-                  const clubSlug = surprise.club.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                  const playerSlug = surprise.player.webName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-                  surpriseLineupStories.push({
-                    id: `${tmpl.id}_${clubSlug}_${playerSlug}_${surprise.player.id}`,
-                    headline_id: headline,
-                    headline_en: headline,
-                    kategori: tmpl.category,
-                    sub_kategori: tmpl.subcategory,
-                    drama_score: Math.min(92, 82 + Math.floor(surprise.player.starterPct / 10)),
-                    waktu_tayang: tmpl.gw_phase ? [tmpl.gw_phase] : ['Not started'],
-                    gw: currentGw,
-                    teams: extractTagNames(headline, 'T'),
-                    players: [surprise.player.webName],
-                    sumber: 'Sys',
-                    status_tayang: 'Y',
-                    keterangan_tidak_tayang: '',
-                    timestamp_produksi: nowIso,
-                  });
-                }
-              }
+          for (const m of preKickoffWithLineups) {
+            const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
+            const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
+            if (!homeClub || !awayClub) continue;
+            coveredMatchKeys.add(buildMatchKey(homeClub, awayClub));
+
+            const sides = [
+              { club: homeClub, opponent: awayClub, lineup: m.home_lineup, bench: m.home_bench },
+              { club: awayClub, opponent: homeClub, lineup: m.away_lineup, bench: m.away_bench },
+            ];
+            for (const side of sides) {
+              const starterFplIds = new Set<number>(side.lineup.filter((p) => p.id > 0).map((p) => p.id));
+              const benchFplIds = new Set<number>(side.bench.filter((p) => p.id > 0).map((p) => p.id));
+              const starterNamesNorm = new Set<string>(side.lineup.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
+              const benchNamesNorm = new Set<string>(side.bench.map((p) => normalizeDiacritics(p.web_name)).filter(Boolean));
+              pushNsSurprises(
+                homeClub,
+                awayClub,
+                side.club,
+                side.opponent,
+                starterFplIds,
+                benchFplIds,
+                side.lineup.length,
+                starterNamesNorm,
+                benchNamesNorm
+              );
+            }
+          }
+
+          const excludeKeys = new Set<string>([...coveredMatchKeys, ...startedOrFinishedKeys]);
+          const pulseUpcoming = getPulseUpcomingLineupSides(currentGw, excludeKeys, allPlayers);
+          for (const pm of pulseUpcoming) {
+            for (const side of pm.sides) {
+              pushNsSurprises(
+                pm.homeClub,
+                pm.awayClub,
+                side.club,
+                side.opponent,
+                side.starterFplIds,
+                side.benchFplIds,
+                side.starterCount,
+                side.starterNamesNorm,
+                side.benchNamesNorm
+              );
             }
           }
           break;

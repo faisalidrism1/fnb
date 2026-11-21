@@ -570,7 +570,7 @@ export async function syncPulseMatchesForActiveGw(
     if (f.started || f.finished || f.finished_provisional) return true;
     if (f.kickoff_time) {
       const kickoffMs = new Date(f.kickoff_time).getTime();
-      if (!isNaN(kickoffMs) && kickoffMs - now <= 60 * 60 * 1000) {
+      if (!isNaN(kickoffMs) && kickoffMs - now <= 90 * 60 * 1000) {
         return true;
       }
     }

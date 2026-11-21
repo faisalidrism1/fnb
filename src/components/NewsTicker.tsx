@@ -900,7 +900,7 @@ const getSavedPoolIdx = (): number => {
         }
 
         // Inject P1/P2 interrupts right after visible items, transferring cycleEnd marker if present
-        const priorityQueue = [...freshStories, ...updatedStories].slice(0, 8);
+        const priorityQueue = [...freshStories, ...updatedStories].slice(0, 14);
         if (priorityQueue.length > 0) {
           let transferredCycleEnd = false;
           for (const ac of activeChildren) {

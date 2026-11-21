@@ -22,6 +22,7 @@ import { resolveClubName } from '../utils/clubNameResolver.ts';
 import {
   resolveParentTemplateId,
   classifyLiveMatchNewsroomTier,
+  getEffectiveLmLineupSurprisePts,
   CycleMeta,
   LM_FALLBACK_NS_TEMPLATE_IDS,
 } from './waveCycleScheduler.ts';
@@ -1187,6 +1188,9 @@ export function rebuildNewsTickerTable(
 
     const isLiveMatchPhase = isPhaseActive('Live Match', currentActivePhase);
 
+    // Track newly inserted IDs in this build so post-generation steps can stamp live match detection clocks cleanly
+    const newlyAddedIds = new Set<string>();
+
     // Helper to safely add rows strictly for feedGw and currentActivePhase while restoring poin_tayang & original timestamp
     const addRows = (rows: NewsTickerDbRow[]) => {
       for (const r of rows) {
@@ -1210,30 +1214,43 @@ export function rebuildNewsTickerTable(
             if (preserveTimestampOnLiveUpdate && existing.timestamp_produksi) {
               r.timestamp_produksi = existing.timestamp_produksi;
             }
-            if (existing.cycle_meta) {
+            const transitionedFromUpcoming =
+              Boolean(existing.cycle_meta?.isUpcomingMatch) && r.cycle_meta?.isUpcomingMatch === false;
+            const resolvedBaseline =
+              existing.cycle_meta?.preKickoffPtsBaseline !== undefined
+                ? existing.cycle_meta.preKickoffPtsBaseline
+                : transitionedFromUpcoming
+                  ? Math.max(0, Number(existing.poin_tayang) || 0)
+                  : undefined;
+
+            if (existing.cycle_meta || resolvedBaseline !== undefined) {
               r.cycle_meta = {
                 ...(r.cycle_meta || {}),
-                ...(existing.cycle_meta.detectedClockSecs !== undefined
+                ...(existing.cycle_meta?.detectedClockSecs !== undefined
                   ? { detectedClockSecs: existing.cycle_meta.detectedClockSecs }
                   : {}),
-                ...(existing.cycle_meta.lastAiredAtMs !== undefined
+                ...(existing.cycle_meta?.lastAiredAtMs !== undefined
                   ? { lastAiredAtMs: existing.cycle_meta.lastAiredAtMs }
                   : {}),
-                ...(existing.cycle_meta.lastAiredScoreSig !== undefined
+                ...(existing.cycle_meta?.lastAiredScoreSig !== undefined
                   ? { lastAiredScoreSig: existing.cycle_meta.lastAiredScoreSig }
                   : {}),
-                ...(existing.cycle_meta.lastAiredHeadline !== undefined
+                ...(existing.cycle_meta?.lastAiredHeadline !== undefined
                   ? { lastAiredHeadline: existing.cycle_meta.lastAiredHeadline }
                   : {}),
+                ...(resolvedBaseline !== undefined ? { preKickoffPtsBaseline: resolvedBaseline } : {}),
               };
             }
-          } else if (!isLiveMatchPhase && r.status_tayang === 'Y' && r.poin_tayang === 0) {
-            // Untuk fase non-LM, berita baru di tengah fase mewarisi poin_tayang minimum pool template-nya.
-            // Untuk fase Live Match, event baru tetap mulai dari 0 agar gol/kejadian baru langsung prioritas.
-            const parentTid = resolveParentTemplateId(r.id, sortedEditorTemplateIds);
-            const poolMin = minPoinByTemplate.get(parentTid);
-            if (poolMin !== undefined && poolMin > 0) {
-              r.poin_tayang = poolMin;
+          } else {
+            newlyAddedIds.add(r.id);
+            if (!isLiveMatchPhase && r.status_tayang === 'Y' && r.poin_tayang === 0) {
+              // Untuk fase non-LM, berita baru di tengah fase mewarisi poin_tayang minimum pool template-nya.
+              // Untuk fase Live Match, event baru tetap mulai dari 0 agar gol/kejadian baru langsung prioritas.
+              const parentTid = resolveParentTemplateId(r.id, sortedEditorTemplateIds);
+              const poolMin = minPoinByTemplate.get(parentTid);
+              if (poolMin !== undefined && poolMin > 0) {
+                r.poin_tayang = poolMin;
+              }
             }
           }
           tableRows.push(r);
@@ -1274,6 +1291,7 @@ export function rebuildNewsTickerTable(
           isFinished: boolean;
           finishedAtMs: number;
           isRunning: boolean;
+          isStarted: boolean;
         }
         const matchStateByKey = new Map<string, LiveMatchClockState>();
 
@@ -1346,6 +1364,15 @@ export function rebuildNewsTickerTable(
           const finishedAtMs = isPulseFinished
             ? (ftEventMs > 0 ? ftEventMs : existingFtSeenAtByMatchKey.get(mKey) ?? nowMs)
             : 0;
+          const isPulseStarted =
+            status === 'L' ||
+            status === 'HT' ||
+            status === 'C' ||
+            pulseClockSecs > 0 ||
+            hasHalfTimeEnd ||
+            hasSecondHalfStart ||
+            isPulseFinished ||
+            isPulseRunning;
 
           matchStateByKey.set(mKey, {
             currentClockSecs: pulseClockSecs,
@@ -1354,6 +1381,7 @@ export function rebuildNewsTickerTable(
             isFinished: isPulseFinished && !isPulseRunning,
             finishedAtMs,
             isRunning: isPulseRunning,
+            isStarted: isPulseStarted,
           });
         }
 
@@ -1389,6 +1417,7 @@ export function rebuildNewsTickerTable(
               isFinished,
               finishedAtMs,
               isRunning: cardRunning || Boolean(prev?.isRunning && !cardFinished),
+              isStarted: Boolean(card.started || cardFinished || cardRunning || prev?.isStarted),
             });
           }
         }
@@ -1575,6 +1604,30 @@ export function rebuildNewsTickerTable(
           }
         }
 
+        // Stamp detectedClockSecs for newly detected Kickoff events so 2nd-half/delayed detections get the full 10-min TTL
+        for (const row of tableRows) {
+          const parentId = resolveParentTemplateId(row.id, sortedEditorTemplateIds);
+          if (
+            parentId === 'LM_MATCH_PERIOD_START' &&
+            (newlyAddedIds.has(row.id) || row.cycle_meta?.detectedClockSecs === undefined)
+          ) {
+            const mKey =
+              row.cycle_meta?.matchKey ||
+              (Array.isArray(row.teams) && row.teams.length >= 2
+                ? buildMatchKey(row.teams[0], row.teams[1])
+                : '');
+            const mState = mKey ? matchStateByKey.get(mKey) : undefined;
+            const stampedClock = Math.max(
+              Number(row.cycle_meta?.clockSecs ?? 0) || 0,
+              mState?.currentClockSecs || 0
+            );
+            row.cycle_meta = {
+              ...(row.cycle_meta || {}),
+              detectedClockSecs: stampedClock,
+            };
+          }
+        }
+
         const markExpired = (row: NewsTickerDbRow, reason: string) => {
           row.status_tayang = 'N';
           row.keterangan_tidak_tayang = reason;
@@ -1621,23 +1674,46 @@ export function rebuildNewsTickerTable(
             continue;
           }
 
-          // 2. Kickoff (LM_MATCH_PERIOD_START)
+          // 2. Kickoff (LM_MATCH_PERIOD_START) — P2 priority with 10-min TTL so 2H kickoff isn't missed
           if (parentId === 'LM_MATCH_PERIOD_START') {
             if (pts >= 1) {
               markExpired(row, 'Expired: Kickoff sudah tayang');
             } else if (mState?.isFinished) {
               markExpired(row, 'Expired: Laga sudah usai');
-            } else if (!row.cycle_meta?.isSecondHalf && (mState?.isHalfTime || mState?.isSecondHalfStarted || elapsedSecs > 240)) {
-              markExpired(row, 'Expired: Kickoff Babak 1 melewati TTL 4 menit');
-            } else if (row.cycle_meta?.isSecondHalf && elapsedSecs > 240) {
-              markExpired(row, 'Expired: Kickoff Babak 2 melewati TTL 4 menit');
+            } else if (!row.cycle_meta?.isSecondHalf && (mState?.isHalfTime || mState?.isSecondHalfStarted || elapsedSecs > 600)) {
+              markExpired(row, 'Expired: Kickoff Babak 1 melewati TTL 10 menit');
+            } else if (row.cycle_meta?.isSecondHalf && elapsedSecs > 600) {
+              markExpired(row, 'Expired: Kickoff Babak 2 melewati TTL 10 menit');
             }
             continue;
           }
 
           // 3. Surprise Lineup (LM_LINEUP_SURPRISE_BENCHED)
+          // Dual rule:
+          // - Pre-kickoff (!matchStarted): stays active ('Y') across 10-minute reminder cycles until kickoff.
+          // - Started match (matchStarted): existing LM rule (max 2x post-kickoff airings, expires at effPts >= 2 or minute 15).
           if (parentId === 'LM_LINEUP_SURPRISE_BENCHED') {
-            if (pts >= 2) {
+            const matchStarted =
+              row.cycle_meta?.isUpcomingMatch === false ||
+              Boolean(
+                mState?.isStarted ||
+                  mState?.isRunning ||
+                  mState?.isFinished ||
+                  mState?.isSecondHalfStarted ||
+                  curClock > 0
+              );
+            if (!matchStarted) {
+              continue;
+            }
+            if (row.cycle_meta?.isUpcomingMatch) {
+              row.cycle_meta = {
+                ...row.cycle_meta,
+                isUpcomingMatch: false,
+                preKickoffPtsBaseline: row.cycle_meta.preKickoffPtsBaseline ?? pts,
+              };
+            }
+            const effPts = getEffectiveLmLineupSurprisePts(row);
+            if (effPts >= 2) {
               markExpired(row, 'Expired: Lineup kejutan sudah tayang 2x');
             } else if (mState?.isFinished || curClock >= 900) {
               markExpired(row, 'Expired: Lineup kejutan melewati menit 15');

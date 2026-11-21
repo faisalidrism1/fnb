@@ -29,6 +29,9 @@ export interface CycleMeta {
   lastAiredAtMs?: number;
   lastAiredScoreSig?: string;
   lastAiredHeadline?: string;
+  isUpcomingMatch?: boolean;
+  kickoffTimeMs?: number;
+  preKickoffPtsBaseline?: number;
 }
 
 export interface WaveSchedulableStory {
@@ -516,6 +519,13 @@ export function selectCycleBatchForPhase<T extends WaveSchedulableStory>(
       }
     }
 
+    surpriseLineupStories.sort(
+      (a, b) =>
+        (a.poin_tayang || 0) - (b.poin_tayang || 0) ||
+        (b.drama_score || 0) - (a.drama_score || 0) ||
+        parseTimestampMs(b.timestamp_produksi) - parseTimestampMs(a.timestamp_produksi)
+    );
+
     const wave1 = [
       byId.get('NS_MATCH_FIXTURE_OPENING'),
       byId.get('NS_STANDINGS_TITLE_RACE'),
@@ -576,8 +586,11 @@ export function selectCycleBatchForPhase<T extends WaveSchedulableStory>(
   });
 
   const selectedMulti: T[] = [];
-  for (const [, items] of multiByTemplate.entries()) {
-    const quota = getProportionalMultiQuota(items.length);
+  for (const [parentId, items] of multiByTemplate.entries()) {
+    const quota =
+      parentId === 'BM_LINEUP_SURPRISE_BENCHED'
+        ? items.length
+        : getProportionalMultiQuota(items.length);
     const sorted = [...items].sort(comparePoolCandidates);
     for (const picked of sorted.slice(0, quota)) {
       selectedMulti.push(picked.story);
@@ -624,6 +637,7 @@ const LM_P2_BASE_IDS = new Set<string>([
   'LM_MATCH_SAVES_GOALKEEPER',
   'LM_MATCH_DEFENSIVE_CONTRIBUTION',
   'LM_LINEUP_SURPRISE_BENCHED',
+  'LM_MATCH_PERIOD_START',
   'LM_MATCH_PERIOD_END',
 ]);
 
@@ -645,6 +659,12 @@ const LM_P1_FOLLOWER_IDS = new Set<string>([
   'LM_MATCH_CLEAN_SHEET_LOST',
 ]);
 
+export function getEffectiveLmLineupSurprisePts(row: WaveSchedulableStory): number {
+  const rawPts = Math.max(0, Number(row.poin_tayang) || 0);
+  const baseline = Math.max(0, Number(row.cycle_meta?.preKickoffPtsBaseline) || 0);
+  return Math.max(0, rawPts - baseline);
+}
+
 export function classifyLiveMatchNewsroomTier(
   parentId: string,
   row: WaveSchedulableStory
@@ -658,6 +678,12 @@ export function classifyLiveMatchNewsroomTier(
   if (parentId === 'LM_MATCH_CLEAN_SHEET_LOST') {
     const pct = row.cycle_meta?.maxOwnerPct;
     return pct === undefined || pct >= 10 ? 'P1' : 'P2';
+  }
+  if (parentId === 'LM_LINEUP_SURPRISE_BENCHED') {
+    if (row.cycle_meta?.isUpcomingMatch && (Math.max(0, Number(row.poin_tayang) || 0) >= 2)) {
+      return 'P3';
+    }
+    return 'P2';
   }
   if (LM_P2_BASE_IDS.has(parentId)) {
     return 'P2';
@@ -677,7 +703,7 @@ export function classifyLiveMatchNewsroomTier(
         : !String((row as any).headline_id || (row as any).text_berita || '').toLowerCase().includes('bertahan'));
     return hasRankChange ? 'P3' : 'P4';
   }
-  if (parentId === 'LM_MATCH_PERIOD_START' || parentId === 'LM_MATCH_CARD_YELLOW') {
+  if (parentId === 'LM_MATCH_CARD_YELLOW') {
     return 'P4';
   }
   return 'P2';
@@ -696,6 +722,7 @@ export function classifyLiveMatchNewsroomTier(
  * - FALLBACK (12 NS_*): Only fills calm windows when active LM stream < 8 items.
  */
 const SCORE_REFRESH_INTERVAL_MS = 15 * 60 * 1000;
+const UPCOMING_LINEUP_REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
 export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
   activeRows: T[],
@@ -731,6 +758,7 @@ export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
   const p2Replay: Wrapped[] = [];
   const dueScores: Wrapped[] = [];
   const dueStandings: Wrapped[] = [];
+  const dueUpcomingLineups: Wrapped[] = [];
   const p4Pool: Wrapped[] = [];
   const staticFillerPool: Wrapped[] = [];
   const retiredReplayPool: Wrapped[] = [];
@@ -742,14 +770,35 @@ export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
     const wrapped: Wrapped = { row, parentId, tier, originalIdx, matchKey };
     const pts = Math.max(0, Number(row.poin_tayang) || 0);
 
-    if (tier === 'FALLBACK') {
+    if (parentId === 'LM_LINEUP_SURPRISE_BENCHED') {
+      if (row.cycle_meta?.isUpcomingMatch) {
+        if (pts === 0) {
+          p2Fresh.push(wrapped);
+        } else if (pts < 2) {
+          p2Replay.push(wrapped);
+        } else {
+          const lastAiredAt = Number(row.cycle_meta?.lastAiredAtMs || 0);
+          if (lastAiredAt > 0 && nowMs - lastAiredAt >= UPCOMING_LINEUP_REFRESH_INTERVAL_MS) {
+            dueUpcomingLineups.push(wrapped);
+          } else {
+            staticFillerPool.push(wrapped);
+          }
+        }
+      } else {
+        const effPts = getEffectiveLmLineupSurprisePts(row);
+        if (effPts === 0) p2Fresh.push(wrapped);
+        else if (effPts < 2) p2Replay.push(wrapped);
+        else retiredReplayPool.push(wrapped);
+      }
+    } else if (tier === 'FALLBACK') {
       staticFillerPool.push(wrapped);
     } else if (tier === 'P1') {
       if (pts === 0) p1Fresh.push(wrapped);
       else if (pts < 2) p1Replay.push(wrapped);
       else retiredReplayPool.push(wrapped);
     } else if (tier === 'P2') {
-      const maxP2Airings = parentId === 'LM_MATCH_PERIOD_END' ? 1 : 2;
+      const maxP2Airings =
+        parentId === 'LM_MATCH_PERIOD_END' || parentId === 'LM_MATCH_PERIOD_START' ? 1 : 2;
       if (pts === 0) p2Fresh.push(wrapped);
       else if (pts < maxP2Airings) p2Replay.push(wrapped);
       else retiredReplayPool.push(wrapped);
@@ -953,28 +1002,40 @@ export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
 
   // 2. Remaining Important Queue (Fresh P2 -> P1 Replays -> P2 Replays)
   const p1ReplayItems = buildImpactChains(p1Replay).flat();
-  const cappedP2Fresh = interleaveEvents(p2Fresh, 10);
+  const p2FreshLimit = Math.max(12, Math.min(20, p2Fresh.length));
+  const cappedP2Fresh = interleaveEvents(p2Fresh, p2FreshLimit);
   const cappedP1Replays = p1ReplayItems.slice(0, 4);
-  const cappedP2Replays = interleaveEvents(p2Replay, 4);
+  const cappedP2Replays = interleaveEvents(p2Replay, 6);
 
   for (const ev of [...cappedP2Fresh, ...cappedP1Replays, ...cappedP2Replays]) {
-    if (finalQueue.length >= 22) break;
+    if (finalQueue.length >= 26) break;
     pushUnique(ev);
   }
 
-  // 3. Due Live Scoreboard Sweep (> 15m since last aired / score changed / first air) & Changed Standings
+  // 3. Due Live Scoreboard Sweep (> 15m since last aired / score changed / first air), Changed Standings,
+  // & Pre-Kickoff Upcoming Surprise Lineup Reminders (>= 10m cooldown, rotated by poin_tayang ASC).
   // Strictly BEHIND Important (P1/P2) and AHEAD of Unimportant (P4) & Filler (NS).
-  // All overdue matches play sequentially together unless interrupted by new P1/P2.
   for (const sc of dueScores) {
-    if (finalQueue.length >= 24) break;
+    if (finalQueue.length >= 28) break;
     pushUnique(sc);
   }
   for (const st of cappedDueStandings) {
-    if (finalQueue.length >= 24) break;
+    if (finalQueue.length >= 28) break;
     pushUnique(st);
   }
+  dueUpcomingLineups.sort(
+    (a, b) =>
+      (a.row.poin_tayang || 0) - (b.row.poin_tayang || 0) ||
+      (Number(a.row.cycle_meta?.lastAiredAtMs || 0)) - (Number(b.row.cycle_meta?.lastAiredAtMs || 0)) ||
+      (b.row.drama_score || 0) - (a.row.drama_score || 0) ||
+      a.originalIdx - b.originalIdx
+  );
+  for (const ul of dueUpcomingLineups) {
+    if (finalQueue.length >= 28) break;
+    pushUnique(ul);
+  }
 
-  // 4. Unified Static Filler Pool (P3 within <=15m unchanged + static Standings + 12 NS_*)
+  // 4. Unified Static Filler Pool (P3 within <=15m unchanged + static Standings + recent pre-kickoff Lineups + 12 NS_*)
   // Demoted to NS level and rotated fairly by poin_tayang ASC
   let staticRankMoversSeen = 0;
   const normalizedFiller = staticFillerPool.filter((w) => {
@@ -998,7 +1059,7 @@ export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
     if (leadFiller) pushUnique(leadFiller);
   }
 
-  // 5. Unimportant Queue (P4 Minor: Kickoff, Subs, Yellow Cards, Rank Hold)
+  // 5. Unimportant Queue (P4 Minor: Subs, Yellow Cards, Rank Hold)
   let rankHoldSeen = 0;
   const filteredP4 = p4Pool.filter((w) => {
     if (w.parentId === 'LM_STANDINGS_RANK_MOVEMENT') {
@@ -1009,7 +1070,7 @@ export function selectLiveMatchCycleBatch<T extends WaveSchedulableStory>(
   });
   const cappedP4 = interleaveEvents(filteredP4, 8);
   for (const minor of cappedP4) {
-    if (finalQueue.length >= 24) break;
+    if (finalQueue.length >= 28) break;
     pushUnique(minor);
   }
 

@@ -685,12 +685,19 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
   const cachedGw = matchesGwCache.get(gw);
   if (cachedGw) {
     const hasMissingPulse = cachedGw.data.some((m) => (m.finished || m.started) && (!m.home_formation || !m.away_formation));
+    const hasUpcomingWithin90m = cachedGw.isFuture
+      ? cachedGw.data.some((m) => {
+          if (m.started || m.finished || !m.kickoff_time) return false;
+          const kMs = new Date(m.kickoff_time).getTime();
+          return !isNaN(kMs) && kMs - now <= 90 * 60 * 1000;
+        })
+      : false;
     const ttl = cachedGw.isAllFinished && !hasMissingPulse
       ? 3600000 * 24 // 24 hours for past finished GWs with complete Pulse formations
       : cachedGw.isAllFinished && hasMissingPulse
       ? 30000 // 30s retry if any finished match missed Pulse formations
       : cachedGw.isFuture
-      ? 1800000 // 30 minutes for future unstarted GWs
+      ? (hasUpcomingWithin90m ? 30000 : 1800000) // 30s once within 90m of kickoff, otherwise 30m
       : 15000; // 15 seconds during live matches
     if (now - cachedGw.time < ttl) {
       return cachedGw.data;
