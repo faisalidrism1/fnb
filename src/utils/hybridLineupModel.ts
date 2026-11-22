@@ -60,8 +60,8 @@ export const DEFAULT_HYBRID_PARAMS: HybridTuneParams = {
   roleDecayDays: 28,
   rolePriorStrength: 2.0,
   mShrink: 1.5,
-  l2: 2.5,
-  kalmanGain: 0.48,
+  l2: 1.0,
+  kalmanGain: 0.35,
   clubSumShrinkage: 0.50,
   wA: 1.25,
   wSyn: 0.20,
@@ -1333,12 +1333,12 @@ export function selectCausalHybridParamsAndWeights(
     }
   }
 
-  // --- Stage 2A: Causal C8+ Calibration (Half-Life [14, 21] x L2 [2.5, 3.0]) ---
+  // --- Stage 2A: Causal C8+ Calibration (Half-Life [14, 21] x L2 [1.0, 1.5, 2.5], KalmanGain=0.35) ---
   const featureRegimes: Array<{ halfLifeDays: number; decay: number; mShrink: number; kalmanGain: number }> = [
-    { halfLifeDays: 14, decay: 0.78, mShrink: 1.5, kalmanGain: 0.48 },
-    { halfLifeDays: 21, decay: 0.78, mShrink: 1.5, kalmanGain: 0.48 },
+    { halfLifeDays: 14, decay: 0.78, mShrink: 1.5, kalmanGain: 0.35 },
+    { halfLifeDays: 21, decay: 0.78, mShrink: 1.5, kalmanGain: 0.35 },
   ];
-  const l2Grid = [2.5, 3.0];
+  const l2Grid = [1.0, 1.5, 2.5];
 
   const playersByClub = new Map<string, DbPlayerStat[]>();
   for (const p of allPlayers) {

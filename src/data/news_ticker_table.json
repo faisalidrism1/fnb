@@ -1,7 +1,7 @@
 [
   {
     "id": "BM_STANDINGS_GAMEWEEK_LEADER",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -26,7 +26,7 @@
   },
   {
     "id": "BM_MATCH_SCORE_RESULT_m101",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -48,8 +48,8 @@
     }
   },
   {
-    "id": "BM_LINEUP_REMAINING_ASSETS_1_e_win",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_LINEUP_REMAINING_ASSETS_2_long_moo_long_fc",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -61,22 +61,22 @@
     "sub_kategori": "Remaining",
     "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[T:E-Win] masih menyisakan [N:6] pemain yang belum bertanding, termasuk [P:De Cuyper] ([C:Brighton]).",
-    "text_berita_en": "[T:E-Win] still has [N:6] players yet to play.",
+    "text_berita": "[T:Long Moo Long FC] masih menyisakan [N:6] pemain yang belum bertanding, termasuk [P:De Cuyper] ([C:Brighton]).",
+    "text_berita_en": "[T:Long Moo Long FC] still has [N:6] players yet to play.",
     "gw": 11,
     "teams": [
-      "E-Win"
+      "Long Moo Long FC"
     ],
     "players": [
       "De Cuyper"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 1
     }
   },
   {
     "id": "BM_MATCH_SCORE_RESULT_m108",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -102,7 +102,7 @@
   },
   {
     "id": "BM_CAPTAIN_DIFFERENTIAL_RETURN_1_ehajrakab_fc",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -129,7 +129,7 @@
   },
   {
     "id": "BM_MATCH_BONUS_POINTS_pedro_porro",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -154,7 +154,7 @@
   },
   {
     "id": "BM_STANDINGS_RANK_MOVEMENT_down_maverick",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -165,7 +165,7 @@
     "kategori": "Standings",
     "sub_kategori": "Rank",
     "drama_score": 87,
-    "poin_tayang": 0,
+    "poin_tayang": 2,
     "text_berita": "[T:Maverick] turun [N:-20 Peringkat] sementara dari [N:52] ke [N:72] dengan [N:14 Poin] sejauh ini.",
     "text_berita_en": "[T:Maverick] drops [N:-20 Places] provisionally from [N:52] to [N:72] on [N:14 Pts] so far.",
     "gw": 11,
@@ -174,12 +174,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 2,
+      "lastAiredAtMs": 1795351158830,
+      "lastAiredHeadline": "[T:Maverick] turun [N:-20 Peringkat] sementara dari [N:52] ke [N:72] dengan [N:14 Poin] sejauh ini."
     }
   },
   {
     "id": "BM_CHIP_PROGRESS_fh_3_legendkiller_fc",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -190,7 +192,7 @@
     "kategori": "Chip",
     "sub_kategori": "Chip Progress",
     "drama_score": 86,
-    "poin_tayang": 0,
+    "poin_tayang": 2,
     "text_berita": "[T:LEGENDKILLER FC] mengaktifkan [N:Free Hit] dan mengoleksi [N:36 Poin] sementara dengan [N:2] pemain tersisa.",
     "text_berita_en": "[T:LEGENDKILLER FC] sits on [N:36 Pts] provisionally via [N:Free Hit] with [N:2] players remaining.",
     "gw": 11,
@@ -199,12 +201,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 2,
+      "lastAiredAtMs": 1795351111471,
+      "lastAiredHeadline": "[T:LEGENDKILLER FC] mengaktifkan [N:Free Hit] dan mengoleksi [N:36 Poin] sementara dengan [N:2] pemain tersisa."
     }
   },
   {
-    "id": "BM_MATCH_CLEAN_SHEET_spurs_van_hecke",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_MATCH_CLEAN_SHEET_bournemouth_silva",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -215,21 +219,23 @@
     "kategori": "Match",
     "sub_kategori": "Clean Sheet",
     "drama_score": 85,
-    "poin_tayang": 0,
-    "text_berita": "[C:Spurs] mengamankan clean sheet melawan [C:Ipswich Town], menghadirkan [N:+4 Poin] bagi [P:Van Hecke] ([N:40%]).",
-    "text_berita_en": "[C:Spurs] kept a clean sheet against [C:Ipswich Town], earning [N:+4 Pts] for [P:Van Hecke] ([N:40%]).",
+    "poin_tayang": 1,
+    "text_berita": "[C:Bournemouth] mengamankan clean sheet melawan [C:Nott'm Forest], menghadirkan [N:+4 Poin] bagi [P:Silva] ([N:6%]).",
+    "text_berita_en": "[C:Bournemouth] kept a clean sheet against [C:Nott'm Forest], earning [N:+4 Pts] for [P:Silva] ([N:6%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Van Hecke"
+      "Silva"
     ],
     "cycle_meta": {
-      "specialRank": 3
+      "specialRank": 2,
+      "lastAiredAtMs": 1795352458504,
+      "lastAiredHeadline": "[C:Bournemouth] mengamankan clean sheet melawan [C:Nott'm Forest], menghadirkan [N:+4 Poin] bagi [P:Silva] ([N:6%])."
     }
   },
   {
     "id": "BM_LINEUP_AUTOSUB_ALERT_2_hards_win",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -256,7 +262,7 @@
   },
   {
     "id": "BM_MATCH_FIXTURE_NEXT",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -278,8 +284,8 @@
     }
   },
   {
-    "id": "BM_LINEUP_REMAINING_ASSETS_2_long_moo_long_fc",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_LINEUP_REMAINING_ASSETS_3_doanenek",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -291,22 +297,22 @@
     "sub_kategori": "Remaining",
     "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[T:Long Moo Long FC] masih menyisakan [N:6] pemain yang belum bertanding, termasuk [P:De Cuyper] ([C:Brighton]).",
-    "text_berita_en": "[T:Long Moo Long FC] still has [N:6] players yet to play.",
+    "text_berita": "[T:Doanenek] masih menyisakan [N:6] pemain yang belum bertanding, termasuk kapten [P:Isak] ([C:Liverpool]).",
+    "text_berita_en": "[T:Doanenek] still has [N:6] players yet to play.",
     "gw": 11,
     "teams": [
-      "Long Moo Long FC"
+      "Doanenek"
     ],
     "players": [
-      "De Cuyper"
+      "Isak"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 2
     }
   },
   {
     "id": "BM_MATCH_SCORE_RESULT_m102",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -332,7 +338,7 @@
   },
   {
     "id": "BM_CAPTAIN_VICE_CAPTAIN_1_ahay_jebret",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -360,7 +366,7 @@
   },
   {
     "id": "BM_MATCH_GOAL_CONTRIBUTORS_ga_muniz_bobb",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -371,7 +377,7 @@
     "kategori": "Match",
     "sub_kategori": "Goal",
     "drama_score": 88,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[P:Muniz] ([N:0%]) mencetak gol bagi [C:Fulham] dari assist [P:Bobb] ([N:0%]) melawan [C:Man City].",
     "text_berita_en": "[P:Muniz] ([N:0%]) scored for [C:Fulham] assisted by [P:Bobb] ([N:0%]) against [C:Man City].",
     "gw": 11,
@@ -381,12 +387,14 @@
       "Bobb"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 1,
+      "lastAiredAtMs": 1795350970869,
+      "lastAiredHeadline": "[P:Muniz] ([N:0%]) mencetak gol bagi [C:Fulham] dari assist [P:Bobb] ([N:0%]) melawan [C:Man City]."
     }
   },
   {
     "id": "BM_CHIP_PROGRESS_bb_1_anti_koruptor_laknat",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -411,7 +419,7 @@
   },
   {
     "id": "BM_STANDINGS_RANK_MOVEMENT_up_mcfc_allnew",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -436,7 +444,7 @@
   },
   {
     "id": "BM_LINEUP_AUTOSUB_ALERT_3_kst",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -463,7 +471,7 @@
   },
   {
     "id": "BM_MATCH_GOAL_CONTRIBUTORS_multi_okafor",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -487,8 +495,8 @@
     }
   },
   {
-    "id": "BM_LINEUP_REMAINING_ASSETS_3_doanenek",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_LINEUP_REMAINING_ASSETS_1_e_win",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -499,23 +507,25 @@
     "kategori": "Lineup",
     "sub_kategori": "Remaining",
     "drama_score": 86,
-    "poin_tayang": 0,
-    "text_berita": "[T:Doanenek] masih menyisakan [N:6] pemain yang belum bertanding, termasuk kapten [P:Isak] ([C:Liverpool]).",
-    "text_berita_en": "[T:Doanenek] still has [N:6] players yet to play.",
+    "poin_tayang": 1,
+    "text_berita": "[T:E-Win] masih menyisakan [N:6] pemain yang belum bertanding, termasuk [P:De Cuyper] ([C:Brighton]).",
+    "text_berita_en": "[T:E-Win] still has [N:6] players yet to play.",
     "gw": 11,
     "teams": [
-      "Doanenek"
+      "E-Win"
     ],
     "players": [
-      "Isak"
+      "De Cuyper"
     ],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 0,
+      "lastAiredAtMs": 1795352467471,
+      "lastAiredHeadline": "[T:E-Win] masih menyisakan [N:6] pemain yang belum bertanding, termasuk [P:De Cuyper] ([C:Brighton])."
     }
   },
   {
     "id": "BM_MATCH_SCORE_RESULT_m109",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -543,7 +553,7 @@
   },
   {
     "id": "BM_STANDINGS_TITLE_RACE",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -573,7 +583,7 @@
   },
   {
     "id": "BM_MATCH_SCORE_RESULT_m110",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -599,7 +609,7 @@
   },
   {
     "id": "BM_CHIP_PROGRESS_bb_4_chikabandeng",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -610,7 +620,7 @@
     "kategori": "Chip",
     "sub_kategori": "Chip Progress",
     "drama_score": 87,
-    "poin_tayang": 0,
+    "poin_tayang": 2,
     "text_berita": "[T:Chikabandeng] mengaktifkan [N:Bench Boost] dan mengoleksi [N:8 Poin] sementara dari bangku cadangannya.",
     "text_berita_en": "[T:Chikabandeng] has collected [N:8 Pts] from the bench via [N:Bench Boost] so far.",
     "gw": 11,
@@ -619,12 +629,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 3
+      "specialRank": 3,
+      "lastAiredAtMs": 1795351135734,
+      "lastAiredHeadline": "[T:Chikabandeng] mengaktifkan [N:Bench Boost] dan mengoleksi [N:8 Poin] sementara dari bangku cadangannya."
     }
   },
   {
     "id": "BM_PLAYER_AVAILABILITY_FLAGGED_thiago",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -649,7 +661,7 @@
   },
   {
     "id": "BM_TRANSFER_HITS_EVALUATION_1_denay_fc",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -676,7 +688,7 @@
   },
   {
     "id": "BM_MATCH_CLEAN_SHEET_aston_villa_suzuki",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -700,8 +712,8 @@
     }
   },
   {
-    "id": "BM_LINEUP_BENCH_POINTS_1_xian_ying_fc",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_LINEUP_BENCH_POINTS_3_legendkiller_fc",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -712,23 +724,25 @@
     "kategori": "Lineup",
     "sub_kategori": "Bench",
     "drama_score": 85,
-    "poin_tayang": 0,
-    "text_berita": "[T:Xian Ying FC] mencadangkan [P:Roefs] yang mendulang [N:11 Poin] pada laga yang baru berakhir.",
-    "text_berita_en": "[T:Xian Ying FC] left [P:Roefs] on the bench with [N:11 Pts] from a completed match.",
+    "poin_tayang": 1,
+    "text_berita": "[T:LEGENDKILLER FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:LEGENDKILLER FC] left [P:Rudoni] on the bench with [N:10 Pts] from a completed match.",
     "gw": 11,
     "teams": [
-      "Xian Ying FC"
+      "LEGENDKILLER FC"
     ],
     "players": [
-      "Roefs"
+      "Rudoni"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 2,
+      "lastAiredAtMs": 1795351148802,
+      "lastAiredHeadline": "[T:LEGENDKILLER FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir."
     }
   },
   {
     "id": "BM_MATCH_SCORE_RESULT_m104",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -756,7 +770,7 @@
   },
   {
     "id": "BM_CAPTAIN_POPULAR_RETURN",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -781,7 +795,7 @@
   },
   {
     "id": "BM_MATCH_GOAL_CONTRIBUTORS_ga_evanilson_hill",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -792,7 +806,7 @@
     "kategori": "Match",
     "sub_kategori": "Goal",
     "drama_score": 88,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[P:Evanilson] ([N:47%]) mencetak gol bagi [C:Bournemouth] dari assist [P:Hill] ([N:0%]) melawan [C:Nott'm Forest].",
     "text_berita_en": "[P:Evanilson] ([N:47%]) scored for [C:Bournemouth] assisted by [P:Hill] ([N:0%]) against [C:Nott'm Forest].",
     "gw": 11,
@@ -802,12 +816,14 @@
       "Hill"
     ],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 2,
+      "lastAiredAtMs": 1795351006893,
+      "lastAiredHeadline": "[P:Evanilson] ([N:47%]) mencetak gol bagi [C:Bournemouth] dari assist [P:Hill] ([N:0%]) melawan [C:Nott'm Forest]."
     }
   },
   {
     "id": "BM_TRANSFER_HITS_EVALUATION_2_maverick",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -834,7 +850,7 @@
   },
   {
     "id": "BM_MATCH_BONUS_POINTS_okafor",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -858,8 +874,8 @@
     }
   },
   {
-    "id": "BM_LINEUP_BENCH_POINTS_2_majapahit_fc",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_LINEUP_BENCH_POINTS_1_xian_ying_fc",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -870,23 +886,25 @@
     "kategori": "Lineup",
     "sub_kategori": "Bench",
     "drama_score": 85,
-    "poin_tayang": 0,
-    "text_berita": "[T:Majapahit FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
-    "text_berita_en": "[T:Majapahit FC] left [P:Rudoni] on the bench with [N:10 Pts] from a completed match.",
+    "poin_tayang": 2,
+    "text_berita": "[T:Xian Ying FC] mencadangkan [P:Roefs] yang mendulang [N:11 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Xian Ying FC] left [P:Roefs] on the bench with [N:11 Pts] from a completed match.",
     "gw": 11,
     "teams": [
-      "Majapahit FC"
+      "Xian Ying FC"
     ],
     "players": [
-      "Rudoni"
+      "Roefs"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 0,
+      "lastAiredAtMs": 1795351182291,
+      "lastAiredHeadline": "[T:Xian Ying FC] mencadangkan [P:Roefs] yang mendulang [N:11 Poin] pada laga yang baru berakhir."
     }
   },
   {
-    "id": "BM_MATCH_CLEAN_SHEET_sunderland_roefs",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_MATCH_CLEAN_SHEET_spurs_van_hecke",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -898,20 +916,20 @@
     "sub_kategori": "Clean Sheet",
     "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[C:Sunderland] mengamankan clean sheet melawan [C:Aston Villa], menghadirkan [N:+4 Poin] bagi [P:Roefs] ([N:2%]).",
-    "text_berita_en": "[C:Sunderland] kept a clean sheet against [C:Aston Villa], earning [N:+4 Pts] for [P:Roefs] ([N:2%]).",
+    "text_berita": "[C:Spurs] mengamankan clean sheet melawan [C:Ipswich Town], menghadirkan [N:+4 Poin] bagi [P:Van Hecke] ([N:40%]).",
+    "text_berita_en": "[C:Spurs] kept a clean sheet against [C:Ipswich Town], earning [N:+4 Pts] for [P:Van Hecke] ([N:40%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Roefs"
+      "Van Hecke"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 3
     }
   },
   {
     "id": "BM_STANDINGS_RANK_MOVEMENT_up_oniichan_s_team",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -922,7 +940,7 @@
     "kategori": "Standings",
     "sub_kategori": "Rank",
     "drama_score": 85,
-    "poin_tayang": 0,
+    "poin_tayang": 3,
     "text_berita": "[T:Oniichan's Team] naik [N:+11 Peringkat] sementara dari [N:70] ke [N:59] usai mengoleksi [N:35 Poin].",
     "text_berita_en": "[T:Oniichan's Team] climbs [N:+11 Places] provisionally from [N:70] to [N:59] on [N:35 Pts].",
     "gw": 11,
@@ -931,12 +949,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 1,
+      "lastAiredAtMs": 1795352514889,
+      "lastAiredHeadline": "[T:Oniichan's Team] naik [N:+11 Peringkat] sementara dari [N:70] ke [N:59] usai mengoleksi [N:35 Poin]."
     }
   },
   {
     "id": "BM_PLAYER_AVAILABILITY_FLAGGED_maguire",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -961,7 +981,7 @@
   },
   {
     "id": "BM_MATCH_SCORE_RESULT_m105",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -990,7 +1010,7 @@
   },
   {
     "id": "BM_STANDINGS_WEEKLY_WINS_MOST",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1020,7 +1040,7 @@
   },
   {
     "id": "BM_MATCH_GOAL_CONTRIBUTORS_ga_kluivert_tavernier",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1031,7 +1051,7 @@
     "kategori": "Match",
     "sub_kategori": "Goal",
     "drama_score": 88,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[P:Kluivert] ([N:1%]) mencetak gol bagi [C:Bournemouth] dari assist [P:Tavernier] ([N:68%]) melawan [C:Nott'm Forest].",
     "text_berita_en": "[P:Kluivert] ([N:1%]) scored for [C:Bournemouth] assisted by [P:Tavernier] ([N:68%]) against [C:Nott'm Forest].",
     "gw": 11,
@@ -1041,12 +1061,14 @@
       "Tavernier"
     ],
     "cycle_meta": {
-      "specialRank": 3
+      "specialRank": 3,
+      "lastAiredAtMs": 1795351032780,
+      "lastAiredHeadline": "[P:Kluivert] ([N:1%]) mencetak gol bagi [C:Bournemouth] dari assist [P:Tavernier] ([N:68%]) melawan [C:Nott'm Forest]."
     }
   },
   {
-    "id": "BM_LINEUP_BENCH_POINTS_3_legendkiller_fc",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_LINEUP_BENCH_POINTS_2_majapahit_fc",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1057,23 +1079,25 @@
     "kategori": "Lineup",
     "sub_kategori": "Bench",
     "drama_score": 85,
-    "poin_tayang": 0,
-    "text_berita": "[T:LEGENDKILLER FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
-    "text_berita_en": "[T:LEGENDKILLER FC] left [P:Rudoni] on the bench with [N:10 Pts] from a completed match.",
+    "poin_tayang": 2,
+    "text_berita": "[T:Majapahit FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Majapahit FC] left [P:Rudoni] on the bench with [N:10 Pts] from a completed match.",
     "gw": 11,
     "teams": [
-      "LEGENDKILLER FC"
+      "Majapahit FC"
     ],
     "players": [
       "Rudoni"
     ],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 1,
+      "lastAiredAtMs": 1795352480124,
+      "lastAiredHeadline": "[T:Majapahit FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir."
     }
   },
   {
     "id": "BM_MATCH_BONUS_POINTS_yeremy",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1098,7 +1122,7 @@
   },
   {
     "id": "BM_STANDINGS_RANK_MOVEMENT_down_doanenek",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1109,7 +1133,7 @@
     "kategori": "Standings",
     "sub_kategori": "Rank",
     "drama_score": 84,
-    "poin_tayang": 0,
+    "poin_tayang": 2,
     "text_berita": "[T:Doanenek] turun [N:-11 Peringkat] sementara dari [N:51] ke [N:62] dengan [N:12 Poin] sejauh ini.",
     "text_berita_en": "[T:Doanenek] drops [N:-11 Places] provisionally from [N:51] to [N:62] on [N:12 Pts] so far.",
     "gw": 11,
@@ -1118,12 +1142,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 3
+      "specialRank": 3,
+      "lastAiredAtMs": 1795352490650,
+      "lastAiredHeadline": "[T:Doanenek] turun [N:-11 Peringkat] sementara dari [N:51] ke [N:62] dengan [N:12 Poin] sejauh ini."
     }
   },
   {
     "id": "BM_CHIP_PROGRESS_bb_2_thor",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1134,7 +1160,7 @@
     "kategori": "Chip",
     "sub_kategori": "Chip Progress",
     "drama_score": 87,
-    "poin_tayang": 0,
+    "poin_tayang": 2,
     "text_berita": "[T:Thor] mengaktifkan [N:Bench Boost] dan mengoleksi [N:8 Poin] sementara dari bangku cadangannya.",
     "text_berita_en": "[T:Thor] has collected [N:8 Pts] from the bench via [N:Bench Boost] so far.",
     "gw": 11,
@@ -1143,12 +1169,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 1,
+      "lastAiredAtMs": 1795351170337,
+      "lastAiredHeadline": "[T:Thor] mengaktifkan [N:Bench Boost] dan mengoleksi [N:8 Poin] sementara dari bangku cadangannya."
     }
   },
   {
     "id": "BM_TRANSFER_HITS_EVALUATION_3_pendoel_selection",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1174,8 +1202,8 @@
     }
   },
   {
-    "id": "BM_MATCH_CLEAN_SHEET_bournemouth_silva",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "id": "BM_MATCH_CLEAN_SHEET_sunderland_roefs",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1186,21 +1214,23 @@
     "kategori": "Match",
     "sub_kategori": "Clean Sheet",
     "drama_score": 85,
-    "poin_tayang": 0,
-    "text_berita": "[C:Bournemouth] mengamankan clean sheet melawan [C:Nott'm Forest], menghadirkan [N:+4 Poin] bagi [P:Silva] ([N:6%]).",
-    "text_berita_en": "[C:Bournemouth] kept a clean sheet against [C:Nott'm Forest], earning [N:+4 Pts] for [P:Silva] ([N:6%]).",
+    "poin_tayang": 1,
+    "text_berita": "[C:Sunderland] mengamankan clean sheet melawan [C:Aston Villa], menghadirkan [N:+4 Poin] bagi [P:Roefs] ([N:2%]).",
+    "text_berita_en": "[C:Sunderland] kept a clean sheet against [C:Aston Villa], earning [N:+4 Pts] for [P:Roefs] ([N:2%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Silva"
+      "Roefs"
     ],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 1,
+      "lastAiredAtMs": 1795352502948,
+      "lastAiredHeadline": "[C:Sunderland] mengamankan clean sheet melawan [C:Aston Villa], menghadirkan [N:+4 Poin] bagi [P:Roefs] ([N:2%])."
     }
   },
   {
     "id": "BM_LINEUP_AUTOSUB_ALERT_1_ayase_rs",
-    "timestamp_produksi": "2026-11-22T10:21:44.203Z",
+    "timestamp_produksi": "2026-11-22T12:18:02.387Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",

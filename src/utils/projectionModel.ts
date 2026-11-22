@@ -1,7 +1,7 @@
 import { PositionType, DbPlayerStat } from '../types.ts';
 import precalculatedReviewDataRaw from '../data/precalculatedReviewMatches.json';
 
-export const PROJECTION_FORMULA_VERSION = '2026.9';
+export const PROJECTION_FORMULA_VERSION = '2026.11';
 
 // ============================================================================
 // PREMIER LEAGUE 2026/2027 DEAD-BALL HIERARCHY CATALOG (20 CLUBS)

@@ -26,11 +26,17 @@ import {
   PROJECTION_FORMULA_VERSION,
   buildClubSplitStatsMap,
   buildClubLineupAttackMods,
-  projectEnhancedFixture,
+  buildClubLineupDefenseMods,
   calculatePlayerMatchExpectedPoints,
   parseExpectedReturnDate,
   resolveDeadBallDuties,
 } from '../utils/projectionModel.ts';
+import {
+  NonEplMatchScoreRecord,
+  MatchScoreModelContext,
+  fitCausalMatchScoreModel,
+  predictDixonColesFixture,
+} from '../utils/matchScoreModel.ts';
 import {
   CausalAvailability,
   HybridMatchClubSide,
@@ -159,6 +165,7 @@ function getPositionalPrior(
 
 const FORMULA_SOURCE_FILES = [
   'src/utils/projectionModel.ts',
+  'src/utils/matchScoreModel.ts',
   'src/utils/fplProvenGuard.ts',
   'src/utils/tacticalLineupModel.ts',
   'src/utils/hybridLineupModel.ts',
@@ -224,6 +231,30 @@ function buildHybridExtraAllCompSides(): HybridMatchClubSide[] {
     }
   }
   return sides;
+}
+
+function buildNonEplMatchScoreRecords(): NonEplMatchScoreRecord[] {
+  const db = getPulseAllCompHistoryDb();
+  const records: NonEplMatchScoreRecord[] = [];
+  for (const m of Object.values(db.matches || {})) {
+    if (!m || !m.finalized || m.compAbbr === 'EN_PR') continue;
+    if (!m.kickoffMs || !Number.isFinite(m.kickoffMs)) continue;
+    for (const s of m.sides || []) {
+      if (!s?.clubShort || s.teamScore === null || s.teamScore === undefined || s.oppScore === null || s.oppScore === undefined) {
+        continue;
+      }
+      records.push({
+        clubShort: s.clubShort,
+        oppShort: s.oppShort || '',
+        isHome: Boolean(s.isHome),
+        teamScore: Number(s.teamScore),
+        oppScore: Number(s.oppScore),
+        kickoffMs: m.kickoffMs,
+        compAbbr: m.compAbbr,
+      });
+    }
+  }
+  return records;
 }
 
 let cachedFormulaFingerprint: string | null = null;
@@ -689,20 +720,100 @@ async function getOrBuildCoreContext(
       combinedScheduleForMods
     );
 
-    const projectFixture = (homeShort: string, awayShort: string, gw: number = targetNextGW): ProjectedFixtureOutcome => {
-      const hMod = clubLineupAttackMods[homeShort]?.[gw] ?? 1.0;
-      const aMod = clubLineupAttackMods[awayShort]?.[gw] ?? 1.0;
-      return projectEnhancedFixture(
-        homeShort,
-        awayShort,
-        clubStatsMap,
-        leagueAvgHomeGoals,
-        leagueAvgAwayGoals,
-        baseHistoricalGW,
+    const clubLineupDefenseMods = buildClubLineupDefenseMods(
+      cachedData.player_stats || [],
+      baseHistoricalGW,
+      targetNextGW,
+      combinedScheduleForMods
+    );
+
+    // Zero-mean center future attack/defense lineup modifiers per GW to preserve league goal calibration
+    const centeredAttMods: Record<string, Record<number, number>> = {};
+    const centeredDefMods: Record<string, Record<number, number>> = {};
+    for (const c of clubs) {
+      centeredAttMods[c.short] = {};
+      centeredDefMods[c.short] = {};
+    }
+    for (let g = targetNextGW; g <= Math.min(targetNextGW + 5, 38); g++) {
+      let sumA = 0;
+      let sumD = 0;
+      let cntC = 0;
+      for (const c of clubs) {
+        sumA += clubLineupAttackMods[c.short]?.[g] ?? 1.0;
+        sumD += clubLineupDefenseMods[c.short]?.[g] ?? 1.0;
+        cntC++;
+      }
+      const meanA = cntC > 0 ? sumA / cntC : 1.0;
+      const meanD = cntC > 0 ? sumD / cntC : 1.0;
+      for (const c of clubs) {
+        const relA = (clubLineupAttackMods[c.short]?.[g] ?? 1.0) / Math.max(0.5, meanA);
+        const relD = (clubLineupDefenseMods[c.short]?.[g] ?? 1.0) / Math.max(0.5, meanD);
+        centeredAttMods[c.short][g] = Math.min(1.12, Math.max(0.82, 1.0 + 0.85 * (relA - 1.0)));
+        centeredDefMods[c.short][g] = Math.min(1.15, Math.max(0.92, 1.0 + 0.85 * (relD - 1.0)));
+      }
+    }
+
+    // Standalone Causal Dixon-Coles + Negative-Binomial Match Score / xG / CS% Engine
+    const nonEplScoreRecords = buildNonEplMatchScoreRecords();
+    const resolveGwFirstKickoffMs = (gw: number, fallbackMs: number): number => {
+      const list = (matchesWithLineupsByGw[gw]?.length ? matchesWithLineupsByGw[gw] : scheduleByGw[gw]) || [];
+      let minMs = Infinity;
+      for (const m of list) {
+        const ms = m?.kickoff_time ? Date.parse(m.kickoff_time) : NaN;
+        if (Number.isFinite(ms) && ms > 0 && ms < minMs) minMs = ms;
+      }
+      if (Number.isFinite(minMs) && minMs < Infinity) return minMs;
+      const dlIso = cachedData.sync_status?.deadlines?.[String(gw)];
+      const dlMs = dlIso ? Date.parse(dlIso) : NaN;
+      return Number.isFinite(dlMs) && dlMs > 0 ? dlMs : fallbackMs;
+    };
+
+    const causalMatchModelsByGw = new Map<number, MatchScoreModelContext>();
+    for (let gw = 1; gw <= baseHistoricalGW; gw++) {
+      const gwCutoffMs = resolveGwFirstKickoffMs(gw, Date.now());
+      causalMatchModelsByGw.set(
         gw,
-        hMod,
-        aMod
+        fitCausalMatchScoreModel({
+          clubs,
+          players: cachedData.player_stats || [],
+          eplMatchesByGw: historicalMatchesForStats,
+          nonEplRecords: nonEplScoreRecords,
+          maxTrainGw: gw - 1,
+          cutoffMs: gwCutoffMs,
+        })
       );
+    }
+
+    const futureCutoffMs = resolveGwFirstKickoffMs(targetNextGW, Date.now());
+    const futureMatchModel = fitCausalMatchScoreModel({
+      clubs,
+      players: cachedData.player_stats || [],
+      eplMatchesByGw: historicalMatchesForStats,
+      nonEplRecords: nonEplScoreRecords,
+      maxTrainGw: baseHistoricalGW,
+      cutoffMs: futureCutoffMs,
+    });
+
+    const projectFixture = (homeShort: string, awayShort: string, gw: number = targetNextGW): ProjectedFixtureOutcome => {
+      if (gw <= baseHistoricalGW) {
+        const causalModel = causalMatchModelsByGw.get(gw) || futureMatchModel;
+        return predictDixonColesFixture(causalModel, homeShort, awayShort, {
+          gw,
+          baseHistoricalGW: gw - 1,
+        });
+      }
+      const hAttMod = centeredAttMods[homeShort]?.[gw] ?? 1.0;
+      const aAttMod = centeredAttMods[awayShort]?.[gw] ?? 1.0;
+      const hDefMod = centeredDefMods[homeShort]?.[gw] ?? 1.0;
+      const aDefMod = centeredDefMods[awayShort]?.[gw] ?? 1.0;
+      return predictDixonColesFixture(futureMatchModel, homeShort, awayShort, {
+        gw,
+        baseHistoricalGW,
+        homeAttMod: hAttMod,
+        awayAttMod: aAttMod,
+        homeDefMod: hDefMod,
+        awayDefMod: aDefMod,
+      });
     };
 
     // 2. Fixture projections map + Club Next Matches Map (DGW/BGW array) + Club GW Match Projections (DGW/BGW array)

@@ -17,8 +17,8 @@
       11
     ],
     "total_teams": 97,
-    "last_synced": "2026-11-22T11:39:17.667Z",
-    "next_sync_wib": "18.39 WIB (Live EPL Auto-Sync)",
+    "last_synced": "2026-11-22T12:58:06.925Z",
+    "next_sync_wib": "19.58 WIB (Live EPL Auto-Sync)",
     "is_live": false,
     "deadlines": {
       "1": "2026-08-21T17:30:00Z",
@@ -61,8 +61,8 @@
       "38": "2027-05-30T13:30:00Z"
     },
     "sync_status": {
-      "last_synced": "2026-11-22T11:39:17.667Z",
-      "next_sync_wib": "18.39 WIB (Live EPL Auto-Sync)",
+      "last_synced": "2026-11-22T12:58:06.925Z",
+      "next_sync_wib": "19.58 WIB (Live EPL Auto-Sync)",
       "next_deadline_time": "2026-11-27T18:30:00Z",
       "deadlines": {
         "1": "2026-08-21T17:30:00Z",
@@ -278844,35 +278844,8 @@
         },
         {
           "rank": 30,
-          "last_rank": 26,
-          "rank_change": -4,
-          "entry_id": 1430659,
-          "entry_name": "Serigala Margonda",
-          "player_name": "Gattouzo JR",
-          "total_points": 646,
-          "event_points": 21,
-          "event_transfers_cost": 0,
-          "total_transfers_cost": 0,
-          "total_transfers_count": 10,
-          "active_chip": null,
-          "captain": {
-            "id": 411,
-            "name": "Haaland",
-            "club": "MCI",
-            "points": 4,
-            "multiplier": 2
-          },
-          "vice_captain": {
-            "id": 40,
-            "name": "Rogers",
-            "club": "CHE",
-            "points": 5
-          }
-        },
-        {
-          "rank": 31,
           "last_rank": 36,
-          "rank_change": 5,
+          "rank_change": 6,
           "entry_id": 7540486,
           "entry_name": "blue one",
           "player_name": "Ars San",
@@ -278894,6 +278867,33 @@
             "name": "Evanilson",
             "club": "BOU",
             "points": 6
+          }
+        },
+        {
+          "rank": 31,
+          "last_rank": 26,
+          "rank_change": -5,
+          "entry_id": 1430659,
+          "entry_name": "Serigala Margonda",
+          "player_name": "Gattouzo JR",
+          "total_points": 646,
+          "event_points": 21,
+          "event_transfers_cost": 0,
+          "total_transfers_cost": 0,
+          "total_transfers_count": 10,
+          "active_chip": null,
+          "captain": {
+            "id": 411,
+            "name": "Haaland",
+            "club": "MCI",
+            "points": 4,
+            "multiplier": 2
+          },
+          "vice_captain": {
+            "id": 40,
+            "name": "Rogers",
+            "club": "CHE",
+            "points": 5
           }
         },
         {
@@ -279006,35 +279006,8 @@
         },
         {
           "rank": 36,
-          "last_rank": 43,
-          "rank_change": 7,
-          "entry_id": 4209718,
-          "entry_name": "San_saro",
-          "player_name": "dayat _",
-          "total_points": 635,
-          "event_points": 36,
-          "event_transfers_cost": 0,
-          "total_transfers_cost": 0,
-          "total_transfers_count": 9,
-          "active_chip": null,
-          "captain": {
-            "id": 411,
-            "name": "Haaland",
-            "club": "MCI",
-            "points": 4,
-            "multiplier": 2
-          },
-          "vice_captain": {
-            "id": 40,
-            "name": "Rogers",
-            "club": "CHE",
-            "points": 5
-          }
-        },
-        {
-          "rank": 37,
           "last_rank": 35,
-          "rank_change": -2,
+          "rank_change": -1,
           "entry_id": 634373,
           "entry_name": "Tim Holland",
           "player_name": "Intim. intim",
@@ -279056,6 +279029,33 @@
             "name": "N.Jackson",
             "club": "AVL",
             "points": 2
+          }
+        },
+        {
+          "rank": 37,
+          "last_rank": 43,
+          "rank_change": 6,
+          "entry_id": 4209718,
+          "entry_name": "San_saro",
+          "player_name": "dayat _",
+          "total_points": 635,
+          "event_points": 36,
+          "event_transfers_cost": 0,
+          "total_transfers_cost": 0,
+          "total_transfers_count": 9,
+          "active_chip": null,
+          "captain": {
+            "id": 411,
+            "name": "Haaland",
+            "club": "MCI",
+            "points": 4,
+            "multiplier": 2
+          },
+          "vice_captain": {
+            "id": 40,
+            "name": "Rogers",
+            "club": "CHE",
+            "points": 5
           }
         },
         {
@@ -302541,8 +302541,8 @@
       "form": 4.8,
       "pointsPerGame": 5.5,
       "selectedByPercent": 47.4,
-      "transfersIn": 1828189,
-      "transfersOut": 951082,
+      "transfersIn": 1828236,
+      "transfersOut": 954378,
       "gwHistory": [
         {
           "round": 1,
@@ -303160,8 +303160,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 2930,
-      "transfersOut": 5386,
+      "transfersIn": 3021,
+      "transfersOut": 5389,
       "gwHistory": [
         {
           "round": 1,
@@ -303496,8 +303496,8 @@
       "form": 8,
       "pointsPerGame": 6.1,
       "selectedByPercent": 26.7,
-      "transfersIn": 1045853,
-      "transfersOut": 1294176,
+      "transfersIn": 1046217,
+      "transfersOut": 1294382,
       "gwHistory": [
         {
           "round": 1,
@@ -303735,8 +303735,8 @@
       "form": 3,
       "pointsPerGame": 2.1,
       "selectedByPercent": 1.1,
-      "transfersIn": 149318,
-      "transfersOut": 64691,
+      "transfersIn": 149374,
+      "transfersOut": 64721,
       "gwHistory": [
         {
           "round": 1,
@@ -303914,8 +303914,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.4,
-      "transfersIn": 30473,
-      "transfersOut": 25710,
+      "transfersIn": 30524,
+      "transfersOut": 25725,
       "gwHistory": [
         {
           "round": 1,
@@ -304082,8 +304082,8 @@
       "form": 0.8,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.5,
-      "transfersIn": 37002,
-      "transfersOut": 70176,
+      "transfersIn": 37004,
+      "transfersOut": 70180,
       "gwHistory": [
         {
           "round": 1,
@@ -304250,8 +304250,8 @@
       "form": 3.5,
       "pointsPerGame": 5.3,
       "selectedByPercent": 48.5,
-      "transfersIn": 2524980,
-      "transfersOut": 1419670,
+      "transfersIn": 2525160,
+      "transfersOut": 1420060,
       "gwHistory": [
         {
           "round": 1,
@@ -305130,7 +305130,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.7,
       "transfersIn": 20597,
-      "transfersOut": 142218,
+      "transfersOut": 142223,
       "gwHistory": [
         {
           "round": 1,
@@ -305297,8 +305297,8 @@
       "form": 2.5,
       "pointsPerGame": 6,
       "selectedByPercent": 4,
-      "transfersIn": 578548,
-      "transfersOut": 797060,
+      "transfersIn": 578559,
+      "transfersOut": 797299,
       "gwHistory": [
         {
           "round": 1,
@@ -305476,8 +305476,8 @@
       "form": 0,
       "pointsPerGame": 6,
       "selectedByPercent": 1.1,
-      "transfersIn": 38554,
-      "transfersOut": 533456,
+      "transfersIn": 38556,
+      "transfersOut": 533469,
       "gwHistory": [
         {
           "round": 1,
@@ -305645,7 +305645,7 @@
       "pointsPerGame": 5.3,
       "selectedByPercent": 5.2,
       "transfersIn": 1393976,
-      "transfersOut": 1945344,
+      "transfersOut": 1945456,
       "gwHistory": [
         {
           "round": 1,
@@ -305843,8 +305843,8 @@
       "form": 4.2,
       "pointsPerGame": 4.8,
       "selectedByPercent": 13.7,
-      "transfersIn": 661921,
-      "transfersOut": 1063314,
+      "transfersIn": 662100,
+      "transfersOut": 1063493,
       "gwHistory": [
         {
           "round": 1,
@@ -306072,8 +306072,8 @@
       "form": 3.5,
       "pointsPerGame": 2.4,
       "selectedByPercent": 1,
-      "transfersIn": 68762,
-      "transfersOut": 188374,
+      "transfersIn": 68792,
+      "transfersOut": 188378,
       "gwHistory": [
         {
           "round": 1,
@@ -306240,8 +306240,8 @@
       "form": 5.5,
       "pointsPerGame": 5,
       "selectedByPercent": 16.6,
-      "transfersIn": 2215478,
-      "transfersOut": 1465831,
+      "transfersIn": 2215883,
+      "transfersOut": 1465995,
       "gwHistory": [
         {
           "round": 1,
@@ -306619,8 +306619,8 @@
       "form": 5.2,
       "pointsPerGame": 3.8,
       "selectedByPercent": 0.6,
-      "transfersIn": 68474,
-      "transfersOut": 47722,
+      "transfersIn": 68638,
+      "transfersOut": 47731,
       "gwHistory": [
         {
           "round": 1,
@@ -306788,7 +306788,7 @@
       "pointsPerGame": 1.1,
       "selectedByPercent": 0.4,
       "transfersIn": 18282,
-      "transfersOut": 60508,
+      "transfersOut": 60513,
       "gwHistory": [
         {
           "round": 1,
@@ -307123,8 +307123,8 @@
       "form": 0.5,
       "pointsPerGame": 1,
       "selectedByPercent": 0.4,
-      "transfersIn": 10578,
-      "transfersOut": 83287,
+      "transfersIn": 10579,
+      "transfersOut": 83296,
       "gwHistory": [
         {
           "round": 1,
@@ -307291,8 +307291,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 4203,
-      "transfersOut": 10373,
+      "transfersIn": 4204,
+      "transfersOut": 10375,
       "gwHistory": [
         {
           "round": 1,
@@ -307460,7 +307460,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 2246,
-      "transfersOut": 9068,
+      "transfersOut": 9070,
       "gwHistory": [
         {
           "round": 1,
@@ -308127,8 +308127,8 @@
       "form": 1.8,
       "pointsPerGame": 1.4,
       "selectedByPercent": 2.9,
-      "transfersIn": 159949,
-      "transfersOut": 757713,
+      "transfersIn": 159957,
+      "transfersOut": 757759,
       "gwHistory": [
         {
           "round": 1,
@@ -308306,8 +308306,8 @@
       "form": 4.2,
       "pointsPerGame": 3.6,
       "selectedByPercent": 5.8,
-      "transfersIn": 866954,
-      "transfersOut": 912090,
+      "transfersIn": 867064,
+      "transfersOut": 912193,
       "gwHistory": [
         {
           "round": 1,
@@ -308486,7 +308486,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 4164,
-      "transfersOut": 30809,
+      "transfersOut": 30812,
       "gwHistory": [
         {
           "round": 1,
@@ -308653,8 +308653,8 @@
       "form": 0.2,
       "pointsPerGame": 3,
       "selectedByPercent": 3,
-      "transfersIn": 274692,
-      "transfersOut": 464277,
+      "transfersIn": 274729,
+      "transfersOut": 464301,
       "gwHistory": [
         {
           "round": 1,
@@ -308821,8 +308821,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 5975,
-      "transfersOut": 10115,
+      "transfersIn": 5976,
+      "transfersOut": 10118,
       "gwHistory": [
         {
           "round": 1,
@@ -309157,8 +309157,8 @@
       "form": 8.2,
       "pointsPerGame": 5.8,
       "selectedByPercent": 25.5,
-      "transfersIn": 2654682,
-      "transfersOut": 1153242,
+      "transfersIn": 2654947,
+      "transfersOut": 1153650,
       "gwHistory": [
         {
           "round": 1,
@@ -309717,7 +309717,7 @@
       "pointsPerGame": 2.2,
       "selectedByPercent": 3.3,
       "transfersIn": 153923,
-      "transfersOut": 643332,
+      "transfersOut": 643456,
       "gwHistory": [
         {
           "round": 1,
@@ -309905,8 +309905,8 @@
       "form": 0,
       "pointsPerGame": 3,
       "selectedByPercent": 0.4,
-      "transfersIn": 28413,
-      "transfersOut": 31711,
+      "transfersIn": 28420,
+      "transfersOut": 31722,
       "gwHistory": [
         {
           "round": 1,
@@ -310073,8 +310073,8 @@
       "form": 3.2,
       "pointsPerGame": 2.1,
       "selectedByPercent": 0.3,
-      "transfersIn": 20439,
-      "transfersOut": 34894,
+      "transfersIn": 20477,
+      "transfersOut": 34895,
       "gwHistory": [
         {
           "round": 1,
@@ -310420,8 +310420,8 @@
       "form": 2.2,
       "pointsPerGame": 2.2,
       "selectedByPercent": 0.5,
-      "transfersIn": 50830,
-      "transfersOut": 83459,
+      "transfersIn": 50852,
+      "transfersOut": 83464,
       "gwHistory": [
         {
           "round": 1,
@@ -310589,7 +310589,7 @@
       "pointsPerGame": 2.6,
       "selectedByPercent": 0.7,
       "transfersIn": 71147,
-      "transfersOut": 32865,
+      "transfersOut": 32917,
       "gwHistory": [
         {
           "round": 1,
@@ -310778,7 +310778,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 1,
       "transfersIn": 48917,
-      "transfersOut": 125270,
+      "transfersOut": 125293,
       "gwHistory": [
         {
           "round": 1,
@@ -310944,7 +310944,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 0,
-      "transfersOut": 17737,
+      "transfersOut": 17738,
       "gwHistory": [
         {
           "round": 1,
@@ -311111,8 +311111,8 @@
       "form": 4.2,
       "pointsPerGame": 5.2,
       "selectedByPercent": 54.6,
-      "transfersIn": 4483710,
-      "transfersOut": 1028286,
+      "transfersIn": 4484164,
+      "transfersOut": 1028540,
       "gwHistory": [
         {
           "round": 1,
@@ -312040,8 +312040,8 @@
       "form": 0.5,
       "pointsPerGame": 3,
       "selectedByPercent": 1,
-      "transfersIn": 132300,
-      "transfersOut": 173484,
+      "transfersIn": 132303,
+      "transfersOut": 173517,
       "gwHistory": [
         {
           "round": 1,
@@ -312376,8 +312376,8 @@
       "form": 1.8,
       "pointsPerGame": 3.4,
       "selectedByPercent": 1.1,
-      "transfersIn": 63838,
-      "transfersOut": 218979,
+      "transfersIn": 63843,
+      "transfersOut": 218993,
       "gwHistory": [
         {
           "round": 1,
@@ -312712,8 +312712,8 @@
       "form": 4.2,
       "pointsPerGame": 4.1,
       "selectedByPercent": 4.9,
-      "transfersIn": 479556,
-      "transfersOut": 266098,
+      "transfersIn": 479712,
+      "transfersOut": 266248,
       "gwHistory": [
         {
           "round": 1,
@@ -312941,8 +312941,8 @@
       "form": 1,
       "pointsPerGame": 1.5,
       "selectedByPercent": 0.2,
-      "transfersIn": 22597,
-      "transfersOut": 27551,
+      "transfersIn": 22598,
+      "transfersOut": 27555,
       "gwHistory": [
         {
           "round": 1,
@@ -313109,8 +313109,8 @@
       "form": 3.2,
       "pointsPerGame": 3.4,
       "selectedByPercent": 0.4,
-      "transfersIn": 39588,
-      "transfersOut": 35612,
+      "transfersIn": 39593,
+      "transfersOut": 35622,
       "gwHistory": [
         {
           "round": 1,
@@ -313571,8 +313571,8 @@
       "teamName": "Aston Villa",
       "teamShort": "AVL",
       "position": "MID",
-      "pulsePosition": "MID",
-      "pulsePositionInfo": "Midfielder",
+      "pulsePosition": "FWD",
+      "pulsePositionInfo": "Forward",
       "nowCost": 44,
       "status": "a",
       "chanceOfPlayingNextRound": null,
@@ -313612,7 +313612,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.5,
       "transfersIn": 28175,
-      "transfersOut": 51621,
+      "transfersOut": 51628,
       "gwHistory": [
         {
           "round": 1,
@@ -313779,8 +313779,8 @@
       "form": 0.2,
       "pointsPerGame": 1.7,
       "selectedByPercent": 0.7,
-      "transfersIn": 126462,
-      "transfersOut": 133814,
+      "transfersIn": 126463,
+      "transfersOut": 133835,
       "gwHistory": [
         {
           "round": 1,
@@ -313958,8 +313958,8 @@
       "form": 5.5,
       "pointsPerGame": 3.1,
       "selectedByPercent": 0.6,
-      "transfersIn": 63605,
-      "transfersOut": 8752,
+      "transfersIn": 63694,
+      "transfersOut": 8772,
       "gwHistory": [
         {
           "round": 1,
@@ -314137,8 +314137,8 @@
       "form": 2.8,
       "pointsPerGame": 5.1,
       "selectedByPercent": 8.8,
-      "transfersIn": 1098703,
-      "transfersOut": 167722,
+      "transfersIn": 1098954,
+      "transfersOut": 167968,
       "gwHistory": [
         {
           "round": 1,
@@ -314467,7 +314467,7 @@
       "pointsPerGame": 1.9,
       "selectedByPercent": 0.1,
       "transfersIn": 4887,
-      "transfersOut": 6136,
+      "transfersOut": 6138,
       "gwHistory": [
         {
           "round": 1,
@@ -314633,7 +314633,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 2.2,
       "transfersIn": 14882,
-      "transfersOut": 786272,
+      "transfersOut": 786284,
       "gwHistory": [
         {
           "round": 1,
@@ -314800,8 +314800,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.2,
-      "transfersIn": 24433,
-      "transfersOut": 24639,
+      "transfersIn": 24437,
+      "transfersOut": 24641,
       "gwHistory": [
         {
           "round": 1,
@@ -314968,8 +314968,8 @@
       "form": 5.2,
       "pointsPerGame": 3.3,
       "selectedByPercent": 3.3,
-      "transfersIn": 211786,
-      "transfersOut": 186177,
+      "transfersIn": 211928,
+      "transfersOut": 186214,
       "gwHistory": [
         {
           "round": 1,
@@ -315157,8 +315157,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 3.3,
-      "transfersIn": 163076,
-      "transfersOut": 134941,
+      "transfersIn": 163084,
+      "transfersOut": 135051,
       "gwHistory": [
         {
           "round": 1,
@@ -315337,7 +315337,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 1133,
-      "transfersOut": 10469,
+      "transfersOut": 10470,
       "gwHistory": [
         {
           "round": 1,
@@ -315504,8 +315504,8 @@
       "form": 8.8,
       "pointsPerGame": 5.1,
       "selectedByPercent": 3.6,
-      "transfersIn": 359608,
-      "transfersOut": 94852,
+      "transfersIn": 360758,
+      "transfersOut": 94875,
       "gwHistory": [
         {
           "round": 1,
@@ -315672,8 +315672,8 @@
       "form": 6,
       "pointsPerGame": 3.5,
       "selectedByPercent": 3.4,
-      "transfersIn": 186825,
-      "transfersOut": 240252,
+      "transfersIn": 186918,
+      "transfersOut": 240280,
       "gwHistory": [
         {
           "round": 1,
@@ -315862,7 +315862,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
       "transfersIn": 9771,
-      "transfersOut": 15510,
+      "transfersOut": 15515,
       "gwHistory": [
         {
           "round": 1,
@@ -316030,7 +316030,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 590,
-      "transfersOut": 1128,
+      "transfersOut": 1129,
       "gwHistory": [
         {
           "round": 1,
@@ -316197,8 +316197,8 @@
       "form": 4.8,
       "pointsPerGame": 2.6,
       "selectedByPercent": 0.2,
-      "transfersIn": 23840,
-      "transfersOut": 12297,
+      "transfersIn": 23852,
+      "transfersOut": 12299,
       "gwHistory": [
         {
           "round": 1,
@@ -316366,7 +316366,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 646,
-      "transfersOut": 1650,
+      "transfersOut": 1651,
       "gwHistory": [
         {
           "round": 1,
@@ -316533,8 +316533,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.2,
-      "transfersIn": 18767,
-      "transfersOut": 17499,
+      "transfersIn": 18770,
+      "transfersOut": 17503,
       "gwHistory": [
         {
           "round": 1,
@@ -316701,8 +316701,8 @@
       "form": 4.5,
       "pointsPerGame": 3,
       "selectedByPercent": 2.5,
-      "transfersIn": 226074,
-      "transfersOut": 241821,
+      "transfersIn": 226105,
+      "transfersOut": 241888,
       "gwHistory": [
         {
           "round": 1,
@@ -316869,8 +316869,8 @@
       "form": 6,
       "pointsPerGame": 6,
       "selectedByPercent": 32.8,
-      "transfersIn": 3873132,
-      "transfersOut": 490716,
+      "transfersIn": 3874568,
+      "transfersOut": 490825,
       "gwHistory": [
         {
           "round": 1,
@@ -317698,8 +317698,8 @@
       "form": 0,
       "pointsPerGame": 5,
       "selectedByPercent": 2.1,
-      "transfersIn": 558234,
-      "transfersOut": 620036,
+      "transfersIn": 558250,
+      "transfersOut": 620063,
       "gwHistory": [
         {
           "round": 1,
@@ -317866,8 +317866,8 @@
       "form": 6,
       "pointsPerGame": 4.4,
       "selectedByPercent": 1.1,
-      "transfersIn": 124533,
-      "transfersOut": 133004,
+      "transfersIn": 124810,
+      "transfersOut": 133021,
       "gwHistory": [
         {
           "round": 1,
@@ -318045,8 +318045,8 @@
       "form": 2.2,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.1,
-      "transfersIn": 16326,
-      "transfersOut": 19795,
+      "transfersIn": 16327,
+      "transfersOut": 19798,
       "gwHistory": [
         {
           "round": 1,
@@ -318213,8 +318213,8 @@
       "form": 0.5,
       "pointsPerGame": 1,
       "selectedByPercent": 0,
-      "transfersIn": 2837,
-      "transfersOut": 6783,
+      "transfersIn": 2838,
+      "transfersOut": 6786,
       "gwHistory": [
         {
           "round": 1,
@@ -318381,8 +318381,8 @@
       "form": 3.2,
       "pointsPerGame": 2.6,
       "selectedByPercent": 0.3,
-      "transfersIn": 28557,
-      "transfersOut": 26158,
+      "transfersIn": 28559,
+      "transfersOut": 26165,
       "gwHistory": [
         {
           "round": 1,
@@ -318550,7 +318550,7 @@
       "pointsPerGame": 0.8,
       "selectedByPercent": 0,
       "transfersIn": 4833,
-      "transfersOut": 6016,
+      "transfersOut": 6017,
       "gwHistory": [
         {
           "round": 1,
@@ -318717,8 +318717,8 @@
       "form": 3.8,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.1,
-      "transfersIn": 7939,
-      "transfersOut": 4601,
+      "transfersIn": 7944,
+      "transfersOut": 4605,
       "gwHistory": [
         {
           "round": 1,
@@ -319053,8 +319053,8 @@
       "form": 2.5,
       "pointsPerGame": 2.8,
       "selectedByPercent": 0,
-      "transfersIn": 4506,
-      "transfersOut": 3539,
+      "transfersIn": 4508,
+      "transfersOut": 3541,
       "gwHistory": [
         {
           "round": 1,
@@ -319221,8 +319221,8 @@
       "form": 1.8,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.8,
-      "transfersIn": 85807,
-      "transfersOut": 43362,
+      "transfersIn": 85867,
+      "transfersOut": 43417,
       "gwHistory": [
         {
           "round": 1,
@@ -319388,9 +319388,9 @@
       "expectedGoalsConceded": 12.27,
       "form": 7.5,
       "pointsPerGame": 6.1,
-      "selectedByPercent": 26.4,
-      "transfersIn": 2971286,
-      "transfersOut": 337202,
+      "selectedByPercent": 26.5,
+      "transfersIn": 2973072,
+      "transfersOut": 337265,
       "gwHistory": [
         {
           "round": 1,
@@ -320186,8 +320186,8 @@
       "form": 0.5,
       "pointsPerGame": 1,
       "selectedByPercent": 0.2,
-      "transfersIn": 14568,
-      "transfersOut": 12629,
+      "transfersIn": 14578,
+      "transfersOut": 12632,
       "gwHistory": [
         {
           "round": 1,
@@ -320354,8 +320354,8 @@
       "form": 2.8,
       "pointsPerGame": 3.5,
       "selectedByPercent": 5.8,
-      "transfersIn": 362287,
-      "transfersOut": 347681,
+      "transfersIn": 362320,
+      "transfersOut": 347734,
       "gwHistory": [
         {
           "round": 1,
@@ -320583,8 +320583,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 4296,
-      "transfersOut": 6757,
+      "transfersIn": 4297,
+      "transfersOut": 6759,
       "gwHistory": [
         {
           "round": 1,
@@ -320762,8 +320762,8 @@
       "form": 0.2,
       "pointsPerGame": 2.8,
       "selectedByPercent": 0.8,
-      "transfersIn": 67610,
-      "transfersOut": 186417,
+      "transfersIn": 67611,
+      "transfersOut": 186436,
       "gwHistory": [
         {
           "round": 1,
@@ -320930,8 +320930,8 @@
       "form": 3.2,
       "pointsPerGame": 3.5,
       "selectedByPercent": 0.1,
-      "transfersIn": 6913,
-      "transfersOut": 11537,
+      "transfersIn": 6917,
+      "transfersOut": 11539,
       "gwHistory": [
         {
           "round": 1,
@@ -321098,8 +321098,8 @@
       "form": 1.5,
       "pointsPerGame": 3.9,
       "selectedByPercent": 1.7,
-      "transfersIn": 278688,
-      "transfersOut": 202191,
+      "transfersIn": 278694,
+      "transfersOut": 202244,
       "gwHistory": [
         {
           "round": 1,
@@ -321287,8 +321287,8 @@
       "form": 3,
       "pointsPerGame": 4.2,
       "selectedByPercent": 3.9,
-      "transfersIn": 470573,
-      "transfersOut": 424406,
+      "transfersIn": 470590,
+      "transfersOut": 424465,
       "gwHistory": [
         {
           "round": 1,
@@ -321486,8 +321486,8 @@
       "form": 2.5,
       "pointsPerGame": 3.4,
       "selectedByPercent": 6.4,
-      "transfersIn": 681070,
-      "transfersOut": 571992,
+      "transfersIn": 681083,
+      "transfersOut": 572093,
       "gwHistory": [
         {
           "round": 1,
@@ -321685,8 +321685,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 2576,
-      "transfersOut": 14184,
+      "transfersIn": 2577,
+      "transfersOut": 14187,
       "gwHistory": [
         {
           "round": 1,
@@ -321854,7 +321854,7 @@
       "pointsPerGame": 0.9,
       "selectedByPercent": 0.1,
       "transfersIn": 3051,
-      "transfersOut": 5035,
+      "transfersOut": 5039,
       "gwHistory": [
         {
           "round": 1,
@@ -322021,8 +322021,8 @@
       "form": 3.5,
       "pointsPerGame": 3.1,
       "selectedByPercent": 0.1,
-      "transfersIn": 12602,
-      "transfersOut": 10916,
+      "transfersIn": 12607,
+      "transfersOut": 10918,
       "gwHistory": [
         {
           "round": 1,
@@ -322358,7 +322358,7 @@
       "pointsPerGame": 5.5,
       "selectedByPercent": 0.4,
       "transfersIn": 48849,
-      "transfersOut": 41420,
+      "transfersOut": 41426,
       "gwHistory": [
         {
           "round": 1,
@@ -322525,8 +322525,8 @@
       "form": 1.5,
       "pointsPerGame": 4.6,
       "selectedByPercent": 12.1,
-      "transfersIn": 2084255,
-      "transfersOut": 1238109,
+      "transfersIn": 2084296,
+      "transfersOut": 1238557,
       "gwHistory": [
         {
           "round": 1,
@@ -322854,8 +322854,8 @@
       "form": 4.2,
       "pointsPerGame": 2.6,
       "selectedByPercent": 0.4,
-      "transfersIn": 30614,
-      "transfersOut": 101105,
+      "transfersIn": 30622,
+      "transfersOut": 101115,
       "gwHistory": [
         {
           "round": 1,
@@ -323022,8 +323022,8 @@
       "form": 0.5,
       "pointsPerGame": 2.4,
       "selectedByPercent": 0.3,
-      "transfersIn": 19065,
-      "transfersOut": 48957,
+      "transfersIn": 19068,
+      "transfersOut": 48963,
       "gwHistory": [
         {
           "round": 1,
@@ -323191,7 +323191,7 @@
       "pointsPerGame": 2.3,
       "selectedByPercent": 0.1,
       "transfersIn": 5707,
-      "transfersOut": 17031,
+      "transfersOut": 17032,
       "gwHistory": [
         {
           "round": 1,
@@ -323358,8 +323358,8 @@
       "form": 1.8,
       "pointsPerGame": 4.1,
       "selectedByPercent": 1.6,
-      "transfersIn": 363923,
-      "transfersOut": 271645,
+      "transfersIn": 363927,
+      "transfersOut": 271680,
       "gwHistory": [
         {
           "round": 1,
@@ -323558,7 +323558,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 201,
-      "transfersOut": 230,
+      "transfersOut": 231,
       "gwHistory": [
         {
           "round": 1,
@@ -323726,7 +323726,7 @@
       "pointsPerGame": 6,
       "selectedByPercent": 0,
       "transfersIn": 3021,
-      "transfersOut": 3169,
+      "transfersOut": 3173,
       "gwHistory": [
         {
           "round": 1,
@@ -323893,8 +323893,8 @@
       "form": 1.5,
       "pointsPerGame": 4.8,
       "selectedByPercent": 1.3,
-      "transfersIn": 177298,
-      "transfersOut": 88858,
+      "transfersIn": 177300,
+      "transfersOut": 88911,
       "gwHistory": [
         {
           "round": 1,
@@ -324072,8 +324072,8 @@
       "form": 0.2,
       "pointsPerGame": 2,
       "selectedByPercent": 0.4,
-      "transfersIn": 22255,
-      "transfersOut": 102908,
+      "transfersIn": 22256,
+      "transfersOut": 102914,
       "gwHistory": [
         {
           "round": 1,
@@ -324576,8 +324576,8 @@
       "form": 1.2,
       "pointsPerGame": 3,
       "selectedByPercent": 0.2,
-      "transfersIn": 28769,
-      "transfersOut": 26126,
+      "transfersIn": 28771,
+      "transfersOut": 26131,
       "gwHistory": [
         {
           "round": 1,
@@ -324755,8 +324755,8 @@
       "form": 3,
       "pointsPerGame": 3,
       "selectedByPercent": 6.7,
-      "transfersIn": 598194,
-      "transfersOut": 1609022,
+      "transfersIn": 598198,
+      "transfersOut": 1609352,
       "gwHistory": [
         {
           "round": 1,
@@ -324934,8 +324934,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.5,
-      "transfersIn": 64804,
-      "transfersOut": 105855,
+      "transfersIn": 64805,
+      "transfersOut": 105863,
       "gwHistory": [
         {
           "round": 1,
@@ -325102,8 +325102,8 @@
       "form": 0.8,
       "pointsPerGame": 0.9,
       "selectedByPercent": 0.3,
-      "transfersIn": 20985,
-      "transfersOut": 37290,
+      "transfersIn": 20990,
+      "transfersOut": 37295,
       "gwHistory": [
         {
           "round": 1,
@@ -325270,8 +325270,8 @@
       "form": 4.8,
       "pointsPerGame": 5.7,
       "selectedByPercent": 24.4,
-      "transfersIn": 1407482,
-      "transfersOut": 994872,
+      "transfersIn": 1408586,
+      "transfersOut": 994959,
       "gwHistory": [
         {
           "round": 1,
@@ -325819,8 +325819,8 @@
       "form": 2,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.8,
-      "transfersIn": 56438,
-      "transfersOut": 91203,
+      "transfersIn": 56443,
+      "transfersOut": 91219,
       "gwHistory": [
         {
           "round": 1,
@@ -325987,8 +325987,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 3.4,
-      "transfersIn": 181401,
-      "transfersOut": 226630,
+      "transfersIn": 181420,
+      "transfersOut": 226736,
       "gwHistory": [
         {
           "round": 1,
@@ -326186,8 +326186,8 @@
       "form": 8,
       "pointsPerGame": 5.7,
       "selectedByPercent": 18.4,
-      "transfersIn": 1653620,
-      "transfersOut": 673186,
+      "transfersIn": 1654863,
+      "transfersOut": 673220,
       "gwHistory": [
         {
           "round": 1,
@@ -326745,8 +326745,8 @@
       "form": 0.2,
       "pointsPerGame": 4.1,
       "selectedByPercent": 1.2,
-      "transfersIn": 77958,
-      "transfersOut": 216619,
+      "transfersIn": 77961,
+      "transfersOut": 216646,
       "gwHistory": [
         {
           "round": 1,
@@ -326934,8 +326934,8 @@
       "form": 2.5,
       "pointsPerGame": 4.4,
       "selectedByPercent": 0.7,
-      "transfersIn": 70679,
-      "transfersOut": 26118,
+      "transfersIn": 70694,
+      "transfersOut": 26124,
       "gwHistory": [
         {
           "round": 1,
@@ -327102,8 +327102,8 @@
       "form": 4,
       "pointsPerGame": 7.5,
       "selectedByPercent": 49.9,
-      "transfersIn": 5371183,
-      "transfersOut": 603099,
+      "transfersIn": 5371761,
+      "transfersOut": 603162,
       "gwHistory": [
         {
           "round": 1,
@@ -328061,8 +328061,8 @@
       "form": 3,
       "pointsPerGame": 4.6,
       "selectedByPercent": 1.5,
-      "transfersIn": 137783,
-      "transfersOut": 95071,
+      "transfersIn": 137796,
+      "transfersOut": 95090,
       "gwHistory": [
         {
           "round": 1,
@@ -328251,7 +328251,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 1480,
-      "transfersOut": 1663,
+      "transfersOut": 1664,
       "gwHistory": [
         {
           "round": 1,
@@ -328584,7 +328584,7 @@
       "form": 3.5,
       "pointsPerGame": 2.1,
       "selectedByPercent": 0.1,
-      "transfersIn": 4509,
+      "transfersIn": 4513,
       "transfersOut": 2452,
       "gwHistory": [
         {
@@ -328752,7 +328752,7 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 7130,
+      "transfersIn": 7131,
       "transfersOut": 6479,
       "gwHistory": [
         {
@@ -328921,7 +328921,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 994,
-      "transfersOut": 3825,
+      "transfersOut": 3827,
       "gwHistory": [
         {
           "round": 1,
@@ -329088,7 +329088,7 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0,
-      "transfersIn": 2507,
+      "transfersIn": 2508,
       "transfersOut": 7803,
       "gwHistory": [
         {
@@ -329256,8 +329256,8 @@
       "form": 0.8,
       "pointsPerGame": 5,
       "selectedByPercent": 0.6,
-      "transfersIn": 176274,
-      "transfersOut": 240063,
+      "transfersIn": 176276,
+      "transfersOut": 240074,
       "gwHistory": [
         {
           "round": 1,
@@ -329424,8 +329424,8 @@
       "form": 3,
       "pointsPerGame": 7,
       "selectedByPercent": 49.4,
-      "transfersIn": 4824166,
-      "transfersOut": 887608,
+      "transfersIn": 4824669,
+      "transfersOut": 887710,
       "gwHistory": [
         {
           "round": 1,
@@ -330323,8 +330323,8 @@
       "form": 0.8,
       "pointsPerGame": 2,
       "selectedByPercent": 0.4,
-      "transfersIn": 53018,
-      "transfersOut": 104510,
+      "transfersIn": 53025,
+      "transfersOut": 104519,
       "gwHistory": [
         {
           "round": 1,
@@ -330491,8 +330491,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 5551,
-      "transfersOut": 9074,
+      "transfersIn": 5553,
+      "transfersOut": 9075,
       "gwHistory": [
         {
           "round": 1,
@@ -330659,8 +330659,8 @@
       "form": 3.5,
       "pointsPerGame": 5.1,
       "selectedByPercent": 4.7,
-      "transfersIn": 596263,
-      "transfersOut": 480290,
+      "transfersIn": 596371,
+      "transfersOut": 480356,
       "gwHistory": [
         {
           "round": 1,
@@ -331054,8 +331054,8 @@
       "form": 3.8,
       "pointsPerGame": 5.1,
       "selectedByPercent": 2.5,
-      "transfersIn": 247146,
-      "transfersOut": 79807,
+      "transfersIn": 247177,
+      "transfersOut": 79881,
       "gwHistory": [
         {
           "round": 1,
@@ -331253,7 +331253,7 @@
       "form": 0.2,
       "pointsPerGame": 2,
       "selectedByPercent": 0.1,
-      "transfersIn": 26937,
+      "transfersIn": 26938,
       "transfersOut": 48565,
       "gwHistory": [
         {
@@ -331422,7 +331422,7 @@
       "pointsPerGame": 2,
       "selectedByPercent": 0.2,
       "transfersIn": 27987,
-      "transfersOut": 33072,
+      "transfersOut": 33082,
       "gwHistory": [
         {
           "round": 1,
@@ -331925,8 +331925,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 11962,
-      "transfersOut": 21797,
+      "transfersIn": 11969,
+      "transfersOut": 21798,
       "gwHistory": [
         {
           "round": 1,
@@ -332261,8 +332261,8 @@
       "form": 1,
       "pointsPerGame": 1.1,
       "selectedByPercent": 0.7,
-      "transfersIn": 92317,
-      "transfersOut": 145974,
+      "transfersIn": 92320,
+      "transfersOut": 145987,
       "gwHistory": [
         {
           "round": 1,
@@ -332428,7 +332428,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 522,
-      "transfersOut": 976,
+      "transfersOut": 977,
       "gwHistory": [
         {
           "round": 1,
@@ -332595,8 +332595,8 @@
       "form": 1.5,
       "pointsPerGame": 4.7,
       "selectedByPercent": 9.2,
-      "transfersIn": 1544135,
-      "transfersOut": 619725,
+      "transfersIn": 1544206,
+      "transfersOut": 620077,
       "gwHistory": [
         {
           "round": 1,
@@ -332895,7 +332895,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 2178,
-      "transfersOut": 3612,
+      "transfersOut": 3614,
       "gwHistory": [
         {
           "round": 1,
@@ -333063,7 +333063,7 @@
       "pointsPerGame": 2,
       "selectedByPercent": 0.5,
       "transfersIn": 10847,
-      "transfersOut": 193344,
+      "transfersOut": 193349,
       "gwHistory": [
         {
           "round": 1,
@@ -333397,7 +333397,7 @@
       "pointsPerGame": 0.8,
       "selectedByPercent": 3.1,
       "transfersIn": 174571,
-      "transfersOut": 899281,
+      "transfersOut": 899319,
       "gwHistory": [
         {
           "round": 1,
@@ -333563,7 +333563,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 0,
-      "transfersOut": 14684,
+      "transfersOut": 14685,
       "gwHistory": [
         {
           "round": 1,
@@ -333730,8 +333730,8 @@
       "form": 0.8,
       "pointsPerGame": 1,
       "selectedByPercent": 0.7,
-      "transfersIn": 41898,
-      "transfersOut": 98491,
+      "transfersIn": 41902,
+      "transfersOut": 98496,
       "gwHistory": [
         {
           "round": 1,
@@ -333898,8 +333898,8 @@
       "form": 3.5,
       "pointsPerGame": 3.1,
       "selectedByPercent": 0.3,
-      "transfersIn": 40291,
-      "transfersOut": 20667,
+      "transfersIn": 40306,
+      "transfersOut": 20678,
       "gwHistory": [
         {
           "round": 1,
@@ -334235,7 +334235,7 @@
       "pointsPerGame": 1.5,
       "selectedByPercent": 0.1,
       "transfersIn": 2647,
-      "transfersOut": 11494,
+      "transfersOut": 11496,
       "gwHistory": [
         {
           "round": 1,
@@ -334403,7 +334403,7 @@
       "pointsPerGame": 4.2,
       "selectedByPercent": 0.5,
       "transfersIn": 116336,
-      "transfersOut": 127841,
+      "transfersOut": 127860,
       "gwHistory": [
         {
           "round": 1,
@@ -334571,7 +334571,7 @@
       "pointsPerGame": 2,
       "selectedByPercent": 0.9,
       "transfersIn": 60146,
-      "transfersOut": 129610,
+      "transfersOut": 129631,
       "gwHistory": [
         {
           "round": 1,
@@ -334906,8 +334906,8 @@
       "form": 2.8,
       "pointsPerGame": 2.8,
       "selectedByPercent": 0.5,
-      "transfersIn": 57162,
-      "transfersOut": 40075,
+      "transfersIn": 57166,
+      "transfersOut": 40086,
       "gwHistory": [
         {
           "round": 1,
@@ -335074,8 +335074,8 @@
       "form": 2,
       "pointsPerGame": 2,
       "selectedByPercent": 0.5,
-      "transfersIn": 16971,
-      "transfersOut": 240599,
+      "transfersIn": 16977,
+      "transfersOut": 240607,
       "gwHistory": [
         {
           "round": 1,
@@ -335243,7 +335243,7 @@
       "pointsPerGame": 1.6,
       "selectedByPercent": 0.1,
       "transfersIn": 11527,
-      "transfersOut": 13061,
+      "transfersOut": 13063,
       "gwHistory": [
         {
           "round": 1,
@@ -335410,8 +335410,8 @@
       "form": 2.8,
       "pointsPerGame": 4.5,
       "selectedByPercent": 27.9,
-      "transfersIn": 3094099,
-      "transfersOut": 1525687,
+      "transfersIn": 3094246,
+      "transfersOut": 1526606,
       "gwHistory": [
         {
           "round": 1,
@@ -335909,8 +335909,8 @@
       "form": 1.8,
       "pointsPerGame": 2.4,
       "selectedByPercent": 3.4,
-      "transfersIn": 312904,
-      "transfersOut": 485581,
+      "transfersIn": 312912,
+      "transfersOut": 485696,
       "gwHistory": [
         {
           "round": 1,
@@ -336077,8 +336077,8 @@
       "form": 2,
       "pointsPerGame": 3.8,
       "selectedByPercent": 4.8,
-      "transfersIn": 570944,
-      "transfersOut": 252129,
+      "transfersIn": 570968,
+      "transfersOut": 252448,
       "gwHistory": [
         {
           "round": 1,
@@ -336276,8 +336276,8 @@
       "form": 1.8,
       "pointsPerGame": 1.3,
       "selectedByPercent": 0.8,
-      "transfersIn": 45012,
-      "transfersOut": 107863,
+      "transfersIn": 45021,
+      "transfersOut": 107885,
       "gwHistory": [
         {
           "round": 1,
@@ -336612,8 +336612,8 @@
       "form": 2.2,
       "pointsPerGame": 2.1,
       "selectedByPercent": 1,
-      "transfersIn": 41842,
-      "transfersOut": 309542,
+      "transfersIn": 41843,
+      "transfersOut": 309588,
       "gwHistory": [
         {
           "round": 1,
@@ -336780,8 +336780,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0.3,
-      "transfersIn": 10459,
-      "transfersOut": 49922,
+      "transfersIn": 10460,
+      "transfersOut": 49928,
       "gwHistory": [
         {
           "round": 1,
@@ -336948,8 +336948,8 @@
       "form": 2.8,
       "pointsPerGame": 2.7,
       "selectedByPercent": 0.2,
-      "transfersIn": 32934,
-      "transfersOut": 25792,
+      "transfersIn": 32937,
+      "transfersOut": 25796,
       "gwHistory": [
         {
           "round": 1,
@@ -337116,8 +337116,8 @@
       "form": 1.2,
       "pointsPerGame": 1.7,
       "selectedByPercent": 0.4,
-      "transfersIn": 31273,
-      "transfersOut": 95642,
+      "transfersIn": 31277,
+      "transfersOut": 95651,
       "gwHistory": [
         {
           "round": 1,
@@ -337451,7 +337451,7 @@
       "pointsPerGame": 1.3,
       "selectedByPercent": 0,
       "transfersIn": 1462,
-      "transfersOut": 4228,
+      "transfersOut": 4229,
       "gwHistory": [
         {
           "round": 1,
@@ -337618,8 +337618,8 @@
       "form": 0,
       "pointsPerGame": 7.8,
       "selectedByPercent": 28.4,
-      "transfersIn": 2842123,
-      "transfersOut": 6839479,
+      "transfersIn": 2842142,
+      "transfersOut": 6840857,
       "gwHistory": [
         {
           "round": 1,
@@ -337897,8 +337897,8 @@
       "form": 8.8,
       "pointsPerGame": 5.6,
       "selectedByPercent": 36,
-      "transfersIn": 4183866,
-      "transfersOut": 260952,
+      "transfersIn": 4184928,
+      "transfersOut": 261192,
       "gwHistory": [
         {
           "round": 1,
@@ -338596,8 +338596,8 @@
       "form": 4.5,
       "pointsPerGame": 3.1,
       "selectedByPercent": 1.7,
-      "transfersIn": 423149,
-      "transfersOut": 303570,
+      "transfersIn": 423226,
+      "transfersOut": 303633,
       "gwHistory": [
         {
           "round": 1,
@@ -338763,7 +338763,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 4102,
-      "transfersOut": 38261,
+      "transfersOut": 38262,
       "gwHistory": [
         {
           "round": 1,
@@ -338928,8 +338928,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.4,
-      "transfersIn": 42774,
-      "transfersOut": 43753,
+      "transfersIn": 42780,
+      "transfersOut": 43764,
       "gwHistory": [
         {
           "round": 1,
@@ -339096,8 +339096,8 @@
       "form": 2.2,
       "pointsPerGame": 4.5,
       "selectedByPercent": 0.1,
-      "transfersIn": 9762,
-      "transfersOut": 16100,
+      "transfersIn": 9777,
+      "transfersOut": 16104,
       "gwHistory": [
         {
           "round": 1,
@@ -339263,7 +339263,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.7,
       "transfersIn": 8924,
-      "transfersOut": 84790,
+      "transfersOut": 84803,
       "gwHistory": [
         {
           "round": 1,
@@ -339441,7 +339441,7 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.3,
-      "transfersIn": 2398,
+      "transfersIn": 2399,
       "transfersOut": 16405,
       "gwHistory": [
         {
@@ -339609,8 +339609,8 @@
       "form": 1,
       "pointsPerGame": 3.9,
       "selectedByPercent": 6.9,
-      "transfersIn": 617802,
-      "transfersOut": 713245,
+      "transfersIn": 617825,
+      "transfersOut": 713302,
       "gwHistory": [
         {
           "round": 1,
@@ -339879,7 +339879,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
       "transfersIn": 981,
-      "transfersOut": 42085,
+      "transfersOut": 42088,
       "gwHistory": [
         {
           "round": 1,
@@ -340046,8 +340046,8 @@
       "form": 2,
       "pointsPerGame": 2.1,
       "selectedByPercent": 6.8,
-      "transfersIn": 233874,
-      "transfersOut": 812999,
+      "transfersIn": 233892,
+      "transfersOut": 813100,
       "gwHistory": [
         {
           "round": 1,
@@ -340245,8 +340245,8 @@
       "form": 1.2,
       "pointsPerGame": 3,
       "selectedByPercent": 1.4,
-      "transfersIn": 119225,
-      "transfersOut": 68073,
+      "transfersIn": 119228,
+      "transfersOut": 68109,
       "gwHistory": [
         {
           "round": 1,
@@ -340424,8 +340424,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 8957,
-      "transfersOut": 9464,
+      "transfersIn": 8958,
+      "transfersOut": 9467,
       "gwHistory": [
         {
           "round": 1,
@@ -340592,7 +340592,7 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 4071,
+      "transfersIn": 4073,
       "transfersOut": 5637,
       "gwHistory": [
         {
@@ -340929,7 +340929,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 5037,
-      "transfersOut": 13049,
+      "transfersOut": 13052,
       "gwHistory": [
         {
           "round": 1,
@@ -341263,7 +341263,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.4,
       "transfersIn": 12739,
-      "transfersOut": 57463,
+      "transfersOut": 57469,
       "gwHistory": [
         {
           "round": 1,
@@ -341430,8 +341430,8 @@
       "form": 5.8,
       "pointsPerGame": 4.5,
       "selectedByPercent": 1.7,
-      "transfersIn": 206760,
-      "transfersOut": 42236,
+      "transfersIn": 207192,
+      "transfersOut": 42260,
       "gwHistory": [
         {
           "round": 1,
@@ -341619,8 +341619,8 @@
       "form": 1.2,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.1,
-      "transfersIn": 7573,
-      "transfersOut": 17230,
+      "transfersIn": 7574,
+      "transfersOut": 17231,
       "gwHistory": [
         {
           "round": 1,
@@ -341787,8 +341787,8 @@
       "form": 4.2,
       "pointsPerGame": 3,
       "selectedByPercent": 0.1,
-      "transfersIn": 4485,
-      "transfersOut": 8139,
+      "transfersIn": 4498,
+      "transfersOut": 8140,
       "gwHistory": [
         {
           "round": 1,
@@ -341956,7 +341956,7 @@
       "pointsPerGame": 1.4,
       "selectedByPercent": 0.1,
       "transfersIn": 1821,
-      "transfersOut": 8140,
+      "transfersOut": 8143,
       "gwHistory": [
         {
           "round": 1,
@@ -342457,8 +342457,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 14847,
-      "transfersOut": 25073,
+      "transfersIn": 14852,
+      "transfersOut": 25079,
       "gwHistory": [
         {
           "round": 1,
@@ -342626,7 +342626,7 @@
       "pointsPerGame": 1.2,
       "selectedByPercent": 0.1,
       "transfersIn": 3373,
-      "transfersOut": 10070,
+      "transfersOut": 10071,
       "gwHistory": [
         {
           "round": 1,
@@ -342792,7 +342792,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 1943,
-      "transfersOut": 14817,
+      "transfersOut": 14818,
       "gwHistory": [
         {
           "round": 1,
@@ -342958,7 +342958,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
       "transfersIn": 2718,
-      "transfersOut": 51557,
+      "transfersOut": 51561,
       "gwHistory": [
         {
           "round": 1,
@@ -343125,7 +343125,7 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 926,
+      "transfersIn": 927,
       "transfersOut": 14538,
       "gwHistory": [
         {
@@ -343293,8 +343293,8 @@
       "form": 2,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.9,
-      "transfersIn": 139967,
-      "transfersOut": 126114,
+      "transfersIn": 139986,
+      "transfersOut": 126142,
       "gwHistory": [
         {
           "round": 1,
@@ -343461,8 +343461,8 @@
       "form": 0,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.5,
-      "transfersIn": 69948,
-      "transfersOut": 104773,
+      "transfersIn": 69952,
+      "transfersOut": 104789,
       "gwHistory": [
         {
           "round": 1,
@@ -343961,8 +343961,8 @@
       "form": 1.8,
       "pointsPerGame": 2,
       "selectedByPercent": 1,
-      "transfersIn": 60285,
-      "transfersOut": 153115,
+      "transfersIn": 60295,
+      "transfersOut": 153123,
       "gwHistory": [
         {
           "round": 1,
@@ -344129,8 +344129,8 @@
       "form": 0.2,
       "pointsPerGame": 2.6,
       "selectedByPercent": 0.1,
-      "transfersIn": 9793,
-      "transfersOut": 9005,
+      "transfersIn": 9794,
+      "transfersOut": 9010,
       "gwHistory": [
         {
           "round": 1,
@@ -344298,7 +344298,7 @@
       "pointsPerGame": 3,
       "selectedByPercent": 4.2,
       "transfersIn": 228233,
-      "transfersOut": 757601,
+      "transfersOut": 757726,
       "gwHistory": [
         {
           "round": 1,
@@ -344465,8 +344465,8 @@
       "form": 2.2,
       "pointsPerGame": 1.7,
       "selectedByPercent": 4,
-      "transfersIn": 196415,
-      "transfersOut": 700476,
+      "transfersIn": 196420,
+      "transfersOut": 700560,
       "gwHistory": [
         {
           "round": 1,
@@ -344644,8 +344644,8 @@
       "form": 2.5,
       "pointsPerGame": 2.7,
       "selectedByPercent": 0.5,
-      "transfersIn": 33107,
-      "transfersOut": 54286,
+      "transfersIn": 33112,
+      "transfersOut": 54293,
       "gwHistory": [
         {
           "round": 1,
@@ -344813,7 +344813,7 @@
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.2,
       "transfersIn": 8898,
-      "transfersOut": 25759,
+      "transfersOut": 25760,
       "gwHistory": [
         {
           "round": 1,
@@ -344980,8 +344980,8 @@
       "form": 1.5,
       "pointsPerGame": 3.1,
       "selectedByPercent": 4.5,
-      "transfersIn": 365902,
-      "transfersOut": 484905,
+      "transfersIn": 365909,
+      "transfersOut": 485000,
       "gwHistory": [
         {
           "round": 1,
@@ -345290,7 +345290,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 236,
-      "transfersOut": 2395,
+      "transfersOut": 2396,
       "gwHistory": [
         {
           "round": 1,
@@ -345626,7 +345626,7 @@
       "pointsPerGame": 0.8,
       "selectedByPercent": 0,
       "transfersIn": 3043,
-      "transfersOut": 6988,
+      "transfersOut": 6989,
       "gwHistory": [
         {
           "round": 1,
@@ -345794,7 +345794,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.5,
       "transfersIn": 17104,
-      "transfersOut": 400820,
+      "transfersOut": 400821,
       "gwHistory": [
         {
           "round": 1,
@@ -345962,7 +345962,7 @@
       "pointsPerGame": 1.5,
       "selectedByPercent": 0.1,
       "transfersIn": 7755,
-      "transfersOut": 15541,
+      "transfersOut": 15542,
       "gwHistory": [
         {
           "round": 1,
@@ -346130,7 +346130,7 @@
       "pointsPerGame": 2.7,
       "selectedByPercent": 0.6,
       "transfersIn": 37107,
-      "transfersOut": 69354,
+      "transfersOut": 69361,
       "gwHistory": [
         {
           "round": 1,
@@ -346297,8 +346297,8 @@
       "form": 3.8,
       "pointsPerGame": 3.6,
       "selectedByPercent": 0.3,
-      "transfersIn": 60918,
-      "transfersOut": 52510,
+      "transfersIn": 60921,
+      "transfersOut": 52534,
       "gwHistory": [
         {
           "round": 1,
@@ -346465,8 +346465,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 5.4,
-      "transfersIn": 217073,
-      "transfersOut": 776876,
+      "transfersIn": 217093,
+      "transfersOut": 776985,
       "gwHistory": [
         {
           "round": 1,
@@ -346645,7 +346645,7 @@
       "pointsPerGame": 2.1,
       "selectedByPercent": 0.1,
       "transfersIn": 6851,
-      "transfersOut": 9008,
+      "transfersOut": 9010,
       "gwHistory": [
         {
           "round": 1,
@@ -346812,8 +346812,8 @@
       "form": 2,
       "pointsPerGame": 3.5,
       "selectedByPercent": 0.6,
-      "transfersIn": 89459,
-      "transfersOut": 58449,
+      "transfersIn": 89462,
+      "transfersOut": 58477,
       "gwHistory": [
         {
           "round": 1,
@@ -347978,8 +347978,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 3698,
-      "transfersOut": 6868,
+      "transfersIn": 3700,
+      "transfersOut": 6869,
       "gwHistory": [
         {
           "round": 1,
@@ -348146,8 +348146,8 @@
       "form": 3,
       "pointsPerGame": 3.7,
       "selectedByPercent": 0.4,
-      "transfersIn": 71656,
-      "transfersOut": 87682,
+      "transfersIn": 71690,
+      "transfersOut": 87687,
       "gwHistory": [
         {
           "round": 1,
@@ -348325,8 +348325,8 @@
       "form": 0,
       "pointsPerGame": 0.8,
       "selectedByPercent": 1.1,
-      "transfersIn": 40850,
-      "transfersOut": 490495,
+      "transfersIn": 40851,
+      "transfersOut": 490501,
       "gwHistory": [
         {
           "round": 1,
@@ -348493,8 +348493,8 @@
       "form": 2,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.4,
-      "transfersIn": 55903,
-      "transfersOut": 71152,
+      "transfersIn": 55905,
+      "transfersOut": 71162,
       "gwHistory": [
         {
           "round": 1,
@@ -348827,8 +348827,8 @@
       "form": 2.8,
       "pointsPerGame": 3.9,
       "selectedByPercent": 8.4,
-      "transfersIn": 401581,
-      "transfersOut": 421595,
+      "transfersIn": 401726,
+      "transfersOut": 421674,
       "gwHistory": [
         {
           "round": 1,
@@ -349016,7 +349016,7 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0,
-      "transfersIn": 3586,
+      "transfersIn": 3589,
       "transfersOut": 3700,
       "gwHistory": [
         {
@@ -349184,8 +349184,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0,
-      "transfersIn": 1956,
-      "transfersOut": 2692,
+      "transfersIn": 1957,
+      "transfersOut": 2693,
       "gwHistory": [
         {
           "round": 1,
@@ -349352,8 +349352,8 @@
       "form": 2.5,
       "pointsPerGame": 5.6,
       "selectedByPercent": 18.8,
-      "transfersIn": 1675199,
-      "transfersOut": 766640,
+      "transfersIn": 1675301,
+      "transfersOut": 766905,
       "gwHistory": [
         {
           "round": 1,
@@ -349711,8 +349711,8 @@
       "form": 3,
       "pointsPerGame": 4.8,
       "selectedByPercent": 2.2,
-      "transfersIn": 220633,
-      "transfersOut": 179340,
+      "transfersIn": 220651,
+      "transfersOut": 179366,
       "gwHistory": [
         {
           "round": 1,
@@ -349879,8 +349879,8 @@
       "form": 0.5,
       "pointsPerGame": 1,
       "selectedByPercent": 0.6,
-      "transfersIn": 13300,
-      "transfersOut": 110084,
+      "transfersIn": 13301,
+      "transfersOut": 110091,
       "gwHistory": [
         {
           "round": 1,
@@ -350048,7 +350048,7 @@
       "pointsPerGame": 2.2,
       "selectedByPercent": 0.3,
       "transfersIn": 9539,
-      "transfersOut": 31442,
+      "transfersOut": 31446,
       "gwHistory": [
         {
           "round": 1,
@@ -350215,8 +350215,8 @@
       "form": 3.5,
       "pointsPerGame": 4.7,
       "selectedByPercent": 2.5,
-      "transfersIn": 466778,
-      "transfersOut": 350503,
+      "transfersIn": 466799,
+      "transfersOut": 350537,
       "gwHistory": [
         {
           "round": 1,
@@ -350770,8 +350770,8 @@
       "form": 3.8,
       "pointsPerGame": 5,
       "selectedByPercent": 7.2,
-      "transfersIn": 1016751,
-      "transfersOut": 621684,
+      "transfersIn": 1016844,
+      "transfersOut": 621850,
       "gwHistory": [
         {
           "round": 1,
@@ -350989,8 +350989,8 @@
       "form": 2.8,
       "pointsPerGame": 3.5,
       "selectedByPercent": 5.3,
-      "transfersIn": 461975,
-      "transfersOut": 1454691,
+      "transfersIn": 461987,
+      "transfersOut": 1454934,
       "gwHistory": [
         {
           "round": 1,
@@ -351168,8 +351168,8 @@
       "form": 0,
       "pointsPerGame": 1.7,
       "selectedByPercent": 0.4,
-      "transfersIn": 56296,
-      "transfersOut": 52512,
+      "transfersIn": 56298,
+      "transfersOut": 52518,
       "gwHistory": [
         {
           "round": 1,
@@ -351336,8 +351336,8 @@
       "form": 2,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.2,
-      "transfersIn": 35391,
-      "transfersOut": 27814,
+      "transfersIn": 35396,
+      "transfersOut": 27820,
       "gwHistory": [
         {
           "round": 1,
@@ -351504,8 +351504,8 @@
       "form": 4.8,
       "pointsPerGame": 2.9,
       "selectedByPercent": 0.1,
-      "transfersIn": 6381,
-      "transfersOut": 2592,
+      "transfersIn": 6393,
+      "transfersOut": 2595,
       "gwHistory": [
         {
           "round": 1,
@@ -351840,8 +351840,8 @@
       "form": 2.2,
       "pointsPerGame": 3,
       "selectedByPercent": 0.5,
-      "transfersIn": 117593,
-      "transfersOut": 101646,
+      "transfersIn": 117595,
+      "transfersOut": 101658,
       "gwHistory": [
         {
           "round": 1,
@@ -352197,8 +352197,8 @@
       "form": 2.2,
       "pointsPerGame": 2.8,
       "selectedByPercent": 0.3,
-      "transfersIn": 59320,
-      "transfersOut": 48139,
+      "transfersIn": 59321,
+      "transfersOut": 48145,
       "gwHistory": [
         {
           "round": 1,
@@ -352534,7 +352534,7 @@
       "pointsPerGame": 2.1,
       "selectedByPercent": 0,
       "transfersIn": 2922,
-      "transfersOut": 6261,
+      "transfersOut": 6263,
       "gwHistory": [
         {
           "round": 1,
@@ -352701,8 +352701,8 @@
       "form": 0.8,
       "pointsPerGame": 1.6,
       "selectedByPercent": 0.1,
-      "transfersIn": 4691,
-      "transfersOut": 17450,
+      "transfersIn": 4692,
+      "transfersOut": 17453,
       "gwHistory": [
         {
           "round": 1,
@@ -352870,7 +352870,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.4,
       "transfersIn": 16222,
-      "transfersOut": 240999,
+      "transfersOut": 241003,
       "gwHistory": [
         {
           "round": 1,
@@ -353037,8 +353037,8 @@
       "form": 6.8,
       "pointsPerGame": 5.5,
       "selectedByPercent": 11.5,
-      "transfersIn": 1802532,
-      "transfersOut": 841136,
+      "transfersIn": 1802813,
+      "transfersOut": 841430,
       "gwHistory": [
         {
           "round": 1,
@@ -353336,8 +353336,8 @@
       "form": 3.8,
       "pointsPerGame": 3.7,
       "selectedByPercent": 4.3,
-      "transfersIn": 353331,
-      "transfersOut": 207268,
+      "transfersIn": 353369,
+      "transfersOut": 207337,
       "gwHistory": [
         {
           "round": 1,
@@ -353566,7 +353566,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 1,
       "transfersIn": 38952,
-      "transfersOut": 45720,
+      "transfersOut": 45754,
       "gwHistory": [
         {
           "round": 1,
@@ -353911,7 +353911,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.2,
       "transfersIn": 26150,
-      "transfersOut": 20377,
+      "transfersOut": 20381,
       "gwHistory": [
         {
           "round": 1,
@@ -354078,8 +354078,8 @@
       "form": 3.5,
       "pointsPerGame": 3.3,
       "selectedByPercent": 1.2,
-      "transfersIn": 104174,
-      "transfersOut": 139248,
+      "transfersIn": 104182,
+      "transfersOut": 139270,
       "gwHistory": [
         {
           "round": 1,
@@ -354425,7 +354425,7 @@
       "form": 1.8,
       "pointsPerGame": 1.3,
       "selectedByPercent": 0.2,
-      "transfersIn": 2625,
+      "transfersIn": 2627,
       "transfersOut": 13825,
       "gwHistory": [
         {
@@ -354604,8 +354604,8 @@
       "form": 3,
       "pointsPerGame": 3.4,
       "selectedByPercent": 1.2,
-      "transfersIn": 110490,
-      "transfersOut": 75357,
+      "transfersIn": 110506,
+      "transfersOut": 75393,
       "gwHistory": [
         {
           "round": 1,
@@ -354783,8 +354783,8 @@
       "form": 4,
       "pointsPerGame": 4.9,
       "selectedByPercent": 1.2,
-      "transfersIn": 169583,
-      "transfersOut": 100510,
+      "transfersIn": 169594,
+      "transfersOut": 100546,
       "gwHistory": [
         {
           "round": 1,
@@ -354982,8 +354982,8 @@
       "form": 1,
       "pointsPerGame": 1.9,
       "selectedByPercent": 9.6,
-      "transfersIn": 216098,
-      "transfersOut": 912078,
+      "transfersIn": 216107,
+      "transfersOut": 912221,
       "gwHistory": [
         {
           "round": 1,
@@ -355271,8 +355271,8 @@
       "form": 2.5,
       "pointsPerGame": 1.8,
       "selectedByPercent": 1.1,
-      "transfersIn": 37544,
-      "transfersOut": 526496,
+      "transfersIn": 37560,
+      "transfersOut": 526502,
       "gwHistory": [
         {
           "round": 1,
@@ -355439,8 +355439,8 @@
       "form": 3,
       "pointsPerGame": 3.7,
       "selectedByPercent": 1.4,
-      "transfersIn": 153796,
-      "transfersOut": 121158,
+      "transfersIn": 153807,
+      "transfersOut": 121199,
       "gwHistory": [
         {
           "round": 1,
@@ -355659,7 +355659,7 @@
       "pointsPerGame": 0.8,
       "selectedByPercent": 0.2,
       "transfersIn": 6111,
-      "transfersOut": 28811,
+      "transfersOut": 28815,
       "gwHistory": [
         {
           "round": 1,
@@ -355994,8 +355994,8 @@
       "form": 5.5,
       "pointsPerGame": 3.7,
       "selectedByPercent": 0.5,
-      "transfersIn": 58620,
-      "transfersOut": 42900,
+      "transfersIn": 58649,
+      "transfersOut": 42908,
       "gwHistory": [
         {
           "round": 1,
@@ -356162,8 +356162,8 @@
       "form": 2.8,
       "pointsPerGame": 2.6,
       "selectedByPercent": 0.3,
-      "transfersIn": 12890,
-      "transfersOut": 27541,
+      "transfersIn": 12894,
+      "transfersOut": 27544,
       "gwHistory": [
         {
           "round": 1,
@@ -356666,8 +356666,8 @@
       "form": 3.2,
       "pointsPerGame": 3.7,
       "selectedByPercent": 2.8,
-      "transfersIn": 715995,
-      "transfersOut": 451859,
+      "transfersIn": 716008,
+      "transfersOut": 451967,
       "gwHistory": [
         {
           "round": 1,
@@ -356834,8 +356834,8 @@
       "form": 0.8,
       "pointsPerGame": 1.6,
       "selectedByPercent": 0.2,
-      "transfersIn": 17176,
-      "transfersOut": 37761,
+      "transfersIn": 17180,
+      "transfersOut": 37763,
       "gwHistory": [
         {
           "round": 1,
@@ -357002,8 +357002,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 1,
-      "transfersIn": 67051,
-      "transfersOut": 115937,
+      "transfersIn": 67059,
+      "transfersOut": 115957,
       "gwHistory": [
         {
           "round": 1,
@@ -357170,8 +357170,8 @@
       "form": 4.2,
       "pointsPerGame": 2.3,
       "selectedByPercent": 0.3,
-      "transfersIn": 26248,
-      "transfersOut": 52313,
+      "transfersIn": 26281,
+      "transfersOut": 52314,
       "gwHistory": [
         {
           "round": 1,
@@ -357338,8 +357338,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 4.1,
-      "transfersIn": 278112,
-      "transfersOut": 565372,
+      "transfersIn": 278139,
+      "transfersOut": 565466,
       "gwHistory": [
         {
           "round": 1,
@@ -357506,8 +357506,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 1.3,
-      "transfersIn": 40074,
-      "transfersOut": 60616,
+      "transfersIn": 40077,
+      "transfersOut": 60639,
       "gwHistory": [
         {
           "round": 1,
@@ -357675,7 +357675,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 1186,
-      "transfersOut": 6236,
+      "transfersOut": 6239,
       "gwHistory": [
         {
           "round": 1,
@@ -358007,7 +358007,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 0,
-      "transfersOut": 1592,
+      "transfersOut": 1593,
       "gwHistory": [
         {
           "round": 1,
@@ -358174,8 +358174,8 @@
       "form": 1.8,
       "pointsPerGame": 3.8,
       "selectedByPercent": 6.4,
-      "transfersIn": 943893,
-      "transfersOut": 470237,
+      "transfersIn": 943905,
+      "transfersOut": 470348,
       "gwHistory": [
         {
           "round": 1,
@@ -358434,7 +358434,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 18245,
-      "transfersOut": 19314,
+      "transfersOut": 19318,
       "gwHistory": [
         {
           "round": 1,
@@ -358601,8 +358601,8 @@
       "form": 3,
       "pointsPerGame": 4.2,
       "selectedByPercent": 11.7,
-      "transfersIn": 1538702,
-      "transfersOut": 716306,
+      "transfersIn": 1538754,
+      "transfersOut": 716463,
       "gwHistory": [
         {
           "round": 1,
@@ -358910,8 +358910,8 @@
       "form": 2,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.6,
-      "transfersIn": 38505,
-      "transfersOut": 41987,
+      "transfersIn": 38506,
+      "transfersOut": 41994,
       "gwHistory": [
         {
           "round": 1,
@@ -359246,8 +359246,8 @@
       "form": 1,
       "pointsPerGame": 3.1,
       "selectedByPercent": 2.4,
-      "transfersIn": 336396,
-      "transfersOut": 171461,
+      "transfersIn": 336398,
+      "transfersOut": 171515,
       "gwHistory": [
         {
           "round": 1,
@@ -359620,7 +359620,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 6904,
-      "transfersOut": 7422,
+      "transfersOut": 7424,
       "gwHistory": [
         {
           "round": 1,
@@ -359787,7 +359787,7 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 5009,
+      "transfersIn": 5011,
       "transfersOut": 7439,
       "gwHistory": [
         {
@@ -359955,8 +359955,8 @@
       "form": 2.2,
       "pointsPerGame": 5.3,
       "selectedByPercent": 8.8,
-      "transfersIn": 1288938,
-      "transfersOut": 476332,
+      "transfersIn": 1288987,
+      "transfersOut": 476587,
       "gwHistory": [
         {
           "round": 1,
@@ -360382,8 +360382,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 17434,
-      "transfersOut": 31635,
+      "transfersIn": 17438,
+      "transfersOut": 31638,
       "gwHistory": [
         {
           "round": 1,
@@ -360550,8 +360550,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.5,
-      "transfersIn": 59313,
-      "transfersOut": 75102,
+      "transfersIn": 59315,
+      "transfersOut": 75113,
       "gwHistory": [
         {
           "round": 1,
@@ -360718,8 +360718,8 @@
       "form": 1.5,
       "pointsPerGame": 2.4,
       "selectedByPercent": 4.2,
-      "transfersIn": 632683,
-      "transfersOut": 524947,
+      "transfersIn": 632692,
+      "transfersOut": 525021,
       "gwHistory": [
         {
           "round": 1,
@@ -360928,7 +360928,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 687,
-      "transfersOut": 830,
+      "transfersOut": 831,
       "gwHistory": [
         {
           "round": 1,
@@ -361429,8 +361429,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 4839,
-      "transfersOut": 9066,
+      "transfersIn": 4840,
+      "transfersOut": 9068,
       "gwHistory": [
         {
           "round": 1,
@@ -361597,8 +361597,8 @@
       "form": 5.5,
       "pointsPerGame": 3.8,
       "selectedByPercent": 1.7,
-      "transfersIn": 273533,
-      "transfersOut": 265789,
+      "transfersIn": 273580,
+      "transfersOut": 265836,
       "gwHistory": [
         {
           "round": 1,
@@ -362100,7 +362100,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 0,
-      "transfersOut": 28484,
+      "transfersOut": 28486,
       "gwHistory": [
         {
           "round": 1,
@@ -362266,7 +362266,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 0,
-      "transfersOut": 3924,
+      "transfersOut": 3925,
       "gwHistory": [
         {
           "round": 1,
@@ -362433,8 +362433,8 @@
       "form": 2.2,
       "pointsPerGame": 2.1,
       "selectedByPercent": 0.5,
-      "transfersIn": 20468,
-      "transfersOut": 24577,
+      "transfersIn": 20479,
+      "transfersOut": 24580,
       "gwHistory": [
         {
           "round": 1,
@@ -362601,8 +362601,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 3.3,
-      "transfersIn": 100749,
-      "transfersOut": 189925,
+      "transfersIn": 100751,
+      "transfersOut": 190048,
       "gwHistory": [
         {
           "round": 1,
@@ -362780,8 +362780,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.6,
-      "transfersIn": 38812,
-      "transfersOut": 24159,
+      "transfersIn": 38813,
+      "transfersOut": 24162,
       "gwHistory": [
         {
           "round": 1,
@@ -362980,7 +362980,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.7,
       "transfersIn": 57618,
-      "transfersOut": 50465,
+      "transfersOut": 50479,
       "gwHistory": [
         {
           "round": 1,
@@ -363147,8 +363147,8 @@
       "form": 1.8,
       "pointsPerGame": 2.8,
       "selectedByPercent": 2.7,
-      "transfersIn": 141948,
-      "transfersOut": 218005,
+      "transfersIn": 141960,
+      "transfersOut": 218034,
       "gwHistory": [
         {
           "round": 1,
@@ -363346,8 +363346,8 @@
       "form": 0.8,
       "pointsPerGame": 2.6,
       "selectedByPercent": 6.3,
-      "transfersIn": 557237,
-      "transfersOut": 440773,
+      "transfersIn": 557239,
+      "transfersOut": 441016,
       "gwHistory": [
         {
           "round": 1,
@@ -363585,8 +363585,8 @@
       "form": 0.2,
       "pointsPerGame": 0.8,
       "selectedByPercent": 1,
-      "transfersIn": 36768,
-      "transfersOut": 78306,
+      "transfersIn": 36818,
+      "transfersOut": 78319,
       "gwHistory": [
         {
           "round": 1,
@@ -363921,8 +363921,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0.5,
-      "transfersIn": 26316,
-      "transfersOut": 34910,
+      "transfersIn": 26318,
+      "transfersOut": 34915,
       "gwHistory": [
         {
           "round": 1,
@@ -364089,8 +364089,8 @@
       "form": 0,
       "pointsPerGame": 3,
       "selectedByPercent": 0.1,
-      "transfersIn": 3707,
-      "transfersOut": 10704,
+      "transfersIn": 3708,
+      "transfersOut": 10706,
       "gwHistory": [
         {
           "round": 1,
@@ -364594,7 +364594,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 4421,
-      "transfersOut": 4802,
+      "transfersOut": 4804,
       "gwHistory": [
         {
           "round": 1,
@@ -364762,7 +364762,7 @@
       "pointsPerGame": 2.7,
       "selectedByPercent": 0.1,
       "transfersIn": 7349,
-      "transfersOut": 20887,
+      "transfersOut": 20889,
       "gwHistory": [
         {
           "round": 1,
@@ -365098,7 +365098,7 @@
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.1,
       "transfersIn": 6586,
-      "transfersOut": 18506,
+      "transfersOut": 18509,
       "gwHistory": [
         {
           "round": 1,
@@ -365265,8 +365265,8 @@
       "form": 1.2,
       "pointsPerGame": 3.2,
       "selectedByPercent": 2.7,
-      "transfersIn": 437439,
-      "transfersOut": 371301,
+      "transfersIn": 437451,
+      "transfersOut": 371395,
       "gwHistory": [
         {
           "round": 1,
@@ -365445,7 +365445,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 0,
-      "transfersOut": 19450,
+      "transfersOut": 19451,
       "gwHistory": [
         {
           "round": 1,
@@ -365947,7 +365947,7 @@
       "pointsPerGame": 1.5,
       "selectedByPercent": 0.8,
       "transfersIn": 142458,
-      "transfersOut": 129237,
+      "transfersOut": 129250,
       "gwHistory": [
         {
           "round": 1,
@@ -366114,8 +366114,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 2.4,
-      "transfersIn": 403374,
-      "transfersOut": 399958,
+      "transfersIn": 403379,
+      "transfersOut": 400044,
       "gwHistory": [
         {
           "round": 1,
@@ -366302,7 +366302,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 755,
-      "transfersOut": 11443,
+      "transfersOut": 11444,
       "gwHistory": [
         {
           "round": 1,
@@ -366469,8 +366469,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.9,
-      "transfersIn": 50980,
-      "transfersOut": 101656,
+      "transfersIn": 50985,
+      "transfersOut": 101674,
       "gwHistory": [
         {
           "round": 1,
@@ -366649,7 +366649,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 631,
-      "transfersOut": 3320,
+      "transfersOut": 3321,
       "gwHistory": [
         {
           "round": 1,
@@ -366817,7 +366817,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 1461,
-      "transfersOut": 2376,
+      "transfersOut": 2377,
       "gwHistory": [
         {
           "round": 1,
@@ -366985,7 +366985,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.3,
       "transfersIn": 532,
-      "transfersOut": 32275,
+      "transfersOut": 32280,
       "gwHistory": [
         {
           "round": 1,
@@ -367152,8 +367152,8 @@
       "form": 2,
       "pointsPerGame": 4.2,
       "selectedByPercent": 0.5,
-      "transfersIn": 74340,
-      "transfersOut": 82076,
+      "transfersIn": 74347,
+      "transfersOut": 82085,
       "gwHistory": [
         {
           "round": 1,
@@ -367331,7 +367331,7 @@
       "form": 0,
       "pointsPerGame": 1.2,
       "selectedByPercent": 0.1,
-      "transfersIn": 6529,
+      "transfersIn": 6534,
       "transfersOut": 19247,
       "gwHistory": [
         {
@@ -367499,8 +367499,8 @@
       "form": 0.5,
       "pointsPerGame": 2.2,
       "selectedByPercent": 0.4,
-      "transfersIn": 28570,
-      "transfersOut": 334826,
+      "transfersIn": 28572,
+      "transfersOut": 334829,
       "gwHistory": [
         {
           "round": 1,
@@ -367667,8 +367667,8 @@
       "form": 4.2,
       "pointsPerGame": 5.6,
       "selectedByPercent": 11.5,
-      "transfersIn": 1383847,
-      "transfersOut": 366341,
+      "transfersIn": 1384450,
+      "transfersOut": 366422,
       "gwHistory": [
         {
           "round": 1,
@@ -367976,8 +367976,8 @@
       "form": 2.5,
       "pointsPerGame": 3.2,
       "selectedByPercent": 0.1,
-      "transfersIn": 14818,
-      "transfersOut": 8230,
+      "transfersIn": 14825,
+      "transfersOut": 8232,
       "gwHistory": [
         {
           "round": 1,
@@ -368144,8 +368144,8 @@
       "form": 5.2,
       "pointsPerGame": 5,
       "selectedByPercent": 2.5,
-      "transfersIn": 293045,
-      "transfersOut": 131296,
+      "transfersIn": 293226,
+      "transfersOut": 131312,
       "gwHistory": [
         {
           "round": 1,
@@ -368489,8 +368489,8 @@
       "form": 6,
       "pointsPerGame": 5.3,
       "selectedByPercent": 6.9,
-      "transfersIn": 718169,
-      "transfersOut": 313568,
+      "transfersIn": 718779,
+      "transfersOut": 313610,
       "gwHistory": [
         {
           "round": 1,
@@ -368818,8 +368818,8 @@
       "form": 0.8,
       "pointsPerGame": 3.4,
       "selectedByPercent": 1.6,
-      "transfersIn": 235223,
-      "transfersOut": 298490,
+      "transfersIn": 235233,
+      "transfersOut": 298524,
       "gwHistory": [
         {
           "round": 1,
@@ -368985,9 +368985,9 @@
       "expectedGoalsConceded": 5.28,
       "form": 5.2,
       "pointsPerGame": 4.3,
-      "selectedByPercent": 0.6,
-      "transfersIn": 86933,
-      "transfersOut": 69687,
+      "selectedByPercent": 0.7,
+      "transfersIn": 88564,
+      "transfersOut": 69699,
       "gwHistory": [
         {
           "round": 1,
@@ -369154,8 +369154,8 @@
       "form": 2.8,
       "pointsPerGame": 2.1,
       "selectedByPercent": 0.3,
-      "transfersIn": 8693,
-      "transfersOut": 63377,
+      "transfersIn": 8698,
+      "transfersOut": 63379,
       "gwHistory": [
         {
           "round": 1,
@@ -369322,8 +369322,8 @@
       "form": 3.8,
       "pointsPerGame": 3.5,
       "selectedByPercent": 0.7,
-      "transfersIn": 31082,
-      "transfersOut": 97539,
+      "transfersIn": 31110,
+      "transfersOut": 97545,
       "gwHistory": [
         {
           "round": 1,
@@ -369491,7 +369491,7 @@
       "pointsPerGame": 1.1,
       "selectedByPercent": 0.1,
       "transfersIn": 4227,
-      "transfersOut": 11345,
+      "transfersOut": 11346,
       "gwHistory": [
         {
           "round": 1,
@@ -369827,7 +369827,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 244,
-      "transfersOut": 1974,
+      "transfersOut": 1975,
       "gwHistory": [
         {
           "round": 1,
@@ -370161,7 +370161,7 @@
       "pointsPerGame": 1.2,
       "selectedByPercent": 0.1,
       "transfersIn": 4870,
-      "transfersOut": 12074,
+      "transfersOut": 12076,
       "gwHistory": [
         {
           "round": 1,
@@ -370496,8 +370496,8 @@
       "form": 3,
       "pointsPerGame": 2.9,
       "selectedByPercent": 0.3,
-      "transfersIn": 35563,
-      "transfersOut": 33146,
+      "transfersIn": 35571,
+      "transfersOut": 33155,
       "gwHistory": [
         {
           "round": 1,
@@ -370664,8 +370664,8 @@
       "form": 3.8,
       "pointsPerGame": 4.4,
       "selectedByPercent": 16.6,
-      "transfersIn": 1714025,
-      "transfersOut": 2923218,
+      "transfersIn": 1715110,
+      "transfersOut": 2923287,
       "gwHistory": [
         {
           "round": 1,
@@ -370973,8 +370973,8 @@
       "form": 1,
       "pointsPerGame": 1.4,
       "selectedByPercent": 0.4,
-      "transfersIn": 31558,
-      "transfersOut": 57223,
+      "transfersIn": 31563,
+      "transfersOut": 57232,
       "gwHistory": [
         {
           "round": 1,
@@ -371142,7 +371142,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 0,
-      "transfersOut": 12661,
+      "transfersOut": 12662,
       "gwHistory": [
         {
           "round": 1,
@@ -371307,8 +371307,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0,
-      "transfersIn": 4898,
-      "transfersOut": 7017,
+      "transfersIn": 4900,
+      "transfersOut": 7019,
       "gwHistory": [
         {
           "round": 1,
@@ -371475,8 +371475,8 @@
       "form": 3,
       "pointsPerGame": 4.2,
       "selectedByPercent": 4.1,
-      "transfersIn": 219403,
-      "transfersOut": 234022,
+      "transfersIn": 219659,
+      "transfersOut": 234050,
       "gwHistory": [
         {
           "round": 1,
@@ -371674,8 +371674,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 4346,
-      "transfersOut": 11054,
+      "transfersIn": 4348,
+      "transfersOut": 11057,
       "gwHistory": [
         {
           "round": 1,
@@ -371842,8 +371842,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.9,
-      "transfersIn": 22894,
-      "transfersOut": 40285,
+      "transfersIn": 22895,
+      "transfersOut": 40316,
       "gwHistory": [
         {
           "round": 1,
@@ -372344,8 +372344,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 6416,
-      "transfersOut": 6611,
+      "transfersIn": 6417,
+      "transfersOut": 6618,
       "gwHistory": [
         {
           "round": 1,
@@ -372512,8 +372512,8 @@
       "form": 3.5,
       "pointsPerGame": 4.3,
       "selectedByPercent": 14.4,
-      "transfersIn": 446348,
-      "transfersOut": 996278,
+      "transfersIn": 446484,
+      "transfersOut": 996356,
       "gwHistory": [
         {
           "round": 1,
@@ -372712,7 +372712,7 @@
       "pointsPerGame": 0.8,
       "selectedByPercent": 1.1,
       "transfersIn": 63619,
-      "transfersOut": 318696,
+      "transfersOut": 318710,
       "gwHistory": [
         {
           "round": 1,
@@ -372879,8 +372879,8 @@
       "form": 2.2,
       "pointsPerGame": 2.5,
       "selectedByPercent": 1.8,
-      "transfersIn": 64235,
-      "transfersOut": 251661,
+      "transfersIn": 64239,
+      "transfersOut": 251677,
       "gwHistory": [
         {
           "round": 1,
@@ -373068,8 +373068,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0,
-      "transfersIn": 2812,
-      "transfersOut": 2294,
+      "transfersIn": 2813,
+      "transfersOut": 2297,
       "gwHistory": [
         {
           "round": 1,
@@ -373405,7 +373405,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 5778,
-      "transfersOut": 8659,
+      "transfersOut": 8662,
       "gwHistory": [
         {
           "round": 1,
@@ -373572,8 +373572,8 @@
       "form": 3.5,
       "pointsPerGame": 4.4,
       "selectedByPercent": 4.8,
-      "transfersIn": 469114,
-      "transfersOut": 229829,
+      "transfersIn": 469198,
+      "transfersOut": 229880,
       "gwHistory": [
         {
           "round": 1,
@@ -373782,7 +373782,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 1497,
-      "transfersOut": 3157,
+      "transfersOut": 3158,
       "gwHistory": [
         {
           "round": 1,
@@ -374283,8 +374283,8 @@
       "form": 5.2,
       "pointsPerGame": 4.6,
       "selectedByPercent": 7,
-      "transfersIn": 472006,
-      "transfersOut": 968962,
+      "transfersIn": 472400,
+      "transfersOut": 969003,
       "gwHistory": [
         {
           "round": 1,
@@ -374502,8 +374502,8 @@
       "form": 2,
       "pointsPerGame": 5,
       "selectedByPercent": 7,
-      "transfersIn": 1534238,
-      "transfersOut": 1505221,
+      "transfersIn": 1534295,
+      "transfersOut": 1505304,
       "gwHistory": [
         {
           "round": 1,
@@ -374731,8 +374731,8 @@
       "form": 2,
       "pointsPerGame": 3.6,
       "selectedByPercent": 13.4,
-      "transfersIn": 1050221,
-      "transfersOut": 3931174,
+      "transfersIn": 1050301,
+      "transfersOut": 3931248,
       "gwHistory": [
         {
           "round": 1,
@@ -374950,8 +374950,8 @@
       "form": 0.8,
       "pointsPerGame": 1.1,
       "selectedByPercent": 0.5,
-      "transfersIn": 38151,
-      "transfersOut": 112561,
+      "transfersIn": 38155,
+      "transfersOut": 112576,
       "gwHistory": [
         {
           "round": 1,
@@ -375119,7 +375119,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0,
       "transfersIn": 1354,
-      "transfersOut": 10896,
+      "transfersOut": 10897,
       "gwHistory": [
         {
           "round": 1,
@@ -375287,7 +375287,7 @@
       "pointsPerGame": 1.6,
       "selectedByPercent": 0.8,
       "transfersIn": 44889,
-      "transfersOut": 170515,
+      "transfersOut": 170528,
       "gwHistory": [
         {
           "round": 1,
@@ -375454,8 +375454,8 @@
       "form": 3.2,
       "pointsPerGame": 2.7,
       "selectedByPercent": 1.4,
-      "transfersIn": 93442,
-      "transfersOut": 138203,
+      "transfersIn": 93462,
+      "transfersOut": 138227,
       "gwHistory": [
         {
           "round": 1,
@@ -375788,8 +375788,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 3144,
-      "transfersOut": 6171,
+      "transfersIn": 3145,
+      "transfersOut": 6172,
       "gwHistory": [
         {
           "round": 1,
@@ -375956,7 +375956,7 @@
       "form": 0.8,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 6318,
+      "transfersIn": 6322,
       "transfersOut": 5385,
       "gwHistory": [
         {
@@ -376290,8 +376290,8 @@
       "form": 0.2,
       "pointsPerGame": 3,
       "selectedByPercent": 0.6,
-      "transfersIn": 150559,
-      "transfersOut": 165458,
+      "transfersIn": 150564,
+      "transfersOut": 165471,
       "gwHistory": [
         {
           "round": 1,
@@ -376458,8 +376458,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 10116,
-      "transfersOut": 18793,
+      "transfersIn": 10120,
+      "transfersOut": 18794,
       "gwHistory": [
         {
           "round": 1,
@@ -376626,8 +376626,8 @@
       "form": 4.8,
       "pointsPerGame": 6.8,
       "selectedByPercent": 26.4,
-      "transfersIn": 3041034,
-      "transfersOut": 2063608,
+      "transfersIn": 3041844,
+      "transfersOut": 2063756,
       "gwHistory": [
         {
           "round": 1,
@@ -377126,7 +377126,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 4255,
-      "transfersOut": 13858,
+      "transfersOut": 13860,
       "gwHistory": [
         {
           "round": 1,
@@ -377294,7 +377294,7 @@
       "pointsPerGame": 1.1,
       "selectedByPercent": 0.1,
       "transfersIn": 12125,
-      "transfersOut": 10130,
+      "transfersOut": 10132,
       "gwHistory": [
         {
           "round": 1,
@@ -377461,8 +377461,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 35622,
-      "transfersOut": 23290,
+      "transfersIn": 35623,
+      "transfersOut": 23294,
       "gwHistory": [
         {
           "round": 1,
@@ -377797,8 +377797,8 @@
       "form": 1.5,
       "pointsPerGame": 3.2,
       "selectedByPercent": 7,
-      "transfersIn": 335540,
-      "transfersOut": 529194,
+      "transfersIn": 335593,
+      "transfersOut": 529348,
       "gwHistory": [
         {
           "round": 1,
@@ -378026,8 +378026,8 @@
       "form": 6,
       "pointsPerGame": 5.1,
       "selectedByPercent": 7,
-      "transfersIn": 516025,
-      "transfersOut": 263306,
+      "transfersIn": 517795,
+      "transfersOut": 263349,
       "gwHistory": [
         {
           "round": 1,
@@ -378383,8 +378383,8 @@
       "form": 1,
       "pointsPerGame": 1.9,
       "selectedByPercent": 8,
-      "transfersIn": 256580,
-      "transfersOut": 1584358,
+      "transfersIn": 256604,
+      "transfersOut": 1584457,
       "gwHistory": [
         {
           "round": 1,
@@ -378572,8 +378572,8 @@
       "form": 0.5,
       "pointsPerGame": 3.9,
       "selectedByPercent": 12.5,
-      "transfersIn": 666441,
-      "transfersOut": 1249894,
+      "transfersIn": 666461,
+      "transfersOut": 1250152,
       "gwHistory": [
         {
           "round": 1,
@@ -378802,7 +378802,7 @@
       "pointsPerGame": 3.1,
       "selectedByPercent": 0.9,
       "transfersIn": 38999,
-      "transfersOut": 106598,
+      "transfersOut": 106637,
       "gwHistory": [
         {
           "round": 1,
@@ -378969,8 +378969,8 @@
       "form": 1.5,
       "pointsPerGame": 2.7,
       "selectedByPercent": 2,
-      "transfersIn": 129594,
-      "transfersOut": 130094,
+      "transfersIn": 129598,
+      "transfersOut": 130140,
       "gwHistory": [
         {
           "round": 1,
@@ -379148,8 +379148,8 @@
       "form": 1,
       "pointsPerGame": 4.1,
       "selectedByPercent": 20.1,
-      "transfersIn": 2437938,
-      "transfersOut": 1761199,
+      "transfersIn": 2437971,
+      "transfersOut": 1762320,
       "gwHistory": [
         {
           "round": 1,
@@ -379487,8 +379487,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.3,
-      "transfersIn": 10180,
-      "transfersOut": 71039,
+      "transfersIn": 10182,
+      "transfersOut": 71045,
       "gwHistory": [
         {
           "round": 1,
@@ -379655,8 +379655,8 @@
       "form": 2.5,
       "pointsPerGame": 2.5,
       "selectedByPercent": 1.2,
-      "transfersIn": 37721,
-      "transfersOut": 114959,
+      "transfersIn": 37728,
+      "transfersOut": 114969,
       "gwHistory": [
         {
           "round": 1,
@@ -379991,8 +379991,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0.2,
-      "transfersIn": 11321,
-      "transfersOut": 21628,
+      "transfersIn": 11324,
+      "transfersOut": 21630,
       "gwHistory": [
         {
           "round": 1,
@@ -380160,7 +380160,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0,
       "transfersIn": 857,
-      "transfersOut": 1766,
+      "transfersOut": 1767,
       "gwHistory": [
         {
           "round": 1,
@@ -380328,7 +380328,7 @@
       "pointsPerGame": 5.3,
       "selectedByPercent": 5.3,
       "transfersIn": 547015,
-      "transfersOut": 2547477,
+      "transfersOut": 2547598,
       "gwHistory": [
         {
           "round": 1,
@@ -380495,8 +380495,8 @@
       "form": 1.2,
       "pointsPerGame": 2.6,
       "selectedByPercent": 2.1,
-      "transfersIn": 491109,
-      "transfersOut": 725507,
+      "transfersIn": 491118,
+      "transfersOut": 725570,
       "gwHistory": [
         {
           "round": 1,
@@ -380684,8 +380684,8 @@
       "form": 2.8,
       "pointsPerGame": 5.5,
       "selectedByPercent": 33.2,
-      "transfersIn": 4646755,
-      "transfersOut": 2401616,
+      "transfersIn": 4646864,
+      "transfersOut": 2403219,
       "gwHistory": [
         {
           "round": 1,
@@ -381173,8 +381173,8 @@
       "form": 2,
       "pointsPerGame": 3.9,
       "selectedByPercent": 4.3,
-      "transfersIn": 522199,
-      "transfersOut": 270589,
+      "transfersIn": 522231,
+      "transfersOut": 270926,
       "gwHistory": [
         {
           "round": 1,
@@ -381372,8 +381372,8 @@
       "form": 1.8,
       "pointsPerGame": 2.5,
       "selectedByPercent": 2.5,
-      "transfersIn": 425754,
-      "transfersOut": 320705,
+      "transfersIn": 425772,
+      "transfersOut": 320902,
       "gwHistory": [
         {
           "round": 1,
@@ -381709,7 +381709,7 @@
       "pointsPerGame": 2.2,
       "selectedByPercent": 0.3,
       "transfersIn": 159550,
-      "transfersOut": 176962,
+      "transfersOut": 176976,
       "gwHistory": [
         {
           "round": 1,
@@ -382043,7 +382043,7 @@
       "pointsPerGame": 3,
       "selectedByPercent": 0.2,
       "transfersIn": 25675,
-      "transfersOut": 23992,
+      "transfersOut": 23998,
       "gwHistory": [
         {
           "round": 1,
@@ -382713,7 +382713,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 1621,
-      "transfersOut": 14292,
+      "transfersOut": 14293,
       "gwHistory": [
         {
           "round": 1,
@@ -382881,7 +382881,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 219,
-      "transfersOut": 1394,
+      "transfersOut": 1395,
       "gwHistory": [
         {
           "round": 1,
@@ -383048,8 +383048,8 @@
       "form": 3.5,
       "pointsPerGame": 6.5,
       "selectedByPercent": 78.5,
-      "transfersIn": 1687685,
-      "transfersOut": 543885,
+      "transfersIn": 1687768,
+      "transfersOut": 545026,
       "gwHistory": [
         {
           "round": 1,
@@ -384117,8 +384117,8 @@
       "form": 1.2,
       "pointsPerGame": 2.1,
       "selectedByPercent": 7,
-      "transfersIn": 127982,
-      "transfersOut": 1034899,
+      "transfersIn": 128032,
+      "transfersOut": 1034993,
       "gwHistory": [
         {
           "round": 1,
@@ -384482,7 +384482,7 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 4682,
+      "transfersIn": 4687,
       "transfersOut": 5234,
       "gwHistory": [
         {
@@ -384650,8 +384650,8 @@
       "form": 2.8,
       "pointsPerGame": 3.5,
       "selectedByPercent": 0.3,
-      "transfersIn": 16361,
-      "transfersOut": 120080,
+      "transfersIn": 16365,
+      "transfersOut": 120086,
       "gwHistory": [
         {
           "round": 1,
@@ -384818,7 +384818,7 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 3373,
+      "transfersIn": 3376,
       "transfersOut": 3203,
       "gwHistory": [
         {
@@ -384986,8 +384986,8 @@
       "form": 1,
       "pointsPerGame": 1.6,
       "selectedByPercent": 1.2,
-      "transfersIn": 37240,
-      "transfersOut": 196402,
+      "transfersIn": 37249,
+      "transfersOut": 196422,
       "gwHistory": [
         {
           "round": 1,
@@ -385154,8 +385154,8 @@
       "form": 0,
       "pointsPerGame": 1.6,
       "selectedByPercent": 4.6,
-      "transfersIn": 163587,
-      "transfersOut": 1469608,
+      "transfersIn": 163590,
+      "transfersOut": 1469726,
       "gwHistory": [
         {
           "round": 1,
@@ -385343,8 +385343,8 @@
       "form": -0.2,
       "pointsPerGame": 1.1,
       "selectedByPercent": 0.9,
-      "transfersIn": 44941,
-      "transfersOut": 115661,
+      "transfersIn": 44947,
+      "transfersOut": 115669,
       "gwHistory": [
         {
           "round": 1,
@@ -385511,8 +385511,8 @@
       "form": 1,
       "pointsPerGame": 1.9,
       "selectedByPercent": 0.5,
-      "transfersIn": 12182,
-      "transfersOut": 45659,
+      "transfersIn": 12186,
+      "transfersOut": 45661,
       "gwHistory": [
         {
           "round": 1,
@@ -385680,7 +385680,7 @@
       "pointsPerGame": 0.4,
       "selectedByPercent": 0.2,
       "transfersIn": 8604,
-      "transfersOut": 31696,
+      "transfersOut": 31702,
       "gwHistory": [
         {
           "round": 1,
@@ -385847,8 +385847,8 @@
       "form": 0.8,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.4,
-      "transfersIn": 17461,
-      "transfersOut": 57946,
+      "transfersIn": 17463,
+      "transfersOut": 57948,
       "gwHistory": [
         {
           "round": 1,
@@ -386016,7 +386016,7 @@
       "pointsPerGame": 2.4,
       "selectedByPercent": 3,
       "transfersIn": 115234,
-      "transfersOut": 1831761,
+      "transfersOut": 1831826,
       "gwHistory": [
         {
           "round": 1,
@@ -386204,8 +386204,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 9808,
-      "transfersOut": 13513,
+      "transfersIn": 9815,
+      "transfersOut": 13517,
       "gwHistory": [
         {
           "round": 1,
@@ -386540,8 +386540,8 @@
       "form": 3,
       "pointsPerGame": 5,
       "selectedByPercent": 20,
-      "transfersIn": 820369,
-      "transfersOut": 4031648,
+      "transfersIn": 820693,
+      "transfersOut": 4031822,
       "gwHistory": [
         {
           "round": 1,
@@ -386759,8 +386759,8 @@
       "form": 1.2,
       "pointsPerGame": 4.6,
       "selectedByPercent": 17.9,
-      "transfersIn": 1176411,
-      "transfersOut": 3003330,
+      "transfersIn": 1176627,
+      "transfersOut": 3003569,
       "gwHistory": [
         {
           "round": 1,
@@ -387108,8 +387108,8 @@
       "form": 2,
       "pointsPerGame": 4.5,
       "selectedByPercent": 5.6,
-      "transfersIn": 327586,
-      "transfersOut": 784986,
+      "transfersIn": 327719,
+      "transfersOut": 785035,
       "gwHistory": [
         {
           "round": 1,
@@ -387276,8 +387276,8 @@
       "form": 0,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.9,
-      "transfersIn": 94100,
-      "transfersOut": 199906,
+      "transfersIn": 94101,
+      "transfersOut": 199924,
       "gwHistory": [
         {
           "round": 1,
@@ -387444,8 +387444,8 @@
       "form": 1,
       "pointsPerGame": 1.2,
       "selectedByPercent": 0,
-      "transfersIn": 1749,
-      "transfersOut": 3089,
+      "transfersIn": 1750,
+      "transfersOut": 3090,
       "gwHistory": [
         {
           "round": 1,
@@ -387612,8 +387612,8 @@
       "form": 1.5,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.3,
-      "transfersIn": 15507,
-      "transfersOut": 134288,
+      "transfersIn": 15514,
+      "transfersOut": 134293,
       "gwHistory": [
         {
           "round": 1,
@@ -387780,8 +387780,8 @@
       "form": 1,
       "pointsPerGame": 3.8,
       "selectedByPercent": 1.1,
-      "transfersIn": 112149,
-      "transfersOut": 141254,
+      "transfersIn": 112159,
+      "transfersOut": 141271,
       "gwHistory": [
         {
           "round": 1,
@@ -388284,8 +388284,8 @@
       "form": 0.5,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 6213,
-      "transfersOut": 5503,
+      "transfersIn": 6218,
+      "transfersOut": 5504,
       "gwHistory": [
         {
           "round": 1,
@@ -388617,7 +388617,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
       "transfersIn": 7797,
-      "transfersOut": 13814,
+      "transfersOut": 13815,
       "gwHistory": [
         {
           "round": 1,
@@ -388784,8 +388784,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.3,
-      "transfersIn": 14649,
-      "transfersOut": 25613,
+      "transfersIn": 14663,
+      "transfersOut": 25619,
       "gwHistory": [
         {
           "round": 1,
@@ -388952,8 +388952,8 @@
       "form": 0,
       "pointsPerGame": 2,
       "selectedByPercent": 1,
-      "transfersIn": 105587,
-      "transfersOut": 207343,
+      "transfersIn": 105588,
+      "transfersOut": 207351,
       "gwHistory": [
         {
           "round": 1,
@@ -389120,8 +389120,8 @@
       "form": 1.5,
       "pointsPerGame": 1.5,
       "selectedByPercent": 0.4,
-      "transfersIn": 27802,
-      "transfersOut": 59648,
+      "transfersIn": 27820,
+      "transfersOut": 59650,
       "gwHistory": [
         {
           "round": 1,
@@ -389287,7 +389287,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.6,
       "transfersIn": 45543,
-      "transfersOut": 106279,
+      "transfersOut": 106290,
       "gwHistory": [
         {
           "round": 1,
@@ -389454,8 +389454,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.8,
-      "transfersIn": 17659,
-      "transfersOut": 68433,
+      "transfersIn": 17661,
+      "transfersOut": 68440,
       "gwHistory": [
         {
           "round": 1,
@@ -389791,7 +389791,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 876,
-      "transfersOut": 2249,
+      "transfersOut": 2250,
       "gwHistory": [
         {
           "round": 1,
@@ -389958,8 +389958,8 @@
       "form": 2.5,
       "pointsPerGame": 2.5,
       "selectedByPercent": 1.3,
-      "transfersIn": 202468,
-      "transfersOut": 239568,
+      "transfersIn": 202488,
+      "transfersOut": 239573,
       "gwHistory": [
         {
           "round": 1,
@@ -390126,8 +390126,8 @@
       "form": 2.5,
       "pointsPerGame": 2.4,
       "selectedByPercent": 0.2,
-      "transfersIn": 11820,
-      "transfersOut": 20019,
+      "transfersIn": 11822,
+      "transfersOut": 20023,
       "gwHistory": [
         {
           "round": 1,
@@ -390294,8 +390294,8 @@
       "form": 0.2,
       "pointsPerGame": 3.4,
       "selectedByPercent": 0.7,
-      "transfersIn": 74590,
-      "transfersOut": 63112,
+      "transfersIn": 74592,
+      "transfersOut": 63122,
       "gwHistory": [
         {
           "round": 1,
@@ -390462,8 +390462,8 @@
       "form": 3.2,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.7,
-      "transfersIn": 17748,
-      "transfersOut": 174260,
+      "transfersIn": 17759,
+      "transfersOut": 174264,
       "gwHistory": [
         {
           "round": 1,
@@ -390630,8 +390630,8 @@
       "form": 3,
       "pointsPerGame": 4.3,
       "selectedByPercent": 16.8,
-      "transfersIn": 2413439,
-      "transfersOut": 1137704,
+      "transfersIn": 2413450,
+      "transfersOut": 1138755,
       "gwHistory": [
         {
           "round": 1,
@@ -390919,7 +390919,7 @@
       "form": 0.2,
       "pointsPerGame": 1.7,
       "selectedByPercent": 0,
-      "transfersIn": 10809,
+      "transfersIn": 10812,
       "transfersOut": 12439,
       "gwHistory": [
         {
@@ -391255,8 +391255,8 @@
       "form": 2.2,
       "pointsPerGame": 3.3,
       "selectedByPercent": 2.1,
-      "transfersIn": 154865,
-      "transfersOut": 330854,
+      "transfersIn": 154871,
+      "transfersOut": 330949,
       "gwHistory": [
         {
           "round": 1,
@@ -391423,8 +391423,8 @@
       "form": 4.8,
       "pointsPerGame": 4.6,
       "selectedByPercent": 5.6,
-      "transfersIn": 1172383,
-      "transfersOut": 694713,
+      "transfersIn": 1172584,
+      "transfersOut": 694789,
       "gwHistory": [
         {
           "round": 1,
@@ -391662,8 +391662,8 @@
       "form": 1.2,
       "pointsPerGame": 3.3,
       "selectedByPercent": 2.2,
-      "transfersIn": 1297602,
-      "transfersOut": 1353536,
+      "transfersIn": 1297609,
+      "transfersOut": 1353555,
       "gwHistory": [
         {
           "round": 1,
@@ -391830,8 +391830,8 @@
       "form": 2.2,
       "pointsPerGame": 3.4,
       "selectedByPercent": 1.9,
-      "transfersIn": 133690,
-      "transfersOut": 344621,
+      "transfersIn": 133702,
+      "transfersOut": 344718,
       "gwHistory": [
         {
           "round": 1,
@@ -392019,7 +392019,7 @@
       "form": 0,
       "pointsPerGame": 1.2,
       "selectedByPercent": 0.1,
-      "transfersIn": 17482,
+      "transfersIn": 17483,
       "transfersOut": 42304,
       "gwHistory": [
         {
@@ -392188,7 +392188,7 @@
       "pointsPerGame": 2.2,
       "selectedByPercent": 0.1,
       "transfersIn": 11806,
-      "transfersOut": 16626,
+      "transfersOut": 16631,
       "gwHistory": [
         {
           "round": 1,
@@ -392691,8 +392691,8 @@
       "form": 2.8,
       "pointsPerGame": 3.2,
       "selectedByPercent": 0.4,
-      "transfersIn": 89055,
-      "transfersOut": 67538,
+      "transfersIn": 89060,
+      "transfersOut": 67546,
       "gwHistory": [
         {
           "round": 1,
@@ -392871,7 +392871,7 @@
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.1,
       "transfersIn": 4899,
-      "transfersOut": 20840,
+      "transfersOut": 20841,
       "gwHistory": [
         {
           "round": 1,
@@ -393038,8 +393038,8 @@
       "form": 1.5,
       "pointsPerGame": 1.6,
       "selectedByPercent": 0.1,
-      "transfersIn": 3634,
-      "transfersOut": 8817,
+      "transfersIn": 3636,
+      "transfersOut": 8818,
       "gwHistory": [
         {
           "round": 1,
@@ -393207,7 +393207,7 @@
       "pointsPerGame": 4,
       "selectedByPercent": 0.4,
       "transfersIn": 14520,
-      "transfersOut": 149454,
+      "transfersOut": 149457,
       "gwHistory": [
         {
           "round": 1,
@@ -393374,8 +393374,8 @@
       "form": 1.2,
       "pointsPerGame": 2.1,
       "selectedByPercent": 7.5,
-      "transfersIn": 2544234,
-      "transfersOut": 2211599,
+      "transfersIn": 2544247,
+      "transfersOut": 2211876,
       "gwHistory": [
         {
           "round": 1,
@@ -393613,8 +393613,8 @@
       "form": 4.5,
       "pointsPerGame": 3.3,
       "selectedByPercent": 0.4,
-      "transfersIn": 42060,
-      "transfersOut": 102084,
+      "transfersIn": 42100,
+      "transfersOut": 102091,
       "gwHistory": [
         {
           "round": 1,
@@ -393782,7 +393782,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.3,
       "transfersIn": 23805,
-      "transfersOut": 69048,
+      "transfersOut": 69055,
       "gwHistory": [
         {
           "round": 1,
@@ -393949,8 +393949,8 @@
       "form": 1.8,
       "pointsPerGame": 2.3,
       "selectedByPercent": 1.3,
-      "transfersIn": 86709,
-      "transfersOut": 112578,
+      "transfersIn": 86720,
+      "transfersOut": 112604,
       "gwHistory": [
         {
           "round": 1,
@@ -394129,7 +394129,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 1584,
-      "transfersOut": 2901,
+      "transfersOut": 2902,
       "gwHistory": [
         {
           "round": 1,
@@ -394296,8 +394296,8 @@
       "form": 3,
       "pointsPerGame": 3.2,
       "selectedByPercent": 4.9,
-      "transfersIn": 370172,
-      "transfersOut": 812377,
+      "transfersIn": 370184,
+      "transfersOut": 812485,
       "gwHistory": [
         {
           "round": 1,
@@ -394496,7 +394496,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 424,
-      "transfersOut": 4148,
+      "transfersOut": 4149,
       "gwHistory": [
         {
           "round": 1,
@@ -394663,8 +394663,8 @@
       "form": 0.8,
       "pointsPerGame": 2.1,
       "selectedByPercent": 0.7,
-      "transfersIn": 23097,
-      "transfersOut": 139452,
+      "transfersIn": 23102,
+      "transfersOut": 139460,
       "gwHistory": [
         {
           "round": 1,
@@ -394831,8 +394831,8 @@
       "form": 2,
       "pointsPerGame": 3.2,
       "selectedByPercent": 1.9,
-      "transfersIn": 167499,
-      "transfersOut": 146605,
+      "transfersIn": 167511,
+      "transfersOut": 146642,
       "gwHistory": [
         {
           "round": 1,
@@ -395010,8 +395010,8 @@
       "form": 0.5,
       "pointsPerGame": 1.4,
       "selectedByPercent": 1.3,
-      "transfersIn": 75744,
-      "transfersOut": 291919,
+      "transfersIn": 75747,
+      "transfersOut": 291941,
       "gwHistory": [
         {
           "round": 1,
@@ -395189,8 +395189,8 @@
       "form": 3.2,
       "pointsPerGame": 2.9,
       "selectedByPercent": 0.2,
-      "transfersIn": 15786,
-      "transfersOut": 18470,
+      "transfersIn": 15790,
+      "transfersOut": 18472,
       "gwHistory": [
         {
           "round": 1,
@@ -395523,8 +395523,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 12966,
-      "transfersOut": 14302,
+      "transfersIn": 12967,
+      "transfersOut": 14307,
       "gwHistory": [
         {
           "round": 1,
@@ -395692,7 +395692,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 2459,
-      "transfersOut": 18038,
+      "transfersOut": 18039,
       "gwHistory": [
         {
           "round": 1,
@@ -396193,8 +396193,8 @@
       "form": 2.8,
       "pointsPerGame": 4.1,
       "selectedByPercent": 8.9,
-      "transfersIn": 1599514,
-      "transfersOut": 1800408,
+      "transfersIn": 1599607,
+      "transfersOut": 1800578,
       "gwHistory": [
         {
           "round": 1,
@@ -396412,8 +396412,8 @@
       "form": 4.2,
       "pointsPerGame": 3.5,
       "selectedByPercent": 3.5,
-      "transfersIn": 190027,
-      "transfersOut": 582209,
+      "transfersIn": 190122,
+      "transfersOut": 582229,
       "gwHistory": [
         {
           "round": 1,
@@ -396592,7 +396592,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
       "transfersIn": 7807,
-      "transfersOut": 23266,
+      "transfersOut": 23273,
       "gwHistory": [
         {
           "round": 1,
@@ -396759,8 +396759,8 @@
       "form": 1.2,
       "pointsPerGame": 2.7,
       "selectedByPercent": 0.5,
-      "transfersIn": 95485,
-      "transfersOut": 99984,
+      "transfersIn": 95488,
+      "transfersOut": 99998,
       "gwHistory": [
         {
           "round": 1,
@@ -397263,8 +397263,8 @@
       "form": 3.2,
       "pointsPerGame": 2.8,
       "selectedByPercent": 0.1,
-      "transfersIn": 14535,
-      "transfersOut": 11674,
+      "transfersIn": 14536,
+      "transfersOut": 11676,
       "gwHistory": [
         {
           "round": 1,
@@ -397432,7 +397432,7 @@
       "pointsPerGame": 2,
       "selectedByPercent": 0,
       "transfersIn": 1773,
-      "transfersOut": 6200,
+      "transfersOut": 6201,
       "gwHistory": [
         {
           "round": 1,
@@ -397600,7 +397600,7 @@
       "pointsPerGame": 1.2,
       "selectedByPercent": 0.3,
       "transfersIn": 13226,
-      "transfersOut": 88257,
+      "transfersOut": 88263,
       "gwHistory": [
         {
           "round": 1,
@@ -397779,7 +397779,7 @@
       "pointsPerGame": 1.3,
       "selectedByPercent": 1,
       "transfersIn": 46299,
-      "transfersOut": 128482,
+      "transfersOut": 128496,
       "gwHistory": [
         {
           "round": 1,
@@ -397946,8 +397946,8 @@
       "form": 0.8,
       "pointsPerGame": 1,
       "selectedByPercent": 0.7,
-      "transfersIn": 35917,
-      "transfersOut": 146620,
+      "transfersIn": 35918,
+      "transfersOut": 146634,
       "gwHistory": [
         {
           "round": 1,
@@ -398114,8 +398114,8 @@
       "form": 0.2,
       "pointsPerGame": 1.9,
       "selectedByPercent": 1.1,
-      "transfersIn": 134329,
-      "transfersOut": 450555,
+      "transfersIn": 134337,
+      "transfersOut": 450563,
       "gwHistory": [
         {
           "round": 1,
@@ -398282,8 +398282,8 @@
       "form": 4.2,
       "pointsPerGame": 2.3,
       "selectedByPercent": 0.3,
-      "transfersIn": 32033,
-      "transfersOut": 81626,
+      "transfersIn": 32038,
+      "transfersOut": 81635,
       "gwHistory": [
         {
           "round": 1,
@@ -398451,7 +398451,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0,
       "transfersIn": 4074,
-      "transfersOut": 5812,
+      "transfersOut": 5813,
       "gwHistory": [
         {
           "round": 1,
@@ -398617,7 +398617,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 0,
-      "transfersOut": 24806,
+      "transfersOut": 24811,
       "gwHistory": [
         {
           "round": 1,
@@ -398784,8 +398784,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 1,
-      "transfersIn": 41435,
-      "transfersOut": 36213,
+      "transfersIn": 41438,
+      "transfersOut": 36232,
       "gwHistory": [
         {
           "round": 1,
@@ -398963,8 +398963,8 @@
       "form": 6,
       "pointsPerGame": 4.3,
       "selectedByPercent": 16,
-      "transfersIn": 674401,
-      "transfersOut": 1238253,
+      "transfersIn": 675002,
+      "transfersOut": 1238301,
       "gwHistory": [
         {
           "round": 1,
@@ -399322,8 +399322,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 14.9,
-      "transfersIn": 541303,
-      "transfersOut": 787795,
+      "transfersIn": 541375,
+      "transfersOut": 788252,
       "gwHistory": [
         {
           "round": 1,
@@ -399611,8 +399611,8 @@
       "form": 2,
       "pointsPerGame": 4.3,
       "selectedByPercent": 2.8,
-      "transfersIn": 51497,
-      "transfersOut": 550363,
+      "transfersIn": 51521,
+      "transfersOut": 550375,
       "gwHistory": [
         {
           "round": 1,
@@ -399779,8 +399779,8 @@
       "form": 4.8,
       "pointsPerGame": 4,
       "selectedByPercent": 5,
-      "transfersIn": 204785,
-      "transfersOut": 1348684,
+      "transfersIn": 205014,
+      "transfersOut": 1348695,
       "gwHistory": [
         {
           "round": 1,
@@ -399959,7 +399959,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 0,
-      "transfersOut": 17495,
+      "transfersOut": 17496,
       "gwHistory": [
         {
           "round": 1,
@@ -400127,7 +400127,7 @@
       "pointsPerGame": 0.2,
       "selectedByPercent": 0.1,
       "transfersIn": 11437,
-      "transfersOut": 17290,
+      "transfersOut": 17296,
       "gwHistory": [
         {
           "round": 1,
@@ -400294,8 +400294,8 @@
       "form": 4.2,
       "pointsPerGame": 3.9,
       "selectedByPercent": 2.9,
-      "transfersIn": 206337,
-      "transfersOut": 282262,
+      "transfersIn": 206370,
+      "transfersOut": 282363,
       "gwHistory": [
         {
           "round": 1,
@@ -400483,8 +400483,8 @@
       "form": 3,
       "pointsPerGame": 3.4,
       "selectedByPercent": 3.9,
-      "transfersIn": 205841,
-      "transfersOut": 367946,
+      "transfersIn": 205875,
+      "transfersOut": 368053,
       "gwHistory": [
         {
           "round": 1,
@@ -400662,8 +400662,8 @@
       "form": 4.8,
       "pointsPerGame": 7,
       "selectedByPercent": 11.4,
-      "transfersIn": 1216904,
-      "transfersOut": 263685,
+      "transfersIn": 1217403,
+      "transfersOut": 263753,
       "gwHistory": [
         {
           "round": 1,
@@ -401147,7 +401147,7 @@
       "form": 1.8,
       "pointsPerGame": 2.7,
       "selectedByPercent": 0.3,
-      "transfersIn": 10758,
+      "transfersIn": 10761,
       "transfersOut": 34382,
       "gwHistory": [
         {
@@ -401483,8 +401483,8 @@
       "form": 0.2,
       "pointsPerGame": 4,
       "selectedByPercent": 1,
-      "transfersIn": 56342,
-      "transfersOut": 71262,
+      "transfersIn": 56346,
+      "transfersOut": 71274,
       "gwHistory": [
         {
           "round": 1,
@@ -401986,7 +401986,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 2555,
-      "transfersOut": 21083,
+      "transfersOut": 21084,
       "gwHistory": [
         {
           "round": 1,
@@ -402153,8 +402153,8 @@
       "form": 3.5,
       "pointsPerGame": 3,
       "selectedByPercent": 2.5,
-      "transfersIn": 323237,
-      "transfersOut": 58351,
+      "transfersIn": 323295,
+      "transfersOut": 58464,
       "gwHistory": [
         {
           "round": 1,
@@ -402521,7 +402521,7 @@
       "pointsPerGame": 3,
       "selectedByPercent": 0.3,
       "transfersIn": 63742,
-      "transfersOut": 85220,
+      "transfersOut": 85291,
       "gwHistory": [
         {
           "round": 1,
@@ -402699,8 +402699,8 @@
       "form": 0.8,
       "pointsPerGame": 2.3,
       "selectedByPercent": 0.6,
-      "transfersIn": 54447,
-      "transfersOut": 123293,
+      "transfersIn": 54464,
+      "transfersOut": 123310,
       "gwHistory": [
         {
           "round": 1,
@@ -402867,8 +402867,8 @@
       "form": 0.2,
       "pointsPerGame": 2,
       "selectedByPercent": 0.1,
-      "transfersIn": 6009,
-      "transfersOut": 15237,
+      "transfersIn": 6010,
+      "transfersOut": 15239,
       "gwHistory": [
         {
           "round": 1,
@@ -403369,8 +403369,8 @@
       "form": 1.2,
       "pointsPerGame": 2,
       "selectedByPercent": 0.2,
-      "transfersIn": 9931,
-      "transfersOut": 23849,
+      "transfersIn": 9933,
+      "transfersOut": 23851,
       "gwHistory": [
         {
           "round": 1,
@@ -403537,8 +403537,8 @@
       "form": 0.2,
       "pointsPerGame": 1.4,
       "selectedByPercent": 0.1,
-      "transfersIn": 2364,
-      "transfersOut": 13394,
+      "transfersIn": 2365,
+      "transfersOut": 13395,
       "gwHistory": [
         {
           "round": 1,
@@ -403705,8 +403705,8 @@
       "form": 0.8,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 7578,
-      "transfersOut": 3305,
+      "transfersIn": 7581,
+      "transfersOut": 3312,
       "gwHistory": [
         {
           "round": 1,
@@ -403873,8 +403873,8 @@
       "form": 2.8,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.2,
-      "transfersIn": 14493,
-      "transfersOut": 19631,
+      "transfersIn": 14494,
+      "transfersOut": 19636,
       "gwHistory": [
         {
           "round": 1,
@@ -404209,8 +404209,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.8,
-      "transfersIn": 60889,
-      "transfersOut": 77084,
+      "transfersIn": 60890,
+      "transfersOut": 77107,
       "gwHistory": [
         {
           "round": 1,
@@ -404377,8 +404377,8 @@
       "form": 4.8,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.7,
-      "transfersIn": 35088,
-      "transfersOut": 148744,
+      "transfersIn": 35096,
+      "transfersOut": 148762,
       "gwHistory": [
         {
           "round": 1,
@@ -404545,8 +404545,8 @@
       "form": 2.8,
       "pointsPerGame": 2.6,
       "selectedByPercent": 1.3,
-      "transfersIn": 183190,
-      "transfersOut": 191940,
+      "transfersIn": 183232,
+      "transfersOut": 191977,
       "gwHistory": [
         {
           "round": 1,
@@ -404714,7 +404714,7 @@
       "pointsPerGame": 2,
       "selectedByPercent": 0.5,
       "transfersIn": 21439,
-      "transfersOut": 281980,
+      "transfersOut": 281982,
       "gwHistory": [
         {
           "round": 1,
@@ -404880,7 +404880,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.7,
       "transfersIn": 42525,
-      "transfersOut": 145578,
+      "transfersOut": 145592,
       "gwHistory": [
         {
           "round": 1,
@@ -405047,8 +405047,8 @@
       "form": 7.5,
       "pointsPerGame": 4,
       "selectedByPercent": 2,
-      "transfersIn": 48020,
-      "transfersOut": 256456,
+      "transfersIn": 48168,
+      "transfersOut": 256471,
       "gwHistory": [
         {
           "round": 1,
@@ -405235,7 +405235,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 0,
-      "transfersOut": 7628,
+      "transfersOut": 7631,
       "gwHistory": [
         {
           "round": 1,
@@ -405402,8 +405402,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 2596,
-      "transfersOut": 4865,
+      "transfersIn": 2597,
+      "transfersOut": 4868,
       "gwHistory": [
         {
           "round": 1,
@@ -405571,7 +405571,7 @@
       "pointsPerGame": 2.8,
       "selectedByPercent": 0.9,
       "transfersIn": 45930,
-      "transfersOut": 495895,
+      "transfersOut": 495910,
       "gwHistory": [
         {
           "round": 1,
@@ -405738,8 +405738,8 @@
       "form": 4.5,
       "pointsPerGame": 4.1,
       "selectedByPercent": 1.4,
-      "transfersIn": 75108,
-      "transfersOut": 214320,
+      "transfersIn": 75120,
+      "transfersOut": 214330,
       "gwHistory": [
         {
           "round": 1,
@@ -405917,8 +405917,8 @@
       "form": 4.5,
       "pointsPerGame": 3.2,
       "selectedByPercent": 1.6,
-      "transfersIn": 56061,
-      "transfersOut": 539855,
+      "transfersIn": 56063,
+      "transfersOut": 539875,
       "gwHistory": [
         {
           "round": 1,
@@ -406264,8 +406264,8 @@
       "form": 4.5,
       "pointsPerGame": 2.8,
       "selectedByPercent": 0.2,
-      "transfersIn": 11330,
-      "transfersOut": 34867,
+      "transfersIn": 11334,
+      "transfersOut": 34869,
       "gwHistory": [
         {
           "round": 1,
@@ -406599,7 +406599,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 0,
-      "transfersOut": 3196,
+      "transfersOut": 3197,
       "gwHistory": [
         {
           "round": 1,
@@ -406766,8 +406766,8 @@
       "form": 6,
       "pointsPerGame": 4.3,
       "selectedByPercent": 2.5,
-      "transfersIn": 106436,
-      "transfersOut": 193862,
+      "transfersIn": 106479,
+      "transfersOut": 193880,
       "gwHistory": [
         {
           "round": 1,
@@ -407111,8 +407111,8 @@
       "form": 3,
       "pointsPerGame": 3,
       "selectedByPercent": 0.2,
-      "transfersIn": 10674,
-      "transfersOut": 19913,
+      "transfersIn": 10676,
+      "transfersOut": 19914,
       "gwHistory": [
         {
           "round": 1,
@@ -407279,8 +407279,8 @@
       "form": 6.2,
       "pointsPerGame": 4.5,
       "selectedByPercent": 3.1,
-      "transfersIn": 151887,
-      "transfersOut": 798365,
+      "transfersIn": 152032,
+      "transfersOut": 798429,
       "gwHistory": [
         {
           "round": 1,
@@ -407657,7 +407657,7 @@
       "pointsPerGame": 3.3,
       "selectedByPercent": 2.2,
       "transfersIn": 153651,
-      "transfersOut": 382861,
+      "transfersOut": 383009,
       "gwHistory": [
         {
           "round": 1,
@@ -407824,8 +407824,8 @@
       "form": 3.2,
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.2,
-      "transfersIn": 14997,
-      "transfersOut": 27999,
+      "transfersIn": 14998,
+      "transfersOut": 28006,
       "gwHistory": [
         {
           "round": 1,
@@ -408328,7 +408328,7 @@
       "form": 1.2,
       "pointsPerGame": 1.3,
       "selectedByPercent": 0,
-      "transfersIn": 965,
+      "transfersIn": 966,
       "transfersOut": 4064,
       "gwHistory": [
         {
@@ -408497,7 +408497,7 @@
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.1,
       "transfersIn": 2287,
-      "transfersOut": 14390,
+      "transfersOut": 14392,
       "gwHistory": [
         {
           "round": 1,
@@ -408833,7 +408833,7 @@
       "pointsPerGame": 2.2,
       "selectedByPercent": 0.1,
       "transfersIn": 15293,
-      "transfersOut": 16204,
+      "transfersOut": 16206,
       "gwHistory": [
         {
           "round": 1,
@@ -409000,8 +409000,8 @@
       "form": 2,
       "pointsPerGame": 4,
       "selectedByPercent": 4.1,
-      "transfersIn": 466368,
-      "transfersOut": 1416335,
+      "transfersIn": 466369,
+      "transfersOut": 1416627,
       "gwHistory": [
         {
           "round": 1,
@@ -409199,8 +409199,8 @@
       "form": 1,
       "pointsPerGame": 2.3,
       "selectedByPercent": 0.7,
-      "transfersIn": 114115,
-      "transfersOut": 163919,
+      "transfersIn": 114119,
+      "transfersOut": 163930,
       "gwHistory": [
         {
           "round": 1,
@@ -409377,7 +409377,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 54,
-      "transfersOut": 2395,
+      "transfersOut": 2396,
       "gwHistory": [
         {
           "round": 1,
@@ -409544,8 +409544,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 1.5,
-      "transfersIn": 28718,
-      "transfersOut": 47741,
+      "transfersIn": 28719,
+      "transfersOut": 47771,
       "gwHistory": [
         {
           "round": 1,
@@ -409713,7 +409713,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 1.1,
       "transfersIn": 27320,
-      "transfersOut": 148492,
+      "transfersOut": 148510,
       "gwHistory": [
         {
           "round": 1,
@@ -409891,8 +409891,8 @@
       "form": 1.8,
       "pointsPerGame": 2.9,
       "selectedByPercent": 3.8,
-      "transfersIn": 498298,
-      "transfersOut": 2554834,
+      "transfersIn": 498301,
+      "transfersOut": 2554916,
       "gwHistory": [
         {
           "round": 1,
@@ -410100,8 +410100,8 @@
       "form": 3.2,
       "pointsPerGame": 2.9,
       "selectedByPercent": 0.1,
-      "transfersIn": 8428,
-      "transfersOut": 10800,
+      "transfersIn": 8429,
+      "transfersOut": 10804,
       "gwHistory": [
         {
           "round": 1,
@@ -410269,7 +410269,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
       "transfersIn": 3306,
-      "transfersOut": 9977,
+      "transfersOut": 9978,
       "gwHistory": [
         {
           "round": 1,
@@ -410436,8 +410436,8 @@
       "form": 2,
       "pointsPerGame": 2.2,
       "selectedByPercent": 0.3,
-      "transfersIn": 43711,
-      "transfersOut": 17498,
+      "transfersIn": 43716,
+      "transfersOut": 17529,
       "gwHistory": [
         {
           "round": 1,
@@ -410784,7 +410784,7 @@
       "pointsPerGame": 2,
       "selectedByPercent": 0.2,
       "transfersIn": 7350,
-      "transfersOut": 29009,
+      "transfersOut": 29013,
       "gwHistory": [
         {
           "round": 1,
@@ -410952,7 +410952,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0,
       "transfersIn": 1107,
-      "transfersOut": 2327,
+      "transfersOut": 2328,
       "gwHistory": [
         {
           "round": 1,
@@ -411119,8 +411119,8 @@
       "form": 0,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.4,
-      "transfersIn": 18204,
-      "transfersOut": 38368,
+      "transfersIn": 18206,
+      "transfersOut": 38375,
       "gwHistory": [
         {
           "round": 1,
@@ -411298,8 +411298,8 @@
       "form": 2,
       "pointsPerGame": 3.2,
       "selectedByPercent": 5.6,
-      "transfersIn": 1259071,
-      "transfersOut": 1323435,
+      "transfersIn": 1259072,
+      "transfersOut": 1323540,
       "gwHistory": [
         {
           "round": 1,
@@ -411507,8 +411507,8 @@
       "form": 6.8,
       "pointsPerGame": 4.4,
       "selectedByPercent": 4,
-      "transfersIn": 466785,
-      "transfersOut": 73235,
+      "transfersIn": 467023,
+      "transfersOut": 73263,
       "gwHistory": [
         {
           "round": 1,
@@ -411736,8 +411736,8 @@
       "form": 3.8,
       "pointsPerGame": 2.8,
       "selectedByPercent": 1.1,
-      "transfersIn": 171859,
-      "transfersOut": 129722,
+      "transfersIn": 171865,
+      "transfersOut": 129746,
       "gwHistory": [
         {
           "round": 1,
@@ -411915,8 +411915,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 3797,
-      "transfersOut": 9467,
+      "transfersIn": 3798,
+      "transfersOut": 9468,
       "gwHistory": [
         {
           "round": 1,
@@ -412083,8 +412083,8 @@
       "form": 1.8,
       "pointsPerGame": 2.3,
       "selectedByPercent": 3.1,
-      "transfersIn": 950613,
-      "transfersOut": 930919,
+      "transfersIn": 950620,
+      "transfersOut": 931036,
       "gwHistory": [
         {
           "round": 1,
@@ -412420,7 +412420,7 @@
       "pointsPerGame": 2.6,
       "selectedByPercent": 0.1,
       "transfersIn": 6168,
-      "transfersOut": 10044,
+      "transfersOut": 10046,
       "gwHistory": [
         {
           "round": 1,
@@ -412587,8 +412587,8 @@
       "form": 2.5,
       "pointsPerGame": 4.9,
       "selectedByPercent": 13.3,
-      "transfersIn": 1331171,
-      "transfersOut": 477433,
+      "transfersIn": 1331242,
+      "transfersOut": 477576,
       "gwHistory": [
         {
           "round": 1,
@@ -413017,7 +413017,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
       "transfersIn": 2331,
-      "transfersOut": 11104,
+      "transfersOut": 11108,
       "gwHistory": [
         {
           "round": 1,
@@ -413353,7 +413353,7 @@
       "pointsPerGame": 1.9,
       "selectedByPercent": 0.1,
       "transfersIn": 6546,
-      "transfersOut": 20237,
+      "transfersOut": 20240,
       "gwHistory": [
         {
           "round": 1,
@@ -413700,7 +413700,7 @@
       "pointsPerGame": 0.8,
       "selectedByPercent": 0.2,
       "transfersIn": 3603,
-      "transfersOut": 23135,
+      "transfersOut": 23139,
       "gwHistory": [
         {
           "round": 1,
@@ -414035,8 +414035,8 @@
       "form": 5.2,
       "pointsPerGame": 4.4,
       "selectedByPercent": 4.8,
-      "transfersIn": 393592,
-      "transfersOut": 239842,
+      "transfersIn": 393757,
+      "transfersOut": 239883,
       "gwHistory": [
         {
           "round": 1,
@@ -414225,7 +414225,7 @@
       "pointsPerGame": 2.5,
       "selectedByPercent": 0.1,
       "transfersIn": 8873,
-      "transfersOut": 9521,
+      "transfersOut": 9524,
       "gwHistory": [
         {
           "round": 1,
@@ -414392,8 +414392,8 @@
       "form": 0,
       "pointsPerGame": 2,
       "selectedByPercent": 0.5,
-      "transfersIn": 19917,
-      "transfersOut": 56992,
+      "transfersIn": 19920,
+      "transfersOut": 57004,
       "gwHistory": [
         {
           "round": 1,
@@ -414560,8 +414560,8 @@
       "form": 0.5,
       "pointsPerGame": 0.7,
       "selectedByPercent": 0.1,
-      "transfersIn": 7412,
-      "transfersOut": 40238,
+      "transfersIn": 7413,
+      "transfersOut": 40244,
       "gwHistory": [
         {
           "round": 1,
@@ -414728,8 +414728,8 @@
       "form": 1,
       "pointsPerGame": 1.6,
       "selectedByPercent": 0.2,
-      "transfersIn": 14763,
-      "transfersOut": 21365,
+      "transfersIn": 14765,
+      "transfersOut": 21366,
       "gwHistory": [
         {
           "round": 1,
@@ -414897,7 +414897,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
       "transfersIn": 1094,
-      "transfersOut": 8346,
+      "transfersOut": 8347,
       "gwHistory": [
         {
           "round": 1,
@@ -415064,8 +415064,8 @@
       "form": 1.2,
       "pointsPerGame": 1.2,
       "selectedByPercent": 0.5,
-      "transfersIn": 17622,
-      "transfersOut": 29821,
+      "transfersIn": 17629,
+      "transfersOut": 29825,
       "gwHistory": [
         {
           "round": 1,
@@ -415232,8 +415232,8 @@
       "form": 1.5,
       "pointsPerGame": 4.9,
       "selectedByPercent": 4.4,
-      "transfersIn": 721080,
-      "transfersOut": 594228,
+      "transfersIn": 721086,
+      "transfersOut": 594252,
       "gwHistory": [
         {
           "round": 1,
@@ -415600,7 +415600,7 @@
       "pointsPerGame": 2.2,
       "selectedByPercent": 0.2,
       "transfersIn": 41202,
-      "transfersOut": 31626,
+      "transfersOut": 31628,
       "gwHistory": [
         {
           "round": 1,
@@ -415936,7 +415936,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 3511,
-      "transfersOut": 4036,
+      "transfersOut": 4037,
       "gwHistory": [
         {
           "round": 1,
@@ -416103,8 +416103,8 @@
       "form": 5.2,
       "pointsPerGame": 3.6,
       "selectedByPercent": 1.1,
-      "transfersIn": 176926,
-      "transfersOut": 102840,
+      "transfersIn": 176954,
+      "transfersOut": 102890,
       "gwHistory": [
         {
           "round": 1,
@@ -416292,8 +416292,8 @@
       "form": 2.5,
       "pointsPerGame": 2.6,
       "selectedByPercent": 1.1,
-      "transfersIn": 44853,
-      "transfersOut": 43902,
+      "transfersIn": 44859,
+      "transfersOut": 43924,
       "gwHistory": [
         {
           "round": 1,
@@ -416460,8 +416460,8 @@
       "form": 4,
       "pointsPerGame": 3.2,
       "selectedByPercent": 1,
-      "transfersIn": 461066,
-      "transfersOut": 405860,
+      "transfersIn": 461071,
+      "transfersOut": 405892,
       "gwHistory": [
         {
           "round": 1,
@@ -416628,8 +416628,8 @@
       "form": 0,
       "pointsPerGame": 0.5,
       "selectedByPercent": 0.2,
-      "transfersIn": 25353,
-      "transfersOut": 33282,
+      "transfersIn": 25359,
+      "transfersOut": 33287,
       "gwHistory": [
         {
           "round": 1,
@@ -416965,7 +416965,7 @@
       "pointsPerGame": 1.5,
       "selectedByPercent": 0.1,
       "transfersIn": 4751,
-      "transfersOut": 11087,
+      "transfersOut": 11089,
       "gwHistory": [
         {
           "round": 1,
@@ -417132,8 +417132,8 @@
       "form": 2.8,
       "pointsPerGame": 3.7,
       "selectedByPercent": 3.4,
-      "transfersIn": 381834,
-      "transfersOut": 139189,
+      "transfersIn": 382457,
+      "transfersOut": 139213,
       "gwHistory": [
         {
           "round": 1,
@@ -417321,8 +417321,8 @@
       "form": 3.5,
       "pointsPerGame": 3.3,
       "selectedByPercent": 0.1,
-      "transfersIn": 9373,
-      "transfersOut": 5182,
+      "transfersIn": 9377,
+      "transfersOut": 5183,
       "gwHistory": [
         {
           "round": 1,
@@ -417489,8 +417489,8 @@
       "form": 1.2,
       "pointsPerGame": 2.7,
       "selectedByPercent": 0.4,
-      "transfersIn": 58259,
-      "transfersOut": 37031,
+      "transfersIn": 58261,
+      "transfersOut": 37056,
       "gwHistory": [
         {
           "round": 1,
@@ -417657,8 +417657,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0,
-      "transfersIn": 1457,
-      "transfersOut": 1655,
+      "transfersIn": 1458,
+      "transfersOut": 1656,
       "gwHistory": [
         {
           "round": 1,
@@ -417825,8 +417825,8 @@
       "form": 3.5,
       "pointsPerGame": 4.7,
       "selectedByPercent": 0.2,
-      "transfersIn": 24632,
-      "transfersOut": 10048,
+      "transfersIn": 25016,
+      "transfersOut": 10050,
       "gwHistory": [
         {
           "round": 1,
@@ -418330,7 +418330,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 17793,
-      "transfersOut": 12194,
+      "transfersOut": 12196,
       "gwHistory": [
         {
           "round": 1,
@@ -418497,8 +418497,8 @@
       "form": 0.8,
       "pointsPerGame": 2.5,
       "selectedByPercent": 2.5,
-      "transfersIn": 649477,
-      "transfersOut": 422032,
+      "transfersIn": 649481,
+      "transfersOut": 422123,
       "gwHistory": [
         {
           "round": 1,
@@ -418696,8 +418696,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 15253,
-      "transfersOut": 9548,
+      "transfersIn": 15256,
+      "transfersOut": 9549,
       "gwHistory": [
         {
           "round": 1,
@@ -419032,8 +419032,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 16722,
-      "transfersOut": 12403,
+      "transfersIn": 16724,
+      "transfersOut": 12405,
       "gwHistory": [
         {
           "round": 1,
@@ -419536,8 +419536,8 @@
       "form": 2,
       "pointsPerGame": 3,
       "selectedByPercent": 0.2,
-      "transfersIn": 23864,
-      "transfersOut": 20115,
+      "transfersIn": 23894,
+      "transfersOut": 20117,
       "gwHistory": [
         {
           "round": 2,
@@ -419695,7 +419695,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 1561,
-      "transfersOut": 956,
+      "transfersOut": 957,
       "gwHistory": [
         {
           "round": 2,
@@ -419852,8 +419852,8 @@
       "form": 2.2,
       "pointsPerGame": 3.3,
       "selectedByPercent": 0.2,
-      "transfersIn": 31119,
-      "transfersOut": 20678,
+      "transfersIn": 31127,
+      "transfersOut": 20682,
       "gwHistory": [
         {
           "round": 2,
@@ -420010,8 +420010,8 @@
       "form": 0.2,
       "pointsPerGame": 3,
       "selectedByPercent": 0.1,
-      "transfersIn": 6724,
-      "transfersOut": 3780,
+      "transfersIn": 6725,
+      "transfersOut": 3783,
       "gwHistory": [
         {
           "round": 2,
@@ -420169,7 +420169,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 4436,
-      "transfersOut": 2973,
+      "transfersOut": 2975,
       "gwHistory": [
         {
           "round": 2,
@@ -420326,8 +420326,8 @@
       "form": 0.8,
       "pointsPerGame": 1.2,
       "selectedByPercent": 0.2,
-      "transfersIn": 29867,
-      "transfersOut": 22899,
+      "transfersIn": 29869,
+      "transfersOut": 22905,
       "gwHistory": [
         {
           "round": 2,
@@ -420642,8 +420642,8 @@
       "form": 3,
       "pointsPerGame": 2.6,
       "selectedByPercent": 0.1,
-      "transfersIn": 8666,
-      "transfersOut": 5936,
+      "transfersIn": 8670,
+      "transfersOut": 5941,
       "gwHistory": [
         {
           "round": 2,
@@ -420958,8 +420958,8 @@
       "form": 0.5,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 17084,
-      "transfersOut": 11834,
+      "transfersIn": 17088,
+      "transfersOut": 11838,
       "gwHistory": [
         {
           "round": 2,
@@ -421117,7 +421117,7 @@
       "pointsPerGame": 0.7,
       "selectedByPercent": 0.1,
       "transfersIn": 15834,
-      "transfersOut": 11858,
+      "transfersOut": 11860,
       "gwHistory": [
         {
           "round": 2,
@@ -421274,8 +421274,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.2,
-      "transfersIn": 25453,
-      "transfersOut": 15566,
+      "transfersIn": 25457,
+      "transfersOut": 15574,
       "gwHistory": [
         {
           "round": 2,
@@ -421432,8 +421432,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 1,
-      "transfersIn": 132481,
-      "transfersOut": 33701,
+      "transfersIn": 132483,
+      "transfersOut": 33724,
       "gwHistory": [
         {
           "round": 2,
@@ -421789,8 +421789,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.2,
-      "transfersIn": 23655,
-      "transfersOut": 9101,
+      "transfersIn": 23656,
+      "transfersOut": 9105,
       "gwHistory": [
         {
           "round": 2,
@@ -421948,7 +421948,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.4,
       "transfersIn": 57323,
-      "transfersOut": 34690,
+      "transfersOut": 34697,
       "gwHistory": [
         {
           "round": 2,
@@ -422105,8 +422105,8 @@
       "form": 3,
       "pointsPerGame": 3.1,
       "selectedByPercent": 4.4,
-      "transfersIn": 711529,
-      "transfersOut": 282114,
+      "transfersIn": 711639,
+      "transfersOut": 282177,
       "gwHistory": [
         {
           "round": 3,
@@ -422274,8 +422274,8 @@
       "form": 0.5,
       "pointsPerGame": 1,
       "selectedByPercent": 0,
-      "transfersIn": 2179,
-      "transfersOut": 1528,
+      "transfersIn": 2180,
+      "transfersOut": 1529,
       "gwHistory": [
         {
           "round": 3,
@@ -422423,7 +422423,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.7,
       "transfersIn": 76124,
-      "transfersOut": 26336,
+      "transfersOut": 26359,
       "gwHistory": [
         {
           "round": 3,
@@ -422570,7 +422570,7 @@
       "form": 1.8,
       "pointsPerGame": 3.5,
       "selectedByPercent": 0,
-      "transfersIn": 3511,
+      "transfersIn": 3514,
       "transfersOut": 2147,
       "gwHistory": [
         {
@@ -422718,8 +422718,8 @@
       "form": 1.8,
       "pointsPerGame": 1.4,
       "selectedByPercent": 0.1,
-      "transfersIn": 19835,
-      "transfersOut": 12343,
+      "transfersIn": 19836,
+      "transfersOut": 12350,
       "gwHistory": [
         {
           "round": 3,
@@ -422867,7 +422867,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 5584,
-      "transfersOut": 4756,
+      "transfersOut": 4757,
       "gwHistory": [
         {
           "round": 3,
@@ -423162,8 +423162,8 @@
       "form": 0.2,
       "pointsPerGame": 1.3,
       "selectedByPercent": 0.1,
-      "transfersIn": 22758,
-      "transfersOut": 18300,
+      "transfersIn": 22759,
+      "transfersOut": 18304,
       "gwHistory": [
         {
           "round": 3,
@@ -423311,7 +423311,7 @@
       "pointsPerGame": 1.3,
       "selectedByPercent": 0,
       "transfersIn": 1261,
-      "transfersOut": 738,
+      "transfersOut": 739,
       "gwHistory": [
         {
           "round": 3,
@@ -423459,7 +423459,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 619,
-      "transfersOut": 386,
+      "transfersOut": 387,
       "gwHistory": [
         {
           "round": 3,
@@ -423606,8 +423606,8 @@
       "form": 0.2,
       "pointsPerGame": 1,
       "selectedByPercent": 0.1,
-      "transfersIn": 17628,
-      "transfersOut": 11002,
+      "transfersIn": 17630,
+      "transfersOut": 11006,
       "gwHistory": [
         {
           "round": 3,
@@ -423754,8 +423754,8 @@
       "form": 0.5,
       "pointsPerGame": 0.8,
       "selectedByPercent": 0.4,
-      "transfersIn": 53014,
-      "transfersOut": 21423,
+      "transfersIn": 53020,
+      "transfersOut": 21437,
       "gwHistory": [
         {
           "round": 3,
@@ -423903,7 +423903,7 @@
       "pointsPerGame": 2.9,
       "selectedByPercent": 0.1,
       "transfersIn": 12850,
-      "transfersOut": 7308,
+      "transfersOut": 7312,
       "gwHistory": [
         {
           "round": 3,
@@ -424050,8 +424050,8 @@
       "form": 1,
       "pointsPerGame": 1.8,
       "selectedByPercent": 0.1,
-      "transfersIn": 17429,
-      "transfersOut": 11821,
+      "transfersIn": 17432,
+      "transfersOut": 11825,
       "gwHistory": [
         {
           "round": 3,
@@ -424347,7 +424347,7 @@
       "pointsPerGame": 2.6,
       "selectedByPercent": 0,
       "transfersIn": 7578,
-      "transfersOut": 4688,
+      "transfersOut": 4689,
       "gwHistory": [
         {
           "round": 3,
@@ -424494,8 +424494,8 @@
       "form": 0,
       "pointsPerGame": 4,
       "selectedByPercent": 0.3,
-      "transfersIn": 44920,
-      "transfersOut": 39029,
+      "transfersIn": 44921,
+      "transfersOut": 39034,
       "gwHistory": [
         {
           "round": 3,
@@ -424642,8 +424642,8 @@
       "form": 0.8,
       "pointsPerGame": 2.9,
       "selectedByPercent": 0,
-      "transfersIn": 7436,
-      "transfersOut": 4777,
+      "transfersIn": 7437,
+      "transfersOut": 4780,
       "gwHistory": [
         {
           "round": 3,
@@ -424939,7 +424939,7 @@
       "pointsPerGame": 1,
       "selectedByPercent": 0,
       "transfersIn": 5357,
-      "transfersOut": 3693,
+      "transfersOut": 3694,
       "gwHistory": [
         {
           "round": 3,
@@ -425383,7 +425383,7 @@
       "pointsPerGame": 5.2,
       "selectedByPercent": 1.1,
       "transfersIn": 130522,
-      "transfersOut": 80701,
+      "transfersOut": 80730,
       "gwHistory": [
         {
           "round": 3,
@@ -425541,8 +425541,8 @@
       "form": 3.8,
       "pointsPerGame": 4.5,
       "selectedByPercent": 0.5,
-      "transfersIn": 102065,
-      "transfersOut": 49921,
+      "transfersIn": 102097,
+      "transfersOut": 49931,
       "gwHistory": [
         {
           "round": 3,
@@ -425689,8 +425689,8 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0.7,
-      "transfersIn": 127174,
-      "transfersOut": 73924,
+      "transfersIn": 127179,
+      "transfersOut": 73944,
       "gwHistory": [
         {
           "round": 3,
@@ -425986,7 +425986,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 6741,
-      "transfersOut": 4439,
+      "transfersOut": 4441,
       "gwHistory": [
         {
           "round": 3,
@@ -426134,7 +426134,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 13555,
-      "transfersOut": 8670,
+      "transfersOut": 8672,
       "gwHistory": [
         {
           "round": 3,
@@ -426281,8 +426281,8 @@
       "form": 3,
       "pointsPerGame": 4,
       "selectedByPercent": 0,
-      "transfersIn": 1582,
-      "transfersOut": 620,
+      "transfersIn": 1584,
+      "transfersOut": 622,
       "gwHistory": [
         {
           "round": 4,
@@ -426419,8 +426419,8 @@
       "form": 2.2,
       "pointsPerGame": 3.7,
       "selectedByPercent": 0.2,
-      "transfersIn": 21444,
-      "transfersOut": 8061,
+      "transfersIn": 21447,
+      "transfersOut": 8063,
       "gwHistory": [
         {
           "round": 4,
@@ -426695,8 +426695,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0,
-      "transfersIn": 3351,
-      "transfersOut": 1569,
+      "transfersIn": 3352,
+      "transfersOut": 1571,
       "gwHistory": [
         {
           "round": 4,
@@ -426833,8 +426833,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 12622,
-      "transfersOut": 6003,
+      "transfersIn": 12623,
+      "transfersOut": 6007,
       "gwHistory": [
         {
           "round": 4,
@@ -426972,7 +426972,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 2441,
-      "transfersOut": 872,
+      "transfersOut": 874,
       "gwHistory": [
         {
           "round": 5,
@@ -427099,8 +427099,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
-      "transfersIn": 14199,
-      "transfersOut": 4253,
+      "transfersIn": 14202,
+      "transfersOut": 4257,
       "gwHistory": [
         {
           "round": 5,
@@ -427227,7 +427227,7 @@
       "form": 0,
       "pointsPerGame": 1,
       "selectedByPercent": 0,
-      "transfersIn": 1257,
+      "transfersIn": 1258,
       "transfersOut": 666,
       "gwHistory": [
         {
@@ -427483,8 +427483,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.3,
-      "transfersIn": 40487,
-      "transfersOut": 20152,
+      "transfersIn": 40490,
+      "transfersOut": 20159,
       "gwHistory": [
         {
           "round": 5,
@@ -427612,7 +427612,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 1040,
-      "transfersOut": 455,
+      "transfersOut": 457,
       "gwHistory": [
         {
           "round": 5,
@@ -427740,7 +427740,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 1223,
-      "transfersOut": 516,
+      "transfersOut": 518,
       "gwHistory": [
         {
           "round": 5,
@@ -427867,8 +427867,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0.4,
-      "transfersIn": 50468,
-      "transfersOut": 14844,
+      "transfersIn": 50471,
+      "transfersOut": 14859,
       "gwHistory": [
         {
           "round": 5,
@@ -428104,7 +428104,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0.1,
       "transfersIn": 8571,
-      "transfersOut": 1791,
+      "transfersOut": 1798,
       "gwHistory": [
         {
           "round": 8,
@@ -428201,8 +428201,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0,
-      "transfersIn": 404,
-      "transfersOut": 65,
+      "transfersIn": 405,
+      "transfersOut": 66,
       "gwHistory": [
         {
           "round": 9,
@@ -428290,7 +428290,7 @@
       "pointsPerGame": 0,
       "selectedByPercent": 0,
       "transfersIn": 3186,
-      "transfersOut": 311,
+      "transfersOut": 312,
       "gwHistory": [
         {
           "round": 10,
@@ -428367,8 +428367,8 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0,
-      "transfersIn": 233,
-      "transfersOut": 22,
+      "transfersIn": 234,
+      "transfersOut": 23,
       "gwHistory": [
         {
           "round": 10,
@@ -428445,7 +428445,7 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0,
-      "transfersIn": 8,
+      "transfersIn": 9,
       "transfersOut": 0,
       "gwHistory": [
         {
@@ -428513,7 +428513,7 @@
       "form": 0,
       "pointsPerGame": 0,
       "selectedByPercent": 0,
-      "transfersIn": 25,
+      "transfersIn": 27,
       "transfersOut": 1,
       "gwHistory": [
         {
@@ -429455,7 +429455,7 @@
           "gw": 11,
           "points": 24,
           "total_points": 635,
-          "rank": 37,
+          "rank": 36,
           "transfers_cost": 0
         }
       }
@@ -430393,7 +430393,7 @@
           "gw": 11,
           "points": 21,
           "total_points": 646,
-          "rank": 30,
+          "rank": 31,
           "transfers_cost": 0
         }
       }
@@ -433365,7 +433365,7 @@
           "gw": 11,
           "points": 36,
           "total_points": 635,
-          "rank": 36,
+          "rank": 37,
           "transfers_cost": 0
         }
       }
@@ -436496,7 +436496,7 @@
           "gw": 11,
           "points": 35,
           "total_points": 646,
-          "rank": 31,
+          "rank": 30,
           "transfers_cost": 0
         }
       }
@@ -437977,10 +437977,13 @@
         "fh2": null
       },
       {
-        "entry_id": 1430659,
-        "entry_name": "Serigala Margonda",
-        "player_name": "Gattouzo JR",
-        "wc1": null,
+        "entry_id": 7540486,
+        "entry_name": "blue one",
+        "player_name": "Ars San",
+        "wc1": {
+          "gw": 10,
+          "points": 72
+        },
         "tc1": null,
         "bb1": null,
         "fh1": null,
@@ -437990,13 +437993,10 @@
         "fh2": null
       },
       {
-        "entry_id": 7540486,
-        "entry_name": "blue one",
-        "player_name": "Ars San",
-        "wc1": {
-          "gw": 10,
-          "points": 72
-        },
+        "entry_id": 1430659,
+        "entry_name": "Serigala Margonda",
+        "player_name": "Gattouzo JR",
+        "wc1": null,
         "tc1": null,
         "bb1": null,
         "fh1": null,
@@ -438088,19 +438088,6 @@
         "fh2": null
       },
       {
-        "entry_id": 4209718,
-        "entry_name": "San_saro",
-        "player_name": "dayat _",
-        "wc1": null,
-        "tc1": null,
-        "bb1": null,
-        "fh1": null,
-        "wc2": null,
-        "tc2": null,
-        "bb2": null,
-        "fh2": null
-      },
-      {
         "entry_id": 634373,
         "entry_name": "Tim Holland",
         "player_name": "Intim. intim",
@@ -438114,6 +438101,19 @@
           "gw": 10,
           "points": 61
         },
+        "wc2": null,
+        "tc2": null,
+        "bb2": null,
+        "fh2": null
+      },
+      {
+        "entry_id": 4209718,
+        "entry_name": "San_saro",
+        "player_name": "dayat _",
+        "wc1": null,
+        "tc1": null,
+        "bb1": null,
+        "fh1": null,
         "wc2": null,
         "tc2": null,
         "bb2": null,
@@ -439302,17 +439302,6 @@
               ]
             },
             {
-              "entry_id": 4209718,
-              "entry_name": "San_saro",
-              "player_name": "dayat _",
-              "player_count": 3,
-              "players": [
-                "De Cuyper",
-                "Gomez",
-                "Verbruggen"
-              ]
-            },
-            {
               "entry_id": 634373,
               "entry_name": "Tim Holland",
               "player_name": "Intim. intim",
@@ -439321,6 +439310,17 @@
                 "Verbruggen",
                 "De Cuyper",
                 "Gomez"
+              ]
+            },
+            {
+              "entry_id": 4209718,
+              "entry_name": "San_saro",
+              "player_name": "dayat _",
+              "player_count": 3,
+              "players": [
+                "De Cuyper",
+                "Gomez",
+                "Verbruggen"
               ]
             },
             {
@@ -439762,17 +439762,6 @@
               ]
             },
             {
-              "entry_id": 1430659,
-              "entry_name": "Serigala Margonda",
-              "player_name": "Gattouzo JR",
-              "player_count": 3,
-              "players": [
-                "Raya",
-                "Calafiori",
-                "Ødegaard"
-              ]
-            },
-            {
               "entry_id": 7540486,
               "entry_name": "blue one",
               "player_name": "Ars San",
@@ -439781,6 +439770,17 @@
                 "Konsa",
                 "Ødegaard",
                 "Calafiori"
+              ]
+            },
+            {
+              "entry_id": 1430659,
+              "entry_name": "Serigala Margonda",
+              "player_name": "Gattouzo JR",
+              "player_count": 3,
+              "players": [
+                "Raya",
+                "Calafiori",
+                "Ødegaard"
               ]
             },
             {
@@ -440866,7 +440866,7 @@
         "entry_name": "blue one",
         "player_name": "Ars San",
         "total_minus_points": 8,
-        "current_rank": 31
+        "current_rank": 30
       },
       {
         "entry_id": 2428185,
@@ -440957,7 +440957,7 @@
         "entry_name": "Tim Holland",
         "player_name": "Intim. intim",
         "total_minus_points": 4,
-        "current_rank": 37
+        "current_rank": 36
       },
       {
         "entry_id": 5935899,
@@ -441361,18 +441361,18 @@
       },
       {
         "position": 12,
-        "entry_id": 1430659,
-        "player_name": "Gattouzo JR",
-        "entry_name": "Serigala Margonda",
+        "entry_id": 7540486,
+        "player_name": "Ars San",
+        "entry_name": "blue one",
         "win_count": 0,
         "gws_won": [],
         "current_rank": 30
       },
       {
         "position": 12,
-        "entry_id": 7540486,
-        "player_name": "Ars San",
-        "entry_name": "blue one",
+        "entry_id": 1430659,
+        "player_name": "Gattouzo JR",
+        "entry_name": "Serigala Margonda",
         "win_count": 0,
         "gws_won": [],
         "current_rank": 31
@@ -441406,18 +441406,18 @@
       },
       {
         "position": 12,
-        "entry_id": 4209718,
-        "player_name": "dayat _",
-        "entry_name": "San_saro",
+        "entry_id": 634373,
+        "player_name": "Intim. intim",
+        "entry_name": "Tim Holland",
         "win_count": 0,
         "gws_won": [],
         "current_rank": 36
       },
       {
         "position": 12,
-        "entry_id": 634373,
-        "player_name": "Intim. intim",
-        "entry_name": "Tim Holland",
+        "entry_id": 4209718,
+        "player_name": "dayat _",
+        "entry_name": "San_saro",
         "win_count": 0,
         "gws_won": [],
         "current_rank": 37
