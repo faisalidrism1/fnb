@@ -13,11 +13,12 @@
   "ground": {
     "name": "Tottenham Hotspur Stadium, London"
   },
-  "status": "U",
-  "phase": "U",
+  "status": "C",
+  "phase": "F",
+  "outcome": "H",
   "clock": {
-    "label": "0'",
-    "secs": 0
+    "label": "Full Time",
+    "secs": 5400
   },
   "teams": [
     {
@@ -29,7 +30,7 @@
           "abbr": "TOT"
         }
       },
-      "score": 0
+      "score": 2
     },
     {
       "team": {
@@ -118,7 +119,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 5
           },
           "captain": false,
@@ -138,7 +139,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 6
           },
           "captain": false,
@@ -158,7 +159,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 8
           },
           "captain": false,
@@ -178,7 +179,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
             "shirtNum": 10
           },
           "captain": false,
@@ -198,7 +199,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 13
           },
           "captain": false,
@@ -218,7 +219,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 18
           },
           "captain": false,
@@ -238,7 +239,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Striker",
             "shirtNum": 19
           },
           "captain": false,
@@ -258,7 +259,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Right Winger",
             "shirtNum": 20
           },
           "captain": false,
@@ -278,7 +279,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 23
           },
           "captain": true,
@@ -298,7 +299,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
             "shirtNum": 68
           },
           "captain": false,
@@ -340,7 +341,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 3
           },
           "captain": false,
@@ -360,7 +361,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 14
           },
           "captain": false,
@@ -380,7 +381,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 15
           },
           "captain": false,
@@ -400,7 +401,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Right Winger",
             "shirtNum": 17
           },
           "captain": false,
@@ -420,7 +421,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Right Winger",
             "shirtNum": 21
           },
           "captain": false,
@@ -440,7 +441,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Striker",
             "shirtNum": 22
           },
           "captain": false,
@@ -460,7 +461,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 30
           },
           "captain": false,
@@ -480,7 +481,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 37
           },
           "captain": false,
@@ -515,8 +516,8 @@
             "455084"
           ],
           [
-            "212314",
-            "218543"
+            "218543",
+            "212314"
           ],
           [
             "572584",
@@ -563,7 +564,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 2
           },
           "captain": false,
@@ -583,7 +584,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 3
           },
           "captain": false,
@@ -603,7 +604,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 6
           },
           "captain": false,
@@ -623,7 +624,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Centre Striker",
             "shirtNum": 9
           },
           "captain": false,
@@ -643,7 +644,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Attacking Midfielder",
             "shirtNum": 10
           },
           "captain": false,
@@ -663,7 +664,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 23
           },
           "captain": false,
@@ -683,7 +684,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 25
           },
           "captain": false,
@@ -703,7 +704,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 26
           },
           "captain": true,
@@ -722,8 +723,8 @@
           },
           "matchPosition": "M",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "F",
+            "positionInfo": "Left Winger",
             "shirtNum": 38
           },
           "captain": false,
@@ -742,8 +743,8 @@
           },
           "matchPosition": "M",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "D",
+            "positionInfo": "Right Full Back",
             "shirtNum": 42
           },
           "captain": false,
@@ -785,7 +786,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Defensive Midfielder",
             "shirtNum": 5
           },
           "captain": false,
@@ -805,7 +806,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Right Winger",
             "shirtNum": 7
           },
           "captain": false,
@@ -825,7 +826,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Left Winger",
             "shirtNum": 11
           },
           "captain": false,
@@ -845,7 +846,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Defensive Midfielder",
             "shirtNum": 12
           },
           "captain": false,
@@ -865,7 +866,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Striker",
             "shirtNum": 19
           },
           "captain": false,
@@ -885,7 +886,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 24
           },
           "captain": false,
@@ -905,7 +906,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Striker",
             "shirtNum": 29
           },
           "captain": false,
@@ -925,7 +926,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Left Winger",
             "shirtNum": 47
           },
           "captain": false,
@@ -935,12 +936,2141 @@
       ]
     }
   ],
-  "events": [],
+  "events": [
+    {
+      "type": "PS",
+      "phase": "1",
+      "clock": {
+        "secs": 0,
+        "label": "1'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 611917,
+      "assistId": 441164,
+      "phase": "1",
+      "clock": {
+        "label": "15'",
+        "secs": 900
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 172780,
+      "phase": "1",
+      "clock": {
+        "label": "41'",
+        "secs": 2460
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 0,
+      "phase": "1",
+      "clock": {
+        "label": "42'",
+        "secs": 2520
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 154566,
+      "phase": "2",
+      "clock": {
+        "label": "51'",
+        "secs": 3060
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 611917,
+      "phase": "2",
+      "clock": {
+        "label": "52'",
+        "secs": 3120
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 216055,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "56'",
+        "secs": 3360
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 218543,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "56'",
+        "secs": 3360
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 531442,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "56'",
+        "secs": 3360
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 572584,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "56'",
+        "secs": 3360
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 443261,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "56'",
+        "secs": 3360
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 442967,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "56'",
+        "secs": 3360
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 570526,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 172780,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 510281,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 611917,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 438234,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 154566,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 543968,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "74'",
+        "secs": 4440
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 431639,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "74'",
+        "secs": 4440
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 122798,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 487053,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 460842,
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 449429,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 455084,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 219924,
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 547701,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "90'",
+        "secs": 5400
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 510281,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "90'",
+        "secs": 5400
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 551226,
+      "phase": "2",
+      "clock": {
+        "label": "95'",
+        "secs": 5700
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5700,
+        "label": "90+5'"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    }
+  ],
   "textstreamEvents": [
     {
       "id": 2911334,
       "type": "lineup",
       "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2911504,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2911522,
+      "time": {
+        "secs": 56,
+        "label": "01"
+      },
+      "type": "free kick won",
+      "text": "Julio Enciso (Ipswich Town) wins a free kick on the right wing.",
+      "playerIds": [
+        125827
+      ]
+    },
+    {
+      "id": 2911523,
+      "time": {
+        "secs": 56,
+        "label": "01"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Luca Williams-Barnett (Tottenham Hotspur).",
+      "playerIds": [
+        134791
+      ]
+    },
+    {
+      "id": 2911537,
+      "time": {
+        "secs": 99,
+        "label": "02"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Julio Enciso (Ipswich Town).",
+      "playerIds": [
+        125827
+      ]
+    },
+    {
+      "id": 2911538,
+      "time": {
+        "secs": 99,
+        "label": "02"
+      },
+      "type": "free kick won",
+      "text": "Destiny Udogie (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        126824
+      ]
+    },
+    {
+      "id": 2911565,
+      "time": {
+        "secs": 203,
+        "label": "04"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Abdoul Ouattara (Ipswich Town) right footed shot from a difficult angle on the right is saved in the top left corner by Antonín Kinsky (Tottenham Hotspur). Assisted by Zian Flemming.",
+      "playerIds": [
+        126111,
+        75735
+      ]
+    },
+    {
+      "id": 2911561,
+      "time": {
+        "secs": 240,
+        "label": "05"
+      },
+      "type": "free kick won",
+      "text": "Exequiel Palacios (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        40161
+      ]
+    },
+    {
+      "id": 2911564,
+      "time": {
+        "secs": 240,
+        "label": "05"
+      },
+      "type": "free kick lost",
+      "text": "Foul by James Maddison (Tottenham Hotspur).",
+      "playerIds": [
+        8456
+      ]
+    },
+    {
+      "id": 2911563,
+      "time": {
+        "secs": 259,
+        "label": "05"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Zian Flemming (Ipswich Town) header from the centre of the box is saved in the top left corner by Antonín Kinsky (Tottenham Hotspur). Assisted by Leif Davis with a cross.",
+      "playerIds": [
+        75735,
+        51454
+      ]
+    },
+    {
+      "id": 2911562,
+      "time": {
+        "secs": 309,
+        "label": "06"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Dominic Solanke (Tottenham Hotspur) right footed shot from the centre of the box misses to the right. Assisted by Marcos Senesi.",
+      "playerIds": [
+        10443,
+        54989
+      ]
+    },
+    {
+      "id": 2911597,
+      "time": {
+        "secs": 378,
+        "label": "07"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Mohammed Kudus (Tottenham Hotspur) left footed shot from outside the box is high and wide to the left. Assisted by Dominic Solanke.",
+      "playerIds": [
+        51364,
+        10443
+      ]
+    },
+    {
+      "id": 2911627,
+      "time": {
+        "secs": 559,
+        "label": "10"
+      },
+      "type": "corner",
+      "text": "Corner, Tottenham Hotspur. Conceded by Darnell Furlong.",
+      "playerIds": [
+        10491
+      ]
+    },
+    {
+      "id": 2911639,
+      "time": {
+        "secs": 595,
+        "label": "10"
+      },
+      "type": "corner",
+      "text": "Corner, Tottenham Hotspur. Conceded by Dara O'Shea.",
+      "playerIds": [
+        15154
+      ]
+    },
+    {
+      "id": 2911645,
+      "time": {
+        "secs": 633,
+        "label": "11"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Dominic Solanke (Tottenham Hotspur) header from the left side of the six yard box is blocked. Assisted by Mohammed Kudus with a cross.",
+      "playerIds": [
+        10443,
+        51364
+      ]
+    },
+    {
+      "id": 2911666,
+      "time": {
+        "secs": 637,
+        "label": "11"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Dominic Solanke (Tottenham Hotspur) right footed shot from the centre of the box is saved in the centre of the goal by Christian Walton (Ipswich Town). Assisted by Pedro Porro.",
+      "playerIds": [
+        10443,
+        32229
+      ]
+    },
+    {
+      "id": 2911651,
+      "time": {
+        "secs": 737,
+        "label": "13"
+      },
+      "type": "free kick won",
+      "text": "Marcos Senesi (Tottenham Hotspur) wins a free kick on the left wing.",
+      "playerIds": [
+        54989
+      ]
+    },
+    {
+      "id": 2911652,
+      "time": {
+        "secs": 737,
+        "label": "13"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Zian Flemming (Ipswich Town).",
+      "playerIds": [
+        75735
+      ]
+    },
+    {
+      "id": 2911668,
+      "time": {
+        "secs": 782,
+        "label": "14"
+      },
+      "type": "corner",
+      "text": "Corner, Tottenham Hotspur. Conceded by Leif Davis.",
+      "playerIds": [
+        51454
+      ]
+    },
+    {
+      "id": 2911766,
+      "time": {
+        "secs": 813,
+        "label": "14"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Dominic Solanke (Tottenham Hotspur) header from the centre of the box is saved in the bottom right corner by Christian Walton (Ipswich Town).",
+      "playerIds": [
+        10443
+      ]
+    },
+    {
+      "id": 2911717,
+      "time": {
+        "secs": 859,
+        "label": "15"
+      },
+      "type": "goal",
+      "text": "Goal! Tottenham Hotspur 1, Ipswich Town 0. Luca Williams-Barnett (Tottenham Hotspur) left footed shot from the centre of the box to the bottom right corner. Assisted by Pedro Porro with a cross.",
+      "playerIds": [
+        134791,
+        32229
+      ]
+    },
+    {
+      "id": 2911753,
+      "time": {
+        "secs": 1030,
+        "label": "18"
+      },
+      "type": "free kick won",
+      "text": "Conor Gallagher (Tottenham Hotspur) wins a free kick in the attacking half.",
+      "playerIds": [
+        21887
+      ]
+    },
+    {
+      "id": 2911765,
+      "time": {
+        "secs": 1030,
+        "label": "18"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Daizen Maeda (Ipswich Town).",
+      "playerIds": [
+        122002
+      ]
+    },
+    {
+      "id": 2911767,
+      "time": {
+        "secs": 1101,
+        "label": "19"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jan Paul van Hecke (Tottenham Hotspur) header from the left side of the six yard box is too high. Assisted by James Maddison following a set piece situation.",
+      "playerIds": [
+        76090,
+        8456
+      ]
+    },
+    {
+      "id": 2911804,
+      "time": {
+        "secs": 1228,
+        "label": "21"
+      },
+      "type": "free kick lost",
+      "text": "Handball by Leif Davis (Ipswich Town).",
+      "playerIds": [
+        51454
+      ]
+    },
+    {
+      "id": 2911834,
+      "time": {
+        "secs": 1353,
+        "label": "23"
+      },
+      "type": "free kick won",
+      "text": "Dominic Solanke (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        10443
+      ]
+    },
+    {
+      "id": 2911835,
+      "time": {
+        "secs": 1353,
+        "label": "23"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dara O'Shea (Ipswich Town).",
+      "playerIds": [
+        15154
+      ]
+    },
+    {
+      "id": 2911870,
+      "time": {
+        "secs": 1447,
+        "label": "25"
+      },
+      "type": "free kick won",
+      "text": "Exequiel Palacios (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        40161
+      ]
+    },
+    {
+      "id": 2911883,
+      "time": {
+        "secs": 1447,
+        "label": "25"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Mateus Fernandes (Tottenham Hotspur).",
+      "playerIds": [
+        119072
+      ]
+    },
+    {
+      "id": 2911882,
+      "time": {
+        "secs": 1473,
+        "label": "25"
+      },
+      "type": "offside",
+      "text": "Offside, Ipswich Town. Zian Flemming is caught offside.",
+      "playerIds": [
+        10491,
+        75735
+      ]
+    },
+    {
+      "id": 2911894,
+      "time": {
+        "secs": 1572,
+        "label": "27"
+      },
+      "type": "offside",
+      "text": "Offside, Tottenham Hotspur. Mohammed Kudus is caught offside.",
+      "playerIds": [
+        76090,
+        51364
+      ]
+    },
+    {
+      "id": 2911898,
+      "time": {
+        "secs": 1628,
+        "label": "28"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Exequiel Palacios (Ipswich Town).",
+      "playerIds": [
+        40161
+      ]
+    },
+    {
+      "id": 2911899,
+      "time": {
+        "secs": 1628,
+        "label": "28"
+      },
+      "type": "free kick won",
+      "text": "Luca Williams-Barnett (Tottenham Hotspur) wins a free kick in the attacking half.",
+      "playerIds": [
+        134791
+      ]
+    },
+    {
+      "id": 2911921,
+      "time": {
+        "secs": 1706,
+        "label": "29"
+      },
+      "type": "post",
+      "text": "Mohammed Kudus (Tottenham Hotspur) hits the left post with a left footed shot from outside the box from a direct free kick.",
+      "playerIds": [
+        51364
+      ]
+    },
+    {
+      "id": 2911924,
+      "time": {
+        "secs": 1783,
+        "label": "30"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Daizen Maeda (Ipswich Town).",
+      "playerIds": [
+        122002
+      ]
+    },
+    {
+      "id": 2911925,
+      "time": {
+        "secs": 1783,
+        "label": "30"
+      },
+      "type": "free kick won",
+      "text": "Marcos Senesi (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        54989
+      ]
+    },
+    {
+      "id": 2911942,
+      "time": {
+        "secs": 1856,
+        "label": "31"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Mohammed Kudus (Tottenham Hotspur).",
+      "playerIds": [
+        51364
+      ]
+    },
+    {
+      "id": 2911943,
+      "time": {
+        "secs": 1856,
+        "label": "31"
+      },
+      "type": "free kick won",
+      "text": "Darnell Furlong (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        10491
+      ]
+    },
+    {
+      "id": 2911984,
+      "time": {
+        "secs": 1927,
+        "label": "33"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Exequiel Palacios (Ipswich Town) right footed shot from outside the box is blocked. Assisted by Leif Davis.",
+      "playerIds": [
+        40161,
+        51454
+      ]
+    },
+    {
+      "id": 2911985,
+      "time": {
+        "secs": 1978,
+        "label": "33"
+      },
+      "type": "free kick won",
+      "text": "Zian Flemming (Ipswich Town) wins a free kick in the attacking half.",
+      "playerIds": [
+        75735
+      ]
+    },
+    {
+      "id": 2911986,
+      "time": {
+        "secs": 1978,
+        "label": "33"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Marcos Senesi (Tottenham Hotspur).",
+      "playerIds": [
+        54989
+      ]
+    },
+    {
+      "id": 2912053,
+      "time": {
+        "secs": 2052,
+        "label": "35"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Conor Gallagher (Tottenham Hotspur)."
+    },
+    {
+      "id": 2912054,
+      "time": {
+        "secs": 2092,
+        "label": "35"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2912083,
+      "time": {
+        "secs": 2170,
+        "label": "37"
+      },
+      "type": "corner",
+      "text": "Corner, Ipswich Town. Conceded by Destiny Udogie.",
+      "playerIds": [
+        126824
+      ]
+    },
+    {
+      "id": 2912116,
+      "time": {
+        "secs": 2351,
+        "label": "40"
+      },
+      "type": "miss",
+      "text": "Attempt missed. James Maddison (Tottenham Hotspur) right footed shot from the centre of the box is high and wide to the right.",
+      "playerIds": [
+        8456
+      ]
+    },
+    {
+      "id": 2912137,
+      "time": {
+        "secs": 2451,
+        "label": "41"
+      },
+      "type": "free kick won",
+      "text": "Julio Enciso (Ipswich Town) wins a free kick in the attacking half.",
+      "playerIds": [
+        125827
+      ]
+    },
+    {
+      "id": 2912138,
+      "time": {
+        "secs": 2451,
+        "label": "41"
+      },
+      "type": "free kick lost",
+      "text": "Foul by James Maddison (Tottenham Hotspur).",
+      "playerIds": [
+        8456
+      ]
+    },
+    {
+      "id": 2912170,
+      "time": {
+        "secs": 2454,
+        "label": "41"
+      },
+      "type": "yellow card",
+      "text": "James Maddison (Tottenham Hotspur) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        8456
+      ]
+    },
+    {
+      "id": 2912191,
+      "time": {
+        "secs": 2522,
+        "label": "43"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Julio Enciso (Ipswich Town) right footed shot from outside the box is blocked. Assisted by Zian Flemming.",
+      "playerIds": [
+        125827,
+        75735
+      ]
+    },
+    {
+      "id": 2912173,
+      "time": {
+        "secs": 2526,
+        "label": "43"
+      },
+      "type": "corner",
+      "text": "Corner, Ipswich Town. Conceded by Luca Williams-Barnett.",
+      "playerIds": [
+        134791
+      ]
+    },
+    {
+      "id": 2912228,
+      "time": {
+        "secs": 2663,
+        "label": "45"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Luca Williams-Barnett (Tottenham Hotspur) right footed shot from very close range is saved in the bottom left corner by Christian Walton (Ipswich Town). Assisted by Destiny Udogie.",
+      "playerIds": [
+        134791,
+        126824
+      ]
+    },
+    {
+      "id": 2912229,
+      "time": {
+        "secs": 2677,
+        "label": "45"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Luca Williams-Barnett (Tottenham Hotspur) header from the left side of the six yard box is saved in the top centre of the goal by Christian Walton (Ipswich Town). Assisted by Mohammed Kudus with a cross.",
+      "playerIds": [
+        134791,
+        51364
+      ]
+    },
+    {
+      "id": 2912227,
+      "time": {
+        "secs": 2679,
+        "label": "45"
+      },
+      "type": "corner",
+      "text": "Corner, Tottenham Hotspur. Conceded by Christian Walton.",
+      "playerIds": [
+        8159
+      ]
+    },
+    {
+      "id": 2912230,
+      "time": {
+        "secs": 2703,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 2 minutes of added time."
+    },
+    {
+      "id": 2912231,
+      "time": {
+        "secs": 2729,
+        "label": "45+1"
+      },
+      "type": "corner",
+      "text": "Corner, Tottenham Hotspur. Conceded by Darnell Furlong.",
+      "playerIds": [
+        10491
+      ]
+    },
+    {
+      "id": 2912296,
+      "time": {
+        "secs": 2771,
+        "label": "45+2"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. James Maddison (Tottenham Hotspur) right footed shot from the centre of the box is blocked. Assisted by Jan Paul van Hecke with a headed pass.",
+      "playerIds": [
+        8456,
+        76090
+      ]
+    },
+    {
+      "id": 2912260,
+      "time": {
+        "secs": 2774,
+        "label": "45+2"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. James Maddison (Tottenham Hotspur) right footed shot from the centre of the box is saved in the top left corner by Christian Walton (Ipswich Town).",
+      "playerIds": [
+        8456
+      ]
+    },
+    {
+      "id": 2912263,
+      "time": {
+        "secs": 2820,
+        "label": "45+3"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Tottenham Hotspur 1, Ipswich Town 0."
+    },
+    {
+      "id": 2912305,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Tottenham Hotspur 1, Ipswich Town 0."
+    },
+    {
+      "id": 2912314,
+      "time": {
+        "secs": 2730,
+        "label": "46"
+      },
+      "type": "free kick won",
+      "text": "Leif Davis (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        51454
+      ]
+    },
+    {
+      "id": 2912315,
+      "time": {
+        "secs": 2730,
+        "label": "46"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dominic Solanke (Tottenham Hotspur).",
+      "playerIds": [
+        10443
+      ]
+    },
+    {
+      "id": 2912320,
+      "time": {
+        "secs": 2774,
+        "label": "47"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jan Paul van Hecke (Tottenham Hotspur).",
+      "playerIds": [
+        76090
+      ]
+    },
+    {
+      "id": 2912321,
+      "time": {
+        "secs": 2774,
+        "label": "47"
+      },
+      "type": "free kick won",
+      "text": "Daizen Maeda (Ipswich Town) wins a free kick on the left wing.",
+      "playerIds": [
+        122002
+      ]
+    },
+    {
+      "id": 2912347,
+      "time": {
+        "secs": 2807,
+        "label": "47"
+      },
+      "type": "free kick won",
+      "text": "Pedro Porro (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        32229
+      ]
+    },
+    {
+      "id": 2912348,
+      "time": {
+        "secs": 2807,
+        "label": "47"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Daizen Maeda (Ipswich Town).",
+      "playerIds": [
+        122002
+      ]
+    },
+    {
+      "id": 2912365,
+      "time": {
+        "secs": 2937,
+        "label": "49"
+      },
+      "type": "corner",
+      "text": "Corner, Tottenham Hotspur. Conceded by Leif Davis.",
+      "playerIds": [
+        51454
+      ]
+    },
+    {
+      "id": 2912386,
+      "time": {
+        "secs": 2984,
+        "label": "50"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Conor Gallagher (Tottenham Hotspur).",
+      "playerIds": [
+        21887
+      ]
+    },
+    {
+      "id": 2912387,
+      "time": {
+        "secs": 2984,
+        "label": "50"
+      },
+      "type": "free kick won",
+      "text": "Zian Flemming (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        75735
+      ]
+    },
+    {
+      "id": 2912620,
+      "time": {
+        "secs": 3057,
+        "label": "51"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Luca Williams-Barnett (Tottenham Hotspur) left footed shot from the left side of the box is saved in the bottom right corner by Christian Walton (Ipswich Town). Assisted by Marcos Senesi.",
+      "playerIds": [
+        134791,
+        54989
+      ]
+    },
+    {
+      "id": 2912413,
+      "time": {
+        "secs": 3060,
+        "label": "52"
+      },
+      "type": "goal",
+      "text": "Goal! Tottenham Hotspur 2, Ipswich Town 0. Dominic Solanke (Tottenham Hotspur) right footed shot from very close range to the centre of the goal.",
+      "playerIds": [
+        10443
+      ]
+    },
+    {
+      "id": 2912455,
+      "time": {
+        "secs": 3120,
+        "label": "53"
+      },
+      "type": "yellow card",
+      "text": "Luca Williams-Barnett (Tottenham Hotspur) is shown the yellow card for excessive celebration.",
+      "playerIds": [
+        134791
+      ]
+    },
+    {
+      "id": 2912458,
+      "time": {
+        "secs": 3282,
+        "label": "55"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Marcos Senesi (Tottenham Hotspur).",
+      "playerIds": [
+        54989
+      ]
+    },
+    {
+      "id": 2912459,
+      "time": {
+        "secs": 3282,
+        "label": "55"
+      },
+      "type": "free kick won",
+      "text": "Julio Enciso (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        125827
+      ]
+    },
+    {
+      "id": 2912473,
+      "time": {
+        "secs": 3307,
+        "label": "56"
+      },
+      "type": "substitution",
+      "text": "Substitution, Ipswich Town. Florentino replaces Exequiel Palacios.",
+      "playerIds": [
+        63851,
+        40161
+      ]
+    },
+    {
+      "id": 2912477,
+      "time": {
+        "secs": 3312,
+        "label": "56"
+      },
+      "type": "substitution",
+      "text": "Substitution, Ipswich Town. Abdul Fatawu Issahaku replaces Abdoul Ouattara.",
+      "playerIds": [
+        127644,
+        126111
+      ]
+    },
+    {
+      "id": 2912475,
+      "time": {
+        "secs": 3316,
+        "label": "56"
+      },
+      "type": "substitution",
+      "text": "Substitution, Ipswich Town. Jack Clarke replaces Daizen Maeda.",
+      "playerIds": [
+        32715,
+        122002
+      ]
+    },
+    {
+      "id": 2912474,
+      "time": {
+        "secs": 3359,
+        "label": "56"
+      },
+      "type": "free kick won",
+      "text": "Julio Enciso (Ipswich Town) wins a free kick in the attacking half.",
+      "playerIds": [
+        125827
+      ]
+    },
+    {
+      "id": 2912476,
+      "time": {
+        "secs": 3359,
+        "label": "56"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Mateus Fernandes (Tottenham Hotspur).",
+      "playerIds": [
+        119072
+      ]
+    },
+    {
+      "id": 2912537,
+      "time": {
+        "secs": 3437,
+        "label": "58"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Zian Flemming (Ipswich Town) right footed shot from outside the box is blocked.",
+      "playerIds": [
+        75735
+      ]
+    },
+    {
+      "id": 2912791,
+      "time": {
+        "secs": 3440,
+        "label": "58"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Julio Enciso (Ipswich Town) right footed shot from outside the box is blocked. Assisted by Dara O'Shea.",
+      "playerIds": [
+        125827,
+        15154
+      ]
+    },
+    {
+      "id": 2912500,
+      "time": {
+        "secs": 3460,
+        "label": "58"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Florentino (Ipswich Town) header from the centre of the box is saved in the bottom left corner by Antonín Kinsky (Tottenham Hotspur). Assisted by Abdul Fatawu Issahaku with a cross.",
+      "playerIds": [
+        63851,
+        127644
+      ]
+    },
+    {
+      "id": 2912538,
+      "time": {
+        "secs": 3482,
+        "label": "59"
+      },
+      "type": "free kick lost",
+      "text": "Handball by Abdul Fatawu Issahaku (Ipswich Town).",
+      "playerIds": [
+        127644
+      ]
+    },
+    {
+      "id": 2912551,
+      "time": {
+        "secs": 3522,
+        "label": "59"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Issa Diop (Ipswich Town).",
+      "playerIds": [
+        49884
+      ]
+    },
+    {
+      "id": 2912552,
+      "time": {
+        "secs": 3522,
+        "label": "59"
+      },
+      "type": "free kick won",
+      "text": "Luca Williams-Barnett (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        134791
+      ]
+    },
+    {
+      "id": 2912581,
+      "time": {
+        "secs": 3644,
+        "label": "61"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Julio Enciso (Ipswich Town) left footed shot from outside the box is blocked. Assisted by Abdul Fatawu Issahaku.",
+      "playerIds": [
+        125827,
+        127644
+      ]
+    },
+    {
+      "id": 2912582,
+      "time": {
+        "secs": 3645,
+        "label": "61"
+      },
+      "type": "corner",
+      "text": "Corner, Ipswich Town. Conceded by Marcos Senesi.",
+      "playerIds": [
+        54989
+      ]
+    },
+    {
+      "id": 2912625,
+      "time": {
+        "secs": 3735,
+        "label": "63"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. James Maddison (Tottenham Hotspur) right footed shot from the centre of the box is blocked. Assisted by Dominic Solanke.",
+      "playerIds": [
+        8456,
+        10443
+      ]
+    },
+    {
+      "id": 2912622,
+      "time": {
+        "secs": 3753,
+        "label": "63"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jan Paul van Hecke (Tottenham Hotspur).",
+      "playerIds": [
+        76090
+      ]
+    },
+    {
+      "id": 2912624,
+      "time": {
+        "secs": 3753,
+        "label": "63"
+      },
+      "type": "free kick won",
+      "text": "Zian Flemming (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        75735
+      ]
+    },
+    {
+      "id": 2912621,
+      "time": {
+        "secs": 3773,
+        "label": "63"
+      },
+      "type": "free kick won",
+      "text": "Sasa Lukic (Ipswich Town) wins a free kick in the attacking half.",
+      "playerIds": [
+        16044
+      ]
+    },
+    {
+      "id": 2912623,
+      "time": {
+        "secs": 3773,
+        "label": "63"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Mohammed Kudus (Tottenham Hotspur).",
+      "playerIds": [
+        51364
+      ]
+    },
+    {
+      "id": 2912647,
+      "time": {
+        "secs": 3815,
+        "label": "64"
+      },
+      "type": "substitution",
+      "text": "Substitution, Tottenham Hotspur. Lucas Bergvall replaces James Maddison.",
+      "playerIds": [
+        133603,
+        8456
+      ]
+    },
+    {
+      "id": 2912648,
+      "time": {
+        "secs": 3826,
+        "label": "64"
+      },
+      "type": "substitution",
+      "text": "Substitution, Tottenham Hotspur. Sávio replaces Luca Williams-Barnett.",
+      "playerIds": [
+        126943,
+        134791
+      ]
+    },
+    {
+      "id": 2912649,
+      "time": {
+        "secs": 3831,
+        "label": "64"
+      },
+      "type": "substitution",
+      "text": "Substitution, Tottenham Hotspur. Omar Marmoush replaces Dominic Solanke.",
+      "playerIds": [
+        76216,
+        10443
+      ]
+    },
+    {
+      "id": 2912666,
+      "time": {
+        "secs": 3858,
+        "label": "65"
+      },
+      "type": "free kick won",
+      "text": "Jan Paul van Hecke (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        76090
+      ]
+    },
+    {
+      "id": 2912668,
+      "time": {
+        "secs": 3858,
+        "label": "65"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Zian Flemming (Ipswich Town).",
+      "playerIds": [
+        75735
+      ]
+    },
+    {
+      "id": 2912665,
+      "time": {
+        "secs": 3905,
+        "label": "66"
+      },
+      "type": "free kick won",
+      "text": "Leif Davis (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        51454
+      ]
+    },
+    {
+      "id": 2912667,
+      "time": {
+        "secs": 3905,
+        "label": "66"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Mohammed Kudus (Tottenham Hotspur).",
+      "playerIds": [
+        51364
+      ]
+    },
+    {
+      "id": 2912701,
+      "time": {
+        "secs": 3963,
+        "label": "67"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Issa Diop (Ipswich Town).",
+      "playerIds": [
+        49884
+      ]
+    },
+    {
+      "id": 2912702,
+      "time": {
+        "secs": 3963,
+        "label": "67"
+      },
+      "type": "free kick won",
+      "text": "Omar Marmoush (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        76216
+      ]
+    },
+    {
+      "id": 2912759,
+      "time": {
+        "secs": 4047,
+        "label": "68"
+      },
+      "type": "corner",
+      "text": "Corner, Tottenham Hotspur. Conceded by Christian Walton.",
+      "playerIds": [
+        8159
+      ]
+    },
+    {
+      "id": 2912758,
+      "time": {
+        "secs": 4083,
+        "label": "69"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Sávio (Tottenham Hotspur) left footed shot from the centre of the box misses to the left. Assisted by Mateus Fernandes with a cross following a corner.",
+      "playerIds": [
+        126943,
+        119072
+      ]
+    },
+    {
+      "id": 2912792,
+      "time": {
+        "secs": 4151,
+        "label": "70"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Julio Enciso (Ipswich Town) right footed shot from outside the box is blocked. Assisted by Leif Davis.",
+      "playerIds": [
+        125827,
+        51454
+      ]
+    },
+    {
+      "id": 2912782,
+      "time": {
+        "secs": 4152,
+        "label": "70"
+      },
+      "type": "corner",
+      "text": "Corner, Ipswich Town. Conceded by Marcos Senesi.",
+      "playerIds": [
+        54989
+      ]
+    },
+    {
+      "id": 2912822,
+      "time": {
+        "secs": 4289,
+        "label": "72"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Omar Marmoush (Tottenham Hotspur) right footed shot from the left side of the box is blocked. Assisted by Lucas Bergvall.",
+      "playerIds": [
+        76216,
+        133603
+      ]
+    },
+    {
+      "id": 2912821,
+      "time": {
+        "secs": 4291,
+        "label": "72"
+      },
+      "type": "corner",
+      "text": "Corner, Tottenham Hotspur. Conceded by Issa Diop.",
+      "playerIds": [
+        49884
+      ]
+    },
+    {
+      "id": 2912845,
+      "time": {
+        "secs": 4381,
+        "label": "74"
+      },
+      "type": "free kick won",
+      "text": "Mohammed Kudus (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        51364
+      ]
+    },
+    {
+      "id": 2912846,
+      "time": {
+        "secs": 4381,
+        "label": "74"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Leif Davis (Ipswich Town).",
+      "playerIds": [
+        51454
+      ]
+    },
+    {
+      "id": 2912857,
+      "time": {
+        "secs": 4397,
+        "label": "74"
+      },
+      "type": "substitution",
+      "text": "Substitution, Ipswich Town. Emersonn replaces Zian Flemming.",
+      "playerIds": [
+        313194,
+        75735
+      ]
+    },
+    {
+      "id": 2912941,
+      "time": {
+        "secs": 4607,
+        "label": "77"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Jack Clarke (Ipswich Town) right footed shot from the left side of the box is blocked. Assisted by Julio Enciso.",
+      "playerIds": [
+        32715,
+        125827
+      ]
+    },
+    {
+      "id": 2912911,
+      "time": {
+        "secs": 4609,
+        "label": "77"
+      },
+      "type": "corner",
+      "text": "Corner, Ipswich Town. Conceded by Pedro Porro.",
+      "playerIds": [
+        32229
+      ]
+    },
+    {
+      "id": 2912981,
+      "time": {
+        "secs": 4710,
+        "label": "79"
+      },
+      "type": "yellow card",
+      "text": "Mohammed Kudus (Tottenham Hotspur) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        51364
+      ]
+    },
+    {
+      "id": 2912980,
+      "time": {
+        "secs": 4717,
+        "label": "79"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Leif Davis (Ipswich Town)."
+    },
+    {
+      "id": 2912982,
+      "time": {
+        "secs": 4737,
+        "label": "79"
+      },
+      "type": "substitution",
+      "text": "Substitution, Tottenham Hotspur. Andy Robertson replaces Destiny Udogie.",
+      "playerIds": [
+        10458,
+        126824
+      ]
+    },
+    {
+      "id": 2912992,
+      "time": {
+        "secs": 4812,
+        "label": "81"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2913015,
+      "time": {
+        "secs": 4905,
+        "label": "82"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Leif Davis (Ipswich Town)."
+    },
+    {
+      "id": 2913014,
+      "time": {
+        "secs": 4932,
+        "label": "83"
+      },
+      "type": "substitution",
+      "text": "Substitution, Ipswich Town. Jacob Greaves replaces Leif Davis because of an injury.",
+      "playerIds": [
+        49254,
+        51454
+      ]
+    },
+    {
+      "id": 2913013,
+      "time": {
+        "secs": 4934,
+        "label": "83"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2913055,
+      "time": {
+        "secs": 4952,
+        "label": "83"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Issa Diop (Ipswich Town).",
+      "playerIds": [
+        49884
+      ]
+    },
+    {
+      "id": 2913057,
+      "time": {
+        "secs": 4952,
+        "label": "83"
+      },
+      "type": "free kick won",
+      "text": "Omar Marmoush (Tottenham Hotspur) wins a free kick in the attacking half.",
+      "playerIds": [
+        76216
+      ]
+    },
+    {
+      "id": 2913056,
+      "time": {
+        "secs": 4958,
+        "label": "83"
+      },
+      "type": "yellow card",
+      "text": "Issa Diop (Ipswich Town) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        49884
+      ]
+    },
+    {
+      "id": 2913088,
+      "time": {
+        "secs": 5038,
+        "label": "84"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Abdul Fatawu Issahaku (Ipswich Town) left footed shot from the right side of the box is blocked. Assisted by Sasa Lukic.",
+      "playerIds": [
+        127644,
+        16044
+      ]
+    },
+    {
+      "id": 2913089,
+      "time": {
+        "secs": 5039,
+        "label": "84"
+      },
+      "type": "corner",
+      "text": "Corner, Ipswich Town. Conceded by Marcos Senesi.",
+      "playerIds": [
+        54989
+      ]
+    },
+    {
+      "id": 2913127,
+      "time": {
+        "secs": 5197,
+        "label": "87"
+      },
+      "type": "free kick won",
+      "text": "Florentino (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        63851
+      ]
+    },
+    {
+      "id": 2913128,
+      "time": {
+        "secs": 5197,
+        "label": "87"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Conor Gallagher (Tottenham Hotspur).",
+      "playerIds": [
+        21887
+      ]
+    },
+    {
+      "id": 2913163,
+      "time": {
+        "secs": 5279,
+        "label": "88"
+      },
+      "type": "offside",
+      "text": "Offside, Ipswich Town. Jack Clarke is caught offside.",
+      "playerIds": [
+        313194,
+        32715
+      ]
+    },
+    {
+      "id": 2913201,
+      "time": {
+        "secs": 5291,
+        "label": "89"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Sávio (Tottenham Hotspur)."
+    },
+    {
+      "id": 2913200,
+      "time": {
+        "secs": 5370,
+        "label": "90"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2913199,
+      "time": {
+        "secs": 5371,
+        "label": "90"
+      },
+      "type": "substitution",
+      "text": "Substitution, Tottenham Hotspur. Archie Gray replaces Sávio because of an injury.",
+      "playerIds": [
+        117596,
+        126943
+      ]
+    },
+    {
+      "id": 2913224,
+      "time": {
+        "secs": 5408,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 6 minutes of added time."
+    },
+    {
+      "id": 2913241,
+      "time": {
+        "secs": 5488,
+        "label": "90+2"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jack Clarke (Ipswich Town).",
+      "playerIds": [
+        32715
+      ]
+    },
+    {
+      "id": 2913242,
+      "time": {
+        "secs": 5488,
+        "label": "90+2"
+      },
+      "type": "free kick won",
+      "text": "Pedro Porro (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        32229
+      ]
+    },
+    {
+      "id": 2913272,
+      "time": {
+        "secs": 5514,
+        "label": "90+2"
+      },
+      "type": "free kick won",
+      "text": "Mateus Fernandes (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        119072
+      ]
+    },
+    {
+      "id": 2913273,
+      "time": {
+        "secs": 5514,
+        "label": "90+2"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Emersonn (Ipswich Town).",
+      "playerIds": [
+        313194
+      ]
+    },
+    {
+      "id": 2913271,
+      "time": {
+        "secs": 5561,
+        "label": "90+3"
+      },
+      "type": "free kick won",
+      "text": "Julio Enciso (Ipswich Town) wins a free kick in the attacking half.",
+      "playerIds": [
+        125827
+      ]
+    },
+    {
+      "id": 2913274,
+      "time": {
+        "secs": 5561,
+        "label": "90+3"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Pedro Porro (Tottenham Hotspur).",
+      "playerIds": [
+        32229
+      ]
+    },
+    {
+      "id": 2913305,
+      "time": {
+        "secs": 5588,
+        "label": "90+4"
+      },
+      "type": "free kick won",
+      "text": "Omar Marmoush (Tottenham Hotspur) wins a free kick in the defensive half.",
+      "playerIds": [
+        76216
+      ]
+    },
+    {
+      "id": 2913306,
+      "time": {
+        "secs": 5588,
+        "label": "90+4"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jacob Greaves (Ipswich Town).",
+      "playerIds": [
+        49254
+      ]
+    },
+    {
+      "id": 2913304,
+      "time": {
+        "secs": 5642,
+        "label": "90+5"
+      },
+      "type": "free kick won",
+      "text": "Julio Enciso (Ipswich Town) wins a free kick in the defensive half.",
+      "playerIds": [
+        125827
+      ]
+    },
+    {
+      "id": 2913307,
+      "time": {
+        "secs": 5642,
+        "label": "90+5"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Mateus Fernandes (Tottenham Hotspur).",
+      "playerIds": [
+        119072
+      ]
+    },
+    {
+      "id": 2913337,
+      "time": {
+        "secs": 5650,
+        "label": "90+5"
+      },
+      "type": "yellow card",
+      "text": "Mateus Fernandes (Tottenham Hotspur) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        119072
+      ]
+    },
+    {
+      "id": 2913358,
+      "time": {
+        "secs": 5760,
+        "label": "90+7"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Tottenham Hotspur 2, Ipswich Town 0."
+    },
+    {
+      "id": 2913367,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Tottenham Hotspur 2, Ipswich Town 0."
     }
   ]
 }

@@ -30,14 +30,16 @@ import {
   calculatePlayerMatchExpectedPoints,
   parseExpectedReturnDate,
   resolveDeadBallDuties,
-  getClubFormationsHistory,
-  getRecencyWeightedFormationPrior,
 } from '../utils/projectionModel.ts';
 import {
-  buildTacticalHistoryIndex,
-  predictClubFormationSlots,
-  selectTacticalOutfieldStarters,
-} from '../utils/tacticalLineupModel.ts';
+  CausalAvailability,
+  HybridTuneParams,
+  PlayerFeaturesAtGw,
+  buildHybridHistoryStore,
+  predictHybridClubLineup,
+  resolveCausalPlayerAvailability,
+  selectCausalHybridParamsAndWeights,
+} from '../utils/hybridLineupModel.ts';
 import { getFplProvenStatus } from '../utils/fplProvenGuard.ts';
 import { ALL_SEASON_FIXTURES } from '../data/allSeasonFixtures.ts';
 import pastSeasonRaw from '../data/playersPastSeason2025_26.json' with { type: 'json' };
@@ -48,6 +50,10 @@ import {
   fetchMatchesForGw,
   getCachedMatchesForGw,
 } from './matchesFetcher.ts';
+import {
+  isSpecificPulsePositionInfo,
+  lookupPulsePlayerPosition,
+} from './pulsePlayerPositions.ts';
 
 interface PastSeasonPlayerRecord {
   id: number;
@@ -153,10 +159,31 @@ const FORMULA_SOURCE_FILES = [
   'src/utils/projectionModel.ts',
   'src/utils/fplProvenGuard.ts',
   'src/utils/tacticalLineupModel.ts',
+  'src/utils/hybridLineupModel.ts',
   'src/utils/scoutNarratives.ts',
   'src/data/playerExplosiveCatalog.ts',
+  'src/server/pulsePlayerPositions.ts',
   'src/server/projectionEngineServer.ts',
 ];
+
+function buildPulsePositionInfoSeed(players: DbPlayerStat[]): Record<number, string> {
+  const seed: Record<number, string> = {};
+  for (const p of players) {
+    const resolved = lookupPulsePlayerPosition({
+      optaCode: (p as any).code || undefined,
+      fplId: p.id,
+      teamShort: p.teamShort,
+      fullName: p.fullName,
+      webName: p.webName,
+      existingPositionInfo: p.pulsePositionInfo,
+      existingPositionChar: p.pulsePosition,
+    });
+    if (resolved.positionInfo && (isSpecificPulsePositionInfo(resolved.positionInfo) || !seed[p.id])) {
+      seed[p.id] = resolved.positionInfo;
+    }
+  }
+  return seed;
+}
 
 let cachedFormulaFingerprint: string | null = null;
 let lastFormulaStatCheckMs = 0;
@@ -880,366 +907,156 @@ async function getOrBuildCoreContext(
       dynamicExplosiveById.set(p.id, { hauls, maxPts, haulRate });
     }
 
-    // 5. Club Squad Projections (Starting XI / Bench / Out) for targetNextGW
+    // 5. Club Squad Projections (HYBRID-B: Starting XI / Sub_9 / Out / Calibration for targetNextGW)
     const clubSquadProjections: Record<string, ProjectedSquadPlayer[]> = {};
     for (const c of clubs) {
       clubSquadProjections[c.short] = [];
     }
 
     const N = Math.max(baseHistoricalGW, 1);
+    const deadlines = cachedData.sync_status?.deadlines;
+    const playerPosSeed = buildPulsePositionInfoSeed(allPlayers);
+    const playerTeamMap = new Map<number, string>(allPlayers.map((p) => [p.id, p.teamShort]));
+    const hybridHistory = buildHybridHistoryStore(
+      historicalMatchesForStats,
+      baseHistoricalGW,
+      playerPosSeed,
+      precalculatedReviewData.players,
+      playerTeamMap
+    );
+    const clubShorts = clubs.map((c) => c.short);
+    const {
+      params: hybridParams,
+      logitWeights: hybridWeights,
+      targetFeatMap: hybridTargetFeatMap,
+    } = selectCausalHybridParamsAndWeights(
+      allPlayers,
+      clubShorts,
+      targetNextGW,
+      hybridHistory,
+      pastSeasonMap,
+      deadlines
+    );
+
+    const allPlayersByClub = new Map<string, DbPlayerStat[]>();
     for (const p of allPlayers) {
-      const c = p.teamShort;
-      if (!clubSquadProjections[c]) continue;
-
-      const chanceThis = (p as any).chanceOfPlayingThisRound;
-      const chanceNext = p.chanceOfPlayingNextRound;
-      const rawStatus = (p.status || 'a').toLowerCase();
-      const rawNews = p.news || '';
-      const isNewsSuspended = /suspende/i.test(rawNews);
-
-      const effectiveChance: number | null = isCurrentGwFinishedOrConfirmed
-        ? (chanceNext !== null && chanceNext !== undefined ? chanceNext : chanceThis)
-        : (chanceThis !== null && chanceThis !== undefined ? chanceThis : chanceNext);
-
-      const returnDate = parseExpectedReturnDate(rawNews);
-      // Earliest fixture in targetNextGW (handles DGW cleanly; BGW won't adjust return date)
-      const nextMatches = clubNextMatchesMap[c] || [];
-      const earliestKickoff = nextMatches[0]?.kickoffTime;
-
-      let isBeforeReturnDate = false;
-      let hasPassedReturnDate = false;
-      if (returnDate && earliestKickoff) {
-        const matchTime = new Date(earliestKickoff);
-        if (!isNaN(matchTime.getTime())) {
-          if (matchTime < returnDate) isBeforeReturnDate = true;
-          else hasPassedReturnDate = true;
-        }
-      }
-
-      let effectiveStatus = rawStatus;
-      let isSuspended = rawStatus === 's' || isNewsSuspended;
-      if (isSuspended && isCurrentGwFinishedOrConfirmed && chanceNext === 100) {
-        isSuspended = false;
-        effectiveStatus = 'a';
-      }
-
-      let A = 1.0;
-      if (effectiveStatus === 'u') {
-        A = 0.0;
-      } else if (isSuspended) {
-        A = 0.0;
-        effectiveStatus = 's';
-      } else if (effectiveStatus === 'i') {
-        if (hasPassedReturnDate) {
-          A = 0.75;
-          effectiveStatus = 'd';
-        } else {
-          A = 0.0;
-          effectiveStatus = 'i';
-        }
-      } else if (isBeforeReturnDate) {
-        A = 0.0;
-        effectiveStatus = 'i';
-      } else if (effectiveChance === 0) {
-        A = 0.0;
-      } else if (effectiveChance === 25) {
-        A = 0.25;
-        effectiveStatus = 'd';
-      } else if (effectiveChance === 50) {
-        A = 0.5;
-        effectiveStatus = 'd';
-      } else if (effectiveChance === 75) {
-        A = 0.75;
-        effectiveStatus = 'd';
-      } else {
-        A = 1.0;
-        effectiveStatus = 'a';
-      }
-
-      const pulseP = pulsePlayerStats[p.id];
-      const clubMatchesPlayed = clubMatchCount[c] || N;
-      const startsCount = pulseP ? pulseP.starts : (p.starts || 0);
-      const subCount = pulseP ? pulseP.sub : 0;
-      const unusedCount = pulseP ? pulseP.unused : 0;
-      const benchCount = pulseP ? pulseP.bench : subCount + unusedCount;
-      const inSquadCount = startsCount + subCount + unusedCount;
-      const outOfSquadCount = Math.max(clubMatchesPlayed - inSquadCount, 0);
-
-      const R =
-        inSquadCount > 0
-          ? startsCount / inSquadCount
-          : clubMatchesPlayed > 0
-          ? startsCount / clubMatchesPlayed
-          : 0.05;
-
-      let sPrev1 = 0;
-      let sPrev2 = 0;
-      let hasPrev1 = false;
-      let hasPrev2 = false;
-      let startedPrev1 = false;
-      let startedPrev2 = false;
-
-      const pPrecalc = precalculatedReviewData.players[String(p.id)];
-      if (baseHistoricalGW >= 1) {
-        hasPrev1 = true;
-        const live1 = livePlayerGwMap.get(`${p.id}_${baseHistoricalGW}`);
-        const h1 = p.gwHistory?.find((h) => h.round === baseHistoricalGW);
-        const stat1 = live1 ?? (h1 ? { wasStarter: h1.minutes >= 55, mins: h1.minutes } : pPrecalc?.[String(baseHistoricalGW)]);
-        if (stat1?.wasStarter) {
-          sPrev1 = 1.0;
-          startedPrev1 = true;
-        } else if (stat1 && stat1.mins > 0) {
-          sPrev1 = 0.35;
-        }
-      }
-
-      if (baseHistoricalGW >= 2) {
-        hasPrev2 = true;
-        const live2 = livePlayerGwMap.get(`${p.id}_${baseHistoricalGW - 1}`);
-        const h2 = p.gwHistory?.find((h) => h.round === baseHistoricalGW - 1);
-        const stat2 = live2 ?? (h2 ? { wasStarter: h2.minutes >= 55, mins: h2.minutes } : pPrecalc?.[String(baseHistoricalGW - 1)]);
-        if (stat2?.wasStarter) {
-          sPrev2 = 1.0;
-          startedPrev2 = true;
-        } else if (stat2 && stat2.mins > 0) {
-          sPrev2 = 0.35;
-        }
-      }
-
-      let compositeRate = R;
-      if (hasPrev1 && hasPrev2) {
-        compositeRate = 0.50 * R + 0.30 * sPrev1 + 0.20 * sPrev2;
-      } else if (hasPrev1) {
-        compositeRate = 0.60 * R + 0.40 * sPrev1;
-      }
-
-      const dynExp = dynamicExplosiveById.get(p.id);
-      const provenStatus = getFplProvenStatus({
-        ...p,
-        doubleDigitHauls: dynExp?.hauls ?? (p as any).doubleDigitHauls,
-      } as any);
-
-      let momentumBonus = 0;
-      if (startedPrev1 && startedPrev2) {
-        momentumBonus = 8;
-      } else if (hasPrev1 && hasPrev2 && sPrev1 === 0 && sPrev2 === 0 && inSquadCount >= 2) {
-        momentumBonus = provenStatus.isProven ? 0 : -8;
-      }
-
-      const rawBaseSi = Math.round(compositeRate * 100) + momentumBonus;
-      const baseSi = Math.min(99, Math.max(rawBaseSi, 5));
-      const siVal = Math.round(A * baseSi);
-
-      clubSquadProjections[c].push({
-        id: p.id,
-        code: (p as any).code || p.id,
-        webName: p.webName,
-        fullName: p.fullName,
-        position: p.position as PositionType,
-        shirtNum: (p as any).shirtNum || (p as any).shirt_number || 0,
-        teamShort: c,
-        nowCost: (p.nowCost || 50) / 10,
-        si: siVal,
-        baseSi,
-        isRotation5050: false,
-        starts: startsCount,
-        sub: subCount,
-        unused: unusedCount,
-        bench: benchCount,
-        outOfSquad: outOfSquadCount,
-        status: effectiveStatus,
-        chance: A === 0 ? 0 : effectiveChance,
-        news: rawNews || (effectiveStatus === 's' ? 'SUS (0%)' : effectiveStatus === 'i' ? 'INJ (0%)' : ''),
-        expectedReturnDate: returnDate ? returnDate.toISOString() : null,
-        role: 'bench',
-        doubleDigitHauls: dynExp?.hauls ?? (p as any).doubleDigitHauls ?? 0,
-        maxGwPoints: dynExp?.maxPts ?? (p as any).maxGwPoints ?? 0,
-        haulRate: dynExp?.haulRate ?? (p as any).haulRate ?? 0,
-        explosiveIndex: (p as any).explosiveIndex || ((dynExp?.hauls ?? 0) * 22),
-        proven: provenStatus,
-        photo:
-          (p as any).photo ||
-          ((p as any).code
-            ? `https://resources.premierleague.com/premierleague25/photos/players/500x500/${(p as any).code}.png`
-            : ''),
-      });
+      if (!allPlayersByClub.has(p.teamShort)) allPlayersByClub.set(p.teamShort, []);
+      allPlayersByClub.get(p.teamShort)!.push(p);
     }
 
-    const clubFormationsHistory = getClubFormationsHistory(
-      baseHistoricalGW,
-      cachedData.player_stats || [],
-      precalculatedReviewData.players,
-      historicalMatchesForStats
-    );
-    const tacticalIndex = buildTacticalHistoryIndex(historicalMatchesForStats, baseHistoricalGW);
-
     for (const c of clubs) {
-      const squad = clubSquadProjections[c.short] || [];
-      squad.sort((a, b) => b.si - a.si || b.starts - a.starts || b.bench - a.bench || b.nowCost - a.nowCost);
+      const cPlayers = allPlayersByClub.get(c.short) || [];
+      const nextMatches = clubNextMatchesMap[c.short] || [];
+      const earliestKickoff = nextMatches[0]?.kickoffTime;
+      const isHomeNext = nextMatches[0]?.isHome;
 
-      const isPlayerAvailable = (p: ProjectedSquadPlayer) =>
-        p.si > 0 &&
-        p.status !== 'i' &&
-        p.status !== 's' &&
-        p.status !== 'u' &&
-        p.chance !== 0 &&
-        !/suspende/i.test(p.news || '');
+      const availabilityById = new Map<number, CausalAvailability>();
+      for (const p of cPlayers) {
+        availabilityById.set(
+          p.id,
+          resolveCausalPlayerAvailability({
+            player: p,
+            targetGw: targetNextGW,
+            mode: 'future',
+            isCurrentGwFinishedOrConfirmed,
+            earliestKickoffIso: earliestKickoff,
+          })
+        );
+      }
 
-      const isFitStarterCandidate = (p: ProjectedSquadPlayer) => isPlayerAvailable(p) && p.chance !== 50;
+      const hybridPred = predictHybridClubLineup({
+        clubShort: c.short,
+        targetGw: targetNextGW,
+        isHome: isHomeNext,
+        players: cPlayers,
+        availabilityById,
+        history: hybridHistory,
+        pastMap: pastSeasonMap,
+        logitWeights: hybridWeights,
+        params: hybridParams,
+        precomputedFeatMap: hybridTargetFeatMap,
+      });
 
-      const availableGkps = squad.filter((p) => p.position === 'GKP' && isPlayerAvailable(p));
-      const fitGkps = availableGkps.filter((p) => isFitStarterCandidate(p));
-      const allGkpsSorted = squad.filter((p) => p.position === 'GKP');
+      const slotIndexById = new Map<number, number>();
+      hybridPred.starterIds.forEach((id, idx) => slotIndexById.set(id, idx));
+      const starterIds = new Set(hybridPred.starterIds);
+      const benchIds = new Set(hybridPred.benchIds);
+      const predictedFormationLabel = hybridPred.predictedFormation || undefined;
+      const clubMatchesPlayed = clubMatchCount[c.short] || N;
 
-      const starters: ProjectedSquadPlayer[] = [];
-      if (fitGkps.length > 0) starters.push(fitGkps[0]);
-      else if (availableGkps.length > 0) starters.push(availableGkps[0]);
-      else if (allGkpsSorted.length > 0) starters.push(allGkpsSorted[0]);
+      const squad: ProjectedSquadPlayer[] = [];
+      for (const p of cPlayers) {
+        const av = availabilityById.get(p.id)!;
+        const probInfo = hybridPred.playerProbs.get(p.id);
+        const feat = probInfo?.feat;
+        const pulseP = pulsePlayerStats[p.id];
+        const startsCount = pulseP ? pulseP.starts : feat ? feat.startsCount : (p.starts || 0);
+        const subCount = pulseP ? pulseP.sub : feat ? feat.subCount : 0;
+        const unusedCount = pulseP ? pulseP.unused : feat ? feat.unusedCount : 0;
+        const benchCount = pulseP ? pulseP.bench : subCount + unusedCount;
+        const inSquadCount = startsCount + subCount + unusedCount;
+        const outOfSquadCount = Math.max(clubMatchesPlayed - inSquadCount, 0);
 
-      const availableOutfields = squad.filter((p) => p.position !== 'GKP' && isPlayerAvailable(p));
-      const fitOutfields = availableOutfields.filter((p) => isFitStarterCandidate(p));
-      const outOutfields = squad.filter((p) => p.position !== 'GKP' && !isPlayerAvailable(p));
+        const dynExp = dynamicExplosiveById.get(p.id);
+        const provenStatus = getFplProvenStatus({
+          ...p,
+          doubleDigitHauls: dynExp?.hauls ?? (p as any).doubleDigitHauls,
+        } as any);
 
-      const tacticalResult = selectTacticalOutfieldStarters(
-        c.short,
-        targetNextGW,
-        fitOutfields.map((p) => ({
+        const rawNews = p.news || '';
+        const baseSi = probInfo?.baseSi ?? Math.min(99, Math.max(5, Math.round((startsCount / Math.max(clubMatchesPlayed, 1)) * 100)));
+        const siVal = probInfo?.si ?? (av.avail <= 0 ? 0 : Math.round(av.avail * baseSi));
+        const role: 'starting' | 'bench' | 'out' = starterIds.has(p.id)
+          ? 'starting'
+          : benchIds.has(p.id)
+          ? 'bench'
+          : 'out';
+
+        squad.push({
           id: p.id,
-          position: p.position,
-          si: p.si,
-          starts: p.starts,
-          bench: p.bench,
-          nowCost: p.nowCost,
-          provenTier: p.proven?.tier,
-        })),
-        tacticalIndex
-      );
-
-      if (tacticalResult && tacticalResult.starterOutfieldIds.length > 0) {
-        const fitById = new Map(fitOutfields.map((p) => [p.id, p]));
-        for (const pId of tacticalResult.starterOutfieldIds) {
-          const picked = fitById.get(pId);
-          if (picked) starters.push(picked);
-        }
-      } else {
-        const formationTarget = getRecencyWeightedFormationPrior(c.short, targetNextGW, clubFormationsHistory);
-        const fitDefs = fitOutfields.filter((p) => p.position === 'DEF');
-        const fitMids = fitOutfields.filter((p) => p.position === 'MID');
-        const fitFwds = fitOutfields.filter((p) => p.position === 'FWD');
-        const availFwds = availableOutfields.filter((p) => p.position === 'FWD');
-        const coreDefs = fitDefs.slice(0, 3);
-        const coreMids = fitMids.slice(0, 3);
-        const requiresPureFwd = (formationTarget.FWD ?? 0) >= 0.65;
-        const coreFwds = requiresPureFwd
-          ? (fitFwds.length > 0 ? fitFwds.slice(0, 1) : availFwds.slice(0, 1))
-          : [];
-        coreDefs.forEach((p) => starters.push(p));
-        coreMids.forEach((p) => starters.push(p));
-        coreFwds.forEach((p) => starters.push(p));
-
-        const coreStarterIds = new Set(starters.map((p) => p.id));
-        const flexCandidates = fitOutfields.filter((p) => !coreStarterIds.has(p.id));
-        let curDef = coreDefs.length;
-        let curMid = coreMids.length;
-        let curFwd = coreFwds.length;
-        const flexSlotsNeeded = Math.max(0, 11 - starters.length);
-
-        for (let slot = 0; slot < flexSlotsNeeded; slot++) {
-          if (flexCandidates.length === 0) break;
-          flexCandidates.forEach((cand) => {
-            const target = formationTarget[cand.position] || 0;
-            const cur = cand.position === 'DEF' ? curDef : cand.position === 'MID' ? curMid : curFwd;
-            const quotaGap = Math.max(0, target - cur);
-            const provenPriority = cand.proven?.tier === 'ELITE' ? 14 : cand.proven?.tier === 'ESTABLISHED' ? 8 : 0;
-            (cand as any).flexScore = cand.si + 8 * quotaGap + provenPriority;
-          });
-          flexCandidates.sort(
-            (a, b) =>
-              ((b as any).flexScore ?? b.si) - ((a as any).flexScore ?? a.si) ||
-              b.si - a.si ||
-              b.starts - a.starts ||
-              b.bench - a.bench ||
-              b.nowCost - a.nowCost
-          );
-          const chosen = flexCandidates.shift();
-          if (chosen) {
-            starters.push(chosen);
-            coreStarterIds.add(chosen.id);
-            if (chosen.position === 'DEF') curDef++;
-            else if (chosen.position === 'MID') curMid++;
-            else if (chosen.position === 'FWD') curFwd++;
-          }
-        }
-      }
-
-      let starterIds = new Set(starters.map((p) => p.id));
-      if (starters.length < 11) {
-        const remAvail = availableOutfields.filter((p) => !starterIds.has(p.id));
-        remAvail.slice(0, 11 - starters.length).forEach((p) => {
-          starters.push(p);
-          starterIds.add(p.id);
-        });
-      }
-      if (starters.length < 11 && outOutfields.length > 0) {
-        const remOut = outOutfields.filter((p) => !starterIds.has(p.id));
-        remOut.slice(0, 11 - starters.length).forEach((p) => {
-          starters.push(p);
-          starterIds.add(p.id);
-        });
-      }
-      starterIds = new Set(starters.map((p) => p.id));
-
-      const predictedFormationLabel =
-        tacticalResult?.predictedFormationLabel ||
-        predictClubFormationSlots(c.short, targetNextGW, tacticalIndex)?.label;
-      starters.forEach((p, idx) => {
-        p.tacticalSlotIndex = idx;
-      });
-      if (predictedFormationLabel) {
-        squad.forEach((p) => {
-          p.projectedFormation = predictedFormationLabel;
+          code: (p as any).code || p.id,
+          webName: p.webName,
+          fullName: p.fullName,
+          position: p.position as PositionType,
+          shirtNum: (p as any).shirtNum || (p as any).shirt_number || 0,
+          teamShort: c.short,
+          nowCost: (p.nowCost || 50) / 10,
+          si: siVal,
+          baseSi,
+          isRotation5050: hybridPred.slotBattleIds.has(p.id),
+          starts: startsCount,
+          sub: subCount,
+          unused: unusedCount,
+          bench: benchCount,
+          outOfSquad: outOfSquadCount,
+          status: av.status,
+          chance: av.chance,
+          news: rawNews || (av.status === 's' ? 'SUS (0%)' : av.status === 'i' ? 'INJ (0%)' : ''),
+          expectedReturnDate: av.expectedReturnDate,
+          role,
+          tacticalSlotIndex: slotIndexById.get(p.id),
+          projectedFormation: predictedFormationLabel,
+          doubleDigitHauls: dynExp?.hauls ?? (p as any).doubleDigitHauls ?? 0,
+          maxGwPoints: dynExp?.maxPts ?? (p as any).maxGwPoints ?? 0,
+          haulRate: dynExp?.haulRate ?? (p as any).haulRate ?? 0,
+          explosiveIndex: (p as any).explosiveIndex || ((dynExp?.hauls ?? 0) * 22),
+          proven: provenStatus,
+          photo:
+            (p as any).photo ||
+            ((p as any).code
+              ? `https://resources.premierleague.com/premierleague25/photos/players/500x500/${(p as any).code}.png`
+              : ''),
         });
       }
 
-      const remaining = squad.filter((p) => !starterIds.has(p.id));
-      const availableRemaining = remaining.filter((p) => isPlayerAvailable(p));
-      const outRemaining = remaining.filter((p) => !isPlayerAvailable(p));
-
-      availableRemaining.sort((a, b) => b.si - a.si || b.bench - a.bench || b.starts - a.starts || b.nowCost - a.nowCost);
-      outRemaining.sort((a, b) => b.si - a.si || b.bench - a.bench || b.starts - a.starts || b.nowCost - a.nowCost);
-
-      const bench: ProjectedSquadPlayer[] = [];
-      const backupGkp =
-        availableRemaining.find((p) => p.position === 'GKP') ||
-        remaining.find((p) => p.position === 'GKP');
-      if (backupGkp) bench.push(backupGkp);
-
-      const remAvailBench = availableRemaining.filter((p) => !bench.some((b) => b.id === p.id));
-      remAvailBench.slice(0, 9 - bench.length).forEach((p) => bench.push(p));
-
-      if (bench.length < 9) {
-        const remOutBench = outRemaining.filter((p) => !bench.some((b) => b.id === p.id));
-        remOutBench.slice(0, 9 - bench.length).forEach((p) => bench.push(p));
-      }
-
-      const benchIds = new Set(bench.map((p) => p.id));
-      squad.forEach((p) => {
-        if (starterIds.has(p.id)) p.role = 'starting';
-        else if (benchIds.has(p.id)) p.role = 'bench';
-        else p.role = 'out';
-      });
-
+      squad.sort((a, b) => b.si - a.si || b.starts - a.starts || b.bench - a.bench || b.nowCost - a.nowCost);
       for (let i = 0; i < squad.length - 1; i++) {
         if (squad[i].si >= 40 && squad[i].si <= 60 && Math.abs(squad[i].si - squad[i + 1].si) <= 10) {
           squad[i].isRotation5050 = true;
           squad[i + 1].isRotation5050 = true;
         }
       }
-      if (tacticalResult?.slotBattleIds && tacticalResult.slotBattleIds.size > 0) {
-        squad.forEach((p) => {
-          if (tacticalResult.slotBattleIds.has(p.id)) p.isRotation5050 = true;
-        });
-      }
+      clubSquadProjections[c.short] = squad;
     }
 
     // 6. All-Player Full-Season Projections (GW 1..38, native DGW sum & BGW blank support)
@@ -1566,6 +1383,14 @@ export async function getServerProjectionCore(
 // ============================================================================
 // REVIEW ENGINE: ACTUALS + LINEUP REVIEW + FULL MAE RECAP (SERVER CACHED)
 // ============================================================================
+interface HybridReviewRuntimeCache {
+  playerPosSeed: Record<number, string>;
+  playerTeamMap: Map<number, string>;
+  deadlines?: Record<string, string>;
+  isCurrentGwFinishedOrConfirmed: boolean;
+  calibByGw: Map<number, { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> }>;
+}
+
 function buildLineupReviewForGw(
   gw: number,
   maxReviewGW: number,
@@ -1573,16 +1398,37 @@ function buildLineupReviewForGw(
   allPlayers: DbPlayerStat[],
   actualMatchLookup: Record<string, ActualMatchReviewEntry[]>,
   actualPlayerStatsMap: Record<number, Record<number, ActualPlayerReviewStat>>,
-  matchesByGw: Record<number, any[]>
+  matchesByGw: Record<number, any[]>,
+  reviewRuntime?: HybridReviewRuntimeCache
 ): { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number } } {
   const clubsData: Record<string, any[]> = {};
-  const clubFormationsHistory = getClubFormationsHistory(
+  const activePlayers = allPlayers.filter((p) => p.status !== 'u');
+  const playerPosSeed = reviewRuntime?.playerPosSeed || buildPulsePositionInfoSeed(activePlayers);
+  const playerTeamMap = reviewRuntime?.playerTeamMap || new Map<number, string>(activePlayers.map((p) => [p.id, p.teamShort]));
+  const deadlines = reviewRuntime?.deadlines;
+  const isCurrConfirmed = reviewRuntime?.isCurrentGwFinishedOrConfirmed ?? true;
+
+  const gwHistory = buildHybridHistoryStore(
+    matchesByGw,
     gw - 1,
-    allPlayers,
+    playerPosSeed,
     precalculatedReviewData.players,
-    matchesByGw
+    playerTeamMap
   );
-  const tacticalIndex = buildTacticalHistoryIndex(matchesByGw, gw - 1);
+
+  const clubShorts = clubs.map((c) => c.short);
+  let calib = reviewRuntime?.calibByGw.get(gw);
+  if (!calib) {
+    calib = selectCausalHybridParamsAndWeights(
+      activePlayers,
+      clubShorts,
+      gw,
+      gwHistory,
+      pastSeasonMap,
+      deadlines
+    );
+    reviewRuntime?.calibByGw.set(gw, calib);
+  }
 
   const actualPulseFormationMap = new Map<string, string>();
   for (const m of matchesByGw[gw] || []) {
@@ -1596,235 +1442,73 @@ function buildLineupReviewForGw(
     }
   }
 
+  const playersByClub = new Map<string, DbPlayerStat[]>();
+  for (const p of activePlayers) {
+    if (!playersByClub.has(p.teamShort)) playersByClub.set(p.teamShort, []);
+    playersByClub.get(p.teamShort)!.push(p);
+  }
+
   let playedClubs = 0;
   let totalHit = 0;
 
+  const ROLE_ORDER: Record<string, number> = { starting: 1, bench: 2, out: 3 };
+  const POS_ORDER: Record<string, number> = { GKP: 1, DEF: 2, MID: 3, FWD: 4 };
+  const dlIso = deadlines?.[String(gw)];
+
   for (const c of clubs) {
-    const squad = allPlayers.filter((p) => p.teamShort === c.short);
+    const squad = playersByClub.get(c.short) || [];
     const actualList = actualMatchLookup[`${gw}_${c.short}`] || [];
     const isMatchPlayed = actualList.some((m) => m.finished || m.teamScore !== null);
+    const isHistoricalPast = gw < maxReviewGW || isMatchPlayed;
+    const earliestKickoff = actualList[0]?.kickoff;
+    const isHome = actualList[0]?.isHome;
 
-    const rawSquad = squad.map((p) => {
-      const costMil = (p.nowCost || 50) / 10;
-      let startsBefore = 0;
-      let matchesBefore = 0;
-      let inSquadBefore = 0;
-      for (let g = 1; g < gw; g++) {
-        const gMatches = actualMatchLookup[`${g}_${c.short}`] || [];
-        if (gMatches.length > 0) {
-          matchesBefore += 1;
-          const gStat = actualPlayerStatsMap[p.id]?.[g];
-          if (gStat) inSquadBefore += 1;
-          if (gStat?.wasStarter) startsBefore += 1;
-        }
-      }
+    const availabilityById = new Map<number, CausalAvailability>();
+    for (const p of squad) {
+      availabilityById.set(
+        p.id,
+        resolveCausalPlayerAvailability(
+          isHistoricalPast
+            ? {
+                player: p,
+                targetGw: gw,
+                mode: 'historical',
+                earliestKickoffIso: earliestKickoff,
+                gwDeadlineIso: dlIso,
+              }
+            : {
+                player: p,
+                targetGw: gw,
+                mode: 'future',
+                isCurrentGwFinishedOrConfirmed: isCurrConfirmed,
+                earliestKickoffIso: earliestKickoff,
+              }
+        )
+      );
+    }
 
-      const past = pastSeasonMap[String(p.id)];
-      const priorRate = past ? Math.min(1.0, past.minutes / 3420) : 0.20;
-      const baselineRate =
-        inSquadBefore > 0
-          ? startsBefore / inSquadBefore
-          : matchesBefore > 0
-          ? startsBefore / matchesBefore
-          : priorRate;
-
-      let sPrev1 = 0;
-      let hasPrev1 = false;
-      let startedPrev1 = false;
-      if (gw >= 2) {
-        hasPrev1 = true;
-        const stat1 = actualPlayerStatsMap[p.id]?.[gw - 1];
-        if (stat1?.wasStarter) {
-          sPrev1 = 1.0;
-          startedPrev1 = true;
-        } else if (stat1 && stat1.mins > 0) {
-          sPrev1 = 0.35;
-        }
-      }
-
-      let sPrev2 = 0;
-      let hasPrev2 = false;
-      let startedPrev2 = false;
-      if (gw >= 3) {
-        hasPrev2 = true;
-        const stat2 = actualPlayerStatsMap[p.id]?.[gw - 2];
-        if (stat2?.wasStarter) {
-          sPrev2 = 1.0;
-          startedPrev2 = true;
-        } else if (stat2 && stat2.mins > 0) {
-          sPrev2 = 0.35;
-        }
-      }
-
-      let compositeRate = baselineRate;
-      if (hasPrev1 && hasPrev2) compositeRate = 0.50 * baselineRate + 0.30 * sPrev1 + 0.20 * sPrev2;
-      else if (hasPrev1) compositeRate = 0.60 * baselineRate + 0.40 * sPrev1;
-
-      const provenStatus = getFplProvenStatus(p);
-
-      let momentum = 0;
-      if (startedPrev1 && startedPrev2) momentum = 8;
-      else if (hasPrev1 && hasPrev2 && sPrev1 === 0 && sPrev2 === 0 && inSquadBefore >= 2) {
-        momentum = provenStatus.isProven ? 0 : -8;
-      }
-
-      const isHistoricalPast = gw < maxReviewGW || isMatchPlayed;
-      const isAvailable = isHistoricalPast
-        ? true
-        : p.status !== 'i' && p.status !== 's' && p.status !== 'u' && p.chanceOfPlayingThisRound !== 0;
-      const discount = isHistoricalPast
-        ? 1.0
-        : p.chanceOfPlayingThisRound === 75
-        ? 0.75
-        : p.chanceOfPlayingThisRound === 50
-        ? 0.5
-        : 1.0;
-      const baseSi = Math.min(99, Math.max(5, Math.round(compositeRate * 100) + momentum));
-      const finalSi = isAvailable ? Math.round(baseSi * discount) : 0;
-
-      return { p, costMil, totalStarts: startsBefore, si: finalSi, isAvailable, provenTier: provenStatus.tier };
+    const hybridPred = predictHybridClubLineup({
+      clubShort: c.short,
+      targetGw: gw,
+      isHome,
+      players: squad,
+      availabilityById,
+      history: gwHistory,
+      pastMap: pastSeasonMap,
+      logitWeights: calib.logitWeights,
+      params: calib.params,
+      precomputedFeatMap: calib.targetFeatMap,
     });
 
-    rawSquad.sort((a, b) => b.si - a.si || b.totalStarts - a.totalStarts || b.costMil - a.costMil);
-
-    const isHistoricalPast = gw < maxReviewGW || isMatchPlayed;
-    const availableGkps = rawSquad.filter((item) => item.p.position === 'GKP' && item.isAvailable);
-    const fitGkps = isHistoricalPast ? availableGkps : availableGkps.filter((item) => item.p.chanceOfPlayingThisRound !== 50);
-    const allGkps = rawSquad.filter((item) => item.p.position === 'GKP');
-    const starterGkp = fitGkps[0] || availableGkps[0] || allGkps[0];
-
-    const starters: typeof rawSquad = [];
-    if (starterGkp) starters.push(starterGkp);
-
-    const availableOutfields = rawSquad.filter((item) => item.p.position !== 'GKP' && item.isAvailable);
-    const fitOutfields = isHistoricalPast ? availableOutfields : availableOutfields.filter((item) => item.p.chanceOfPlayingThisRound !== 50);
-    const allOutfields = rawSquad.filter((item) => item.p.position !== 'GKP');
-
-    const tacticalResult = selectTacticalOutfieldStarters(
-      c.short,
-      gw,
-      fitOutfields.map((item) => ({
-        id: item.p.id,
-        position: item.p.position as PositionType,
-        si: item.si,
-        starts: item.totalStarts,
-        bench: 0,
-        nowCost: item.costMil,
-        provenTier: item.provenTier,
-      })),
-      tacticalIndex
-    );
-
-    if (tacticalResult && tacticalResult.starterOutfieldIds.length > 0) {
-      const fitById = new Map(fitOutfields.map((item) => [item.p.id, item]));
-      for (const pId of tacticalResult.starterOutfieldIds) {
-        const picked = fitById.get(pId);
-        if (picked) starters.push(picked);
-      }
-    } else {
-      const formationTarget = getRecencyWeightedFormationPrior(c.short, gw, clubFormationsHistory);
-      const fitDefs = fitOutfields.filter((item) => item.p.position === 'DEF');
-      const fitMids = fitOutfields.filter((item) => item.p.position === 'MID');
-      const fitFwds = fitOutfields.filter((item) => item.p.position === 'FWD');
-      const availFwds = availableOutfields.filter((item) => item.p.position === 'FWD');
-      const coreDefs = fitDefs.slice(0, 3);
-      const coreMids = fitMids.slice(0, 3);
-      const requiresPureFwd = (formationTarget.FWD ?? 0) >= 0.65;
-      const coreFwds = requiresPureFwd ? (fitFwds.length > 0 ? fitFwds.slice(0, 1) : availFwds.slice(0, 1)) : [];
-      coreDefs.forEach((item) => starters.push(item));
-      coreMids.forEach((item) => starters.push(item));
-      coreFwds.forEach((item) => starters.push(item));
-
-      const coreStarterIds = new Set(starters.map((s) => s.p.id));
-      const flexCandidates = fitOutfields.filter((item) => !coreStarterIds.has(item.p.id));
-      let curDef = coreDefs.length;
-      let curMid = coreMids.length;
-      let curFwd = coreFwds.length;
-      const flexSlotsNeeded = Math.max(0, 11 - starters.length);
-
-      for (let slot = 0; slot < flexSlotsNeeded; slot++) {
-        if (flexCandidates.length === 0) break;
-        flexCandidates.forEach((cand) => {
-          const target = formationTarget[cand.p.position] || 0;
-          const cur = cand.p.position === 'DEF' ? curDef : cand.p.position === 'MID' ? curMid : curFwd;
-          const quotaGap = Math.max(0, target - cur);
-          const provenPriority = cand.provenTier === 'ELITE' ? 14 : cand.provenTier === 'ESTABLISHED' ? 8 : 0;
-          (cand as any).flexScore = cand.si + 8 * quotaGap + provenPriority;
-        });
-        flexCandidates.sort(
-          (a, b) =>
-            ((b as any).flexScore ?? b.si) - ((a as any).flexScore ?? a.si) ||
-            b.si - a.si ||
-            b.totalStarts - a.totalStarts ||
-            b.costMil - a.costMil
-        );
-        const chosen = flexCandidates.shift();
-        if (chosen) {
-          starters.push(chosen);
-          coreStarterIds.add(chosen.p.id);
-          if (chosen.p.position === 'DEF') curDef++;
-          else if (chosen.p.position === 'MID') curMid++;
-          else if (chosen.p.position === 'FWD') curFwd++;
-        }
-      }
-    }
-
-    let starterIds = new Set(starters.map((s) => s.p.id));
-    if (starters.length < 11) {
-      availableOutfields
-        .filter((item) => !starterIds.has(item.p.id))
-        .slice(0, 11 - starters.length)
-        .forEach((item) => {
-          starters.push(item);
-          starterIds.add(item.p.id);
-        });
-    }
-    if (starters.length < 11) {
-      allOutfields
-        .filter((item) => !starterIds.has(item.p.id))
-        .slice(0, 11 - starters.length)
-        .forEach((item) => {
-          starters.push(item);
-          starterIds.add(item.p.id);
-        });
-    }
-    starterIds = new Set(starters.map((s) => s.p.id));
-
-    const nonStarters = rawSquad.filter((item) => !starterIds.has(item.p.id));
-    const availableBench = nonStarters.filter((item) => item.isAvailable);
-    const outBench = nonStarters.filter((item) => !item.isAvailable);
-    availableBench.sort((a, b) => b.si - a.si || b.totalStarts - a.totalStarts || b.costMil - a.costMil);
-    outBench.sort((a, b) => b.si - a.si || b.totalStarts - a.totalStarts || b.costMil - a.costMil);
-
-    const bench: typeof rawSquad = [];
-    const backupGkp =
-      availableBench.find((item) => item.p.position === 'GKP') ||
-      nonStarters.find((item) => item.p.position === 'GKP');
-    if (backupGkp) bench.push(backupGkp);
-
-    availableBench
-      .filter((item) => !bench.some((b) => b.p.id === item.p.id))
-      .slice(0, 9 - bench.length)
-      .forEach((item) => bench.push(item));
-
-    if (bench.length < 9) {
-      outBench
-        .filter((item) => !bench.some((b) => b.p.id === item.p.id))
-        .slice(0, 9 - bench.length)
-        .forEach((item) => bench.push(item));
-    }
-
-    const benchIds = new Set(bench.map((b) => b.p.id));
-    const projectedFormation =
-      tacticalResult?.predictedFormationLabel ||
-      predictClubFormationSlots(c.short, gw, tacticalIndex)?.label;
+    const starterIds = new Set(hybridPred.starterIds);
+    const benchIds = new Set(hybridPred.benchIds);
+    const projectedFormation = hybridPred.predictedFormation || undefined;
     const actualFormation = actualPulseFormationMap.get(c.short) || undefined;
 
-    const ROLE_ORDER: Record<string, number> = { starting: 1, bench: 2, out: 3 };
-    const POS_ORDER: Record<string, number> = { GKP: 1, DEF: 2, MID: 3, FWD: 4 };
-
-    const scored = rawSquad.map((item) => {
-      const p = item.p;
+    const scored = squad.map((p) => {
+      const av = availabilityById.get(p.id)!;
+      const probInfo = hybridPred.playerProbs.get(p.id);
+      const siVal = probInfo?.si ?? (av.avail <= 0 ? 0 : 5);
       const role: 'starting' | 'bench' | 'out' = starterIds.has(p.id)
         ? 'starting'
         : benchIds.has(p.id)
@@ -1863,10 +1547,10 @@ function buildLineupReviewForGw(
         fullName: p.fullName,
         position: p.position as PositionType,
         shirtNum: (p as any).shirtNum || 0,
-        nowCost: item.costMil,
-        status: p.status,
+        nowCost: (p.nowCost || 50) / 10,
+        status: av.status,
         role,
-        si: item.si,
+        si: siVal,
         projectedFormation,
         actualFormation,
         isMatchPlayed,
@@ -2111,6 +1795,15 @@ async function getOrBuildReviewBase(
     const allPlayers = cachedData.player_stats || [];
     const projPlayers = corePayload.allPlayerFullSeasonProjections;
     const maeRecapRows: any[] = [];
+    const lineupByGwCache = new Map<number, { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number } }>();
+    const activeReviewPlayers = allPlayers.filter((p) => p.status !== 'u');
+    const reviewRuntime: HybridReviewRuntimeCache = {
+      playerPosSeed: buildPulsePositionInfoSeed(activeReviewPlayers),
+      playerTeamMap: new Map(activeReviewPlayers.map((p) => [p.id, p.teamShort])),
+      deadlines: cachedData.sync_status?.deadlines,
+      isCurrentGwFinishedOrConfirmed: coreCtx.epoch.isCurrentGwFinishedOrConfirmed,
+      calibByGw: new Map(),
+    };
 
     for (let gw = 1; gw <= maxReviewGW; gw++) {
       const canUseConfirmedCache =
@@ -2215,8 +1908,10 @@ async function getOrBuildReviewBase(
         allPlayers,
         actualMatchLookup,
         actualPlayerStatsMap,
-        matchesWithLineupsByGw
+        matchesWithLineupsByGw,
+        reviewRuntime
       );
+      lineupByGwCache.set(gw, gwLineupBuilt);
 
       let totalStartersHit = 0;
       let totalStartersPredicted = 0;
@@ -2377,7 +2072,7 @@ async function getOrBuildReviewBase(
       actualMatchLookup,
       actualPlayerStatsMap,
       maeRecapRows,
-      lineupByGwCache: new Map(),
+      lineupByGwCache,
     };
 
     cachedReviewBase = baseCache;
@@ -2409,14 +2104,23 @@ export async function getServerReviewBundle(
 
   let gwLineup = reviewBase.lineupByGwCache.get(targetGw);
   if (!gwLineup || force) {
+    const allPlayers = cachedData.player_stats || [];
+    const activePlayers = allPlayers.filter((p) => p.status !== 'u');
     gwLineup = buildLineupReviewForGw(
       targetGw,
       maxReviewGW,
       coreCtx.corePayload.clubs,
-      cachedData.player_stats || [],
+      allPlayers,
       reviewBase.actualMatchLookup,
       reviewBase.actualPlayerStatsMap,
-      coreCtx.matchesWithLineupsByGw
+      coreCtx.matchesWithLineupsByGw,
+      {
+        playerPosSeed: buildPulsePositionInfoSeed(activePlayers),
+        playerTeamMap: new Map(activePlayers.map((p) => [p.id, p.teamShort])),
+        deadlines: cachedData.sync_status?.deadlines,
+        isCurrentGwFinishedOrConfirmed: coreCtx.epoch.isCurrentGwFinishedOrConfirmed,
+        calibByGw: new Map(),
+      }
     );
     reviewBase.lineupByGwCache.set(targetGw, gwLineup);
   }

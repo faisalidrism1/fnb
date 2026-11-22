@@ -58,6 +58,7 @@ export function useSeasonProjections({
   const [scoutSquadsPayload, setScoutSquadsPayload] = useState<ServerScoutSquadsPayload | null>(null);
   const [isLoadingMatches, setIsLoadingMatches] = useState<boolean>(false);
   const [isLoadingScoutSquads, setIsLoadingScoutSquads] = useState<boolean>(false);
+  const [formulaRevision, setFormulaRevision] = useState<number>(0);
   const inFlightEpochRef = useRef<string | null>(null);
   const inFlightScoutEpochRef = useRef<string | null>(null);
   // Tracks whether this browser session has verified Core / Scout payloads with the live server
@@ -143,14 +144,26 @@ export function useSeasonProjections({
     };
   }, [epochInfo.epochKey]);
 
-  // Invalidate verification refs whenever SSE / fetchData sync completes so dev restarts/rollbacks auto-refresh
+  // Invalidate verification refs whenever SSE / fetchData sync completes or formula hot-reloads in dev mode
   useEffect(() => {
     const handleSynced = () => {
       verifiedCoreEpochRef.current = null;
       verifiedScoutEpochRef.current = null;
     };
+    const handleFormulaUpdated = () => {
+      verifiedCoreEpochRef.current = null;
+      verifiedCoreServerEpochRef.current = null;
+      verifiedScoutEpochRef.current = null;
+      verifiedScoutServerEpochRef.current = null;
+      clearProjectionCachesFromIndexedDB().catch(() => {});
+      setFormulaRevision((prev) => prev + 1);
+    };
     window.addEventListener('fpl:data-synced', handleSynced);
-    return () => window.removeEventListener('fpl:data-synced', handleSynced);
+    window.addEventListener('fpl:formula-updated', handleFormulaUpdated);
+    return () => {
+      window.removeEventListener('fpl:data-synced', handleSynced);
+      window.removeEventListener('fpl:formula-updated', handleFormulaUpdated);
+    };
   }, []);
 
   // Fetch /api/projections-core when epoch mismatches OR once per session to catch formula edits/rollbacks
@@ -211,7 +224,7 @@ export function useSeasonProjections({
     return () => {
       mounted = false;
     };
-  }, [enabled, leagueData, epochInfo.epochKey, corePayload?.epochKey, corePayload?.generatedAt]);
+  }, [enabled, leagueData, epochInfo.epochKey, corePayload?.epochKey, corePayload?.generatedAt, formulaRevision]);
 
   // Fetch /api/projections-scout-squads when epoch mismatches OR once per session to catch formula edits/rollbacks
   useEffect(() => {
@@ -270,7 +283,7 @@ export function useSeasonProjections({
     return () => {
       mounted = false;
     };
-  }, [enabled, leagueData, epochInfo.epochKey, scoutSquadsPayload?.epochKey, scoutSquadsPayload?.generatedAt]);
+  }, [enabled, leagueData, epochInfo.epochKey, scoutSquadsPayload?.epochKey, scoutSquadsPayload?.generatedAt, formulaRevision]);
 
   const scheduleByGw: Record<number, ScheduleFixtureSummary[]> = useMemo(
     () => corePayload?.scheduleByGw || {},

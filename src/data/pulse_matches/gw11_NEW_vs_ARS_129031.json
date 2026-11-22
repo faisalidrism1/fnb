@@ -1,0 +1,1543 @@
+{
+  "id": 129031,
+  "altIds": {
+    "opta": "g2645303"
+  },
+  "gameweek": {
+    "gameweek": 11
+  },
+  "kickoff": {
+    "millis": 1795282200000,
+    "label": "2026-11-21 17:30:00"
+  },
+  "ground": {
+    "name": "St. James' Park, Newcastle"
+  },
+  "status": "L",
+  "phase": "HT",
+  "clock": {
+    "label": "HT",
+    "secs": 2700
+  },
+  "teams": [
+    {
+      "team": {
+        "id": 4,
+        "name": "Newcastle United",
+        "shortName": "Newcastle",
+        "club": {
+          "abbr": "NEW"
+        }
+      },
+      "score": 0
+    },
+    {
+      "team": {
+        "id": 3,
+        "name": "Arsenal",
+        "shortName": "Arsenal",
+        "club": {
+          "abbr": "ARS"
+        }
+      },
+      "score": 1
+    }
+  ],
+  "teamLists": [
+    {
+      "teamId": 4,
+      "formation": {
+        "subs": [
+          "98747",
+          "441191",
+          "220237",
+          "119471",
+          "465694",
+          "216646",
+          "449434",
+          "613221",
+          "232653"
+        ],
+        "teamId": "4",
+        "lineup": [
+          [
+            "470551"
+          ],
+          [
+            "463726",
+            "465642",
+            "78916",
+            "487838"
+          ],
+          [
+            "636852",
+            "547719"
+          ],
+          [
+            "114243",
+            "200089",
+            "201666"
+          ],
+          [
+            "538207"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 470551,
+          "altIds": {
+            "opta": "p470551"
+          },
+          "name": {
+            "first": "Lukás",
+            "last": "Hornícek",
+            "display": "Lukás Hornícek"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 21
+          },
+          "captain": false,
+          "shirtNumber": 21,
+          "pulseId": 114689
+        },
+        {
+          "id": 487838,
+          "altIds": {
+            "opta": "p487838"
+          },
+          "name": {
+            "first": "Lewis",
+            "last": "Hall",
+            "display": "Lewis Hall"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3,
+          "pulseId": 108922
+        },
+        {
+          "id": 538207,
+          "altIds": {
+            "opta": "p538207"
+          },
+          "name": {
+            "first": "William",
+            "last": "Osula",
+            "display": "William Osula"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Forward",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10,
+          "pulseId": 114590
+        },
+        {
+          "id": 201666,
+          "altIds": {
+            "opta": "p201666"
+          },
+          "name": {
+            "first": "Harvey",
+            "last": "Barnes",
+            "display": "Harvey Barnes"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11,
+          "pulseId": 14716
+        },
+        {
+          "id": 465642,
+          "altIds": {
+            "opta": "p465642"
+          },
+          "name": {
+            "first": "Malick",
+            "last": "Thiaw",
+            "display": "Malick Thiaw"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 12
+          },
+          "captain": false,
+          "shirtNumber": 12,
+          "pulseId": 124462
+        },
+        {
+          "id": 636852,
+          "altIds": {
+            "opta": "p636852"
+          },
+          "name": {
+            "first": "Sean",
+            "last": "Steur",
+            "display": "Sean Steur"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14,
+          "pulseId": 303043
+        },
+        {
+          "id": 114243,
+          "altIds": {
+            "opta": "p114243"
+          },
+          "name": {
+            "first": "Jacob",
+            "last": "Murphy",
+            "display": "Jacob Murphy"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23,
+          "pulseId": 9662
+        },
+        {
+          "id": 200089,
+          "altIds": {
+            "opta": "p200089"
+          },
+          "name": {
+            "first": "Joe",
+            "last": "Willock",
+            "display": "Joe Willock"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 28
+          },
+          "captain": false,
+          "shirtNumber": 28,
+          "pulseId": 14446
+        },
+        {
+          "id": 78916,
+          "altIds": {
+            "opta": "p78916"
+          },
+          "name": {
+            "first": "Dan",
+            "last": "Burn",
+            "display": "Dan Burn"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 33
+          },
+          "captain": true,
+          "shirtNumber": 33,
+          "pulseId": 8707
+        },
+        {
+          "id": 463726,
+          "altIds": {
+            "opta": "p463726"
+          },
+          "name": {
+            "first": "Amar",
+            "last": "Dedic",
+            "display": "Amar Dedic"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 37
+          },
+          "captain": false,
+          "shirtNumber": 37,
+          "pulseId": 68637
+        },
+        {
+          "id": 547719,
+          "altIds": {
+            "opta": "p547719"
+          },
+          "name": {
+            "first": "Lewis",
+            "last": "Miley",
+            "display": "Lewis Miley"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 67
+          },
+          "captain": false,
+          "shirtNumber": 67,
+          "pulseId": 117647
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 98747,
+          "altIds": {
+            "opta": "p98747"
+          },
+          "name": {
+            "first": "Nick",
+            "last": "Pope",
+            "display": "Nick Pope"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1,
+          "pulseId": 10079
+        },
+        {
+          "id": 441191,
+          "altIds": {
+            "opta": "p441191"
+          },
+          "name": {
+            "first": "Tino",
+            "last": "Livramento",
+            "display": "Tino Livramento"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2,
+          "pulseId": 49495
+        },
+        {
+          "id": 220237,
+          "altIds": {
+            "opta": "p220237"
+          },
+          "name": {
+            "first": "Sven",
+            "last": "Botman",
+            "display": "Sven Botman"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4,
+          "pulseId": 49908
+        },
+        {
+          "id": 119471,
+          "altIds": {
+            "opta": "p119471"
+          },
+          "name": {
+            "first": "Fabian",
+            "last": "Schär",
+            "display": "Fabian Schär"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5,
+          "pulseId": 5220
+        },
+        {
+          "id": 465694,
+          "altIds": {
+            "opta": "p465694"
+          },
+          "name": {
+            "first": "Nico",
+            "last": "González",
+            "display": "Nico González"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6,
+          "pulseId": 67849
+        },
+        {
+          "id": 216646,
+          "altIds": {
+            "opta": "p216646"
+          },
+          "name": {
+            "first": "Yoane",
+            "last": "Wissa",
+            "display": "Yoane Wissa"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Forward",
+            "shirtNum": 9
+          },
+          "captain": false,
+          "shirtNumber": 9,
+          "pulseId": 117497
+        },
+        {
+          "id": 449434,
+          "altIds": {
+            "opta": "p449434"
+          },
+          "name": {
+            "first": "Anthony",
+            "last": "Elanga",
+            "display": "Anthony Elanga"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Forward",
+            "shirtNum": 19
+          },
+          "captain": false,
+          "shirtNumber": 19,
+          "pulseId": 49259
+        },
+        {
+          "id": 613221,
+          "altIds": {
+            "opta": "p613221"
+          },
+          "name": {
+            "first": "Matias",
+            "last": "Fernandez-Pardo",
+            "display": "Matias Fernandez-Pardo"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Forward",
+            "shirtNum": 20
+          },
+          "captain": false,
+          "shirtNumber": 20,
+          "pulseId": 135108
+        },
+        {
+          "id": 232653,
+          "altIds": {
+            "opta": "p232653"
+          },
+          "name": {
+            "first": "Jacob",
+            "last": "Ramsey",
+            "display": "Jacob Ramsey"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 41
+          },
+          "captain": false,
+          "shirtNumber": 41,
+          "pulseId": 19888
+        }
+      ]
+    },
+    {
+      "teamId": 3,
+      "formation": {
+        "subs": [
+          "109745",
+          "462424",
+          "500040",
+          "198869",
+          "448104",
+          "224117",
+          "439509",
+          "195384",
+          "499169"
+        ],
+        "teamId": "3",
+        "lineup": [
+          [
+            "154561"
+          ],
+          [
+            "445122",
+            "199798",
+            "226597",
+            "466075"
+          ],
+          [
+            "208706",
+            "204480"
+          ],
+          [
+            "248857",
+            "184029",
+            "232413"
+          ],
+          [
+            "219847"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 154561,
+          "altIds": {
+            "opta": "p154561"
+          },
+          "name": {
+            "first": "David",
+            "last": "Raya",
+            "display": "David Raya"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1,
+          "pulseId": 7975
+        },
+        {
+          "id": 226597,
+          "altIds": {
+            "opta": "p226597"
+          },
+          "name": {
+            "first": "Gabriel",
+            "last": "dos Santos Magalhães",
+            "display": "Gabriel dos Santos Magalhães"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6,
+          "pulseId": 50234
+        },
+        {
+          "id": 184029,
+          "altIds": {
+            "opta": "p184029"
+          },
+          "name": {
+            "first": "Martin",
+            "last": "Ødegaard",
+            "display": "Martin Ødegaard"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 8
+          },
+          "captain": true,
+          "shirtNumber": 8,
+          "pulseId": 11419
+        },
+        {
+          "id": 232413,
+          "altIds": {
+            "opta": "p232413"
+          },
+          "name": {
+            "first": "Eberechi",
+            "last": "Eze",
+            "display": "Eberechi Eze"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10,
+          "pulseId": 21584
+        },
+        {
+          "id": 445122,
+          "altIds": {
+            "opta": "p445122"
+          },
+          "name": {
+            "first": "Jurriën",
+            "last": "Timber",
+            "display": "Jurriën Timber"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 12
+          },
+          "captain": false,
+          "shirtNumber": 12,
+          "pulseId": 67776
+        },
+        {
+          "id": 199798,
+          "altIds": {
+            "opta": "p199798"
+          },
+          "name": {
+            "first": "Ezri",
+            "last": "Konsa",
+            "display": "Ezri Konsa"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 15
+          },
+          "captain": false,
+          "shirtNumber": 15,
+          "pulseId": 13274
+        },
+        {
+          "id": 248857,
+          "altIds": {
+            "opta": "p248857"
+          },
+          "name": {
+            "first": "Noni",
+            "last": "Madueke",
+            "display": "Noni Madueke"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 20
+          },
+          "captain": false,
+          "shirtNumber": 20,
+          "pulseId": 67407
+        },
+        {
+          "id": 219847,
+          "altIds": {
+            "opta": "p219847"
+          },
+          "name": {
+            "first": "Kai",
+            "last": "Havertz",
+            "display": "Kai Havertz"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Forward",
+            "shirtNum": 29
+          },
+          "captain": false,
+          "shirtNumber": 29,
+          "pulseId": 20810
+        },
+        {
+          "id": 466075,
+          "altIds": {
+            "opta": "p466075"
+          },
+          "name": {
+            "first": "Riccardo",
+            "last": "Calafiori",
+            "display": "Riccardo Calafiori"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 33
+          },
+          "captain": false,
+          "shirtNumber": 33,
+          "pulseId": 69914
+        },
+        {
+          "id": 208706,
+          "altIds": {
+            "opta": "p208706"
+          },
+          "name": {
+            "first": "Bruno",
+            "last": "Guimarães Rodriguez Moura",
+            "display": "Bruno Guimarães Rodriguez Moura"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 39
+          },
+          "captain": false,
+          "shirtNumber": 39,
+          "pulseId": 74761
+        },
+        {
+          "id": 204480,
+          "altIds": {
+            "opta": "p204480"
+          },
+          "name": {
+            "first": "Declan",
+            "last": "Rice",
+            "display": "Declan Rice"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 41
+          },
+          "captain": false,
+          "shirtNumber": 41,
+          "pulseId": 15202
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 109745,
+          "altIds": {
+            "opta": "p109745"
+          },
+          "name": {
+            "first": "Kepa",
+            "last": "Arrizabalaga",
+            "display": "Kepa Arrizabalaga"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 13
+          },
+          "captain": false,
+          "shirtNumber": 13,
+          "pulseId": 11373
+        },
+        {
+          "id": 462424,
+          "altIds": {
+            "opta": "p462424"
+          },
+          "name": {
+            "first": "William",
+            "last": "Saliba",
+            "display": "William Saliba"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2,
+          "pulseId": 66204
+        },
+        {
+          "id": 500040,
+          "altIds": {
+            "opta": "p500040"
+          },
+          "name": {
+            "first": "Cristhian",
+            "last": "Mosquera",
+            "display": "Cristhian Mosquera"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3,
+          "pulseId": 119476
+        },
+        {
+          "id": 198869,
+          "altIds": {
+            "opta": "p198869"
+          },
+          "name": {
+            "first": "Ben",
+            "last": "White",
+            "display": "Ben White"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4,
+          "pulseId": 14548
+        },
+        {
+          "id": 448104,
+          "altIds": {
+            "opta": "p448104"
+          },
+          "name": {
+            "first": "Piero",
+            "last": "Hincapié",
+            "display": "Piero Hincapié"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5,
+          "pulseId": 118077
+        },
+        {
+          "id": 224117,
+          "altIds": {
+            "opta": "p224117"
+          },
+          "name": {
+            "first": "Viktor",
+            "last": "Gyökeres",
+            "display": "Viktor Gyökeres"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Forward",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14,
+          "pulseId": 32728
+        },
+        {
+          "id": 439509,
+          "altIds": {
+            "opta": "p439509"
+          },
+          "name": {
+            "first": "Christos",
+            "last": "Tzolis",
+            "display": "Christos Tzolis"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Forward",
+            "shirtNum": 17
+          },
+          "captain": false,
+          "shirtNumber": 17,
+          "pulseId": 67704
+        },
+        {
+          "id": 195384,
+          "altIds": {
+            "opta": "p195384"
+          },
+          "name": {
+            "first": "Mikel",
+            "last": "Merino",
+            "display": "Mikel Merino"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Midfielder",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23,
+          "pulseId": 19778
+        },
+        {
+          "id": 499169,
+          "altIds": {
+            "opta": "p499169"
+          },
+          "name": {
+            "first": "Myles",
+            "last": "Lewis-Skelly",
+            "display": "Myles Lewis-Skelly"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Defender",
+            "shirtNum": 49
+          },
+          "captain": false,
+          "shirtNumber": 49,
+          "pulseId": 114564
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "PS",
+      "phase": "1",
+      "clock": {
+        "secs": 0,
+        "label": "1'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 463726,
+      "phase": "1",
+      "clock": {
+        "label": "23'",
+        "secs": 1380
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 232413,
+      "assistId": 219847,
+      "phase": "1",
+      "clock": {
+        "label": "33'",
+        "secs": 1980
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    }
+  ],
+  "textstreamEvents": [
+    {
+      "id": 2912725,
+      "type": "lineup",
+      "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2913400,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2913403,
+      "time": {
+        "secs": 39,
+        "label": "01"
+      },
+      "type": "offside",
+      "text": "Offside, Newcastle United. William Osula is caught offside.",
+      "playerIds": [
+        14446,
+        114590
+      ]
+    },
+    {
+      "id": 2913406,
+      "time": {
+        "secs": 156,
+        "label": "03"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jacob Murphy (Newcastle United) right footed shot from more than 35 yards misses to the left. Assisted by Lukás Hornícek.",
+      "playerIds": [
+        9662,
+        114689
+      ]
+    },
+    {
+      "id": 2913409,
+      "time": {
+        "secs": 211,
+        "label": "04"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Gabriel Magalhães (Arsenal).",
+      "playerIds": [
+        50234
+      ]
+    },
+    {
+      "id": 2913412,
+      "time": {
+        "secs": 211,
+        "label": "04"
+      },
+      "type": "free kick won",
+      "text": "William Osula (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        114590
+      ]
+    },
+    {
+      "id": 2913415,
+      "time": {
+        "secs": 284,
+        "label": "05"
+      },
+      "type": "free kick won",
+      "text": "Noni Madueke (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        67407
+      ]
+    },
+    {
+      "id": 2913417,
+      "time": {
+        "secs": 284,
+        "label": "05"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lewis Hall (Newcastle United).",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2913416,
+      "time": {
+        "secs": 327,
+        "label": "06"
+      },
+      "type": "post",
+      "text": "Noni Madueke (Arsenal) hits the right post with a left footed shot from the right side of the box. Assisted by Eberechi Eze.",
+      "playerIds": [
+        67407,
+        21584
+      ]
+    },
+    {
+      "id": 2913424,
+      "time": {
+        "secs": 568,
+        "label": "10"
+      },
+      "type": "offside",
+      "text": "Offside, Arsenal. Kai Havertz is caught offside.",
+      "playerIds": [
+        74761,
+        20810
+      ]
+    },
+    {
+      "id": 2913427,
+      "time": {
+        "secs": 600,
+        "label": "11"
+      },
+      "type": "free kick won",
+      "text": "Bruno Guimarães (Arsenal) wins a free kick in the attacking half.",
+      "playerIds": [
+        74761
+      ]
+    },
+    {
+      "id": 2913428,
+      "time": {
+        "secs": 600,
+        "label": "11"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Joe Willock (Newcastle United).",
+      "playerIds": [
+        14446
+      ]
+    },
+    {
+      "id": 2913435,
+      "time": {
+        "secs": 717,
+        "label": "12"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Jacob Murphy (Newcastle United) left footed shot from outside the box is blocked. Assisted by Joe Willock.",
+      "playerIds": [
+        9662,
+        14446
+      ]
+    },
+    {
+      "id": 2913433,
+      "time": {
+        "secs": 754,
+        "label": "13"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Sean Steur (Newcastle United).",
+      "playerIds": [
+        303043
+      ]
+    },
+    {
+      "id": 2913434,
+      "time": {
+        "secs": 754,
+        "label": "13"
+      },
+      "type": "free kick won",
+      "text": "Bruno Guimarães (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        74761
+      ]
+    },
+    {
+      "id": 2913442,
+      "time": {
+        "secs": 1099,
+        "label": "19"
+      },
+      "type": "free kick won",
+      "text": "Lewis Hall (Newcastle United) wins a free kick on the left wing.",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2913443,
+      "time": {
+        "secs": 1099,
+        "label": "19"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Noni Madueke (Arsenal).",
+      "playerIds": [
+        67407
+      ]
+    },
+    {
+      "id": 2913448,
+      "time": {
+        "secs": 1150,
+        "label": "20"
+      },
+      "type": "free kick won",
+      "text": "Gabriel Magalhães (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        50234
+      ]
+    },
+    {
+      "id": 2913449,
+      "time": {
+        "secs": 1150,
+        "label": "20"
+      },
+      "type": "free kick lost",
+      "text": "Foul by William Osula (Newcastle United).",
+      "playerIds": [
+        114590
+      ]
+    },
+    {
+      "id": 2913454,
+      "time": {
+        "secs": 1310,
+        "label": "22"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Kai Havertz (Arsenal) left footed shot from the left side of the box is close, but misses to the left. Assisted by Jurriën Timber.",
+      "playerIds": [
+        20810,
+        67776
+      ]
+    },
+    {
+      "id": 2913457,
+      "time": {
+        "secs": 1365,
+        "label": "23"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Amar Dedic (Newcastle United).",
+      "playerIds": [
+        68637
+      ]
+    },
+    {
+      "id": 2913458,
+      "time": {
+        "secs": 1365,
+        "label": "23"
+      },
+      "type": "free kick won",
+      "text": "Eberechi Eze (Arsenal) wins a free kick in the attacking half.",
+      "playerIds": [
+        21584
+      ]
+    },
+    {
+      "id": 2913459,
+      "time": {
+        "secs": 1367,
+        "label": "23"
+      },
+      "type": "yellow card",
+      "text": "Amar Dedic (Newcastle United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        68637
+      ]
+    },
+    {
+      "id": 2913466,
+      "time": {
+        "secs": 1551,
+        "label": "26"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Noni Madueke (Arsenal) right footed shot from the right side of the box is too high.",
+      "playerIds": [
+        67407
+      ]
+    },
+    {
+      "id": 2913471,
+      "time": {
+        "secs": 1643,
+        "label": "28"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bruno Guimarães (Arsenal) right footed shot from very close range misses to the left. Assisted by Declan Rice with a cross.",
+      "playerIds": [
+        74761,
+        15202
+      ]
+    },
+    {
+      "id": 2913469,
+      "time": {
+        "secs": 1682,
+        "label": "29"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lewis Miley (Newcastle United).",
+      "playerIds": [
+        117647
+      ]
+    },
+    {
+      "id": 2913470,
+      "time": {
+        "secs": 1682,
+        "label": "29"
+      },
+      "type": "free kick won",
+      "text": "Martin Ødegaard (Arsenal) wins a free kick in the attacking half.",
+      "playerIds": [
+        11419
+      ]
+    },
+    {
+      "id": 2913479,
+      "time": {
+        "secs": 1730,
+        "label": "29"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Declan Rice (Arsenal) right footed shot from outside the box is too high. Assisted by Eberechi Eze following a set piece situation.",
+      "playerIds": [
+        15202,
+        21584
+      ]
+    },
+    {
+      "id": 2913478,
+      "time": {
+        "secs": 1766,
+        "label": "30"
+      },
+      "type": "free kick won",
+      "text": "Noni Madueke (Arsenal) wins a free kick on the right wing.",
+      "playerIds": [
+        67407
+      ]
+    },
+    {
+      "id": 2913484,
+      "time": {
+        "secs": 1766,
+        "label": "30"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Joe Willock (Newcastle United).",
+      "playerIds": [
+        14446
+      ]
+    },
+    {
+      "id": 2913487,
+      "time": {
+        "secs": 1913,
+        "label": "32"
+      },
+      "type": "free kick won",
+      "text": "Jacob Murphy (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        9662
+      ]
+    },
+    {
+      "id": 2913488,
+      "time": {
+        "secs": 1913,
+        "label": "32"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Eberechi Eze (Arsenal).",
+      "playerIds": [
+        21584
+      ]
+    },
+    {
+      "id": 2913493,
+      "time": {
+        "secs": 1969,
+        "label": "33"
+      },
+      "type": "goal",
+      "text": "Goal! Newcastle United 0, Arsenal 1. Eberechi Eze (Arsenal) right footed shot from the centre of the box to the top left corner. Assisted by Kai Havertz with a through ball.",
+      "playerIds": [
+        21584,
+        20810
+      ]
+    },
+    {
+      "id": 2913496,
+      "time": {
+        "secs": 2274,
+        "label": "38"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Noni Madueke (Arsenal) left footed shot from outside the box is too high. Assisted by Eberechi Eze.",
+      "playerIds": [
+        67407,
+        21584
+      ]
+    },
+    {
+      "id": 2913499,
+      "time": {
+        "secs": 2335,
+        "label": "39"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Riccardo Calafiori (Arsenal) left footed shot from the right side of the box misses to the left. Assisted by Noni Madueke.",
+      "playerIds": [
+        69914,
+        67407
+      ]
+    },
+    {
+      "id": 2913502,
+      "time": {
+        "secs": 2476,
+        "label": "42"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Harvey Barnes (Newcastle United) right footed shot from outside the box is blocked. Assisted by William Osula.",
+      "playerIds": [
+        14716,
+        114590
+      ]
+    },
+    {
+      "id": 2913505,
+      "time": {
+        "secs": 2510,
+        "label": "42"
+      },
+      "type": "free kick won",
+      "text": "Joe Willock (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        14446
+      ]
+    },
+    {
+      "id": 2913508,
+      "time": {
+        "secs": 2510,
+        "label": "42"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bruno Guimarães (Arsenal).",
+      "playerIds": [
+        74761
+      ]
+    },
+    {
+      "id": 2913512,
+      "time": {
+        "secs": 2577,
+        "label": "43"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Noni Madueke (Arsenal) right footed shot from a difficult angle on the right is saved in the bottom right corner by Lukás Hornícek (Newcastle United). Assisted by Ezri Konsa.",
+      "playerIds": [
+        67407,
+        13274
+      ]
+    },
+    {
+      "id": 2913518,
+      "time": {
+        "secs": 2661,
+        "label": "45"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Noni Madueke (Arsenal) left footed shot from the centre of the box is blocked. Assisted by Martin Ødegaard.",
+      "playerIds": [
+        67407,
+        11419
+      ]
+    },
+    {
+      "id": 2913511,
+      "time": {
+        "secs": 2663,
+        "label": "45"
+      },
+      "type": "corner",
+      "text": "Corner, Arsenal. Conceded by Lewis Hall.",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2913530,
+      "time": {
+        "secs": 2699,
+        "label": "45"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 0 minutes of added time."
+    },
+    {
+      "id": 2913517,
+      "time": {
+        "secs": 2723,
+        "label": "45+1"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Joe Willock (Newcastle United).",
+      "playerIds": [
+        14446
+      ]
+    },
+    {
+      "id": 2913519,
+      "time": {
+        "secs": 2723,
+        "label": "45+1"
+      },
+      "type": "free kick won",
+      "text": "Eberechi Eze (Arsenal) wins a free kick in the attacking half.",
+      "playerIds": [
+        21584
+      ]
+    },
+    {
+      "id": 2913526,
+      "time": {
+        "secs": 2793,
+        "label": "45+2"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Eberechi Eze (Arsenal) right footed shot from outside the box is saved in the centre of the goal by Lukás Hornícek (Newcastle United).",
+      "playerIds": [
+        21584
+      ]
+    },
+    {
+      "id": 2913529,
+      "time": {
+        "secs": 2800,
+        "label": "45+2"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Newcastle United 0, Arsenal 1."
+    }
+  ]
+}

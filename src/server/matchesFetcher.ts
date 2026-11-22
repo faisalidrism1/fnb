@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import { MatchCardItem, MatchPlayerItem, MatchPlayerEvent, PositionType, ScheduleFixtureSummary, ScheduleTeamSummary } from '../types.ts';
+import {
+  enrichMatchCardWithPulsePositions,
+  lookupPulsePlayerPosition,
+  recordPulseFixturePositions,
+} from './pulsePlayerPositions.ts';
 
 export const FPL_BASE = 'https://fantasy.premierleague.com/api';
 export const FPL_HEADERS = {
@@ -55,6 +60,9 @@ try {
         const hasMissingPulse = list.some((m) => (m.finished || m.started) && (!m.home_formation || !m.away_formation));
         const allFinished = list.every((m) => Boolean(m.finished));
         if (allFinished && !hasMissingPulse) {
+          for (const m of list) {
+            enrichMatchCardWithPulsePositions(m);
+          }
           matchesGwCache.set(gwNum, { data: list, time: nowSeed, isAllFinished: true });
           seededCount++;
         }
@@ -664,6 +672,9 @@ async function fetchPulseMatchDetails(
       data = await withPulseSlot(() => fetchJson(`${PULSE_BASE}/fixtures/${pulseMatchId}/`, PULSE_HEADERS, 2));
     }
     if (data) {
+      if (Array.isArray(data.teamLists)) {
+        recordPulseFixturePositions(data);
+      }
       const isFinished = Boolean(isMatchFinished || data.status === 'C');
       pulseMatchDetailsCache.set(cacheKey, {
         data,
@@ -1332,17 +1343,30 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
 
       const playerCode = fplEl ? fplEl.code : (pulsePlayer?.id || 0);
       const nowCost = fplEl ? fplEl.now_cost : 0;
-      const pulsePosRaw = pulsePlayer?.matchPosition;
-      const pulsePosition: PositionType | undefined =
-        pulsePosRaw === 'G' ? 'GKP'
-        : pulsePosRaw === 'D' ? 'DEF'
-        : pulsePosRaw === 'M' ? 'MID'
-        : pulsePosRaw === 'F' ? 'FWD'
-        : undefined;
-      const pulsePositionInfo: string | undefined =
+      const pulseOptaCode = pulsePlayer?.altIds?.opta
+        ? parseInt(String(pulsePlayer.altIds.opta).replace(/\D/g, ''), 10)
+        : 0;
+      const pulsePosRaw = pulsePlayer?.matchPosition || pulsePlayer?.info?.position;
+      const rawPulsePositionInfo =
         typeof pulsePlayer?.info?.positionInfo === 'string' && pulsePlayer.info.positionInfo.trim()
           ? pulsePlayer.info.positionInfo.trim()
           : undefined;
+      const resolvedPulse = lookupPulsePlayerPosition({
+        optaCode: fplEl?.code || (pulseOptaCode > 0 ? pulseOptaCode : undefined),
+        fplId: fplEl?.id,
+        teamShort: assignedTeamShort,
+        fullName,
+        webName,
+        existingPositionInfo: rawPulsePositionInfo,
+        existingPositionChar: pulsePosRaw,
+      });
+      const pulsePosition: PositionType | undefined =
+        (pulsePosRaw === 'G' ? 'GKP'
+        : pulsePosRaw === 'D' ? 'DEF'
+        : pulsePosRaw === 'M' ? 'MID'
+        : pulsePosRaw === 'F' ? 'FWD'
+        : undefined) || resolvedPulse.position;
+      const pulsePositionInfo: string | undefined = resolvedPulse.positionInfo || rawPulsePositionInfo;
 
       return {
         id: elId,

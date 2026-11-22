@@ -1,412 +1,562 @@
 [
   {
-    "id": "LM_MATCH_GOAL_OWN_pulse_129027_og_27_433154",
-    "timestamp_produksi": "2026-11-21T16:48:07.629Z",
+    "id": "BM_STANDINGS_GAMEWEEK_LEADER",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
+    "kategori": "Standings",
+    "sub_kategori": "Gameweek",
+    "drama_score": 89,
     "poin_tayang": 0,
-    "text_berita": "[N:85'] GOL BUNUH DIRI! [P:McNeil] ([N:0%]) mencetak gol ke gawang sendiri ([N:-2 Poin]) — [C:Coventry City] [N:2] - [N:3] [C:Crystal Palace].",
-    "text_berita_en": "[N:85'] Own goal. [P:McNeil] ([N:0%]) puts the ball into his own net. Score: [C:Coventry City] [N:2] - [N:3] [C:Crystal Palace].",
+    "text_berita": "[T:MCFC ALLNEW] memimpin perolehan poin sementara dengan [N:42 Poin].",
+    "text_berita_en": "[T:MCFC ALLNEW] leads the live scoring table with [N:42 Pts].",
     "gw": 11,
     "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "McNeil"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "pulseMatchId": 129027,
-      "clockSecs": 5100
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129026_sub_23_466525",
-    "timestamp_produksi": "2026-11-21T16:48:07.559Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:86'] Pergantian [C:Leeds]: [P:Stach] ([N:0%]) masuk menggantikan [P:Bogle] ([N:14%]).",
-    "text_berita_en": "[N:86'] Substitution for [C:Leeds]: [P:Stach] ([N:0%]) comes on replacing [P:Bogle] ([N:14%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Stach",
-      "Bogle"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isCsSub": false,
-      "maxOwnerPct": 14,
-      "pulseMatchId": 129026,
-      "clockSecs": 5160
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129024_card_y_25_503139",
-    "timestamp_produksi": "2026-11-21T16:48:07.526Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:87'] Kartu kuning untuk [P:Scott] ([N:0%]) dari [C:Bournemouth] ([N:-1 Poin]).",
-    "text_berita_en": "[N:87'] Yellow card. The referee books [C:Bournemouth] player [P:Scott] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Scott"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 5220
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_26_496208",
-    "timestamp_produksi": "2026-11-21T16:48:07.526Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:90'] Pergantian [C:Bournemouth]: [P:Gannon-Doak] ([N:0%]) masuk menggantikan [P:Rayan] ([N:0%]).",
-    "text_berita_en": "[N:90'] Substitution for [C:Bournemouth]: [P:Gannon-Doak] ([N:0%]) comes on replacing [P:Rayan] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Gannon-Doak",
-      "Rayan"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 5400
-    }
-  },
-  {
-    "id": "NS_CAPTAIN_POPULAR_MOST_CAPTAINED",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Captain",
-    "sub_kategori": "Popular",
-    "drama_score": 83,
-    "poin_tayang": 0,
-    "text_berita": "[P:Haaland] memuncaki daftar kapten terpopuler setelah dipilih [N:63] tim, diikuti [P:N.Jackson] ([N:15] tim), sementara [N:19] tim memilih kapten lain.",
-    "text_berita_en": "[P:Haaland] memuncaki daftar kapten terpopuler setelah dipilih [N:63] tim, diikuti [P:N.Jackson] ([N:15] tim), sementara [N:19] tim memilih kapten lain.",
-    "gw": 11,
-    "teams": [],
-    "players": [
-      "Haaland",
-      "N.Jackson"
-    ],
-    "cycle_meta": {
-      "isLmFallback": true
-    }
-  },
-  {
-    "id": "NS_TRANSFER_HITS_MOST",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Transfer",
-    "sub_kategori": "Hits",
-    "drama_score": 84,
-    "poin_tayang": 0,
-    "text_berita": "[T:Denay FC] ([N:-12 Poin]), [T:Maverick] ([N:-12 Poin]) dan [N:13] tim lainnya memulai pekan dengan penalti poin akibat aktivitas transfer berlebih.",
-    "text_berita_en": "[T:Denay FC] ([N:-12 Poin]), [T:Maverick] ([N:-12 Poin]) dan [N:13] tim lainnya memulai pekan dengan penalti poin akibat aktivitas transfer berlebih.",
-    "gw": 11,
-    "teams": [
-      "Denay FC",
-      "Maverick"
+      "MCFC ALLNEW"
     ],
     "players": [],
     "cycle_meta": {
-      "isLmFallback": true
+      "specialRank": 0
     }
   },
   {
-    "id": "NS_CHIP_FREE_HIT",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
+    "id": "BM_MATCH_SCORE_RESULT_m101",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Chip",
-    "sub_kategori": "Free Hit",
-    "drama_score": 85,
+    "kategori": "Match",
+    "sub_kategori": "Score",
+    "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "[T:LEGENDKILLER FC] mengaktifkan [N:Free Hit] dengan mendatangkan [P:Cherki] serta melepas [P:Palmer].",
-    "text_berita_en": "[T:LEGENDKILLER FC] mengaktifkan [N:Free Hit] dengan mendatangkan [P:Cherki] serta melepas [P:Palmer].",
+    "text_berita": "Hasil akhir di [N:Villa Park, Birmingham]: [C:Aston Villa] dan [C:Sunderland] bermain imbang [N:0] - [N:0].",
+    "text_berita_en": "Match result at [N:Villa Park, Birmingham]: [C:Aston Villa] and [C:Sunderland] play out a goalless draw [N:0] - [N:0].",
+    "gw": 11,
+    "teams": [],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 1
+    }
+  },
+  {
+    "id": "BM_LINEUP_REMAINING_ASSETS_1_e_win",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Lineup",
+    "sub_kategori": "Remaining",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:E-Win] masih menyisakan [N:6] pemain yang belum bertanding, termasuk [P:De Cuyper] ([C:Brighton]).",
+    "text_berita_en": "[T:E-Win] still has [N:6] players yet to play.",
     "gw": 11,
     "teams": [
-      "LEGENDKILLER FC"
+      "E-Win"
     ],
     "players": [
-      "Cherki",
-      "Palmer"
+      "De Cuyper"
     ],
     "cycle_meta": {
-      "isLmFallback": true
+      "specialRank": 0
     }
   },
   {
-    "id": "NS_CAPTAIN_DIFFERENTIAL",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
+    "id": "BM_MATCH_SCORE_RESULT_m108",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Captain",
-    "sub_kategori": "Differential",
-    "drama_score": 87,
+    "kategori": "Match",
+    "sub_kategori": "Score",
+    "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "[T:BERCELANA] menjadi satu-satunya tim yang menunjuk [P:B.Fernandes] sebagai kapten.",
-    "text_berita_en": "[T:BERCELANA] menjadi satu-satunya tim yang menunjuk [P:B.Fernandes] sebagai kapten.",
-    "gw": 11,
-    "teams": [
-      "BERCELANA"
-    ],
-    "players": [
-      "B.Fernandes"
-    ],
-    "cycle_meta": {
-      "isLmFallback": true
-    }
-  },
-  {
-    "id": "NS_TRANSFER_IN_MOST_BOUGHT",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Transfer",
-    "sub_kategori": "Transfers In",
-    "drama_score": 89,
-    "poin_tayang": 0,
-    "text_berita": "[P:N.Jackson] memuncaki daftar transfer masuk setelah direkrut [N:14] tim, diikuti [P:Van Hecke] ([N:10] tim).",
-    "text_berita_en": "[P:N.Jackson] memuncaki daftar transfer masuk setelah direkrut [N:14] tim, diikuti [P:Van Hecke] ([N:10] tim).",
+    "text_berita": "Hasil akhir di [N:Etihad Stadium, Manchester]: [C:Man City] dan [C:Fulham] berbagi poin [N:1] - [N:1] — pencetak gol: [P:Anderson] ([N:1%]) dan [P:Muniz] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Etihad Stadium, Manchester]: [C:Man City] and [C:Fulham] draw [N:1] - [N:1] — goalscorers: [P:Anderson] ([N:1%]) and [P:Muniz] ([N:0%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "N.Jackson",
-      "Van Hecke"
+      "Anderson",
+      "Muniz"
     ],
     "cycle_meta": {
-      "isLmFallback": true
+      "specialRank": 6
     }
   },
   {
-    "id": "NS_LINEUP_DIFFERENTIAL_XI",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
+    "id": "BM_CAPTAIN_DIFFERENTIAL_RETURN_1_ehajrakab_fc",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Lineup",
+    "kategori": "Captain",
     "sub_kategori": "Differential",
-    "drama_score": 86,
+    "drama_score": 88,
     "poin_tayang": 0,
-    "text_berita": "[T:Wayolo FC] menyertakan dua pemain differential, [P:Kluivert] ([N:1%]) dan [P:Jacquet] ([N:4%]), di susunan pemain inti.",
-    "text_berita_en": "[T:Wayolo FC] menyertakan dua pemain differential, [P:Kluivert] ([N:1%]) dan [P:Jacquet] ([N:4%]), di susunan pemain inti.",
+    "text_berita": "[T:ehajrakab fc] sebagai satu-satunya tim yang menunjuk [P:Tavernier] ([C:Bournemouth]) sebagai kapten membukukan [N:16 Poin] usai laga melawan [C:Nott'm Forest].",
+    "text_berita_en": "[T:ehajrakab fc] collected [N:16 Pts] from differential captain [P:Tavernier] ([C:Bournemouth]) after facing [C:Nott'm Forest].",
     "gw": 11,
     "teams": [
-      "Wayolo FC"
-    ],
-    "players": [
-      "Kluivert",
-      "Jacquet"
-    ],
-    "cycle_meta": {
-      "isLmFallback": true
-    }
-  },
-  {
-    "id": "NS_CHIP_BENCH_BOOST",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Chip",
-    "sub_kategori": "Bench Boost",
-    "drama_score": 86,
-    "poin_tayang": 0,
-    "text_berita": "[T:Anti Koruptor Laknat], [T:Thor] dan [T:Chikabandeng] mengaktifkan [N:Bench Boost], dengan [P:Tavernier] menjadi sorotan utama di bangku cadangan.",
-    "text_berita_en": "[T:Anti Koruptor Laknat], [T:Thor] dan [T:Chikabandeng] mengaktifkan [N:Bench Boost], dengan [P:Tavernier] menjadi sorotan utama di bangku cadangan.",
-    "gw": 11,
-    "teams": [
-      "Anti Koruptor Laknat",
-      "Thor",
-      "Chikabandeng"
+      "ehajrakab fc"
     ],
     "players": [
       "Tavernier"
     ],
     "cycle_meta": {
-      "isLmFallback": true
+      "specialRank": 0
     }
   },
   {
-    "id": "NS_TRANSFER_OUT_MOST_SOLD",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
+    "id": "BM_MATCH_BONUS_POINTS_pedro_porro",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Transfer",
-    "sub_kategori": "Transfers Out",
-    "drama_score": 82,
+    "kategori": "Match",
+    "sub_kategori": "Bonus",
+    "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[P:João Pedro] menempati urutan teratas transfer keluar setelah dilepas [N:12] tim, diikuti [P:Guéhi] ([N:7] tim).",
-    "text_berita_en": "[P:João Pedro] menempati urutan teratas transfer keluar setelah dilepas [N:12] tim, diikuti [P:Guéhi] ([N:7] tim).",
+    "text_berita": "[P:Pedro Porro] ([N:1%]) memuncaki BPS ([N:44 BPS]) dan mengoleksi [N:12 Poin] saat [C:Spurs] menghadapi [C:Ipswich Town].",
+    "text_berita_en": "[P:Pedro Porro] ([N:1%]) topped the BPS chart ([N:44 BPS]) with [N:12 Pts] in [C:Spurs] vs [C:Ipswich Town].",
     "gw": 11,
     "teams": [],
     "players": [
-      "João Pedro",
-      "Guéhi"
+      "Pedro Porro"
     ],
     "cycle_meta": {
-      "isLmFallback": true
+      "specialRank": 2
     }
   },
   {
-    "id": "NS_CHIP_SUMMARY_USAGE",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
+    "id": "BM_STANDINGS_RANK_MOVEMENT_down_maverick",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Rank",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[T:Maverick] turun [N:-20 Peringkat] sementara dari [N:52] ke [N:72] dengan [N:14 Poin] sejauh ini.",
+    "text_berita_en": "[T:Maverick] drops [N:-20 Places] provisionally from [N:52] to [N:72] on [N:14 Pts] so far.",
+    "gw": 11,
+    "teams": [
+      "Maverick"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "BM_CHIP_PROGRESS_fh_3_legendkiller_fc",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
     ],
     "kategori": "Chip",
-    "sub_kategori": "Summary",
-    "drama_score": 88,
+    "sub_kategori": "Chip Progress",
+    "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "Total penggunaan chip di FNB League hingga Gameweek [N:11]: [N:Wildcard] [N:59], [N:Free Hit] [N:17] ([N:+1]), [N:Bench Boost] [N:33] ([N:+3]) dan [N:Triple Captain] [N:31].",
-    "text_berita_en": "Total penggunaan chip di FNB League hingga Gameweek [N:11]: [N:Wildcard] [N:59], [N:Free Hit] [N:17] ([N:+1]), [N:Bench Boost] [N:33] ([N:+3]) dan [N:Triple Captain] [N:31].",
+    "text_berita": "[T:LEGENDKILLER FC] mengaktifkan [N:Free Hit] dan mengoleksi [N:36 Poin] sementara dengan [N:2] pemain tersisa.",
+    "text_berita_en": "[T:LEGENDKILLER FC] sits on [N:36 Pts] provisionally via [N:Free Hit] with [N:2] players remaining.",
+    "gw": 11,
+    "teams": [
+      "LEGENDKILLER FC"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "BM_MATCH_CLEAN_SHEET_spurs_van_hecke",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Spurs] mengamankan clean sheet melawan [C:Ipswich Town], menghadirkan [N:+4 Poin] bagi [P:Van Hecke] ([N:40%]).",
+    "text_berita_en": "[C:Spurs] kept a clean sheet against [C:Ipswich Town], earning [N:+4 Pts] for [P:Van Hecke] ([N:40%]).",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Van Hecke"
+    ],
+    "cycle_meta": {
+      "specialRank": 3
+    }
+  },
+  {
+    "id": "BM_LINEUP_AUTOSUB_ALERT_2_hards_win",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Lineup",
+    "sub_kategori": "Autosub",
+    "drama_score": 84,
+    "poin_tayang": 0,
+    "text_berita": "[T:Hards Win] menanti autosub setelah starter [P:João Pedro] ([C:Chelsea]) absen bermain (0 menit).",
+    "text_berita_en": "[T:Hards Win] awaits an autosub after starter [P:João Pedro] ([C:Chelsea]) played 0 minutes.",
+    "gw": 11,
+    "teams": [
+      "Hards Win"
+    ],
+    "players": [
+      "João Pedro"
+    ],
+    "cycle_meta": {
+      "specialRank": 1
+    }
+  },
+  {
+    "id": "BM_MATCH_FIXTURE_NEXT",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Fixture",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "Gameweek [N:11] berlanjut hari Minggu lewat pertandingan antara [C:Hull City] dan [C:Brighton] pada pukul [N:21:00 WIB].",
+    "text_berita_en": "Next in Gameweek [N:11]: [C:Hull City] vs [C:Brighton] at [N:21:00 WIB].",
     "gw": 11,
     "teams": [],
     "players": [],
     "cycle_meta": {
-      "isLmFallback": true
+      "specialRank": 0
     }
   },
   {
-    "id": "NS_PLAYER_OWNERSHIP_MOST_OWNED",
-    "timestamp_produksi": "2026-11-21T16:46:47.490Z",
+    "id": "BM_LINEUP_REMAINING_ASSETS_2_long_moo_long_fc",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Player",
-    "sub_kategori": "Ownership",
-    "drama_score": 85,
+    "kategori": "Lineup",
+    "sub_kategori": "Remaining",
+    "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[P:Haaland] menjadi pemain dengan kepemilikan tertinggi sebesar [N:93%], mengungguli [P:De Cuyper] ([N:81%]).",
-    "text_berita_en": "[P:Haaland] menjadi pemain dengan kepemilikan tertinggi sebesar [N:93%], mengungguli [P:De Cuyper] ([N:81%]).",
+    "text_berita": "[T:Long Moo Long FC] masih menyisakan [N:6] pemain yang belum bertanding, termasuk [P:De Cuyper] ([C:Brighton]).",
+    "text_berita_en": "[T:Long Moo Long FC] still has [N:6] players yet to play.",
     "gw": 11,
-    "teams": [],
+    "teams": [
+      "Long Moo Long FC"
+    ],
     "players": [
-      "Haaland",
       "De Cuyper"
     ],
     "cycle_meta": {
-      "isLmFallback": true
+      "specialRank": 1
     }
   },
   {
-    "id": "LM_STANDINGS_TITLE_RACE",
-    "timestamp_produksi": "2026-11-21T16:46:47.466Z",
+    "id": "BM_MATCH_SCORE_RESULT_m102",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Score",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "Hasil akhir di [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] menundukkan [C:Nott'm Forest] [N:2] - [N:0] — pencetak gol: [P:Kluivert] ([N:1%]) dan [P:Evanilson] ([N:47%]).",
+    "text_berita_en": "Match result at [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] defeats [C:Nott'm Forest] [N:2] - [N:0] — goalscorers: [P:Kluivert] ([N:1%]) and [P:Evanilson] ([N:47%]).",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Kluivert",
+      "Evanilson"
+    ],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "BM_CAPTAIN_VICE_CAPTAIN_1_ahay_jebret",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Captain",
+    "sub_kategori": "Vice-Captain",
+    "drama_score": 89,
+    "poin_tayang": 0,
+    "text_berita": "[T:AHAY JEBRET] beralih mengandalkan wakil kapten [P:Haaland] ([N:4 Poin]) setelah kapten utama [P:João Pedro] absen bermain.",
+    "text_berita_en": "[T:AHAY JEBRET] turns to vice-captain [P:Haaland] ([N:4 Pts]) after captain [P:João Pedro] missed out.",
+    "gw": 11,
+    "teams": [
+      "AHAY JEBRET"
+    ],
+    "players": [
+      "Haaland",
+      "João Pedro"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_MATCH_GOAL_CONTRIBUTORS_ga_muniz_bobb",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Goal",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[P:Muniz] ([N:0%]) mencetak gol bagi [C:Fulham] dari assist [P:Bobb] ([N:0%]) melawan [C:Man City].",
+    "text_berita_en": "[P:Muniz] ([N:0%]) scored for [C:Fulham] assisted by [P:Bobb] ([N:0%]) against [C:Man City].",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Muniz",
+      "Bobb"
+    ],
+    "cycle_meta": {
+      "specialRank": 1
+    }
+  },
+  {
+    "id": "BM_CHIP_PROGRESS_bb_1_anti_koruptor_laknat",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Chip Progress",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[T:Anti Koruptor Laknat] mengaktifkan [N:Bench Boost] dan mengoleksi [N:1 Poin] sementara dari bangku cadangannya.",
+    "text_berita_en": "[T:Anti Koruptor Laknat] has collected [N:1 Pts] from the bench via [N:Bench Boost] so far.",
+    "gw": 11,
+    "teams": [
+      "Anti Koruptor Laknat"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_STANDINGS_RANK_MOVEMENT_up_mcfc_allnew",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Rank",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:MCFC ALLNEW] naik [N:+14 Peringkat] sementara dari [N:71] ke [N:57] usai mengoleksi [N:42 Poin].",
+    "text_berita_en": "[T:MCFC ALLNEW] climbs [N:+14 Places] provisionally from [N:71] to [N:57] on [N:42 Pts].",
+    "gw": 11,
+    "teams": [
+      "MCFC ALLNEW"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_LINEUP_AUTOSUB_ALERT_3_kst",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Lineup",
+    "sub_kategori": "Autosub",
+    "drama_score": 84,
+    "poin_tayang": 0,
+    "text_berita": "[T:KST] menanti autosub setelah starter [P:João Pedro] ([C:Chelsea]) absen bermain (0 menit).",
+    "text_berita_en": "[T:KST] awaits an autosub after starter [P:João Pedro] ([C:Chelsea]) played 0 minutes.",
+    "gw": 11,
+    "teams": [
+      "KST"
+    ],
+    "players": [
+      "João Pedro"
+    ],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "BM_MATCH_GOAL_CONTRIBUTORS_multi_okafor",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Goal",
+    "drama_score": 91,
+    "poin_tayang": 0,
+    "text_berita": "[P:Okafor] ([N:0%]) memborong [N:2 Gol] saat [C:Leeds] menghadapi [C:Chelsea].",
+    "text_berita_en": "[P:Okafor] ([N:0%]) scored [N:2 Goals] for [C:Leeds] against [C:Chelsea].",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Okafor"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_LINEUP_REMAINING_ASSETS_3_doanenek",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Lineup",
+    "sub_kategori": "Remaining",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:Doanenek] masih menyisakan [N:6] pemain yang belum bertanding, termasuk kapten [P:Isak] ([C:Liverpool]).",
+    "text_berita_en": "[T:Doanenek] still has [N:6] players yet to play.",
+    "gw": 11,
+    "teams": [
+      "Doanenek"
+    ],
+    "players": [
+      "Isak"
+    ],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "BM_MATCH_SCORE_RESULT_m109",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Score",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "Hasil akhir di [N:St. James' Park, Newcastle]: [C:Newcastle] dan [C:Arsenal] berbagi poin [N:2] - [N:2] — pencetak gol: [P:Thiaw] ([N:0%]), [P:Barnes] ([N:7%]), [P:Eze] ([N:0%]), dan [P:Madueke] ([N:0%]).",
+    "text_berita_en": "Match result at [N:St. James' Park, Newcastle]: [C:Newcastle] and [C:Arsenal] draw [N:2] - [N:2] — goalscorers: [P:Thiaw] ([N:0%]), [P:Barnes] ([N:7%]), [P:Eze] ([N:0%]), and [P:Madueke] ([N:0%]).",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Thiaw",
+      "Barnes",
+      "Eze",
+      "Madueke"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_STANDINGS_TITLE_RACE",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
     ],
     "kategori": "Standings",
     "sub_kategori": "Title Race",
-    "drama_score": 92,
+    "drama_score": 91,
     "poin_tayang": 0,
-    "text_berita": "Pemuncak klasemen sementara [T:Yuk Bisa Yuk FC] unggul [N:22 Poin] atas [T:PSIS FC] dengan keduanya menunjuk [P:Haaland] sebagai kapten, sehingga penentu selisih poin sementara beralih ke [P:Palmer] dan [P:Ødegaard].",
-    "text_berita_en": "Live leader [T:Yuk Bisa Yuk FC] leads [T:PSIS FC] by [N:22 Pts] with both captaining [P:Haaland]; differentials turn to [P:Palmer] and [P:Ødegaard].",
+    "text_berita": "Pemuncak klasemen sementara [T:Yuk Bisa Yuk FC] unggul [N:17 Poin] atas [T:PSIS FC] dengan keduanya menunjuk [P:Haaland] sebagai kapten, sehingga penentu selisih poin sementara beralih ke [P:Palmer] dan [P:Ødegaard].",
+    "text_berita_en": "Provisional leader [T:Yuk Bisa Yuk FC] leads [T:PSIS FC] by [N:17 Pts] with both captaining [P:Haaland]; differentials turn to [P:Palmer] and [P:Ødegaard].",
     "gw": 11,
     "teams": [
       "Yuk Bisa Yuk FC",
@@ -416,3758 +566,663 @@
       "Haaland",
       "Palmer",
       "Ødegaard"
-    ]
-  },
-  {
-    "id": "LM_MATCH_SCORE_LIVE_m101",
-    "timestamp_produksi": "2026-11-21T16:46:47.449Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
     ],
-    "kategori": "Match",
-    "sub_kategori": "Score",
-    "drama_score": 78,
-    "poin_tayang": 0,
-    "text_berita": "Live menit [N:91']: [C:Aston Villa] [N:0] - [N:0] [C:Sunderland] masih imbang tanpa gol.",
-    "text_berita_en": "[C:Aston Villa] vs [C:Sunderland] is underway at minute [N:91'] with the score at [N:0 - 0].",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [],
     "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "hasGoals": false,
-      "isHalfTime": false,
-      "scoreSig": "0-0-L",
-      "pulseMatchId": 101,
-      "clockSecs": 5340
+      "specialRank": 0
     }
   },
   {
-    "id": "LM_MATCH_SCORE_LIVE_m102",
-    "timestamp_produksi": "2026-11-21T16:46:47.449Z",
+    "id": "BM_MATCH_SCORE_RESULT_m110",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
     "kategori": "Match",
     "sub_kategori": "Score",
-    "drama_score": 87,
+    "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Live menit [N:87']: [C:Bournemouth] [N:2] - [N:0] [C:Nott'm Forest] — pencetak gol: [P:Kluivert] ([N:1%]) dan [P:Evanilson] ([N:47%]).",
-    "text_berita_en": "[C:Bournemouth] vs [C:Nott'm Forest] is underway at minute [N:87'] with the score at [N:2 - 0], goals scored by [P:Kluivert] ([N:1%]) and [P:Evanilson] ([N:47%]).",
+    "text_berita": "Hasil akhir di [N:Tottenham Hotspur Stadium, London]: [C:Spurs] menundukkan [C:Ipswich Town] [N:2] - [N:0] — pencetak gol: [P:Williams-Barnett] ([N:0%]) dan [P:Solanke] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Tottenham Hotspur Stadium, London]: [C:Spurs] defeats [C:Ipswich Town] [N:2] - [N:0] — goalscorers: [P:Williams-Barnett] ([N:0%]) and [P:Solanke] ([N:0%]).",
     "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Kluivert",
-      "Evanilson"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "hasGoals": true,
-      "isHalfTime": false,
-      "scoreSig": "2-0-L",
-      "pulseMatchId": 102,
-      "clockSecs": 5220
-    }
-  },
-  {
-    "id": "LM_MATCH_SCORE_LIVE_m104",
-    "timestamp_produksi": "2026-11-21T16:46:47.449Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Score",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "Live menit [N:85']: [C:Chelsea] [N:1] - [N:3] [C:Leeds] — pencetak gol: [P:Emegha] ([N:0%]), [P:Okafor] ([N:0%], [N:2 Gol]) dan [P:Calvert-Lewin] ([N:14%]).",
-    "text_berita_en": "[C:Chelsea] vs [C:Leeds] is underway at minute [N:85'] with the score at [N:1 - 3], goals scored by [P:Emegha] ([N:0%]), [P:Okafor] ([N:0%], [N:2 Goals]), and [P:Calvert-Lewin] ([N:14%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Emegha",
-      "Okafor",
-      "Calvert-Lewin"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "hasGoals": true,
-      "isHalfTime": false,
-      "scoreSig": "1-3-L",
-      "pulseMatchId": 104,
-      "clockSecs": 5100
-    }
-  },
-  {
-    "id": "LM_MATCH_SCORE_LIVE_m105",
-    "timestamp_produksi": "2026-11-21T16:46:47.449Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Score",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "Live menit [N:85']: [C:Coventry City] [N:2] - [N:2] [C:Crystal Palace] — pencetak gol: [P:Sakamoto] ([N:0%]), [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]) dan [P:Strand Larsen] ([N:1%]).",
-    "text_berita_en": "[C:Coventry City] vs [C:Crystal Palace] is underway at minute [N:85'] with the score at [N:2 - 2], goals scored by [P:Sakamoto] ([N:0%]), [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]), and [P:Strand Larsen] ([N:1%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Sakamoto",
-      "Awoniyi",
-      "Yeremy",
-      "Strand Larsen"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "hasGoals": true,
-      "isHalfTime": false,
-      "scoreSig": "2-2-L",
-      "pulseMatchId": 105,
-      "clockSecs": 5040
-    }
-  },
-  {
-    "id": "LM_MATCH_SCORE_LIVE_m110",
-    "timestamp_produksi": "2026-11-21T16:46:47.449Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Score",
-    "drama_score": 87,
-    "poin_tayang": 0,
-    "text_berita": "Live menit [N:89']: [C:Spurs] [N:2] - [N:0] [C:Ipswich Town] — pencetak gol: [P:Williams-Barnett] ([N:0%]) dan [P:Solanke] ([N:0%]).",
-    "text_berita_en": "[C:Spurs] vs [C:Ipswich Town] is underway at minute [N:89'] with the score at [N:2 - 0], goals scored by [P:Williams-Barnett] ([N:0%]) and [P:Solanke] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
+    "teams": [],
     "players": [
       "Williams-Barnett",
       "Solanke"
     ],
     "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "hasGoals": true,
-      "isHalfTime": false,
-      "scoreSig": "2-0-L",
-      "pulseMatchId": 110,
-      "clockSecs": 5340
+      "specialRank": 5
     }
   },
   {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_1738316_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
+    "id": "BM_CHIP_PROGRESS_bb_4_chikabandeng",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
+    "kategori": "Chip",
+    "sub_kategori": "Chip Progress",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[T:Chikabandeng] mengaktifkan [N:Bench Boost] dan mengoleksi [N:8 Poin] sementara dari bangku cadangannya.",
+    "text_berita_en": "[T:Chikabandeng] has collected [N:8 Pts] from the bench via [N:Bench Boost] so far.",
+    "gw": 11,
+    "teams": [
+      "Chikabandeng"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 3
+    }
+  },
+  {
+    "id": "BM_PLAYER_AVAILABILITY_FLAGGED_thiago",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Player",
+    "sub_kategori": "Availability",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[P:Thiago] ([C:Brentford]) dipastikan absen melawan [C:Everton] akibat sanksi larangan bertanding sehingga berdampak bagi [N:1] pemiliknya.",
+    "text_berita_en": "[P:Thiago] ([C:Brentford]) is ruled out against [C:Everton] (sanksi larangan bertanding), impacting [N:1] owners.",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Thiago"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_TRANSFER_HITS_EVALUATION_1_denay_fc",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Transfer",
+    "sub_kategori": "Hits",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:Denay FC] memulai pekan dengan penalti poin [N:-12 Poin], sementara rekrutan barunya [P:Tavernier] ([C:Bournemouth]) membukukan [N:8 Poin] pada laga yang sudah tuntas.",
+    "text_berita_en": "[T:Denay FC] took a [N:-12 Pts] hit while new signing [P:Tavernier] ([C:Bournemouth]) recorded [N:8 Pts] in a completed match.",
+    "gw": 11,
+    "teams": [
+      "Denay FC"
+    ],
+    "players": [
+      "Tavernier"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_MATCH_CLEAN_SHEET_aston_villa_suzuki",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[C:Aston Villa] mengamankan clean sheet melawan [C:Sunderland], menghadirkan [N:+4 Poin] bagi [P:Suzuki] ([N:2%]).",
+    "text_berita_en": "[C:Aston Villa] kept a clean sheet against [C:Sunderland], earning [N:+4 Pts] for [P:Suzuki] ([N:2%]).",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Suzuki"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_LINEUP_BENCH_POINTS_1_xian_ying_fc",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Lineup",
+    "sub_kategori": "Bench",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:Xian Ying FC] mencadangkan [P:Roefs] yang mendulang [N:11 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Xian Ying FC] left [P:Roefs] on the bench with [N:11 Pts] from a completed match.",
+    "gw": 11,
+    "teams": [
+      "Xian Ying FC"
+    ],
+    "players": [
+      "Roefs"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_MATCH_SCORE_RESULT_m104",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Score",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "[T:Maverick] turun [N:-21 Peringkat] dari [N:52] ke [N:73] klasemen sementara dengan [N:9 Poin].",
-    "text_berita_en": "[T:Maverick] dropped [N:-21 Places] from rank [N:52] to [N:73] on the live table with [N:9 Pts].",
+    "text_berita": "Hasil akhir di [N:Stamford Bridge, London]: [C:Leeds] menundukkan [C:Chelsea] [N:4] - [N:1] — pencetak gol: [P:Emegha] ([N:0%]), [P:Okafor] ([N:0%], [N:2 Gol]), [P:Calvert-Lewin] ([N:14%]), dan [P:Aaronson] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Stamford Bridge, London]: [C:Leeds] defeats [C:Chelsea] [N:4] - [N:1] — goalscorers: [P:Emegha] ([N:0%]), [P:Okafor] ([N:0%], [N:2 Goals]), [P:Calvert-Lewin] ([N:14%]), and [P:Aaronson] ([N:0%]).",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Emegha",
+      "Okafor",
+      "Calvert-Lewin",
+      "Aaronson"
+    ],
+    "cycle_meta": {
+      "specialRank": 3
+    }
+  },
+  {
+    "id": "BM_CAPTAIN_POPULAR_RETURN",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Captain",
+    "sub_kategori": "Popular",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[P:Haaland], kapten terpopuler yang dipilih [N:63] tim, membukukan [N:4 Poin] sebelum Gameweek [N:11] berlanjut hari Minggu pada pukul [N:21:00 WIB].",
+    "text_berita_en": "[P:Haaland] (captained by [N:63] teams) returned [N:4 Pts] ahead of upcoming fixtures.",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Haaland"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_MATCH_GOAL_CONTRIBUTORS_ga_evanilson_hill",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Goal",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[P:Evanilson] ([N:47%]) mencetak gol bagi [C:Bournemouth] dari assist [P:Hill] ([N:0%]) melawan [C:Nott'm Forest].",
+    "text_berita_en": "[P:Evanilson] ([N:47%]) scored for [C:Bournemouth] assisted by [P:Hill] ([N:0%]) against [C:Nott'm Forest].",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Evanilson",
+      "Hill"
+    ],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "BM_TRANSFER_HITS_EVALUATION_2_maverick",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Transfer",
+    "sub_kategori": "Hits",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[T:Maverick] memulai pekan dengan penalti poin [N:-12 Poin], sementara rekrutan barunya [P:Trafford] ([C:Leeds]) membukukan [N:2 Poin] pada laga yang sudah tuntas.",
+    "text_berita_en": "[T:Maverick] took a [N:-12 Pts] hit while new signing [P:Trafford] ([C:Leeds]) recorded [N:2 Pts] in a completed match.",
     "gw": 11,
     "teams": [
       "Maverick"
     ],
-    "players": [],
+    "players": [
+      "Trafford"
+    ],
     "cycle_meta": {
-      "rankDiff": 21,
-      "hasRankChange": true
+      "specialRank": 1
     }
   },
   {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_5080348_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
+    "id": "BM_MATCH_BONUS_POINTS_okafor",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
-    "drama_score": 90,
+    "kategori": "Match",
+    "sub_kategori": "Bonus",
+    "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[T:MCFC ALLNEW] naik [N:+15 Peringkat] dari [N:71] ke [N:56] klasemen sementara berkat [N:40 Poin].",
-    "text_berita_en": "[T:MCFC ALLNEW] climbed [N:+15 Places] from rank [N:71] to [N:56] on the live table with [N:40 Pts].",
+    "text_berita": "[P:Okafor] ([N:0%]) memuncaki BPS ([N:52 BPS]) dan mengoleksi [N:15 Poin] saat [C:Leeds] menghadapi [C:Chelsea].",
+    "text_berita_en": "[P:Okafor] ([N:0%]) topped the BPS chart ([N:52 BPS]) with [N:15 Pts] in [C:Leeds] vs [C:Chelsea].",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Okafor"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "BM_LINEUP_BENCH_POINTS_2_majapahit_fc",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Lineup",
+    "sub_kategori": "Bench",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:Majapahit FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Majapahit FC] left [P:Rudoni] on the bench with [N:10 Pts] from a completed match.",
     "gw": 11,
     "teams": [
-      "MCFC ALLNEW"
+      "Majapahit FC"
     ],
-    "players": [],
+    "players": [
+      "Rudoni"
+    ],
     "cycle_meta": {
-      "rankDiff": 15,
-      "hasRankChange": true
+      "specialRank": 1
     }
   },
   {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_5500676_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
+    "id": "BM_MATCH_CLEAN_SHEET_sunderland_roefs",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
-    "drama_score": 90,
+    "kategori": "Match",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[T:Thor] naik [N:+9 Peringkat] dari [N:34] ke [N:25] klasemen sementara berkat [N:36 Poin].",
-    "text_berita_en": "[T:Thor] climbed [N:+9 Places] from rank [N:34] to [N:25] on the live table with [N:36 Pts].",
+    "text_berita": "[C:Sunderland] mengamankan clean sheet melawan [C:Aston Villa], menghadirkan [N:+4 Poin] bagi [P:Roefs] ([N:2%]).",
+    "text_berita_en": "[C:Sunderland] kept a clean sheet against [C:Aston Villa], earning [N:+4 Pts] for [P:Roefs] ([N:2%]).",
     "gw": 11,
-    "teams": [
-      "Thor"
+    "teams": [],
+    "players": [
+      "Roefs"
     ],
-    "players": [],
     "cycle_meta": {
-      "rankDiff": 9,
-      "hasRankChange": true
+      "specialRank": 1
     }
   },
   {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_5932350_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
+    "id": "BM_STANDINGS_RANK_MOVEMENT_up_oniichan_s_team",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
     "kategori": "Standings",
     "sub_kategori": "Rank",
-    "drama_score": 90,
+    "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[T:Oniichan's Team] naik [N:+9 Peringkat] dari [N:70] ke [N:61] klasemen sementara berkat [N:28 Poin].",
-    "text_berita_en": "[T:Oniichan's Team] climbed [N:+9 Places] from rank [N:70] to [N:61] on the live table with [N:28 Pts].",
+    "text_berita": "[T:Oniichan's Team] naik [N:+11 Peringkat] sementara dari [N:70] ke [N:59] usai mengoleksi [N:35 Poin].",
+    "text_berita_en": "[T:Oniichan's Team] climbs [N:+11 Places] provisionally from [N:70] to [N:59] on [N:35 Pts].",
     "gw": 11,
     "teams": [
       "Oniichan's Team"
     ],
     "players": [],
     "cycle_meta": {
-      "rankDiff": 9,
-      "hasRankChange": true
+      "specialRank": 1
     }
   },
   {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_5501643_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
+    "id": "BM_PLAYER_AVAILABILITY_FLAGGED_maguire",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
+    "kategori": "Player",
+    "sub_kategori": "Availability",
+    "drama_score": 83,
+    "poin_tayang": 0,
+    "text_berita": "[P:Maguire] ([C:Man Utd]) diragukan tampil melawan [C:Liverpool] akibat cedera punggung sehingga menimbulkan tanda tanya bagi [N:2] pemiliknya.",
+    "text_berita_en": "[P:Maguire] ([C:Man Utd]) is doubtful against [C:Liverpool] (cedera punggung), leaving [N:2] owners waiting.",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Maguire"
+    ],
+    "cycle_meta": {
+      "specialRank": 1
+    }
+  },
+  {
+    "id": "BM_MATCH_SCORE_RESULT_m105",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Score",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "[T:Long Moo Long FC] turun [N:-8 Peringkat] dari [N:39] ke [N:47] klasemen sementara dengan [N:12 Poin].",
-    "text_berita_en": "[T:Long Moo Long FC] dropped [N:-8 Places] from rank [N:39] to [N:47] on the live table with [N:12 Pts].",
+    "text_berita": "Hasil akhir di [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] menundukkan [C:Crystal Palace] [N:3] - [N:2] — pencetak gol: [P:Sakamoto] ([N:0%]), [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]), [P:McNeil] ([N:0%], GBD), dan [P:Strand Larsen] ([N:1%]).",
+    "text_berita_en": "Match result at [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] defeats [C:Crystal Palace] [N:3] - [N:2] — goalscorers: [P:Sakamoto] ([N:0%]), [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]), [P:McNeil] ([N:0%], OG), and [P:Strand Larsen] ([N:1%]).",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Sakamoto",
+      "Awoniyi",
+      "Yeremy",
+      "McNeil",
+      "Strand Larsen"
+    ],
+    "cycle_meta": {
+      "specialRank": 4
+    }
+  },
+  {
+    "id": "BM_STANDINGS_WEEKLY_WINS_MOST",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Weekly Wins",
+    "drama_score": 84,
+    "poin_tayang": 0,
+    "text_berita": "[T:Blackswann] ([N:1] kali juara, [N:30 Poin] sementara) dan [T:rdwndvsn] ([N:1] kali juara, [N:23 Poin] sementara) keduanya menunjuk [P:Haaland] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin sementara beralih ke [P:Evanilson] dan [P:Raya].",
+    "text_berita_en": "[T:Blackswann] ([N:30 Pts] provisionally) and [T:rdwndvsn] ([N:23 Pts] provisionally) both captain [P:Haaland] in the Most GW Wins race; differentials turn to [P:Evanilson] and [P:Raya].",
     "gw": 11,
     "teams": [
-      "Long Moo Long FC"
+      "Blackswann",
+      "rdwndvsn"
     ],
-    "players": [],
+    "players": [
+      "Haaland",
+      "Evanilson",
+      "Raya"
+    ],
     "cycle_meta": {
-      "rankDiff": 8,
-      "hasRankChange": true
+      "specialRank": 0
     }
   },
   {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_5505523_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
+    "id": "BM_MATCH_GOAL_CONTRIBUTORS_ga_kluivert_tavernier",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Goal",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[P:Kluivert] ([N:1%]) mencetak gol bagi [C:Bournemouth] dari assist [P:Tavernier] ([N:68%]) melawan [C:Nott'm Forest].",
+    "text_berita_en": "[P:Kluivert] ([N:1%]) scored for [C:Bournemouth] assisted by [P:Tavernier] ([N:68%]) against [C:Nott'm Forest].",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Kluivert",
+      "Tavernier"
+    ],
+    "cycle_meta": {
+      "specialRank": 3
+    }
+  },
+  {
+    "id": "BM_LINEUP_BENCH_POINTS_3_legendkiller_fc",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Lineup",
+    "sub_kategori": "Bench",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:LEGENDKILLER FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:LEGENDKILLER FC] left [P:Rudoni] on the bench with [N:10 Pts] from a completed match.",
+    "gw": 11,
+    "teams": [
+      "LEGENDKILLER FC"
+    ],
+    "players": [
+      "Rudoni"
+    ],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "BM_MATCH_BONUS_POINTS_yeremy",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Bonus",
+    "drama_score": 86,
+    "poin_tayang": 0,
+    "text_berita": "[P:Yeremy] ([N:0%]) memuncaki BPS ([N:46 BPS]) dan mengoleksi [N:12 Poin] saat [C:Crystal Palace] menghadapi [C:Coventry City].",
+    "text_berita_en": "[P:Yeremy] ([N:0%]) topped the BPS chart ([N:46 BPS]) with [N:12 Pts] in [C:Crystal Palace] vs [C:Coventry City].",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Yeremy"
+    ],
+    "cycle_meta": {
+      "specialRank": 1
+    }
+  },
+  {
+    "id": "BM_STANDINGS_RANK_MOVEMENT_down_doanenek",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Between Match",
+    "waktu_tayang": [
+      "Between Match"
     ],
     "kategori": "Standings",
     "sub_kategori": "Rank",
-    "drama_score": 90,
+    "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "[T:Doanenek] turun [N:-8 Peringkat] dari [N:51] ke [N:59] klasemen sementara dengan [N:11 Poin].",
-    "text_berita_en": "[T:Doanenek] dropped [N:-8 Places] from rank [N:51] to [N:59] on the live table with [N:11 Pts].",
+    "text_berita": "[T:Doanenek] turun [N:-11 Peringkat] sementara dari [N:51] ke [N:62] dengan [N:12 Poin] sejauh ini.",
+    "text_berita_en": "[T:Doanenek] drops [N:-11 Places] provisionally from [N:51] to [N:62] on [N:12 Pts] so far.",
     "gw": 11,
     "teams": [
       "Doanenek"
     ],
     "players": [],
     "cycle_meta": {
-      "rankDiff": 8,
-      "hasRankChange": true
+      "specialRank": 3
     }
   },
   {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_7814533_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
+    "id": "BM_CHIP_PROGRESS_bb_2_thor",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
-    "drama_score": 90,
+    "kategori": "Chip",
+    "sub_kategori": "Chip Progress",
+    "drama_score": 87,
     "poin_tayang": 0,
-    "text_berita": "[T:Uaffukabeh] turun [N:-8 Peringkat] dari [N:62] ke [N:70] klasemen sementara dengan [N:14 Poin].",
-    "text_berita_en": "[T:Uaffukabeh] dropped [N:-8 Places] from rank [N:62] to [N:70] on the live table with [N:14 Pts].",
+    "text_berita": "[T:Thor] mengaktifkan [N:Bench Boost] dan mengoleksi [N:8 Poin] sementara dari bangku cadangannya.",
+    "text_berita_en": "[T:Thor] has collected [N:8 Pts] from the bench via [N:Bench Boost] so far.",
     "gw": 11,
     "teams": [
-      "Uaffukabeh"
+      "Thor"
     ],
     "players": [],
     "cycle_meta": {
-      "rankDiff": 8,
-      "hasRankChange": true
+      "specialRank": 1
     }
   },
   {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_2599677_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
+    "id": "BM_TRANSFER_HITS_EVALUATION_3_pendoel_selection",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
-    "drama_score": 90,
+    "kategori": "Transfer",
+    "sub_kategori": "Hits",
+    "drama_score": 86,
     "poin_tayang": 0,
-    "text_berita": "[T:amenk wenger] turun [N:-8 Peringkat] dari [N:64] ke [N:72] klasemen sementara dengan [N:14 Poin].",
-    "text_berita_en": "[T:amenk wenger] dropped [N:-8 Places] from rank [N:64] to [N:72] on the live table with [N:14 Pts].",
+    "text_berita": "[T:PENDOEL SELECTION] memulai pekan dengan penalti poin [N:-8 Poin], sementara rekrutan barunya [P:Calafiori] ([C:Arsenal]) membukukan [N:1 Poin] pada laga yang sudah tuntas.",
+    "text_berita_en": "[T:PENDOEL SELECTION] took a [N:-8 Pts] hit while new signing [P:Calafiori] ([C:Arsenal]) recorded [N:1 Pts] in a completed match.",
     "gw": 11,
     "teams": [
-      "amenk wenger"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "rankDiff": 8,
-      "hasRankChange": true
-    }
-  },
-  {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_4296304_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
-    "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "[T:Ricardo] turun [N:-8 Peringkat] dari [N:68] ke [N:76] klasemen sementara dengan [N:12 Poin].",
-    "text_berita_en": "[T:Ricardo] dropped [N:-8 Places] from rank [N:68] to [N:76] on the live table with [N:12 Pts].",
-    "gw": 11,
-    "teams": [
-      "Ricardo"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "rankDiff": 8,
-      "hasRankChange": true
-    }
-  },
-  {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_7449475_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
-    "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "[T:Supplier KDMP] naik [N:+7 Peringkat] dari [N:30] ke [N:23] klasemen sementara berkat [N:31 Poin].",
-    "text_berita_en": "[T:Supplier KDMP] climbed [N:+7 Places] from rank [N:30] to [N:23] on the live table with [N:31 Pts].",
-    "gw": 11,
-    "teams": [
-      "Supplier KDMP"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "rankDiff": 7,
-      "hasRankChange": true
-    }
-  },
-  {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_4209718_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
-    "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "[T:San_saro] naik [N:+7 Peringkat] dari [N:43] ke [N:36] klasemen sementara berkat [N:34 Poin].",
-    "text_berita_en": "[T:San_saro] climbed [N:+7 Places] from rank [N:43] to [N:36] on the live table with [N:34 Pts].",
-    "gw": 11,
-    "teams": [
-      "San_saro"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "rankDiff": 7,
-      "hasRankChange": true
-    }
-  },
-  {
-    "id": "LM_STANDINGS_RANK_MOVEMENT_7956360_gw11",
-    "timestamp_produksi": "2026-11-21T16:46:47.439Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Standings",
-    "sub_kategori": "Rank",
-    "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "[T:Kr12dhianto] naik [N:+7 Peringkat] dari [N:73] ke [N:66] klasemen sementara berkat [N:29 Poin].",
-    "text_berita_en": "[T:Kr12dhianto] climbed [N:+7 Places] from rank [N:73] to [N:66] on the live table with [N:29 Pts].",
-    "gw": 11,
-    "teams": [
-      "Kr12dhianto"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "rankDiff": 7,
-      "hasRankChange": true
-    }
-  },
-  {
-    "id": "LM_MATCH_SAVES_GOALKEEPER_m101_p529_s2",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Saves",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "Kiper [P:Roefs] ([N:2%]) membukukan [N:7 Penyelamatan] untuk [C:Sunderland] melawan [C:Aston Villa] dan mengantongi [N:+2 Poin].",
-    "text_berita_en": "Goalkeeper [P:Roefs] ([N:2%]) made [N:7 Saves] for [C:Sunderland] against [C:Aston Villa], earning [N:+2 Pts].",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
+      "PENDOEL SELECTION"
     ],
     "players": [
-      "Roefs"
+      "Calafiori"
     ],
     "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "detectedClockSecs": 5280,
-      "maxOwnerPct": 2,
-      "pulseMatchId": 101,
-      "clockSecs": 5340
+      "specialRank": 2
     }
   },
   {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m101_p533",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
+    "id": "BM_MATCH_CLEAN_SHEET_bournemouth_silva",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
     "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 88,
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[P:Mukiele] ([N:1%]) mencatat [N:13 Aksi Defensif] untuk [C:Sunderland] melawan [C:Aston Villa] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Mukiele] ([N:1%]) has recorded [N:13 Defensive Actions] for [C:Sunderland] against [C:Aston Villa], securing [N:+2 Pts] Defensive Contribution.",
+    "text_berita": "[C:Bournemouth] mengamankan clean sheet melawan [C:Nott'm Forest], menghadirkan [N:+4 Poin] bagi [P:Silva] ([N:6%]).",
+    "text_berita_en": "[C:Bournemouth] kept a clean sheet against [C:Nott'm Forest], earning [N:+4 Pts] for [P:Silva] ([N:6%]).",
     "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "Mukiele"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "detectedClockSecs": 5280,
-      "maxOwnerPct": 1,
-      "pulseMatchId": 101,
-      "clockSecs": 5340
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m101_p613",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "[P:Ahoka] ([N:0%]) mencatat [N:16 Aksi Defensif] untuk [C:Sunderland] melawan [C:Aston Villa] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Ahoka] ([N:0%]) has recorded [N:16 Defensive Actions] for [C:Sunderland] against [C:Aston Villa], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "Ahoka"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "detectedClockSecs": 5280,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 101,
-      "clockSecs": 5340
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m102_p60",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 89,
-    "poin_tayang": 0,
-    "text_berita": "[P:Hill] ([N:0%]) mencatat [N:15 Aksi Defensif] untuk [C:Bournemouth] melawan [C:Nott'm Forest] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Hill] ([N:0%]) has recorded [N:15 Defensive Actions] for [C:Bournemouth] against [C:Nott'm Forest], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Hill"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "detectedClockSecs": 5160,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 102,
-      "clockSecs": 5220
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m102_p566",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "[P:Silva] ([N:6%]) mencatat [N:13 Aksi Defensif] untuk [C:Bournemouth] melawan [C:Nott'm Forest] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Silva] ([N:6%]) has recorded [N:13 Defensive Actions] for [C:Bournemouth] against [C:Nott'm Forest], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
+    "teams": [],
     "players": [
       "Silva"
     ],
     "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "detectedClockSecs": 5160,
-      "maxOwnerPct": 6,
-      "pulseMatchId": 102,
-      "clockSecs": 5220
+      "specialRank": 2
     }
   },
   {
-    "id": "LM_MATCH_SAVES_GOALKEEPER_m102_p467_s1",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
+    "id": "BM_LINEUP_AUTOSUB_ALERT_1_ayase_rs",
+    "timestamp_produksi": "2026-11-22T09:00:54.458Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
+    "fase": "Between Match",
     "waktu_tayang": [
-      "Live Match"
+      "Between Match"
     ],
-    "kategori": "Match",
-    "sub_kategori": "Saves",
+    "kategori": "Lineup",
+    "sub_kategori": "Autosub",
     "drama_score": 84,
     "poin_tayang": 0,
-    "text_berita": "Kiper [P:Sels] ([N:1%]) membukukan [N:5 Penyelamatan] untuk [C:Nott'm Forest] melawan [C:Bournemouth] dan mengantongi [N:+1 Poin].",
-    "text_berita_en": "Goalkeeper [P:Sels] ([N:1%]) made [N:5 Saves] for [C:Nott'm Forest] against [C:Bournemouth], earning [N:+1 Pts].",
+    "text_berita": "[T:Ayase RS] menanti autosub setelah starter [P:João Pedro] ([C:Chelsea]) absen bermain (0 menit).",
+    "text_berita_en": "[T:Ayase RS] awaits an autosub after starter [P:João Pedro] ([C:Chelsea]) played 0 minutes.",
     "gw": 11,
     "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
+      "Ayase RS"
     ],
     "players": [
-      "Sels"
+      "João Pedro"
     ],
     "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "detectedClockSecs": 5160,
-      "maxOwnerPct": 1,
-      "pulseMatchId": 102,
-      "clockSecs": 5220
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m102_p486",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 89,
-    "poin_tayang": 0,
-    "text_berita": "[P:McAtee] ([N:0%]) mencatat [N:14 Aksi Defensif] untuk [C:Nott'm Forest] melawan [C:Bournemouth] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:McAtee] ([N:0%]) has recorded [N:14 Defensive Actions] for [C:Nott'm Forest] against [C:Bournemouth], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "McAtee"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "detectedClockSecs": 5160,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 102,
-      "clockSecs": 5220
-    }
-  },
-  {
-    "id": "LM_MATCH_SAVES_GOALKEEPER_m104_p28_s1",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Saves",
-    "drama_score": 84,
-    "poin_tayang": 0,
-    "text_berita": "Kiper [P:Martinez] ([N:0%]) membukukan [N:4 Penyelamatan] untuk [C:Chelsea] melawan [C:Leeds] dan mengantongi [N:+1 Poin].",
-    "text_berita_en": "Goalkeeper [P:Martinez] ([N:0%]) made [N:4 Saves] for [C:Chelsea] against [C:Leeds], earning [N:+1 Pts].",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Martinez"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "detectedClockSecs": 4980,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 104,
-      "clockSecs": 5100
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m104_p145",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 89,
-    "poin_tayang": 0,
-    "text_berita": "[P:Fofana] ([N:0%]) mencatat [N:15 Aksi Defensif] untuk [C:Chelsea] melawan [C:Leeds] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Fofana] ([N:0%]) has recorded [N:15 Defensive Actions] for [C:Chelsea] against [C:Leeds], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Fofana"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "detectedClockSecs": 4980,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 104,
-      "clockSecs": 5100
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m104_p598",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 87,
-    "poin_tayang": 0,
-    "text_berita": "[P:Elvedi] ([N:0%]) mencatat [N:11 Aksi Defensif] untuk [C:Leeds] melawan [C:Chelsea] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Elvedi] ([N:0%]) has recorded [N:11 Defensive Actions] for [C:Leeds] against [C:Chelsea], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Elvedi"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "detectedClockSecs": 4980,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 104,
-      "clockSecs": 5100
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m104_p338",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "[P:Ampadu] ([N:0%]) mencatat [N:12 Aksi Defensif] untuk [C:Leeds] melawan [C:Chelsea] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Ampadu] ([N:0%]) has recorded [N:12 Defensive Actions] for [C:Leeds] against [C:Chelsea], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Ampadu"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "detectedClockSecs": 4980,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 104,
-      "clockSecs": 5100
-    }
-  },
-  {
-    "id": "LM_MATCH_SAVES_GOALKEEPER_m105_p110_s1",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Saves",
-    "drama_score": 84,
-    "poin_tayang": 0,
-    "text_berita": "Kiper [P:Rushworth] ([N:0%]) membukukan [N:3 Penyelamatan] untuk [C:Coventry City] melawan [C:Crystal Palace] dan mengantongi [N:+1 Poin].",
-    "text_berita_en": "Goalkeeper [P:Rushworth] ([N:0%]) made [N:3 Saves] for [C:Coventry City] against [C:Crystal Palace], earning [N:+1 Pts].",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Rushworth"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "detectedClockSecs": 4920,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 105,
-      "clockSecs": 5040
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m105_p91",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "[P:Pinnock] ([N:0%]) mencatat [N:13 Aksi Defensif] untuk [C:Coventry City] melawan [C:Crystal Palace] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Pinnock] ([N:0%]) has recorded [N:13 Defensive Actions] for [C:Coventry City] against [C:Crystal Palace], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Pinnock"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "detectedClockSecs": 4920,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 105,
-      "clockSecs": 5040
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m105_p173",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 89,
-    "poin_tayang": 0,
-    "text_berita": "[P:Thomas] ([N:10%]) mencatat [N:14 Aksi Defensif] untuk [C:Coventry City] melawan [C:Crystal Palace] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Thomas] ([N:10%]) has recorded [N:14 Defensive Actions] for [C:Coventry City] against [C:Crystal Palace], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Thomas"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "detectedClockSecs": 4920,
-      "maxOwnerPct": 10,
-      "pulseMatchId": 105,
-      "clockSecs": 5040
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m105_p656",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 87,
-    "poin_tayang": 0,
-    "text_berita": "[P:Mfuni] ([N:0%]) mencatat [N:11 Aksi Defensif] untuk [C:Coventry City] melawan [C:Crystal Palace] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Mfuni] ([N:0%]) has recorded [N:11 Defensive Actions] for [C:Coventry City] against [C:Crystal Palace], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Mfuni"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "detectedClockSecs": 4920,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 105,
-      "clockSecs": 5040
-    }
-  },
-  {
-    "id": "LM_MATCH_SAVES_GOALKEEPER_m105_p198_s1",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Saves",
-    "drama_score": 84,
-    "poin_tayang": 0,
-    "text_berita": "Kiper [P:Henderson] ([N:0%]) membukukan [N:3 Penyelamatan] untuk [C:Crystal Palace] melawan [C:Coventry City] dan mengantongi [N:+1 Poin].",
-    "text_berita_en": "Goalkeeper [P:Henderson] ([N:0%]) made [N:3 Saves] for [C:Crystal Palace] against [C:Coventry City], earning [N:+1 Pts].",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Henderson"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "detectedClockSecs": 4920,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 105,
-      "clockSecs": 5040
-    }
-  },
-  {
-    "id": "LM_MATCH_SAVES_GOALKEEPER_m110_p496_s1",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Saves",
-    "drama_score": 84,
-    "poin_tayang": 0,
-    "text_berita": "Kiper [P:Kinsky] ([N:20%]) membukukan [N:3 Penyelamatan] untuk [C:Spurs] melawan [C:Ipswich Town] dan mengantongi [N:+1 Poin].",
-    "text_berita_en": "Goalkeeper [P:Kinsky] ([N:20%]) made [N:3 Saves] for [C:Spurs] against [C:Ipswich Town], earning [N:+1 Pts].",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Kinsky"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "detectedClockSecs": 5220,
-      "maxOwnerPct": 20,
-      "pulseMatchId": 110,
-      "clockSecs": 5340
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m110_p498",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "[P:Senesi] ([N:0%]) mencatat [N:13 Aksi Defensif] untuk [C:Spurs] melawan [C:Ipswich Town] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Senesi] ([N:0%]) has recorded [N:13 Defensive Actions] for [C:Spurs] against [C:Ipswich Town], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Senesi"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "detectedClockSecs": 5220,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 110,
-      "clockSecs": 5340
-    }
-  },
-  {
-    "id": "LM_MATCH_SAVES_GOALKEEPER_m110_p300_s2",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Saves",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "Kiper [P:Walton] ([N:0%]) membukukan [N:7 Penyelamatan] untuk [C:Ipswich Town] melawan [C:Spurs] dan mengantongi [N:+2 Poin].",
-    "text_berita_en": "Goalkeeper [P:Walton] ([N:0%]) made [N:7 Saves] for [C:Ipswich Town] against [C:Spurs], earning [N:+2 Pts].",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Walton"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "detectedClockSecs": 5220,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 110,
-      "clockSecs": 5340
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m110_p267",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 89,
-    "poin_tayang": 0,
-    "text_berita": "[P:Lukić] ([N:0%]) mencatat [N:15 Aksi Defensif] untuk [C:Ipswich Town] melawan [C:Spurs] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Lukić] ([N:0%]) has recorded [N:15 Defensive Actions] for [C:Ipswich Town] against [C:Spurs], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Lukić"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "detectedClockSecs": 5220,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 110,
-      "clockSecs": 5340
-    }
-  },
-  {
-    "id": "LM_MATCH_DEFENSIVE_CONTRIBUTION_m110_p619",
-    "timestamp_produksi": "2026-11-21T16:46:47.429Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Defensive",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "[P:Palacios] ([N:0%]) mencatat [N:12 Aksi Defensif] untuk [C:Ipswich Town] melawan [C:Spurs] dan mengamankan [N:+2 Poin] Defensive Contribution.",
-    "text_berita_en": "[P:Palacios] ([N:0%]) has recorded [N:12 Defensive Actions] for [C:Ipswich Town] against [C:Spurs], securing [N:+2 Pts] Defensive Contribution.",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Palacios"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "detectedClockSecs": 5220,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 110,
-      "clockSecs": 5340
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_22_122798",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 80,
-    "poin_tayang": 0,
-    "text_berita": "[N:79'] Clean sheet aman! [P:Udogie] ([N:0%]) ditarik keluar setelah 60+ menit nirbobol bagi [C:Spurs], digantikan [P:Robertson] ([N:2%]).",
-    "text_berita_en": "[N:79'] Substitution for [C:Spurs]: [P:Udogie] ([N:0%]) is substituted for [P:Robertson] ([N:2%]) with clean sheet locked.",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Robertson",
-      "Udogie"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": true,
-      "maxOwnerPct": 2,
-      "pulseMatchId": 129032,
-      "clockSecs": 4740
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129026_card_y_22_180135",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:83'] Kartu kuning untuk [P:Longstaff] ([N:0%]) dari [C:Leeds] ([N:-1 Poin]).",
-    "text_berita_en": "[N:83'] Yellow card. The referee books [C:Leeds] player [P:Longstaff] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Longstaff"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129026,
-      "clockSecs": 4980
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_23_242882",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 80,
-    "poin_tayang": 0,
-    "text_berita": "[N:87'] Clean sheet aman! [P:Smith] ([N:0%]) ditarik keluar setelah 60+ menit nirbobol bagi [C:Bournemouth], digantikan [P:Diakité] ([N:0%]).",
-    "text_berita_en": "[N:87'] Substitution for [C:Bournemouth]: [P:Smith] ([N:0%]) is substituted for [P:Diakité] ([N:0%]) with clean sheet locked.",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Diakité",
-      "Smith"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": true,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 5220
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129032_ps_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 1 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:1'] Babak pertama dimulai di [N:Tottenham Hotspur Stadium, London]: [C:Spurs] vs [C:Ipswich Town].",
-    "text_berita_en": "[N:1'] First half kicks off at [N:Tottenham Hotspur Stadium, London]: [C:Spurs] vs [C:Ipswich Town].",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isSecondHalf": false,
-      "pulseMatchId": 129032,
-      "clockSecs": 0
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129032_goal_1_611917",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:15'] GOL [C:Spurs]! [P:Williams-Barnett] ([N:0%]) mencetak gol dari assist [P:Pedro Porro] ([N:1%]) — [C:Spurs] [N:1] - [N:0] [C:Ipswich Town].",
-    "text_berita_en": "[N:15'] Goal for [C:Spurs]. [P:Williams-Barnett] ([N:0%]) scores assisted by [P:Pedro Porro] ([N:1%]). Score: [C:Spurs] [N:1] - [N:0] [C:Ipswich Town].",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Williams-Barnett",
-      "Pedro Porro"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "pulseMatchId": 129032,
-      "clockSecs": 900
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129032_card_y_2_172780",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:41'] Kartu kuning untuk [P:Maddison] ([N:0%]) dari [C:Spurs] ([N:-1 Poin]).",
-    "text_berita_en": "[N:41'] Yellow card. The referee books [C:Spurs] player [P:Maddison] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Maddison"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129032,
-      "clockSecs": 2460
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_END_pulse_129032_pe_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Babak 2 sudah dimulai / laga usai",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 92,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Jeda babak pertama di [N:Tottenham Hotspur Stadium, London]: [C:Spurs] [N:1] - [N:0] [C:Ipswich Town] — pencetak gol: [P:Williams-Barnett] ([N:0%]).",
-    "text_berita_en": "[N:45'] Half time at [N:Tottenham Hotspur Stadium, London]. [C:Spurs] [N:1] - [N:0] [C:Ipswich Town], goals scored by [P:Williams-Barnett] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Williams-Barnett"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isHalfTime": true,
-      "isFullTime": false,
-      "pulseMatchId": 129032,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129032_ps_2",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 2 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Babak kedua dimulai di [N:Tottenham Hotspur Stadium, London], skor sementara [C:Spurs] [N:1] - [N:0] [C:Ipswich Town].",
-    "text_berita_en": "[N:45'] Second half kicks off between [C:Spurs] vs [C:Ipswich Town] at [N:Tottenham Hotspur Stadium, London]. Score: [C:Spurs] [N:1] - [N:0] [C:Ipswich Town].",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isSecondHalf": true,
-      "pulseMatchId": 129032,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129032_goal_6_154566",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:51'] GOL [C:Spurs]! [P:Solanke] ([N:0%]) menjebol gawang lawan — [C:Spurs] [N:2] - [N:0] [C:Ipswich Town].",
-    "text_berita_en": "[N:51'] Goal for [C:Spurs]. [P:Solanke] ([N:0%]) scores. Score: [C:Spurs] [N:2] - [N:0] [C:Ipswich Town].",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Solanke"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "pulseMatchId": 129032,
-      "clockSecs": 3060
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129032_card_y_7_611917",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:52'] Kartu kuning untuk [P:Williams-Barnett] ([N:0%]) dari [C:Spurs] ([N:-1 Poin]).",
-    "text_berita_en": "[N:52'] Yellow card. The referee books [C:Spurs] player [P:Williams-Barnett] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Williams-Barnett"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129032,
-      "clockSecs": 3120
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_8_216055",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:56'] Pergantian [C:Ipswich Town]: [P:Florentino] ([N:0%]) masuk menggantikan [P:Palacios] ([N:0%]).",
-    "text_berita_en": "[N:56'] Substitution for [C:Ipswich Town]: [P:Florentino] ([N:0%]) comes on replacing [P:Palacios] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Florentino",
-      "Palacios"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129032,
-      "clockSecs": 3360
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_10_531442",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:56'] Pergantian [C:Ipswich Town]: [P:Fatawu] ([N:0%]) masuk menggantikan [P:Ouattara] ([N:0%]).",
-    "text_berita_en": "[N:56'] Substitution for [C:Ipswich Town]: [P:Fatawu] ([N:0%]) comes on replacing [P:Ouattara] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Fatawu",
-      "Ouattara"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129032,
-      "clockSecs": 3360
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_12_443261",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:56'] Pergantian [C:Ipswich Town]: [P:Clarke] ([N:0%]) masuk menggantikan [P:Maeda] ([N:0%]).",
-    "text_berita_en": "[N:56'] Substitution for [C:Ipswich Town]: [P:Clarke] ([N:0%]) comes on replacing [P:Maeda] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Clarke",
-      "Maeda"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129032,
-      "clockSecs": 3360
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_14_570526",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:64'] Pergantian [C:Spurs]: [P:Bergvall] ([N:0%]) masuk menggantikan [P:Maddison] ([N:0%]).",
-    "text_berita_en": "[N:64'] Substitution for [C:Spurs]: [P:Bergvall] ([N:0%]) comes on replacing [P:Maddison] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Bergvall",
-      "Maddison"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129032,
-      "clockSecs": 3840
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_16_510281",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:64'] Pergantian [C:Spurs]: [P:Sávio] ([N:0%]) masuk menggantikan [P:Williams-Barnett] ([N:0%]).",
-    "text_berita_en": "[N:64'] Substitution for [C:Spurs]: [P:Sávio] ([N:0%]) comes on replacing [P:Williams-Barnett] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Sávio",
-      "Williams-Barnett"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129032,
-      "clockSecs": 3840
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_18_438234",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:64'] Pergantian [C:Spurs]: [P:Marmoush] ([N:0%]) masuk menggantikan [P:Solanke] ([N:0%]).",
-    "text_berita_en": "[N:64'] Substitution for [C:Spurs]: [P:Marmoush] ([N:0%]) comes on replacing [P:Solanke] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Marmoush",
-      "Solanke"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129032,
-      "clockSecs": 3840
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_20_543968",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:74'] Pergantian [C:Ipswich Town]: [P:Emersonn] ([N:1%]) masuk menggantikan [P:Flemming] ([N:0%]).",
-    "text_berita_en": "[N:74'] Substitution for [C:Ipswich Town]: [P:Emersonn] ([N:1%]) comes on replacing [P:Flemming] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Emersonn",
-      "Flemming"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": false,
-      "maxOwnerPct": 1,
-      "pulseMatchId": 129032,
-      "clockSecs": 4440
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129032_card_y_24_460842",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:79'] Kartu kuning untuk [P:Kudus] ([N:3%]) dari [C:Spurs] ([N:-1 Poin]).",
-    "text_berita_en": "[N:79'] Yellow card. The referee books [C:Spurs] player [P:Kudus] ([N:3%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Kudus"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "maxOwnerPct": 3,
-      "pulseMatchId": 129032,
-      "clockSecs": 4740
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129032_sub_25_449429",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:83'] Pergantian [C:Ipswich Town]: [P:Greaves] ([N:0%]) masuk menggantikan [P:Davis] ([N:7%]).",
-    "text_berita_en": "[N:83'] Substitution for [C:Ipswich Town]: [P:Greaves] ([N:0%]) comes on replacing [P:Davis] ([N:7%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Greaves",
-      "Davis"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "isCsSub": false,
-      "maxOwnerPct": 7,
-      "pulseMatchId": 129032,
-      "clockSecs": 4980
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129032_card_y_27_219924",
-    "timestamp_produksi": "2026-11-21T16:46:47.349Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 5 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:83'] Kartu kuning untuk [P:Diop] ([N:12%]) dari [C:Ipswich Town] ([N:-1 Poin]).",
-    "text_berita_en": "[N:83'] Yellow card. The referee books [C:Ipswich Town] player [P:Diop] ([N:12%]).",
-    "gw": 11,
-    "teams": [
-      "Spurs",
-      "Ipswich Town"
-    ],
-    "players": [
-      "Diop"
-    ],
-    "cycle_meta": {
-      "matchKey": "ipswich town__spurs",
-      "maxOwnerPct": 12,
-      "pulseMatchId": 129032,
-      "clockSecs": 4980
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129027_ps_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 1 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:1'] Babak pertama dimulai di [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] vs [C:Crystal Palace].",
-    "text_berita_en": "[N:1'] First half kicks off at [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] vs [C:Crystal Palace].",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isSecondHalf": false,
-      "pulseMatchId": 129027,
-      "clockSecs": 0
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129027_goal_1_210156",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:5'] GOL [C:Coventry City]! [P:Awoniyi] ([N:0%]) mencetak gol dari assist [P:Rudoni] ([N:2%]) — [C:Coventry City] [N:1] - [N:0] [C:Crystal Palace].",
-    "text_berita_en": "[N:5'] Goal for [C:Coventry City]. [P:Awoniyi] ([N:0%]) scores assisted by [P:Rudoni] ([N:2%]). Score: [C:Coventry City] [N:1] - [N:0] [C:Crystal Palace].",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Awoniyi",
-      "Rudoni"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "pulseMatchId": 129027,
-      "clockSecs": 300
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129027_goal_2_488024",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:13'] GOL [C:Crystal Palace]! [P:Yeremy] ([N:0%]) mencetak gol dari assist [P:Strand Larsen] ([N:1%]) — [C:Coventry City] [N:1] - [N:1] [C:Crystal Palace].",
-    "text_berita_en": "[N:13'] Goal for [C:Crystal Palace]. [P:Yeremy] ([N:0%]) scores assisted by [P:Strand Larsen] ([N:1%]). Score: [C:Coventry City] [N:1] - [N:1] [C:Crystal Palace].",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Yeremy",
-      "Strand Larsen"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "pulseMatchId": 129027,
-      "clockSecs": 780
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129027_goal_3_501459",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:30'] GOL [C:Coventry City]! [P:Sakamoto] ([N:0%]) mencetak gol dari assist [P:Rudoni] ([N:2%]) — [C:Coventry City] [N:2] - [N:1] [C:Crystal Palace].",
-    "text_berita_en": "[N:30'] Goal for [C:Coventry City]. [P:Sakamoto] ([N:0%]) scores assisted by [P:Rudoni] ([N:2%]). Score: [C:Coventry City] [N:2] - [N:1] [C:Crystal Palace].",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Sakamoto",
-      "Rudoni"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "pulseMatchId": 129027,
-      "clockSecs": 1800
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129027_card_y_4_496221",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:36'] Kartu kuning untuk [P:Wharton] ([N:0%]) dari [C:Crystal Palace] ([N:-1 Poin]).",
-    "text_berita_en": "[N:36'] Yellow card. The referee books [C:Crystal Palace] player [P:Wharton] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Wharton"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 2160
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_END_pulse_129027_pe_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Babak 2 sudah dimulai / laga usai",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 92,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Jeda babak pertama di [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] [N:2] - [N:1] [C:Crystal Palace] — pencetak gol: [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]) dan [P:Sakamoto] ([N:0%]).",
-    "text_berita_en": "[N:45'] Half time at [N:Coventry Building Society Arena, Coventry]. [C:Coventry City] [N:2] - [N:1] [C:Crystal Palace], goals scored by [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]), and [P:Sakamoto] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Awoniyi",
-      "Yeremy",
-      "Sakamoto"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isHalfTime": true,
-      "isFullTime": false,
-      "pulseMatchId": 129027,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129027_goal_7_247412",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:46'] GOL [C:Crystal Palace]! [P:Strand Larsen] ([N:1%]) mencetak gol dari assist [P:Yeremy] ([N:0%]) — [C:Coventry City] [N:2] - [N:2] [C:Crystal Palace].",
-    "text_berita_en": "[N:46'] Goal for [C:Crystal Palace]. [P:Strand Larsen] ([N:1%]) scores assisted by [P:Yeremy] ([N:0%]). Score: [C:Coventry City] [N:2] - [N:2] [C:Crystal Palace].",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Strand Larsen",
-      "Yeremy"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "pulseMatchId": 129027,
-      "clockSecs": 2760
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129027_sub_8_627221",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Pergantian [C:Coventry City]: [P:Cherif] ([N:0%]) masuk menggantikan [P:Awoniyi] ([N:0%]).",
-    "text_berita_en": "[N:45'] Substitution for [C:Coventry City]: [P:Cherif] ([N:0%]) comes on replacing [P:Awoniyi] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Cherif",
-      "Awoniyi"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129027_ps_2",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 2 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Babak kedua dimulai di [N:Coventry Building Society Arena, Coventry], skor sementara [C:Coventry City] [N:2] - [N:2] [C:Crystal Palace].",
-    "text_berita_en": "[N:45'] Second half kicks off between [C:Coventry City] vs [C:Crystal Palace] at [N:Coventry Building Society Arena, Coventry]. Score: [C:Coventry City] [N:2] - [N:2] [C:Crystal Palace].",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isSecondHalf": true,
-      "pulseMatchId": 129027,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129027_card_y_11_168144",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:61'] Kartu kuning untuk [P:Grimes] ([N:0%]) dari [C:Coventry City] ([N:-1 Poin]).",
-    "text_berita_en": "[N:61'] Yellow card. The referee books [C:Coventry City] player [P:Grimes] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Grimes"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 3660
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129027_sub_12_230730",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:70'] Pergantian [C:Coventry City]: [P:Thomas-Asante] ([N:0%]) masuk menggantikan [P:Gboho] ([N:0%]).",
-    "text_berita_en": "[N:70'] Substitution for [C:Coventry City]: [P:Thomas-Asante] ([N:0%]) comes on replacing [P:Gboho] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Thomas-Asante",
-      "Gboho"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 4200
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129027_sub_14_196100",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:71'] Pergantian [C:Coventry City]: [P:Hamer] ([N:0%]) masuk menggantikan [P:Torp] ([N:0%]).",
-    "text_berita_en": "[N:71'] Substitution for [C:Coventry City]: [P:Hamer] ([N:0%]) comes on replacing [P:Torp] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Hamer",
-      "Torp"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 4260
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129027_sub_16_428580",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:71'] Pergantian [C:Coventry City]: [P:Onyeka] ([N:0%]) masuk menggantikan [P:Grimes] ([N:0%]).",
-    "text_berita_en": "[N:71'] Substitution for [C:Coventry City]: [P:Onyeka] ([N:0%]) comes on replacing [P:Grimes] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Onyeka",
-      "Grimes"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 4260
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129027_sub_18_152551",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:73'] Pergantian [C:Crystal Palace]: [P:Lerma] ([N:0%]) masuk menggantikan [P:Timber] ([N:0%]).",
-    "text_berita_en": "[N:73'] Substitution for [C:Crystal Palace]: [P:Lerma] ([N:0%]) comes on replacing [P:Timber] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Lerma",
-      "Timber"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 4380
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129027_sub_20_651426",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:73'] Pergantian [C:Crystal Palace]: [P:Canvot] ([N:0%]) masuk menggantikan [P:Khalaili] ([N:0%]).",
-    "text_berita_en": "[N:73'] Substitution for [C:Crystal Palace]: [P:Canvot] ([N:0%]) comes on replacing [P:Khalaili] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Canvot",
-      "Khalaili"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 4380
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129027_card_y_22_488024",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:75'] Kartu kuning untuk [P:Yeremy] ([N:0%]) dari [C:Crystal Palace] ([N:-1 Poin]).",
-    "text_berita_en": "[N:75'] Yellow card. The referee books [C:Crystal Palace] player [P:Yeremy] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Yeremy"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 4500
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129027_sub_23_205533",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:79'] Pergantian [C:Crystal Palace]: [P:Nketiah] ([N:0%]) masuk menggantikan [P:Strand Larsen] ([N:1%]).",
-    "text_berita_en": "[N:79'] Substitution for [C:Crystal Palace]: [P:Nketiah] ([N:0%]) comes on replacing [P:Strand Larsen] ([N:1%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Nketiah",
-      "Strand Larsen"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isCsSub": false,
-      "maxOwnerPct": 1,
-      "pulseMatchId": 129027,
-      "clockSecs": 4740
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129027_sub_25_485337",
-    "timestamp_produksi": "2026-11-21T16:46:47.308Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:79'] Pergantian [C:Crystal Palace]: [P:Guessand] ([N:0%]) masuk menggantikan [P:Yeremy] ([N:0%]).",
-    "text_berita_en": "[N:79'] Substitution for [C:Crystal Palace]: [P:Guessand] ([N:0%]) comes on replacing [P:Yeremy] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Coventry City",
-      "Crystal Palace"
-    ],
-    "players": [
-      "Guessand",
-      "Yeremy"
-    ],
-    "cycle_meta": {
-      "matchKey": "coventry city__crystal palace",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129027,
-      "clockSecs": 4740
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129026_ps_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 1 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:1'] Babak pertama dimulai di [N:Stamford Bridge, London]: [C:Chelsea] vs [C:Leeds].",
-    "text_berita_en": "[N:1'] First half kicks off at [N:Stamford Bridge, London]: [C:Chelsea] vs [C:Leeds].",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isSecondHalf": false,
-      "pulseMatchId": 129026,
-      "clockSecs": 0
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129026_sub_1_56979",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:22'] Pergantian [C:Chelsea]: [P:Henderson] ([N:1%]) masuk menggantikan [P:Caicedo] ([N:0%]).",
-    "text_berita_en": "[N:22'] Substitution for [C:Chelsea]: [P:Henderson] ([N:1%]) comes on replacing [P:Caicedo] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Henderson",
-      "Caicedo"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isCsSub": false,
-      "maxOwnerPct": 1,
-      "pulseMatchId": 129026,
-      "clockSecs": 1320
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129026_goal_3_503037",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:25'] GOL [C:Chelsea]! [P:Emegha] ([N:0%]) mencetak gol dari assist [P:Rogers] ([N:78%]) — [C:Chelsea] [N:1] - [N:0] [C:Leeds].",
-    "text_berita_en": "[N:25'] Goal for [C:Chelsea]. [P:Emegha] ([N:0%]) scores assisted by [P:Rogers] ([N:78%]). Score: [C:Chelsea] [N:1] - [N:0] [C:Leeds].",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Emegha",
-      "Rogers"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "pulseMatchId": 129026,
-      "clockSecs": 1500
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129026_goal_4_435997",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:28'] GOL [C:Leeds]! [P:Okafor] ([N:0%]) mencetak gol dari assist [P:Calvert-Lewin] ([N:14%]) — [C:Chelsea] [N:1] - [N:1] [C:Leeds].",
-    "text_berita_en": "[N:28'] Goal for [C:Leeds]. [P:Okafor] ([N:0%]) scores assisted by [P:Calvert-Lewin] ([N:14%]). Score: [C:Chelsea] [N:1] - [N:1] [C:Leeds].",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Okafor",
-      "Calvert-Lewin"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "pulseMatchId": 129026,
-      "clockSecs": 1680
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129026_card_y_5_243526",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:38'] Kartu kuning untuk [P:Gudmundsson] ([N:0%]) dari [C:Leeds] ([N:-1 Poin]).",
-    "text_berita_en": "[N:38'] Yellow card. The referee books [C:Leeds] player [P:Gudmundsson] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Gudmundsson"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129026,
-      "clockSecs": 2280
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_END_pulse_129026_pe_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Babak 2 sudah dimulai / laga usai",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 92,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Jeda babak pertama di [N:Stamford Bridge, London]: [C:Chelsea] [N:1] - [N:1] [C:Leeds] — pencetak gol: [P:Emegha] ([N:0%]) dan [P:Okafor] ([N:0%]).",
-    "text_berita_en": "[N:45'] Half time at [N:Stamford Bridge, London]. [C:Chelsea] [N:1] - [N:1] [C:Leeds], goals scored by [P:Emegha] ([N:0%]) and [P:Okafor] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Emegha",
-      "Okafor"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isHalfTime": true,
-      "isFullTime": false,
-      "pulseMatchId": 129026,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129026_ps_2",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 2 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Babak kedua dimulai di [N:Stamford Bridge, London], skor sementara [C:Chelsea] [N:1] - [N:1] [C:Leeds].",
-    "text_berita_en": "[N:45'] Second half kicks off between [C:Chelsea] vs [C:Leeds] at [N:Stamford Bridge, London]. Score: [C:Chelsea] [N:1] - [N:1] [C:Leeds].",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isSecondHalf": true,
-      "pulseMatchId": 129026,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129026_card_y_8_514356",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:47'] Kartu kuning untuk [P:Lavia] ([N:0%]) dari [C:Chelsea] ([N:-1 Poin]).",
-    "text_berita_en": "[N:47'] Yellow card. The referee books [C:Chelsea] player [P:Lavia] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Lavia"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129026,
-      "clockSecs": 2820
-    }
-  },
-  {
-    "id": "LM_MATCH_PENALTY_GOAL_pulse_129026_goal_pen_9_177815",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Penalty",
-    "drama_score": 96,
-    "poin_tayang": 0,
-    "text_berita": "[N:53'] GOL PENALTI [C:Leeds]! [P:Calvert-Lewin] ([N:14%]) menuntaskan eksekusi dari titik putih — [C:Chelsea] [N:1] - [N:2] [C:Leeds].",
-    "text_berita_en": "[N:53'] Penalty goal. [P:Calvert-Lewin] ([N:14%]) converts from the spot for [C:Leeds]. Score: [C:Chelsea] [N:1] - [N:2] [C:Leeds].",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Calvert-Lewin"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "pulseMatchId": 129026,
-      "clockSecs": 3180
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_MILESTONE_pulse_129026_goal_milestone_2_10_435997",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 97,
-    "poin_tayang": 0,
-    "text_berita": "[N:58'] BRACE! [P:Okafor] ([N:0%]) mencetak gol keduanya bagi [C:Leeds] — [C:Chelsea] [N:1] - [N:3] [C:Leeds].",
-    "text_berita_en": "[N:58'] Brace! [P:Okafor] ([N:0%]) scores his second goal for [C:Leeds] — [C:Chelsea] [N:1] - [N:3] [C:Leeds].",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Okafor"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "pulseMatchId": 129026,
-      "clockSecs": 3480
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129026_sub_11_247632",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:64'] Pergantian [C:Chelsea]: [P:Neto] ([N:3%]) masuk menggantikan [P:Estêvão] ([N:0%]).",
-    "text_berita_en": "[N:64'] Substitution for [C:Chelsea]: [P:Neto] ([N:3%]) comes on replacing [P:Estêvão] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Neto",
-      "Estêvão"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isCsSub": false,
-      "maxOwnerPct": 3,
-      "pulseMatchId": 129026,
-      "clockSecs": 3840
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129026_sub_13_50175",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:64'] Pergantian [C:Chelsea]: [P:Welbeck] ([N:0%]) masuk menggantikan [P:Emegha] ([N:0%]).",
-    "text_berita_en": "[N:64'] Substitution for [C:Chelsea]: [P:Welbeck] ([N:0%]) comes on replacing [P:Emegha] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Welbeck",
-      "Emegha"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129026,
-      "clockSecs": 3840
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129026_card_y_15_226182",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 5 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:68'] Kartu kuning untuk [P:Bogle] ([N:14%]) dari [C:Leeds] ([N:-1 Poin]).",
-    "text_berita_en": "[N:68'] Yellow card. The referee books [C:Leeds] player [P:Bogle] ([N:14%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Bogle"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "maxOwnerPct": 14,
-      "pulseMatchId": 129026,
-      "clockSecs": 4080
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129026_sub_16_593117",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:73'] Pergantian [C:Chelsea]: [P:Tcherno Quenda] ([N:0%]) masuk menggantikan [P:Chavarria] ([N:0%]).",
-    "text_berita_en": "[N:73'] Substitution for [C:Chelsea]: [P:Tcherno Quenda] ([N:0%]) comes on replacing [P:Chavarria] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Tcherno Quenda",
-      "Chavarria"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129026,
-      "clockSecs": 4380
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129026_sub_18_482609",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:73'] Pergantian [C:Chelsea]: [P:Gusto] ([N:0%]) masuk menggantikan [P:Acheampong] ([N:0%]).",
-    "text_berita_en": "[N:73'] Substitution for [C:Chelsea]: [P:Gusto] ([N:0%]) comes on replacing [P:Acheampong] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Gusto",
-      "Acheampong"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129026,
-      "clockSecs": 4380
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129026_sub_20_427637",
-    "timestamp_produksi": "2026-11-21T16:46:47.254Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:73'] Pergantian [C:Leeds]: [P:Aaronson] ([N:0%]) masuk menggantikan [P:Okafor] ([N:0%]).",
-    "text_berita_en": "[N:73'] Substitution for [C:Leeds]: [P:Aaronson] ([N:0%]) comes on replacing [P:Okafor] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Chelsea",
-      "Leeds"
-    ],
-    "players": [
-      "Aaronson",
-      "Okafor"
-    ],
-    "cycle_meta": {
-      "matchKey": "chelsea__leeds",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129026,
-      "clockSecs": 4380
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129024_ps_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 1 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:1'] Babak pertama dimulai di [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] vs [C:Nott'm Forest].",
-    "text_berita_en": "[N:1'] First half kicks off at [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] vs [C:Nott'm Forest].",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isSecondHalf": false,
-      "pulseMatchId": 129024,
-      "clockSecs": 0
-    }
-  },
-  {
-    "id": "LM_CAPTAIN_POPULAR_LIVE_pulse_129024_cap_goal_1_79",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Captain",
-    "sub_kategori": "Popular",
-    "drama_score": 96,
-    "poin_tayang": 0,
-    "text_berita": "[N:19'] Kapten populer [P:Evanilson] (dipilih [N:6] tim) mencetak gol bagi [C:Bournemouth] — sudah membukukan [N:10 Poin] bagi pemilihnya.",
-    "text_berita_en": "[N:19'] Popular captain [P:Evanilson] (captained by [N:6] teams) scores for [C:Bournemouth] — now on [N:10 Pts] for backers.",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Evanilson"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "pulseMatchId": 129024,
-      "clockSecs": 1140
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129024_goal_1_444102",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:19'] GOL [C:Bournemouth]! [P:Evanilson] ([N:47%]) mencetak gol dari assist [P:Hill] ([N:0%]) — [C:Bournemouth] [N:1] - [N:0] [C:Nott'm Forest].",
-    "text_berita_en": "[N:19'] Goal for [C:Bournemouth]. [P:Evanilson] ([N:47%]) scores assisted by [P:Hill] ([N:0%]). Score: [C:Bournemouth] [N:1] - [N:0] [C:Nott'm Forest].",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Evanilson",
-      "Hill"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "pulseMatchId": 129024,
-      "clockSecs": 1140
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129024_card_y_2_463034",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Kartu kuning untuk [P:Delap] ([N:0%]) dari [C:Nott'm Forest] ([N:-1 Poin]).",
-    "text_berita_en": "[N:45'] Yellow card. The referee books [C:Nott'm Forest] player [P:Delap] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Delap"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_END_pulse_129024_pe_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Babak 2 sudah dimulai / laga usai",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 92,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Jeda babak pertama di [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] [N:1] - [N:0] [C:Nott'm Forest] — pencetak gol: [P:Evanilson] ([N:47%]).",
-    "text_berita_en": "[N:45'] Half time at [N:Vitality Stadium, Bournemouth]. [C:Bournemouth] [N:1] - [N:0] [C:Nott'm Forest], goals scored by [P:Evanilson] ([N:47%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Evanilson"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isHalfTime": true,
-      "isFullTime": false,
-      "pulseMatchId": 129024,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_GOAL_OPEN_PLAY_pulse_129024_goal_4_222683",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Antrean padat melewati TTL 12 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Goal",
-    "drama_score": 95,
-    "poin_tayang": 0,
-    "text_berita": "[N:48'] GOL [C:Bournemouth]! [P:Kluivert] ([N:1%]) mencetak gol dari assist [P:Tavernier] ([N:68%]) — [C:Bournemouth] [N:2] - [N:0] [C:Nott'm Forest].",
-    "text_berita_en": "[N:48'] Goal for [C:Bournemouth]. [P:Kluivert] ([N:1%]) scores assisted by [P:Tavernier] ([N:68%]). Score: [C:Bournemouth] [N:2] - [N:0] [C:Nott'm Forest].",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Kluivert",
-      "Tavernier"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "pulseMatchId": 129024,
-      "clockSecs": 2880
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_5_482973",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Pergantian [C:Nott'm Forest]: [P:Igor Jesus] ([N:0%]) masuk menggantikan [P:Ndoye] ([N:0%]).",
-    "text_berita_en": "[N:45'] Substitution for [C:Nott'm Forest]: [P:Igor Jesus] ([N:0%]) comes on replacing [P:Ndoye] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Igor Jesus",
-      "Ndoye"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_7_204561",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Pergantian [C:Nott'm Forest]: [P:Schlager] ([N:0%]) masuk menggantikan [P:Yates] ([N:0%]).",
-    "text_berita_en": "[N:45'] Substitution for [C:Nott'm Forest]: [P:Schlager] ([N:0%]) comes on replacing [P:Yates] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Schlager",
-      "Yates"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129024_ps_2",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 2 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Babak kedua dimulai di [N:Vitality Stadium, Bournemouth], skor sementara [C:Bournemouth] [N:2] - [N:0] [C:Nott'm Forest].",
-    "text_berita_en": "[N:45'] Second half kicks off between [C:Bournemouth] vs [C:Nott'm Forest] at [N:Vitality Stadium, Bournemouth]. Score: [C:Bournemouth] [N:2] - [N:0] [C:Nott'm Forest].",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isSecondHalf": true,
-      "pulseMatchId": 129024,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129024_card_y_10_247348",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:57'] Kartu kuning untuk [P:Muñoz] ([N:1%]) dari [C:Nott'm Forest] ([N:-1 Poin]).",
-    "text_berita_en": "[N:57'] Yellow card. The referee books [C:Nott'm Forest] player [P:Muñoz] ([N:1%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Muñoz"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "maxOwnerPct": 1,
-      "pulseMatchId": 129024,
-      "clockSecs": 3420
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_11_560262",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:69'] Pergantian [C:Bournemouth]: [P:Kroupi.Jr] ([N:0%]) masuk menggantikan [P:Kluivert] ([N:1%]).",
-    "text_berita_en": "[N:69'] Substitution for [C:Bournemouth]: [P:Kroupi.Jr] ([N:0%]) comes on replacing [P:Kluivert] ([N:1%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Kroupi.Jr",
-      "Kluivert"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 1,
-      "pulseMatchId": 129024,
-      "clockSecs": 4140
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_13_155408",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:69'] Pergantian [C:Bournemouth]: [P:Cook] ([N:0%]) masuk menggantikan [P:Adams] ([N:0%]).",
-    "text_berita_en": "[N:69'] Substitution for [C:Bournemouth]: [P:Cook] ([N:0%]) comes on replacing [P:Adams] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Cook",
-      "Adams"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 4140
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_15_503139",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:69'] Pergantian [C:Bournemouth]: [P:Scott] ([N:0%]) masuk menggantikan [P:Christie] ([N:0%]).",
-    "text_berita_en": "[N:69'] Substitution for [C:Bournemouth]: [P:Scott] ([N:0%]) comes on replacing [P:Christie] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Scott",
-      "Christie"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 4140
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_17_60689",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:72'] Pergantian [C:Nott'm Forest]: [P:Wood] ([N:0%]) masuk menggantikan [P:McAtee] ([N:0%]).",
-    "text_berita_en": "[N:72'] Substitution for [C:Nott'm Forest]: [P:Wood] ([N:0%]) comes on replacing [P:McAtee] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Wood",
-      "McAtee"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129024,
-      "clockSecs": 4320
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_19_470315",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:72'] Pergantian [C:Nott'm Forest]: [P:Netz] ([N:0%]) masuk menggantikan [P:N.Williams] ([N:3%]).",
-    "text_berita_en": "[N:72'] Substitution for [C:Nott'm Forest]: [P:Netz] ([N:0%]) comes on replacing [P:N.Williams] ([N:3%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Netz",
-      "N.Williams"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 3,
-      "pulseMatchId": 129024,
-      "clockSecs": 4320
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129024_sub_21_159506",
-    "timestamp_produksi": "2026-11-21T16:46:47.222Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:82'] Pergantian [C:Nott'm Forest]: [P:Aina] ([N:1%]) masuk menggantikan [P:Muñoz] ([N:1%]).",
-    "text_berita_en": "[N:82'] Substitution for [C:Nott'm Forest]: [P:Aina] ([N:1%]) comes on replacing [P:Muñoz] ([N:1%]).",
-    "gw": 11,
-    "teams": [
-      "Bournemouth",
-      "Nott'm Forest"
-    ],
-    "players": [
-      "Aina",
-      "Muñoz"
-    ],
-    "cycle_meta": {
-      "matchKey": "bournemouth__nott'm forest",
-      "isCsSub": false,
-      "maxOwnerPct": 1,
-      "pulseMatchId": 129024,
-      "clockSecs": 4920
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129023_ps_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 1 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:1'] Babak pertama dimulai di [N:Villa Park, Birmingham]: [C:Aston Villa] vs [C:Sunderland].",
-    "text_berita_en": "[N:1'] First half kicks off at [N:Villa Park, Birmingham]: [C:Aston Villa] vs [C:Sunderland].",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "isSecondHalf": false,
-      "pulseMatchId": 129023,
-      "clockSecs": 0
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129023_card_y_1_487676",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:38'] Kartu kuning untuk [P:Hume] ([N:0%]) dari [C:Sunderland] ([N:-1 Poin]).",
-    "text_berita_en": "[N:38'] Yellow card. The referee books [C:Sunderland] player [P:Hume] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "Hume"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129023,
-      "clockSecs": 2280
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_END_pulse_129023_pe_1",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Babak 2 sudah dimulai / laga usai",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 92,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Jeda babak pertama di [N:Villa Park, Birmingham]: [C:Aston Villa] [N:0] - [N:0] [C:Sunderland].",
-    "text_berita_en": "[N:45'] Half time at [N:Villa Park, Birmingham]. Goalless first half between [C:Aston Villa] [N:0] - [N:0] [C:Sunderland].",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "isHalfTime": true,
-      "isFullTime": false,
-      "pulseMatchId": 129023,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_PERIOD_START_pulse_129023_ps_2",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Kickoff Babak 2 melewati TTL 10 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Period",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[N:45'] Babak kedua dimulai di [N:Villa Park, Birmingham], skor sementara [C:Aston Villa] [N:0] - [N:0] [C:Sunderland].",
-    "text_berita_en": "[N:45'] Second half kicks off between [C:Aston Villa] vs [C:Sunderland] at [N:Villa Park, Birmingham]. Score: [C:Aston Villa] [N:0] - [N:0] [C:Sunderland].",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "isSecondHalf": true,
-      "pulseMatchId": 129023,
-      "clockSecs": 2700
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129023_card_y_4_119090",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:54'] Kartu kuning untuk [P:Goretzka] ([N:0%]) dari [C:Aston Villa] ([N:-1 Poin]).",
-    "text_berita_en": "[N:54'] Yellow card. The referee books [C:Aston Villa] player [P:Goretzka] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "Goretzka"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129023,
-      "clockSecs": 3240
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129023_sub_5_122806",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 5 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:60'] Pergantian [C:Aston Villa]: [P:McGinn] ([N:6%]) masuk menggantikan [P:Manzambi] ([N:17%]).",
-    "text_berita_en": "[N:60'] Substitution for [C:Aston Villa]: [P:McGinn] ([N:6%]) comes on replacing [P:Manzambi] ([N:17%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "McGinn",
-      "Manzambi"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "isCsSub": false,
-      "maxOwnerPct": 17,
-      "pulseMatchId": 129023,
-      "clockSecs": 3600
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129023_sub_7_638987",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:60'] Pergantian [C:Aston Villa]: [P:Mbaye] ([N:0%]) masuk menggantikan [P:Buendía] ([N:0%]).",
-    "text_berita_en": "[N:60'] Substitution for [C:Aston Villa]: [P:Mbaye] ([N:0%]) comes on replacing [P:Buendía] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "Mbaye",
-      "Buendía"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129023,
-      "clockSecs": 3600
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129023_card_y_9_441302",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:66'] Kartu kuning untuk [P:Maatsen] ([N:0%]) dari [C:Aston Villa] ([N:-1 Poin]).",
-    "text_berita_en": "[N:66'] Yellow card. The referee books [C:Aston Villa] player [P:Maatsen] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "Maatsen"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129023,
-      "clockSecs": 3960
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129023_sub_10_88894",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:73'] Pergantian [C:Aston Villa]: [P:Barkley] ([N:0%]) masuk menggantikan [P:Goretzka] ([N:0%]).",
-    "text_berita_en": "[N:73'] Substitution for [C:Aston Villa]: [P:Barkley] ([N:0%]) comes on replacing [P:Goretzka] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "Barkley",
-      "Goretzka"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "isCsSub": false,
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129023,
-      "clockSecs": 4380
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129023_sub_12_690838",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 5 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:73'] Pergantian [C:Aston Villa]: [P:Madjo] ([N:0%]) masuk menggantikan [P:N.Jackson] ([N:55%]).",
-    "text_berita_en": "[N:73'] Substitution for [C:Aston Villa]: [P:Madjo] ([N:0%]) comes on replacing [P:N.Jackson] ([N:55%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "Madjo",
-      "N.Jackson"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "isCsSub": false,
-      "maxOwnerPct": 55,
-      "pulseMatchId": 129023,
-      "clockSecs": 4380
-    }
-  },
-  {
-    "id": "LM_MATCH_SUBSTITUTION_pulse_129023_sub_14_536661",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Substitution",
-    "drama_score": 70,
-    "poin_tayang": 0,
-    "text_berita": "[N:77'] Pergantian [C:Sunderland]: [P:N.Angulo] ([N:0%]) masuk menggantikan [P:Isidor] ([N:1%]).",
-    "text_berita_en": "[N:77'] Substitution for [C:Sunderland]: [P:N.Angulo] ([N:0%]) comes on replacing [P:Isidor] ([N:1%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "N.Angulo",
-      "Isidor"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "isCsSub": false,
-      "maxOwnerPct": 1,
-      "pulseMatchId": 129023,
-      "clockSecs": 4620
-    }
-  },
-  {
-    "id": "LM_MATCH_CARD_YELLOW_pulse_129023_card_y_16_536661",
-    "timestamp_produksi": "2026-11-21T16:46:47.177Z",
-    "sumber": "Sys",
-    "status_tayang": "N",
-    "keterangan_tidak_tayang": "Expired: Berita minor melewati TTL 3 menit",
-    "fase": "Live Match",
-    "waktu_tayang": [
-      "Live Match"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Card",
-    "drama_score": 75,
-    "poin_tayang": 0,
-    "text_berita": "[N:85'] Kartu kuning untuk [P:N.Angulo] ([N:0%]) dari [C:Sunderland] ([N:-1 Poin]).",
-    "text_berita_en": "[N:85'] Yellow card. The referee books [C:Sunderland] player [P:N.Angulo] ([N:0%]).",
-    "gw": 11,
-    "teams": [
-      "Aston Villa",
-      "Sunderland"
-    ],
-    "players": [
-      "N.Angulo"
-    ],
-    "cycle_meta": {
-      "matchKey": "aston villa__sunderland",
-      "maxOwnerPct": 0,
-      "pulseMatchId": 129023,
-      "clockSecs": 5100
+      "specialRank": 0
     }
   }
 ]

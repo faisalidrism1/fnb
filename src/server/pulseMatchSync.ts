@@ -10,6 +10,7 @@ import {
   getOptaMatchCodeForPulseId,
   fetchSdpNormalizedMatch,
 } from './matchesFetcher.ts';
+import { recordPulseFixturePositions } from './pulsePlayerPositions.ts';
 
 const DATA_DIR = path.join(process.cwd(), 'src/data');
 export const PULSE_MATCHES_DIR = path.join(DATA_DIR, 'pulse_matches');
@@ -350,21 +351,21 @@ function attachPulsePersonIdsFromFixture(sdpData: any, pulseFixture: any): void 
     if (!sdpTl || !pulseTl) continue;
 
     const pulseRoster: any[] = [...(pulseTl.lineup || []), ...(pulseTl.substitutes || [])];
-    const byShirt = new Map<number, number>();
-    const byDisplay = new Map<string, number>();
-    const byLast = new Map<string, number[]>();
+    const byShirt = new Map<number, any>();
+    const byDisplay = new Map<string, any>();
+    const byLast = new Map<string, any[]>();
 
     for (const pp of pulseRoster) {
       const pid = Number(pp?.id) || 0;
       if (!pid) continue;
       const shirt = Number(pp?.shirtNumber ?? pp?.info?.shirtNum) || 0;
-      if (shirt > 0) byShirt.set(shirt, pid);
+      if (shirt > 0) byShirt.set(shirt, pp);
       const disp = normalizePersonKey(pp?.name?.display);
-      if (disp) byDisplay.set(disp, pid);
+      if (disp) byDisplay.set(disp, pp);
       const last = normalizePersonKey(pp?.name?.last);
       if (last) {
         const list = byLast.get(last) || [];
-        list.push(pid);
+        list.push(pp);
         byLast.set(last, list);
       }
     }
@@ -375,18 +376,26 @@ function attachPulsePersonIdsFromFixture(sdpData: any, pulseFixture: any): void 
       const last = normalizePersonKey(sp?.name?.last);
       const shirt = Number(sp?.shirtNumber ?? sp?.info?.shirtNum) || 0;
 
-      let matchedPulseId = (disp && byDisplay.get(disp)) || 0;
-      if (!matchedPulseId && shirt > 0) {
-        matchedPulseId = byShirt.get(shirt) || 0;
+      let matchedPp: any = (disp && byDisplay.get(disp)) || null;
+      if (!matchedPp && shirt > 0) {
+        matchedPp = byShirt.get(shirt) || null;
       }
-      if (!matchedPulseId && last) {
+      if (!matchedPp && last) {
         const cands = byLast.get(last);
         if (cands && cands.length === 1) {
-          matchedPulseId = cands[0];
+          matchedPp = cands[0];
         }
       }
+      const matchedPulseId = Number(matchedPp?.id) || 0;
       if (matchedPulseId > 0) {
         sp.pulseId = matchedPulseId;
+      }
+      if (matchedPp?.info) {
+        sp.info = {
+          ...(sp.info || {}),
+          ...(matchedPp.info.position ? { position: matchedPp.info.position } : {}),
+          ...(matchedPp.info.positionInfo ? { positionInfo: matchedPp.info.positionInfo } : {}),
+        };
       }
     }
   }
@@ -431,6 +440,10 @@ export async function fetchAndCachePulseMatch(
     let data: any = null;
     if (optaCode) {
       data = await fetchSdpNormalizedMatch(optaCode, matchId, options?.fallbackGw);
+    }
+
+    if (pulseFixture) {
+      recordPulseFixturePositions(pulseFixture);
     }
 
     if (data && pulseFixture) {

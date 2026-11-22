@@ -13,11 +13,12 @@
   "ground": {
     "name": "Coventry Building Society Arena, Coventry"
   },
-  "status": "U",
-  "phase": "U",
+  "status": "C",
+  "phase": "F",
+  "outcome": "H",
   "clock": {
-    "label": "0'",
-    "secs": 0
+    "label": "Full Time",
+    "secs": 5400
   },
   "teams": [
     {
@@ -29,7 +30,7 @@
           "abbr": "COV"
         }
       },
-      "score": 0
+      "score": 3
     },
     {
       "team": {
@@ -40,7 +41,7 @@
           "abbr": "CRY"
         }
       },
-      "score": 0
+      "score": 2
     }
   ],
   "teamLists": [
@@ -118,32 +119,12 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 2
           },
           "captain": false,
           "shirtNumber": 2,
           "pulseId": 22043
-        },
-        {
-          "id": 480457,
-          "altIds": {
-            "opta": "p480457"
-          },
-          "name": {
-            "first": "Jack",
-            "last": "Rudoni",
-            "display": "Jack Rudoni"
-          },
-          "matchPosition": "M",
-          "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
-            "shirtNum": 5
-          },
-          "captain": false,
-          "shirtNumber": 5,
-          "pulseId": 66304
         },
         {
           "id": 461102,
@@ -158,12 +139,32 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 4
           },
           "captain": false,
           "shirtNumber": 4,
           "pulseId": 63836
+        },
+        {
+          "id": 480457,
+          "altIds": {
+            "opta": "p480457"
+          },
+          "name": {
+            "first": "Jack",
+            "last": "Rudoni",
+            "display": "Jack Rudoni"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Central Midfielder",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5,
+          "pulseId": 66304
         },
         {
           "id": 168144,
@@ -178,7 +179,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Defensive Midfielder",
             "shirtNum": 6
           },
           "captain": true,
@@ -198,7 +199,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
             "shirtNum": 7
           },
           "captain": false,
@@ -218,7 +219,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 12
           },
           "captain": false,
@@ -238,7 +239,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Centre Striker",
             "shirtNum": 14
           },
           "captain": false,
@@ -258,7 +259,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 27
           },
           "captain": false,
@@ -278,7 +279,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 29
           },
           "captain": false,
@@ -297,8 +298,8 @@
           },
           "matchPosition": "M",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "F",
+            "positionInfo": "Left/Right Winger",
             "shirtNum": 34
           },
           "captain": false,
@@ -340,7 +341,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 3
           },
           "captain": false,
@@ -360,7 +361,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Centre Striker",
             "shirtNum": 9
           },
           "captain": false,
@@ -380,7 +381,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 16
           },
           "captain": false,
@@ -400,7 +401,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Right Winger",
             "shirtNum": 17
           },
           "captain": false,
@@ -420,7 +421,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 20
           },
           "captain": false,
@@ -440,32 +441,12 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Centre Striker",
             "shirtNum": 23
           },
           "captain": false,
           "shirtNumber": 23,
           "pulseId": 19694
-        },
-        {
-          "id": 627221,
-          "altIds": {
-            "opta": "p627221"
-          },
-          "name": {
-            "first": "Sidiki",
-            "last": "Cherif",
-            "display": "Sidiki Cherif"
-          },
-          "matchPosition": "F",
-          "info": {
-            "position": "F",
-            "positionInfo": "Forward",
-            "shirtNum": 49
-          },
-          "captain": false,
-          "shirtNumber": 49,
-          "pulseId": 337821
         },
         {
           "id": 196100,
@@ -480,12 +461,32 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 38
           },
           "captain": false,
           "shirtNumber": 38,
           "pulseId": 20361
+        },
+        {
+          "id": 627221,
+          "altIds": {
+            "opta": "p627221"
+          },
+          "name": {
+            "first": "Sidiki",
+            "last": "Cherif",
+            "display": "Sidiki Cherif"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Centre Striker",
+            "shirtNum": 49
+          },
+          "captain": false,
+          "shirtNumber": 49,
+          "pulseId": 337821
         }
       ]
     },
@@ -516,18 +517,18 @@
           ],
           [
             "450063",
-            "496221",
-            "209400"
+            "496221"
           ],
           [
             "433154",
+            "209400",
             "488024"
           ],
           [
             "247412"
           ]
         ],
-        "formation": "4-3-2-1"
+        "formation": "4-2-3-1"
       },
       "lineup": [
         {
@@ -563,7 +564,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 3
           },
           "captain": false,
@@ -583,7 +584,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 5
           },
           "captain": false,
@@ -603,7 +604,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Right Winger",
             "shirtNum": 10
           },
           "captain": false,
@@ -622,8 +623,8 @@
           },
           "matchPosition": "M",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "F",
+            "positionInfo": "Left Winger",
             "shirtNum": 11
           },
           "captain": false,
@@ -643,7 +644,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Attacking Midfielder",
             "shirtNum": 18
           },
           "captain": false,
@@ -663,7 +664,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 20
           },
           "captain": false,
@@ -683,7 +684,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Striker",
             "shirtNum": 22
           },
           "captain": false,
@@ -703,7 +704,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 23
           },
           "captain": false,
@@ -723,7 +724,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 25
           },
           "captain": false,
@@ -743,7 +744,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 26
           },
           "captain": false,
@@ -785,7 +786,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 6
           },
           "captain": false,
@@ -805,7 +806,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 8
           },
           "captain": false,
@@ -825,7 +826,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Centre Striker",
             "shirtNum": 9
           },
           "captain": false,
@@ -845,7 +846,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 19
           },
           "captain": false,
@@ -865,7 +866,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Right Winger",
             "shirtNum": 24
           },
           "captain": false,
@@ -885,7 +886,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Defensive Midfielder",
             "shirtNum": 28
           },
           "captain": false,
@@ -905,7 +906,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Striker",
             "shirtNum": 29
           },
           "captain": false,
@@ -925,7 +926,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 33
           },
           "captain": false,
@@ -935,12 +936,1778 @@
       ]
     }
   ],
-  "events": [],
+  "events": [
+    {
+      "type": "PS",
+      "phase": "1",
+      "clock": {
+        "secs": 0,
+        "label": "1'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 210156,
+      "assistId": 480457,
+      "phase": "1",
+      "clock": {
+        "label": "5'",
+        "secs": 300
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 488024,
+      "assistId": 247412,
+      "phase": "1",
+      "clock": {
+        "label": "13'",
+        "secs": 780
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "G",
+      "personId": 501459,
+      "assistId": 480457,
+      "phase": "1",
+      "clock": {
+        "label": "30'",
+        "secs": 1800
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 496221,
+      "phase": "1",
+      "clock": {
+        "label": "36'",
+        "secs": 2160
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 0,
+      "phase": "1",
+      "clock": {
+        "label": "41'",
+        "secs": 2460
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "G",
+      "personId": 247412,
+      "assistId": 488024,
+      "phase": "1",
+      "clock": {
+        "label": "46'",
+        "secs": 2760
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2760,
+        "label": "45+1'"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 627221,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 210156,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 168144,
+      "phase": "2",
+      "clock": {
+        "label": "61'",
+        "secs": 3660
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 230730,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 242893,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 196100,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 226965,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 428580,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 168144,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "71'",
+        "secs": 4260
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 152551,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 450063,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 651426,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 570794,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 488024,
+      "phase": "2",
+      "clock": {
+        "label": "75'",
+        "secs": 4500
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 205533,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 247412,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 485337,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 488024,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "79'",
+        "secs": 4740
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "O",
+      "personId": 433154,
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 533646,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "89'",
+        "secs": 5340
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 433154,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "89'",
+        "secs": 5340
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5400,
+        "label": "90'"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 3
+      }
+    }
+  ],
   "textstreamEvents": [
     {
       "id": 2911321,
       "type": "lineup",
       "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2911495,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2911513,
+      "time": {
+        "secs": 57,
+        "label": "01"
+      },
+      "type": "offside",
+      "text": "Offside, Coventry City. Taiwo Awoniyi is caught offside.",
+      "playerIds": [
+        55556,
+        15340
+      ]
+    },
+    {
+      "id": 2911552,
+      "time": {
+        "secs": 267,
+        "label": "05"
+      },
+      "type": "goal",
+      "text": "Goal! Coventry City 1, Crystal Palace 0. Taiwo Awoniyi (Coventry City) right footed shot from the centre of the box to the bottom right corner. Assisted by Jack Rudoni.",
+      "playerIds": [
+        15340,
+        66304
+      ]
+    },
+    {
+      "id": 2911591,
+      "time": {
+        "secs": 389,
+        "label": "07"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jørgen Strand Larsen (Crystal Palace).",
+      "playerIds": [
+        35670
+      ]
+    },
+    {
+      "id": 2911592,
+      "time": {
+        "secs": 389,
+        "label": "07"
+      },
+      "type": "free kick won",
+      "text": "Ethan Pinnock (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        22043
+      ]
+    },
+    {
+      "id": 2911612,
+      "time": {
+        "secs": 512,
+        "label": "09"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Yéremy Pino (Crystal Palace) right footed shot from the centre of the box is saved in the centre of the goal by Carl Rushworth (Coventry City).",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2911634,
+      "time": {
+        "secs": 530,
+        "label": "09"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Taiwo Awoniyi (Coventry City) right footed shot from the centre of the box is blocked. Assisted by Victor Torp.",
+      "playerIds": [
+        15340,
+        118036
+      ]
+    },
+    {
+      "id": 2911633,
+      "time": {
+        "secs": 532,
+        "label": "09"
+      },
+      "type": "corner",
+      "text": "Corner, Coventry City. Conceded by Axel Disasi.",
+      "playerIds": [
+        54893
+      ]
+    },
+    {
+      "id": 2911720,
+      "time": {
+        "secs": 720,
+        "label": "13"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jørgen Strand Larsen (Crystal Palace) right footed shot from the centre of the box misses to the right. Assisted by Daichi Kamada with a cross.",
+      "playerIds": [
+        35670,
+        49759
+      ]
+    },
+    {
+      "id": 2911648,
+      "time": {
+        "secs": 722,
+        "label": "13"
+      },
+      "type": "goal",
+      "text": "Goal! Coventry City 1, Crystal Palace 1. Yéremy Pino (Crystal Palace) left footed shot from the centre of the box to the high centre of the goal. Assisted by Jørgen Strand Larsen.",
+      "playerIds": [
+        109117,
+        35670
+      ]
+    },
+    {
+      "id": 2911682,
+      "time": {
+        "secs": 802,
+        "label": "14"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bobby Thomas (Coventry City).",
+      "playerIds": [
+        63836
+      ]
+    },
+    {
+      "id": 2911684,
+      "time": {
+        "secs": 802,
+        "label": "14"
+      },
+      "type": "free kick won",
+      "text": "Jørgen Strand Larsen (Crystal Palace) wins a free kick in the attacking half.",
+      "playerIds": [
+        35670
+      ]
+    },
+    {
+      "id": 2911681,
+      "time": {
+        "secs": 855,
+        "label": "15"
+      },
+      "type": "free kick won",
+      "text": "Tatsuhiro Sakamoto (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        122134
+      ]
+    },
+    {
+      "id": 2911683,
+      "time": {
+        "secs": 855,
+        "label": "15"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yéremy Pino (Crystal Palace).",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2911747,
+      "time": {
+        "secs": 960,
+        "label": "17"
+      },
+      "type": "free kick won",
+      "text": "Yann Gboho (Coventry City) wins a free kick in the attacking half.",
+      "playerIds": [
+        51730
+      ]
+    },
+    {
+      "id": 2911748,
+      "time": {
+        "secs": 960,
+        "label": "17"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Tyrick Mitchell (Crystal Palace).",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2911792,
+      "time": {
+        "secs": 1216,
+        "label": "21"
+      },
+      "type": "free kick won",
+      "text": "Yann Gboho (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        51730
+      ]
+    },
+    {
+      "id": 2911793,
+      "time": {
+        "secs": 1216,
+        "label": "21"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dwight McNeil (Crystal Palace).",
+      "playerIds": [
+        24797
+      ]
+    },
+    {
+      "id": 2911823,
+      "time": {
+        "secs": 1261,
+        "label": "22"
+      },
+      "type": "free kick won",
+      "text": "Victor Torp (Coventry City) wins a free kick on the left wing.",
+      "playerIds": [
+        118036
+      ]
+    },
+    {
+      "id": 2911824,
+      "time": {
+        "secs": 1261,
+        "label": "22"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Anan Khalaili (Crystal Palace).",
+      "playerIds": [
+        123848
+      ]
+    },
+    {
+      "id": 2911822,
+      "time": {
+        "secs": 1321,
+        "label": "23"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Taiwo Awoniyi (Coventry City).",
+      "playerIds": [
+        15340
+      ]
+    },
+    {
+      "id": 2911825,
+      "time": {
+        "secs": 1321,
+        "label": "23"
+      },
+      "type": "free kick won",
+      "text": "Axel Disasi (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        54893
+      ]
+    },
+    {
+      "id": 2911918,
+      "time": {
+        "secs": 1768,
+        "label": "30"
+      },
+      "type": "goal",
+      "text": "Goal! Coventry City 2, Crystal Palace 1. Tatsuhiro Sakamoto (Coventry City) left footed shot from outside the box to the top right corner. Assisted by Jack Rudoni following a fast break.",
+      "playerIds": [
+        122134,
+        66304
+      ]
+    },
+    {
+      "id": 2911957,
+      "time": {
+        "secs": 1901,
+        "label": "32"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yéremy Pino (Crystal Palace).",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2911958,
+      "time": {
+        "secs": 1901,
+        "label": "32"
+      },
+      "type": "free kick won",
+      "text": "Bobby Thomas (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        63836
+      ]
+    },
+    {
+      "id": 2912011,
+      "time": {
+        "secs": 1985,
+        "label": "34"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Victor Torp (Coventry City) right footed shot from outside the box is saved in the centre of the goal by Dean Henderson (Crystal Palace).",
+      "playerIds": [
+        118036
+      ]
+    },
+    {
+      "id": 2912009,
+      "time": {
+        "secs": 2036,
+        "label": "34"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jack Rudoni (Coventry City).",
+      "playerIds": [
+        66304
+      ]
+    },
+    {
+      "id": 2912010,
+      "time": {
+        "secs": 2036,
+        "label": "34"
+      },
+      "type": "free kick won",
+      "text": "Daichi Kamada (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        49759
+      ]
+    },
+    {
+      "id": 2912008,
+      "time": {
+        "secs": 2078,
+        "label": "35"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Dwight McNeil (Crystal Palace) left footed shot from the left side of the box is too high. Assisted by Tyrick Mitchell.",
+      "playerIds": [
+        24797,
+        24334
+      ]
+    },
+    {
+      "id": 2912027,
+      "time": {
+        "secs": 2126,
+        "label": "36"
+      },
+      "type": "free kick won",
+      "text": "Matt Grimes (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        8650
+      ]
+    },
+    {
+      "id": 2912028,
+      "time": {
+        "secs": 2126,
+        "label": "36"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Adam Wharton (Crystal Palace).",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2912026,
+      "time": {
+        "secs": 2137,
+        "label": "36"
+      },
+      "type": "yellow card",
+      "text": "Adam Wharton (Crystal Palace) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2912066,
+      "time": {
+        "secs": 2185,
+        "label": "37"
+      },
+      "type": "offside",
+      "text": "Offside, Coventry City. Bobby Thomas is caught offside.",
+      "playerIds": [
+        55556,
+        63836
+      ]
+    },
+    {
+      "id": 2912092,
+      "time": {
+        "secs": 2313,
+        "label": "39"
+      },
+      "type": "free kick won",
+      "text": "Dwight McNeil (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        24797
+      ]
+    },
+    {
+      "id": 2912093,
+      "time": {
+        "secs": 2313,
+        "label": "39"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Stephen Mfuni (Coventry City).",
+      "playerIds": [
+        128136
+      ]
+    },
+    {
+      "id": 2912119,
+      "time": {
+        "secs": 2408,
+        "label": "41"
+      },
+      "type": "free kick won",
+      "text": "Jack Rudoni (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        66304
+      ]
+    },
+    {
+      "id": 2912120,
+      "time": {
+        "secs": 2408,
+        "label": "41"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Tyrick Mitchell (Crystal Palace).",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2912134,
+      "time": {
+        "secs": 2466,
+        "label": "42"
+      },
+      "type": "free kick won",
+      "text": "Yéremy Pino (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2912139,
+      "time": {
+        "secs": 2466,
+        "label": "42"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Victor Torp (Coventry City).",
+      "playerIds": [
+        118036
+      ]
+    },
+    {
+      "id": 2912165,
+      "time": {
+        "secs": 2515,
+        "label": "42"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Daichi Kamada (Crystal Palace) right footed shot from a difficult angle on the right is saved in the centre of the goal by Carl Rushworth (Coventry City). Assisted by Dwight McNeil.",
+      "playerIds": [
+        49759,
+        24797
+      ]
+    },
+    {
+      "id": 2912164,
+      "time": {
+        "secs": 2540,
+        "label": "43"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Carl Rushworth.",
+      "playerIds": [
+        55556
+      ]
+    },
+    {
+      "id": 2912222,
+      "time": {
+        "secs": 2700,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 3 minutes of added time."
+    },
+    {
+      "id": 2912221,
+      "time": {
+        "secs": 2727,
+        "label": "45+1"
+      },
+      "type": "goal",
+      "text": "Goal! Coventry City 2, Crystal Palace 2. Jørgen Strand Larsen (Crystal Palace) header from the centre of the box to the bottom right corner. Assisted by Yéremy Pino.",
+      "playerIds": [
+        35670,
+        109117
+      ]
+    },
+    {
+      "id": 2912278,
+      "time": {
+        "secs": 2899,
+        "label": "45+4"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Anan Khalaili (Crystal Palace) right footed shot from the right side of the box misses to the right.",
+      "playerIds": [
+        123848
+      ]
+    },
+    {
+      "id": 2912281,
+      "time": {
+        "secs": 2924,
+        "label": "45+4"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Coventry City 2, Crystal Palace 2."
+    },
+    {
+      "id": 2912354,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Coventry City. Sidiki Cherif replaces Taiwo Awoniyi because of an injury.",
+      "playerIds": [
+        337821,
+        15340
+      ]
+    },
+    {
+      "id": 2912362,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Coventry City 2, Crystal Palace 2."
+    },
+    {
+      "id": 2912376,
+      "time": {
+        "secs": 2727,
+        "label": "46"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Bobby Thomas.",
+      "playerIds": [
+        63836
+      ]
+    },
+    {
+      "id": 2912374,
+      "time": {
+        "secs": 2761,
+        "label": "47"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Chris Richards (Crystal Palace).",
+      "playerIds": [
+        50842
+      ]
+    },
+    {
+      "id": 2912375,
+      "time": {
+        "secs": 2761,
+        "label": "47"
+      },
+      "type": "free kick won",
+      "text": "Carl Rushworth (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        55556
+      ]
+    },
+    {
+      "id": 2912416,
+      "time": {
+        "secs": 2829,
+        "label": "48"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Adam Wharton (Crystal Palace) left footed shot from outside the box is blocked. Assisted by Dwight McNeil.",
+      "playerIds": [
+        69595,
+        24797
+      ]
+    },
+    {
+      "id": 2912417,
+      "time": {
+        "secs": 2832,
+        "label": "48"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Victor Torp.",
+      "playerIds": [
+        118036
+      ]
+    },
+    {
+      "id": 2912512,
+      "time": {
+        "secs": 3178,
+        "label": "53"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Yann Gboho (Coventry City) right footed shot from the centre of the box is blocked. Assisted by Stephen Mfuni.",
+      "playerIds": [
+        51730,
+        128136
+      ]
+    },
+    {
+      "id": 2912515,
+      "time": {
+        "secs": 3182,
+        "label": "54"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Jack Rudoni (Coventry City) right footed shot from a difficult angle on the right is saved in the bottom right corner by Dean Henderson (Crystal Palace).",
+      "playerIds": [
+        66304
+      ]
+    },
+    {
+      "id": 2912513,
+      "time": {
+        "secs": 3183,
+        "label": "54"
+      },
+      "type": "corner",
+      "text": "Corner, Coventry City. Conceded by Dean Henderson.",
+      "playerIds": [
+        13988
+      ]
+    },
+    {
+      "id": 2912514,
+      "time": {
+        "secs": 3227,
+        "label": "54"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Ethan Pinnock (Coventry City) header from the centre of the box is blocked. Assisted by Jack Rudoni with a cross.",
+      "playerIds": [
+        22043,
+        66304
+      ]
+    },
+    {
+      "id": 2912557,
+      "time": {
+        "secs": 3286,
+        "label": "55"
+      },
+      "type": "free kick won",
+      "text": "Quinten Timber (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        67779
+      ]
+    },
+    {
+      "id": 2912558,
+      "time": {
+        "secs": 3286,
+        "label": "55"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yann Gboho (Coventry City).",
+      "playerIds": [
+        51730
+      ]
+    },
+    {
+      "id": 2912575,
+      "time": {
+        "secs": 3353,
+        "label": "56"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Tatsuhiro Sakamoto (Coventry City) header from the centre of the box misses to the right. Assisted by Yann Gboho with a cross.",
+      "playerIds": [
+        122134,
+        51730
+      ]
+    },
+    {
+      "id": 2912588,
+      "time": {
+        "secs": 3381,
+        "label": "57"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jørgen Strand Larsen (Crystal Palace).",
+      "playerIds": [
+        35670
+      ]
+    },
+    {
+      "id": 2912589,
+      "time": {
+        "secs": 3381,
+        "label": "57"
+      },
+      "type": "free kick won",
+      "text": "Bobby Thomas (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        63836
+      ]
+    },
+    {
+      "id": 2912587,
+      "time": {
+        "secs": 3426,
+        "label": "58"
+      },
+      "type": "free kick won",
+      "text": "Daichi Kamada (Crystal Palace) wins a free kick in the attacking half.",
+      "playerIds": [
+        49759
+      ]
+    },
+    {
+      "id": 2912605,
+      "time": {
+        "secs": 3426,
+        "label": "58"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Matt Grimes (Coventry City).",
+      "playerIds": [
+        8650
+      ]
+    },
+    {
+      "id": 2912641,
+      "time": {
+        "secs": 3536,
+        "label": "59"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Daichi Kamada (Crystal Palace) header from the centre of the box is blocked. Assisted by Anan Khalaili with a cross.",
+      "playerIds": [
+        49759,
+        123848
+      ]
+    },
+    {
+      "id": 2912644,
+      "time": {
+        "secs": 3613,
+        "label": "61"
+      },
+      "type": "free kick won",
+      "text": "Adam Wharton (Crystal Palace) wins a free kick in the attacking half.",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2912677,
+      "time": {
+        "secs": 3613,
+        "label": "61"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Matt Grimes (Coventry City).",
+      "playerIds": [
+        8650
+      ]
+    },
+    {
+      "id": 2912678,
+      "time": {
+        "secs": 3620,
+        "label": "61"
+      },
+      "type": "yellow card",
+      "text": "Matt Grimes (Coventry City) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        8650
+      ]
+    },
+    {
+      "id": 2912708,
+      "time": {
+        "secs": 3693,
+        "label": "62"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jørgen Strand Larsen (Crystal Palace) right footed shot from a difficult angle on the right misses to the left. Assisted by Chris Richards.",
+      "playerIds": [
+        35670,
+        50842
+      ]
+    },
+    {
+      "id": 2912709,
+      "time": {
+        "secs": 3695,
+        "label": "62"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Matt Grimes.",
+      "playerIds": [
+        8650
+      ]
+    },
+    {
+      "id": 2912707,
+      "time": {
+        "secs": 3726,
+        "label": "63"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Chris Richards (Crystal Palace) header from the centre of the box misses to the left. Assisted by Dwight McNeil with a cross following a corner.",
+      "playerIds": [
+        50842,
+        24797
+      ]
+    },
+    {
+      "id": 2912734,
+      "time": {
+        "secs": 3825,
+        "label": "64"
+      },
+      "type": "free kick won",
+      "text": "Quinten Timber (Crystal Palace) wins a free kick on the left wing.",
+      "playerIds": [
+        67779
+      ]
+    },
+    {
+      "id": 2912750,
+      "time": {
+        "secs": 3825,
+        "label": "64"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Tatsuhiro Sakamoto (Coventry City).",
+      "playerIds": [
+        122134
+      ]
+    },
+    {
+      "id": 2912749,
+      "time": {
+        "secs": 3889,
+        "label": "65"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Stephen Mfuni.",
+      "playerIds": [
+        128136
+      ]
+    },
+    {
+      "id": 2912827,
+      "time": {
+        "secs": 4030,
+        "label": "68"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Jørgen Strand Larsen (Crystal Palace) right footed shot from very close range is saved in the centre of the goal by Carl Rushworth (Coventry City). Assisted by Anan Khalaili with a cross.",
+      "playerIds": [
+        35670,
+        123848
+      ]
+    },
+    {
+      "id": 2912828,
+      "time": {
+        "secs": 4031,
+        "label": "68"
+      },
+      "type": "offside",
+      "text": "Offside, Crystal Palace. Anan Khalaili is caught offside.",
+      "playerIds": [
+        35670,
+        123848
+      ]
+    },
+    {
+      "id": 2912851,
+      "time": {
+        "secs": 4151,
+        "label": "70"
+      },
+      "type": "free kick won",
+      "text": "Yéremy Pino (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2912862,
+      "time": {
+        "secs": 4151,
+        "label": "70"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Tatsuhiro Sakamoto (Coventry City).",
+      "playerIds": [
+        122134
+      ]
+    },
+    {
+      "id": 2912860,
+      "time": {
+        "secs": 4186,
+        "label": "70"
+      },
+      "type": "substitution",
+      "text": "Substitution, Coventry City. Brandon Thomas-Asante replaces Yann Gboho.",
+      "playerIds": [
+        19694,
+        51730
+      ]
+    },
+    {
+      "id": 2912861,
+      "time": {
+        "secs": 4201,
+        "label": "71"
+      },
+      "type": "substitution",
+      "text": "Substitution, Coventry City. Gustavo Hamer replaces Victor Torp.",
+      "playerIds": [
+        20361,
+        118036
+      ]
+    },
+    {
+      "id": 2912864,
+      "time": {
+        "secs": 4209,
+        "label": "71"
+      },
+      "type": "substitution",
+      "text": "Substitution, Coventry City. Frank Onyeka replaces Matt Grimes.",
+      "playerIds": [
+        108612,
+        8650
+      ]
+    },
+    {
+      "id": 2912863,
+      "time": {
+        "secs": 4243,
+        "label": "71"
+      },
+      "type": "free kick won",
+      "text": "Jack Rudoni (Coventry City) wins a free kick in the defensive half.",
+      "playerIds": [
+        66304
+      ]
+    },
+    {
+      "id": 2912884,
+      "time": {
+        "secs": 4243,
+        "label": "71"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Tyrick Mitchell (Crystal Palace).",
+      "playerIds": [
+        24334
+      ]
+    },
+    {
+      "id": 2912902,
+      "time": {
+        "secs": 4344,
+        "label": "73"
+      },
+      "type": "free kick won",
+      "text": "Adam Wharton (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2912903,
+      "time": {
+        "secs": 4344,
+        "label": "73"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Gustavo Hamer (Coventry City).",
+      "playerIds": [
+        20361
+      ]
+    },
+    {
+      "id": 2912904,
+      "time": {
+        "secs": 4368,
+        "label": "73"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Jefferson Lerma replaces Quinten Timber.",
+      "playerIds": [
+        37776,
+        67779
+      ]
+    },
+    {
+      "id": 2912935,
+      "time": {
+        "secs": 4377,
+        "label": "73"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Jaydee Canvot replaces Anan Khalaili.",
+      "playerIds": [
+        147312,
+        123848
+      ]
+    },
+    {
+      "id": 2912936,
+      "time": {
+        "secs": 4431,
+        "label": "74"
+      },
+      "type": "free kick won",
+      "text": "Tatsuhiro Sakamoto (Coventry City) wins a free kick on the right wing.",
+      "playerIds": [
+        122134
+      ]
+    },
+    {
+      "id": 2912956,
+      "time": {
+        "secs": 4431,
+        "label": "74"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yéremy Pino (Crystal Palace).",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2912957,
+      "time": {
+        "secs": 4444,
+        "label": "75"
+      },
+      "type": "yellow card",
+      "text": "Yéremy Pino (Crystal Palace) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        109117
+      ]
+    },
+    {
+      "id": 2913050,
+      "time": {
+        "secs": 4720,
+        "label": "79"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Eddie Nketiah replaces Jørgen Strand Larsen.",
+      "playerIds": [
+        14451,
+        35670
+      ]
+    },
+    {
+      "id": 2913049,
+      "time": {
+        "secs": 4727,
+        "label": "79"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Evann Guessand replaces Yéremy Pino.",
+      "playerIds": [
+        72265,
+        109117
+      ]
+    },
+    {
+      "id": 2913099,
+      "time": {
+        "secs": 4855,
+        "label": "81"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Brandon Thomas-Asante (Coventry City) right footed shot from the left side of the box is blocked. Assisted by Tatsuhiro Sakamoto.",
+      "playerIds": [
+        19694,
+        122134
+      ]
+    },
+    {
+      "id": 2913098,
+      "time": {
+        "secs": 4857,
+        "label": "81"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Frank Onyeka (Coventry City) left footed shot from outside the box is saved in the centre of the goal by Dean Henderson (Crystal Palace).",
+      "playerIds": [
+        108612
+      ]
+    },
+    {
+      "id": 2913100,
+      "time": {
+        "secs": 4899,
+        "label": "82"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Evann Guessand (Crystal Palace) left footed shot from the centre of the box is blocked. Assisted by Tyrick Mitchell with a cross.",
+      "playerIds": [
+        72265,
+        24334
+      ]
+    },
+    {
+      "id": 2913097,
+      "time": {
+        "secs": 4902,
+        "label": "82"
+      },
+      "type": "corner",
+      "text": "Corner, Crystal Palace. Conceded by Bobby Thomas.",
+      "playerIds": [
+        63836
+      ]
+    },
+    {
+      "id": 2913150,
+      "time": {
+        "secs": 4968,
+        "label": "83"
+      },
+      "type": "corner",
+      "text": "Corner, Coventry City. Conceded by Adam Wharton.",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2913194,
+      "time": {
+        "secs": 5071,
+        "label": "85"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Brandon Thomas-Asante (Coventry City) header from very close range is saved in the centre of the goal by Dean Henderson (Crystal Palace). Assisted by Bobby Thomas with a headed pass.",
+      "playerIds": [
+        19694,
+        63836
+      ]
+    },
+    {
+      "id": 2913187,
+      "time": {
+        "secs": 5072,
+        "label": "85"
+      },
+      "type": "own goal",
+      "text": "Own Goal by Dwight McNeil, Crystal Palace. Coventry City 3, Crystal Palace 2.",
+      "playerIds": [
+        24797
+      ]
+    },
+    {
+      "id": 2913229,
+      "time": {
+        "secs": 5207,
+        "label": "87"
+      },
+      "type": "corner",
+      "text": "Corner, Coventry City. Conceded by Jaydee Canvot.",
+      "playerIds": [
+        147312
+      ]
+    },
+    {
+      "id": 2913262,
+      "time": {
+        "secs": 5320,
+        "label": "89"
+      },
+      "type": "substitution",
+      "text": "Substitution, Crystal Palace. Darío Osorio replaces Dwight McNeil.",
+      "playerIds": [
+        135512,
+        24797
+      ]
+    },
+    {
+      "id": 2913342,
+      "time": {
+        "secs": 5400,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 4 minutes of added time."
+    },
+    {
+      "id": 2913298,
+      "time": {
+        "secs": 5410,
+        "label": "90+1"
+      },
+      "type": "free kick won",
+      "text": "Jaydee Canvot (Crystal Palace) wins a free kick in the defensive half.",
+      "playerIds": [
+        147312
+      ]
+    },
+    {
+      "id": 2913299,
+      "time": {
+        "secs": 5410,
+        "label": "90+1"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Frank Onyeka (Coventry City).",
+      "playerIds": [
+        108612
+      ]
+    },
+    {
+      "id": 2913340,
+      "time": {
+        "secs": 5447,
+        "label": "90+1"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jefferson Lerma (Crystal Palace).",
+      "playerIds": [
+        37776
+      ]
+    },
+    {
+      "id": 2913341,
+      "time": {
+        "secs": 5447,
+        "label": "90+1"
+      },
+      "type": "free kick won",
+      "text": "Brandon Thomas-Asante (Coventry City) wins a free kick in the attacking half.",
+      "playerIds": [
+        19694
+      ]
+    },
+    {
+      "id": 2913349,
+      "time": {
+        "secs": 5513,
+        "label": "90+2"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Adam Wharton (Crystal Palace).",
+      "playerIds": [
+        69595
+      ]
+    },
+    {
+      "id": 2913350,
+      "time": {
+        "secs": 5513,
+        "label": "90+2"
+      },
+      "type": "free kick won",
+      "text": "Stephen Mfuni (Coventry City) wins a free kick on the left wing.",
+      "playerIds": [
+        128136
+      ]
+    },
+    {
+      "id": 2913361,
+      "time": {
+        "secs": 5536,
+        "label": "90+3"
+      },
+      "type": "offside",
+      "text": "Offside, Coventry City. Brandon Thomas-Asante is caught offside.",
+      "playerIds": [
+        22043,
+        19694
+      ]
+    },
+    {
+      "id": 2913362,
+      "time": {
+        "secs": 5594,
+        "label": "90+4"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Jefferson Lerma (Crystal Palace) right footed shot from outside the box is blocked. Assisted by Chris Richards.",
+      "playerIds": [
+        37776,
+        50842
+      ]
+    },
+    {
+      "id": 2913370,
+      "time": {
+        "secs": 5644,
+        "label": "90+5"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Coventry City 3, Crystal Palace 2."
+    },
+    {
+      "id": 2913373,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Coventry City 3, Crystal Palace 2."
     }
   ]
 }

@@ -95,6 +95,13 @@ export const TabScout: React.FC<TabScoutProps> = ({
   const isId = language !== 'en';
   const profileId = useUserProfileId();
 
+  const [formulaRevision, setFormulaRevision] = useState<number>(0);
+  const [narrativeFns, setNarrativeFns] = useState(() => ({
+    generateCaptainArticlePicks,
+    generateDifferentialArticlePicks,
+    resolveClubName,
+  }));
+
   // Epoch-aligned historical & target GW context (synced from server projection core)
   const baseHistoricalGW = useMemo(() => {
     if (sharedBaseHistoricalGW && sharedBaseHistoricalGW >= 1) return sharedBaseHistoricalGW;
@@ -443,7 +450,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
         fullName: p.fullName || p.full_name || p.webName || 'Player',
         position: p.position || 'MID',
         teamShort: cShort,
-        clubName: resolveClubName(cShort, clubNameMap),
+        clubName: narrativeFns.resolveClubName(cShort, clubNameMap),
         cost,
         form,
         ppg,
@@ -508,6 +515,33 @@ export const TabScout: React.FC<TabScoutProps> = ({
   const [isLoadingLocalScoutSquads, setIsLoadingLocalScoutSquads] = useState<boolean>(false);
   const scoutSquadsCacheRef = useRef<Map<string, ServerScoutSquadsPayload>>(new Map());
   const inFlightScoutEpochRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const handleFormulaUpdated = async (e: Event) => {
+      scoutSquadsCacheRef.current.clear();
+      inFlightScoutEpochRef.current = null;
+      setLocalScoutSquadsPayload(null);
+      setFormulaRevision((prev) => prev + 1);
+
+      if (import.meta.env.DEV) {
+        const changedFiles: string[] = (e as CustomEvent<{ changed_files?: string[] }>)?.detail?.changed_files || [];
+        if (changedFiles.length === 0 || changedFiles.some((f) => f.includes('scoutNarratives'))) {
+          try {
+            const mod = await import(/* @vite-ignore */ `/src/utils/scoutNarratives.ts?t=${Date.now()}`);
+            if (mod?.generateCaptainArticlePicks && mod?.generateDifferentialArticlePicks && mod?.resolveClubName) {
+              setNarrativeFns({
+                generateCaptainArticlePicks: mod.generateCaptainArticlePicks,
+                generateDifferentialArticlePicks: mod.generateDifferentialArticlePicks,
+                resolveClubName: mod.resolveClubName,
+              });
+            }
+          } catch {}
+        }
+      }
+    };
+    window.addEventListener('fpl:formula-updated', handleFormulaUpdated);
+    return () => window.removeEventListener('fpl:formula-updated', handleFormulaUpdated);
+  }, []);
 
   // Hydrate fallback from IndexedDB immediately ONLY when epochKey matches effectiveEpochKey
   useEffect(() => {
@@ -575,7 +609,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
     return () => {
       mounted = false;
     };
-  }, [leagueData, effectiveEpochKey, sharedScoutSquads, isLoadingSharedScoutSquads]);
+  }, [leagueData, effectiveEpochKey, sharedScoutSquads, isLoadingSharedScoutSquads, formulaRevision]);
 
   const scoutSquadsPayload =
     sharedScoutSquads && sharedScoutSquads.epochKey === effectiveEpochKey
@@ -669,8 +703,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
       : playerPool.filter((p) => p.status === 'a' && p.mins >= 250);
     list.sort((a, b) => b.captainScore - a.captainScore);
     const top10 = list.slice(0, 10);
-    return generateCaptainArticlePicks(top10, targetGwMatchProjections, targetNextGW, isId, playerPool, clubNameMap);
-  }, [subTab, playerPool, isId, targetNextGW, targetGwMatchProjections, clubNameMap]);
+    return narrativeFns.generateCaptainArticlePicks(top10, targetGwMatchProjections, targetNextGW, isId, playerPool, clubNameMap);
+  }, [subTab, playerPool, isId, targetNextGW, targetGwMatchProjections, clubNameMap, narrativeFns]);
 
   // ==========================================
   // 3. SUBTAB: DIFFERENTIAL (<5% FNB Ownership, Top 3, Non-Blank Priority)
@@ -683,8 +717,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
       : playerPool.filter((p) => p.fnbOwn < 5.0 && p.status === 'a' && p.mins >= 270);
     diffs.sort((a, b) => b.diffScore - a.diffScore);
     const top3 = diffs.slice(0, 3);
-    return generateDifferentialArticlePicks(top3, targetGwMatchProjections, targetNextGW, isId, playerPool, clubNameMap);
-  }, [subTab, playerPool, isId, targetNextGW, targetGwMatchProjections, clubNameMap]);
+    return narrativeFns.generateDifferentialArticlePicks(top3, targetGwMatchProjections, targetNextGW, isId, playerPool, clubNameMap);
+  }, [subTab, playerPool, isId, targetNextGW, targetGwMatchProjections, clubNameMap, narrativeFns]);
 
   // ==========================================
   // 4. SUBTAB: CHIPS (Per-GW Active Set Simulation & Global Optimal Chip Schedule)
@@ -2395,7 +2429,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       {p.webName}
                     </h4>
                     <span className="text-[11px] font-bold text-slate-400">
-                      {resolveClubName(p.teamShort, clubNameMap)} • {p.position} • £{p.cost.toFixed(1)}m
+                      {narrativeFns.resolveClubName(p.teamShort, clubNameMap)} • {p.position} • £{p.cost.toFixed(1)}m
                     </span>
                   </div>
                 </div>
@@ -2437,7 +2471,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       {p.webName}
                     </h4>
                     <span className="text-[11px] font-bold text-slate-400">
-                      {resolveClubName(p.teamShort, clubNameMap)} • {p.position} • £{p.cost.toFixed(1)}m
+                      {narrativeFns.resolveClubName(p.teamShort, clubNameMap)} • {p.position} • £{p.cost.toFixed(1)}m
                     </span>
                   </div>
                 </div>

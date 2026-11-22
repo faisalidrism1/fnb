@@ -1,0 +1,2805 @@
+{
+  "id": 129026,
+  "altIds": {
+    "opta": "g2645298"
+  },
+  "gameweek": {
+    "gameweek": 11
+  },
+  "kickoff": {
+    "millis": 1795273200000,
+    "label": "2026-11-21 15:00:00"
+  },
+  "ground": {
+    "name": "Stamford Bridge, London"
+  },
+  "status": "C",
+  "phase": "F",
+  "outcome": "A",
+  "clock": {
+    "label": "Full Time",
+    "secs": 5400
+  },
+  "teams": [
+    {
+      "team": {
+        "id": 8,
+        "name": "Chelsea",
+        "shortName": "Chelsea",
+        "club": {
+          "abbr": "CHE"
+        }
+      },
+      "score": 1
+    },
+    {
+      "team": {
+        "id": 2,
+        "name": "Leeds United",
+        "shortName": "Leeds",
+        "club": {
+          "abbr": "LEE"
+        }
+      },
+      "score": 4
+    }
+  ],
+  "teamLists": [
+    {
+      "teamId": 8,
+      "formation": {
+        "subs": [
+          "549939",
+          "620109",
+          "543158",
+          "247632",
+          "56979",
+          "50175",
+          "593117",
+          "482609",
+          "616109"
+        ],
+        "teamId": "8",
+        "lineup": [
+          [
+            "98980"
+          ],
+          [
+            "577016",
+            "444463",
+            "460028",
+            "498444"
+          ],
+          [
+            "514356",
+            "486672"
+          ],
+          [
+            "624773",
+            "244851",
+            "244850"
+          ],
+          [
+            "503037"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 98980,
+          "altIds": {
+            "opta": "p98980"
+          },
+          "name": {
+            "first": "Emiliano",
+            "last": "Martínez",
+            "display": "Emiliano Martínez"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1,
+          "pulseId": 4245
+        },
+        {
+          "id": 444463,
+          "altIds": {
+            "opta": "p444463"
+          },
+          "name": {
+            "first": "Wesley",
+            "last": "Fofana",
+            "display": "Wesley Fofana"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3,
+          "pulseId": 66284
+        },
+        {
+          "id": 460028,
+          "altIds": {
+            "opta": "p460028"
+          },
+          "name": {
+            "first": "Levi",
+            "last": "Colwill",
+            "display": "Levi Colwill"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6,
+          "pulseId": 51229
+        },
+        {
+          "id": 244851,
+          "altIds": {
+            "opta": "p244851"
+          },
+          "name": {
+            "first": "Cole",
+            "last": "Palmer",
+            "display": "Cole Palmer"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Attacking Midfielder",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10,
+          "pulseId": 49293
+        },
+        {
+          "id": 244850,
+          "altIds": {
+            "opta": "p244850"
+          },
+          "name": {
+            "first": "Morgan",
+            "last": "Rogers",
+            "display": "Morgan Rogers"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Attacking Midfielder",
+            "shirtNum": 17
+          },
+          "captain": false,
+          "shirtNumber": 17,
+          "pulseId": 23968
+        },
+        {
+          "id": 503037,
+          "altIds": {
+            "opta": "p503037"
+          },
+          "name": {
+            "first": "Emmanuel",
+            "last": "Emegha",
+            "display": "Emmanuel Emegha"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Striker",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22,
+          "pulseId": 108291
+        },
+        {
+          "id": 486672,
+          "altIds": {
+            "opta": "p486672"
+          },
+          "name": {
+            "first": "Moisés",
+            "last": "Caicedo",
+            "display": "Moisés Caicedo"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Defensive Midfielder",
+            "shirtNum": 25
+          },
+          "captain": true,
+          "shirtNumber": 25,
+          "pulseId": 112203
+        },
+        {
+          "id": 498444,
+          "altIds": {
+            "opta": "p498444"
+          },
+          "name": {
+            "first": "Pep",
+            "last": "Chavarría",
+            "display": "Pep Chavarría"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Left Full Back",
+            "shirtNum": 29
+          },
+          "captain": false,
+          "shirtNumber": 29,
+          "pulseId": 70585
+        },
+        {
+          "id": 577016,
+          "altIds": {
+            "opta": "p577016"
+          },
+          "name": {
+            "first": "Josh",
+            "last": "Acheampong",
+            "display": "Josh Acheampong"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Right Full Back",
+            "shirtNum": 34
+          },
+          "captain": false,
+          "shirtNumber": 34,
+          "pulseId": 125075
+        },
+        {
+          "id": 624773,
+          "altIds": {
+            "opta": "p624773"
+          },
+          "name": {
+            "first": "Estêvão Willian",
+            "last": "Almeida de Oliveira Gonçalves",
+            "display": "Estêvão Willian Almeida de Oliveira Gonçalves"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "F",
+            "positionInfo": "Right Winger",
+            "shirtNum": 41
+          },
+          "captain": false,
+          "shirtNumber": 41,
+          "pulseId": 304474
+        },
+        {
+          "id": 514356,
+          "altIds": {
+            "opta": "p514356"
+          },
+          "name": {
+            "first": "Roméo",
+            "last": "Lavia",
+            "display": "Roméo Lavia"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Defensive Midfielder",
+            "shirtNum": 45
+          },
+          "captain": false,
+          "shirtNumber": 45,
+          "pulseId": 99282
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 549939,
+          "altIds": {
+            "opta": "p549939"
+          },
+          "name": {
+            "first": "Mike",
+            "last": "Penders",
+            "display": "Mike Penders"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 39
+          },
+          "captain": false,
+          "shirtNumber": 39,
+          "pulseId": 121704
+        },
+        {
+          "id": 620109,
+          "altIds": {
+            "opta": "p620109"
+          },
+          "name": {
+            "first": "Marco",
+            "last": "Palestra",
+            "display": "Marco Palestra"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Right Full Back",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2,
+          "pulseId": 140055
+        },
+        {
+          "id": 543158,
+          "altIds": {
+            "opta": "p543158"
+          },
+          "name": {
+            "first": "Valentín",
+            "last": "Barco",
+            "display": "Valentín Barco"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Left/Centre Central Midfielder",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4,
+          "pulseId": 120417
+        },
+        {
+          "id": 247632,
+          "altIds": {
+            "opta": "p247632"
+          },
+          "name": {
+            "first": "Pedro",
+            "last": "Lomba Neto",
+            "display": "Pedro Lomba Neto"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Left/Right Winger",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7,
+          "pulseId": 21998
+        },
+        {
+          "id": 56979,
+          "altIds": {
+            "opta": "p56979"
+          },
+          "name": {
+            "first": "Jordan",
+            "last": "Henderson",
+            "display": "Jordan Henderson"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Central Midfielder",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14,
+          "pulseId": 3712
+        },
+        {
+          "id": 50175,
+          "altIds": {
+            "opta": "p50175"
+          },
+          "name": {
+            "first": "Danny",
+            "last": "Welbeck",
+            "display": "Danny Welbeck"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Centre Striker",
+            "shirtNum": 18
+          },
+          "captain": false,
+          "shirtNumber": 18,
+          "pulseId": 3452
+        },
+        {
+          "id": 593117,
+          "altIds": {
+            "opta": "p593117"
+          },
+          "name": {
+            "first": "Geovany",
+            "last": "Tcherno Quenda",
+            "display": "Geovany Tcherno Quenda"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Right Winger",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23,
+          "pulseId": 129425
+        },
+        {
+          "id": 482609,
+          "altIds": {
+            "opta": "p482609"
+          },
+          "name": {
+            "first": "Malo",
+            "last": "Gusto",
+            "display": "Malo Gusto"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Right Full Back",
+            "shirtNum": 27
+          },
+          "captain": false,
+          "shirtNumber": 27,
+          "pulseId": 68827
+        },
+        {
+          "id": 616109,
+          "altIds": {
+            "opta": "p616109"
+          },
+          "name": {
+            "first": "Olutayo",
+            "last": "Subuloye",
+            "display": "Olutayo Subuloye"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 37
+          },
+          "captain": false,
+          "shirtNumber": 37,
+          "pulseId": 145494
+        }
+      ]
+    },
+    {
+      "teamId": 2,
+      "formation": {
+        "subs": [
+          "155465",
+          "214225",
+          "200617",
+          "153682",
+          "427637",
+          "174594",
+          "434752",
+          "466525",
+          "437497"
+        ],
+        "teamId": "2",
+        "lineup": [
+          [
+            "432720"
+          ],
+          [
+            "220627",
+            "173774",
+            "522047"
+          ],
+          [
+            "226182",
+            "199598",
+            "248056",
+            "243526"
+          ],
+          [
+            "180135",
+            "435997"
+          ],
+          [
+            "177815"
+          ]
+        ],
+        "formation": "3-4-2-1"
+      },
+      "lineup": [
+        {
+          "id": 432720,
+          "altIds": {
+            "opta": "p432720"
+          },
+          "name": {
+            "first": "James",
+            "last": "Trafford",
+            "display": "James Trafford"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1,
+          "pulseId": 32280
+        },
+        {
+          "id": 226182,
+          "altIds": {
+            "opta": "p226182"
+          },
+          "name": {
+            "first": "Jayden",
+            "last": "Bogle",
+            "display": "Jayden Bogle"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "D",
+            "positionInfo": "Right Full Back",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2,
+          "pulseId": 14608
+        },
+        {
+          "id": 243526,
+          "altIds": {
+            "opta": "p243526"
+          },
+          "name": {
+            "first": "Gabriel",
+            "last": "Gudmundsson",
+            "display": "Gabriel Gudmundsson"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "D",
+            "positionInfo": "Left Full Back",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3,
+          "pulseId": 75543
+        },
+        {
+          "id": 199598,
+          "altIds": {
+            "opta": "p199598"
+          },
+          "name": {
+            "first": "Ethan",
+            "last": "Ampadu",
+            "display": "Ethan Ampadu"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Defensive Midfielder",
+            "shirtNum": 4
+          },
+          "captain": true,
+          "shirtNumber": 4,
+          "pulseId": 19731
+        },
+        {
+          "id": 522047,
+          "altIds": {
+            "opta": "p522047"
+          },
+          "name": {
+            "first": "Tarik",
+            "last": "Muharemovic",
+            "display": "Tarik Muharemovic"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Central Defender",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5,
+          "pulseId": 114504
+        },
+        {
+          "id": 180135,
+          "altIds": {
+            "opta": "p180135"
+          },
+          "name": {
+            "first": "Sean",
+            "last": "Longstaff",
+            "display": "Sean Longstaff"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "M",
+            "positionInfo": "Central Midfielder",
+            "shirtNum": 8
+          },
+          "captain": false,
+          "shirtNumber": 8,
+          "pulseId": 14897
+        },
+        {
+          "id": 177815,
+          "altIds": {
+            "opta": "p177815"
+          },
+          "name": {
+            "first": "Dominic",
+            "last": "Calvert-Lewin",
+            "display": "Dominic Calvert-Lewin"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Striker",
+            "shirtNum": 9
+          },
+          "captain": false,
+          "shirtNumber": 9,
+          "pulseId": 9576
+        },
+        {
+          "id": 435997,
+          "altIds": {
+            "opta": "p435997"
+          },
+          "name": {
+            "first": "Noah",
+            "last": "Okafor",
+            "display": "Noah Okafor"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Winger",
+            "shirtNum": 19
+          },
+          "captain": false,
+          "shirtNumber": 19,
+          "pulseId": 33162
+        },
+        {
+          "id": 248056,
+          "altIds": {
+            "opta": "p248056"
+          },
+          "name": {
+            "first": "Ao",
+            "last": "Tanaka",
+            "display": "Ao Tanaka"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Central Midfielder",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22,
+          "pulseId": 126426
+        },
+        {
+          "id": 220627,
+          "altIds": {
+            "opta": "p220627"
+          },
+          "name": {
+            "first": "James",
+            "last": "Justin",
+            "display": "James Justin"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Right Full Back",
+            "shirtNum": 24
+          },
+          "captain": false,
+          "shirtNumber": 24,
+          "pulseId": 13515
+        },
+        {
+          "id": 173774,
+          "altIds": {
+            "opta": "p173774"
+          },
+          "name": {
+            "first": "Nico",
+            "last": "Elvedi",
+            "display": "Nico Elvedi"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 30
+          },
+          "captain": false,
+          "shirtNumber": 30,
+          "pulseId": 12337
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 155465,
+          "altIds": {
+            "opta": "p155465"
+          },
+          "name": {
+            "first": "Michael",
+            "last": "Zetterer",
+            "display": "Michael Zetterer"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 16
+          },
+          "captain": false,
+          "shirtNumber": 16,
+          "pulseId": 45237
+        },
+        {
+          "id": 214225,
+          "altIds": {
+            "opta": "p214225"
+          },
+          "name": {
+            "first": "Joe",
+            "last": "Rodon",
+            "display": "Joe Rodon"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Central Defender",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6,
+          "pulseId": 13796
+        },
+        {
+          "id": 200617,
+          "altIds": {
+            "opta": "p200617"
+          },
+          "name": {
+            "first": "Daniel",
+            "last": "James",
+            "display": "Daniel James"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Left/Right Winger",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7,
+          "pulseId": 13797
+        },
+        {
+          "id": 153682,
+          "altIds": {
+            "opta": "p153682"
+          },
+          "name": {
+            "first": "Harry",
+            "last": "Wilson",
+            "display": "Harry Wilson"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Right Winger",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10,
+          "pulseId": 13961
+        },
+        {
+          "id": 427637,
+          "altIds": {
+            "opta": "p427637"
+          },
+          "name": {
+            "first": "Brenden",
+            "last": "Aaronson",
+            "display": "Brenden Aaronson"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Attacking Midfielder",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11,
+          "pulseId": 63289
+        },
+        {
+          "id": 174594,
+          "altIds": {
+            "opta": "p174594"
+          },
+          "name": {
+            "first": "Lukas",
+            "last": "Nmecha",
+            "display": "Lukas Nmecha"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Striker",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14,
+          "pulseId": 14807
+        },
+        {
+          "id": 434752,
+          "altIds": {
+            "opta": "p434752"
+          },
+          "name": {
+            "first": "Jaka",
+            "last": "Bijol",
+            "display": "Jaka Bijol"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Central Defender",
+            "shirtNum": 15
+          },
+          "captain": false,
+          "shirtNumber": 15,
+          "pulseId": 50151
+        },
+        {
+          "id": 466525,
+          "altIds": {
+            "opta": "p466525"
+          },
+          "name": {
+            "first": "Anton",
+            "last": "Stach",
+            "display": "Anton Stach"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Defensive Midfielder",
+            "shirtNum": 18
+          },
+          "captain": false,
+          "shirtNumber": 18,
+          "pulseId": 116888
+        },
+        {
+          "id": 437497,
+          "altIds": {
+            "opta": "p437497"
+          },
+          "name": {
+            "first": "Melvin",
+            "last": "Bard",
+            "display": "Melvin Bard"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Left Full Back",
+            "shirtNum": 26
+          },
+          "captain": false,
+          "shirtNumber": 26,
+          "pulseId": 68128
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "type": "PS",
+      "phase": "1",
+      "clock": {
+        "secs": 0,
+        "label": "1'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 56979,
+      "description": "ON",
+      "phase": "1",
+      "clock": {
+        "label": "22'",
+        "secs": 1320
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 486672,
+      "description": "OFF",
+      "phase": "1",
+      "clock": {
+        "label": "22'",
+        "secs": 1320
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 503037,
+      "assistId": 244850,
+      "phase": "1",
+      "clock": {
+        "label": "25'",
+        "secs": 1500
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 435997,
+      "assistId": 177815,
+      "phase": "1",
+      "clock": {
+        "label": "28'",
+        "secs": 1680
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 243526,
+      "phase": "1",
+      "clock": {
+        "label": "38'",
+        "secs": 2280
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 514356,
+      "phase": "2",
+      "clock": {
+        "label": "47'",
+        "secs": 2820
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "P",
+      "personId": 177815,
+      "phase": "2",
+      "clock": {
+        "label": "53'",
+        "secs": 3180
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "G",
+      "personId": 435997,
+      "phase": "2",
+      "clock": {
+        "label": "58'",
+        "secs": 3480
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 247632,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 624773,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 50175,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 503037,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "64'",
+        "secs": 3840
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 226182,
+      "phase": "2",
+      "clock": {
+        "label": "68'",
+        "secs": 4080
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 593117,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 498444,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 482609,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 577016,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 427637,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 435997,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "73'",
+        "secs": 4380
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 180135,
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 466525,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "86'",
+        "secs": 5160
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 226182,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "86'",
+        "secs": 5160
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 214225,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "86'",
+        "secs": 5160
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "S",
+      "personId": 248056,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "86'",
+        "secs": 5160
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 3
+      }
+    },
+    {
+      "type": "G",
+      "personId": 427637,
+      "assistId": 153682,
+      "phase": "2",
+      "clock": {
+        "label": "91'",
+        "secs": 5460
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 4
+      }
+    },
+    {
+      "type": "S",
+      "personId": 153682,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "91'",
+        "secs": 5460
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 4
+      }
+    },
+    {
+      "type": "S",
+      "personId": 180135,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "91'",
+        "secs": 5460
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 4
+      }
+    },
+    {
+      "type": "S",
+      "personId": 437497,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "91'",
+        "secs": 5460
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 4
+      }
+    },
+    {
+      "type": "S",
+      "personId": 243526,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "91'",
+        "secs": 5460
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 4
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5460,
+        "label": "90+1'"
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 4
+      }
+    }
+  ],
+  "textstreamEvents": [
+    {
+      "id": 2911328,
+      "type": "lineup",
+      "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2911498,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2911516,
+      "time": {
+        "secs": 16,
+        "label": "01"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ao Tanaka (Leeds United).",
+      "playerIds": [
+        126426
+      ]
+    },
+    {
+      "id": 2911517,
+      "time": {
+        "secs": 16,
+        "label": "01"
+      },
+      "type": "free kick won",
+      "text": "Cole Palmer (Chelsea) wins a free kick in the attacking half.",
+      "playerIds": [
+        49293
+      ]
+    },
+    {
+      "id": 2911531,
+      "time": {
+        "secs": 164,
+        "label": "03"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ao Tanaka (Leeds United).",
+      "playerIds": [
+        126426
+      ]
+    },
+    {
+      "id": 2911532,
+      "time": {
+        "secs": 164,
+        "label": "03"
+      },
+      "type": "free kick won",
+      "text": "Moisés Caicedo (Chelsea) wins a free kick on the left wing.",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2911576,
+      "time": {
+        "secs": 335,
+        "label": "06"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ao Tanaka (Leeds United).",
+      "playerIds": [
+        126426
+      ]
+    },
+    {
+      "id": 2911577,
+      "time": {
+        "secs": 335,
+        "label": "06"
+      },
+      "type": "free kick won",
+      "text": "Emmanuel Emegha (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        108291
+      ]
+    },
+    {
+      "id": 2911602,
+      "time": {
+        "secs": 442,
+        "label": "08"
+      },
+      "type": "free kick won",
+      "text": "Pep Chavarría (Chelsea) wins a free kick on the left wing.",
+      "playerIds": [
+        70585
+      ]
+    },
+    {
+      "id": 2911617,
+      "time": {
+        "secs": 442,
+        "label": "08"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jayden Bogle (Leeds United).",
+      "playerIds": [
+        14608
+      ]
+    },
+    {
+      "id": 2911616,
+      "time": {
+        "secs": 482,
+        "label": "09"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Levi Colwill (Chelsea) header from the centre of the box is blocked. Assisted by Estêvão with a cross.",
+      "playerIds": [
+        51229,
+        304474
+      ]
+    },
+    {
+      "id": 2911615,
+      "time": {
+        "secs": 488,
+        "label": "09"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Josh Acheampong (Chelsea) left footed shot from outside the box is high and wide to the left. Assisted by Roméo Lavia following a set piece situation.",
+      "playerIds": [
+        125075,
+        99282
+      ]
+    },
+    {
+      "id": 2911657,
+      "time": {
+        "secs": 779,
+        "label": "13"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Morgan Rogers (Chelsea) right footed shot from outside the box is high and wide to the right. Assisted by Moisés Caicedo.",
+      "playerIds": [
+        23968,
+        112203
+      ]
+    },
+    {
+      "id": 2911675,
+      "time": {
+        "secs": 819,
+        "label": "14"
+      },
+      "type": "free kick lost",
+      "text": "Foul by James Justin (Leeds United).",
+      "playerIds": [
+        13515
+      ]
+    },
+    {
+      "id": 2911676,
+      "time": {
+        "secs": 819,
+        "label": "14"
+      },
+      "type": "free kick won",
+      "text": "Moisés Caicedo (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        112203
+      ]
+    },
+    {
+      "id": 2911711,
+      "time": {
+        "secs": 873,
+        "label": "15"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Moisés Caicedo (Chelsea)."
+    },
+    {
+      "id": 2911712,
+      "time": {
+        "secs": 884,
+        "label": "15"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2911726,
+      "time": {
+        "secs": 944,
+        "label": "16"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Estêvão (Chelsea) left footed shot from the right side of the box is saved in the top centre of the goal by James Trafford (Leeds United). Assisted by Cole Palmer.",
+      "playerIds": [
+        304474,
+        49293
+      ]
+    },
+    {
+      "id": 2911741,
+      "time": {
+        "secs": 997,
+        "label": "17"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Noah Okafor (Leeds United).",
+      "playerIds": [
+        33162
+      ]
+    },
+    {
+      "id": 2911742,
+      "time": {
+        "secs": 997,
+        "label": "17"
+      },
+      "type": "free kick won",
+      "text": "Josh Acheampong (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        125075
+      ]
+    },
+    {
+      "id": 2911756,
+      "time": {
+        "secs": 1062,
+        "label": "18"
+      },
+      "type": "post",
+      "text": "Dominic Calvert-Lewin (Leeds United) hits the bar with a header from the centre of the box. Assisted by James Justin with a cross.",
+      "playerIds": [
+        9576,
+        13515
+      ]
+    },
+    {
+      "id": 2911798,
+      "time": {
+        "secs": 1204,
+        "label": "21"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Moisés Caicedo (Chelsea)."
+    },
+    {
+      "id": 2911816,
+      "time": {
+        "secs": 1290,
+        "label": "22"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Jordan Henderson replaces Moisés Caicedo because of an injury.",
+      "playerIds": [
+        3712,
+        112203
+      ]
+    },
+    {
+      "id": 2911817,
+      "time": {
+        "secs": 1306,
+        "label": "22"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2911864,
+      "time": {
+        "secs": 1379,
+        "label": "23"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Dominic Calvert-Lewin (Leeds United) header from the centre of the box is saved in the centre of the goal by Emiliano Martínez (Chelsea). Assisted by Noah Okafor with a cross.",
+      "playerIds": [
+        9576,
+        33162
+      ]
+    },
+    {
+      "id": 2911873,
+      "time": {
+        "secs": 1451,
+        "label": "25"
+      },
+      "type": "goal",
+      "text": "Goal! Chelsea 1, Leeds United 0. Emmanuel Emegha (Chelsea) left footed shot from the centre of the box to the bottom left corner. Assisted by Morgan Rogers.",
+      "playerIds": [
+        108291,
+        23968
+      ]
+    },
+    {
+      "id": 2911897,
+      "time": {
+        "secs": 1622,
+        "label": "28"
+      },
+      "type": "goal",
+      "text": "Goal! Chelsea 1, Leeds United 1. Noah Okafor (Leeds United) left footed shot from the left side of the box to the centre of the goal. Assisted by Dominic Calvert-Lewin.",
+      "playerIds": [
+        33162,
+        9576
+      ]
+    },
+    {
+      "id": 2911912,
+      "time": {
+        "secs": 1722,
+        "label": "29"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Estêvão (Chelsea) left footed shot from outside the box misses to the right. Assisted by Josh Acheampong.",
+      "playerIds": [
+        304474,
+        125075
+      ]
+    },
+    {
+      "id": 2911932,
+      "time": {
+        "secs": 1765,
+        "label": "30"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jayden Bogle (Leeds United).",
+      "playerIds": [
+        14608
+      ]
+    },
+    {
+      "id": 2911933,
+      "time": {
+        "secs": 1765,
+        "label": "30"
+      },
+      "type": "free kick won",
+      "text": "Wesley Fofana (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        66284
+      ]
+    },
+    {
+      "id": 2911948,
+      "time": {
+        "secs": 1835,
+        "label": "31"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Sean Longstaff (Leeds United) left footed shot from outside the box is saved in the centre of the goal by Emiliano Martínez (Chelsea). Assisted by Dominic Calvert-Lewin.",
+      "playerIds": [
+        14897,
+        9576
+      ]
+    },
+    {
+      "id": 2911963,
+      "time": {
+        "secs": 1917,
+        "label": "32"
+      },
+      "type": "free kick won",
+      "text": "Gabriel Gudmundsson (Leeds United) wins a free kick in the defensive half.",
+      "playerIds": [
+        75543
+      ]
+    },
+    {
+      "id": 2911964,
+      "time": {
+        "secs": 1917,
+        "label": "32"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Estêvão (Chelsea).",
+      "playerIds": [
+        304474
+      ]
+    },
+    {
+      "id": 2911981,
+      "time": {
+        "secs": 1928,
+        "label": "33"
+      },
+      "type": "offside",
+      "text": "Offside, Leeds United. Jayden Bogle is caught offside.",
+      "playerIds": [
+        114504,
+        14608
+      ]
+    },
+    {
+      "id": 2913394,
+      "time": {
+        "secs": 2121,
+        "label": "36"
+      },
+      "type": "start delay",
+      "text": "Delay in match (Chelsea)."
+    },
+    {
+      "id": 2913395,
+      "time": {
+        "secs": 2130,
+        "label": "36"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2912059,
+      "time": {
+        "secs": 2152,
+        "label": "36"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Dominic Calvert-Lewin (Leeds United) left footed shot from the centre of the box is close, but misses to the right.",
+      "playerIds": [
+        9576
+      ]
+    },
+    {
+      "id": 2912060,
+      "time": {
+        "secs": 2186,
+        "label": "37"
+      },
+      "type": "offside",
+      "text": "Offside, Leeds United. Noah Okafor is caught offside.",
+      "playerIds": [
+        19731,
+        33162
+      ]
+    },
+    {
+      "id": 2912065,
+      "time": {
+        "secs": 2236,
+        "label": "38"
+      },
+      "type": "yellow card",
+      "text": "Gabriel Gudmundsson (Leeds United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        75543
+      ]
+    },
+    {
+      "id": 2912087,
+      "time": {
+        "secs": 2278,
+        "label": "38"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Cole Palmer (Chelsea) left footed shot from outside the box is blocked. Assisted by Estêvão.",
+      "playerIds": [
+        49293,
+        304474
+      ]
+    },
+    {
+      "id": 2912086,
+      "time": {
+        "secs": 2316,
+        "label": "39"
+      },
+      "type": "offside",
+      "text": "Offside, Chelsea. Emmanuel Emegha is caught offside.",
+      "playerIds": [
+        51229,
+        108291
+      ]
+    },
+    {
+      "id": 2912147,
+      "time": {
+        "secs": 2395,
+        "label": "40"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Ao Tanaka (Leeds United) right footed shot from outside the box is blocked. Assisted by Noah Okafor.",
+      "playerIds": [
+        126426,
+        33162
+      ]
+    },
+    {
+      "id": 2912146,
+      "time": {
+        "secs": 2398,
+        "label": "40"
+      },
+      "type": "corner",
+      "text": "Corner, Leeds United. Conceded by Levi Colwill.",
+      "playerIds": [
+        51229
+      ]
+    },
+    {
+      "id": 2912188,
+      "time": {
+        "secs": 2599,
+        "label": "44"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Gabriel Gudmundsson (Leeds United) right footed shot from the left side of the box misses to the right. Assisted by Noah Okafor.",
+      "playerIds": [
+        75543,
+        33162
+      ]
+    },
+    {
+      "id": 2912268,
+      "time": {
+        "secs": 2700,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 5 minutes of added time."
+    },
+    {
+      "id": 2912218,
+      "time": {
+        "secs": 2711,
+        "label": "45+1"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Ao Tanaka (Leeds United) right footed shot from outside the box is saved in the bottom right corner by Emiliano Martínez (Chelsea). Assisted by Dominic Calvert-Lewin.",
+      "playerIds": [
+        126426,
+        9576
+      ]
+    },
+    {
+      "id": 2912248,
+      "time": {
+        "secs": 2788,
+        "label": "45+2"
+      },
+      "type": "free kick won",
+      "text": "Ao Tanaka (Leeds United) wins a free kick on the left wing.",
+      "playerIds": [
+        126426
+      ]
+    },
+    {
+      "id": 2912269,
+      "time": {
+        "secs": 2788,
+        "label": "45+2"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Cole Palmer (Chelsea).",
+      "playerIds": [
+        49293
+      ]
+    },
+    {
+      "id": 2912267,
+      "time": {
+        "secs": 2826,
+        "label": "45+3"
+      },
+      "type": "offside",
+      "text": "Offside, Leeds United. Tarik Muharemovic is caught offside.",
+      "playerIds": [
+        14897,
+        114504
+      ]
+    },
+    {
+      "id": 2912287,
+      "time": {
+        "secs": 2916,
+        "label": "45+4"
+      },
+      "type": "offside",
+      "text": "Offside, Leeds United. James Justin is caught offside.",
+      "playerIds": [
+        33162,
+        13515
+      ]
+    },
+    {
+      "id": 2912326,
+      "time": {
+        "secs": 3007,
+        "label": "45+6"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Dominic Calvert-Lewin (Leeds United) header from the centre of the box is saved in the top left corner by Emiliano Martínez (Chelsea). Assisted by Nico Elvedi with a headed pass.",
+      "playerIds": [
+        9576,
+        12337
+      ]
+    },
+    {
+      "id": 2912293,
+      "time": {
+        "secs": 3023,
+        "label": "45+6"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Chelsea 1, Leeds United 1."
+    },
+    {
+      "id": 2912353,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Chelsea 1, Leeds United 1."
+    },
+    {
+      "id": 2912371,
+      "time": {
+        "secs": 2744,
+        "label": "46"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Gabriel Gudmundsson (Leeds United) left footed shot from outside the box misses to the right.",
+      "playerIds": [
+        75543
+      ]
+    },
+    {
+      "id": 2912398,
+      "time": {
+        "secs": 2792,
+        "label": "47"
+      },
+      "type": "free kick won",
+      "text": "Noah Okafor (Leeds United) wins a free kick in the attacking half.",
+      "playerIds": [
+        33162
+      ]
+    },
+    {
+      "id": 2912400,
+      "time": {
+        "secs": 2792,
+        "label": "47"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Roméo Lavia (Chelsea).",
+      "playerIds": [
+        99282
+      ]
+    },
+    {
+      "id": 2912399,
+      "time": {
+        "secs": 2797,
+        "label": "47"
+      },
+      "type": "yellow card",
+      "text": "Roméo Lavia (Chelsea) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        99282
+      ]
+    },
+    {
+      "id": 2912407,
+      "time": {
+        "secs": 2854,
+        "label": "48"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Ao Tanaka (Leeds United) left footed shot from the centre of the box is close, but misses to the left. Assisted by Jayden Bogle with a cross following a set piece situation.",
+      "playerIds": [
+        126426,
+        14608
+      ]
+    },
+    {
+      "id": 2912422,
+      "time": {
+        "secs": 2882,
+        "label": "49"
+      },
+      "type": "offside",
+      "text": "Offside, Leeds United. Dominic Calvert-Lewin is caught offside.",
+      "playerIds": [
+        13515,
+        9576
+      ]
+    },
+    {
+      "id": 2912441,
+      "time": {
+        "secs": 2936,
+        "label": "49"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Jayden Bogle (Leeds United) right footed shot from outside the box is blocked.",
+      "playerIds": [
+        14608
+      ]
+    },
+    {
+      "id": 2912440,
+      "time": {
+        "secs": 2939,
+        "label": "49"
+      },
+      "type": "penalty lost",
+      "text": "Penalty conceded by Morgan Rogers (Chelsea) with a handball in the penalty area.",
+      "playerIds": [
+        23968
+      ]
+    },
+    {
+      "id": 2912470,
+      "time": {
+        "secs": 3138,
+        "label": "53"
+      },
+      "type": "penalty goal",
+      "text": "Goal! Chelsea 1, Leeds United 2. Dominic Calvert-Lewin (Leeds United) converts the penalty with a right footed shot to the bottom right corner.",
+      "playerIds": [
+        9576
+      ]
+    },
+    {
+      "id": 2912503,
+      "time": {
+        "secs": 3244,
+        "label": "55"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Morgan Rogers (Chelsea) right footed shot from outside the box is saved in the bottom left corner by James Trafford (Leeds United). Assisted by Jordan Henderson.",
+      "playerIds": [
+        23968,
+        3712
+      ]
+    },
+    {
+      "id": 2912506,
+      "time": {
+        "secs": 3284,
+        "label": "55"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ethan Ampadu (Leeds United).",
+      "playerIds": [
+        19731
+      ]
+    },
+    {
+      "id": 2912507,
+      "time": {
+        "secs": 3284,
+        "label": "55"
+      },
+      "type": "free kick won",
+      "text": "Cole Palmer (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        49293
+      ]
+    },
+    {
+      "id": 2912559,
+      "time": {
+        "secs": 3353,
+        "label": "56"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dominic Calvert-Lewin (Leeds United).",
+      "playerIds": [
+        9576
+      ]
+    },
+    {
+      "id": 2912578,
+      "time": {
+        "secs": 3353,
+        "label": "56"
+      },
+      "type": "free kick won",
+      "text": "Wesley Fofana (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        66284
+      ]
+    },
+    {
+      "id": 2912602,
+      "time": {
+        "secs": 3476,
+        "label": "58"
+      },
+      "type": "goal",
+      "text": "Goal! Chelsea 1, Leeds United 3. Noah Okafor (Leeds United) right footed shot from the centre of the box to the top left corner.",
+      "playerIds": [
+        33162
+      ]
+    },
+    {
+      "id": 2912638,
+      "time": {
+        "secs": 3613,
+        "label": "61"
+      },
+      "type": "offside",
+      "text": "Offside, Chelsea. Emmanuel Emegha is caught offside.",
+      "playerIds": [
+        66284,
+        108291
+      ]
+    },
+    {
+      "id": 2912662,
+      "time": {
+        "secs": 3648,
+        "label": "61"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Dominic Calvert-Lewin (Leeds United) right footed shot from the right side of the box is too high. Assisted by Ethan Ampadu.",
+      "playerIds": [
+        9576,
+        19731
+      ]
+    },
+    {
+      "id": 2912716,
+      "time": {
+        "secs": 3685,
+        "label": "62"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Jayden Bogle (Leeds United) right footed shot from outside the box is blocked. Assisted by Sean Longstaff.",
+      "playerIds": [
+        14608,
+        14897
+      ]
+    },
+    {
+      "id": 2912722,
+      "time": {
+        "secs": 3789,
+        "label": "64"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Pedro Neto replaces Estêvão.",
+      "playerIds": [
+        21998,
+        304474
+      ]
+    },
+    {
+      "id": 2912737,
+      "time": {
+        "secs": 3794,
+        "label": "64"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Danny Welbeck replaces Emmanuel Emegha.",
+      "playerIds": [
+        3452,
+        108291
+      ]
+    },
+    {
+      "id": 2912738,
+      "time": {
+        "secs": 3849,
+        "label": "65"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Noah Okafor (Leeds United) right footed shot from outside the box is high and wide to the left.",
+      "playerIds": [
+        33162
+      ]
+    },
+    {
+      "id": 2912788,
+      "time": {
+        "secs": 4021,
+        "label": "68"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jayden Bogle (Leeds United).",
+      "playerIds": [
+        14608
+      ]
+    },
+    {
+      "id": 2912816,
+      "time": {
+        "secs": 4021,
+        "label": "68"
+      },
+      "type": "free kick won",
+      "text": "Roméo Lavia (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        99282
+      ]
+    },
+    {
+      "id": 2912815,
+      "time": {
+        "secs": 4024,
+        "label": "68"
+      },
+      "type": "yellow card",
+      "text": "Jayden Bogle (Leeds United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        14608
+      ]
+    },
+    {
+      "id": 2912833,
+      "time": {
+        "secs": 4164,
+        "label": "70"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Pep Chavarría (Chelsea).",
+      "playerIds": [
+        70585
+      ]
+    },
+    {
+      "id": 2912834,
+      "time": {
+        "secs": 4164,
+        "label": "70"
+      },
+      "type": "free kick won",
+      "text": "Jayden Bogle (Leeds United) wins a free kick in the attacking half.",
+      "playerIds": [
+        14608
+      ]
+    },
+    {
+      "id": 2912887,
+      "time": {
+        "secs": 4345,
+        "label": "73"
+      },
+      "type": "substitution",
+      "text": "Substitution, Leeds United. Brenden Aaronson replaces Noah Okafor.",
+      "playerIds": [
+        63289,
+        33162
+      ]
+    },
+    {
+      "id": 2912923,
+      "time": {
+        "secs": 4364,
+        "label": "73"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Geovany Quenda replaces Pep Chavarría.",
+      "playerIds": [
+        129425,
+        70585
+      ]
+    },
+    {
+      "id": 2912925,
+      "time": {
+        "secs": 4371,
+        "label": "73"
+      },
+      "type": "substitution",
+      "text": "Substitution, Chelsea. Malo Gusto replaces Josh Acheampong.",
+      "playerIds": [
+        68827,
+        125075
+      ]
+    },
+    {
+      "id": 2912924,
+      "time": {
+        "secs": 4395,
+        "label": "74"
+      },
+      "type": "free kick won",
+      "text": "Brenden Aaronson (Leeds United) wins a free kick in the defensive half.",
+      "playerIds": [
+        63289
+      ]
+    },
+    {
+      "id": 2912926,
+      "time": {
+        "secs": 4395,
+        "label": "74"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Wesley Fofana (Chelsea).",
+      "playerIds": [
+        66284
+      ]
+    },
+    {
+      "id": 2912963,
+      "time": {
+        "secs": 4492,
+        "label": "75"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Morgan Rogers (Chelsea) right footed shot from a difficult angle on the right is blocked.",
+      "playerIds": [
+        23968
+      ]
+    },
+    {
+      "id": 2912962,
+      "time": {
+        "secs": 4494,
+        "label": "75"
+      },
+      "type": "corner",
+      "text": "Corner, Chelsea. Conceded by Nico Elvedi.",
+      "playerIds": [
+        12337
+      ]
+    },
+    {
+      "id": 2912968,
+      "time": {
+        "secs": 4525,
+        "label": "76"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Danny Welbeck (Chelsea) header from the left side of the six yard box misses to the left. Assisted by Pedro Neto with a cross following a corner.",
+      "playerIds": [
+        3452,
+        21998
+      ]
+    },
+    {
+      "id": 2913001,
+      "time": {
+        "secs": 4611,
+        "label": "77"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jayden Bogle (Leeds United) right footed shot from outside the box misses to the left.",
+      "playerIds": [
+        14608
+      ]
+    },
+    {
+      "id": 2912989,
+      "time": {
+        "secs": 4619,
+        "label": "77"
+      },
+      "type": "corner",
+      "text": "Corner, Leeds United. Conceded by Wesley Fofana.",
+      "playerIds": [
+        66284
+      ]
+    },
+    {
+      "id": 2913002,
+      "time": {
+        "secs": 4671,
+        "label": "78"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Nico Elvedi (Leeds United) header from the centre of the box is too high. Assisted by Sean Longstaff with a cross following a corner.",
+      "playerIds": [
+        12337,
+        14897
+      ]
+    },
+    {
+      "id": 2913034,
+      "time": {
+        "secs": 4768,
+        "label": "80"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ao Tanaka (Leeds United).",
+      "playerIds": [
+        126426
+      ]
+    },
+    {
+      "id": 2913035,
+      "time": {
+        "secs": 4768,
+        "label": "80"
+      },
+      "type": "free kick won",
+      "text": "Pedro Neto (Chelsea) wins a free kick on the right wing.",
+      "playerIds": [
+        21998
+      ]
+    },
+    {
+      "id": 2913109,
+      "time": {
+        "secs": 4969,
+        "label": "83"
+      },
+      "type": "free kick won",
+      "text": "Cole Palmer (Chelsea) wins a free kick in the attacking half.",
+      "playerIds": [
+        49293
+      ]
+    },
+    {
+      "id": 2913143,
+      "time": {
+        "secs": 4969,
+        "label": "83"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Sean Longstaff (Leeds United).",
+      "playerIds": [
+        14897
+      ]
+    },
+    {
+      "id": 2913142,
+      "time": {
+        "secs": 4976,
+        "label": "83"
+      },
+      "type": "yellow card",
+      "text": "Sean Longstaff (Leeds United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        14897
+      ]
+    },
+    {
+      "id": 2913148,
+      "time": {
+        "secs": 5050,
+        "label": "85"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jayden Bogle (Leeds United).",
+      "playerIds": [
+        14608
+      ]
+    },
+    {
+      "id": 2913149,
+      "time": {
+        "secs": 5050,
+        "label": "85"
+      },
+      "type": "free kick won",
+      "text": "Geovany Quenda (Chelsea) wins a free kick on the left wing.",
+      "playerIds": [
+        129425
+      ]
+    },
+    {
+      "id": 2913166,
+      "time": {
+        "secs": 5097,
+        "label": "85"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Morgan Rogers (Chelsea) right footed shot from a difficult angle and long range on the left is close, but misses to the right from a direct free kick.",
+      "playerIds": [
+        23968
+      ]
+    },
+    {
+      "id": 2913167,
+      "time": {
+        "secs": 5119,
+        "label": "86"
+      },
+      "type": "substitution",
+      "text": "Substitution, Leeds United. Anton Stach replaces Jayden Bogle.",
+      "playerIds": [
+        116888,
+        14608
+      ]
+    },
+    {
+      "id": 2913211,
+      "time": {
+        "secs": 5126,
+        "label": "86"
+      },
+      "type": "substitution",
+      "text": "Substitution, Leeds United. Joe Rodon replaces Ao Tanaka.",
+      "playerIds": [
+        13796,
+        126426
+      ]
+    },
+    {
+      "id": 2913209,
+      "time": {
+        "secs": 5174,
+        "label": "87"
+      },
+      "type": "free kick lost",
+      "text": "Foul by James Justin (Leeds United).",
+      "playerIds": [
+        13515
+      ]
+    },
+    {
+      "id": 2913210,
+      "time": {
+        "secs": 5174,
+        "label": "87"
+      },
+      "type": "free kick won",
+      "text": "Geovany Quenda (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        129425
+      ]
+    },
+    {
+      "id": 2913208,
+      "time": {
+        "secs": 5199,
+        "label": "87"
+      },
+      "type": "corner",
+      "text": "Corner, Chelsea. Conceded by Gabriel Gudmundsson.",
+      "playerIds": [
+        75543
+      ]
+    },
+    {
+      "id": 2913232,
+      "time": {
+        "secs": 5222,
+        "label": "88"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Levi Colwill (Chelsea) header from the centre of the box misses to the left. Assisted by Pedro Neto with a cross following a corner.",
+      "playerIds": [
+        51229,
+        21998
+      ]
+    },
+    {
+      "id": 2913230,
+      "time": {
+        "secs": 5254,
+        "label": "88"
+      },
+      "type": "free kick won",
+      "text": "Roméo Lavia (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        99282
+      ]
+    },
+    {
+      "id": 2913231,
+      "time": {
+        "secs": 5254,
+        "label": "88"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dominic Calvert-Lewin (Leeds United).",
+      "playerIds": [
+        9576
+      ]
+    },
+    {
+      "id": 2913266,
+      "time": {
+        "secs": 5356,
+        "label": "90"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Morgan Rogers (Chelsea) right footed shot from outside the box is blocked. Assisted by Geovany Quenda.",
+      "playerIds": [
+        23968,
+        129425
+      ]
+    },
+    {
+      "id": 2913265,
+      "time": {
+        "secs": 5358,
+        "label": "90"
+      },
+      "type": "corner",
+      "text": "Corner, Chelsea. Conceded by Sean Longstaff.",
+      "playerIds": [
+        14897
+      ]
+    },
+    {
+      "id": 2913327,
+      "time": {
+        "secs": 5388,
+        "label": "90"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Levi Colwill (Chelsea) left footed shot from the centre of the box is blocked.",
+      "playerIds": [
+        51229
+      ]
+    },
+    {
+      "id": 2913376,
+      "time": {
+        "secs": 5400,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 6 minutes of added time."
+    },
+    {
+      "id": 2913325,
+      "time": {
+        "secs": 5406,
+        "label": "90+1"
+      },
+      "type": "substitution",
+      "text": "Substitution, Leeds United. Harry Wilson replaces Sean Longstaff.",
+      "playerIds": [
+        13961,
+        14897
+      ]
+    },
+    {
+      "id": 2913326,
+      "time": {
+        "secs": 5415,
+        "label": "90+1"
+      },
+      "type": "substitution",
+      "text": "Substitution, Leeds United. Melvin Bard replaces Gabriel Gudmundsson.",
+      "playerIds": [
+        68128,
+        75543
+      ]
+    },
+    {
+      "id": 2913334,
+      "time": {
+        "secs": 5457,
+        "label": "90+1"
+      },
+      "type": "goal",
+      "text": "Goal! Chelsea 1, Leeds United 4. Brenden Aaronson (Leeds United) left footed shot from a difficult angle on the right to the centre of the goal. Assisted by Harry Wilson following a fast break.",
+      "playerIds": [
+        63289,
+        13961
+      ]
+    },
+    {
+      "id": 2913377,
+      "time": {
+        "secs": 5698,
+        "label": "90+5"
+      },
+      "type": "offside",
+      "text": "Offside, Leeds United. Harry Wilson is caught offside.",
+      "playerIds": [
+        19731,
+        13961
+      ]
+    },
+    {
+      "id": 2913383,
+      "time": {
+        "secs": 5731,
+        "label": "90+6"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Harry Wilson (Leeds United) left footed shot from the centre of the box is blocked. Assisted by Anton Stach.",
+      "playerIds": [
+        13961,
+        116888
+      ]
+    },
+    {
+      "id": 2913382,
+      "time": {
+        "secs": 5737,
+        "label": "90+6"
+      },
+      "type": "offside",
+      "text": "Offside, Leeds United. Anton Stach is caught offside.",
+      "playerIds": [
+        13961,
+        116888
+      ]
+    },
+    {
+      "id": 2913388,
+      "time": {
+        "secs": 5764,
+        "label": "90+7"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Chelsea 1, Leeds United 4."
+    },
+    {
+      "id": 2913391,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Chelsea 1, Leeds United 4."
+    }
+  ]
+}

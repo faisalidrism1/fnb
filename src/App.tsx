@@ -413,9 +413,67 @@ export default function App() {
             const currentEpochKey = dataRef.current?.sync_status?.projection_epoch_key;
             if (serverEpochKey && dataRef.current && serverEpochKey !== currentEpochKey) {
               console.log(`[SSE Connected] Server projection epoch changed (${currentEpochKey ?? 'none'} -> ${serverEpochKey}). Refreshing...`);
+              setData((prev) => {
+                if (!prev) return prev;
+                const nextData: TransformedLeagueData = {
+                  ...prev,
+                  sync_status: {
+                    ...(prev.sync_status || ({} as any)),
+                    projection_epoch_key: serverEpochKey,
+                  },
+                };
+                dataRef.current = nextData;
+                saveToIndexedDB(nextData).catch(() => {});
+                return nextData;
+              });
+              window.dispatchEvent(
+                new CustomEvent('fpl:formula-updated', {
+                  detail: {
+                    projection_epoch_key: serverEpochKey,
+                    changed_files: [],
+                    timestamp: payload?.checked_at,
+                  },
+                })
+              );
               fetchData(false, false);
             }
           } catch {}
+        });
+
+        eventSource.addEventListener('projection_formula_updated', (event: MessageEvent) => {
+          try {
+            const payload = JSON.parse(event.data);
+            const nextEpochKey = payload?.projection_epoch_key;
+            console.log(
+              `[Dev HotReload] Projection formula updated (${(payload?.changed_files || []).join(', ')}), syncing tabs -> ${nextEpochKey}`
+            );
+            if (nextEpochKey) {
+              setData((prev) => {
+                if (!prev) return prev;
+                const nextData: TransformedLeagueData = {
+                  ...prev,
+                  sync_status: {
+                    ...(prev.sync_status || ({} as any)),
+                    projection_epoch_key: nextEpochKey,
+                  },
+                };
+                dataRef.current = nextData;
+                saveToIndexedDB(nextData).catch(() => {});
+                return nextData;
+              });
+            }
+            window.dispatchEvent(
+              new CustomEvent('fpl:formula-updated', {
+                detail: {
+                  projection_epoch_key: nextEpochKey,
+                  changed_files: payload?.changed_files || [],
+                  timestamp: payload?.timestamp,
+                },
+              })
+            );
+          } catch (err) {
+            console.warn('[SSE] Error processing projection_formula_updated:', err);
+          }
         });
 
         eventSource.addEventListener('sync_complete', (event: MessageEvent) => {

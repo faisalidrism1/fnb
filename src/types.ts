@@ -414,6 +414,8 @@ export interface DbPlayerStat {
   teamName: string;
   teamShort: string;
   position: PositionType | string;
+  pulsePosition?: PositionType;
+  pulsePositionInfo?: string;
   nowCost: number; // e.g. 150 = 15.0m
   status: string;
   chanceOfPlayingNextRound?: number | null;

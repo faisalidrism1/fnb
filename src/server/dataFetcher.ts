@@ -20,6 +20,10 @@ import {
   EventDayStatusItem,
   DbPlayerStat
 } from '../types.ts';
+import {
+  lookupPulsePlayerPosition,
+  syncPulsePlayerPositionsFromStaff,
+} from './pulsePlayerPositions.ts';
 
 const LEAGUE_ID = 12356;
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
@@ -1486,10 +1490,15 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
     });
   }
 
+  // Ensure static Legacy Pulse squad role labels (e.g. Left Full Back, Centre Striker) are cached (no-op if fresh <24h)
+  await syncPulsePlayerPositionsFromStaff({
+    bootstrapElements: bootstrap.elements,
+    bootstrapTeams: bootstrap.teams,
+  }).catch(() => 0);
+
   const existingPlayerById = new Map<number, DbPlayerStat>(
     (existingData?.player_stats || []).map((ep) => [ep.id, ep])
   );
-
   // Build complete player stats for all Premier League players
   const playerStatsList: DbPlayerStat[] = bootstrap.elements.map((el: any) => {
     const t = teamMap.get(el.team);
@@ -1522,15 +1531,29 @@ export async function fetchAndTransformLeague(leagueId = LEAGUE_ID, targetOnlyGW
     }
 
     const history = Array.from(historyByRound.values()).sort((a, b) => a.round - b.round);
+    const fullName = `${el.first_name} ${el.second_name}`.trim();
+    const teamShort = t ? t.short_name : 'UNK';
+    const prevPlayer = existingPlayerById.get(el.id);
+    const resolvedPulse = lookupPulsePlayerPosition({
+      optaCode: Number(el.code) || undefined,
+      fplId: Number(el.id),
+      teamShort,
+      fullName,
+      webName: el.web_name,
+      existingPositionInfo: prevPlayer?.pulsePositionInfo,
+      existingPositionChar: prevPlayer?.pulsePosition,
+    });
 
     return {
       id: el.id,
       webName: el.web_name,
-      fullName: `${el.first_name} ${el.second_name}`.trim(),
+      fullName,
       teamId: el.team,
       teamName: t ? t.name : 'Unknown',
-      teamShort: t ? t.short_name : 'UNK',
+      teamShort,
       position: POSITION_MAP[el.element_type] || 'MID',
+      ...(resolvedPulse.position ? { pulsePosition: resolvedPulse.position } : {}),
+      ...(resolvedPulse.positionInfo ? { pulsePositionInfo: resolvedPulse.positionInfo } : {}),
       nowCost: el.now_cost,
       status: el.status,
       chanceOfPlayingNextRound: el.chance_of_playing_next_round ?? null,

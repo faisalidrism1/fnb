@@ -13,11 +13,12 @@
   "ground": {
     "name": "Etihad Stadium, Manchester"
   },
-  "status": "L",
-  "phase": "1",
+  "status": "C",
+  "phase": "F",
+  "outcome": "D",
   "clock": {
-    "label": "46'",
-    "secs": 2760
+    "label": "Full Time",
+    "secs": 5400
   },
   "teams": [
     {
@@ -29,7 +30,7 @@
           "abbr": "MCI"
         }
       },
-      "score": 0
+      "score": 1
     },
     {
       "team": {
@@ -118,7 +119,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 3
           },
           "captain": true,
@@ -138,7 +139,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 5
           },
           "captain": false,
@@ -158,7 +159,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 6
           },
           "captain": false,
@@ -177,8 +178,8 @@
           },
           "matchPosition": "M",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "F",
+            "positionInfo": "Left/Right Winger",
             "shirtNum": 7
           },
           "captain": false,
@@ -198,7 +199,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Centre Striker",
             "shirtNum": 9
           },
           "captain": false,
@@ -217,8 +218,8 @@
           },
           "matchPosition": "M",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "F",
+            "positionInfo": "Left/Right Winger",
             "shirtNum": 11
           },
           "captain": false,
@@ -238,7 +239,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 32
           },
           "captain": false,
@@ -258,7 +259,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left/Centre Full Back",
             "shirtNum": 33
           },
           "captain": false,
@@ -278,7 +279,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 45
           },
           "captain": false,
@@ -298,7 +299,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre/Right Attacking Midfielder",
             "shirtNum": 47
           },
           "captain": false,
@@ -340,7 +341,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 8
           },
           "captain": false,
@@ -360,7 +361,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Attacking Midfielder",
             "shirtNum": 10
           },
           "captain": false,
@@ -380,7 +381,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 17
           },
           "captain": false,
@@ -400,7 +401,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 22
           },
           "captain": false,
@@ -420,7 +421,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left/Centre Central Defender",
             "shirtNum": 24
           },
           "captain": false,
@@ -440,7 +441,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Right Winger",
             "shirtNum": 37
           },
           "captain": false,
@@ -460,7 +461,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 75
           },
           "captain": false,
@@ -480,7 +481,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 82
           },
           "captain": false,
@@ -516,18 +517,16 @@
           ],
           [
             "207189",
+            "463210",
             "153133"
           ],
           [
             "477555",
-            "463210",
+            "577725",
             "244042"
-          ],
-          [
-            "577725"
           ]
         ],
-        "formation": "4-2-3-1"
+        "formation": "4-3-3"
       },
       "lineup": [
         {
@@ -563,7 +562,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 2
           },
           "captain": false,
@@ -583,7 +582,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 3
           },
           "captain": true,
@@ -600,10 +599,10 @@
             "last": "Muniz Carvalho",
             "display": "Rodrigo Muniz Carvalho"
           },
-          "matchPosition": "M",
+          "matchPosition": "F",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "F",
+            "positionInfo": "Centre Striker",
             "shirtNum": 9
           },
           "captain": false,
@@ -620,10 +619,10 @@
             "last": "Bobb",
             "display": "Oscar Bobb"
           },
-          "matchPosition": "M",
+          "matchPosition": "F",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Centre/Right Winger",
             "shirtNum": 14
           },
           "captain": false,
@@ -643,7 +642,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 16
           },
           "captain": false,
@@ -662,8 +661,8 @@
           },
           "matchPosition": "M",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "F",
+            "positionInfo": "Left/Centre/Right Second Striker",
             "shirtNum": 17
           },
           "captain": false,
@@ -683,7 +682,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Defensive Midfielder",
             "shirtNum": 19
           },
           "captain": false,
@@ -703,7 +702,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 22
           },
           "captain": false,
@@ -722,8 +721,8 @@
           },
           "matchPosition": "F",
           "info": {
-            "position": "F",
-            "positionInfo": "Forward",
+            "position": "M",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 24
           },
           "captain": false,
@@ -742,8 +741,8 @@
           },
           "matchPosition": "D",
           "info": {
-            "position": "D",
-            "positionInfo": "Defender",
+            "position": "M",
+            "positionInfo": "Left/Right Winger",
             "shirtNum": 30
           },
           "captain": false,
@@ -765,7 +764,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 4
           },
           "captain": false,
@@ -785,7 +784,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Left/Centre/Right Winger",
             "shirtNum": 7
           },
           "captain": false,
@@ -805,7 +804,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Attacking Midfielder",
             "shirtNum": 8
           },
           "captain": false,
@@ -825,7 +824,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
             "shirtNum": 10
           },
           "captain": false,
@@ -845,7 +844,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 15
           },
           "captain": false,
@@ -865,7 +864,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 20
           },
           "captain": false,
@@ -885,7 +884,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 21
           },
           "captain": false,
@@ -905,7 +904,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 33
           },
           "captain": false,
@@ -998,6 +997,320 @@
       },
       "score": {
         "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "G",
+      "personId": 215379,
+      "phase": "2",
+      "clock": {
+        "label": "57'",
+        "secs": 3420
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 466052,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 209244,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 551050,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 577725,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 169528,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 153133,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 204936,
+      "phase": "2",
+      "clock": {
+        "label": "76'",
+        "secs": 4560
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 624777,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 440993,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 477424,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 472769,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 551466,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 477555,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 571779,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 184349,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 76357,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 244042,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 448047,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 637238,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5400,
+        "label": "90'"
+      },
+      "score": {
+        "homeScore": 1,
         "awayScore": 1
       }
     }
@@ -1575,6 +1888,599 @@
       },
       "type": "added time",
       "text": "Fourth official has announced 2 minutes of added time."
+    },
+    {
+      "id": 2910962,
+      "time": {
+        "secs": 2811,
+        "label": "45+2"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Jérémy Doku (Manchester City) right footed shot from the left side of the box is saved in the bottom left corner by Bernd Leno (Fulham). Assisted by Iliman Ndiaye.",
+      "playerIds": [
+        54156,
+        31936
+      ]
+    },
+    {
+      "id": 2910968,
+      "time": {
+        "secs": 2820,
+        "label": "45+3"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Manchester City 0, Fulham 1."
+    },
+    {
+      "id": 2911108,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Manchester City 0, Fulham 1."
+    },
+    {
+      "id": 2911135,
+      "time": {
+        "secs": 2929,
+        "label": "49"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Abdukodir Khusanov (Manchester City).",
+      "playerIds": [
+        137371
+      ]
+    },
+    {
+      "id": 2911136,
+      "time": {
+        "secs": 2929,
+        "label": "49"
+      },
+      "type": "free kick won",
+      "text": "Rodrigo Muniz (Fulham) wins a free kick on the left wing.",
+      "playerIds": [
+        117763
+      ]
+    },
+    {
+      "id": 2911146,
+      "time": {
+        "secs": 3008,
+        "label": "51"
+      },
+      "type": "free kick lost",
+      "text": "Foul by David Affengruber (Fulham).",
+      "playerIds": [
+        68651
+      ]
+    },
+    {
+      "id": 2911156,
+      "time": {
+        "secs": 3008,
+        "label": "51"
+      },
+      "type": "free kick won",
+      "text": "Phil Foden (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        14805
+      ]
+    },
+    {
+      "id": 2911174,
+      "time": {
+        "secs": 3066,
+        "label": "52"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Phil Foden (Manchester City) left footed shot from the centre of the box is blocked. Assisted by Elliot Anderson.",
+      "playerIds": [
+        14805,
+        51593
+      ]
+    },
+    {
+      "id": 2911155,
+      "time": {
+        "secs": 3067,
+        "label": "52"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by David Affengruber.",
+      "playerIds": [
+        68651
+      ]
+    },
+    {
+      "id": 2911172,
+      "time": {
+        "secs": 3099,
+        "label": "52"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Rúben Dias (Manchester City).",
+      "playerIds": [
+        16431
+      ]
+    },
+    {
+      "id": 2911173,
+      "time": {
+        "secs": 3099,
+        "label": "52"
+      },
+      "type": "free kick won",
+      "text": "Calvin Bassey (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        23793
+      ]
+    },
+    {
+      "id": 2911191,
+      "time": {
+        "secs": 3256,
+        "label": "55"
+      },
+      "type": "free kick won",
+      "text": "Ayyoub Bouaddi (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        141425
+      ]
+    },
+    {
+      "id": 2911192,
+      "time": {
+        "secs": 3256,
+        "label": "55"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Shea Charles (Fulham).",
+      "playerIds": [
+        75201
+      ]
+    },
+    {
+      "id": 2911225,
+      "time": {
+        "secs": 3363,
+        "label": "57"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Ayyoub Bouaddi (Manchester City) right footed shot from outside the box is blocked. Assisted by Jérémy Doku.",
+      "playerIds": [
+        141425,
+        54156
+      ]
+    },
+    {
+      "id": 2911223,
+      "time": {
+        "secs": 3387,
+        "label": "57"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Alex Iwobi.",
+      "playerIds": [
+        4717
+      ]
+    },
+    {
+      "id": 2911224,
+      "time": {
+        "secs": 3417,
+        "label": "57"
+      },
+      "type": "goal",
+      "text": "Goal! Manchester City 1, Fulham 1. Elliot Anderson (Manchester City) right footed shot from outside the box to the centre of the goal following a corner.",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2911237,
+      "time": {
+        "secs": 3494,
+        "label": "59"
+      },
+      "type": "corner",
+      "text": "Corner, Fulham. Conceded by Iliman Ndiaye.",
+      "playerIds": [
+        31936
+      ]
+    },
+    {
+      "id": 2911251,
+      "time": {
+        "secs": 3549,
+        "label": "60"
+      },
+      "type": "offside",
+      "text": "Offside, Fulham. Oscar Bobb is caught offside.",
+      "playerIds": [
+        4717,
+        66657
+      ]
+    },
+    {
+      "id": 2911280,
+      "time": {
+        "secs": 3731,
+        "label": "63"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester City. Conceded by Kenny Tete.",
+      "playerIds": [
+        4880
+      ]
+    },
+    {
+      "id": 2911279,
+      "time": {
+        "secs": 3758,
+        "label": "63"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Elliot Anderson (Manchester City) left footed shot from the left side of the box is blocked.",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2911277,
+      "time": {
+        "secs": 3763,
+        "label": "63"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Elliot Anderson (Manchester City).",
+      "playerIds": [
+        51593
+      ]
+    },
+    {
+      "id": 2911278,
+      "time": {
+        "secs": 3763,
+        "label": "63"
+      },
+      "type": "free kick won",
+      "text": "Kenny Tete (Fulham) wins a free kick in the defensive half.",
+      "playerIds": [
+        4880
+      ]
+    },
+    {
+      "id": 2911298,
+      "time": {
+        "secs": 3887,
+        "label": "65"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Elliot Anderson (Manchester City) left footed shot from the centre of the box is close, but misses to the right. Assisted by Erling Haaland.",
+      "playerIds": [
+        51593,
+        65970
+      ]
+    },
+    {
+      "id": 2911339,
+      "time": {
+        "secs": 4022,
+        "label": "68"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Rodrigo Muniz (Fulham) right footed shot from outside the box is saved in the bottom right corner by Gianluigi Donnarumma (Manchester City). Assisted by Sander Berge.",
+      "playerIds": [
+        117763,
+        21614
+      ]
+    },
+    {
+      "id": 2911352,
+      "time": {
+        "secs": 4082,
+        "label": "69"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Calvin Bassey (Fulham) left footed shot from a difficult angle on the left is saved in the bottom right corner by Gianluigi Donnarumma (Manchester City). Assisted by Alex Iwobi.",
+      "playerIds": [
+        23793,
+        4717
+      ]
+    },
+    {
+      "id": 2911345,
+      "time": {
+        "secs": 4087,
+        "label": "69"
+      },
+      "type": "corner",
+      "text": "Corner, Fulham. Conceded by Abdukodir Khusanov.",
+      "playerIds": [
+        137371
+      ]
+    },
+    {
+      "id": 2911368,
+      "time": {
+        "secs": 4173,
+        "label": "70"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. Hugo Larsson replaces Josh King.",
+      "playerIds": [
+        118739,
+        128976
+      ]
+    },
+    {
+      "id": 2911371,
+      "time": {
+        "secs": 4183,
+        "label": "70"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. Antonee Robinson replaces Alex Iwobi.",
+      "playerIds": [
+        14624,
+        4717
+      ]
+    },
+    {
+      "id": 2911369,
+      "time": {
+        "secs": 4190,
+        "label": "70"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester City. Rayan Cherki replaces Phil Foden.",
+      "playerIds": [
+        68150,
+        14805
+      ]
+    },
+    {
+      "id": 2911367,
+      "time": {
+        "secs": 4225,
+        "label": "71"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Oscar Bobb (Fulham).",
+      "playerIds": [
+        66657
+      ]
+    },
+    {
+      "id": 2911370,
+      "time": {
+        "secs": 4225,
+        "label": "71"
+      },
+      "type": "free kick won",
+      "text": "Rayan Cherki (Manchester City) wins a free kick in the defensive half.",
+      "playerIds": [
+        68150
+      ]
+    },
+    {
+      "id": 2911403,
+      "time": {
+        "secs": 4439,
+        "label": "74"
+      },
+      "type": "corner",
+      "text": "Corner, Fulham. Conceded by Rúben Dias.",
+      "playerIds": [
+        16431
+      ]
+    },
+    {
+      "id": 2911413,
+      "time": {
+        "secs": 4487,
+        "label": "75"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Rodrigo Muniz (Fulham) header from very close range is blocked. Assisted by Shea Charles with a cross.",
+      "playerIds": [
+        117763,
+        75201
+      ]
+    },
+    {
+      "id": 2911412,
+      "time": {
+        "secs": 4489,
+        "label": "75"
+      },
+      "type": "corner",
+      "text": "Corner, Fulham. Conceded by Rúben Dias.",
+      "playerIds": [
+        16431
+      ]
+    },
+    {
+      "id": 2911414,
+      "time": {
+        "secs": 4501,
+        "label": "76"
+      },
+      "type": "yellow card",
+      "text": "Gianluigi Donnarumma (Manchester City) is shown the yellow card.",
+      "playerIds": [
+        22857
+      ]
+    },
+    {
+      "id": 2911423,
+      "time": {
+        "secs": 4596,
+        "label": "77"
+      },
+      "type": "offside",
+      "text": "Offside, Manchester City. Nico O'Reilly is caught offside.",
+      "playerIds": [
+        141425,
+        112948
+      ]
+    },
+    {
+      "id": 2911424,
+      "time": {
+        "secs": 4621,
+        "label": "78"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. Gonzalo García replaces Oscar Bobb.",
+      "playerIds": [
+        119364,
+        66657
+      ]
+    },
+    {
+      "id": 2911432,
+      "time": {
+        "secs": 4630,
+        "label": "78"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester City. Allan replaces Iliman Ndiaye.",
+      "playerIds": [
+        338602,
+        31936
+      ]
+    },
+    {
+      "id": 2911433,
+      "time": {
+        "secs": 4636,
+        "label": "78"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester City. Josko Gvardiol replaces Nico O'Reilly.",
+      "playerIds": [
+        67178,
+        112948
+      ]
+    },
+    {
+      "id": 2911445,
+      "time": {
+        "secs": 4922,
+        "label": "83"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Rayan Cherki (Manchester City) right footed shot from the right side of the box is blocked. Assisted by Allan.",
+      "playerIds": [
+        68150,
+        338602
+      ]
+    },
+    {
+      "id": 2911447,
+      "time": {
+        "secs": 4958,
+        "label": "83"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. César Palacios replaces Ryan Sessegnon.",
+      "playerIds": [
+        123594,
+        14656
+      ]
+    },
+    {
+      "id": 2911446,
+      "time": {
+        "secs": 4963,
+        "label": "83"
+      },
+      "type": "substitution",
+      "text": "Substitution, Fulham. Tom Cairney replaces Rodrigo Muniz.",
+      "playerIds": [
+        3894,
+        117763
+      ]
+    },
+    {
+      "id": 2911457,
+      "time": {
+        "secs": 5020,
+        "label": "84"
+      },
+      "type": "free kick lost",
+      "text": "Foul by David Affengruber (Fulham).",
+      "playerIds": [
+        68651
+      ]
+    },
+    {
+      "id": 2911458,
+      "time": {
+        "secs": 5020,
+        "label": "84"
+      },
+      "type": "free kick won",
+      "text": "Erling Haaland (Manchester City) wins a free kick in the attacking half.",
+      "playerIds": [
+        65970
+      ]
+    },
+    {
+      "id": 2911459,
+      "time": {
+        "secs": 5056,
+        "label": "85"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester City. Enzo Fernández replaces Ayyoub Bouaddi.",
+      "playerIds": [
+        63741,
+        141425
+      ]
+    },
+    {
+      "id": 2911467,
+      "time": {
+        "secs": 5099,
+        "label": "85"
+      },
+      "type": "offside",
+      "text": "Offside, Manchester City. Enzo Fernández is caught offside.",
+      "playerIds": [
+        338602,
+        63741
+      ]
+    },
+    {
+      "id": 2911476,
+      "time": {
+        "secs": 5400,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 3 minutes of added time."
+    },
+    {
+      "id": 2911477,
+      "time": {
+        "secs": 5583,
+        "label": "90+4"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Manchester City 1, Fulham 1."
+    },
+    {
+      "id": 2911482,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Manchester City 1, Fulham 1."
     }
   ]
 }

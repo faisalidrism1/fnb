@@ -271,8 +271,20 @@ export const TabReview: React.FC<TabReviewProps> = ({
   // Epoch-gated Server Review Bundle Fetch (syncs ONLY on Live -> Provisional / Provisional -> Confirmed)
   const [reviewBundle, setReviewBundle] = useState<ServerReviewBundlePayload | null>(null);
   const [isLoadingReview, setIsLoadingReview] = useState<boolean>(false);
+  const [formulaRevision, setFormulaRevision] = useState<number>(0);
   const reviewCacheRef = useRef<Map<string, ServerReviewBundlePayload>>(new Map());
   const inFlightReviewKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const handleFormulaUpdated = () => {
+      reviewCacheRef.current.clear();
+      inFlightReviewKeyRef.current = null;
+      setReviewBundle(null);
+      setFormulaRevision((prev) => prev + 1);
+    };
+    window.addEventListener('fpl:formula-updated', handleFormulaUpdated);
+    return () => window.removeEventListener('fpl:formula-updated', handleFormulaUpdated);
+  }, []);
 
   useEffect(() => {
     if (active === false || !leagueData) return;
@@ -320,7 +332,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [active, leagueData, targetEpochKey, subTab, lineupReviewGW, maxReviewGW, reviewBundle]);
+  }, [active, leagueData, targetEpochKey, subTab, lineupReviewGW, maxReviewGW, reviewBundle, formulaRevision]);
 
   const actualMatchLookup = useMemo(
     () => reviewBundle?.actualMatchLookup || ({} as Record<string, ActualMatchReviewEntry[]>),

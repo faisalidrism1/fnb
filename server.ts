@@ -3,17 +3,32 @@ import path from 'path';
 import fs from 'fs';
 import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle } from './src/server/dataFetcher.ts';
 import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache, prewarmMatchesCache, invalidateFixturesScheduleCache } from './src/server/matchesFetcher.ts';
-import {
-  computeProjectionEpochInfo,
-  getProjectionCacheEpochKey,
-  hasProjectionCoreCache,
-  hasProjectionScoutCache,
-  invalidateProjectionEngine,
-  warmProjectionEngineIfNeeded,
-  getServerProjectionCore,
-  getServerReviewBundle,
-  getServerScoutSquads,
-} from './src/server/projectionEngineServer.ts';
+import crypto from 'node:crypto';
+import * as staticProjectionEngine from './src/server/projectionEngineServer.ts';
+type ProjectionEngineModule = typeof import('./src/server/projectionEngineServer.ts');
+
+let hotProjectionEngine: ProjectionEngineModule | null = null;
+let resolveDevEngineInit!: (engine: ProjectionEngineModule) => void;
+const devEngineInitPromise: Promise<ProjectionEngineModule> =
+  process.env.NODE_ENV !== 'production'
+    ? new Promise<ProjectionEngineModule>((resolve) => {
+        resolveDevEngineInit = resolve;
+      })
+    : Promise.resolve(staticProjectionEngine);
+
+function getProjectionEngine(): ProjectionEngineModule {
+  return hotProjectionEngine || staticProjectionEngine;
+}
+
+async function getDevProjectionEngine(): Promise<ProjectionEngineModule> {
+  if (process.env.NODE_ENV === 'production') {
+    return staticProjectionEngine;
+  }
+  if (hotProjectionEngine) {
+    return hotProjectionEngine;
+  }
+  return devEngineInitPromise;
+}
 import { TransformedLeagueData } from './src/types.ts';
 import {
   initDatabase,
@@ -271,7 +286,8 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
   
   currentSyncPromise = (async () => {
     try {
-      const prevEpochKey = cachedData ? computeProjectionEpochInfo(cachedData).epochKey : getProjectionCacheEpochKey();
+      const engine = getProjectionEngine();
+      const prevEpochKey = cachedData ? engine.computeProjectionEpochInfo(cachedData).epochKey : engine.getProjectionCacheEpochKey();
       let freshData: TransformedLeagueData;
       if (action === 'B_PARTIAL' && targetGW && cachedData) {
         // Action B: Download active GW only and merge with historical data in container
@@ -332,19 +348,20 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
       //   1. Cold Start / Action A full download
       //   2. Epoch shift (Live -> Provisional OR Provisional -> Confirmed)
       // During ongoing Live auto-sync ticks (prevEpochKey === nextEpochKey), do ZERO invalidation or recompute!
-      const nextEpochKey = computeProjectionEpochInfo(cachedData).epochKey;
+      const engineForEpoch = getProjectionEngine();
+      const nextEpochKey = engineForEpoch.computeProjectionEpochInfo(cachedData).epochKey;
       const shouldWarmProjections =
         action === 'A_FULL' ||
-        !hasProjectionCoreCache() ||
-        !hasProjectionScoutCache() ||
+        !engineForEpoch.hasProjectionCoreCache() ||
+        !engineForEpoch.hasProjectionScoutCache() ||
         prevEpochKey !== nextEpochKey;
 
       if (shouldWarmProjections) {
         if (action === 'A_FULL' || (prevEpochKey && prevEpochKey !== nextEpochKey)) {
           invalidateFixturesScheduleCache();
-          invalidateProjectionEngine(`Epoch shift ${prevEpochKey ?? 'cold'} -> ${nextEpochKey}`);
+          engineForEpoch.invalidateProjectionEngine(`Epoch shift ${prevEpochKey ?? 'cold'} -> ${nextEpochKey}`);
         }
-        warmProjectionEngineIfNeeded(cachedData);
+        engineForEpoch.warmProjectionEngineIfNeeded(cachedData);
         setTimeout(() => {
           prewarmMatchesCache(freshData.current_gw || getCurrentGw()).catch(() => {});
         }, 100);
@@ -369,7 +386,7 @@ const sseClients = new Set<express.Response>();
 
 function broadcastSyncComplete(freshData: TransformedLeagueData, action: string) {
   if (sseClients.size === 0) return;
-  const projectionEpochKey = computeProjectionEpochInfo(cachedData || freshData).epochKey;
+  const projectionEpochKey = getProjectionEngine().computeProjectionEpochInfo(cachedData || freshData).epochKey;
   const enrichedData = freshData?.sync_status
     ? {
         ...freshData,
@@ -398,6 +415,27 @@ function broadcastSyncComplete(freshData: TransformedLeagueData, action: string)
     }
   }
   console.log(`[Server SSE] Broadcasted SYNC_COMPLETE (${action}) to ${sseClients.size} active client(s).`);
+}
+
+function broadcastProjectionFormulaUpdated(projectionEpochKey: string, changedFiles: string[]) {
+  if (sseClients.size === 0) return;
+  const payload = JSON.stringify({
+    type: 'PROJECTION_FORMULA_UPDATED',
+    projection_epoch_key: projectionEpochKey,
+    changed_files: changedFiles,
+    timestamp: new Date().toISOString(),
+  });
+  const message = `event: projection_formula_updated\ndata: ${payload}\n\n`;
+  for (const client of sseClients) {
+    try {
+      client.write(message);
+    } catch {
+      sseClients.delete(client);
+    }
+  }
+  console.log(
+    `[Dev HotReload] Broadcasted PROJECTION_FORMULA_UPDATED (${projectionEpochKey}) [${changedFiles.join(', ')}] to ${sseClients.size} active client(s).`
+  );
 }
 
 // Keep-alive heartbeat every 15s to keep connections alive across proxies and firewalls
@@ -475,7 +513,7 @@ app.get('/api/fpl-data', async (req, res) => {
     const nowIso = new Date().toISOString();
     if (cachedData && cachedData.sync_status) {
       cachedData.sync_status.last_checked = nowIso;
-      cachedData.sync_status.projection_epoch_key = computeProjectionEpochInfo(cachedData).epochKey;
+      cachedData.sync_status.projection_epoch_key = getProjectionEngine().computeProjectionEpochInfo(cachedData).epochKey;
     }
 
     res.set({
@@ -1051,12 +1089,13 @@ app.get('/api/projections-core', async (req, res) => {
     if (!cachedData) {
       return res.status(503).json({ success: false, error: 'Database not initialized yet' });
     }
+    const engine = await getDevProjectionEngine();
     const force = req.query.force === '1' || req.query.sync === '1';
     if (force) {
       invalidateFixturesScheduleCache();
-      invalidateProjectionEngine('manual force');
+      engine.invalidateProjectionEngine('manual force');
     }
-    const payload = await getServerProjectionCore(cachedData, force);
+    const payload = await engine.getServerProjectionCore(cachedData, force);
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'Pragma': 'no-cache',
@@ -1074,9 +1113,10 @@ app.get('/api/projections-review', async (req, res) => {
     if (!cachedData) {
       return res.status(503).json({ success: false, error: 'Database not initialized yet' });
     }
+    const engine = await getDevProjectionEngine();
     const force = req.query.force === '1' || req.query.sync === '1';
     const gwParam = req.query.gw ? Number(req.query.gw) : undefined;
-    const payload = await getServerReviewBundle(cachedData, gwParam, force);
+    const payload = await engine.getServerReviewBundle(cachedData, gwParam, force);
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'Pragma': 'no-cache',
@@ -1094,8 +1134,9 @@ app.get('/api/projections-scout-squads', async (req, res) => {
     if (!cachedData) {
       return res.status(503).json({ success: false, error: 'Database not initialized yet' });
     }
+    const engine = await getDevProjectionEngine();
     const force = req.query.force === '1' || req.query.sync === '1';
-    const payload = await getServerScoutSquads(cachedData, force);
+    const payload = await engine.getServerScoutSquads(cachedData, force);
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'Pragma': 'no-cache',
@@ -1149,7 +1190,7 @@ app.all('/api/container/clear', (req, res) => {
   clearAllPulseMatchFiles();
   invalidateMatchesCache();
   invalidateFixturesScheduleCache();
-  invalidateProjectionEngine('container cleared');
+  getProjectionEngine().invalidateProjectionEngine('container cleared');
   playerSummaryCache.clear();
   eventLiveCache.clear();
   fixturesCache.clear();
@@ -1186,7 +1227,7 @@ app.get('/api/events', (req, res) => {
   res.write(`event: connected\ndata: ${JSON.stringify({
     type: 'CONNECTED',
     sync_status: cachedData?.sync_status || null,
-    projection_epoch_key: cachedData ? computeProjectionEpochInfo(cachedData).epochKey : null,
+    projection_epoch_key: cachedData ? getProjectionEngine().computeProjectionEpochInfo(cachedData).epochKey : null,
     last_synced: cachedData?.sync_status?.last_synced || null,
     checked_at: new Date().toISOString()
   })}\n\n`);
@@ -1840,6 +1881,172 @@ app.get('/api/container/status', (req, res) => {
 
 
 
+const DEV_FORMULA_WATCH_FILES = [
+  'src/utils/projectionModel.ts',
+  'src/utils/fplProvenGuard.ts',
+  'src/utils/tacticalLineupModel.ts',
+  'src/utils/hybridLineupModel.ts',
+  'src/utils/scoutNarratives.ts',
+  'src/data/playerExplosiveCatalog.ts',
+  'src/server/pulsePlayerPositions.ts',
+  'src/server/projectionEngineServer.ts',
+];
+
+function computeDevFileSha256(absPath: string): string {
+  try {
+    if (!fs.existsSync(absPath)) return 'missing';
+    return crypto.createHash('sha256').update(fs.readFileSync(absPath)).digest('hex');
+  } catch {
+    return 'error';
+  }
+}
+
+function setupDevFormulaWatcher(vite: any) {
+  const cwd = process.cwd();
+  const hashByRel = new Map<string, string>();
+  const mtimeByRel = new Map<string, string>();
+
+  for (const rel of DEV_FORMULA_WATCH_FILES) {
+    const abs = path.join(cwd, rel);
+    hashByRel.set(rel, computeDevFileSha256(abs));
+    try {
+      const st = fs.existsSync(abs) ? fs.statSync(abs) : null;
+      mtimeByRel.set(rel, st ? `${st.mtimeMs}:${st.size}` : 'missing');
+    } catch {
+      mtimeByRel.set(rel, 'missing');
+    }
+  }
+
+  let isReloading = false;
+  let pendingReload = false;
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const runFormulaReload = async () => {
+    if (isReloading) {
+      pendingReload = true;
+      return;
+    }
+    isReloading = true;
+    try {
+      const changedFiles: string[] = [];
+      for (const rel of DEV_FORMULA_WATCH_FILES) {
+        const abs = path.join(cwd, rel);
+        let mtimeKey = 'missing';
+        try {
+          const st = fs.existsSync(abs) ? fs.statSync(abs) : null;
+          mtimeKey = st ? `${st.mtimeMs}:${st.size}` : 'missing';
+        } catch {}
+
+        const prevMtime = mtimeByRel.get(rel);
+        const nextHash = computeDevFileSha256(abs);
+        const prevHash = hashByRel.get(rel);
+        mtimeByRel.set(rel, mtimeKey);
+        if (nextHash !== prevHash || (prevMtime && prevMtime !== mtimeKey && nextHash === 'error')) {
+          hashByRel.set(rel, nextHash);
+          changedFiles.push(rel);
+        }
+      }
+
+      if (changedFiles.length === 0) return;
+
+      const nowTs = Date.now();
+      const urlsToInvalidate = new Set<string>([
+        '/src/server/projectionEngineServer.ts',
+        ...changedFiles.map((rel) => `/${rel.replace(/^\/+/, '')}`),
+      ]);
+
+      for (const url of urlsToInvalidate) {
+        try {
+          const modByUrl = await vite.moduleGraph.getModuleByUrl(url);
+          if (modByUrl) {
+            vite.moduleGraph.invalidateModule(modByUrl, new Set(), nowTs, false);
+          }
+        } catch {}
+        try {
+          const absPath = path.join(cwd, url.replace(/^\/+/, ''));
+          const modsByFile = vite.moduleGraph.getModulesByFile(absPath);
+          if (modsByFile) {
+            for (const m of modsByFile) {
+              vite.moduleGraph.invalidateModule(m, new Set(), nowTs, false);
+            }
+          }
+        } catch {}
+      }
+
+      const prevEngine = hotProjectionEngine;
+      const nextEngine = (await vite.ssrLoadModule('/src/server/projectionEngineServer.ts')) as ProjectionEngineModule;
+      try {
+        prevEngine?.invalidateProjectionEngine?.('dev formula hot-reload');
+      } catch {}
+      hotProjectionEngine = nextEngine;
+
+      await dbReadyPromise;
+      const nextEpochInfo = nextEngine.computeProjectionEpochInfo(cachedData);
+      if (cachedData?.sync_status) {
+        cachedData.sync_status.projection_epoch_key = nextEpochInfo.epochKey;
+      }
+      if (cachedData) {
+        nextEngine.warmProjectionEngineIfNeeded(cachedData);
+      }
+
+      console.log(
+        `[Dev HotReload] Formula change detected (${changedFiles.join(', ')}) -> reloaded engine, new epoch ${nextEpochInfo.epochKey}`
+      );
+      broadcastProjectionFormulaUpdated(nextEpochInfo.epochKey, changedFiles);
+    } catch (err: any) {
+      console.error('[Dev HotReload] Failed to reload projection formula:', err?.message || err);
+    } finally {
+      isReloading = false;
+      if (pendingReload) {
+        pendingReload = false;
+        scheduleReload();
+      }
+    }
+  };
+
+  const scheduleReload = () => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      debounceTimer = null;
+      runFormulaReload().catch(() => {});
+    }, 120);
+  };
+
+  const watchedDirs = new Set(DEV_FORMULA_WATCH_FILES.map((rel) => path.dirname(path.join(cwd, rel))));
+  for (const dirPath of watchedDirs) {
+    try {
+      const targetBasenames = new Set(
+        DEV_FORMULA_WATCH_FILES
+          .filter((rel) => path.dirname(path.join(cwd, rel)) === dirPath)
+          .map((rel) => path.basename(rel))
+      );
+      const watcher = fs.watch(dirPath, { persistent: false }, (_eventType, filename) => {
+        if (!filename || targetBasenames.has(String(filename))) {
+          scheduleReload();
+        }
+      });
+      watcher.on('error', () => {});
+    } catch {}
+  }
+
+  // Lightweight stat safety-net poll in case OS/container drops fs.watch during atomic saves
+  const safetyTimer = setInterval(() => {
+    for (const rel of DEV_FORMULA_WATCH_FILES) {
+      const abs = path.join(cwd, rel);
+      let mtimeKey = 'missing';
+      try {
+        const st = fs.existsSync(abs) ? fs.statSync(abs) : null;
+        mtimeKey = st ? `${st.mtimeMs}:${st.size}` : 'missing';
+      } catch {}
+      if (mtimeKey !== mtimeByRel.get(rel)) {
+        scheduleReload();
+        break;
+      }
+    }
+  }, 1200);
+  safetyTimer.unref?.();
+}
+
 // Vite / static file serving — bind port 3000 immediately so dev server readiness succeeds quickly,
 // while incoming frontend/API requests cleanly await initialization promises if they arrive during boot.
 async function startServer() {
@@ -1858,9 +2065,19 @@ async function startServer() {
         },
         appType: 'spa',
       });
+      try {
+        const loadedEngine = (await vite.ssrLoadModule('/src/server/projectionEngineServer.ts')) as ProjectionEngineModule;
+        hotProjectionEngine = loadedEngine;
+        resolveDevEngineInit(loadedEngine);
+        setupDevFormulaWatcher(vite);
+      } catch (ssrErr: any) {
+        console.warn('[Dev HotReload] Falling back to static projection engine on init error:', ssrErr?.message || ssrErr);
+        resolveDevEngineInit(staticProjectionEngine);
+      }
       return vite.middlewares;
     })().catch((err) => {
       console.error('[Server] Vite middleware initialization failed:', err);
+      resolveDevEngineInit(staticProjectionEngine);
       throw err;
     });
 
@@ -1901,15 +2118,15 @@ async function startServer() {
 
     setTimeout(() => {
       prewarmShirtCache().catch(() => {});
-      dbReadyPromise.then(() => {
+      Promise.all([dbReadyPromise, getDevProjectionEngine()]).then(([, engine]) => {
         if (cachedData?.current_gw) {
           prewarmMatchesCache(cachedData.current_gw)
             .catch(() => {})
             .finally(() => {
-              warmProjectionEngineIfNeeded(cachedData);
+              engine.warmProjectionEngineIfNeeded(cachedData);
             });
         } else if (cachedData) {
-          warmProjectionEngineIfNeeded(cachedData);
+          engine.warmProjectionEngineIfNeeded(cachedData);
         }
       });
     }, 300);
