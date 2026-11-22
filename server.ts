@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle } from './src/server/dataFetcher.ts';
-import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache, prewarmMatchesCache, invalidateFixturesScheduleCache } from './src/server/matchesFetcher.ts';
+import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle, computeNextSyncWIB } from './src/server/dataFetcher.ts';
+import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache, prewarmMatchesCache, invalidateFixturesScheduleCache, getCachedBootstrapStatic } from './src/server/matchesFetcher.ts';
 import crypto from 'node:crypto';
 import * as staticProjectionEngine from './src/server/projectionEngineServer.ts';
 type ProjectionEngineModule = typeof import('./src/server/projectionEngineServer.ts');
@@ -63,6 +63,14 @@ import {
   migrateLegacyPulseMatchFiles,
   clearAllPulseMatchFiles,
 } from './src/server/pulseMatchSync.ts';
+import {
+  initPulseAllCompDb,
+  syncPulseAllCompDatabase,
+  getPulseAllCompDbStatus,
+  getClubAllCompSchedule,
+  getClubAllCompHistory,
+  runEventDrivenAllCompSyncTick,
+} from './src/server/pulseAllCompDb.ts';
 import {
   getPhase1Templates,
   savePhase1Templates,
@@ -249,10 +257,17 @@ function initializeDatabaseState() {
     }
 
     initDatabase();
+    initPulseAllCompDb();
     migrateLegacyPulseMatchFiles();
 
     cachedData = getTransformedLeagueDataFromDb();
     if (cachedData) {
+      if (cachedData.sync_status) {
+        cachedData.sync_status.next_sync_wib = computeNextSyncWIB(
+          Boolean(cachedData.sync_status.is_matchday_live),
+          cachedData.sync_status.gw_fixtures || []
+        );
+      }
       console.log('[Server] Hydrated view directly from Single Truth Source (fpl_database.json) for instant sub-5ms boot response');
     } else {
       console.log('[Server] Container started with EMPTY database (Cold Start state). Waiting for first user request to trigger Action A.');
@@ -333,6 +348,12 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
             console.warn('[Server] Warning syncing Pulse match files:', pErr.message);
             return null;
           }),
+          action === 'A_FULL'
+            ? syncPulseAllCompDatabase({ forceSchedule: true }).catch((acErr: any) => {
+                console.warn('[Server] Warning syncing Pulse all-comp DB:', acErr?.message || acErr);
+                return null;
+              })
+            : Promise.resolve(null),
         ]);
         rebuildNewsTickerTable(undefined, { clearExisting: action === 'A_FULL' });
       } catch (ntErr: any) {
@@ -513,6 +534,10 @@ app.get('/api/fpl-data', async (req, res) => {
     const nowIso = new Date().toISOString();
     if (cachedData && cachedData.sync_status) {
       cachedData.sync_status.last_checked = nowIso;
+      cachedData.sync_status.next_sync_wib = computeNextSyncWIB(
+        Boolean(cachedData.sync_status.is_matchday_live),
+        cachedData.sync_status.gw_fixtures || []
+      );
       cachedData.sync_status.projection_epoch_key = getProjectionEngine().computeProjectionEpochInfo(cachedData).epochKey;
     }
 
@@ -1172,13 +1197,97 @@ app.post('/api/sync', handleSyncRequest);
 app.get('/api/sync', handleSyncRequest);
 
 app.get('/api/sync-status', (req, res) => {
+  if (cachedData?.sync_status) {
+    cachedData.sync_status.next_sync_wib = computeNextSyncWIB(
+      Boolean(cachedData.sync_status.is_matchday_live),
+      cachedData.sync_status.gw_fixtures || []
+    );
+    cachedData.sync_status.projection_epoch_key = getProjectionEngine().computeProjectionEpochInfo(cachedData).epochKey;
+  }
   res.json({
     success: true,
     sync_status: cachedData?.sync_status || null,
     isSyncing,
     gw_status: cachedData?.gw_status || null,
-    db_stats: getDatabaseStats()
+    db_stats: getDatabaseStats(),
+    pulse_all_comp_stats: getPulseAllCompDbStatus(),
   });
+});
+
+app.get('/api/pulse-all-comp/status', (_req, res) => {
+  res.json({
+    success: true,
+    data: getPulseAllCompDbStatus(),
+  });
+});
+
+app.get('/api/pulse-all-comp/club/:short', (req, res) => {
+  const clubShort = String(req.params.short || '').trim().toUpperCase();
+  if (!/^[A-Z]{2,5}$/.test(clubShort)) {
+    return res.status(400).json({ success: false, error: 'Invalid club short code' });
+  }
+  const schedule = getClubAllCompSchedule(clubShort);
+  const history = getClubAllCompHistory(clubShort);
+  res.json({
+    success: true,
+    data: {
+      clubShort,
+      scheduleCount: schedule.length,
+      historyCount: history.length,
+      schedule,
+      history: history.map(({ match, side }) => ({
+        pulseMatchId: match.pulseMatchId,
+        compId: match.compId,
+        compAbbr: match.compAbbr,
+        compDesc: match.compDesc,
+        eplGw: match.eplGw,
+        kickoffIso: match.kickoffIso,
+        durationMins: match.durationMins,
+        ...side,
+      })),
+    },
+  });
+});
+
+app.post('/api/pulse-all-comp/sync', async (_req, res) => {
+  try {
+    const result = await syncPulseAllCompDatabase({ forceSchedule: true });
+    res.json({
+      success: true,
+      result,
+      status: getPulseAllCompDbStatus(),
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Pulse all-comp sync failed' });
+  }
+});
+
+app.post('/api/pulse-all-comp/tick', async (req, res) => {
+  try {
+    const force = req.query.force === '1' || req.query.force === 'true' || Boolean(req.body?.force);
+    const tick = await runEventDrivenAllCompSyncTick({ force });
+    if (tick.newlyFinalizedNonPlCount > 0 && cachedData) {
+      await getCachedBootstrapStatic(true).catch(() => null);
+      const engine = getProjectionEngine();
+      engine.invalidateProjectionEngine('Manual all-comp tick finalized non-PL match');
+      if (cachedData.sync_status) {
+        cachedData.sync_status.next_sync_wib = computeNextSyncWIB(
+          Boolean(cachedData.sync_status.is_matchday_live),
+          cachedData.sync_status.gw_fixtures || []
+        );
+        cachedData.sync_status.projection_epoch_key = engine.computeProjectionEpochInfo(cachedData).epochKey;
+      }
+      engine.warmProjectionEngineIfNeeded(cachedData);
+      broadcastSyncComplete(cachedData, 'ALL_COMP_EVENT');
+    }
+    res.json({
+      success: true,
+      tick,
+      status: getPulseAllCompDbStatus(),
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Pulse all-comp tick failed' });
+  }
 });
 
 // Endpoint to completely empty the container cache (Cold Start state)
@@ -1246,6 +1355,34 @@ setInterval(async () => {
   if (!cachedData) return;
 
   try {
+    // 1. Event-driven cross-competition scheduler (0 HTTP calls when IDLE)
+    const acTick = await runEventDrivenAllCompSyncTick().catch(() => null);
+    if (acTick?.ran) {
+      if (cachedData.sync_status) {
+        cachedData.sync_status.next_sync_wib = computeNextSyncWIB(
+          Boolean(cachedData.sync_status.is_matchday_live),
+          cachedData.sync_status.gw_fixtures || []
+        );
+      }
+      if (acTick.newlyFinalizedNonPlCount > 0) {
+        console.log(
+          `[Autonomous AllCompSync] ${acTick.newlyFinalizedNonPlCount} Non-EPL match finalized (${acTick.mode}). Refreshing bootstrap & projection epoch...`
+        );
+        await getCachedBootstrapStatic(true).catch(() => null);
+        const engine = getProjectionEngine();
+        engine.invalidateProjectionEngine('All-Comp midweek FT finalized');
+        if (cachedData.sync_status) {
+          cachedData.sync_status.projection_epoch_key = engine.computeProjectionEpochInfo(cachedData).epochKey;
+        }
+        engine.warmProjectionEngineIfNeeded(cachedData);
+        broadcastSyncComplete(cachedData, 'ALL_COMP_EVENT');
+      } else if (acTick.lineupsCaptured > 0) {
+        console.log(
+          `[Autonomous AllCompSync] Captured ${acTick.lineupsCaptured} Non-EPL starting lineup(s) (${acTick.mode}).`
+        );
+      }
+    }
+
     const isLive = Boolean(cachedData.sync_status?.is_matchday_live || (cachedData.gw_status && cachedData.gw_status.status !== 'Confirmed'));
     const lastSyncTime = cachedData.sync_status?.last_synced ? new Date(cachedData.sync_status.last_synced).getTime() : 0;
     const elapsed = Date.now() - lastSyncTime;
@@ -1271,6 +1408,9 @@ setInterval(async () => {
         if (!isContainerAlreadyFinal) {
           console.log(`[Autonomous Sync] Transition seal for GW ${apiActiveGW}. Triggering Action B...`);
           await triggerSync('B_PARTIAL', apiActiveGW);
+        } else if (cachedData.sync_status) {
+          // Keep next_sync_wib synchronized cleanly when Confirmed IDLE
+          cachedData.sync_status.next_sync_wib = computeNextSyncWIB(false, cachedData.sync_status.gw_fixtures || []);
         }
       }
     }
@@ -2119,6 +2259,12 @@ async function startServer() {
     setTimeout(() => {
       prewarmShirtCache().catch(() => {});
       Promise.all([dbReadyPromise, getDevProjectionEngine()]).then(([, engine]) => {
+        const allCompStatus = getPulseAllCompDbStatus();
+        if (allCompStatus.scheduleTotalFixtures === 0 || allCompStatus.unfinalizedCompletedCount > 0) {
+          syncPulseAllCompDatabase().catch((err: any) => {
+            console.warn('[Server] Background PulseAllCompDB warm failed:', err?.message || err);
+          });
+        }
         if (cachedData?.current_gw) {
           prewarmMatchesCache(cachedData.current_gw)
             .catch(() => {})

@@ -13,11 +13,12 @@
   "ground": {
     "name": "St. James' Park, Newcastle"
   },
-  "status": "L",
-  "phase": "HT",
+  "status": "C",
+  "phase": "F",
+  "outcome": "D",
   "clock": {
-    "label": "HT",
-    "secs": 2700
+    "label": "Full Time",
+    "secs": 5400
   },
   "teams": [
     {
@@ -29,7 +30,7 @@
           "abbr": "NEW"
         }
       },
-      "score": 0
+      "score": 2
     },
     {
       "team": {
@@ -40,7 +41,7 @@
           "abbr": "ARS"
         }
       },
-      "score": 1
+      "score": 2
     }
   ],
   "teamLists": [
@@ -118,7 +119,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 3
           },
           "captain": false,
@@ -138,7 +139,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Centre Striker",
             "shirtNum": 10
           },
           "captain": false,
@@ -158,7 +159,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Right Winger",
             "shirtNum": 11
           },
           "captain": false,
@@ -178,7 +179,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 12
           },
           "captain": false,
@@ -198,7 +199,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 14
           },
           "captain": false,
@@ -218,7 +219,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Right Winger",
             "shirtNum": 23
           },
           "captain": false,
@@ -238,7 +239,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Attacking Midfielder",
             "shirtNum": 28
           },
           "captain": false,
@@ -258,7 +259,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 33
           },
           "captain": true,
@@ -278,7 +279,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 37
           },
           "captain": false,
@@ -298,7 +299,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 67
           },
           "captain": false,
@@ -340,7 +341,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Right Full Back",
             "shirtNum": 2
           },
           "captain": false,
@@ -360,7 +361,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 4
           },
           "captain": false,
@@ -380,7 +381,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 5
           },
           "captain": false,
@@ -400,7 +401,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Central Midfielder",
             "shirtNum": 6
           },
           "captain": false,
@@ -420,7 +421,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Centre Striker",
             "shirtNum": 9
           },
           "captain": false,
@@ -440,7 +441,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Left Winger",
             "shirtNum": 19
           },
           "captain": false,
@@ -460,7 +461,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Striker",
             "shirtNum": 20
           },
           "captain": false,
@@ -480,7 +481,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Centre Winger",
             "shirtNum": 41
           },
           "captain": false,
@@ -515,8 +516,8 @@
             "466075"
           ],
           [
-            "208706",
-            "204480"
+            "204480",
+            "208706"
           ],
           [
             "248857",
@@ -563,7 +564,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 6
           },
           "captain": false,
@@ -583,7 +584,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
             "shirtNum": 8
           },
           "captain": true,
@@ -603,7 +604,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Attacking Midfielder",
             "shirtNum": 10
           },
           "captain": false,
@@ -623,7 +624,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 12
           },
           "captain": false,
@@ -643,7 +644,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 15
           },
           "captain": false,
@@ -662,8 +663,8 @@
           },
           "matchPosition": "M",
           "info": {
-            "position": "M",
-            "positionInfo": "Midfielder",
+            "position": "F",
+            "positionInfo": "Right Winger",
             "shirtNum": 20
           },
           "captain": false,
@@ -683,7 +684,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Left/Centre/Right Second Striker",
             "shirtNum": 29
           },
           "captain": false,
@@ -703,7 +704,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 33
           },
           "captain": false,
@@ -723,7 +724,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Defensive Midfielder",
             "shirtNum": 39
           },
           "captain": false,
@@ -743,7 +744,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 41
           },
           "captain": false,
@@ -785,7 +786,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 2
           },
           "captain": false,
@@ -805,7 +806,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Central Defender",
             "shirtNum": 3
           },
           "captain": false,
@@ -825,7 +826,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre/Right Central Defender",
             "shirtNum": 4
           },
           "captain": false,
@@ -845,7 +846,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Centre Central Defender",
             "shirtNum": 5
           },
           "captain": false,
@@ -865,7 +866,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Striker",
             "shirtNum": 14
           },
           "captain": false,
@@ -885,7 +886,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Forward",
+            "positionInfo": "Left Winger",
             "shirtNum": 17
           },
           "captain": false,
@@ -905,7 +906,7 @@
           "matchPosition": "M",
           "info": {
             "position": "M",
-            "positionInfo": "Midfielder",
+            "positionInfo": "Centre Central Midfielder",
             "shirtNum": 23
           },
           "captain": false,
@@ -925,7 +926,7 @@
           "matchPosition": "D",
           "info": {
             "position": "D",
-            "positionInfo": "Defender",
+            "positionInfo": "Left Full Back",
             "shirtNum": 49
           },
           "captain": false,
@@ -986,6 +987,417 @@
         "homeScore": 0,
         "awayScore": 1
       }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 232653,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 636852,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 441191,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 463726,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 449434,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 114243,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "G",
+      "personId": 201666,
+      "assistId": 538207,
+      "phase": "2",
+      "clock": {
+        "label": "49'",
+        "secs": 2940
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 204480,
+      "phase": "2",
+      "clock": {
+        "label": "56'",
+        "secs": 3360
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 201666,
+      "phase": "2",
+      "clock": {
+        "label": "58'",
+        "secs": 3480
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "G",
+      "personId": 465642,
+      "assistId": 200089,
+      "phase": "2",
+      "clock": {
+        "label": "62'",
+        "secs": 3720
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 109745,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 154561,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 499169,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 208706,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 439509,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 232413,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "70'",
+        "secs": 4200
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "G",
+      "personId": 248857,
+      "assistId": 184029,
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 78916,
+      "phase": "2",
+      "clock": {
+        "label": "81'",
+        "secs": 4860
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 248857,
+      "phase": "2",
+      "clock": {
+        "label": "81'",
+        "secs": 4860
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 216646,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 200089,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "83'",
+        "secs": 4980
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 220237,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "92'",
+        "secs": 5520
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 487838,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "92'",
+        "secs": 5520
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 224117,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "94'",
+        "secs": 5640
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 219847,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "94'",
+        "secs": 5640
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 195384,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "94'",
+        "secs": 5640
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "S",
+      "personId": 184029,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "94'",
+        "secs": 5640
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 224117,
+      "phase": "2",
+      "clock": {
+        "label": "100'",
+        "secs": 6000
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 6000,
+        "label": "90+10'"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 2
+      }
     }
   ],
   "textstreamEvents": [
@@ -1006,7 +1418,7 @@
     {
       "id": 2913403,
       "time": {
-        "secs": 39,
+        "secs": 40,
         "label": "01"
       },
       "type": "offside",
@@ -1130,7 +1542,7 @@
     {
       "id": 2913435,
       "time": {
-        "secs": 717,
+        "secs": 716,
         "label": "12"
       },
       "type": "attempt blocked",
@@ -1215,7 +1627,7 @@
     {
       "id": 2913454,
       "time": {
-        "secs": 1310,
+        "secs": 1309,
         "label": "22"
       },
       "type": "miss",
@@ -1264,7 +1676,7 @@
     {
       "id": 2913466,
       "time": {
-        "secs": 1551,
+        "secs": 1550,
         "label": "26"
       },
       "type": "miss",
@@ -1492,7 +1904,7 @@
         "label": "45"
       },
       "type": "added time",
-      "text": "Fourth official has announced 0 minutes of added time."
+      "text": "Fourth official has announced 1 minutes of added time."
     },
     {
       "id": 2913517,
@@ -1533,11 +1945,924 @@
     {
       "id": 2913529,
       "time": {
-        "secs": 2800,
+        "secs": 2798,
         "label": "45+2"
       },
       "type": "end 1",
       "text": "First Half ends, Newcastle United 0, Arsenal 1."
+    },
+    {
+      "id": 2913535,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Jacob Ramsey replaces Sean Steur.",
+      "playerIds": [
+        19888,
+        303043
+      ]
+    },
+    {
+      "id": 2913538,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Newcastle United 0, Arsenal 1."
+    },
+    {
+      "id": 2913539,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Tino Livramento replaces Amar Dedic.",
+      "playerIds": [
+        49495,
+        68637
+      ]
+    },
+    {
+      "id": 2913540,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Anthony Elanga replaces Jacob Murphy.",
+      "playerIds": [
+        49259,
+        9662
+      ]
+    },
+    {
+      "id": 2913548,
+      "time": {
+        "secs": 2722,
+        "label": "46"
+      },
+      "type": "free kick won",
+      "text": "David Raya (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        7975
+      ]
+    },
+    {
+      "id": 2913549,
+      "time": {
+        "secs": 2722,
+        "label": "46"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Joe Willock (Newcastle United).",
+      "playerIds": [
+        14446
+      ]
+    },
+    {
+      "id": 2913547,
+      "time": {
+        "secs": 2772,
+        "label": "47"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury David Raya (Arsenal)."
+    },
+    {
+      "id": 2913556,
+      "time": {
+        "secs": 2866,
+        "label": "48"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2913557,
+      "time": {
+        "secs": 2937,
+        "label": "49"
+      },
+      "type": "goal",
+      "text": "Goal! Newcastle United 1, Arsenal 1. Harvey Barnes (Newcastle United) right footed shot from the centre of the box to the bottom left corner. Assisted by William Osula.",
+      "playerIds": [
+        14716,
+        114590
+      ]
+    },
+    {
+      "id": 2913568,
+      "time": {
+        "secs": 3072,
+        "label": "52"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Joe Willock (Newcastle United) right footed shot from outside the box is high and wide to the right. Assisted by Harvey Barnes following a fast break.",
+      "playerIds": [
+        14446,
+        14716
+      ]
+    },
+    {
+      "id": 2913571,
+      "time": {
+        "secs": 3223,
+        "label": "54"
+      },
+      "type": "free kick won",
+      "text": "Ezri Konsa (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        13274
+      ]
+    },
+    {
+      "id": 2913572,
+      "time": {
+        "secs": 3223,
+        "label": "54"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Harvey Barnes (Newcastle United).",
+      "playerIds": [
+        14716
+      ]
+    },
+    {
+      "id": 2913577,
+      "time": {
+        "secs": 3305,
+        "label": "56"
+      },
+      "type": "free kick won",
+      "text": "Lewis Hall (Newcastle United) wins a free kick in the attacking half.",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2913578,
+      "time": {
+        "secs": 3305,
+        "label": "56"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Declan Rice (Arsenal).",
+      "playerIds": [
+        15202
+      ]
+    },
+    {
+      "id": 2913583,
+      "time": {
+        "secs": 3308,
+        "label": "56"
+      },
+      "type": "yellow card",
+      "text": "Declan Rice (Arsenal) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        15202
+      ]
+    },
+    {
+      "id": 2913586,
+      "time": {
+        "secs": 3417,
+        "label": "57"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Harvey Barnes (Newcastle United).",
+      "playerIds": [
+        14716
+      ]
+    },
+    {
+      "id": 2913587,
+      "time": {
+        "secs": 3417,
+        "label": "57"
+      },
+      "type": "free kick won",
+      "text": "Ezri Konsa (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        13274
+      ]
+    },
+    {
+      "id": 2913592,
+      "time": {
+        "secs": 3424,
+        "label": "58"
+      },
+      "type": "yellow card",
+      "text": "Harvey Barnes (Newcastle United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        14716
+      ]
+    },
+    {
+      "id": 2913595,
+      "time": {
+        "secs": 3508,
+        "label": "59"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Ezri Konsa.",
+      "playerIds": [
+        13274
+      ]
+    },
+    {
+      "id": 2913598,
+      "time": {
+        "secs": 3598,
+        "label": "60"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Lewis Miley (Newcastle United) right footed shot from outside the box is saved in the top centre of the goal by David Raya (Arsenal). Assisted by Jacob Ramsey.",
+      "playerIds": [
+        117647,
+        19888
+      ]
+    },
+    {
+      "id": 2913602,
+      "time": {
+        "secs": 3603,
+        "label": "61"
+      },
+      "type": "free kick lost",
+      "text": "Foul by William Osula (Newcastle United).",
+      "playerIds": [
+        114590
+      ]
+    },
+    {
+      "id": 2913604,
+      "time": {
+        "secs": 3603,
+        "label": "61"
+      },
+      "type": "free kick won",
+      "text": "David Raya (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        7975
+      ]
+    },
+    {
+      "id": 2913601,
+      "time": {
+        "secs": 3654,
+        "label": "61"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Gabriel Magalhães.",
+      "playerIds": [
+        50234
+      ]
+    },
+    {
+      "id": 2913603,
+      "time": {
+        "secs": 3692,
+        "label": "62"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Dan Burn (Newcastle United) header from the centre of the box is blocked. Assisted by Lewis Hall with a cross.",
+      "playerIds": [
+        8707,
+        108922
+      ]
+    },
+    {
+      "id": 2913644,
+      "time": {
+        "secs": 3694,
+        "label": "62"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Joe Willock (Newcastle United) right footed shot from very close range is close, but misses to the left. Assisted by Dan Burn following a corner.",
+      "playerIds": [
+        14446,
+        8707
+      ]
+    },
+    {
+      "id": 2913613,
+      "time": {
+        "secs": 3695,
+        "label": "62"
+      },
+      "type": "goal",
+      "text": "Goal! Newcastle United 2, Arsenal 1. Malick Thiaw (Newcastle United) right footed shot from very close range to the bottom left corner. Assisted by Joe Willock following a corner.Goal confirmed following VAR Review.",
+      "playerIds": [
+        124462,
+        14446
+      ]
+    },
+    {
+      "id": 2913619,
+      "time": {
+        "secs": 3872,
+        "label": "65"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Joe Willock (Newcastle United) left footed shot from the left side of the box is close, but misses to the left. Assisted by William Osula.",
+      "playerIds": [
+        14446,
+        114590
+      ]
+    },
+    {
+      "id": 2913616,
+      "time": {
+        "secs": 3906,
+        "label": "66"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Bruno Guimarães.",
+      "playerIds": [
+        74761
+      ]
+    },
+    {
+      "id": 2913622,
+      "time": {
+        "secs": 3951,
+        "label": "66"
+      },
+      "type": "free kick won",
+      "text": "David Raya (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        7975
+      ]
+    },
+    {
+      "id": 2913623,
+      "time": {
+        "secs": 3951,
+        "label": "66"
+      },
+      "type": "free kick lost",
+      "text": "Foul by William Osula (Newcastle United).",
+      "playerIds": [
+        114590
+      ]
+    },
+    {
+      "id": 2913629,
+      "time": {
+        "secs": 3979,
+        "label": "67"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury David Raya (Arsenal)."
+    },
+    {
+      "id": 2913628,
+      "time": {
+        "secs": 4106,
+        "label": "69"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2913634,
+      "time": {
+        "secs": 4182,
+        "label": "70"
+      },
+      "type": "substitution",
+      "text": "Substitution, Arsenal. Kepa Arrizabalaga replaces David Raya because of an injury.",
+      "playerIds": [
+        11373,
+        7975
+      ]
+    },
+    {
+      "id": 2913638,
+      "time": {
+        "secs": 4186,
+        "label": "70"
+      },
+      "type": "substitution",
+      "text": "Substitution, Arsenal. Myles Lewis-Skelly replaces Bruno Guimarães.",
+      "playerIds": [
+        114564,
+        74761
+      ]
+    },
+    {
+      "id": 2913637,
+      "time": {
+        "secs": 4192,
+        "label": "70"
+      },
+      "type": "substitution",
+      "text": "Substitution, Arsenal. Christos Tzolis replaces Eberechi Eze.",
+      "playerIds": [
+        67704,
+        21584
+      ]
+    },
+    {
+      "id": 2913643,
+      "time": {
+        "secs": 4240,
+        "label": "71"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Joe Willock (Newcastle United).",
+      "playerIds": [
+        14446
+      ]
+    },
+    {
+      "id": 2913645,
+      "time": {
+        "secs": 4240,
+        "label": "71"
+      },
+      "type": "free kick won",
+      "text": "Ezri Konsa (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        13274
+      ]
+    },
+    {
+      "id": 2913652,
+      "time": {
+        "secs": 4360,
+        "label": "73"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Joe Willock (Newcastle United) right footed shot from outside the box is blocked. Assisted by Jacob Ramsey.",
+      "playerIds": [
+        14446,
+        19888
+      ]
+    },
+    {
+      "id": 2913653,
+      "time": {
+        "secs": 4362,
+        "label": "73"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Declan Rice.",
+      "playerIds": [
+        15202
+      ]
+    },
+    {
+      "id": 2913659,
+      "time": {
+        "secs": 4415,
+        "label": "74"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Kai Havertz.",
+      "playerIds": [
+        20810
+      ]
+    },
+    {
+      "id": 2913658,
+      "time": {
+        "secs": 4458,
+        "label": "75"
+      },
+      "type": "offside",
+      "text": "Offside, Newcastle United. Jacob Ramsey is caught offside.",
+      "playerIds": [
+        14716,
+        19888
+      ]
+    },
+    {
+      "id": 2913664,
+      "time": {
+        "secs": 4564,
+        "label": "77"
+      },
+      "type": "offside",
+      "text": "Offside, Arsenal. Christos Tzolis is caught offside.",
+      "playerIds": [
+        11419,
+        67704
+      ]
+    },
+    {
+      "id": 2913667,
+      "time": {
+        "secs": 4648,
+        "label": "78"
+      },
+      "type": "goal",
+      "text": "Goal! Newcastle United 2, Arsenal 2. Noni Madueke (Arsenal) left footed shot from the centre of the box to the bottom left corner. Assisted by Martin Ødegaard.",
+      "playerIds": [
+        67407,
+        11419
+      ]
+    },
+    {
+      "id": 2913766,
+      "time": {
+        "secs": 4702,
+        "label": "79"
+      },
+      "type": "free kick lost",
+      "text": "Foul by William Osula (Newcastle United).",
+      "playerIds": [
+        114590
+      ]
+    },
+    {
+      "id": 2913767,
+      "time": {
+        "secs": 4702,
+        "label": "79"
+      },
+      "type": "free kick won",
+      "text": "Noni Madueke (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        67407
+      ]
+    },
+    {
+      "id": 2913671,
+      "time": {
+        "secs": 4758,
+        "label": "80"
+      },
+      "type": "free kick won",
+      "text": "Jurriën Timber (Arsenal) wins a free kick on the right wing.",
+      "playerIds": [
+        67776
+      ]
+    },
+    {
+      "id": 2913680,
+      "time": {
+        "secs": 4758,
+        "label": "80"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Dan Burn (Newcastle United).",
+      "playerIds": [
+        8707
+      ]
+    },
+    {
+      "id": 2913676,
+      "time": {
+        "secs": 4803,
+        "label": "81"
+      },
+      "type": "yellow card",
+      "text": "Dan Burn (Newcastle United) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        8707
+      ]
+    },
+    {
+      "id": 2913679,
+      "time": {
+        "secs": 4807,
+        "label": "81"
+      },
+      "type": "yellow card",
+      "text": "Noni Madueke (Arsenal) is shown the yellow card.",
+      "playerIds": [
+        67407
+      ]
+    },
+    {
+      "id": 2913685,
+      "time": {
+        "secs": 4900,
+        "label": "82"
+      },
+      "type": "free kick won",
+      "text": "Tino Livramento (Newcastle United) wins a free kick on the left wing.",
+      "playerIds": [
+        49495
+      ]
+    },
+    {
+      "id": 2913686,
+      "time": {
+        "secs": 4900,
+        "label": "82"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Declan Rice (Arsenal).",
+      "playerIds": [
+        15202
+      ]
+    },
+    {
+      "id": 2913687,
+      "time": {
+        "secs": 4947,
+        "label": "83"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Yoane Wissa replaces Joe Willock.",
+      "playerIds": [
+        117497,
+        14446
+      ]
+    },
+    {
+      "id": 2913694,
+      "time": {
+        "secs": 4977,
+        "label": "83"
+      },
+      "type": "offside",
+      "text": "Offside, Newcastle United. Malick Thiaw is caught offside.",
+      "playerIds": [
+        49259,
+        124462
+      ]
+    },
+    {
+      "id": 2913697,
+      "time": {
+        "secs": 5048,
+        "label": "85"
+      },
+      "type": "corner",
+      "text": "Corner, Newcastle United. Conceded by Ezri Konsa.",
+      "playerIds": [
+        13274
+      ]
+    },
+    {
+      "id": 2913700,
+      "time": {
+        "secs": 5097,
+        "label": "85"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lewis Hall (Newcastle United).",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2913702,
+      "time": {
+        "secs": 5097,
+        "label": "85"
+      },
+      "type": "free kick won",
+      "text": "Myles Lewis-Skelly (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        114564
+      ]
+    },
+    {
+      "id": 2913701,
+      "time": {
+        "secs": 5155,
+        "label": "86"
+      },
+      "type": "free kick won",
+      "text": "Myles Lewis-Skelly (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        114564
+      ]
+    },
+    {
+      "id": 2913709,
+      "time": {
+        "secs": 5155,
+        "label": "86"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jacob Ramsey (Newcastle United).",
+      "playerIds": [
+        19888
+      ]
+    },
+    {
+      "id": 2913712,
+      "time": {
+        "secs": 5259,
+        "label": "88"
+      },
+      "type": "free kick won",
+      "text": "Myles Lewis-Skelly (Arsenal) wins a free kick on the left wing.",
+      "playerIds": [
+        114564
+      ]
+    },
+    {
+      "id": 2913713,
+      "time": {
+        "secs": 5259,
+        "label": "88"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yoane Wissa (Newcastle United).",
+      "playerIds": [
+        117497
+      ]
+    },
+    {
+      "id": 2913718,
+      "time": {
+        "secs": 5323,
+        "label": "89"
+      },
+      "type": "corner",
+      "text": "Corner, Arsenal. Conceded by Lewis Hall.",
+      "playerIds": [
+        108922
+      ]
+    },
+    {
+      "id": 2913719,
+      "time": {
+        "secs": 5356,
+        "label": "90"
+      },
+      "type": "corner",
+      "text": "Corner, Arsenal. Conceded by Malick Thiaw.",
+      "playerIds": [
+        124462
+      ]
+    },
+    {
+      "id": 2913720,
+      "time": {
+        "secs": 5400,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 9 minutes of added time."
+    },
+    {
+      "id": 2913727,
+      "time": {
+        "secs": 5442,
+        "label": "90+1"
+      },
+      "type": "free kick won",
+      "text": "Jurriën Timber (Arsenal) wins a free kick in the defensive half.",
+      "playerIds": [
+        67776
+      ]
+    },
+    {
+      "id": 2913728,
+      "time": {
+        "secs": 5442,
+        "label": "90+1"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jacob Ramsey (Newcastle United).",
+      "playerIds": [
+        19888
+      ]
+    },
+    {
+      "id": 2913733,
+      "time": {
+        "secs": 5499,
+        "label": "90+2"
+      },
+      "type": "substitution",
+      "text": "Substitution, Newcastle United. Sven Botman replaces Lewis Hall because of an injury.",
+      "playerIds": [
+        49908,
+        108922
+      ]
+    },
+    {
+      "id": 2913736,
+      "time": {
+        "secs": 5597,
+        "label": "90+4"
+      },
+      "type": "offside",
+      "text": "Offside, Arsenal. Christos Tzolis is caught offside.",
+      "playerIds": [
+        67407,
+        67704
+      ]
+    },
+    {
+      "id": 2913738,
+      "time": {
+        "secs": 5618,
+        "label": "90+4"
+      },
+      "type": "substitution",
+      "text": "Substitution, Arsenal. Viktor Gyökeres replaces Kai Havertz.",
+      "playerIds": [
+        32728,
+        20810
+      ]
+    },
+    {
+      "id": 2913737,
+      "time": {
+        "secs": 5630,
+        "label": "90+4"
+      },
+      "type": "substitution",
+      "text": "Substitution, Arsenal. Mikel Merino replaces Martin Ødegaard.",
+      "playerIds": [
+        19778,
+        11419
+      ]
+    },
+    {
+      "id": 2913745,
+      "time": {
+        "secs": 5791,
+        "label": "90+7"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Jacob Ramsey (Newcastle United) right footed shot from outside the box is high and wide to the right. Assisted by Harvey Barnes following a fast break.",
+      "playerIds": [
+        19888,
+        14716
+      ]
+    },
+    {
+      "id": 2913749,
+      "time": {
+        "secs": 5837,
+        "label": "90+8"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Viktor Gyökeres (Arsenal) right footed shot from the left side of the box is too high. Assisted by Riccardo Calafiori.",
+      "playerIds": [
+        32728,
+        69914
+      ]
+    },
+    {
+      "id": 2913748,
+      "time": {
+        "secs": 5898,
+        "label": "90+9"
+      },
+      "type": "free kick won",
+      "text": "Malick Thiaw (Newcastle United) wins a free kick in the defensive half.",
+      "playerIds": [
+        124462
+      ]
+    },
+    {
+      "id": 2913750,
+      "time": {
+        "secs": 5898,
+        "label": "90+9"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Viktor Gyökeres (Arsenal).",
+      "playerIds": [
+        32728
+      ]
+    },
+    {
+      "id": 2913757,
+      "time": {
+        "secs": 5980,
+        "label": "90+10"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Newcastle United 2, Arsenal 2."
+    },
+    {
+      "id": 2913760,
+      "time": {
+        "secs": 5981,
+        "label": "90+10"
+      },
+      "type": "yellow card",
+      "text": "Viktor Gyökeres (Arsenal) is shown the yellow card.",
+      "playerIds": [
+        32728
+      ]
+    },
+    {
+      "id": 2913761,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Newcastle United 2, Arsenal 2."
     }
   ]
 }

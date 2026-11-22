@@ -514,12 +514,26 @@ export const TabScout: React.FC<TabScoutProps> = ({
   const [localScoutSquadsPayload, setLocalScoutSquadsPayload] = useState<ServerScoutSquadsPayload | null>(null);
   const [isLoadingLocalScoutSquads, setIsLoadingLocalScoutSquads] = useState<boolean>(false);
   const scoutSquadsCacheRef = useRef<Map<string, ServerScoutSquadsPayload>>(new Map());
-  const inFlightScoutEpochRef = useRef<string | null>(null);
+  const inFlightScoutRef = useRef<{
+    epochKey: string;
+    promise: Promise<ServerScoutSquadsPayload | null>;
+  } | null>(null);
+
+  const isEpochCompatible = (payloadEpoch?: string | null, targetEpoch?: string | null): boolean => {
+    if (!payloadEpoch || !targetEpoch) return false;
+    if (payloadEpoch === targetEpoch) return true;
+    const payloadParts = payloadEpoch.split(':');
+    const targetParts = targetEpoch.split(':');
+    if (targetParts.length === 3 && payloadParts.length >= 4) {
+      return payloadEpoch.startsWith(`${targetEpoch}:`);
+    }
+    return false;
+  };
 
   useEffect(() => {
     const handleFormulaUpdated = async (e: Event) => {
       scoutSquadsCacheRef.current.clear();
-      inFlightScoutEpochRef.current = null;
+      inFlightScoutRef.current = null;
       setLocalScoutSquadsPayload(null);
       setFormulaRevision((prev) => prev + 1);
 
@@ -545,15 +559,16 @@ export const TabScout: React.FC<TabScoutProps> = ({
 
   // Hydrate fallback from IndexedDB immediately ONLY when epochKey matches effectiveEpochKey
   useEffect(() => {
-    if (sharedScoutSquads && sharedScoutSquads.epochKey === effectiveEpochKey) return;
+    if (sharedScoutSquads && isEpochCompatible(sharedScoutSquads.epochKey, effectiveEpochKey)) return;
     let mounted = true;
     loadScoutSquadsFromIndexedDB<ServerScoutSquadsPayload>()
       .then((cached) => {
         if (!mounted || !cached?.epochKey) return;
-        if (cached.epochKey === effectiveEpochKey) {
+        if (isEpochCompatible(cached.epochKey, effectiveEpochKey)) {
           scoutSquadsCacheRef.current.set(cached.epochKey, cached);
+          scoutSquadsCacheRef.current.set(effectiveEpochKey, cached);
           setLocalScoutSquadsPayload((prev) =>
-            prev && prev.epochKey === effectiveEpochKey ? prev : cached
+            prev && isEpochCompatible(prev.epochKey, effectiveEpochKey) ? prev : cached
           );
         }
       })
@@ -565,46 +580,54 @@ export const TabScout: React.FC<TabScoutProps> = ({
 
   useEffect(() => {
     if (!leagueData) return;
-    if (sharedScoutSquads && sharedScoutSquads.epochKey === effectiveEpochKey) {
+    if (sharedScoutSquads && isEpochCompatible(sharedScoutSquads.epochKey, effectiveEpochKey)) {
       scoutSquadsCacheRef.current.set(effectiveEpochKey, sharedScoutSquads);
+      setIsLoadingLocalScoutSquads(false);
       return;
     }
 
     const cached = scoutSquadsCacheRef.current.get(effectiveEpochKey);
-    if (cached && cached.epochKey === effectiveEpochKey) {
+    if (cached && isEpochCompatible(cached.epochKey, effectiveEpochKey)) {
       setLocalScoutSquadsPayload(cached);
+      setIsLoadingLocalScoutSquads(false);
       return;
     }
     if (sharedScoutSquads !== undefined && isLoadingSharedScoutSquads) {
       return;
     }
-    if (inFlightScoutEpochRef.current === effectiveEpochKey) return;
 
     let mounted = true;
-    inFlightScoutEpochRef.current = effectiveEpochKey;
     setIsLoadingLocalScoutSquads(true);
 
-    fetch(`/api/projections-scout-squads?_t=${Date.now()}`, { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((json) => {
-        if (!mounted || !json?.success || !json.data) return;
-        const payload = json.data as ServerScoutSquadsPayload;
+    let activePromise: Promise<ServerScoutSquadsPayload | null>;
+    if (inFlightScoutRef.current && inFlightScoutRef.current.epochKey === effectiveEpochKey) {
+      activePromise = inFlightScoutRef.current.promise;
+    } else {
+      const fetchPromise = fetch(`/api/projections-scout-squads?_t=${Date.now()}`, { cache: 'no-store' })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json) => (json?.success && json.data ? (json.data as ServerScoutSquadsPayload) : null))
+        .catch(() => null)
+        .finally(() => {
+          if (inFlightScoutRef.current?.promise === fetchPromise) {
+            inFlightScoutRef.current = null;
+          }
+        });
+      inFlightScoutRef.current = { epochKey: effectiveEpochKey, promise: fetchPromise };
+      activePromise = fetchPromise;
+    }
+
+    activePromise.then((payload) => {
+      if (!mounted) return;
+      if (payload) {
         if (payload.epochKey) {
           scoutSquadsCacheRef.current.set(payload.epochKey, payload);
         }
         scoutSquadsCacheRef.current.set(effectiveEpochKey, payload);
         setLocalScoutSquadsPayload(payload);
         saveScoutSquadsToIndexedDB(payload).catch(() => {});
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (inFlightScoutEpochRef.current === effectiveEpochKey) {
-          inFlightScoutEpochRef.current = null;
-        }
-        if (mounted) {
-          setIsLoadingLocalScoutSquads(false);
-        }
-      });
+      }
+      setIsLoadingLocalScoutSquads(false);
+    });
 
     return () => {
       mounted = false;
@@ -612,9 +635,9 @@ export const TabScout: React.FC<TabScoutProps> = ({
   }, [leagueData, effectiveEpochKey, sharedScoutSquads, isLoadingSharedScoutSquads, formulaRevision]);
 
   const scoutSquadsPayload =
-    sharedScoutSquads && sharedScoutSquads.epochKey === effectiveEpochKey
+    sharedScoutSquads && isEpochCompatible(sharedScoutSquads.epochKey, effectiveEpochKey)
       ? sharedScoutSquads
-      : localScoutSquadsPayload && localScoutSquadsPayload.epochKey === effectiveEpochKey
+      : localScoutSquadsPayload && isEpochCompatible(localScoutSquadsPayload.epochKey, effectiveEpochKey)
       ? localScoutSquadsPayload
       : null;
   const isLoadingScoutSquads = Boolean(

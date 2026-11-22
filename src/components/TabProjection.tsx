@@ -827,6 +827,12 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
   return (
     <div className="w-full space-y-2.5 pb-6">
+      {isLoadingMatches && allPlayerFullSeasonProjections.length === 0 && (
+        <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 p-6 flex items-center justify-center">
+          <div className="w-5 h-5 border-2 border-[#37003c] dark:border-[#00ff87] border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* 1. SUBTAB: LINE UP (GW N+1 ACCORDION PER 20 CLUBS)                         */}
       {/* ========================================================================= */}

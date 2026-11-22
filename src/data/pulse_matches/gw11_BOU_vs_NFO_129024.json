@@ -1431,7 +1431,7 @@
         "label": "10"
       },
       "type": "attempt blocked",
-      "text": "Attempt blocked. Evanilson (Bournemouth) right footed shot from the centre of the box is blocked. Assisted by Rayan.",
+      "text": "Attempt blocked. Evanilson (Bournemouth) right footed shot from the centre of the box is blocked. Assisted by Rayan with a through ball.",
       "playerIds": [
         33032,
         134234
@@ -1517,7 +1517,7 @@
         "label": "16"
       },
       "type": "miss",
-      "text": "Attempt missed. Murillo (Nottingham Forest) left footed shot from outside the box is close, but misses to the right. Assisted by Morgan Gibbs-White from a direct free kick.",
+      "text": "Attempt missed. Murillo (Nottingham Forest) left footed shot from outside the box misses to the right. Assisted by Morgan Gibbs-White from a direct free kick.",
       "playerIds": [
         139648,
         15259
@@ -1899,7 +1899,7 @@
     {
       "id": 2912209,
       "time": {
-        "secs": 2681,
+        "secs": 2678,
         "label": "45"
       },
       "type": "yellow card",
@@ -1924,7 +1924,7 @@
         "label": "45+1"
       },
       "type": "miss",
-      "text": "Attempt missed. Marcus Tavernier (Bournemouth) left footed shot from outside the box is close, but misses the top left corner. Assisted by Evanilson.",
+      "text": "Attempt missed. Marcus Tavernier (Bournemouth) left footed shot from outside the box is high and wide to the left. Assisted by Evanilson.",
       "playerIds": [
         14846,
         33032
@@ -2410,7 +2410,7 @@
     {
       "id": 2912881,
       "time": {
-        "secs": 4165,
+        "secs": 4164,
         "label": "70"
       },
       "type": "miss",
@@ -2445,22 +2445,9 @@
       ]
     },
     {
-      "id": 2912812,
-      "time": {
-        "secs": 4275,
-        "label": "72"
-      },
-      "type": "substitution",
-      "text": "Substitution, Nottingham Forest. Chris Wood replaces James McAtee.",
-      "playerIds": [
-        3756,
-        49270
-      ]
-    },
-    {
       "id": 2912840,
       "time": {
-        "secs": 4280,
+        "secs": 4266,
         "label": "72"
       },
       "type": "substitution",
@@ -2468,6 +2455,19 @@
       "playerIds": [
         76426,
         23811
+      ]
+    },
+    {
+      "id": 2912812,
+      "time": {
+        "secs": 4267,
+        "label": "72"
+      },
+      "type": "substitution",
+      "text": "Substitution, Nottingham Forest. Chris Wood replaces James McAtee.",
+      "playerIds": [
+        3756,
+        49270
       ]
     },
     {
@@ -2546,7 +2546,7 @@
     {
       "id": 2913085,
       "time": {
-        "secs": 4813,
+        "secs": 4812,
         "label": "81"
       },
       "type": "attempt saved",
@@ -2563,7 +2563,7 @@
         "label": "81"
       },
       "type": "attempt blocked",
-      "text": "Attempt blocked. Xaver Schlager (Nottingham Forest) right footed shot from the centre of the box is blocked.",
+      "text": "Attempt blocked. Xaver Schlager (Nottingham Forest) right footed shot from outside the box is blocked.",
       "playerIds": [
         20335
       ]
@@ -2597,7 +2597,7 @@
     {
       "id": 2913022,
       "time": {
-        "secs": 4905,
+        "secs": 4893,
         "label": "82"
       },
       "type": "substitution",
@@ -2639,7 +2639,7 @@
         "label": "83"
       },
       "type": "free kick won",
-      "text": "Morgan Gibbs-White (Nottingham Forest) wins a free kick in the attacking half.",
+      "text": "Morgan Gibbs-White (Nottingham Forest) wins a free kick in the defensive half.",
       "playerIds": [
         15259
       ]
@@ -2758,8 +2758,8 @@
     {
       "id": 2913220,
       "time": {
-        "secs": 5403,
-        "label": "90+1"
+        "secs": 5399,
+        "label": "90"
       },
       "type": "added time",
       "text": "Fourth official has announced 4 minutes of added time."

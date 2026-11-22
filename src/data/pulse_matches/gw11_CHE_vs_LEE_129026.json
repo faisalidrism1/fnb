@@ -1585,7 +1585,7 @@
         "label": "16"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Estêvão (Chelsea) left footed shot from the right side of the box is saved in the top centre of the goal by James Trafford (Leeds United). Assisted by Cole Palmer.",
+      "text": "Attempt saved. Estêvão (Chelsea) left footed shot from the right side of the box is saved in the centre of the goal by James Trafford (Leeds United). Assisted by Cole Palmer.",
       "playerIds": [
         304474,
         49293
@@ -1594,7 +1594,7 @@
     {
       "id": 2911741,
       "time": {
-        "secs": 997,
+        "secs": 996,
         "label": "17"
       },
       "type": "free kick lost",
@@ -1606,7 +1606,7 @@
     {
       "id": 2911742,
       "time": {
-        "secs": 997,
+        "secs": 996,
         "label": "17"
       },
       "type": "free kick won",
@@ -1631,8 +1631,8 @@
     {
       "id": 2911798,
       "time": {
-        "secs": 1204,
-        "label": "21"
+        "secs": 1199,
+        "label": "20"
       },
       "type": "start delay",
       "text": "Delay in match because of an injury Moisés Caicedo (Chelsea)."
@@ -1788,7 +1788,7 @@
     {
       "id": 2913394,
       "time": {
-        "secs": 2121,
+        "secs": 2126,
         "label": "36"
       },
       "type": "start delay",
@@ -1806,7 +1806,7 @@
     {
       "id": 2912059,
       "time": {
-        "secs": 2152,
+        "secs": 2151,
         "label": "36"
       },
       "type": "miss",
@@ -1826,6 +1826,30 @@
       "playerIds": [
         19731,
         33162
+      ]
+    },
+    {
+      "id": 2913562,
+      "time": {
+        "secs": 2230,
+        "label": "38"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Gabriel Gudmundsson (Leeds United).",
+      "playerIds": [
+        75543
+      ]
+    },
+    {
+      "id": 2913563,
+      "time": {
+        "secs": 2230,
+        "label": "38"
+      },
+      "type": "free kick won",
+      "text": "Estêvão (Chelsea) wins a free kick in the defensive half.",
+      "playerIds": [
+        304474
       ]
     },
     {
@@ -1920,7 +1944,7 @@
         "label": "45+1"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Ao Tanaka (Leeds United) right footed shot from outside the box is saved in the bottom right corner by Emiliano Martínez (Chelsea). Assisted by Dominic Calvert-Lewin.",
+      "text": "Attempt saved. Ao Tanaka (Leeds United) right footed shot from outside the box is saved in the centre of the goal by Emiliano Martínez (Chelsea). Assisted by Dominic Calvert-Lewin.",
       "playerIds": [
         126426,
         9576
@@ -1983,7 +2007,7 @@
         "label": "45+6"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Dominic Calvert-Lewin (Leeds United) header from the centre of the box is saved in the top left corner by Emiliano Martínez (Chelsea). Assisted by Nico Elvedi with a headed pass.",
+      "text": "Attempt saved. Dominic Calvert-Lewin (Leeds United) header from the centre of the box is saved in the centre of the goal by Emiliano Martínez (Chelsea). Assisted by Nico Elvedi with a headed pass.",
       "playerIds": [
         9576,
         12337
@@ -1992,7 +2016,7 @@
     {
       "id": 2912293,
       "time": {
-        "secs": 3023,
+        "secs": 3010,
         "label": "45+6"
       },
       "type": "end 1",
@@ -2010,7 +2034,7 @@
     {
       "id": 2912371,
       "time": {
-        "secs": 2744,
+        "secs": 2746,
         "label": "46"
       },
       "type": "miss",
@@ -2062,7 +2086,7 @@
         "label": "48"
       },
       "type": "miss",
-      "text": "Attempt missed. Ao Tanaka (Leeds United) left footed shot from the centre of the box is close, but misses to the left. Assisted by Jayden Bogle with a cross following a set piece situation.",
+      "text": "Attempt missed. Ao Tanaka (Leeds United) left footed shot from very close range is close, but misses to the left. Assisted by Jayden Bogle with a cross following a set piece situation.",
       "playerIds": [
         126426,
         14608
@@ -2084,7 +2108,7 @@
     {
       "id": 2912441,
       "time": {
-        "secs": 2936,
+        "secs": 2938,
         "label": "49"
       },
       "type": "attempt blocked",
@@ -2124,7 +2148,7 @@
         "label": "55"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Morgan Rogers (Chelsea) right footed shot from outside the box is saved in the bottom left corner by James Trafford (Leeds United). Assisted by Jordan Henderson.",
+      "text": "Attempt saved. Morgan Rogers (Chelsea) right footed shot from outside the box is saved in the centre of the goal by James Trafford (Leeds United). Assisted by Jordan Henderson.",
       "playerIds": [
         23968,
         3712
@@ -2430,7 +2454,7 @@
     {
       "id": 2913001,
       "time": {
-        "secs": 4611,
+        "secs": 4610,
         "label": "77"
       },
       "type": "miss",
@@ -2515,7 +2539,7 @@
     {
       "id": 2913142,
       "time": {
-        "secs": 4976,
+        "secs": 4971,
         "label": "83"
       },
       "type": "yellow card",
@@ -2708,7 +2732,7 @@
     {
       "id": 2913325,
       "time": {
-        "secs": 5406,
+        "secs": 5415,
         "label": "90+1"
       },
       "type": "substitution",
@@ -2721,7 +2745,7 @@
     {
       "id": 2913326,
       "time": {
-        "secs": 5415,
+        "secs": 5420,
         "label": "90+1"
       },
       "type": "substitution",
@@ -2773,7 +2797,7 @@
     {
       "id": 2913382,
       "time": {
-        "secs": 5737,
+        "secs": 5732,
         "label": "90+6"
       },
       "type": "offside",
@@ -2786,7 +2810,7 @@
     {
       "id": 2913388,
       "time": {
-        "secs": 5764,
+        "secs": 5762,
         "label": "90+7"
       },
       "type": "end 2",

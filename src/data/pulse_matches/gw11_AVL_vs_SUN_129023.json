@@ -926,7 +926,7 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Left Winger",
+            "positionInfo": "Centre Striker",
             "shirtNum": 57
           },
           "captain": false,
@@ -1248,7 +1248,7 @@
         "label": "05"
       },
       "type": "miss",
-      "text": "Attempt missed. Johan Manzambi (Aston Villa) header from the centre of the box misses to the left. Assisted by Emiliano Buendía with a cross following a corner.",
+      "text": "Attempt missed. Johan Manzambi (Aston Villa) header from the right side of the six yard box misses to the left. Assisted by Emiliano Buendía with a cross following a corner.",
       "playerIds": [
         304175,
         26408
@@ -2228,7 +2228,7 @@
         "label": "68"
       },
       "type": "miss",
-      "text": "Attempt missed. John McGinn (Aston Villa) left footed shot from the left side of the box is high and wide to the right. Assisted by Ibrahim Mbaye.",
+      "text": "Attempt missed. John McGinn (Aston Villa) left footed shot from the centre of the box is close, but misses the top right corner. Assisted by Ibrahim Mbaye.",
       "playerIds": [
         51423,
         142138
@@ -2340,7 +2340,7 @@
         "label": "77"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Ibrahim Mbaye (Aston Villa) right footed shot from outside the box is saved in the top centre of the goal by Robin Roefs (Sunderland). Assisted by John McGinn.",
+      "text": "Attempt saved. Ibrahim Mbaye (Aston Villa) right footed shot from outside the box is saved in the top left corner by Robin Roefs (Sunderland). Assisted by John McGinn.",
       "playerIds": [
         142138,
         51423
@@ -2355,7 +2355,7 @@
       "type": "offside",
       "text": "Offside, Sunderland. Nilson Angulo is caught offside.",
       "playerIds": [
-        75692,
+        12196,
         115105
       ]
     },
@@ -2561,7 +2561,7 @@
         "label": "86"
       },
       "type": "miss",
-      "text": "Attempt missed. Alysson (Aston Villa) left footed shot from the left side of the box is close, but misses the top right corner. Assisted by Ian Maatsen following a corner.",
+      "text": "Attempt missed. Alysson (Aston Villa) left footed shot from the left side of the box is close, but misses the top left corner. Assisted by Ian Maatsen with a cross following a corner.",
       "playerIds": [
         326089,
         51223

@@ -115,7 +115,7 @@ export async function prewarmMatchesCache(maxGw: number): Promise<void> {
 let cachedBootstrapStatic: { data: any; time: number } | null = null;
 let inFlightBootstrap: Promise<any> | null = null;
 
-async function getCachedBootstrapStatic(force: boolean = false): Promise<any> {
+export async function getCachedBootstrapStatic(force: boolean = false): Promise<any> {
   const now = Date.now();
   if (!force && cachedBootstrapStatic && now - cachedBootstrapStatic.time < 3600000 * 2) { // 2 hours TTL
     return cachedBootstrapStatic.data;

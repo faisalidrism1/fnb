@@ -33,6 +33,7 @@ import {
 } from '../utils/projectionModel.ts';
 import {
   CausalAvailability,
+  HybridMatchClubSide,
   HybridTuneParams,
   PlayerFeaturesAtGw,
   buildHybridHistoryStore,
@@ -54,6 +55,7 @@ import {
   isSpecificPulsePositionInfo,
   lookupPulsePlayerPosition,
 } from './pulsePlayerPositions.ts';
+import { getPulseAllCompHistoryDb, getPulseAllCompHistoryEpoch } from './pulseAllCompDb.ts';
 
 interface PastSeasonPlayerRecord {
   id: number;
@@ -185,6 +187,45 @@ function buildPulsePositionInfoSeed(players: DbPlayerStat[]): Record<number, str
   return seed;
 }
 
+function buildHybridExtraAllCompSides(): HybridMatchClubSide[] {
+  const db = getPulseAllCompHistoryDb();
+  const sides: HybridMatchClubSide[] = [];
+  for (const m of Object.values(db.matches || {})) {
+    if (!m || !m.finalized || m.compAbbr === 'EN_PR') continue;
+    if (!m.kickoffMs || !Number.isFinite(m.kickoffMs)) continue;
+    for (const s of m.sides || []) {
+      if (!s?.clubShort || !Array.isArray(s.starterFplIds) || s.starterFplIds.length === 0) continue;
+      const playerPosInfo: Record<number, string> = {};
+      for (const p of [...(s.starters || []), ...(s.subs || [])]) {
+        if (p?.fplId && p.fplId > 0 && p.positionInfo) {
+          playerPosInfo[p.fplId] = p.positionInfo;
+        }
+      }
+      sides.push({
+        gw: m.eplGw ?? 0,
+        eplGw: null,
+        compAbbr: m.compAbbr,
+        kickoffMs: m.kickoffMs,
+        clubShort: s.clubShort,
+        isHome: Boolean(s.isHome),
+        oppShort: s.oppShort || '',
+        formationLabel: s.formationLabel || undefined,
+        outfieldSlots:
+          Array.isArray(s.outfieldSlots) && s.outfieldSlots.length === 10
+            ? s.outfieldSlots
+            : undefined,
+        starterIds: s.starterFplIds,
+        starterRoles: s.starterRolesByFplId || {},
+        subOnIds: s.subOnFplIds || [],
+        unusedBenchIds: s.unusedBenchFplIds || [],
+        minutesByPlayer: s.minutesByFplId || {},
+        playerPosInfo,
+      });
+    }
+  }
+  return sides;
+}
+
 let cachedFormulaFingerprint: string | null = null;
 let lastFormulaStatCheckMs = 0;
 let lastFormulaMtimesKey = '';
@@ -300,7 +341,8 @@ export function computeProjectionEpochInfo(cachedData: TransformedLeagueData | n
   const effectiveEpochStatus =
     baseHistoricalGW === curr && lifecycleStatus === 'Provisional' ? 'Provisional' : 'Confirmed';
   const formulaFingerprint = getProjectionFormulaFingerprint();
-  const epochKey = `${baseHistoricalGW}:${effectiveEpochStatus}:${PROJECTION_FORMULA_VERSION}:${formulaFingerprint}`;
+  const allCompEpoch = getPulseAllCompHistoryEpoch();
+  const epochKey = `${baseHistoricalGW}:${effectiveEpochStatus}:${PROJECTION_FORMULA_VERSION}:${formulaFingerprint}:ac${allCompEpoch}`;
 
   return {
     epochKey,
@@ -917,14 +959,24 @@ async function getOrBuildCoreContext(
     const deadlines = cachedData.sync_status?.deadlines;
     const playerPosSeed = buildPulsePositionInfoSeed(allPlayers);
     const playerTeamMap = new Map<number, string>(allPlayers.map((p) => [p.id, p.teamShort]));
+    const extraAllCompSides = buildHybridExtraAllCompSides();
     const hybridHistory = buildHybridHistoryStore(
       historicalMatchesForStats,
       baseHistoricalGW,
       playerPosSeed,
       precalculatedReviewData.players,
-      playerTeamMap
+      playerTeamMap,
+      extraAllCompSides
     );
     const clubShorts = clubs.map((c) => c.short);
+    const targetCutoffMsByClub: Record<string, number> = {};
+    for (const c of clubs) {
+      const koIso = clubNextMatchesMap[c.short]?.[0]?.kickoffTime || deadlines?.[String(targetNextGW)];
+      const parsed = koIso ? Date.parse(koIso) : NaN;
+      if (Number.isFinite(parsed) && parsed > 0) {
+        targetCutoffMsByClub[c.short] = parsed;
+      }
+    }
     const {
       params: hybridParams,
       logitWeights: hybridWeights,
@@ -935,7 +987,8 @@ async function getOrBuildCoreContext(
       targetNextGW,
       hybridHistory,
       pastSeasonMap,
-      deadlines
+      deadlines,
+      targetCutoffMsByClub
     );
 
     const allPlayersByClub = new Map<string, DbPlayerStat[]>();
@@ -967,6 +1020,7 @@ async function getOrBuildCoreContext(
       const hybridPred = predictHybridClubLineup({
         clubShort: c.short,
         targetGw: targetNextGW,
+        targetCutoffMs: targetCutoffMsByClub[c.short],
         isHome: isHomeNext,
         players: cPlayers,
         availabilityById,
@@ -1386,6 +1440,7 @@ export async function getServerProjectionCore(
 interface HybridReviewRuntimeCache {
   playerPosSeed: Record<number, string>;
   playerTeamMap: Map<number, string>;
+  extraAllCompSides?: HybridMatchClubSide[];
   deadlines?: Record<string, string>;
   isCurrentGwFinishedOrConfirmed: boolean;
   calibByGw: Map<number, { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> }>;
@@ -1405,6 +1460,7 @@ function buildLineupReviewForGw(
   const activePlayers = allPlayers.filter((p) => p.status !== 'u');
   const playerPosSeed = reviewRuntime?.playerPosSeed || buildPulsePositionInfoSeed(activePlayers);
   const playerTeamMap = reviewRuntime?.playerTeamMap || new Map<number, string>(activePlayers.map((p) => [p.id, p.teamShort]));
+  const extraAllCompSides = reviewRuntime?.extraAllCompSides ?? buildHybridExtraAllCompSides();
   const deadlines = reviewRuntime?.deadlines;
   const isCurrConfirmed = reviewRuntime?.isCurrentGwFinishedOrConfirmed ?? true;
 
@@ -1413,10 +1469,20 @@ function buildLineupReviewForGw(
     gw - 1,
     playerPosSeed,
     precalculatedReviewData.players,
-    playerTeamMap
+    playerTeamMap,
+    extraAllCompSides
   );
 
   const clubShorts = clubs.map((c) => c.short);
+  const targetCutoffMsByClub: Record<string, number> = {};
+  for (const c of clubs) {
+    const koIso = actualMatchLookup[`${gw}_${c.short}`]?.[0]?.kickoff || deadlines?.[String(gw)];
+    const parsed = koIso ? Date.parse(koIso) : NaN;
+    if (Number.isFinite(parsed) && parsed > 0) {
+      targetCutoffMsByClub[c.short] = parsed;
+    }
+  }
+
   let calib = reviewRuntime?.calibByGw.get(gw);
   if (!calib) {
     calib = selectCausalHybridParamsAndWeights(
@@ -1425,7 +1491,8 @@ function buildLineupReviewForGw(
       gw,
       gwHistory,
       pastSeasonMap,
-      deadlines
+      deadlines,
+      targetCutoffMsByClub
     );
     reviewRuntime?.calibByGw.set(gw, calib);
   }
@@ -1490,6 +1557,7 @@ function buildLineupReviewForGw(
     const hybridPred = predictHybridClubLineup({
       clubShort: c.short,
       targetGw: gw,
+      targetCutoffMs: targetCutoffMsByClub[c.short],
       isHome,
       players: squad,
       availabilityById,
@@ -1800,6 +1868,7 @@ async function getOrBuildReviewBase(
     const reviewRuntime: HybridReviewRuntimeCache = {
       playerPosSeed: buildPulsePositionInfoSeed(activeReviewPlayers),
       playerTeamMap: new Map(activeReviewPlayers.map((p) => [p.id, p.teamShort])),
+      extraAllCompSides: buildHybridExtraAllCompSides(),
       deadlines: cachedData.sync_status?.deadlines,
       isCurrentGwFinishedOrConfirmed: coreCtx.epoch.isCurrentGwFinishedOrConfirmed,
       calibByGw: new Map(),
@@ -2117,6 +2186,7 @@ export async function getServerReviewBundle(
       {
         playerPosSeed: buildPulsePositionInfoSeed(activePlayers),
         playerTeamMap: new Map(activePlayers.map((p) => [p.id, p.teamShort])),
+        extraAllCompSides: buildHybridExtraAllCompSides(),
         deadlines: cachedData.sync_status?.deadlines,
         isCurrentGwFinishedOrConfirmed: coreCtx.epoch.isCurrentGwFinishedOrConfirmed,
         calibByGw: new Map(),

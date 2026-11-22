@@ -1437,11 +1437,11 @@
     {
       "id": 2911565,
       "time": {
-        "secs": 203,
+        "secs": 201,
         "label": "04"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Abdoul Ouattara (Ipswich Town) right footed shot from a difficult angle on the right is saved in the top left corner by Antonín Kinsky (Tottenham Hotspur). Assisted by Zian Flemming.",
+      "text": "Attempt saved. Abdoul Ouattara (Ipswich Town) right footed shot from a difficult angle on the right is saved in the centre of the goal by Antonín Kinsky (Tottenham Hotspur). Assisted by Zian Flemming.",
       "playerIds": [
         126111,
         75735
@@ -1491,7 +1491,7 @@
         "label": "06"
       },
       "type": "miss",
-      "text": "Attempt missed. Dominic Solanke (Tottenham Hotspur) right footed shot from the centre of the box misses to the right. Assisted by Marcos Senesi.",
+      "text": "Attempt missed. Dominic Solanke (Tottenham Hotspur) right footed shot from the centre of the box is close, but misses to the right. Assisted by Marcos Senesi.",
       "playerIds": [
         10443,
         54989
@@ -1537,7 +1537,7 @@
     {
       "id": 2911645,
       "time": {
-        "secs": 633,
+        "secs": 630,
         "label": "11"
       },
       "type": "attempt blocked",
@@ -1599,7 +1599,7 @@
     {
       "id": 2911766,
       "time": {
-        "secs": 813,
+        "secs": 811,
         "label": "14"
       },
       "type": "attempt saved",
@@ -2047,7 +2047,7 @@
         "label": "45+2"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. James Maddison (Tottenham Hotspur) right footed shot from the centre of the box is saved in the top left corner by Christian Walton (Ipswich Town).",
+      "text": "Attempt saved. James Maddison (Tottenham Hotspur) right footed shot from the centre of the box is saved in the bottom left corner by Christian Walton (Ipswich Town).",
       "playerIds": [
         8456
       ]
@@ -2206,8 +2206,8 @@
     {
       "id": 2912455,
       "time": {
-        "secs": 3120,
-        "label": "53"
+        "secs": 3116,
+        "label": "52"
       },
       "type": "yellow card",
       "text": "Luca Williams-Barnett (Tottenham Hotspur) is shown the yellow card for excessive celebration.",
@@ -2630,7 +2630,7 @@
         "label": "72"
       },
       "type": "attempt blocked",
-      "text": "Attempt blocked. Omar Marmoush (Tottenham Hotspur) right footed shot from the left side of the box is blocked. Assisted by Lucas Bergvall.",
+      "text": "Attempt blocked. Omar Marmoush (Tottenham Hotspur) right footed shot from the centre of the box is blocked. Assisted by Lucas Bergvall.",
       "playerIds": [
         76216,
         133603

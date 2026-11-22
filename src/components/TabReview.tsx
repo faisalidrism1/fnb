@@ -270,15 +270,32 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
   // Epoch-gated Server Review Bundle Fetch (syncs ONLY on Live -> Provisional / Provisional -> Confirmed)
   const [reviewBundle, setReviewBundle] = useState<ServerReviewBundlePayload | null>(null);
+  const reviewBundleRef = useRef<ServerReviewBundlePayload | null>(null);
+  reviewBundleRef.current = reviewBundle;
   const [isLoadingReview, setIsLoadingReview] = useState<boolean>(false);
   const [formulaRevision, setFormulaRevision] = useState<number>(0);
   const reviewCacheRef = useRef<Map<string, ServerReviewBundlePayload>>(new Map());
-  const inFlightReviewKeyRef = useRef<string | null>(null);
+  const inFlightReviewRef = useRef<{
+    key: string;
+    promise: Promise<ServerReviewBundlePayload | null>;
+  } | null>(null);
+
+  const isEpochCompatible = (payloadEpoch?: string | null, targetEpoch?: string | null): boolean => {
+    if (!payloadEpoch || !targetEpoch) return false;
+    if (targetEpoch.startsWith('fallback:')) return true;
+    if (payloadEpoch === targetEpoch) return true;
+    const payloadParts = payloadEpoch.split(':');
+    const targetParts = targetEpoch.split(':');
+    if (targetParts.length === 3 && payloadParts.length >= 4) {
+      return payloadEpoch.startsWith(`${targetEpoch}:`);
+    }
+    return false;
+  };
 
   useEffect(() => {
     const handleFormulaUpdated = () => {
       reviewCacheRef.current.clear();
-      inFlightReviewKeyRef.current = null;
+      inFlightReviewRef.current = null;
       setReviewBundle(null);
       setFormulaRevision((prev) => prev + 1);
     };
@@ -288,11 +305,11 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
   useEffect(() => {
     if (active === false || !leagueData) return;
+    const currentBundle = reviewBundleRef.current;
     if (
-      reviewBundle &&
-      reviewBundle.epochKey &&
-      reviewBundle.epochKey !== targetEpochKey &&
-      !targetEpochKey.startsWith('fallback:')
+      currentBundle &&
+      currentBundle.epochKey &&
+      !isEpochCompatible(currentBundle.epochKey, targetEpochKey)
     ) {
       setReviewBundle(null);
     }
@@ -300,39 +317,55 @@ export const TabReview: React.FC<TabReviewProps> = ({
     const exactKey = `${targetEpochKey}:${reqGw}`;
     const exactCached = reviewCacheRef.current.get(exactKey);
     if (exactCached) {
-      if (reviewBundle !== exactCached) setReviewBundle(exactCached);
+      if (currentBundle !== exactCached) setReviewBundle(exactCached);
+      setIsLoadingReview(false);
       return;
     }
-    if (subTab !== 'line-up' && reviewBundle?.epochKey === targetEpochKey) {
+    if (
+      subTab !== 'line-up' &&
+      currentBundle &&
+      isEpochCompatible(currentBundle.epochKey, targetEpochKey)
+    ) {
+      setIsLoadingReview(false);
       return;
     }
-    if (inFlightReviewKeyRef.current === exactKey) return;
 
-    inFlightReviewKeyRef.current = exactKey;
-    setIsLoadingReview(true);
     let cancelled = false;
+    setIsLoadingReview(true);
 
-    fetch(`/api/projections-review?gw=${reqGw}&_t=${Date.now()}`, { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((json) => {
-        if (cancelled || !json?.success || !json.data) return;
-        const payload = json.data as ServerReviewBundlePayload;
+    let activePromise: Promise<ServerReviewBundlePayload | null>;
+    if (inFlightReviewRef.current && inFlightReviewRef.current.key === exactKey) {
+      activePromise = inFlightReviewRef.current.promise;
+    } else {
+      const fetchPromise = fetch(`/api/projections-review?gw=${reqGw}&_t=${Date.now()}`, { cache: 'no-store' })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json) => (json?.success && json.data ? (json.data as ServerReviewBundlePayload) : null))
+        .catch(() => null)
+        .finally(() => {
+          if (inFlightReviewRef.current?.promise === fetchPromise) {
+            inFlightReviewRef.current = null;
+          }
+        });
+      inFlightReviewRef.current = { key: exactKey, promise: fetchPromise };
+      activePromise = fetchPromise;
+    }
+
+    activePromise.then((payload) => {
+      if (cancelled) return;
+      if (payload) {
         reviewCacheRef.current.set(`${targetEpochKey}:${reqGw}`, payload);
-        reviewCacheRef.current.set(`${payload.epochKey}:${payload.lineupGw}`, payload);
-        setReviewBundle(payload);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (inFlightReviewKeyRef.current === exactKey) {
-          inFlightReviewKeyRef.current = null;
+        if (payload.epochKey) {
+          reviewCacheRef.current.set(`${payload.epochKey}:${payload.lineupGw}`, payload);
         }
-        if (!cancelled) setIsLoadingReview(false);
-      });
+        setReviewBundle(payload);
+      }
+      setIsLoadingReview(false);
+    });
 
     return () => {
       cancelled = true;
     };
-  }, [active, leagueData, targetEpochKey, subTab, lineupReviewGW, maxReviewGW, reviewBundle, formulaRevision]);
+  }, [active, leagueData, targetEpochKey, subTab, lineupReviewGW, maxReviewGW, formulaRevision]);
 
   const actualMatchLookup = useMemo(
     () => reviewBundle?.actualMatchLookup || ({} as Record<string, ActualMatchReviewEntry[]>),

@@ -24,6 +24,11 @@ import {
   lookupPulsePlayerPosition,
   syncPulsePlayerPositionsFromStaff,
 } from './pulsePlayerPositions.ts';
+import {
+  getAllCompSyncPlan,
+  formatWibDateTimeShort,
+  formatWibTimeShort,
+} from './pulseAllCompDb.ts';
 
 const LEAGUE_ID = 12356;
 const FPL_BASE = 'https://fantasy.premierleague.com/api';
@@ -1718,9 +1723,78 @@ function formatChipName(raw: string): string {
   return raw.toUpperCase();
 }
 
-function computeNextSyncWIB(isMatchdayLive: boolean, gwFixtures: any[] = []): string {
-  const now = new Date();
-  const nowMs = now.getTime();
-  const next1m = new Date(nowMs + 60 * 1000);
-  return `${next1m.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB (1m Auto-Sync)`;
+export function computeNextSyncWIB(isMatchdayLive: boolean, gwFixtures: any[] = []): string {
+  const nowMs = Date.now();
+
+  // 1. Live EPL match in progress
+  const activeEpl = (gwFixtures || []).some((f: any) => {
+    if (f?.finished) return false;
+    if (f?.started) return true;
+    const koMs = f?.kickoff_time ? Date.parse(f.kickoff_time) : NaN;
+    return Number.isFinite(koMs) && koMs <= nowMs && nowMs - koMs <= 165 * 60 * 1000 && !f?.finished_provisional;
+  });
+  if (activeEpl) {
+    return `${formatWibTimeShort(nowMs + 30 * 1000)} WIB (Live EPL Auto-Sync)`;
+  }
+
+  const candidates: Array<{ atMs: number; label: string }> = [];
+
+  // 2. Non-EPL cross-competition event windows (UCL/UEL/UECL/FA Cup/EFL Cup)
+  try {
+    const allCompPlan = getAllCompSyncPlan(nowMs);
+    if (allCompPlan.mode !== 'IDLE') {
+      return allCompPlan.nextWakeLabel;
+    }
+    if (Number.isFinite(allCompPlan.nextWakeAtMs)) {
+      candidates.push({
+        atMs: allCompPlan.nextWakeAtMs,
+        label: allCompPlan.nextWakeLabel,
+      });
+    }
+  } catch {
+    // Fallback gracefully if pulseAllCompDb is not yet initialized
+  }
+
+  // 3. Upcoming EPL fixture wakeup (T-65m lineup window or kickoff)
+  let earliestEplFix: { kickoffMs: number; event?: number } | null = null;
+  for (const f of gwFixtures || []) {
+    if (f?.started || f?.finished || !f?.kickoff_time) continue;
+    const koMs = Date.parse(f.kickoff_time);
+    if (!Number.isFinite(koMs) || koMs <= nowMs - 10 * 60 * 1000) continue;
+    if (!earliestEplFix || koMs < earliestEplFix.kickoffMs) {
+      earliestEplFix = { kickoffMs: koMs, event: Number(f.event) || undefined };
+    }
+  }
+  if (earliestEplFix) {
+    const lineupAt = earliestEplFix.kickoffMs - 65 * 60 * 1000;
+    const gwTag = earliestEplFix.event ? `GW${earliestEplFix.event}` : 'EPL';
+    if (lineupAt > nowMs) {
+      candidates.push({
+        atMs: lineupAt,
+        label: `${formatWibDateTimeShort(lineupAt)} (Lineup ${gwTag})`,
+      });
+    } else {
+      const targetAt = Math.max(nowMs + 60 * 1000, earliestEplFix.kickoffMs);
+      candidates.push({
+        atMs: targetAt,
+        label: `${formatWibTimeShort(targetAt)} WIB (Pre-KO ${gwTag})`,
+      });
+    }
+  }
+
+  // 4. Ongoing FPL Live / Between-Match status wait (e.g. awaiting provisional -> confirmed)
+  if (isMatchdayLive) {
+    const bmAt = nowMs + 90 * 1000;
+    candidates.push({
+      atMs: bmAt,
+      label: `${formatWibTimeShort(bmAt)} WIB (Between-Match Check)`,
+    });
+  }
+
+  if (candidates.length > 0) {
+    candidates.sort((a, b) => a.atMs - b.atMs);
+    return candidates[0].label;
+  }
+
+  return `${formatWibDateTimeShort(nowMs + 6 * 60 * 60 * 1000)} (Event-Driven Idle)`;
 }

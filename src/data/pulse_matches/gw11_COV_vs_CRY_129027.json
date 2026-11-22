@@ -127,26 +127,6 @@
           "pulseId": 22043
         },
         {
-          "id": 461102,
-          "altIds": {
-            "opta": "p461102"
-          },
-          "name": {
-            "first": "Bobby",
-            "last": "Thomas",
-            "display": "Bobby Thomas"
-          },
-          "matchPosition": "D",
-          "info": {
-            "position": "D",
-            "positionInfo": "Centre Central Defender",
-            "shirtNum": 4
-          },
-          "captain": false,
-          "shirtNumber": 4,
-          "pulseId": 63836
-        },
-        {
           "id": 480457,
           "altIds": {
             "opta": "p480457"
@@ -165,6 +145,26 @@
           "captain": false,
           "shirtNumber": 5,
           "pulseId": 66304
+        },
+        {
+          "id": 461102,
+          "altIds": {
+            "opta": "p461102"
+          },
+          "name": {
+            "first": "Bobby",
+            "last": "Thomas",
+            "display": "Bobby Thomas"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4,
+          "pulseId": 63836
         },
         {
           "id": 168144,
@@ -449,26 +449,6 @@
           "pulseId": 19694
         },
         {
-          "id": 196100,
-          "altIds": {
-            "opta": "p196100"
-          },
-          "name": {
-            "first": "Gustavo",
-            "last": "Hamer",
-            "display": "Gustavo Hamer"
-          },
-          "matchPosition": "M",
-          "info": {
-            "position": "M",
-            "positionInfo": "Central Midfielder",
-            "shirtNum": 38
-          },
-          "captain": false,
-          "shirtNumber": 38,
-          "pulseId": 20361
-        },
-        {
           "id": 627221,
           "altIds": {
             "opta": "p627221"
@@ -487,6 +467,26 @@
           "captain": false,
           "shirtNumber": 49,
           "pulseId": 337821
+        },
+        {
+          "id": 196100,
+          "altIds": {
+            "opta": "p196100"
+          },
+          "name": {
+            "first": "Gustavo",
+            "last": "Hamer",
+            "display": "Gustavo Hamer"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Central Midfielder",
+            "shirtNum": 38
+          },
+          "captain": false,
+          "shirtNumber": 38,
+          "pulseId": 20361
         }
       ]
     },
@@ -1403,7 +1403,7 @@
     {
       "id": 2911591,
       "time": {
-        "secs": 389,
+        "secs": 386,
         "label": "07"
       },
       "type": "free kick lost",
@@ -1415,7 +1415,7 @@
     {
       "id": 2911592,
       "time": {
-        "secs": 389,
+        "secs": 386,
         "label": "07"
       },
       "type": "free kick won",
@@ -1439,7 +1439,7 @@
     {
       "id": 2911634,
       "time": {
-        "secs": 530,
+        "secs": 529,
         "label": "09"
       },
       "type": "attempt blocked",
@@ -1490,7 +1490,7 @@
     {
       "id": 2911682,
       "time": {
-        "secs": 802,
+        "secs": 800,
         "label": "14"
       },
       "type": "free kick lost",
@@ -1502,7 +1502,7 @@
     {
       "id": 2911684,
       "time": {
-        "secs": 802,
+        "secs": 800,
         "label": "14"
       },
       "type": "free kick won",
@@ -1514,7 +1514,7 @@
     {
       "id": 2911681,
       "time": {
-        "secs": 855,
+        "secs": 854,
         "label": "15"
       },
       "type": "free kick won",
@@ -1526,7 +1526,7 @@
     {
       "id": 2911683,
       "time": {
-        "secs": 855,
+        "secs": 854,
         "label": "15"
       },
       "type": "free kick lost",
@@ -1586,7 +1586,7 @@
     {
       "id": 2911823,
       "time": {
-        "secs": 1261,
+        "secs": 1260,
         "label": "22"
       },
       "type": "free kick won",
@@ -1598,7 +1598,7 @@
     {
       "id": 2911824,
       "time": {
-        "secs": 1261,
+        "secs": 1260,
         "label": "22"
       },
       "type": "free kick lost",
@@ -1610,8 +1610,8 @@
     {
       "id": 2911822,
       "time": {
-        "secs": 1321,
-        "label": "23"
+        "secs": 1318,
+        "label": "22"
       },
       "type": "free kick lost",
       "text": "Foul by Taiwo Awoniyi (Coventry City).",
@@ -1622,8 +1622,8 @@
     {
       "id": 2911825,
       "time": {
-        "secs": 1321,
-        "label": "23"
+        "secs": 1318,
+        "label": "22"
       },
       "type": "free kick won",
       "text": "Axel Disasi (Crystal Palace) wins a free kick in the defensive half.",
@@ -1671,7 +1671,7 @@
     {
       "id": 2912011,
       "time": {
-        "secs": 1985,
+        "secs": 1984,
         "label": "34"
       },
       "type": "attempt saved",
@@ -1720,7 +1720,7 @@
     {
       "id": 2912027,
       "time": {
-        "secs": 2126,
+        "secs": 2127,
         "label": "36"
       },
       "type": "free kick won",
@@ -1732,7 +1732,7 @@
     {
       "id": 2912028,
       "time": {
-        "secs": 2126,
+        "secs": 2127,
         "label": "36"
       },
       "type": "free kick lost",
@@ -1841,11 +1841,11 @@
     {
       "id": 2912165,
       "time": {
-        "secs": 2515,
+        "secs": 2514,
         "label": "42"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Daichi Kamada (Crystal Palace) right footed shot from a difficult angle on the right is saved in the centre of the goal by Carl Rushworth (Coventry City). Assisted by Dwight McNeil.",
+      "text": "Attempt saved. Daichi Kamada (Crystal Palace) right footed shot from the right side of the box is saved in the centre of the goal by Carl Rushworth (Coventry City). Assisted by Dwight McNeil.",
       "playerIds": [
         49759,
         24797
@@ -1854,7 +1854,7 @@
     {
       "id": 2912164,
       "time": {
-        "secs": 2540,
+        "secs": 2538,
         "label": "43"
       },
       "type": "corner",
@@ -1992,7 +1992,7 @@
     {
       "id": 2912512,
       "time": {
-        "secs": 3178,
+        "secs": 3177,
         "label": "53"
       },
       "type": "attempt blocked",
@@ -2005,7 +2005,7 @@
     {
       "id": 2912515,
       "time": {
-        "secs": 3182,
+        "secs": 3181,
         "label": "54"
       },
       "type": "attempt saved",
@@ -2017,7 +2017,7 @@
     {
       "id": 2912513,
       "time": {
-        "secs": 3183,
+        "secs": 3182,
         "label": "54"
       },
       "type": "corner",
@@ -2029,7 +2029,7 @@
     {
       "id": 2912514,
       "time": {
-        "secs": 3227,
+        "secs": 3225,
         "label": "54"
       },
       "type": "attempt blocked",
@@ -2066,7 +2066,7 @@
     {
       "id": 2912575,
       "time": {
-        "secs": 3353,
+        "secs": 3352,
         "label": "56"
       },
       "type": "miss",
@@ -2140,7 +2140,7 @@
     {
       "id": 2912644,
       "time": {
-        "secs": 3613,
+        "secs": 3612,
         "label": "61"
       },
       "type": "free kick won",
@@ -2152,7 +2152,7 @@
     {
       "id": 2912677,
       "time": {
-        "secs": 3613,
+        "secs": 3612,
         "label": "61"
       },
       "type": "free kick lost",
@@ -2176,7 +2176,7 @@
     {
       "id": 2912708,
       "time": {
-        "secs": 3693,
+        "secs": 3692,
         "label": "62"
       },
       "type": "miss",
@@ -2400,7 +2400,7 @@
     {
       "id": 2912935,
       "time": {
-        "secs": 4377,
+        "secs": 4375,
         "label": "73"
       },
       "type": "substitution",
@@ -2449,7 +2449,7 @@
     {
       "id": 2913050,
       "time": {
-        "secs": 4720,
+        "secs": 4716,
         "label": "79"
       },
       "type": "substitution",
@@ -2513,7 +2513,7 @@
     {
       "id": 2913097,
       "time": {
-        "secs": 4902,
+        "secs": 4901,
         "label": "82"
       },
       "type": "corner",
@@ -2574,7 +2574,7 @@
     {
       "id": 2913262,
       "time": {
-        "secs": 5320,
+        "secs": 5310,
         "label": "89"
       },
       "type": "substitution",
@@ -2674,7 +2674,7 @@
       "type": "offside",
       "text": "Offside, Coventry City. Brandon Thomas-Asante is caught offside.",
       "playerIds": [
-        22043,
+        20361,
         19694
       ]
     },

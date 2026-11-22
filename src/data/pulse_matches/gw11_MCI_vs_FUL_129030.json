@@ -1136,6 +1136,34 @@
     },
     {
       "type": "S",
+      "personId": 551466,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "77'",
+        "secs": 4620
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
+      "personId": 477555,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "77'",
+        "secs": 4620
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 1
+      }
+    },
+    {
+      "type": "S",
       "personId": 624777,
       "description": "ON",
       "phase": "2",
@@ -1179,34 +1207,6 @@
     {
       "type": "S",
       "personId": 472769,
-      "description": "OFF",
-      "phase": "2",
-      "clock": {
-        "label": "78'",
-        "secs": 4680
-      },
-      "score": {
-        "homeScore": 1,
-        "awayScore": 1
-      }
-    },
-    {
-      "type": "S",
-      "personId": 551466,
-      "description": "ON",
-      "phase": "2",
-      "clock": {
-        "label": "78'",
-        "secs": 4680
-      },
-      "score": {
-        "homeScore": 1,
-        "awayScore": 1
-      }
-    },
-    {
-      "type": "S",
-      "personId": 477555,
       "description": "OFF",
       "phase": "2",
       "clock": {
@@ -1613,7 +1613,7 @@
     {
       "id": 2910725,
       "time": {
-        "secs": 1262,
+        "secs": 1264,
         "label": "22"
       },
       "type": "yellow card",
@@ -1871,7 +1871,7 @@
     {
       "id": 2910939,
       "time": {
-        "secs": 2594,
+        "secs": 2596,
         "label": "44"
       },
       "type": "yellow card",
@@ -2330,8 +2330,8 @@
     {
       "id": 2911424,
       "time": {
-        "secs": 4621,
-        "label": "78"
+        "secs": 4613,
+        "label": "77"
       },
       "type": "substitution",
       "text": "Substitution, Fulham. Gonzalo García replaces Oscar Bobb.",

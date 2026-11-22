@@ -7,22 +7,39 @@ import {
   solveMaxWeightAssignment,
 } from './tacticalLineupModel.ts';
 
+export const CROSS_COMP_WEIGHTS: Record<string, number> = {
+  EN_PR: 1.0,
+  EU_CL: 0.78,
+  EU_UC: 0.62,
+  EU_CF: 0.50,
+  EN_FA: 0.65,
+  EN_FC: 0.65,
+  EN_LC: 0.35,
+};
+
 export interface HybridTuneParams {
   // Stage 1: Formation
   lambdaF: number;
   venueBoost: number;
   wV6: number;
+  formHalfLifeDays: number;
   // Stage 2A: Calibration & Kalman Drift
   decay: number;
+  halfLifeDays: number;
+  roleDecayDays: number;
+  rolePriorStrength: number;
   mShrink: number;
   l2: number;
   kalmanGain: number;
+  clubSumShrinkage: number;
   // Stage 2B: Starting XI Slot Assignment & Synergy
   wA: number;
   wSyn: number;
   lambdaCo: number;
+  coPlayHalfLifeDays: number;
   etaJoint: number;
   // Stage 3: Sub_9 & Role Squad Prior
+  subUseAllComp: boolean;
   useRoleSquadPrior: boolean;
   wSubBench: number; // bench appearance propensity (sub + unused)
   wSubSquad: number; // total squad inclusion & recent bench momentum
@@ -37,22 +54,29 @@ export const DEFAULT_HYBRID_PARAMS: HybridTuneParams = {
   lambdaF: 0.64,
   venueBoost: 0.05,
   wV6: 0.15,
+  formHalfLifeDays: 21,
   decay: 0.78,
+  halfLifeDays: 14,
+  roleDecayDays: 28,
+  rolePriorStrength: 2.0,
   mShrink: 1.5,
-  l2: 3.0,
+  l2: 2.5,
   kalmanGain: 0.48,
+  clubSumShrinkage: 0.50,
   wA: 1.25,
-  wSyn: 1.0,
+  wSyn: 0.20,
   lambdaCo: 0.75,
+  coPlayHalfLifeDays: 24,
   etaJoint: 0.45,
+  subUseAllComp: true,
   useRoleSquadPrior: false,
-  wSubBench: 0.48,
-  wSubSquad: 0.28,
-  wSubStart: 0.08,
-  wSubRole: 0.16,
+  wSubBench: 0.56,
+  wSubSquad: 0.26,
+  wSubStart: 0.04,
+  wSubRole: 0.14,
   subLift: 0.20,
   subStackPen: 0.12,
-  subCov: 0.4,
+  subCov: 0.40,
 };
 
 export interface CausalAvailability {
@@ -71,6 +95,11 @@ export interface PastSeasonMinutesRecord {
 
 export interface HybridMatchClubSide {
   gw: number;
+  eplGw?: number | null;
+  compAbbr?: string;
+  compWeight?: number;
+  kickoffMs?: number;
+  clubShort?: string;
   isHome: boolean;
   oppShort: string;
   formationLabel?: string;
@@ -80,11 +109,15 @@ export interface HybridMatchClubSide {
   subOnIds: number[];
   unusedBenchIds: number[];
   minutesByPlayer: Record<number, number>;
+  playerPosInfo?: Record<number, string>;
 }
 
 export interface HybridHistoryStore {
   maxGw: number;
   clubSides: Record<string, HybridMatchClubSide[]>;
+  eplClubSides: Record<string, HybridMatchClubSide[]>;
+  allCompClubSides: Record<string, HybridMatchClubSide[]>;
+  eplKickoffMsByGwClub: Record<string, number>;
   playerPosInfo: Record<number, string>;
 }
 
@@ -202,22 +235,36 @@ function parsePosInfoVector(posInfo: string | undefined, fplPos: PositionType): 
   return out;
 }
 
+function resolveFallbackGwKickoffMs(gw: number): number {
+  return Date.UTC(2026, 7, 22, 14, 0, 0) + Math.max(0, gw - 1) * 7 * 86400_000;
+}
+
 /**
- * Builds chronological match-level club histories strictly up to `upToGw`.
+ * Builds chronological match-level club histories strictly up to `upToGw` for EPL
+ * and merges optional Non-EPL cross-competition club sides sorted by `kickoffMs`.
  */
 export function buildHybridHistoryStore(
   matchesByGw: Record<number, any[]>,
   upToGw: number,
   playerPositionInfoSeed?: Record<number, string>,
   precalcPlayers?: Record<string, Record<string, { mins?: number; wasStarter?: boolean; wasSub?: boolean }>>,
-  playerTeamMap?: Map<number, string>
+  playerTeamMap?: Map<number, string>,
+  extraAllCompSides?: HybridMatchClubSide[]
 ): HybridHistoryStore {
-  const clubSides: Record<string, HybridMatchClubSide[]> = {};
+  const eplClubSides: Record<string, HybridMatchClubSide[]> = {};
+  const allCompClubSides: Record<string, HybridMatchClubSide[]> = {};
+  const eplKickoffMsByGwClub: Record<string, number> = {};
   const playerPosInfo: Record<number, string> = { ...(playerPositionInfoSeed || {}) };
   const coveredClubGw = new Set<string>();
 
+  const pushAllCompSide = (clubShort: string, side: HybridMatchClubSide) => {
+    if (!allCompClubSides[clubShort]) allCompClubSides[clubShort] = [];
+    allCompClubSides[clubShort].push(side);
+  };
+
   const ingestSide = (
     gw: number,
+    kickoffMs: number,
     clubShort: string,
     oppShort: string,
     isHome: boolean,
@@ -227,6 +274,10 @@ export function buildHybridHistoryStore(
     bench?: any[]
   ) => {
     if (!clubShort) return;
+    if (Number.isFinite(kickoffMs) && kickoffMs > 0) {
+      eplKickoffMsByGwClub[`${gw}_${clubShort}`] = kickoffMs;
+    }
+
     for (const lp of [...(lineup || []), ...(bench || [])]) {
       if (!lp?.id) continue;
       const infoStr = lp.pulse_position_info || lp.position_info;
@@ -284,9 +335,13 @@ export function buildHybridHistoryStore(
       if (inferred.length === 10) outfieldSlots = inferred;
     }
 
-    if (!clubSides[clubShort]) clubSides[clubShort] = [];
-    clubSides[clubShort].push({
+    const side: HybridMatchClubSide = {
       gw,
+      eplGw: gw,
+      compAbbr: 'EN_PR',
+      compWeight: 1.0,
+      kickoffMs,
+      clubShort,
       isHome,
       oppShort,
       formationLabel: label || undefined,
@@ -296,7 +351,11 @@ export function buildHybridHistoryStore(
       subOnIds,
       unusedBenchIds,
       minutesByPlayer,
-    });
+    };
+
+    if (!eplClubSides[clubShort]) eplClubSides[clubShort] = [];
+    eplClubSides[clubShort].push(side);
+    pushAllCompSide(clubShort, side);
     coveredClubGw.add(`${clubShort}_${gw}`);
   };
 
@@ -306,14 +365,17 @@ export function buildHybridHistoryStore(
       if (!m) continue;
       const hShort = m.home_team?.short_name || '';
       const aShort = m.away_team?.short_name || '';
-      ingestSide(gw, hShort, aShort, true, m.home_formation, m.home_formation_rows, m.home_lineup, m.home_bench);
-      ingestSide(gw, aShort, hShort, false, m.away_formation, m.away_formation_rows, m.away_lineup, m.away_bench);
+      const parsedKo = m.kickoff_time ? Date.parse(m.kickoff_time) : NaN;
+      const koMs = Number.isFinite(parsedKo) && parsedKo > 0 ? parsedKo : resolveFallbackGwKickoffMs(gw);
+      ingestSide(gw, koMs, hShort, aShort, true, m.home_formation, m.home_formation_rows, m.home_lineup, m.home_bench);
+      ingestSide(gw, koMs, aShort, hShort, false, m.away_formation, m.away_formation_rows, m.away_lineup, m.away_bench);
     }
   }
 
   if (precalcPlayers && playerTeamMap) {
     for (let gw = 1; gw <= upToGw; gw++) {
       const byTeam = new Map<string, HybridMatchClubSide>();
+      const fallbackKoMs = resolveFallbackGwKickoffMs(gw);
       for (const [idStr, gwMap] of Object.entries(precalcPlayers)) {
         const pId = Number(idStr);
         const team = playerTeamMap.get(pId);
@@ -324,6 +386,11 @@ export function buildHybridHistoryStore(
         if (!side) {
           side = {
             gw,
+            eplGw: gw,
+            compAbbr: 'EN_PR',
+            compWeight: 1.0,
+            kickoffMs: eplKickoffMsByGwClub[`${gw}_${team}`] || fallbackKoMs,
+            clubShort: team,
             isHome: true,
             oppShort: '',
             starterIds: [],
@@ -342,19 +409,53 @@ export function buildHybridHistoryStore(
       }
       for (const [team, side] of byTeam.entries()) {
         if (side.starterIds.length > 0) {
-          if (!clubSides[team]) clubSides[team] = [];
-          clubSides[team].push(side);
+          if (!eplClubSides[team]) eplClubSides[team] = [];
+          eplClubSides[team].push(side);
+          pushAllCompSide(team, side);
           coveredClubGw.add(`${team}_${gw}`);
         }
       }
     }
   }
 
-  for (const sides of Object.values(clubSides)) {
-    sides.sort((a, b) => a.gw - b.gw);
+  // Merge Non-EPL cross-competition club sides chronologically
+  if (Array.isArray(extraAllCompSides) && extraAllCompSides.length > 0) {
+    for (const extra of extraAllCompSides) {
+      if (!extra || !extra.clubShort || extra.compAbbr === 'EN_PR') continue;
+      if (!extra.kickoffMs || !Number.isFinite(extra.kickoffMs)) continue;
+      if (extra.playerPosInfo) {
+        for (const [idStr, info] of Object.entries(extra.playerPosInfo)) {
+          const pId = Number(idStr);
+          if (pId > 0 && info && !playerPosInfo[pId]) {
+            playerPosInfo[pId] = info;
+          }
+        }
+      }
+      const compAbbr = extra.compAbbr || 'EU_CL';
+      pushAllCompSide(extra.clubShort, {
+        ...extra,
+        eplGw: null,
+        compAbbr,
+        compWeight: extra.compWeight ?? CROSS_COMP_WEIGHTS[compAbbr] ?? 0.5,
+      });
+    }
   }
 
-  return { maxGw: upToGw, clubSides, playerPosInfo };
+  for (const sides of Object.values(eplClubSides)) {
+    sides.sort((a, b) => a.gw - b.gw || (a.kickoffMs || 0) - (b.kickoffMs || 0));
+  }
+  for (const sides of Object.values(allCompClubSides)) {
+    sides.sort((a, b) => (a.kickoffMs || 0) - (b.kickoffMs || 0) || a.gw - b.gw);
+  }
+
+  return {
+    maxGw: upToGw,
+    clubSides: eplClubSides,
+    eplClubSides,
+    allCompClubSides,
+    eplKickoffMsByGwClub,
+    playerPosInfo,
+  };
 }
 
 /**
@@ -509,6 +610,7 @@ export interface PlayerFeaturesAtGw {
   priorRate: number;
   nClub: number;
   nObs: number;
+  // Pure EPL counts & rates (for UI/Review compatibility & EPL track)
   startsCount: number;
   subCount: number;
   unusedCount: number;
@@ -517,19 +619,75 @@ export interface PlayerFeaturesAtGw {
   startRate: number;
   ebStartRate: number;
   minAvg: number;
-  dMin: number;
   subOnRate: number;
-  benchAppRate: number; // sub + unused rate (weighted)
+  benchAppRate: number;
+  inSquadRate: number;
   benchPrev1: number;
   benchPrev2: number;
-  inSquadRate: number;
-  kalmanState: number;
   startedPrev1: number;
   startedPrev2: number;
+  prev1EplMins: number;
+  // Chronological 7-Comp features (Clean14 + prev1EplMins)
+  allCompStartRate: number;
+  allCompEbStartRate: number;
+  allCompMinAvg: number;
+  dMin: number;
+  kalmanState: number;
+  inSquadAllRate: number;
+  allBenchRate: number;
+  benchPrev1Any: number;
+  benchPrev2Any: number;
+  fatigue72h: number;
+  uefaRestedPen: number;
   roleAffinity: Record<CanonicalTacticalRole, number>;
   topRole: CanonicalTacticalRole;
   maxAffinity: number;
   compRole: number; // filled at club level
+}
+
+function resolveTargetCutoffMs(
+  clubShort: string,
+  targetGw: number,
+  history: HybridHistoryStore,
+  explicitCutoffMs?: number,
+  deadlines?: Record<string, string>
+): number {
+  if (explicitCutoffMs && Number.isFinite(explicitCutoffMs) && explicitCutoffMs > 0) {
+    return explicitCutoffMs;
+  }
+  const byHistory = history.eplKickoffMsByGwClub?.[`${targetGw}_${clubShort}`];
+  if (byHistory && Number.isFinite(byHistory) && byHistory > 0) {
+    return byHistory;
+  }
+  const dlIso = deadlines?.[String(targetGw)];
+  if (dlIso) {
+    const parsedDl = Date.parse(dlIso);
+    if (Number.isFinite(parsedDl) && parsedDl > 0) return parsedDl + 12 * 3600_000;
+  }
+  return resolveFallbackGwKickoffMs(targetGw);
+}
+
+function getCausalAllCompSides(
+  history: HybridHistoryStore,
+  clubShort: string,
+  targetGw: number,
+  targetCutoffMs: number
+): HybridMatchClubSide[] {
+  const source = history.allCompClubSides?.[clubShort] || history.clubSides[clubShort] || [];
+  return source.filter((s) => {
+    const isEpl = !s.compAbbr || s.compAbbr === 'EN_PR';
+    if (isEpl) return (s.eplGw ?? s.gw) < targetGw;
+    return Boolean(s.kickoffMs && s.kickoffMs > 0 && s.kickoffMs < targetCutoffMs);
+  });
+}
+
+function getCausalEplSides(
+  history: HybridHistoryStore,
+  clubShort: string,
+  targetGw: number
+): HybridMatchClubSide[] {
+  const source = history.eplClubSides?.[clubShort] || history.clubSides[clubShort] || [];
+  return source.filter((s) => (!s.compAbbr || s.compAbbr === 'EN_PR') && (s.eplGw ?? s.gw) < targetGw);
 }
 
 function computePlayerPriorRate(p: DbPlayerStat, pastMap: Record<string, PastSeasonMinutesRecord>): number {
@@ -552,9 +710,29 @@ export function extractPlayerFeaturesBeforeGw(
   decay: number,
   mShrink: number,
   kalmanGain: number,
-  priorAffCache?: Map<number, Record<CanonicalTacticalRole, number>>
+  priorAffCache?: Map<number, Record<CanonicalTacticalRole, number>>,
+  opts?: {
+    halfLifeDays?: number;
+    roleDecayDays?: number;
+    rolePriorStrength?: number;
+    targetCutoffMs?: number;
+    deadlines?: Record<string, string>;
+  }
 ): PlayerFeaturesAtGw {
-  const sides = (history.clubSides[player.teamShort] || []).filter((s) => s.gw < targetGw);
+  const halfLifeDays = opts?.halfLifeDays ?? DEFAULT_HYBRID_PARAMS.halfLifeDays;
+  const roleDecayDays = opts?.roleDecayDays ?? DEFAULT_HYBRID_PARAMS.roleDecayDays;
+  const rolePriorStrength = opts?.rolePriorStrength ?? DEFAULT_HYBRID_PARAMS.rolePriorStrength;
+  const targetCutoffMs = resolveTargetCutoffMs(
+    player.teamShort,
+    targetGw,
+    history,
+    opts?.targetCutoffMs,
+    opts?.deadlines
+  );
+
+  const eplSides = getCausalEplSides(history, player.teamShort, targetGw);
+  const allSides = getCausalAllCompSides(history, player.teamShort, targetGw, targetCutoffMs);
+
   const fplPos = (player.position || 'MID') as PositionType;
   const priorRate = computePlayerPriorRate(player, pastMap);
 
@@ -565,36 +743,30 @@ export function extractPlayerFeaturesBeforeGw(
     priorAffCache?.set(player.id, priorRoleVec);
   }
 
-  const nClub = sides.length;
-  let wClubSum = 0;
-  let wStartSum = 0;
-  let wMinSum = 0;
-  let wSubOnSum = 0;
-  let wBenchSum = 0;
-  let wSquadSum = 0;
+  // --- Track 1: Pure EPL historical features ---
+  const nClub = eplSides.length;
+  let wEplSum = 0;
+  let wEplStart = 0;
+  let wEplMin = 0;
+  let wEplSubOn = 0;
+  let wEplBench = 0;
+  let wEplSquad = 0;
 
   let startsCount = 0;
   let subCount = 0;
   let unusedCount = 0;
   let inSquadCount = 0;
 
-  let kalmanState = priorRate;
   let startedPrev1 = 0;
   let startedPrev2 = 0;
   let benchPrev1 = 0;
   let benchPrev2 = 0;
 
-  let recentMinSum = 0;
-  let recentW = 0;
-
-  let roleWeightSum = 0;
-  const roleObsWeights: Partial<Record<CanonicalTacticalRole, number>> = {};
-
-  for (let idx = 0; idx < sides.length; idx++) {
-    const side = sides[idx];
-    const age = Math.max(0, targetGw - 1 - side.gw);
+  for (let idx = 0; idx < eplSides.length; idx++) {
+    const side = eplSides[idx];
+    const age = Math.max(0, targetGw - 1 - (side.eplGw ?? side.gw));
     const w = Math.pow(decay, age);
-    wClubSum += w;
+    wEplSum += w;
 
     const didStart = side.starterIds.includes(player.id);
     const didSub = !didStart && side.subOnIds.includes(player.id);
@@ -605,57 +777,139 @@ export function extractPlayerFeaturesBeforeGw(
 
     if (didStart) {
       startsCount++;
-      wStartSum += w;
+      wEplStart += w;
     }
     if (didSub) {
       subCount++;
-      wSubOnSum += w;
+      wEplSubOn += w;
     }
     if (didUnused) unusedCount++;
-    if (onBench) wBenchSum += w;
+    if (onBench) wEplBench += w;
     if (inSq) {
       inSquadCount++;
-      wSquadSum += w;
+      wEplSquad += w;
     }
-    wMinSum += w * mins;
+    wEplMin += w * mins;
 
-    if (side.gw >= targetGw - 2) {
-      recentMinSum += mins;
-      recentW += 1;
-    }
-    if (side.gw === targetGw - 1) {
+    const sGw = side.eplGw ?? side.gw;
+    if (sGw === targetGw - 1) {
       if (didStart) startedPrev1 = 1;
       else if (onBench) benchPrev1 = 1;
     }
-    if (side.gw === targetGw - 2) {
+    if (sGw === targetGw - 2) {
       if (didStart) startedPrev2 = 1;
       else if (onBench) benchPrev2 = 1;
     }
+  }
+
+  const prevEpl = eplSides.length > 0 ? eplSides[eplSides.length - 1] : undefined;
+  const prev1EplMins = prevEpl ? (prevEpl.minutesByPlayer[player.id] ?? 0) / 90 : priorRate;
+
+  const startRate = wEplSum > 0 ? wEplStart / wEplSum : priorRate;
+  const minAvg = wEplSum > 0 ? wEplMin / wEplSum : priorRate * 75;
+  const subOnRate = wEplSum > 0 ? wEplSubOn / wEplSum : 0.06;
+  const benchAppRate = wEplSum > 0 ? wEplBench / wEplSum : 0.15;
+  const inSquadRate = wEplSum > 0 ? wEplSquad / wEplSum : Math.min(0.95, priorRate + 0.15);
+  const ebStartRate = (nClub * startRate + mShrink * priorRate) / (nClub + mShrink);
+
+  // --- Track 2: Chronological 7-Competition features (kickoffMs < targetCutoffMs) ---
+  let wAllSum = 0;
+  let wAllStart = 0;
+  let wAllMin = 0;
+  let wAllBench = 0;
+  let wAllSquad = 0;
+  let nAllEff = 0;
+  let kalmanAll = priorRate;
+  let recentMinSum = 0;
+  let recentW = 0;
+  let roleWeightSum = 0;
+  let allRoleObs = 0;
+  let fatigue72h = 0;
+  const roleObsWeights: Partial<Record<CanonicalTacticalRole, number>> = {};
+
+  for (let idx = 0; idx < allSides.length; idx++) {
+    const side = allSides[idx];
+    const sideKo = side.kickoffMs && side.kickoffMs > 0 ? side.kickoffMs : resolveFallbackGwKickoffMs(side.gw);
+    const daysAgo = Math.max(0, (targetCutoffMs - sideKo) / 86400_000);
+    const hoursAgo = (targetCutoffMs - sideKo) / 3600_000;
+    const cw = side.compWeight ?? CROSS_COMP_WEIGHTS[side.compAbbr || 'EN_PR'] ?? 0.5;
+    const w = Math.pow(0.5, daysAgo / Math.max(1, halfLifeDays)) * cw;
+
+    wAllSum += w;
+    nAllEff += cw;
+
+    const didStart = side.starterIds.includes(player.id);
+    const didSub = !didStart && side.subOnIds.includes(player.id);
+    const didUnused = !didStart && !didSub && side.unusedBenchIds.includes(player.id);
+    const onBench = didSub || didUnused;
+    const inSq = didStart || onBench;
+    const mins = side.minutesByPlayer[player.id] ?? (didStart ? 82 : 0);
+
+    if (didStart) wAllStart += w;
+    if (onBench) wAllBench += w;
+    if (inSq) wAllSquad += w;
+    wAllMin += w * mins;
+
+    if (daysAgo <= 14) {
+      recentMinSum += cw * mins;
+      recentW += cw;
+    }
 
     const obsY = didStart ? 1.0 : didSub ? 0.22 : didUnused ? 0.04 : 0.0;
-    kalmanState = kalmanState + kalmanGain * (obsY - kalmanState);
+    kalmanAll = kalmanAll + kalmanGain * cw * (obsY - kalmanAll);
 
     const obsRole = side.starterRoles[player.id];
     if (obsRole && obsRole !== 'GK') {
-      const rw = Math.pow(0.80, age);
+      const rw = Math.pow(0.5, daysAgo / Math.max(1, roleDecayDays)) * cw;
       roleWeightSum += rw;
       roleObsWeights[obsRole] = (roleObsWeights[obsRole] || 0) + rw;
+      allRoleObs++;
+    }
+
+    if (hoursAgo > 0 && hoursAgo < 72 && mins >= 60) {
+      fatigue72h = Math.max(fatigue72h, Math.min(1.0, mins / 90));
     }
   }
 
-  const startRate = wClubSum > 0 ? wStartSum / wClubSum : priorRate;
-  const minAvg = wClubSum > 0 ? wMinSum / wClubSum : priorRate * 75;
-  const recentMinAvg = recentW > 0 ? recentMinSum / recentW : minAvg;
-  const dMin = recentMinAvg - minAvg;
-  const subOnRate = wClubSum > 0 ? wSubOnSum / wClubSum : 0.06;
-  const benchAppRate = wClubSum > 0 ? wBenchSum / wClubSum : 0.15;
-  const inSquadRate = wClubSum > 0 ? wSquadSum / wClubSum : Math.min(0.95, priorRate + 0.15);
-  const ebStartRate = (nClub * startRate + mShrink * priorRate) / (nClub + mShrink);
+  const allCompStartRate = wAllSum > 0 ? wAllStart / wAllSum : priorRate;
+  const allCompEbStartRate = (nAllEff * allCompStartRate + mShrink * priorRate) / (nAllEff + mShrink);
+  const allCompMinAvg = wAllSum > 0 ? wAllMin / wAllSum : priorRate * 75;
+  const recentMinAvg = recentW > 0 ? recentMinSum / recentW : allCompMinAvg;
+  const dMin = recentMinAvg - allCompMinAvg;
+  const inSquadAllRate = wAllSum > 0 ? wAllSquad / wAllSum : Math.min(0.95, priorRate + 0.15);
+  const allBenchRate = wAllSum > 0 ? wAllBench / wAllSum : 0.15;
+
+  const prevAny1 = allSides.length > 0 ? allSides[allSides.length - 1] : undefined;
+  const prevAny2 = allSides.length > 1 ? allSides[allSides.length - 2] : undefined;
+  const benchPrev1Any =
+    prevAny1 &&
+    !prevAny1.starterIds.includes(player.id) &&
+    (prevAny1.subOnIds.includes(player.id) || prevAny1.unusedBenchIds.includes(player.id))
+      ? 1
+      : 0;
+  const benchPrev2Any =
+    prevAny2 &&
+    !prevAny2.starterIds.includes(player.id) &&
+    (prevAny2.subOnIds.includes(player.id) || prevAny2.unusedBenchIds.includes(player.id))
+      ? 1
+      : 0;
+
+  let uefaRestedPen = 0;
+  const prevEplKo = prevEpl?.kickoffMs || 0;
+  const majorMidweek = allSides.filter(
+    (s) => s.compAbbr && s.compAbbr !== 'EN_PR' && s.compAbbr !== 'EN_LC' && (!prevEpl || (s.kickoffMs || 0) > prevEplKo)
+  );
+  if (startedPrev1 && majorMidweek.length > 0) {
+    const latestMid = majorMidweek[majorMidweek.length - 1];
+    if (!latestMid.starterIds.includes(player.id) && (latestMid.minutesByPlayer[player.id] ?? 0) < 35) {
+      uefaRestedPen = 1.0;
+    }
+  }
 
   const roleAffinity = {} as Record<CanonicalTacticalRole, number>;
   roleAffinity.GK = fplPos === 'GKP' ? 1.0 : 0.0;
-  const nRoleObs = Object.keys(roleObsWeights).length > 0 ? startsCount : 0;
-  const wHist = nRoleObs > 0 ? nRoleObs / (nRoleObs + 1.5) : 0;
+  const nRoleObs = Object.keys(roleObsWeights).length > 0 ? allRoleObs : 0;
+  const wHist = nRoleObs > 0 ? nRoleObs / (nRoleObs + rolePriorStrength) : 0;
 
   let topRole: CanonicalTacticalRole = fplPos === 'GKP' ? 'GK' : 'CM';
   let maxAffinity = fplPos === 'GKP' ? 1.0 : 0.08;
@@ -690,15 +944,25 @@ export function extractPlayerFeaturesBeforeGw(
     startRate,
     ebStartRate,
     minAvg,
-    dMin,
     subOnRate,
     benchAppRate,
+    inSquadRate,
     benchPrev1,
     benchPrev2,
-    inSquadRate,
-    kalmanState,
     startedPrev1,
     startedPrev2,
+    prev1EplMins,
+    allCompStartRate,
+    allCompEbStartRate,
+    allCompMinAvg,
+    dMin,
+    kalmanState: kalmanAll,
+    inSquadAllRate,
+    allBenchRate,
+    benchPrev1Any,
+    benchPrev2Any,
+    fatigue72h,
+    uefaRestedPen,
     roleAffinity,
     topRole,
     maxAffinity,
@@ -718,7 +982,7 @@ function populateClubCompRole(feats: PlayerFeaturesAtGw[], availMap?: Map<number
       if (avJ <= 0) continue;
       const compat = fi.position === 'GKP' ? 1.0 : getCompat(fj.topRole, fi.topRole);
       if (compat >= 0.45) {
-        comp += avJ * fj.ebStartRate * compat;
+        comp += avJ * fj.allCompEbStartRate * compat;
       }
     }
     fi.compRole = Math.min(2.0, comp / 2.2);
@@ -728,16 +992,20 @@ function populateClubCompRole(feats: PlayerFeaturesAtGw[], availMap?: Map<number
 function buildFeatureVector(f: PlayerFeaturesAtGw): number[] {
   return [
     1.0,
+    f.allCompEbStartRate,
     f.ebStartRate,
-    f.minAvg / 90,
+    f.allCompMinAvg / 90,
     f.kalmanState,
     Math.max(-0.5, Math.min(0.5, f.dMin / 90)),
     f.maxAffinity,
     f.compRole,
-    f.inSquadRate,
+    f.inSquadAllRate,
     f.startedPrev1,
     f.priorRate,
     Math.min(1.5, Math.max(0, (f.nowCost - 4.0) / 8.0)),
+    f.fatigue72h,
+    f.uefaRestedPen,
+    f.prev1EplMins,
   ];
 }
 
@@ -771,20 +1039,23 @@ function fitLogisticFromCachedFeatures(
   l2: number,
   deadlines?: Record<string, string>
 ): number[] {
-  const dim = 11;
-  const fallback = [-3.4, 1.8, 1.8, 1.1, 0.3, 0.35, -0.45, 0.4, 0.55, 0.5, 0.3];
+  const dim = 15;
+  const fallback = [-3.5, 1.2, 1.0, 1.4, 0.8, 0.1, 0.4, -0.2, 0.5, 0.2, 0.6, 0.4, -0.3, -0.1, 1.6];
   if (targetGw <= 2) return fallback;
 
+  // Strictly EPL training labels
+  const eplMap = history.eplClubSides || history.clubSides;
   const actualStarterByGwClub = new Map<string, Set<number>>();
   const playedClubsByGw = new Map<number, Set<string>>();
-  for (const [clubShort, sides] of Object.entries(history.clubSides)) {
+  for (const [clubShort, sides] of Object.entries(eplMap)) {
     for (const side of sides) {
-      if (side.gw >= targetGw) continue;
-      actualStarterByGwClub.set(`${side.gw}_${clubShort}`, new Set(side.starterIds));
-      let set = playedClubsByGw.get(side.gw);
+      const sGw = side.eplGw ?? side.gw;
+      if (sGw >= targetGw) continue;
+      actualStarterByGwClub.set(`${sGw}_${clubShort}`, new Set(side.starterIds));
+      let set = playedClubsByGw.get(sGw);
       if (!set) {
         set = new Set();
-        playedClubsByGw.set(side.gw, set);
+        playedClubsByGw.set(sGw, set);
       }
       set.add(clubShort);
     }
@@ -804,10 +1075,12 @@ function fitLogisticFromCachedFeatures(
     for (const p of allPlayers) {
       if (!clubsPlayed.has(p.teamShort)) continue;
       if (dlIso) {
+        const koMs = history.eplKickoffMsByGwClub?.[`${s}_${p.teamShort}`];
         const av = resolveCausalPlayerAvailability({
           player: p,
           targetGw: s,
           mode: 'historical',
+          earliestKickoffIso: koMs ? new Date(koMs).toISOString() : undefined,
           gwDeadlineIso: dlIso,
         });
         if (av.avail <= 0) continue;
@@ -825,7 +1098,7 @@ function fitLogisticFromCachedFeatures(
 
   const w = [...fallback];
 
-  for (let iter = 0; iter < 7; iter++) {
+  for (let iter = 0; iter < 8; iter++) {
     const H = Array.from({ length: dim }, () => new Array<number>(dim).fill(0));
     const g = new Array<number>(dim).fill(0);
 
@@ -875,7 +1148,8 @@ export function fitCausalLogisticCalibration(
   mShrink: number,
   l2: number,
   kalmanGain: number,
-  deadlines?: Record<string, string>
+  deadlines?: Record<string, string>,
+  halfLifeDays: number = DEFAULT_HYBRID_PARAMS.halfLifeDays
 ): number[] {
   const priorAffCache = new Map<number, Record<CanonicalTacticalRole, number>>();
   const featByGwPlayer = new Map<number, Map<number, PlayerFeaturesAtGw>>();
@@ -883,7 +1157,10 @@ export function fitCausalLogisticCalibration(
     const fMap = new Map<number, PlayerFeaturesAtGw>();
     const byClub = new Map<string, PlayerFeaturesAtGw[]>();
     for (const p of allPlayers) {
-      const f = extractPlayerFeaturesBeforeGw(p, s, history, pastMap, decay, mShrink, kalmanGain, priorAffCache);
+      const f = extractPlayerFeaturesBeforeGw(p, s, history, pastMap, decay, mShrink, kalmanGain, priorAffCache, {
+        halfLifeDays,
+        deadlines,
+      });
       fMap.set(p.id, f);
       if (!byClub.has(p.teamShort)) byClub.set(p.teamShort, []);
       byClub.get(p.teamShort)!.push(f);
@@ -901,6 +1178,50 @@ export function predictCalibratedStartProb(feat: PlayerFeaturesAtGw, weights: nu
   return sigmoid(z);
 }
 
+function applyClubSumLogitShrinkage(
+  probs: Map<number, { pStartBase: number; pStartAvail: number; feat: PlayerFeaturesAtGw }>,
+  outfieldIds: number[],
+  shrinkage: number
+): void {
+  if (shrinkage <= 0 || outfieldIds.length < 10) return;
+  let sumAvail = 0;
+  let activeCount = 0;
+  for (const id of outfieldIds) {
+    const p = probs.get(id)?.pStartAvail ?? 0;
+    if (p > 0) {
+      sumAvail += p;
+      activeCount++;
+    }
+  }
+  if (activeCount < 10 || sumAvail <= 0.1) return;
+
+  const targetSum = 10.0;
+  let lo = -2.0;
+  let hi = 2.0;
+  for (let iter = 0; iter < 12; iter++) {
+    const mid = (lo + hi) * 0.5;
+    let sum = 0;
+    for (const id of outfieldIds) {
+      const p = probs.get(id)?.pStartAvail ?? 0;
+      if (p <= 0) continue;
+      const clamped = Math.min(0.999, Math.max(0.001, p));
+      const logit = Math.log(clamped / (1 - clamped));
+      sum += sigmoid(logit + mid);
+    }
+    if (sum > targetSum) hi = mid;
+    else lo = mid;
+  }
+
+  const shift = shrinkage * ((lo + hi) * 0.5);
+  for (const id of outfieldIds) {
+    const cur = probs.get(id);
+    if (!cur || cur.pStartAvail <= 0) continue;
+    const clamped = Math.min(0.999, Math.max(0.001, cur.pStartAvail));
+    const logit = Math.log(clamped / (1 - clamped));
+    cur.pStartAvail = Math.min(0.99, Math.max(0.001, sigmoid(logit + shift)));
+  }
+}
+
 /**
  * Resolves causal optimal parameters & fitted logistic weights entering `targetGw`
  * using memoized nested walk-forward evaluation over `s = 3..(targetGw - 1)`
@@ -912,7 +1233,8 @@ export function selectCausalHybridParamsAndWeights(
   targetGw: number,
   history: HybridHistoryStore,
   pastMap: Record<string, PastSeasonMinutesRecord>,
-  deadlines?: Record<string, string>
+  deadlines?: Record<string, string>,
+  targetCutoffMsByClub?: Record<string, number>
 ): { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> } {
   const base = { ...DEFAULT_HYBRID_PARAMS };
   const priorAffCache = new Map<number, Record<CanonicalTacticalRole, number>>();
@@ -927,21 +1249,49 @@ export function selectCausalHybridParamsAndWeights(
       base.mShrink,
       base.l2,
       base.kalmanGain,
-      deadlines
+      deadlines,
+      base.halfLifeDays
     );
-    return { params: base, logitWeights: wLogit };
+    const fMap = new Map<number, PlayerFeaturesAtGw>();
+    const byClub = new Map<string, PlayerFeaturesAtGw[]>();
+    for (const p of allPlayers) {
+      const f = extractPlayerFeaturesBeforeGw(
+        p,
+        targetGw,
+        history,
+        pastMap,
+        base.decay,
+        base.mShrink,
+        base.kalmanGain,
+        priorAffCache,
+        {
+          halfLifeDays: base.halfLifeDays,
+          roleDecayDays: base.roleDecayDays,
+          rolePriorStrength: base.rolePriorStrength,
+          targetCutoffMs: targetCutoffMsByClub?.[p.teamShort],
+          deadlines,
+        }
+      );
+      fMap.set(p.id, f);
+      if (!byClub.has(p.teamShort)) byClub.set(p.teamShort, []);
+      byClub.get(p.teamShort)!.push(f);
+    }
+    for (const cFeats of byClub.values()) populateClubCompRole(cFeats);
+    return { params: base, logitWeights: wLogit, targetFeatMap: fMap };
   }
 
   const penaltyScale = 1 / Math.max(1, targetGw - 2);
+  const eplMap = history.eplClubSides || history.clubSides;
 
   const actualSidesByKey = new Map<string, HybridMatchClubSide>();
   for (const c of clubs) {
-    for (const s of history.clubSides[c] || []) {
-      if (s.gw < targetGw) actualSidesByKey.set(`${s.gw}_${c}`, s);
+    for (const s of eplMap[c] || []) {
+      const sGw = s.eplGw ?? s.gw;
+      if (sGw < targetGw) actualSidesByKey.set(`${sGw}_${c}`, s);
     }
   }
 
-  // --- Stage 1: Formation parameters ---
+  // --- Stage 1: Formation parameters (using EPL + Major comps, strictly excluding EN_LC) ---
   const formCandidates: Array<Pick<HybridTuneParams, 'lambdaF' | 'venueBoost' | 'wV6'>> = [
     { lambdaF: 0.64, venueBoost: 0.05, wV6: 0.15 },
     { lambdaF: 0.58, venueBoost: 0.04, wV6: 0.0 },
@@ -957,14 +1307,25 @@ export function selectCausalHybridParamsAndWeights(
       for (const c of clubs) {
         const act = actualSidesByKey.get(`${s}_${c}`);
         if (!act?.formationLabel) continue;
-        const pred = predictFormationInternal(c, s, act.isHome, history, fc.lambdaF, fc.venueBoost);
+        const cutoffMs = resolveTargetCutoffMs(c, s, history, act.kickoffMs, deadlines);
+        const pred = predictFormationInternal(
+          c,
+          s,
+          act.isHome,
+          history,
+          fc.lambdaF,
+          fc.venueBoost,
+          base.formHalfLifeDays,
+          cutoffMs
+        );
         if (pred?.label) {
           tot++;
           if (pred.label === act.formationLabel) hits++;
         }
       }
     }
-    const priorDist = Math.abs(fc.lambdaF - base.lambdaF) + Math.abs(fc.venueBoost - base.venueBoost) + Math.abs(fc.wV6 - base.wV6);
+    const priorDist =
+      Math.abs(fc.lambdaF - base.lambdaF) + Math.abs(fc.venueBoost - base.venueBoost) + Math.abs(fc.wV6 - base.wV6);
     const obj = (tot > 0 ? hits / tot : 0) - 0.012 * penaltyScale * priorDist;
     if (obj > bestFormObj + 1e-9) {
       bestFormObj = obj;
@@ -972,13 +1333,12 @@ export function selectCausalHybridParamsAndWeights(
     }
   }
 
-  // --- Stage 2A: Calibration + Kalman Drift ---
-  const featureRegimes: Array<{ decay: number; mShrink: number; kalmanGain: number }> = [
-    { decay: 0.78, mShrink: 1.5, kalmanGain: 0.48 },
-    { decay: 0.85, mShrink: 1.5, kalmanGain: 0.48 },
-    { decay: 0.74, mShrink: 2.2, kalmanGain: 0.42 },
+  // --- Stage 2A: Causal C8+ Calibration (Half-Life [14, 21] x L2 [2.5, 3.0]) ---
+  const featureRegimes: Array<{ halfLifeDays: number; decay: number; mShrink: number; kalmanGain: number }> = [
+    { halfLifeDays: 14, decay: 0.78, mShrink: 1.5, kalmanGain: 0.48 },
+    { halfLifeDays: 21, decay: 0.78, mShrink: 1.5, kalmanGain: 0.48 },
   ];
-  const l2Grid = [3.0, 6.0];
+  const l2Grid = [2.5, 3.0];
 
   const playersByClub = new Map<string, DbPlayerStat[]>();
   for (const p of allPlayers) {
@@ -986,7 +1346,7 @@ export function selectCausalHybridParamsAndWeights(
     playersByClub.get(p.teamShort)!.push(p);
   }
 
-  let bestCalibCand: Pick<HybridTuneParams, 'decay' | 'mShrink' | 'l2' | 'kalmanGain'> = {
+  let bestCalibCand: Pick<HybridTuneParams, 'halfLifeDays' | 'decay' | 'mShrink' | 'l2' | 'kalmanGain'> = {
     ...featureRegimes[0],
     l2: base.l2,
   };
@@ -1003,12 +1363,35 @@ export function selectCausalHybridParamsAndWeights(
         const cPlayers = playersByClub.get(c) || [];
         const cFeats: PlayerFeaturesAtGw[] = [];
         const avMap = new Map<number, number>();
+        const cutoffMs = resolveTargetCutoffMs(
+          c,
+          s,
+          history,
+          s === targetGw ? targetCutoffMsByClub?.[c] : undefined,
+          deadlines
+        );
+        const koIso = cutoffMs > 0 ? new Date(cutoffMs).toISOString() : undefined;
         for (const p of cPlayers) {
-          const f = extractPlayerFeaturesBeforeGw(p, s, history, pastMap, fr.decay, fr.mShrink, fr.kalmanGain, priorAffCache);
+          const f = extractPlayerFeaturesBeforeGw(p, s, history, pastMap, fr.decay, fr.mShrink, fr.kalmanGain, priorAffCache, {
+            halfLifeDays: fr.halfLifeDays,
+            roleDecayDays: base.roleDecayDays,
+            rolePriorStrength: base.rolePriorStrength,
+            targetCutoffMs: cutoffMs,
+            deadlines,
+          });
           fMap.set(p.id, f);
           cFeats.push(f);
           if (dlIso) {
-            avMap.set(p.id, resolveCausalPlayerAvailability({ player: p, targetGw: s, mode: 'historical', gwDeadlineIso: dlIso }).avail);
+            avMap.set(
+              p.id,
+              resolveCausalPlayerAvailability({
+                player: p,
+                targetGw: s,
+                mode: 'historical',
+                earliestKickoffIso: koIso,
+                gwDeadlineIso: dlIso,
+              }).avail
+            );
           }
         }
         populateClubCompRole(cFeats, dlIso ? avMap : undefined);
@@ -1035,11 +1418,19 @@ export function selectCausalHybridParamsAndWeights(
           const starterSet = new Set(act.starterIds);
           const cPlayers = playersByClub.get(c) || [];
           const scored: Array<{ id: number; pos: PositionType; pStart: number }> = [];
+          const koMs = act.kickoffMs || history.eplKickoffMsByGwClub?.[`${s}_${c}`];
+          const koIso = koMs ? new Date(koMs).toISOString() : undefined;
 
           for (const p of cPlayers) {
             const feat = fMap.get(p.id)!;
             const av = dlIso
-              ? resolveCausalPlayerAvailability({ player: p, targetGw: s, mode: 'historical', gwDeadlineIso: dlIso })
+              ? resolveCausalPlayerAvailability({
+                  player: p,
+                  targetGw: s,
+                  mode: 'historical',
+                  earliestKickoffIso: koIso,
+                  gwDeadlineIso: dlIso,
+                })
               : { avail: 1.0 };
             const prob = Math.min(0.999, Math.max(0.001, predictCalibratedStartProb(feat, wLogit) * av.avail));
             const y = starterSet.has(p.id) ? 1 : 0;
@@ -1063,10 +1454,8 @@ export function selectCausalHybridParamsAndWeights(
       const avgXiAcc = clubEvalCount > 0 ? xiHitSum / clubEvalCount : 0;
       const avgLogLoss = playerEvalCount > 0 ? logLossSum / playerEvalCount : 0.35;
       const priorDist =
-        Math.abs(fr.decay - base.decay) +
-        Math.abs(fr.mShrink - base.mShrink) * 0.2 +
-        Math.abs(l2 - base.l2) * 0.05 +
-        Math.abs(fr.kalmanGain - base.kalmanGain);
+        Math.abs(fr.halfLifeDays - base.halfLifeDays) * 0.02 +
+        Math.abs(l2 - base.l2) * 0.05;
       const obj = avgXiAcc - 0.18 * avgLogLoss - 0.015 * penaltyScale * priorDist;
       if (obj > bestCalibObj + 1e-9) {
         bestCalibObj = obj;
@@ -1087,17 +1476,16 @@ export function selectCausalHybridParamsAndWeights(
     deadlines
   );
 
-  // --- Stage 3: Sub_9 & RoleSquadPrior ---
+  // --- Stage 3: Sub_9 (All-Comp Bench Signal + RoleSquadPrior) ---
   const subCandidates: Array<
     Pick<
       HybridTuneParams,
-      'useRoleSquadPrior' | 'wSubBench' | 'wSubSquad' | 'wSubStart' | 'wSubRole' | 'subLift' | 'subStackPen' | 'subCov'
+      'subUseAllComp' | 'useRoleSquadPrior' | 'wSubBench' | 'wSubSquad' | 'wSubStart' | 'wSubRole' | 'subLift' | 'subStackPen' | 'subCov'
     >
   > = [
-    { useRoleSquadPrior: false, wSubBench: 0.48, wSubSquad: 0.28, wSubStart: 0.08, wSubRole: 0.16, subLift: 0.20, subStackPen: 0.12, subCov: 0.4 },
-    { useRoleSquadPrior: false, wSubBench: 0.56, wSubSquad: 0.26, wSubStart: 0.04, wSubRole: 0.14, subLift: 0.20, subStackPen: 0.12, subCov: 0.4 },
-    { useRoleSquadPrior: false, wSubBench: 0.42, wSubSquad: 0.32, wSubStart: 0.12, wSubRole: 0.14, subLift: 0.25, subStackPen: 0.10, subCov: 0.5 },
-    { useRoleSquadPrior: true, wSubBench: 0.50, wSubSquad: 0.26, wSubStart: 0.08, wSubRole: 0.16, subLift: 0.25, subStackPen: 0.12, subCov: 0.5 },
+    { subUseAllComp: true, useRoleSquadPrior: false, wSubBench: 0.56, wSubSquad: 0.26, wSubStart: 0.04, wSubRole: 0.14, subLift: 0.20, subStackPen: 0.12, subCov: 0.40 },
+    { subUseAllComp: true, useRoleSquadPrior: false, wSubBench: 0.48, wSubSquad: 0.28, wSubStart: 0.08, wSubRole: 0.16, subLift: 0.20, subStackPen: 0.12, subCov: 0.40 },
+    { subUseAllComp: true, useRoleSquadPrior: true, wSubBench: 0.50, wSubSquad: 0.26, wSubStart: 0.08, wSubRole: 0.16, subLift: 0.25, subStackPen: 0.12, subCov: 0.50 },
   ];
 
   let bestSubCand = subCandidates[0];
@@ -1119,10 +1507,18 @@ export function selectCausalHybridParamsAndWeights(
       const act = actualSidesByKey.get(`${s}_${c}`);
       if (!act) continue;
       const cPlayers = playersByClub.get(c) || [];
+      const koMs = act.kickoffMs || history.eplKickoffMsByGwClub?.[`${s}_${c}`];
+      const koIso = koMs ? new Date(koMs).toISOString() : undefined;
       const scored = cPlayers.map((p) => {
         const feat = fMap.get(p.id)!;
         const av = dlIso
-          ? resolveCausalPlayerAvailability({ player: p, targetGw: s, mode: 'historical', gwDeadlineIso: dlIso })
+          ? resolveCausalPlayerAvailability({
+              player: p,
+              targetGw: s,
+              mode: 'historical',
+              earliestKickoffIso: koIso,
+              gwDeadlineIso: dlIso,
+            })
           : { avail: 1.0 };
         return {
           p,
@@ -1192,38 +1588,44 @@ function predictFormationInternal(
   targetGw: number,
   isHome: boolean | undefined,
   history: HybridHistoryStore,
-  lambdaF: number,
-  venueBoost: number
+  _lambdaF: number,
+  venueBoost: number,
+  formHalfLifeDays: number = DEFAULT_HYBRID_PARAMS.formHalfLifeDays,
+  targetCutoffMs?: number
 ): {
   label: string;
   outfieldSlots: CanonicalTacticalRole[];
   candidates: Array<{ label: string; outfieldSlots: CanonicalTacticalRole[]; priorScore: number }>;
 } | null {
-  const sides = (history.clubSides[clubShort] || []).filter(
-    (s) => s.gw < targetGw && s.formationLabel && s.outfieldSlots?.length === 10
+  const cutoffMs = resolveTargetCutoffMs(clubShort, targetGw, history, targetCutoffMs);
+  // Protect formation accuracy: use EPL + Major comps (EU_CL, EU_UC, EU_CF, EN_FA, EN_FC); EXCLUDE EN_LC
+  const sides = getCausalAllCompSides(history, clubShort, targetGw, cutoffMs).filter(
+    (s) => s.compAbbr !== 'EN_LC' && s.formationLabel && s.outfieldSlots?.length === 10
   );
   if (sides.length === 0) return null;
 
-  const bySig = new Map<string, { label: string; outfieldSlots: CanonicalTacticalRole[]; weight: number; latestGw: number }>();
+  const bySig = new Map<string, { label: string; outfieldSlots: CanonicalTacticalRole[]; weight: number; latestMs: number }>();
   let totalWeight = 0;
 
   for (const s of sides) {
-    const age = Math.max(0, targetGw - 1 - s.gw);
+    const sideKo = s.kickoffMs && s.kickoffMs > 0 ? s.kickoffMs : resolveFallbackGwKickoffMs(s.gw);
+    const daysAgo = Math.max(0, (cutoffMs - sideKo) / 86400_000);
+    const cw = s.compWeight ?? CROSS_COMP_WEIGHTS[s.compAbbr || 'EN_PR'] ?? 0.65;
     const venueMod = isHome !== undefined && s.isHome === isHome ? 1 + venueBoost : 1.0;
-    const w = Math.pow(lambdaF, age) * venueMod;
+    const w = Math.pow(0.5, daysAgo / Math.max(1, formHalfLifeDays)) * cw * venueMod;
     totalWeight += w;
 
     const sig = `${s.formationLabel}|${s.outfieldSlots!.join(',')}`;
     const prev = bySig.get(sig);
     if (prev) {
       prev.weight += w;
-      if (s.gw > prev.latestGw) prev.latestGw = s.gw;
+      if (sideKo > prev.latestMs) prev.latestMs = sideKo;
     } else {
       bySig.set(sig, {
         label: s.formationLabel!,
         outfieldSlots: s.outfieldSlots!,
         weight: w,
-        latestGw: s.gw,
+        latestMs: sideKo,
       });
     }
   }
@@ -1233,9 +1635,9 @@ function predictFormationInternal(
       label: c.label,
       outfieldSlots: c.outfieldSlots,
       priorScore: totalWeight > 0 ? c.weight / totalWeight : 0,
-      latestGw: c.latestGw,
+      latestMs: c.latestMs,
     }))
-    .sort((a, b) => b.priorScore - a.priorScore || b.latestGw - a.latestGw);
+    .sort((a, b) => b.priorScore - a.priorScore || b.latestMs - a.latestMs);
 
   const top = candidates[0];
   return top ? { label: top.label, outfieldSlots: top.outfieldSlots, candidates } : null;
@@ -1252,7 +1654,7 @@ function rankBenchCandidates(
   starterSlotsFilled: CanonicalTacticalRole[],
   params: Pick<
     HybridTuneParams,
-    'useRoleSquadPrior' | 'wSubBench' | 'wSubSquad' | 'wSubStart' | 'wSubRole' | 'subLift' | 'subStackPen' | 'subCov'
+    'subUseAllComp' | 'useRoleSquadPrior' | 'wSubBench' | 'wSubSquad' | 'wSubStart' | 'wSubRole' | 'subLift' | 'subStackPen' | 'subCov'
   >
 ): Array<{ id: number; subScore: number }> {
   const starterLineCounts: Record<'DEF' | 'MID' | 'FWD', number> = { DEF: 0, MID: 0, FWD: 0 };
@@ -1263,11 +1665,20 @@ function rankBenchCandidates(
 
   const scored = pool.map((cand) => {
     const f = cand.feat;
-    const condBenchGivenNotStart = Math.min(1.0, Math.max(0.01, f.benchAppRate / Math.max(0.12, 1 - f.startRate + 0.10)));
-    const benchMomentum = 0.65 * f.benchPrev1 + 0.35 * f.benchPrev2;
-    const benchSignal = 0.55 * condBenchGivenNotStart + 0.25 * f.inSquadRate + 0.20 * benchMomentum;
-    const squadAndMin = 0.55 * f.inSquadRate + 0.45 * Math.min(1.0, f.minAvg / 90);
-    const overflowSignal = Math.max(cand.pStart, f.ebStartRate * 0.7);
+    const useAll = params.subUseAllComp;
+    const bRate = useAll ? f.allBenchRate : f.benchAppRate;
+    const sRate = useAll ? f.allCompStartRate : f.startRate;
+    const sqRate = useAll ? f.inSquadAllRate : f.inSquadRate;
+    const minAvg = useAll ? f.allCompMinAvg : f.minAvg;
+    const ebRate = useAll ? f.allCompEbStartRate : f.ebStartRate;
+    const bp1 = useAll ? f.benchPrev1Any : f.benchPrev1;
+    const bp2 = useAll ? f.benchPrev2Any : f.benchPrev2;
+
+    const condBenchGivenNotStart = Math.min(1.0, Math.max(0.01, bRate / Math.max(0.12, 1 - sRate + 0.10)));
+    const benchMomentum = 0.65 * bp1 + 0.35 * bp2;
+    const benchSignal = 0.55 * condBenchGivenNotStart + 0.25 * sqRate + 0.20 * benchMomentum;
+    const squadAndMin = 0.55 * sqRate + 0.45 * Math.min(1.0, minAvg / 90);
+    const overflowSignal = Math.max(cand.pStart, ebRate * 0.7);
 
     const coreUtility =
       params.wSubBench * benchSignal +
@@ -1322,6 +1733,7 @@ function rankBenchCandidates(
 export interface HybridClubPredictionInput {
   clubShort: string;
   targetGw: number;
+  targetCutoffMs?: number;
   isHome?: boolean;
   players: DbPlayerStat[];
   availabilityById: Map<number, CausalAvailability>;
@@ -1344,11 +1756,25 @@ export interface HybridClubPredictionOutput {
 }
 
 /**
- * Predicts Starting XI (1 GKP + 10 Outfield via Hungarian Assignment + Synergy),
- * predicted tactical formation, 9-man Bench (`Sub_9`), Out-of-Squad, and calibrated `si` (%).
+ * Predicts Starting XI (1 GKP + 10 Outfield via Hungarian Assignment + 7-Comp Mild CoPlay Synergy),
+ * predicted tactical formation (EN_LC excluded), 9-man Bench (`Sub_9`), Out-of-Squad, and calibrated `si` (%).
  */
 export function predictHybridClubLineup(input: HybridClubPredictionInput): HybridClubPredictionOutput {
-  const { clubShort, targetGw, isHome, players, availabilityById, history, pastMap, logitWeights, params, precomputedFeatMap } = input;
+  const {
+    clubShort,
+    targetGw,
+    targetCutoffMs: explicitCutoffMs,
+    isHome,
+    players,
+    availabilityById,
+    history,
+    pastMap,
+    logitWeights,
+    params,
+    precomputedFeatMap,
+  } = input;
+
+  const targetCutoffMs = resolveTargetCutoffMs(clubShort, targetGw, history, explicitCutoffMs);
 
   const featsList: PlayerFeaturesAtGw[] = [];
   const avAvailMap = new Map<number, number>();
@@ -1359,13 +1785,51 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
       featsList.push(pre);
     } else {
       allFoundPrecomputed = false;
-      featsList.push(extractPlayerFeaturesBeforeGw(p, targetGw, history, pastMap, params.decay, params.mShrink, params.kalmanGain));
+      featsList.push(
+        extractPlayerFeaturesBeforeGw(
+          p,
+          targetGw,
+          history,
+          pastMap,
+          params.decay,
+          params.mShrink,
+          params.kalmanGain,
+          undefined,
+          {
+            halfLifeDays: params.halfLifeDays,
+            roleDecayDays: params.roleDecayDays,
+            rolePriorStrength: params.rolePriorStrength,
+            targetCutoffMs,
+          }
+        )
+      );
     }
     avAvailMap.set(p.id, availabilityById.get(p.id)?.avail ?? 1.0);
   }
   if (!allFoundPrecomputed) {
     populateClubCompRole(featsList, avAvailMap);
   }
+
+  const rawProbs = new Map<number, { pStartBase: number; pStartAvail: number; feat: PlayerFeaturesAtGw }>();
+  const outfieldIds: number[] = [];
+
+  for (const feat of featsList) {
+    const av = availabilityById.get(feat.id) ?? { avail: 1.0, absen: 0.0, status: 'a', chance: 100, expectedReturnDate: null };
+    let pBase: number;
+    if (targetGw <= 2 && feat.nClub === 0) {
+      pBase = feat.priorRate;
+    } else if (targetGw <= 2) {
+      pBase = 0.55 * feat.allCompEbStartRate + 0.45 * feat.kalmanState;
+    } else {
+      pBase = predictCalibratedStartProb(feat, logitWeights);
+    }
+    pBase = Math.min(0.99, Math.max(0.01, pBase));
+    const pAvail = Math.min(0.99, Math.max(0.0, pBase * av.avail));
+    rawProbs.set(feat.id, { pStartBase: pBase, pStartAvail: pAvail, feat });
+    if (feat.position !== 'GKP') outfieldIds.push(feat.id);
+  }
+
+  applyClubSumLogitShrinkage(rawProbs, outfieldIds, params.clubSumShrinkage ?? DEFAULT_HYBRID_PARAMS.clubSumShrinkage);
 
   const playerProbs = new Map<
     number,
@@ -1374,20 +1838,16 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
 
   for (const feat of featsList) {
     const av = availabilityById.get(feat.id) ?? { avail: 1.0, absen: 0.0, status: 'a', chance: 100, expectedReturnDate: null };
-    let pBase: number;
-    if (targetGw <= 2 && feat.nClub === 0) {
-      pBase = feat.priorRate;
-    } else if (targetGw <= 2) {
-      pBase = 0.55 * feat.ebStartRate + 0.45 * feat.kalmanState;
-    } else {
-      pBase = predictCalibratedStartProb(feat, logitWeights);
-    }
-    pBase = Math.min(0.99, Math.max(0.01, pBase));
-    const pAvail = Math.min(0.99, Math.max(0.0, pBase * av.avail));
-    const baseSi = Math.min(99, Math.max(1, Math.round(pBase * 100)));
-    const si = av.avail <= 0 ? 0 : Math.min(99, Math.max(1, Math.round(pAvail * 100)));
-
-    playerProbs.set(feat.id, { pStartBase: pBase, pStartAvail: pAvail, baseSi, si, feat });
+    const r = rawProbs.get(feat.id)!;
+    const baseSi = Math.min(99, Math.max(1, Math.round(r.pStartBase * 100)));
+    const si = av.avail <= 0 ? 0 : Math.min(99, Math.max(1, Math.round(r.pStartAvail * 100)));
+    playerProbs.set(feat.id, {
+      pStartBase: r.pStartBase,
+      pStartAvail: r.pStartAvail,
+      baseSi,
+      si,
+      feat: r.feat,
+    });
   }
 
   const sortedPlayers = [...players].sort((a, b) => {
@@ -1410,11 +1870,16 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
       ? availableOutfields
       : sortedPlayers.filter((p) => p.position !== 'GKP');
 
-  const clubSides = (history.clubSides[clubShort] || []).filter((s) => s.gw < targetGw);
+  // 7-Competition Co-Play Synergy weighted by time & competition weight
+  const clubSides = getCausalAllCompSides(history, clubShort, targetGw, targetCutoffMs);
   const coPlayCount = new Map<string, number>();
   let coPlayWeightTotal = 0;
+  const coHalfLife = Math.max(1, params.coPlayHalfLifeDays ?? DEFAULT_HYBRID_PARAMS.coPlayHalfLifeDays);
   for (const s of clubSides) {
-    const w = Math.pow(params.lambdaCo, Math.max(0, targetGw - 1 - s.gw));
+    const sideKo = s.kickoffMs && s.kickoffMs > 0 ? s.kickoffMs : resolveFallbackGwKickoffMs(s.gw);
+    const daysAgo = Math.max(0, (targetCutoffMs - sideKo) / 86400_000);
+    const cw = s.compWeight ?? CROSS_COMP_WEIGHTS[s.compAbbr || 'EN_PR'] ?? 0.5;
+    const w = Math.pow(0.5, daysAgo / coHalfLife) * cw;
     coPlayWeightTotal += w;
     for (let i = 0; i < s.starterIds.length; i++) {
       for (let j = i + 1; j < s.starterIds.length; j++) {
@@ -1431,7 +1896,16 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
     return (coPlayCount.get(key) || 0) / coPlayWeightTotal;
   };
 
-  const formPred = predictFormationInternal(clubShort, targetGw, isHome, history, params.lambdaF, params.venueBoost);
+  const formPred = predictFormationInternal(
+    clubShort,
+    targetGw,
+    isHome,
+    history,
+    params.lambdaF,
+    params.venueBoost,
+    params.formHalfLifeDays,
+    targetCutoffMs
+  );
   let chosenForm = formPred ? { label: formPred.label, outfieldSlots: formPred.outfieldSlots } : null;
 
   const evalHungarianForSlots = (slots: CanonicalTacticalRole[], cands: DbPlayerStat[]) => {
