@@ -13,11 +13,12 @@
   "ground": {
     "name": "Anfield, Liverpool"
   },
-  "status": "U",
-  "phase": "U",
+  "status": "C",
+  "phase": "F",
+  "outcome": "H",
   "clock": {
-    "label": "0'",
-    "secs": 0
+    "label": "Full Time",
+    "secs": 5400
   },
   "teams": [
     {
@@ -29,7 +30,7 @@
           "abbr": "LIV"
         }
       },
-      "score": 0
+      "score": 4
     },
     {
       "team": {
@@ -74,9 +75,9 @@
             "243016"
           ],
           [
-            "611922",
+            "482616",
             "494595",
-            "482616"
+            "611922"
           ],
           [
             "219168"
@@ -509,22 +510,22 @@
             "465247"
           ],
           [
+            "216051",
             "550864",
             "209365",
-            "221820",
-            "216051"
+            "221820"
           ],
           [
             "166989",
             "516895"
           ],
           [
-            "596777",
+            "446008",
             "141746",
-            "430871"
+            "596777"
           ],
           [
-            "446008"
+            "430871"
           ]
         ],
         "formation": "4-2-3-1"
@@ -640,7 +641,7 @@
             "last": "Santos Carneiro da Cunha",
             "display": "Matheus Santos Carneiro da Cunha"
           },
-          "matchPosition": "M",
+          "matchPosition": "F",
           "info": {
             "position": "F",
             "positionInfo": "Left/Centre Second Striker",
@@ -720,7 +721,7 @@
             "last": "Mbeumo",
             "display": "Bryan Mbeumo"
           },
-          "matchPosition": "F",
+          "matchPosition": "M",
           "info": {
             "position": "F",
             "positionInfo": "Right Winger",
@@ -935,12 +936,1948 @@
       ]
     }
   ],
-  "events": [],
+  "events": [
+    {
+      "type": "PS",
+      "phase": "1",
+      "clock": {
+        "secs": 0,
+        "label": "1'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "R",
+      "personId": 550864,
+      "phase": "1",
+      "clock": {
+        "label": "8'",
+        "secs": 480
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 424876,
+      "phase": "1",
+      "clock": {
+        "label": "10'",
+        "secs": 600
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 494595,
+      "assistId": 611922,
+      "phase": "1",
+      "clock": {
+        "label": "13'",
+        "secs": 780
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 95658,
+      "description": "ON",
+      "phase": "1",
+      "clock": {
+        "label": "22'",
+        "secs": 1320
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 446008,
+      "description": "OFF",
+      "phase": "1",
+      "clock": {
+        "label": "22'",
+        "secs": 1320
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 458249,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 430871,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 482616,
+      "phase": "2",
+      "clock": {
+        "label": "62'",
+        "secs": 3720
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 184341,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "65'",
+        "secs": 3900
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 166989,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "65'",
+        "secs": 3900
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 230001,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "65'",
+        "secs": 3900
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 596777,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "65'",
+        "secs": 3900
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 611922,
+      "assistId": 482616,
+      "phase": "2",
+      "clock": {
+        "label": "66'",
+        "secs": 3960
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 591386,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "72'",
+        "secs": 4320
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 243016,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "72'",
+        "secs": 4320
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 551499,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "72'",
+        "secs": 4320
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 482616,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "72'",
+        "secs": 4320
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 216094,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 611922,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "78'",
+        "secs": 4680
+      },
+      "score": {
+        "homeScore": 3,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 551499,
+      "assistId": 494595,
+      "phase": "2",
+      "clock": {
+        "label": "82'",
+        "secs": 4920
+      },
+      "score": {
+        "homeScore": 4,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 171287,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      },
+      "score": {
+        "homeScore": 4,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 445087,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      },
+      "score": {
+        "homeScore": 4,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 514514,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      },
+      "score": {
+        "homeScore": 4,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 219168,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "85'",
+        "secs": 5100
+      },
+      "score": {
+        "homeScore": 4,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 532605,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "87'",
+        "secs": 5220
+      },
+      "score": {
+        "homeScore": 4,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 516895,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "87'",
+        "secs": 5220
+      },
+      "score": {
+        "homeScore": 4,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5400,
+        "label": "90'"
+      },
+      "score": {
+        "homeScore": 4,
+        "awayScore": 0
+      }
+    }
+  ],
   "textstreamEvents": [
     {
       "id": 2914211,
       "type": "lineup",
       "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2914328,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2914331,
+      "time": {
+        "secs": 7,
+        "label": "01"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Milos Kerkez (Liverpool).",
+      "playerIds": [
+        116665
+      ]
+    },
+    {
+      "id": 2914332,
+      "time": {
+        "secs": 7,
+        "label": "01"
+      },
+      "type": "free kick won",
+      "text": "Bryan Mbeumo (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        66360
+      ]
+    },
+    {
+      "id": 2914337,
+      "time": {
+        "secs": 88,
+        "label": "02"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Bradley Barcola (Liverpool) left footed shot from outside the box is blocked. Assisted by Florian Wirtz.",
+      "playerIds": [
+        68840,
+        75382
+      ]
+    },
+    {
+      "id": 2914338,
+      "time": {
+        "secs": 90,
+        "label": "02"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Matthijs de Ligt.",
+      "playerIds": [
+        20226
+      ]
+    },
+    {
+      "id": 2914343,
+      "time": {
+        "secs": 237,
+        "label": "04"
+      },
+      "type": "free kick won",
+      "text": "Youri Tielemans (Manchester United) wins a free kick in the attacking half.",
+      "playerIds": [
+        5865
+      ]
+    },
+    {
+      "id": 2914344,
+      "time": {
+        "secs": 237,
+        "label": "04"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Florian Wirtz (Liverpool).",
+      "playerIds": [
+        75382
+      ]
+    },
+    {
+      "id": 2914350,
+      "time": {
+        "secs": 291,
+        "label": "05"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bruno Fernandes (Manchester United) right footed shot from outside the box is close, but misses to the right from a direct free kick.",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2914357,
+      "time": {
+        "secs": 328,
+        "label": "06"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Alexander Isak (Liverpool) right footed shot from the centre of the box is saved in the bottom right corner by Senne Lammens (Manchester United).",
+      "playerIds": [
+        21737
+      ]
+    },
+    {
+      "id": 2914349,
+      "time": {
+        "secs": 329,
+        "label": "06"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Senne Lammens.",
+      "playerIds": [
+        67910
+      ]
+    },
+    {
+      "id": 2914358,
+      "time": {
+        "secs": 363,
+        "label": "07"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Virgil van Dijk (Liverpool) header from the centre of the box is saved in the top centre of the goal by Senne Lammens (Manchester United). Assisted by Dominik Szoboszlai with a cross.",
+      "playerIds": [
+        5140,
+        33231
+      ]
+    },
+    {
+      "id": 2914355,
+      "time": {
+        "secs": 393,
+        "label": "07"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Diogo Dalot (Manchester United).",
+      "playerIds": [
+        24252
+      ]
+    },
+    {
+      "id": 2914356,
+      "time": {
+        "secs": 393,
+        "label": "07"
+      },
+      "type": "free kick won",
+      "text": "Rio Ngumoha (Liverpool) wins a free kick in the defensive half.",
+      "playerIds": [
+        134796
+      ]
+    },
+    {
+      "id": 2914367,
+      "time": {
+        "secs": 437,
+        "label": "08"
+      },
+      "type": "free kick won",
+      "text": "Alexander Isak (Liverpool) wins a free kick in the attacking half.",
+      "playerIds": [
+        21737
+      ]
+    },
+    {
+      "id": 2914369,
+      "time": {
+        "secs": 437,
+        "label": "08"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Leny Yoro (Manchester United).",
+      "playerIds": [
+        118591
+      ]
+    },
+    {
+      "id": 2914368,
+      "time": {
+        "secs": 443,
+        "label": "08"
+      },
+      "type": "red card",
+      "text": "Leny Yoro (Manchester United) is shown the red card.",
+      "playerIds": [
+        118591
+      ]
+    },
+    {
+      "id": 2914376,
+      "time": {
+        "secs": 594,
+        "label": "10"
+      },
+      "type": "goal",
+      "text": "Goal! Liverpool 1, Manchester United 0. Dominik Szoboszlai (Liverpool) from a free kick with a right footed shot to the bottom left corner.",
+      "playerIds": [
+        33231
+      ]
+    },
+    {
+      "id": 2914380,
+      "time": {
+        "secs": 682,
+        "label": "12"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Kobbie Mainoo (Manchester United) right footed shot from outside the box misses to the left. Assisted by Bruno Fernandes with a headed pass.",
+      "playerIds": [
+        108936,
+        23396
+      ]
+    },
+    {
+      "id": 2914379,
+      "time": {
+        "secs": 723,
+        "label": "13"
+      },
+      "type": "free kick won",
+      "text": "Matheus Cunha (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        51202
+      ]
+    },
+    {
+      "id": 2914381,
+      "time": {
+        "secs": 723,
+        "label": "13"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Rio Ngumoha (Liverpool).",
+      "playerIds": [
+        134796
+      ]
+    },
+    {
+      "id": 2914388,
+      "time": {
+        "secs": 760,
+        "label": "13"
+      },
+      "type": "goal",
+      "text": "Goal! Liverpool 2, Manchester United 0. Florian Wirtz (Liverpool) left footed shot from very close range to the high centre of the goal. Assisted by Rio Ngumoha.",
+      "playerIds": [
+        75382,
+        134796
+      ]
+    },
+    {
+      "id": 2914391,
+      "time": {
+        "secs": 851,
+        "label": "15"
+      },
+      "type": "offside",
+      "text": "Offside, Manchester United. Patrick Dorgu is caught offside.",
+      "playerIds": [
+        51202,
+        146567
+      ]
+    },
+    {
+      "id": 2914394,
+      "time": {
+        "secs": 958,
+        "label": "16"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Alexander Isak (Liverpool) right footed shot from the centre of the box is saved in the centre of the goal by Senne Lammens (Manchester United). Assisted by Rio Ngumoha.",
+      "playerIds": [
+        21737,
+        134796
+      ]
+    },
+    {
+      "id": 2914397,
+      "time": {
+        "secs": 977,
+        "label": "17"
+      },
+      "type": "free kick won",
+      "text": "Bryan Mbeumo (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        66360
+      ]
+    },
+    {
+      "id": 2914398,
+      "time": {
+        "secs": 977,
+        "label": "17"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Milos Kerkez (Liverpool).",
+      "playerIds": [
+        116665
+      ]
+    },
+    {
+      "id": 2914403,
+      "time": {
+        "secs": 1149,
+        "label": "20"
+      },
+      "type": "free kick won",
+      "text": "Bryan Mbeumo (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        66360
+      ]
+    },
+    {
+      "id": 2914404,
+      "time": {
+        "secs": 1149,
+        "label": "20"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Rio Ngumoha (Liverpool).",
+      "playerIds": [
+        134796
+      ]
+    },
+    {
+      "id": 2914411,
+      "time": {
+        "secs": 1218,
+        "label": "21"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Alexander Isak (Liverpool) right footed shot from the centre of the box is blocked. Assisted by Rio Ngumoha.",
+      "playerIds": [
+        21737,
+        134796
+      ]
+    },
+    {
+      "id": 2914418,
+      "time": {
+        "secs": 1267,
+        "label": "22"
+      },
+      "type": "offside",
+      "text": "Offside, Manchester United. Patrick Dorgu is caught offside.",
+      "playerIds": [
+        51202,
+        146567
+      ]
+    },
+    {
+      "id": 2914409,
+      "time": {
+        "secs": 1296,
+        "label": "22"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Harry Maguire replaces Bryan Mbeumo.",
+      "playerIds": [
+        9566,
+        66360
+      ]
+    },
+    {
+      "id": 2914421,
+      "time": {
+        "secs": 1474,
+        "label": "25"
+      },
+      "type": "offside",
+      "text": "Offside, Liverpool. Alexander Isak is caught offside.",
+      "playerIds": [
+        134796,
+        21737
+      ]
+    },
+    {
+      "id": 2914424,
+      "time": {
+        "secs": 1674,
+        "label": "28"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bradley Barcola (Liverpool).",
+      "playerIds": [
+        68840
+      ]
+    },
+    {
+      "id": 2914425,
+      "time": {
+        "secs": 1674,
+        "label": "28"
+      },
+      "type": "free kick won",
+      "text": "Bruno Fernandes (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2914430,
+      "time": {
+        "secs": 1715,
+        "label": "29"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Bruno Fernandes (Manchester United) right footed shot from outside the box is saved in the centre of the goal by Alisson Becker (Liverpool). Assisted by Youri Tielemans.",
+      "playerIds": [
+        23396,
+        5865
+      ]
+    },
+    {
+      "id": 2914433,
+      "time": {
+        "secs": 1804,
+        "label": "31"
+      },
+      "type": "free kick won",
+      "text": "Matthijs de Ligt (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        20226
+      ]
+    },
+    {
+      "id": 2914434,
+      "time": {
+        "secs": 1804,
+        "label": "31"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Alexander Isak (Liverpool).",
+      "playerIds": [
+        21737
+      ]
+    },
+    {
+      "id": 2914439,
+      "time": {
+        "secs": 1964,
+        "label": "33"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Patrick Dorgu.",
+      "playerIds": [
+        146567
+      ]
+    },
+    {
+      "id": 2914443,
+      "time": {
+        "secs": 1991,
+        "label": "34"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Florian Wirtz (Liverpool).",
+      "playerIds": [
+        75382
+      ]
+    },
+    {
+      "id": 2914444,
+      "time": {
+        "secs": 1991,
+        "label": "34"
+      },
+      "type": "free kick won",
+      "text": "Matheus Cunha (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        51202
+      ]
+    },
+    {
+      "id": 2914445,
+      "time": {
+        "secs": 2021,
+        "label": "34"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Rio Ngumoha (Liverpool) right footed shot from outside the box is close, but misses to the left. Assisted by Alexis Mac Allister.",
+      "playerIds": [
+        134796,
+        63633
+      ]
+    },
+    {
+      "id": 2914454,
+      "time": {
+        "secs": 2079,
+        "label": "35"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Youri Tielemans (Manchester United) right footed shot from outside the box is blocked. Assisted by Kobbie Mainoo.",
+      "playerIds": [
+        5865,
+        108936
+      ]
+    },
+    {
+      "id": 2914442,
+      "time": {
+        "secs": 2082,
+        "label": "35"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Alexis Mac Allister.",
+      "playerIds": [
+        63633
+      ]
+    },
+    {
+      "id": 2914460,
+      "time": {
+        "secs": 2214,
+        "label": "37"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Ronald Araujo.",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2914463,
+      "time": {
+        "secs": 2325,
+        "label": "39"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Alexis Mac Allister (Liverpool) left footed shot from outside the box is saved in the bottom right corner by Senne Lammens (Manchester United).",
+      "playerIds": [
+        63633
+      ]
+    },
+    {
+      "id": 2914471,
+      "time": {
+        "secs": 2355,
+        "label": "40"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Alexander Isak (Liverpool) right footed shot from very close range is blocked. Assisted by Bradley Barcola.",
+      "playerIds": [
+        21737,
+        68840
+      ]
+    },
+    {
+      "id": 2914464,
+      "time": {
+        "secs": 2356,
+        "label": "40"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Harry Maguire.",
+      "playerIds": [
+        9566
+      ]
+    },
+    {
+      "id": 2914469,
+      "time": {
+        "secs": 2399,
+        "label": "40"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jérémy Jacquet (Liverpool).",
+      "playerIds": [
+        133104
+      ]
+    },
+    {
+      "id": 2914470,
+      "time": {
+        "secs": 2399,
+        "label": "40"
+      },
+      "type": "free kick won",
+      "text": "Bruno Fernandes (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2914478,
+      "time": {
+        "secs": 2521,
+        "label": "43"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Dominik Szoboszlai.",
+      "playerIds": [
+        33231
+      ]
+    },
+    {
+      "id": 2914487,
+      "time": {
+        "secs": 2643,
+        "label": "45"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Dominik Szoboszlai (Liverpool) right footed shot from the left side of the box misses to the right. Assisted by Florian Wirtz.",
+      "playerIds": [
+        33231,
+        75382
+      ]
+    },
+    {
+      "id": 2914481,
+      "time": {
+        "secs": 2645,
+        "label": "45"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Kobbie Mainoo.",
+      "playerIds": [
+        108936
+      ]
+    },
+    {
+      "id": 2914484,
+      "time": {
+        "secs": 2682,
+        "label": "45"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Harry Maguire.",
+      "playerIds": [
+        9566
+      ]
+    },
+    {
+      "id": 2914485,
+      "time": {
+        "secs": 2699,
+        "label": "45"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 4 minutes of added time."
+    },
+    {
+      "id": 2914486,
+      "time": {
+        "secs": 2700,
+        "label": "45+1"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Rio Ngumoha (Liverpool) right footed shot from the left side of the box is blocked. Assisted by Florian Wirtz.",
+      "playerIds": [
+        134796,
+        75382
+      ]
+    },
+    {
+      "id": 2914496,
+      "time": {
+        "secs": 2946,
+        "label": "45+5"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Liverpool 2, Manchester United 0."
+    },
+    {
+      "id": 2914499,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Joshua Zirkzee replaces Matheus Cunha.",
+      "playerIds": [
+        50848,
+        51202
+      ]
+    },
+    {
+      "id": 2914502,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Liverpool 2, Manchester United 0."
+    },
+    {
+      "id": 2914506,
+      "time": {
+        "secs": 2711,
+        "label": "46"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Dominik Szoboszlai (Liverpool) right footed shot from outside the box is just a bit too high. Assisted by Alexis Mac Allister.",
+      "playerIds": [
+        33231,
+        63633
+      ]
+    },
+    {
+      "id": 2914505,
+      "time": {
+        "secs": 2715,
+        "label": "46"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Senne Lammens.",
+      "playerIds": [
+        67910
+      ]
+    },
+    {
+      "id": 2914511,
+      "time": {
+        "secs": 2873,
+        "label": "48"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Dominik Szoboszlai (Liverpool) right footed shot from outside the box is saved in the bottom right corner by Senne Lammens (Manchester United). Assisted by Florian Wirtz.",
+      "playerIds": [
+        33231,
+        75382
+      ]
+    },
+    {
+      "id": 2914514,
+      "time": {
+        "secs": 2937,
+        "label": "49"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Diogo Dalot (Manchester United).",
+      "playerIds": [
+        24252
+      ]
+    },
+    {
+      "id": 2914515,
+      "time": {
+        "secs": 2937,
+        "label": "49"
+      },
+      "type": "free kick won",
+      "text": "Milos Kerkez (Liverpool) wins a free kick on the left wing.",
+      "playerIds": [
+        116665
+      ]
+    },
+    {
+      "id": 2914521,
+      "time": {
+        "secs": 3029,
+        "label": "51"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Joshua Zirkzee (Manchester United) right footed shot from outside the box is blocked. Assisted by Bruno Fernandes.",
+      "playerIds": [
+        50848,
+        23396
+      ]
+    },
+    {
+      "id": 2914520,
+      "time": {
+        "secs": 3031,
+        "label": "51"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Ronald Araujo.",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2914522,
+      "time": {
+        "secs": 3075,
+        "label": "52"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Matthijs de Ligt (Manchester United) header from the centre of the box is high and wide to the right. Assisted by Bruno Fernandes with a cross following a corner.",
+      "playerIds": [
+        20226,
+        23396
+      ]
+    },
+    {
+      "id": 2914529,
+      "time": {
+        "secs": 3224,
+        "label": "54"
+      },
+      "type": "free kick won",
+      "text": "Youri Tielemans (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        5865
+      ]
+    },
+    {
+      "id": 2914530,
+      "time": {
+        "secs": 3224,
+        "label": "54"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Virgil van Dijk (Liverpool).",
+      "playerIds": [
+        5140
+      ]
+    },
+    {
+      "id": 2914535,
+      "time": {
+        "secs": 3284,
+        "label": "55"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Youri Tielemans (Manchester United).",
+      "playerIds": [
+        5865
+      ]
+    },
+    {
+      "id": 2914536,
+      "time": {
+        "secs": 3284,
+        "label": "55"
+      },
+      "type": "free kick won",
+      "text": "Milos Kerkez (Liverpool) wins a free kick on the left wing.",
+      "playerIds": [
+        116665
+      ]
+    },
+    {
+      "id": 2914541,
+      "time": {
+        "secs": 3371,
+        "label": "57"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Joshua Zirkzee (Manchester United).",
+      "playerIds": [
+        50848
+      ]
+    },
+    {
+      "id": 2914542,
+      "time": {
+        "secs": 3371,
+        "label": "57"
+      },
+      "type": "free kick won",
+      "text": "Florian Wirtz (Liverpool) wins a free kick on the right wing.",
+      "playerIds": [
+        75382
+      ]
+    },
+    {
+      "id": 2914547,
+      "time": {
+        "secs": 3462,
+        "label": "58"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bruno Fernandes (Manchester United).",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2914548,
+      "time": {
+        "secs": 3462,
+        "label": "58"
+      },
+      "type": "free kick won",
+      "text": "Jérémy Jacquet (Liverpool) wins a free kick in the defensive half.",
+      "playerIds": [
+        133104
+      ]
+    },
+    {
+      "id": 2914558,
+      "time": {
+        "secs": 3629,
+        "label": "61"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Alexis Mac Allister (Liverpool) right footed shot from outside the box is blocked. Assisted by Dominik Szoboszlai.",
+      "playerIds": [
+        63633,
+        33231
+      ]
+    },
+    {
+      "id": 2914553,
+      "time": {
+        "secs": 3631,
+        "label": "61"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Kobbie Mainoo.",
+      "playerIds": [
+        108936
+      ]
+    },
+    {
+      "id": 2914556,
+      "time": {
+        "secs": 3668,
+        "label": "62"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Bradley Barcola (Liverpool).",
+      "playerIds": [
+        68840
+      ]
+    },
+    {
+      "id": 2914557,
+      "time": {
+        "secs": 3668,
+        "label": "62"
+      },
+      "type": "free kick won",
+      "text": "Youri Tielemans (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        5865
+      ]
+    },
+    {
+      "id": 2914554,
+      "time": {
+        "secs": 3672,
+        "label": "62"
+      },
+      "type": "yellow card",
+      "text": "Bradley Barcola (Liverpool) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        68840
+      ]
+    },
+    {
+      "id": 2914555,
+      "time": {
+        "secs": 3714,
+        "label": "62"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Alexander Isak (Liverpool) right footed shot from the right side of the box is close, but misses to the right. Assisted by Florian Wirtz following a fast break.",
+      "playerIds": [
+        21737,
+        75382
+      ]
+    },
+    {
+      "id": 2914571,
+      "time": {
+        "secs": 3819,
+        "label": "64"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Rio Ngumoha (Liverpool) right footed shot from the left side of the box is blocked. Assisted by Dominik Szoboszlai.",
+      "playerIds": [
+        134796,
+        33231
+      ]
+    },
+    {
+      "id": 2914573,
+      "time": {
+        "secs": 3840,
+        "label": "65"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Bradley Barcola (Liverpool) left footed shot from the centre of the box is too high. Assisted by Florian Wirtz.",
+      "playerIds": [
+        68840,
+        75382
+      ]
+    },
+    {
+      "id": 2914572,
+      "time": {
+        "secs": 3873,
+        "label": "65"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Mason Mount replaces Youri Tielemans.",
+      "playerIds": [
+        14580,
+        5865
+      ]
+    },
+    {
+      "id": 2914574,
+      "time": {
+        "secs": 3879,
+        "label": "65"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Noussair Mazraoui replaces Patrick Dorgu.",
+      "playerIds": [
+        33245,
+        146567
+      ]
+    },
+    {
+      "id": 2914583,
+      "time": {
+        "secs": 3911,
+        "label": "66"
+      },
+      "type": "goal",
+      "text": "Goal! Liverpool 3, Manchester United 0. Rio Ngumoha (Liverpool) right footed shot from the centre of the box to the centre of the goal. Assisted by Bradley Barcola following a fast break.",
+      "playerIds": [
+        134796,
+        68840
+      ]
+    },
+    {
+      "id": 2914592,
+      "time": {
+        "secs": 4066,
+        "label": "68"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Bradley Barcola (Liverpool) right footed shot from the centre of the box is blocked. Assisted by Florian Wirtz.",
+      "playerIds": [
+        68840,
+        75382
+      ]
+    },
+    {
+      "id": 2914586,
+      "time": {
+        "secs": 4067,
+        "label": "68"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Lisandro Martínez.",
+      "playerIds": [
+        67191
+      ]
+    },
+    {
+      "id": 2914589,
+      "time": {
+        "secs": 4113,
+        "label": "69"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Virgil van Dijk (Liverpool).",
+      "playerIds": [
+        5140
+      ]
+    },
+    {
+      "id": 2914590,
+      "time": {
+        "secs": 4113,
+        "label": "69"
+      },
+      "type": "free kick won",
+      "text": "Noussair Mazraoui (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        33245
+      ]
+    },
+    {
+      "id": 2914591,
+      "time": {
+        "secs": 4164,
+        "label": "70"
+      },
+      "type": "free kick won",
+      "text": "Mason Mount (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        14580
+      ]
+    },
+    {
+      "id": 2914601,
+      "time": {
+        "secs": 4164,
+        "label": "70"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Ronald Araujo (Liverpool).",
+      "playerIds": [
+        66133
+      ]
+    },
+    {
+      "id": 2914605,
+      "time": {
+        "secs": 4313,
+        "label": "72"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Trey Nyoni replaces Alexis Mac Allister.",
+      "playerIds": [
+        130665,
+        63633
+      ]
+    },
+    {
+      "id": 2914604,
+      "time": {
+        "secs": 4319,
+        "label": "72"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Víctor Muñoz replaces Bradley Barcola.",
+      "playerIds": [
+        119386,
+        68840
+      ]
+    },
+    {
+      "id": 2914611,
+      "time": {
+        "secs": 4449,
+        "label": "75"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Alexander Isak (Liverpool) right footed shot from the centre of the box is saved in the centre of the goal by Senne Lammens (Manchester United). Assisted by Florian Wirtz.",
+      "playerIds": [
+        21737,
+        75382
+      ]
+    },
+    {
+      "id": 2914613,
+      "time": {
+        "secs": 4460,
+        "label": "75"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Dominik Szoboszlai (Liverpool) left footed shot from outside the box is saved in the top right corner by Senne Lammens (Manchester United). Assisted by Víctor Muñoz.",
+      "playerIds": [
+        33231,
+        119386
+      ]
+    },
+    {
+      "id": 2914612,
+      "time": {
+        "secs": 4461,
+        "label": "75"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Senne Lammens.",
+      "playerIds": [
+        67910
+      ]
+    },
+    {
+      "id": 2914610,
+      "time": {
+        "secs": 4505,
+        "label": "76"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Virgil van Dijk (Liverpool) header from the centre of the box is close, but misses to the right. Assisted by Florian Wirtz with a cross following a corner.",
+      "playerIds": [
+        5140,
+        75382
+      ]
+    },
+    {
+      "id": 2914622,
+      "time": {
+        "secs": 4580,
+        "label": "77"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Trey Nyoni (Liverpool) right footed shot from the centre of the box is high and wide to the right. Assisted by Rio Ngumoha.",
+      "playerIds": [
+        130665,
+        134796
+      ]
+    },
+    {
+      "id": 2914625,
+      "time": {
+        "secs": 4622,
+        "label": "78"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Jeremie Frimpong replaces Rio Ngumoha.",
+      "playerIds": [
+        19919,
+        134796
+      ]
+    },
+    {
+      "id": 2914629,
+      "time": {
+        "secs": 4681,
+        "label": "79"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Joshua Zirkzee (Manchester United) header from the centre of the box misses to the left. Assisted by Bruno Fernandes with a cross.",
+      "playerIds": [
+        50848,
+        23396
+      ]
+    },
+    {
+      "id": 2914628,
+      "time": {
+        "secs": 4698,
+        "label": "79"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Bruno Fernandes (Manchester United) right footed shot from outside the box is saved in the centre of the goal by Alisson Becker (Liverpool). Assisted by Harry Maguire.",
+      "playerIds": [
+        23396,
+        9566
+      ]
+    },
+    {
+      "id": 2914635,
+      "time": {
+        "secs": 4734,
+        "label": "79"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Matthijs de Ligt.",
+      "playerIds": [
+        20226
+      ]
+    },
+    {
+      "id": 2914634,
+      "time": {
+        "secs": 4803,
+        "label": "81"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Diogo Dalot.",
+      "playerIds": [
+        24252
+      ]
+    },
+    {
+      "id": 2914640,
+      "time": {
+        "secs": 4906,
+        "label": "82"
+      },
+      "type": "goal",
+      "text": "Goal! Liverpool 4, Manchester United 0. Víctor Muñoz (Liverpool) right footed shot from the centre of the box to the top right corner. Assisted by Florian Wirtz with a through ball.",
+      "playerIds": [
+        119386,
+        75382
+      ]
+    },
+    {
+      "id": 2914644,
+      "time": {
+        "secs": 5044,
+        "label": "85"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Dominik Szoboszlai (Liverpool) right footed shot from outside the box is blocked.",
+      "playerIds": [
+        33231
+      ]
+    },
+    {
+      "id": 2914643,
+      "time": {
+        "secs": 5086,
+        "label": "85"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Joe Gomez replaces Ronald Araujo.",
+      "playerIds": [
+        10651,
+        66133
+      ]
+    },
+    {
+      "id": 2914645,
+      "time": {
+        "secs": 5092,
+        "label": "85"
+      },
+      "type": "substitution",
+      "text": "Substitution, Liverpool. Lewis Koumas replaces Alexander Isak.",
+      "playerIds": [
+        129671,
+        21737
+      ]
+    },
+    {
+      "id": 2914652,
+      "time": {
+        "secs": 5162,
+        "label": "87"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jérémy Jacquet (Liverpool).",
+      "playerIds": [
+        133104
+      ]
+    },
+    {
+      "id": 2914653,
+      "time": {
+        "secs": 5162,
+        "label": "87"
+      },
+      "type": "free kick won",
+      "text": "Bruno Fernandes (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        23396
+      ]
+    },
+    {
+      "id": 2914659,
+      "time": {
+        "secs": 5202,
+        "label": "87"
+      },
+      "type": "substitution",
+      "text": "Substitution, Manchester United. Andrey Santos replaces Kobbie Mainoo.",
+      "playerIds": [
+        133245,
+        108936
+      ]
+    },
+    {
+      "id": 2914658,
+      "time": {
+        "secs": 5242,
+        "label": "88"
+      },
+      "type": "free kick won",
+      "text": "Harry Maguire (Manchester United) wins a free kick in the defensive half.",
+      "playerIds": [
+        9566
+      ]
+    },
+    {
+      "id": 2914660,
+      "time": {
+        "secs": 5242,
+        "label": "88"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lewis Koumas (Liverpool).",
+      "playerIds": [
+        129671
+      ]
+    },
+    {
+      "id": 2914670,
+      "time": {
+        "secs": 5319,
+        "label": "89"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Florian Wirtz (Liverpool) right footed shot from the centre of the box is blocked. Assisted by Trey Nyoni.",
+      "playerIds": [
+        75382,
+        130665
+      ]
+    },
+    {
+      "id": 2914667,
+      "time": {
+        "secs": 5321,
+        "label": "89"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Andrey Santos.",
+      "playerIds": [
+        133245
+      ]
+    },
+    {
+      "id": 2914671,
+      "time": {
+        "secs": 5349,
+        "label": "90"
+      },
+      "type": "offside",
+      "text": "Offside, Liverpool. Jeremie Frimpong is caught offside.",
+      "playerIds": [
+        75382,
+        19919
+      ]
+    },
+    {
+      "id": 2914672,
+      "time": {
+        "secs": 5395,
+        "label": "90"
+      },
+      "type": "free kick won",
+      "text": "Jeremie Frimpong (Liverpool) wins a free kick on the right wing.",
+      "playerIds": [
+        19919
+      ]
+    },
+    {
+      "id": 2914673,
+      "time": {
+        "secs": 5395,
+        "label": "90"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lisandro Martínez (Manchester United).",
+      "playerIds": [
+        67191
+      ]
+    },
+    {
+      "id": 2914684,
+      "time": {
+        "secs": 5399,
+        "label": "90"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 2 minutes of added time."
+    },
+    {
+      "id": 2914683,
+      "time": {
+        "secs": 5429,
+        "label": "90+1"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Dominik Szoboszlai (Liverpool) right footed shot from the left side of the box is blocked. Assisted by Lewis Koumas.",
+      "playerIds": [
+        33231,
+        129671
+      ]
+    },
+    {
+      "id": 2914682,
+      "time": {
+        "secs": 5430,
+        "label": "90+1"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Andrey Santos.",
+      "playerIds": [
+        133245
+      ]
+    },
+    {
+      "id": 2914685,
+      "time": {
+        "secs": 5488,
+        "label": "90+2"
+      },
+      "type": "corner",
+      "text": "Corner, Liverpool. Conceded by Harry Maguire.",
+      "playerIds": [
+        9566
+      ]
+    },
+    {
+      "id": 2914695,
+      "time": {
+        "secs": 5515,
+        "label": "90+2"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Bruno Fernandes (Manchester United) right footed shot from the centre of the box is saved in the centre of the goal by Alisson Becker (Liverpool). Assisted by Joshua Zirkzee.",
+      "playerIds": [
+        23396,
+        50848
+      ]
+    },
+    {
+      "id": 2914696,
+      "time": {
+        "secs": 5516,
+        "label": "90+2"
+      },
+      "type": "corner",
+      "text": "Corner, Manchester United. Conceded by Alisson Becker.",
+      "playerIds": [
+        20559
+      ]
+    },
+    {
+      "id": 2914694,
+      "time": {
+        "secs": 5547,
+        "label": "90+3"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Harry Maguire (Manchester United) header from the centre of the box misses to the left. Assisted by Bruno Fernandes with a cross following a corner.",
+      "playerIds": [
+        9566,
+        23396
+      ]
+    },
+    {
+      "id": 2914703,
+      "time": {
+        "secs": 5570,
+        "label": "90+3"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Liverpool 4, Manchester United 0."
+    },
+    {
+      "id": 2914712,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Liverpool 4, Manchester United 0."
     }
   ]
 }

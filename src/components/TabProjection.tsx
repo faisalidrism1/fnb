@@ -109,6 +109,13 @@ const POS_ORDER: Record<string, number> = {
   FWD: 4
 };
 
+const getPosBadgeColorClass = (position: PositionType | string): string => {
+  if (position === 'FWD') return 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300';
+  if (position === 'MID') return 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300';
+  if (position === 'DEF') return 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300';
+  return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300';
+};
+
 // Lineup role hierarchy (Starting XI -> Bench -> Out)
 const ROLE_ORDER: Record<string, number> = {
   starting: 1,
@@ -668,7 +675,11 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
       if (pointsSortCol === 'player') return pointsSortDir === 'asc' ? a.webName.localeCompare(b.webName) : b.webName.localeCompare(a.webName);
       if (pointsSortCol === 'club') return pointsSortDir === 'asc' ? a.teamShort.localeCompare(b.teamShort) : b.teamShort.localeCompare(a.teamShort);
-      if (pointsSortCol === 'pos') return pointsSortDir === 'asc' ? a.position.localeCompare(b.position) : b.position.localeCompare(a.position);
+      if (pointsSortCol === 'pos') {
+        const posDiff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
+        if (posDiff !== 0) return pointsSortDir === 'asc' ? posDiff : -posDiff;
+        return b.totalXp - a.totalXp || a.webName.localeCompare(b.webName);
+      }
       if (pointsSortCol === 'price') {
         vA = a.nowCost;
         vB = b.nowCost;
@@ -840,29 +851,37 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
         <div className="space-y-1.5">
           {/* Header Bar */}
           <div className="bg-white dark:bg-[#1a0f2e] px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-between gap-1.5 w-full min-w-0">
-            <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 whitespace-nowrap">
-              <button
-                onClick={() => setLineupViewMode('list')}
-                className={`px-2.5 py-0.5 rounded-md text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 ${
-                  lineupViewMode === 'list'
-                    ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
-                }`}
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                title={isIdLang ? `Target Prediksi Lineup: GW ${targetNextGW}` : `Lineup Projection Target: GW ${targetNextGW}`}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-black leading-none bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0"
               >
-                <List className="w-3 h-3" />
-                List
-              </button>
-              <button
-                onClick={() => setLineupViewMode('pitch')}
-                className={`px-2.5 py-0.5 rounded-md text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 ${
-                  lineupViewMode === 'pitch'
-                    ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                <LayoutGrid className="w-3 h-3" />
-                Pitch
-              </button>
+                GW {targetNextGW}
+              </span>
+              <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 whitespace-nowrap">
+                <button
+                  onClick={() => setLineupViewMode('list')}
+                  className={`px-2.5 py-0.5 rounded-md text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 ${
+                    lineupViewMode === 'list'
+                      ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  <List className="w-3 h-3" />
+                  List
+                </button>
+                <button
+                  onClick={() => setLineupViewMode('pitch')}
+                  className={`px-2.5 py-0.5 rounded-md text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 ${
+                    lineupViewMode === 'pitch'
+                      ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  <LayoutGrid className="w-3 h-3" />
+                  Pitch
+                </button>
+              </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
@@ -1397,7 +1416,11 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                   {player.webName}
                                 </td>
                                 <td className="py-1 px-1.5 w-10 text-center">
-                                  <span className="w-8 inline-block text-center px-1 py-0.2 rounded text-[10px] font-black bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                                  <span
+                                    className={`w-8 sm:w-9 inline-block text-center px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none whitespace-nowrap ${getPosBadgeColorClass(
+                                      player.position
+                                    )}`}
+                                  >
                                     {player.position}
                                   </span>
                                 </td>
@@ -2101,7 +2124,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                     className="py-1 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] whitespace-nowrap"
                     onClick={() => {
                       setPointsSortCol('pos');
-                      setPointsSortDir(pointsSortDir === 'asc' ? 'desc' : 'asc');
+                      setPointsSortDir(pointsSortCol === 'pos' && pointsSortDir === 'asc' ? 'desc' : 'asc');
                     }}
                   >
                     Pos
@@ -2184,15 +2207,9 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                     </td>
                     <td className="py-0.5 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] whitespace-nowrap">
                       <span
-                        className={`w-8 sm:w-9 inline-block text-center px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none whitespace-nowrap ${
-                          player.position === 'FWD'
-                            ? 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300'
-                            : player.position === 'MID'
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
-                            : player.position === 'DEF'
-                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300'
-                            : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
-                        }`}
+                        className={`w-8 sm:w-9 inline-block text-center px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none whitespace-nowrap ${getPosBadgeColorClass(
+                          player.position
+                        )}`}
                       >
                         {player.position}
                       </span>

@@ -25,7 +25,7 @@
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m102",
+    "id": "BM_MATCH_SCORE_RESULT_m110",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -38,16 +38,16 @@
     "sub_kategori": "Score",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] menundukkan [C:Nott'm Forest] [N:2] - [N:0] — pencetak gol: [P:Kluivert] ([N:1%]) dan [P:Evanilson] ([N:47%]).",
-    "text_berita_en": "Match result at [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] defeats [C:Nott'm Forest] [N:2] - [N:0] — goalscorers: [P:Kluivert] ([N:1%]) and [P:Evanilson] ([N:47%]).",
+    "text_berita": "Hasil akhir di [N:Tottenham Hotspur Stadium, London]: [C:Spurs] menundukkan [C:Ipswich Town] [N:2] - [N:0] — pencetak gol: [P:Williams-Barnett] ([N:0%]) dan [P:Solanke] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Tottenham Hotspur Stadium, London]: [C:Spurs] defeats [C:Ipswich Town] [N:2] - [N:0] — goalscorers: [P:Williams-Barnett] ([N:0%]) and [P:Solanke] ([N:0%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Kluivert",
-      "Evanilson"
+      "Williams-Barnett",
+      "Solanke"
     ],
     "cycle_meta": {
-      "specialRank": 4
+      "specialRank": 7
     }
   },
   {
@@ -206,7 +206,7 @@
     }
   },
   {
-    "id": "BM_LINEUP_BENCH_POINTS_2_majapahit_fc",
+    "id": "BM_LINEUP_BENCH_POINTS_3_doa_ibu_fc",
     "timestamp_produksi": "2026-11-23T09:42:34.855Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -219,17 +219,17 @@
     "sub_kategori": "Bench",
     "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[T:Majapahit FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
-    "text_berita_en": "[T:Majapahit FC] left [P:Rudoni] on the bench with [N:10 Pts] from a completed match.",
+    "text_berita": "[T:Doa Ibu FC] mencadangkan [P:Tzolakis] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Doa Ibu FC] left [P:Tzolakis] on the bench with [N:10 Pts] from a completed match.",
     "gw": 11,
     "teams": [
-      "Majapahit FC"
+      "Doa Ibu FC"
     ],
     "players": [
-      "Rudoni"
+      "Tzolakis"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 2
     }
   },
   {
@@ -306,7 +306,7 @@
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m107",
+    "id": "BM_MATCH_SCORE_RESULT_m106",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -319,18 +319,15 @@
     "sub_kategori": "Score",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:Anfield, Liverpool]: [C:Liverpool] menundukkan [C:Man Utd] [N:4] - [N:0] — pencetak gol: [P:Wirtz] ([N:5%]), [P:Szoboszlai] ([N:5%]), [P:Ngumoha] ([N:0%]), dan [P:Munoz] ([N:0%]).",
-    "text_berita_en": "Match result at [N:Anfield, Liverpool]: [C:Liverpool] defeats [C:Man Utd] [N:4] - [N:0] — goalscorers: [P:Wirtz] ([N:5%]), [P:Szoboszlai] ([N:5%]), [P:Ngumoha] ([N:0%]), and [P:Munoz] ([N:0%]).",
+    "text_berita": "Hasil akhir di [N:MKM Stadium, Hull]: [C:Hull City] menundukkan [C:Brighton] [N:2] - [N:0] — pencetak gol: [P:McBurnie] ([N:0%], [N:2 Gol]).",
+    "text_berita_en": "Match result at [N:MKM Stadium, Hull]: [C:Hull City] defeats [C:Brighton] [N:2] - [N:0] — goalscorers: [P:McBurnie] ([N:0%], [N:2 Goals]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Wirtz",
-      "Szoboszlai",
-      "Ngumoha",
-      "Munoz"
+      "McBurnie"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 1
     }
   },
   {
@@ -346,7 +343,7 @@
     "kategori": "Player",
     "sub_kategori": "Availability",
     "drama_score": 87,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[P:Thiago] ([C:Brentford]) dipastikan absen melawan [C:Everton] akibat sanksi larangan bertanding sehingga berdampak bagi [N:1] pemiliknya.",
     "text_berita_en": "[P:Thiago] ([C:Brentford]) is ruled out against [C:Everton] (sanksi larangan bertanding), impacting [N:1] owners.",
     "gw": 11,
@@ -355,11 +352,13 @@
       "Thiago"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795437999979,
+      "lastAiredHeadline": "[P:Thiago] ([C:Brentford]) dipastikan absen melawan [C:Everton] akibat sanksi larangan bertanding sehingga berdampak bagi [N:1] pemiliknya."
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m104",
+    "id": "BM_MATCH_SCORE_RESULT_m108",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -372,18 +371,16 @@
     "sub_kategori": "Score",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:Stamford Bridge, London]: [C:Leeds] menundukkan [C:Chelsea] [N:4] - [N:1] — pencetak gol: [P:Emegha] ([N:0%]), [P:Okafor] ([N:0%], [N:2 Gol]), [P:Calvert-Lewin] ([N:14%]), dan [P:Aaronson] ([N:0%]).",
-    "text_berita_en": "Match result at [N:Stamford Bridge, London]: [C:Leeds] defeats [C:Chelsea] [N:4] - [N:1] — goalscorers: [P:Emegha] ([N:0%]), [P:Okafor] ([N:0%], [N:2 Goals]), [P:Calvert-Lewin] ([N:14%]), and [P:Aaronson] ([N:0%]).",
+    "text_berita": "Hasil akhir di [N:Etihad Stadium, Manchester]: [C:Man City] dan [C:Fulham] berbagi poin [N:1] - [N:1] — pencetak gol: [P:Anderson] ([N:1%]) dan [P:Muniz] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Etihad Stadium, Manchester]: [C:Man City] and [C:Fulham] draw [N:1] - [N:1] — goalscorers: [P:Anderson] ([N:1%]) and [P:Muniz] ([N:0%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Emegha",
-      "Okafor",
-      "Calvert-Lewin",
-      "Aaronson"
+      "Anderson",
+      "Muniz"
     ],
     "cycle_meta": {
-      "specialRank": 5
+      "specialRank": 8
     }
   },
   {
@@ -451,7 +448,7 @@
     "kategori": "Match",
     "sub_kategori": "Clean Sheet",
     "drama_score": 85,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[C:Spurs] mengamankan clean sheet melawan [C:Ipswich Town], menghadirkan [N:+4 Poin] bagi [P:Van Hecke] ([N:40%]).",
     "text_berita_en": "[C:Spurs] kept a clean sheet against [C:Ipswich Town], earning [N:+4 Pts] for [P:Van Hecke] ([N:40%]).",
     "gw": 11,
@@ -460,7 +457,9 @@
       "Van Hecke"
     ],
     "cycle_meta": {
-      "specialRank": 3
+      "specialRank": 3,
+      "lastAiredAtMs": 1795438012665,
+      "lastAiredHeadline": "[C:Spurs] mengamankan clean sheet melawan [C:Ipswich Town], menghadirkan [N:+4 Poin] bagi [P:Van Hecke] ([N:40%])."
     }
   },
   {
@@ -543,7 +542,7 @@
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m106",
+    "id": "BM_MATCH_SCORE_RESULT_m107",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -555,16 +554,21 @@
     "kategori": "Match",
     "sub_kategori": "Score",
     "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:MKM Stadium, Hull]: [C:Hull City] menundukkan [C:Brighton] [N:2] - [N:0] — pencetak gol: [P:McBurnie] ([N:0%], [N:2 Gol]).",
-    "text_berita_en": "Match result at [N:MKM Stadium, Hull]: [C:Hull City] defeats [C:Brighton] [N:2] - [N:0] — goalscorers: [P:McBurnie] ([N:0%], [N:2 Goals]).",
+    "poin_tayang": 1,
+    "text_berita": "Hasil akhir di [N:Anfield, Liverpool]: [C:Liverpool] menundukkan [C:Man Utd] [N:4] - [N:0] — pencetak gol: [P:Wirtz] ([N:5%]), [P:Szoboszlai] ([N:5%]), [P:Ngumoha] ([N:0%]), dan [P:Munoz] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Anfield, Liverpool]: [C:Liverpool] defeats [C:Man Utd] [N:4] - [N:0] — goalscorers: [P:Wirtz] ([N:5%]), [P:Szoboszlai] ([N:5%]), [P:Ngumoha] ([N:0%]), and [P:Munoz] ([N:0%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "McBurnie"
+      "Wirtz",
+      "Szoboszlai",
+      "Ngumoha",
+      "Munoz"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 0,
+      "lastAiredAtMs": 1795437943119,
+      "lastAiredHeadline": "Hasil akhir di [N:Anfield, Liverpool]: [C:Liverpool] menundukkan [C:Man Utd] [N:4] - [N:0] — pencetak gol: [P:Wirtz] ([N:5%]), [P:Szoboszlai] ([N:5%]), [P:Ngumoha] ([N:0%]), dan [P:Munoz] ([N:0%])."
     }
   },
   {
@@ -598,7 +602,7 @@
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m105",
+    "id": "BM_MATCH_SCORE_RESULT_m109",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -611,19 +615,18 @@
     "sub_kategori": "Score",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] menundukkan [C:Crystal Palace] [N:3] - [N:2] — pencetak gol: [P:Sakamoto] ([N:0%]), [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]), [P:McNeil] ([N:0%], GBD), dan [P:Strand Larsen] ([N:1%]).",
-    "text_berita_en": "Match result at [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] defeats [C:Crystal Palace] [N:3] - [N:2] — goalscorers: [P:Sakamoto] ([N:0%]), [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]), [P:McNeil] ([N:0%], OG), and [P:Strand Larsen] ([N:1%]).",
+    "text_berita": "Hasil akhir di [N:St. James' Park, Newcastle]: [C:Newcastle] dan [C:Arsenal] berbagi poin [N:2] - [N:2] — pencetak gol: [P:Thiaw] ([N:0%]), [P:Barnes] ([N:7%]), [P:Eze] ([N:0%]), dan [P:Madueke] ([N:0%]).",
+    "text_berita_en": "Match result at [N:St. James' Park, Newcastle]: [C:Newcastle] and [C:Arsenal] draw [N:2] - [N:2] — goalscorers: [P:Thiaw] ([N:0%]), [P:Barnes] ([N:7%]), [P:Eze] ([N:0%]), and [P:Madueke] ([N:0%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Sakamoto",
-      "Awoniyi",
-      "Yeremy",
-      "McNeil",
-      "Strand Larsen"
+      "Thiaw",
+      "Barnes",
+      "Eze",
+      "Madueke"
     ],
     "cycle_meta": {
-      "specialRank": 6
+      "specialRank": 2
     }
   },
   {
@@ -782,7 +785,7 @@
     }
   },
   {
-    "id": "BM_LINEUP_BENCH_POINTS_3_doa_ibu_fc",
+    "id": "BM_LINEUP_BENCH_POINTS_1_xian_ying_fc",
     "timestamp_produksi": "2026-11-23T09:42:34.855Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -794,18 +797,20 @@
     "kategori": "Lineup",
     "sub_kategori": "Bench",
     "drama_score": 85,
-    "poin_tayang": 0,
-    "text_berita": "[T:Doa Ibu FC] mencadangkan [P:Tzolakis] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
-    "text_berita_en": "[T:Doa Ibu FC] left [P:Tzolakis] on the bench with [N:10 Pts] from a completed match.",
+    "poin_tayang": 1,
+    "text_berita": "[T:Xian Ying FC] mencadangkan [P:Roefs] yang mendulang [N:11 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Xian Ying FC] left [P:Roefs] on the bench with [N:11 Pts] from a completed match.",
     "gw": 11,
     "teams": [
-      "Doa Ibu FC"
+      "Xian Ying FC"
     ],
     "players": [
-      "Tzolakis"
+      "Roefs"
     ],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 0,
+      "lastAiredAtMs": 1795438050198,
+      "lastAiredHeadline": "[T:Xian Ying FC] mencadangkan [P:Roefs] yang mendulang [N:11 Poin] pada laga yang baru berakhir."
     }
   },
   {
@@ -859,7 +864,7 @@
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m109",
+    "id": "BM_MATCH_SCORE_RESULT_m101",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -871,19 +876,16 @@
     "kategori": "Match",
     "sub_kategori": "Score",
     "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:St. James' Park, Newcastle]: [C:Newcastle] dan [C:Arsenal] berbagi poin [N:2] - [N:2] — pencetak gol: [P:Thiaw] ([N:0%]), [P:Barnes] ([N:7%]), [P:Eze] ([N:0%]), dan [P:Madueke] ([N:0%]).",
-    "text_berita_en": "Match result at [N:St. James' Park, Newcastle]: [C:Newcastle] and [C:Arsenal] draw [N:2] - [N:2] — goalscorers: [P:Thiaw] ([N:0%]), [P:Barnes] ([N:7%]), [P:Eze] ([N:0%]), and [P:Madueke] ([N:0%]).",
+    "poin_tayang": 1,
+    "text_berita": "Hasil akhir di [N:Villa Park, Birmingham]: [C:Aston Villa] dan [C:Sunderland] bermain imbang [N:0] - [N:0].",
+    "text_berita_en": "Match result at [N:Villa Park, Birmingham]: [C:Aston Villa] and [C:Sunderland] play out a goalless draw [N:0] - [N:0].",
     "gw": 11,
     "teams": [],
-    "players": [
-      "Thiaw",
-      "Barnes",
-      "Eze",
-      "Madueke"
-    ],
+    "players": [],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 3,
+      "lastAiredAtMs": 1795437985085,
+      "lastAiredHeadline": "Hasil akhir di [N:Villa Park, Birmingham]: [C:Aston Villa] dan [C:Sunderland] bermain imbang [N:0] - [N:0]."
     }
   },
   {
@@ -912,7 +914,7 @@
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m110",
+    "id": "BM_MATCH_SCORE_RESULT_m104",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -925,16 +927,18 @@
     "sub_kategori": "Score",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:Tottenham Hotspur Stadium, London]: [C:Spurs] menundukkan [C:Ipswich Town] [N:2] - [N:0] — pencetak gol: [P:Williams-Barnett] ([N:0%]) dan [P:Solanke] ([N:0%]).",
-    "text_berita_en": "Match result at [N:Tottenham Hotspur Stadium, London]: [C:Spurs] defeats [C:Ipswich Town] [N:2] - [N:0] — goalscorers: [P:Williams-Barnett] ([N:0%]) and [P:Solanke] ([N:0%]).",
+    "text_berita": "Hasil akhir di [N:Stamford Bridge, London]: [C:Leeds] menundukkan [C:Chelsea] [N:4] - [N:1] — pencetak gol: [P:Emegha] ([N:0%]), [P:Okafor] ([N:0%], [N:2 Gol]), [P:Calvert-Lewin] ([N:14%]), dan [P:Aaronson] ([N:0%]).",
+    "text_berita_en": "Match result at [N:Stamford Bridge, London]: [C:Leeds] defeats [C:Chelsea] [N:4] - [N:1] — goalscorers: [P:Emegha] ([N:0%]), [P:Okafor] ([N:0%], [N:2 Goals]), [P:Calvert-Lewin] ([N:14%]), and [P:Aaronson] ([N:0%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Williams-Barnett",
-      "Solanke"
+      "Emegha",
+      "Okafor",
+      "Calvert-Lewin",
+      "Aaronson"
     ],
     "cycle_meta": {
-      "specialRank": 7
+      "specialRank": 5
     }
   },
   {
@@ -1054,7 +1058,7 @@
     "kategori": "Standings",
     "sub_kategori": "Weekly Wins",
     "drama_score": 84,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[T:Blackswann] ([N:1] kali juara, [N:35 Poin] sementara) dan [T:rdwndvsn] ([N:1] kali juara, [N:28 Poin] sementara) keduanya menunjuk [P:Haaland] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin sementara beralih ke [P:Evanilson] dan [P:Raya].",
     "text_berita_en": "[T:Blackswann] ([N:35 Pts] provisionally) and [T:rdwndvsn] ([N:28 Pts] provisionally) both captain [P:Haaland] in the Most GW Wins race; differentials turn to [P:Evanilson] and [P:Raya].",
     "gw": 11,
@@ -1068,11 +1072,13 @@
       "Raya"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795437973010,
+      "lastAiredHeadline": "[T:Blackswann] ([N:1] kali juara, [N:35 Poin] sementara) dan [T:rdwndvsn] ([N:1] kali juara, [N:28 Poin] sementara) keduanya menunjuk [P:Haaland] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin sementara beralih ke [P:Evanilson] dan [P:Raya]."
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m101",
+    "id": "BM_MATCH_SCORE_RESULT_m102",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -1084,14 +1090,19 @@
     "kategori": "Match",
     "sub_kategori": "Score",
     "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:Villa Park, Birmingham]: [C:Aston Villa] dan [C:Sunderland] bermain imbang [N:0] - [N:0].",
-    "text_berita_en": "Match result at [N:Villa Park, Birmingham]: [C:Aston Villa] and [C:Sunderland] play out a goalless draw [N:0] - [N:0].",
+    "poin_tayang": 1,
+    "text_berita": "Hasil akhir di [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] menundukkan [C:Nott'm Forest] [N:2] - [N:0] — pencetak gol: [P:Kluivert] ([N:1%]) dan [P:Evanilson] ([N:47%]).",
+    "text_berita_en": "Match result at [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] defeats [C:Nott'm Forest] [N:2] - [N:0] — goalscorers: [P:Kluivert] ([N:1%]) and [P:Evanilson] ([N:47%]).",
     "gw": 11,
     "teams": [],
-    "players": [],
+    "players": [
+      "Kluivert",
+      "Evanilson"
+    ],
     "cycle_meta": {
-      "specialRank": 3
+      "specialRank": 4,
+      "lastAiredAtMs": 1795438030609,
+      "lastAiredHeadline": "Hasil akhir di [N:Vitality Stadium, Bournemouth]: [C:Bournemouth] menundukkan [C:Nott'm Forest] [N:2] - [N:0] — pencetak gol: [P:Kluivert] ([N:1%]) dan [P:Evanilson] ([N:47%])."
     }
   },
   {
@@ -1122,7 +1133,7 @@
     }
   },
   {
-    "id": "BM_MATCH_SCORE_RESULT_m108",
+    "id": "BM_MATCH_SCORE_RESULT_m105",
     "timestamp_produksi": "2026-11-23T09:42:27.354Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -1135,16 +1146,19 @@
     "sub_kategori": "Score",
     "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "Hasil akhir di [N:Etihad Stadium, Manchester]: [C:Man City] dan [C:Fulham] berbagi poin [N:1] - [N:1] — pencetak gol: [P:Anderson] ([N:1%]) dan [P:Muniz] ([N:0%]).",
-    "text_berita_en": "Match result at [N:Etihad Stadium, Manchester]: [C:Man City] and [C:Fulham] draw [N:1] - [N:1] — goalscorers: [P:Anderson] ([N:1%]) and [P:Muniz] ([N:0%]).",
+    "text_berita": "Hasil akhir di [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] menundukkan [C:Crystal Palace] [N:3] - [N:2] — pencetak gol: [P:Sakamoto] ([N:0%]), [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]), [P:McNeil] ([N:0%], GBD), dan [P:Strand Larsen] ([N:1%]).",
+    "text_berita_en": "Match result at [N:Coventry Building Society Arena, Coventry]: [C:Coventry City] defeats [C:Crystal Palace] [N:3] - [N:2] — goalscorers: [P:Sakamoto] ([N:0%]), [P:Awoniyi] ([N:0%]), [P:Yeremy] ([N:0%]), [P:McNeil] ([N:0%], OG), and [P:Strand Larsen] ([N:1%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Anderson",
-      "Muniz"
+      "Sakamoto",
+      "Awoniyi",
+      "Yeremy",
+      "McNeil",
+      "Strand Larsen"
     ],
     "cycle_meta": {
-      "specialRank": 8
+      "specialRank": 6
     }
   },
   {
@@ -1279,7 +1293,7 @@
     }
   },
   {
-    "id": "BM_LINEUP_BENCH_POINTS_1_xian_ying_fc",
+    "id": "BM_LINEUP_BENCH_POINTS_2_majapahit_fc",
     "timestamp_produksi": "2026-11-23T09:42:34.855Z",
     "sumber": "Sys",
     "status_tayang": "Y",
@@ -1292,17 +1306,17 @@
     "sub_kategori": "Bench",
     "drama_score": 85,
     "poin_tayang": 0,
-    "text_berita": "[T:Xian Ying FC] mencadangkan [P:Roefs] yang mendulang [N:11 Poin] pada laga yang baru berakhir.",
-    "text_berita_en": "[T:Xian Ying FC] left [P:Roefs] on the bench with [N:11 Pts] from a completed match.",
+    "text_berita": "[T:Majapahit FC] mencadangkan [P:Rudoni] yang mendulang [N:10 Poin] pada laga yang baru berakhir.",
+    "text_berita_en": "[T:Majapahit FC] left [P:Rudoni] on the bench with [N:10 Pts] from a completed match.",
     "gw": 11,
     "teams": [
-      "Xian Ying FC"
+      "Majapahit FC"
     ],
     "players": [
-      "Roefs"
+      "Rudoni"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 1
     }
   }
 ]
