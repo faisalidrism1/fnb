@@ -911,6 +911,11 @@ export interface PlayerGwMatchDetail {
   drawProb?: number;
   lossProb?: number;
   isCongested72h?: boolean;
+  xMin?: number;
+  pStart?: number;
+  pPlay60?: number;
+  mcQ85?: number;
+  mcPHaul10?: number;
 }
 
 export interface PlayerGwProjectionCell {
@@ -923,6 +928,12 @@ export interface PlayerGwProjectionCell {
   matchCount: number;
   isDgw?: boolean;
   isBlank?: boolean;
+  xMin?: number;
+  pStart?: number;
+  pPlay60?: number;
+  mcQ85?: number;
+  mcPHaul10?: number;
+  mcQuantiles?: number[];
   matches?: PlayerGwMatchDetail[];
 }
 

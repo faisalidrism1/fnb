@@ -27,6 +27,7 @@ import {
 } from '../utils/scoutNarratives.ts';
 import { Star, ArrowRight, Zap, CheckCircle, X } from 'lucide-react';
 import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
+import { evaluateP9HitTransfer } from '../utils/playerXpModel.ts';
 import { loadScoutSquadsFromIndexedDB, saveScoutSquadsToIndexedDB } from '../storage.ts';
 
 interface TabScoutProps {
@@ -425,21 +426,33 @@ export const TabScout: React.FC<TabScoutProps> = ({
       // Player xGI per 90 minutes
       const xGi90 = Number(((xGI / mins) * 90).toFixed(2));
 
-      // Server-computed FPL Proven Guard status
+      // Server-computed FPL Proven Guard status & Stage 3 distributions
       const proven = proj?.proven || DEFAULT_UNPROVEN_STATUS;
+      const hasStage3Target = targetCell?.xMin !== undefined;
+      const targetXMin = targetCell?.xMin;
+      const mcQ85 = targetCell?.mcQ85;
+      const mcPHaul10 = targetCell?.mcPHaul10;
+      const mcQuantiles = targetCell?.mcQuantiles;
 
-      // Unified Captain Score: Anchored directly on Projection Points (xP1) + bounded 2x armband ceiling tie-breaker
+      // Unified Captain Score: Anchored directly on Projection Points (xP1) + Stage 3 ceiling tie-breaker
       const posArmbandBias = p.position === 'FWD' ? 1.5 : p.position === 'MID' ? 1.0 : p.position === 'DEF' ? -2.0 : -3.2;
       const penArmbandBias = deadBall.isPrimaryPen ? 0.8 : 0;
-      const haulCeilingBias = Math.min(1.5, hauls * 0.4);
+      const haulCeilingBias =
+        mcPHaul10 !== undefined
+          ? Math.min(1.8, hauls * 0.25 + mcPHaul10 * 3.0 + Math.max(0, (mcQ85 ?? xP1) - xP1) * 0.12)
+          : Math.min(1.5, hauls * 0.4);
       const provenBias = proven.tier === 'ELITE' ? 1.2 : proven.tier === 'ESTABLISHED' ? 0.5 : 0;
       const captainScore = Number((xP1 * 10 + posArmbandBias + penArmbandBias + haulCeilingBias + provenBias).toFixed(2));
 
       // Unified Differential Score (<5% FNB ownership): Anchored on Projection Points (xP1 + 3-GW avg xP) + subtle upside tie-breaker
+      const diffCeilingTie =
+        mcQ85 !== undefined
+          ? Math.min(2.2, hauls * 0.45 + Math.max(0, mcQ85 - xP1) * 0.25)
+          : Math.min(3.0, hauls * 0.9);
       const diffScore = Number((
         xP1 * 5.5 +
         avgXp3 * 4.5 +
-        Math.min(3.0, hauls * 0.9) +
+        diffCeilingTie +
         (deadBall.isPrimaryPen ? 1.5 : 0) +
         Math.min(2.5, xGi90 * 2.5)
       ).toFixed(1));
@@ -488,6 +501,11 @@ export const TabScout: React.FC<TabScoutProps> = ({
         fixtures1,
         fixtures6,
         fullSeasonPointsMap: (fullSeasonPointsMap || {}) as Record<number, PlayerGwProjectionCell>,
+        hasStage3Target,
+        targetXMin,
+        mcQ85,
+        mcPHaul10,
+        mcQuantiles,
         captainScore,
         diffScore,
         proven,
@@ -1553,8 +1571,17 @@ export const TabScout: React.FC<TabScoutProps> = ({
       const isOutStatus = p.status === 'i' || p.status === 's' || p.status === 'u';
       const isSevereDoubt = p.status === 'd' && p.chanceOfPlaying !== null && p.chanceOfPlaying <= 25;
       const isDoubt = p.status === 'd' && !isSevereDoubt;
-      const isBenchFodder = !isOutStatus && !isSevereDoubt && (minsPerGw < 25 || (completedGws >= 3 && p.mins < 75));
-      const isRotationRisk = !isOutStatus && !isSevereDoubt && !isBenchFodder && minsPerGw < 45;
+      const isBenchFodder =
+        !isOutStatus &&
+        !isSevereDoubt &&
+        (p.targetXMin !== undefined
+          ? p.targetXMin < 18
+          : minsPerGw < 25 || (completedGws >= 3 && p.mins < 75));
+      const isRotationRisk =
+        !isOutStatus &&
+        !isSevereDoubt &&
+        !isBenchFodder &&
+        (p.targetXMin !== undefined ? p.targetXMin < 45 && minsPerGw < 45 : minsPerGw < 45);
 
       let availWeights: number[];
       if (isOutStatus) {
@@ -1573,22 +1600,37 @@ export const TabScout: React.FC<TabScoutProps> = ({
       const g1 = p.fixtures6?.[0]?.xp ?? p.xP1;
       const horizonFixtures = (p.fixtures6 || []).slice(0, horizonCount);
 
+      // Stage 3 cells already incorporate calibrated xMin_P7 + availability & return dates; avoid double-discounting
       let sumH = 0;
       for (let i = 0; i < horizonCount; i++) {
         const gwXp = p.fixtures6?.[i]?.xp ?? g1;
-        const w = availWeights[Math.min(i, availWeights.length - 1)];
-        sumH += gwXp * w * minsMult;
+        if (p.hasStage3Target) {
+          sumH += gwXp;
+        } else {
+          const w = availWeights[Math.min(i, availWeights.length - 1)];
+          sumH += gwXp * w * minsMult;
+        }
       }
 
-      const effXp1 = round2(g1 * availWeights[0] * minsMult);
+      const effXp1 = round2(p.hasStage3Target ? g1 : g1 * availWeights[0] * minsMult);
       const effXpH = round2(sumH);
 
       const sampleMins = Math.max(p.mins, 90);
       const xGi90 = round2((p.xGI / sampleMins) * 90);
       const threat90 = round1((p.threat / sampleMins) * 90);
       const creat90 = round1((p.creativity / sampleMins) * 90);
-      const hasExplosiveUpside = p.hauls >= 2 || p.maxGwPoints >= 11 || p.captainScore >= 52 || xGi90 >= 0.52;
-      const explosiveBonus = p.hauls >= 2 ? 1.1 : (p.maxGwPoints >= 11 || p.captainScore >= 52 || xGi90 >= 0.55) ? 0.65 : 0.0;
+      const hasExplosiveUpside =
+        p.hauls >= 2 ||
+        p.maxGwPoints >= 11 ||
+        p.captainScore >= 52 ||
+        xGi90 >= 0.52 ||
+        (p.mcPHaul10 !== undefined && p.mcPHaul10 >= 0.16);
+      const explosiveBonus =
+        p.hauls >= 2 || (p.mcPHaul10 !== undefined && p.mcPHaul10 >= 0.18)
+          ? 1.1
+          : p.maxGwPoints >= 11 || p.captainScore >= 52 || xGi90 >= 0.55
+          ? 0.65
+          : 0.0;
 
       return {
         p,
@@ -1597,7 +1639,9 @@ export const TabScout: React.FC<TabScoutProps> = ({
         isOutStatus: isOutStatus || isSevereDoubt,
         isBenchFodder,
         isDoubt,
-        isNailedSafe: p.status === 'a' && minsPerGw >= 50,
+        isNailedSafe:
+          p.status === 'a' &&
+          (p.targetXMin !== undefined ? p.targetXMin >= 55 : minsPerGw >= 50),
         effXp1,
         effXpH,
         horizonFixtures,
@@ -1760,7 +1804,13 @@ export const TabScout: React.FC<TabScoutProps> = ({
     // Build wide candidate IN pool per position maximizing horizon points across all price tiers within budget
     const baseIdSet = new Set(baseIds);
     const fitInPool = playerPool
-      .filter((p) => p.status === 'a' && p.mins >= Math.min(135, completedGws * 25) && !baseIdSet.has(p.id))
+      .filter(
+        (p) =>
+          p.status === 'a' &&
+          (p.targetXMin === undefined || p.targetXMin >= 30) &&
+          p.mins >= Math.min(135, completedGws * 25) &&
+          !baseIdSet.has(p.id)
+      )
       .map((p) => getEff(p.id));
 
     const candidatesByPos: Record<string, EffPlayer[]> = { GKP: [], DEF: [], MID: [], FWD: [] };
@@ -1839,15 +1889,41 @@ export const TabScout: React.FC<TabScoutProps> = ({
       }
       ftCost = round2(ftCost);
 
-      // Hit viability guard: each hit must recover -4 AND add meaningful urgency margin in Starting XI xP
+      // P9 risk-aware hit viability guard using P1 MC quantile ladders & position-aware variance gates
       const repairedStarter = xi.brokenStarters < baseXI.brokenStarters;
+      let p9HitViable = true;
+      if (hitCount > 0) {
+        const rankedByGain1 = [...moves].sort(
+          (a, b) => (b.in.effXp1 - b.out.effXp1) - (a.in.effXp1 - a.out.effXp1)
+        );
+        const hitMoves = rankedByGain1.slice(ftUsed);
+        for (const hm of hitMoves) {
+          const p9 = evaluateP9HitTransfer({
+            posIn: hm.in.p.position,
+            posOut: hm.out.p.position,
+            inXp1: hm.in.effXp1,
+            outXp1: hm.out.effXp1,
+            inQuantiles: hm.in.p.mcQuantiles,
+            outQuantiles: hm.out.p.mcQuantiles,
+            outIsBroken: hm.out.isBroken,
+            horizonCount,
+          });
+          if (!p9.viable) {
+            p9HitViable = false;
+            break;
+          }
+        }
+      }
+
+      const activeHitMargin = horizonCount === 1 && repairedStarter && p9HitViable ? 0.8 : hitSurplusMargin;
       const meetsHitGuard =
         hitCount === 0 ||
-        (xiGainH >= hitCost + hitCount * hitSurplusMargin &&
+        (p9HitViable &&
+          xiGainH >= hitCost + hitCount * activeHitMargin &&
           (horizonCount === 1 ? xiGain1 > 0 : xiGain1 >= -0.5 || repairedStarter));
 
       // Account for future-FT opportunity cost on hits so extra hits stop when diminishing returns kick in
-      const effectiveHitCost = hitCost + hitCount * hitSurplusMargin;
+      const effectiveHitCost = hitCost + hitCount * activeHitMargin;
       const netDecisionScore = round2(
         xiGainH + depthGainH + explosiveDelta + budgetUtilizationTieBreak - provenPenalty - effectiveHitCost - ftCost
       );
@@ -2277,11 +2353,18 @@ export const TabScout: React.FC<TabScoutProps> = ({
       {/* ======================================================== */}
       {/* 1. SUBTAB: PICKS                                         */}
       {/* ======================================================== */}
-      {subTab === 'picks' && (
+      {subTab === 'picks' && (() => {
+        const picksEndGw = Math.min(targetNextGW + 5, 38);
+        const picksGwLabel =
+          picksType === 'FH' || picksEndGw <= targetNextGW
+            ? `GW ${targetNextGW}`
+            : `GW ${targetNextGW}–${picksEndGw}`;
+
+        return (
         <div className="space-y-2">
-          {/* Compact Switcher & Dual Budget Status (£83.0m XI / £100.0m Squad / Max 3 Club) */}
-          <div className="flex flex-wrap items-center justify-between gap-2 bg-white dark:bg-[#1a0f2e] px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
-            <div className="flex items-center gap-1">
+          {/* Compact Switcher, Dual Budget Status (£83.0m XI / £100.0m Squad / Max 3 Club) & Target GW Badge */}
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-x-2 gap-y-1.5 bg-white dark:bg-[#1a0f2e] px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="order-1 flex items-center gap-1 shrink-0">
               <button
                 onClick={() => setPicksType('FH')}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-black tracking-wider transition-all cursor-pointer ${
@@ -2305,22 +2388,37 @@ export const TabScout: React.FC<TabScoutProps> = ({
             </div>
 
             {/* Compact Formation, XI xP & Dual Budget Status */}
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-extrabold text-slate-700 dark:text-slate-300">
-              <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-[10px] font-black text-slate-600 dark:text-slate-300">
-                {picksSquad.formation}
-              </span>
-              <span className="font-mono font-black text-[#37003c] dark:text-[#00ff87]">
-                {picksSquad.xiXp.toFixed(1)} xP
-              </span>
-              <span className="text-slate-300 dark:text-white/15">•</span>
-              <span className="font-mono text-[10.5px] text-slate-600 dark:text-slate-300" title="Starting XI Limit £83.0m">
-                XI <span className="text-emerald-600 dark:text-[#00ff87] font-black">£{picksSquad.xiCost.toFixed(1)}m</span>/{picksSquad.xiBudget.toFixed(0)}m
-              </span>
-              <span className="text-slate-300 dark:text-white/15">•</span>
-              <span className="font-mono text-[10.5px] text-slate-600 dark:text-slate-300" title="Overall Squad Limit £100.0m • Max 3/club">
-                15 <span className="text-emerald-600 dark:text-[#00ff87] font-black">£{picksSquad.totalCost.toFixed(1)}m</span>/{picksSquad.budget.toFixed(0)}m
-              </span>
+            <div className="order-3 sm:order-2 w-full sm:w-auto sm:ml-auto flex flex-wrap items-center justify-between sm:justify-end gap-1.5 text-[11px] font-extrabold text-slate-700 dark:text-slate-300 border-t border-slate-100 dark:border-white/5 pt-1.5 sm:border-t-0 sm:pt-0">
+              <div className="flex items-center gap-1.5">
+                <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-[10px] font-black text-slate-600 dark:text-slate-300">
+                  {picksSquad.formation}
+                </span>
+                <span className="font-mono font-black text-[#37003c] dark:text-[#00ff87]">
+                  {picksSquad.xiXp.toFixed(1)} xP
+                </span>
+              </div>
+              <span className="hidden sm:inline text-slate-300 dark:text-white/15">•</span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono text-[10.5px] text-slate-600 dark:text-slate-300" title="Starting XI Limit £83.0m">
+                  XI <span className="text-emerald-600 dark:text-[#00ff87] font-black">£{picksSquad.xiCost.toFixed(1)}m</span>/{picksSquad.xiBudget.toFixed(0)}m
+                </span>
+                <span className="text-slate-300 dark:text-white/15">•</span>
+                <span className="font-mono text-[10.5px] text-slate-600 dark:text-slate-300" title="Overall Squad Limit £100.0m • Max 3/club">
+                  15 <span className="text-emerald-600 dark:text-[#00ff87] font-black">£{picksSquad.totalCost.toFixed(1)}m</span>/{picksSquad.budget.toFixed(0)}m
+                </span>
+              </div>
             </div>
+
+            <span
+              title={
+                picksType === 'FH'
+                  ? (isId ? `Target Free Hit: ${picksGwLabel}` : `Free Hit Target: ${picksGwLabel}`)
+                  : (isId ? `Target Wildcard: ${picksGwLabel}` : `Wildcard Target: ${picksGwLabel}`)
+              }
+              className="order-2 sm:order-3 px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0"
+            >
+              {picksGwLabel}
+            </span>
           </div>
 
           {/* Regulation Pitch View (Compact & 5-Across Single Row Guaranteed) */}
@@ -2429,14 +2527,24 @@ export const TabScout: React.FC<TabScoutProps> = ({
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* ======================================================== */}
       {/* 2. SUBTAB: CAPTAIN                                       */}
       {/* ======================================================== */}
       {subTab === 'captain' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          {captainPicks.map((p) => (
+        <div className="space-y-2">
+          <div className="flex justify-end">
+            <span
+              title={isId ? `Target Kapten: GW ${targetNextGW}` : `Captain Target: GW ${targetNextGW}`}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0"
+            >
+              GW {targetNextGW}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            {captainPicks.map((p) => (
             <div
               key={p.id}
               onClick={() => onSelectPlayer?.(p.id)}
@@ -2470,6 +2578,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
               </p>
             </div>
           ))}
+          </div>
         </div>
       )}
 
@@ -2477,8 +2586,17 @@ export const TabScout: React.FC<TabScoutProps> = ({
       {/* 3. SUBTAB: DIFFERENTIAL                                  */}
       {/* ======================================================== */}
       {subTab === 'differential' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {differentialPicks.map((p) => (
+        <div className="space-y-2">
+          <div className="flex justify-end">
+            <span
+              title={isId ? `Target Differential: GW ${targetNextGW}` : `Differential Target: GW ${targetNextGW}`}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0"
+            >
+              GW {targetNextGW}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {differentialPicks.map((p) => (
             <div
               key={p.id}
               onClick={() => onSelectPlayer?.(p.id)}
@@ -2516,6 +2634,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
               </p>
             </div>
           ))}
+          </div>
         </div>
       )}
 
@@ -2543,85 +2662,93 @@ export const TabScout: React.FC<TabScoutProps> = ({
         };
 
         return (
-          <div className="flex flex-col items-center justify-center py-6 px-4 text-center space-y-5">
-            {/* Minimalist 1 Set Chip (4 kapsul ukuran sama) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-w-lg w-full">
-              {chipsAnalysis.chipSet.map((chip) => {
-                const isUsed = Boolean(chip.used);
-                const color = chipColors[chip.key];
-
-                return (
-                  <div
-                    key={chip.short}
-                    title={
-                      chip.used
-                        ? `${chip.name} — ${isId ? 'Sudah digunakan' : 'Used'} (GW ${chip.used.gw}${chip.used.points ? ` • ${chip.used.points} pts` : ''})`
-                        : `${chip.name} — ${isId ? 'Belum digunakan' : 'Available'}`
-                    }
-                    className={`w-full px-2.5 py-1.5 rounded-lg border text-[11px] font-bold whitespace-nowrap flex items-center justify-center gap-1.5 transition-colors ${
-                      isUsed
-                        ? 'bg-slate-100/70 dark:bg-white/[0.02] border-dashed border-slate-300 dark:border-white/15 text-slate-400 dark:text-slate-500 opacity-65'
-                        : color.active
-                    }`}
-                  >
-                    {isUsed ? (
-                      <X className="w-3 h-3 text-slate-400 dark:text-slate-500 shrink-0" />
-                    ) : (
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${color.dot}`} />
-                    )}
-                    <span className={isUsed ? 'line-through' : ''}>{chip.name}</span>
-                  </div>
-                );
-              })}
+          <div className="space-y-2">
+            <div className="flex justify-end">
+              <span
+                title={isId ? `Target Evaluasi Chip: GW ${targetNextGW}` : `Chip Evaluation Target: GW ${targetNextGW}`}
+                className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0"
+              >
+                GW {targetNextGW}
+              </span>
             </div>
 
-            {/* Recommendation Card */}
-            {chipsAnalysis.needChip ? (
-              <div className="bg-white dark:bg-[#1a0f2e] border border-emerald-500/30 dark:border-[#00ff87]/30 rounded-2xl p-5 max-w-lg w-full shadow-lg space-y-2.5">
-                <div className="w-11 h-11 mx-auto rounded-full bg-emerald-500/10 text-emerald-500 dark:text-[#00ff87] flex items-center justify-center">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-[#00ff87]">
-                  GW {targetNextGW}
-                </div>
-                <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                  {chipsAnalysis.chipName}
-                </h3>
-                <div className="inline-flex items-center gap-1 text-xs font-black text-emerald-600 dark:text-[#00ff87] bg-emerald-500/10 px-3 py-1 rounded-full">
-                  <span>
-                    +{chipsAnalysis.gain.toFixed(1)} xP{chipsAnalysis.chipName === 'Wildcard' ? '/GW' : ''} projected gain
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="w-11 h-11 mx-auto rounded-full bg-emerald-500/10 text-emerald-500 dark:text-[#00ff87] flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5" />
-                </div>
-                <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-200">
-                  You're good to go
-                </h3>
-              </div>
-            )}
+            <div className="w-full space-y-3 text-center">
+              {/* Minimalist 1 Set Chip (4 kapsul ukuran sama, full width sejajar grid Captain/Differential) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
+                {chipsAnalysis.chipSet.map((chip) => {
+                  const isUsed = Boolean(chip.used);
+                  const color = chipColors[chip.key];
 
-            {/* FPL Scout Editorial Narrative */}
-            {chipsAnalysis.openingNarrative && (
-              <div className="max-w-2xl w-full text-left bg-white/85 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-3 text-xs sm:text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                <p className="font-medium text-slate-700 dark:text-slate-200">
-                  {chipsAnalysis.openingNarrative}
-                </p>
-                {chipsAnalysis.chipParagraphs.map((para) => (
-                  <p key={para.chipKey || para.text.slice(0, 20)}>
-                    {para.chipLead && (
-                      <strong className="font-bold text-slate-900 dark:text-white">
-                        {para.chipLead}{' '}
-                      </strong>
-                    )}
-                    {para.text}
-                  </p>
-                ))}
+                  return (
+                    <div
+                      key={chip.short}
+                      title={
+                        chip.used
+                          ? `${chip.name} — ${isId ? 'Sudah digunakan' : 'Used'} (GW ${chip.used.gw}${chip.used.points ? ` • ${chip.used.points} pts` : ''})`
+                          : `${chip.name} — ${isId ? 'Belum digunakan' : 'Available'}`
+                      }
+                      className={`w-full px-2.5 py-2 rounded-xl border text-[11px] font-bold whitespace-nowrap flex items-center justify-center gap-1.5 transition-colors ${
+                        isUsed
+                          ? 'bg-slate-100/70 dark:bg-white/[0.02] border-dashed border-slate-300 dark:border-white/15 text-slate-400 dark:text-slate-500 opacity-65'
+                          : color.active
+                      }`}
+                    >
+                      {isUsed ? (
+                        <X className="w-3 h-3 text-slate-400 dark:text-slate-500 shrink-0" />
+                      ) : (
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${color.dot}`} />
+                      )}
+                      <span className={isUsed ? 'line-through' : ''}>{chip.name}</span>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+
+              {/* Recommendation / Status Card */}
+              {chipsAnalysis.needChip ? (
+                <div className="bg-white dark:bg-[#1a0f2e] border border-emerald-500/30 dark:border-[#00ff87]/30 rounded-xl p-5 w-full shadow-sm space-y-2.5">
+                  <div className="w-11 h-11 mx-auto rounded-full bg-emerald-500/10 text-emerald-500 dark:text-[#00ff87] flex items-center justify-center">
+                    <Zap className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                    {chipsAnalysis.chipName}
+                  </h3>
+                  <div className="inline-flex items-center gap-1 text-xs font-black text-emerald-600 dark:text-[#00ff87] bg-emerald-500/10 px-3 py-1 rounded-full">
+                    <span>
+                      +{chipsAnalysis.gain.toFixed(1)} xP{chipsAnalysis.chipName === 'Wildcard' ? '/GW' : ''} projected gain
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl p-5 w-full shadow-sm space-y-2">
+                  <div className="w-11 h-11 mx-auto rounded-full bg-emerald-500/10 text-emerald-500 dark:text-[#00ff87] flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-base font-extrabold text-slate-800 dark:text-slate-200">
+                    You're good to go
+                  </h3>
+                </div>
+              )}
+
+              {/* FPL Scout Editorial Narrative */}
+              {chipsAnalysis.openingNarrative && (
+                <div className="w-full text-left bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl p-4 sm:p-5 space-y-3 shadow-sm text-xs sm:text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <p className="font-medium text-slate-700 dark:text-slate-200">
+                    {chipsAnalysis.openingNarrative}
+                  </p>
+                  {chipsAnalysis.chipParagraphs.map((para) => (
+                    <p key={para.chipKey || para.text.slice(0, 20)}>
+                      {para.chipLead && (
+                        <strong className="font-bold text-slate-900 dark:text-white">
+                          {para.chipLead}{' '}
+                        </strong>
+                      )}
+                      {para.text}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         );
       })()}
@@ -2629,11 +2756,17 @@ export const TabScout: React.FC<TabScoutProps> = ({
       {/* ======================================================== */}
       {/* 5. SUBTAB: TRANSFER                                      */}
       {/* ======================================================== */}
-      {subTab === 'transfer' && (
-        <div className="space-y-2.5">
-          {/* Compact Controls: Mode (FT Only / Allow Hits) & Range (1 GW / 3 GW / 6 GW) */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
-            <div className="flex items-center bg-white dark:bg-[#1a0f2e] p-0.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+      {subTab === 'transfer' && (() => {
+        const transferGwLabel =
+          transferRecommendation.horizonCount === 1 || transferRecommendation.horizonEndGw <= targetNextGW
+            ? `GW ${targetNextGW}`
+            : `GW ${targetNextGW}–${transferRecommendation.horizonEndGw}`;
+
+        return (
+        <div className="space-y-2">
+          {/* Controls Bar: 1 unified bar (left: FT Only / Allow Hits, right: 1 GW / 3 GW / 6 GW) */}
+          <div className="w-full flex items-center justify-between gap-2 bg-white dark:bg-[#1a0f2e] px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setTransferMode('FT')}
@@ -2658,7 +2791,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
               </button>
             </div>
 
-            <div className="flex items-center bg-white dark:bg-[#1a0f2e] p-0.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="flex items-center gap-1 shrink-0">
               {([1, 3, 6] as const).map((h) => (
                 <button
                   key={h}
@@ -2676,26 +2809,32 @@ export const TabScout: React.FC<TabScoutProps> = ({
             </div>
           </div>
 
-          {/* Compact Content Card */}
-          <div className="flex flex-col items-center justify-center py-2 px-1 sm:px-2 text-center">
+          {/* Full-Width Content Card (Sejajar Captain & Differential) */}
+          <div className="w-full text-center">
             {transferRecommendation.needTransfer && transferRecommendation.moves.length > 0 ? (
-              <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 sm:p-4 max-w-xl w-full shadow-md space-y-2.5">
-                <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider">
-                  <span className={transferRecommendation.hitCount > 0 ? 'text-rose-500' : 'text-emerald-600 dark:text-[#00ff87]'}>
-                    {transferRecommendation.hitCount > 0
-                      ? `${transferRecommendation.ftUsed} FT + ${transferRecommendation.hitCount}x HIT (-${transferRecommendation.hitCost})`
-                      : `${transferRecommendation.ftUsed} / ${ftAllowance} FT`}
-                  </span>
-                  <span className="text-slate-400 font-mono">
-                    {transferRecommendation.horizonCount === 1
-                      ? `GW${targetNextGW}`
-                      : `GW${targetNextGW}–GW${transferRecommendation.horizonEndGw}`}
+              <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl p-3.5 sm:p-4 w-full shadow-sm space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider">
+                    <span className={transferRecommendation.hitCount > 0 ? 'text-rose-500' : 'text-emerald-600 dark:text-[#00ff87]'}>
+                      {transferRecommendation.hitCount > 0
+                        ? `${transferRecommendation.ftUsed} FT + ${transferRecommendation.hitCount}x HIT (-${transferRecommendation.hitCost})`
+                        : `${transferRecommendation.ftUsed} / ${ftAllowance} FT`}
+                    </span>
+                    <span className="text-slate-400 font-mono font-bold normal-case tracking-normal">
+                      • {transferRecommendation.moves.length} {transferRecommendation.moves.length === 1 ? 'Transfer' : 'Transfers'}
+                    </span>
+                  </div>
+                  <span
+                    title={isId ? `Rentang Target Transfer: ${transferGwLabel}` : `Transfer Target Range: ${transferGwLabel}`}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0"
+                  >
+                    {transferGwLabel}
                   </span>
                 </div>
 
                 {/* Compact Starting XI xP & Bank (Awal -> Akhir) */}
-                <div className="grid grid-cols-2 gap-1.5 text-left">
-                  <div className="bg-slate-50 dark:bg-black/20 px-2.5 py-1.5 rounded-lg border border-slate-100 dark:border-white/5 flex items-center justify-between gap-1">
+                <div className="grid grid-cols-2 gap-2 text-left">
+                  <div className="bg-slate-50 dark:bg-black/20 px-3 py-2 rounded-lg border border-slate-100 dark:border-white/5 flex items-center justify-between gap-1">
                     <span className="text-[10px] font-bold uppercase text-slate-400">
                       XI xP
                     </span>
@@ -2707,7 +2846,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       </span>
                     </span>
                   </div>
-                  <div className="bg-slate-50 dark:bg-black/20 px-2.5 py-1.5 rounded-lg border border-slate-100 dark:border-white/5 flex items-center justify-between gap-1">
+                  <div className="bg-slate-50 dark:bg-black/20 px-3 py-2 rounded-lg border border-slate-100 dark:border-white/5 flex items-center justify-between gap-1">
                     <span className="text-[10px] font-bold uppercase text-slate-400">
                       Bank
                     </span>
@@ -2764,7 +2903,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                 </div>
 
                 {/* Editorial FPL Narrative */}
-                <div className="space-y-2 text-[11.5px] text-slate-600 dark:text-slate-300 leading-relaxed text-left bg-slate-50/70 dark:bg-black/20 p-3 rounded-xl border border-slate-100 dark:border-white/5">
+                <div className="space-y-2 text-xs sm:text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed text-left bg-slate-50/70 dark:bg-black/20 p-3.5 sm:p-4 rounded-xl border border-slate-100 dark:border-white/5">
                   {transferRecommendation.reasonParagraphs.map((para, idx) => (
                     <p key={idx}>{para}</p>
                   ))}
@@ -2777,7 +2916,18 @@ export const TabScout: React.FC<TabScoutProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-2xl p-4 max-w-xl w-full shadow-md space-y-2.5">
+              <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl p-3.5 sm:p-4 w-full shadow-sm space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-[#00ff87]">
+                    0 / {ftAllowance} FT
+                  </span>
+                  <span
+                    title={isId ? `Rentang Target Transfer: ${transferGwLabel}` : `Transfer Target Range: ${transferGwLabel}`}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0"
+                  >
+                    {transferGwLabel}
+                  </span>
+                </div>
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-500 dark:text-[#00ff87] flex items-center justify-center shrink-0">
                     <CheckCircle className="w-4 h-4" />
@@ -2787,7 +2937,6 @@ export const TabScout: React.FC<TabScoutProps> = ({
                   </h3>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                  <span>FT: {ftAllowance}</span>
                   <span>
                     XI xP: {transferRecommendation.startXiXpH.toFixed(1)} → {transferRecommendation.endXiXpH.toFixed(1)}
                   </span>
@@ -2796,7 +2945,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                   </span>
                 </div>
                 {transferRecommendation.reasonParagraphs.length > 0 && (
-                  <div className="space-y-2 text-[11.5px] text-slate-600 dark:text-slate-300 leading-relaxed text-left bg-slate-50/70 dark:bg-black/20 p-3 rounded-xl border border-slate-100 dark:border-white/5">
+                  <div className="space-y-2 text-xs sm:text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed text-left bg-slate-50/70 dark:bg-black/20 p-3.5 sm:p-4 rounded-xl border border-slate-100 dark:border-white/5">
                     {transferRecommendation.reasonParagraphs.map((para, idx) => (
                       <p key={idx}>{para}</p>
                     ))}
@@ -2806,7 +2955,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
             )}
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
