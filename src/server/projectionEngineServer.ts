@@ -25,8 +25,6 @@ import {
   ClubSplitStats,
   PROJECTION_FORMULA_VERSION,
   buildClubSplitStatsMap,
-  buildClubLineupAttackMods,
-  buildClubLineupDefenseMods,
   calculatePlayerMatchExpectedPoints,
   parseExpectedReturnDate,
   resolveDeadBallDuties,
@@ -34,8 +32,13 @@ import {
 import {
   NonEplMatchScoreRecord,
   MatchScoreModelContext,
+  Stage1BridgeTeamStats,
+  Stage2FixtureProjection,
+  StableV2SlateInput,
   fitCausalMatchScoreModel,
   predictDixonColesFixture,
+  createStableV2State,
+  assignStableV2SlateScores,
 } from '../utils/matchScoreModel.ts';
 import {
   CausalAvailability,
@@ -61,7 +64,11 @@ import {
   isSpecificPulsePositionInfo,
   lookupPulsePlayerPosition,
 } from './pulsePlayerPositions.ts';
-import { getPulseAllCompHistoryDb, getPulseAllCompHistoryEpoch } from './pulseAllCompDb.ts';
+import {
+  getPulseAllCompHistoryDb,
+  getPulseAllCompHistoryEpoch,
+  getPulseAllCompScheduleDb,
+} from './pulseAllCompDb.ts';
 
 interface PastSeasonPlayerRecord {
   id: number;
@@ -257,6 +264,303 @@ function buildNonEplMatchScoreRecords(): NonEplMatchScoreRecord[] {
   return records;
 }
 
+const DEFENSIVE_TACTICAL_ROLES = new Set([
+  'GK',
+  'RB',
+  'RWB',
+  'RCB',
+  'CCB',
+  'LCB',
+  'LB',
+  'LWB',
+  'DM',
+]);
+
+function buildAllCompKickoffIndex(
+  scheduleByGw: Record<number, ScheduleFixtureSummary[]>,
+  matchesWithLineupsByGw: Record<number, any[]>
+): Map<string, number[]> {
+  const rawByClub = new Map<string, number[]>();
+  const addKo = (clubShort: string | null | undefined, koMs: number) => {
+    if (!clubShort || !Number.isFinite(koMs) || koMs <= 0) return;
+    const list = rawByClub.get(clubShort) || [];
+    list.push(koMs);
+    rawByClub.set(clubShort, list);
+  };
+
+  const histDb = getPulseAllCompHistoryDb();
+  for (const m of Object.values(histDb.matches || {})) {
+    if (!m || !m.finalized || !Number.isFinite(m.kickoffMs) || m.kickoffMs <= 0) continue;
+    for (const s of m.sides || []) {
+      addKo(s?.clubShort, m.kickoffMs);
+    }
+  }
+
+  const schedDb = getPulseAllCompScheduleDb();
+  for (const f of schedDb.fixtures || []) {
+    if (!f || !Number.isFinite(f.kickoffMs) || f.kickoffMs <= 0) continue;
+    addKo(f.homeShort, f.kickoffMs);
+    addKo(f.awayShort, f.kickoffMs);
+  }
+
+  for (const gwList of Object.values(scheduleByGw)) {
+    for (const m of gwList || []) {
+      const koMs = m?.kickoff_time ? Date.parse(m.kickoff_time) : NaN;
+      if (!Number.isFinite(koMs) || koMs <= 0) continue;
+      addKo(m.home_team?.short_name, koMs);
+      addKo(m.away_team?.short_name, koMs);
+    }
+  }
+
+  for (const gwList of Object.values(matchesWithLineupsByGw)) {
+    for (const m of gwList || []) {
+      const koMs = m?.kickoff_time ? Date.parse(m.kickoff_time) : NaN;
+      if (!Number.isFinite(koMs) || koMs <= 0) continue;
+      addKo(m.home_team?.short_name, koMs);
+      addKo(m.away_team?.short_name, koMs);
+    }
+  }
+
+  const deduped = new Map<string, number[]>();
+  for (const [club, list] of rawByClub.entries()) {
+    list.sort((a, b) => a - b);
+    const out: number[] = [];
+    for (const t of list) {
+      if (out.length === 0 || t - out[out.length - 1] >= 6 * 3600_000) {
+        out.push(t);
+      }
+    }
+    deduped.set(club, out);
+  }
+  return deduped;
+}
+
+function resolveClubHoursRest(
+  kickoffsByClub: Map<string, number[]>,
+  clubShort: string,
+  targetKoMs: number
+): number {
+  if (!Number.isFinite(targetKoMs) || targetKoMs <= 0) return 168;
+  const list = kickoffsByClub.get(clubShort);
+  if (!list || list.length === 0) return 168;
+  let prevKo = -1;
+  for (let i = list.length - 1; i >= 0; i--) {
+    if (list[i] < targetKoMs - 6 * 3600_000) {
+      prevKo = list[i];
+      break;
+    }
+  }
+  if (prevKo <= 0) return 168;
+  return Math.max(24, (targetKoMs - prevKo) / 3600_000);
+}
+
+interface PlayerGwMatchStatRecord {
+  mins: number;
+  goals: number;
+  assists: number;
+  cs: number;
+  xgi: number;
+}
+
+function buildPlayerGwStatLookup(
+  allPlayers: DbPlayerStat[],
+  historicalMatchesByGw: Record<number, any[]>,
+  maxGw: number
+): Map<number, Map<number, PlayerGwMatchStatRecord>> {
+  const byPlayer = new Map<number, Map<number, PlayerGwMatchStatRecord>>();
+  for (const p of allPlayers) {
+    const gMap = new Map<number, PlayerGwMatchStatRecord>();
+    for (const h of p.gwHistory || []) {
+      if (h.round <= maxGw) {
+        const cur = gMap.get(h.round) || { mins: 0, goals: 0, assists: 0, cs: 0, xgi: 0 };
+        cur.mins += Number(h.minutes || 0);
+        cur.goals += Number(h.goals || 0);
+        cur.assists += Number(h.assists || 0);
+        cur.cs += Number(h.cleanSheets || 0);
+        const hXgi = Number((h as any).expectedGoalInvolvements || 0) || (Number((h as any).expectedGoals || 0) + Number((h as any).expectedAssists || 0));
+        cur.xgi += hXgi;
+        gMap.set(h.round, cur);
+      }
+    }
+    byPlayer.set(p.id, gMap);
+  }
+
+  for (let gw = 1; gw <= maxGw; gw++) {
+    const matches = historicalMatchesByGw[gw] || [];
+    const gwMatchAcc = new Map<number, PlayerGwMatchStatRecord>();
+    for (const m of matches) {
+      const hGoals = Number(m?.team_h_score ?? NaN);
+      const aGoals = Number(m?.team_a_score ?? NaN);
+      const addSide = (list: any[] | undefined, oppConceded: number) => {
+        if (!Array.isArray(list)) return;
+        for (const row of list) {
+          const pid = Number(row?.id || 0);
+          if (!pid) continue;
+          const st = row?.stats || row;
+          const mins = Number(st?.minutes ?? row?.minutes ?? 0);
+          const goals = Number(st?.goals_scored ?? 0);
+          const assists = Number(st?.assists ?? 0);
+          const csRaw = st?.clean_sheets;
+          const cs = csRaw !== undefined && csRaw !== null
+            ? Number(csRaw)
+            : (mins >= 60 && oppConceded === 0 ? 1 : 0);
+          const xgi =
+            Number(st?.expected_goal_involvements ?? 0) ||
+            (Number(st?.expected_goals ?? 0) + Number(st?.expected_assists ?? 0));
+          const cur = gwMatchAcc.get(pid) || { mins: 0, goals: 0, assists: 0, cs: 0, xgi: 0 };
+          cur.mins += mins;
+          cur.goals += goals;
+          cur.assists += assists;
+          cur.cs += cs;
+          cur.xgi += xgi;
+          gwMatchAcc.set(pid, cur);
+        }
+      };
+      addSide(m?.home_lineup, Number.isFinite(aGoals) ? aGoals : 1);
+      addSide(m?.home_bench, Number.isFinite(aGoals) ? aGoals : 1);
+      addSide(m?.away_lineup, Number.isFinite(hGoals) ? hGoals : 1);
+      addSide(m?.away_bench, Number.isFinite(hGoals) ? hGoals : 1);
+    }
+    for (const [pid, rec] of gwMatchAcc.entries()) {
+      let gMap = byPlayer.get(pid);
+      if (!gMap) {
+        gMap = new Map();
+        byPlayer.set(pid, gMap);
+      }
+      gMap.set(gw, rec);
+    }
+  }
+  return byPlayer;
+}
+
+function buildCausalClubPlayerRateSnapshot(
+  allPlayersByClub: Map<string, DbPlayerStat[]>,
+  playerGwStats: Map<number, Map<number, PlayerGwMatchStatRecord>>,
+  cutoffGw: number,
+  playerPosSeed: Record<number, string>
+): {
+  ratesById: Map<number, { attRate: number; defScore: number; mins: number; isDefLike: boolean }>;
+  clubBaseAtt: Map<string, number>;
+  clubBaseDef: Map<string, number>;
+} {
+  const ratesById = new Map<number, { attRate: number; defScore: number; mins: number; isDefLike: boolean }>();
+  const clubBaseAtt = new Map<string, number>();
+  const clubBaseDef = new Map<string, number>();
+
+  for (const [clubShort, squad] of allPlayersByClub.entries()) {
+    const scoredList: Array<{ attRate: number; defScore: number; sortMins: number; isDefLike: boolean }> = [];
+    for (const p of squad) {
+      const gMap = playerGwStats.get(p.id);
+      let mins = 0;
+      let goals = 0;
+      let assists = 0;
+      let cs = 0;
+      let xgi = 0;
+      if (gMap && cutoffGw > 0) {
+        for (const [g, rec] of gMap.entries()) {
+          if (g <= cutoffGw) {
+            mins += rec.mins;
+            goals += rec.goals;
+            assists += rec.assists;
+            cs += rec.cs;
+            xgi += rec.xgi;
+          }
+        }
+      }
+
+      const pos = p.position as PositionType;
+      const past = pastSeasonMap[String(p.id)];
+      const hasPast = Boolean(past && past.minutes >= 270);
+      const posAttDef = pos === 'FWD' ? 0.42 : pos === 'MID' ? 0.25 : pos === 'DEF' ? 0.08 : 0.01;
+      const posCsDef = pos === 'GKP' || pos === 'DEF' ? 0.28 : pos === 'MID' ? 0.22 : 0.14;
+
+      const priorAtt = hasPast ? ((past!.goals_scored + past!.assists) / past!.minutes) * 90 : posAttDef;
+      const priorCs = hasPast ? (past!.clean_sheets / past!.minutes) * 90 : posCsDef;
+
+      const w = mins / (mins + 270);
+      const sampleAtt = mins > 0 ? ((xgi > 0 ? xgi : goals + assists) / mins) * 90 : priorAtt;
+      const sampleCs = mins > 0 ? (cs / mins) * 90 : priorCs;
+
+      const isDefLike =
+        pos === 'GKP' ||
+        pos === 'DEF' ||
+        /Defensive Midfielder/i.test(playerPosSeed[p.id] || '');
+      const attRate = Math.max(0.01, Math.min(1.25, w * sampleAtt + (1 - w) * priorAtt));
+      const defBase = pos === 'GKP' ? 0.36 : pos === 'DEF' ? 0.34 : isDefLike ? 0.20 : pos === 'MID' ? 0.09 : 0.03;
+      const minsRel = cutoffGw > 0 ? Math.min(0.25, (mins / (cutoffGw * 90)) * 0.25) : 0.10;
+      const defScore = Math.max(0.05, Math.min(1.15, defBase + (w * sampleCs + (1 - w) * priorCs) * 0.55 + minsRel));
+      const sortMins = mins + (past?.minutes || 0) * 0.25;
+
+      ratesById.set(p.id, { attRate, defScore, mins, isDefLike });
+      scoredList.push({ attRate, defScore, sortMins, isDefLike });
+    }
+
+    scoredList.sort((a, b) => b.sortMins - a.sortMins || b.attRate - a.attRate);
+    const baseXiAtt = scoredList.slice(0, 11).reduce((s, r) => s + r.attRate, 0);
+    const defPool = scoredList.filter((r) => r.isDefLike);
+    const baseXiDef = (defPool.length >= 5 ? defPool : scoredList).slice(0, 5).reduce((s, r) => s + r.defScore, 0);
+    clubBaseAtt.set(clubShort, Math.max(0.45, baseXiAtt));
+    clubBaseDef.set(clubShort, Math.max(0.45, baseXiDef));
+  }
+
+  return { ratesById, clubBaseAtt, clubBaseDef };
+}
+
+function deriveStage1BridgeStats(
+  clubShort: string,
+  pred: ReturnType<typeof predictHybridClubLineup>,
+  snapshot: ReturnType<typeof buildCausalClubPlayerRateSnapshot>,
+  hoursRest: number
+): Stage1BridgeTeamStats {
+  const baseAtt = snapshot.clubBaseAtt.get(clubShort) ?? 2.2;
+  const baseDef = snapshot.clubBaseDef.get(clubShort) ?? 2.2;
+
+  let xiAttSum = 0;
+  let xiDefSum = 0;
+  let defCount = 0;
+  let fatSum = 0;
+
+  for (const id of pred.starterIds) {
+    const r = snapshot.ratesById.get(id);
+    if (r) {
+      xiAttSum += r.attRate;
+      if (r.isDefLike && defCount < 6) {
+        xiDefSum += r.defScore;
+        defCount++;
+      }
+    }
+    const pr = pred.playerProbs.get(id);
+    if (pr && (pr.feat.fatigue72h || 0) > 0) {
+      fatSum += 1;
+    }
+  }
+
+  let defAffSum = 0;
+  let defAffCnt = 0;
+  for (const sa of pred.slotAssignments) {
+    if (DEFENSIVE_TACTICAL_ROLES.has(sa.slot)) {
+      defAffSum += sa.affinity;
+      defAffCnt++;
+    }
+  }
+
+  const xiAttDelta = Math.max(-0.35, Math.min(0.35, (xiAttSum - baseAtt) / Math.max(0.45, baseAtt)));
+  const xiDefStrength = Math.max(-0.35, Math.min(0.35, (xiDefSum - baseDef) / Math.max(0.45, baseDef)));
+  const minDefAff = defAffCnt > 0 ? defAffSum / defAffCnt : 0.88;
+  const starterFatShare = pred.starterIds.length > 0 ? fatSum / pred.starterIds.length : 0;
+  const isCongested72h = hoursRest <= 72;
+  const fatigue72hShare = isCongested72h ? Math.max(starterFatShare, 0.35) : starterFatShare;
+
+  return {
+    xiAttDelta,
+    xiDefStrength,
+    minDefAff,
+    fatigue72hShare,
+    hoursRest,
+    isCongested72h,
+  };
+}
+
 let cachedFormulaFingerprint: string | null = null;
 let lastFormulaStatCheckMs = 0;
 let lastFormulaMtimesKey = '';
@@ -395,6 +699,10 @@ interface CoreRuntimeContext {
   clubStatsMap: Record<string, ClubSplitStats>;
   leagueAvgHomeGoals: number;
   leagueAvgAwayGoals: number;
+  playerPosSeed: Record<number, string>;
+  playerTeamMap: Map<number, string>;
+  extraAllCompSides: HybridMatchClubSide[];
+  calibByGw: Map<number, { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> }>;
 }
 
 let cachedCoreContext: CoreRuntimeContext | null = null;
@@ -697,15 +1005,6 @@ async function getOrBuildCoreContext(
       }
     }
 
-    // Also include future/target GW schedule for kickoff lookups in attack mods
-    const combinedScheduleForMods: Record<number, any[]> = { ...scheduleByGw };
-    for (const [gwStr, list] of Object.entries(matchesWithLineupsByGw)) {
-      const gw = Number(gwStr);
-      if (list && list.length > 0 && (!combinedScheduleForMods[gw] || combinedScheduleForMods[gw].length === 0)) {
-        combinedScheduleForMods[gw] = list;
-      }
-    }
-
     const { clubStatsMap, leagueAvgHomeGoals, leagueAvgAwayGoals } = buildClubSplitStatsMap(
       clubs,
       cachedData.player_stats || [],
@@ -713,195 +1012,39 @@ async function getOrBuildCoreContext(
       baseHistoricalGW
     );
 
-    const clubLineupAttackMods = buildClubLineupAttackMods(
-      cachedData.player_stats || [],
-      baseHistoricalGW,
-      targetNextGW,
-      combinedScheduleForMods
-    );
-
-    const clubLineupDefenseMods = buildClubLineupDefenseMods(
-      cachedData.player_stats || [],
-      baseHistoricalGW,
-      targetNextGW,
-      combinedScheduleForMods
-    );
-
-    // Zero-mean center future attack/defense lineup modifiers per GW to preserve league goal calibration
-    const centeredAttMods: Record<string, Record<number, number>> = {};
-    const centeredDefMods: Record<string, Record<number, number>> = {};
-    for (const c of clubs) {
-      centeredAttMods[c.short] = {};
-      centeredDefMods[c.short] = {};
-    }
-    for (let g = targetNextGW; g <= Math.min(targetNextGW + 5, 38); g++) {
-      let sumA = 0;
-      let sumD = 0;
-      let cntC = 0;
-      for (const c of clubs) {
-        sumA += clubLineupAttackMods[c.short]?.[g] ?? 1.0;
-        sumD += clubLineupDefenseMods[c.short]?.[g] ?? 1.0;
-        cntC++;
-      }
-      const meanA = cntC > 0 ? sumA / cntC : 1.0;
-      const meanD = cntC > 0 ? sumD / cntC : 1.0;
-      for (const c of clubs) {
-        const relA = (clubLineupAttackMods[c.short]?.[g] ?? 1.0) / Math.max(0.5, meanA);
-        const relD = (clubLineupDefenseMods[c.short]?.[g] ?? 1.0) / Math.max(0.5, meanD);
-        centeredAttMods[c.short][g] = Math.min(1.12, Math.max(0.82, 1.0 + 0.85 * (relA - 1.0)));
-        centeredDefMods[c.short][g] = Math.min(1.15, Math.max(0.92, 1.0 + 0.85 * (relD - 1.0)));
-      }
-    }
-
-    // Standalone Causal Dixon-Coles + Negative-Binomial Match Score / xG / CS% Engine
-    const nonEplScoreRecords = buildNonEplMatchScoreRecords();
-    const resolveGwFirstKickoffMs = (gw: number, fallbackMs: number): number => {
-      const list = (matchesWithLineupsByGw[gw]?.length ? matchesWithLineupsByGw[gw] : scheduleByGw[gw]) || [];
-      let minMs = Infinity;
-      for (const m of list) {
-        const ms = m?.kickoff_time ? Date.parse(m.kickoff_time) : NaN;
-        if (Number.isFinite(ms) && ms > 0 && ms < minMs) minMs = ms;
-      }
-      if (Number.isFinite(minMs) && minMs < Infinity) return minMs;
-      const dlIso = cachedData.sync_status?.deadlines?.[String(gw)];
-      const dlMs = dlIso ? Date.parse(dlIso) : NaN;
-      return Number.isFinite(dlMs) && dlMs > 0 ? dlMs : fallbackMs;
-    };
-
-    const causalMatchModelsByGw = new Map<number, MatchScoreModelContext>();
-    for (let gw = 1; gw <= baseHistoricalGW; gw++) {
-      const gwCutoffMs = resolveGwFirstKickoffMs(gw, Date.now());
-      causalMatchModelsByGw.set(
-        gw,
-        fitCausalMatchScoreModel({
-          clubs,
-          players: cachedData.player_stats || [],
-          eplMatchesByGw: historicalMatchesForStats,
-          nonEplRecords: nonEplScoreRecords,
-          maxTrainGw: gw - 1,
-          cutoffMs: gwCutoffMs,
-        })
-      );
-    }
-
-    const futureCutoffMs = resolveGwFirstKickoffMs(targetNextGW, Date.now());
-    const futureMatchModel = fitCausalMatchScoreModel({
-      clubs,
-      players: cachedData.player_stats || [],
-      eplMatchesByGw: historicalMatchesForStats,
-      nonEplRecords: nonEplScoreRecords,
-      maxTrainGw: baseHistoricalGW,
-      cutoffMs: futureCutoffMs,
-    });
-
-    const projectFixture = (homeShort: string, awayShort: string, gw: number = targetNextGW): ProjectedFixtureOutcome => {
-      if (gw <= baseHistoricalGW) {
-        const causalModel = causalMatchModelsByGw.get(gw) || futureMatchModel;
-        return predictDixonColesFixture(causalModel, homeShort, awayShort, {
-          gw,
-          baseHistoricalGW: gw - 1,
-        });
-      }
-      const hAttMod = centeredAttMods[homeShort]?.[gw] ?? 1.0;
-      const aAttMod = centeredAttMods[awayShort]?.[gw] ?? 1.0;
-      const hDefMod = centeredDefMods[homeShort]?.[gw] ?? 1.0;
-      const aDefMod = centeredDefMods[awayShort]?.[gw] ?? 1.0;
-      return predictDixonColesFixture(futureMatchModel, homeShort, awayShort, {
-        gw,
-        baseHistoricalGW,
-        homeAttMod: hAttMod,
-        awayAttMod: aAttMod,
-        homeDefMod: hDefMod,
-        awayDefMod: aDefMod,
-      });
-    };
-
-    // 2. Fixture projections map + Club Next Matches Map (DGW/BGW array) + Club GW Match Projections (DGW/BGW array)
-    const fixtureProjectionsByKey: Record<string, ProjectedFixtureOutcome> = {};
+    // Build club next matches directly from scheduleByGw[targetNextGW] BEFORE Stage 1
+    const clubNameByShort = new Map(clubs.map((c) => [c.short, c.name]));
     const clubNextMatchesMap: Record<string, ClubNextMatchEntry[]> = {};
     const clubGwMatchProjections: Record<string, ClubGwMatchProjectionItem[]> = {};
-
     for (const c of clubs) {
       clubNextMatchesMap[c.short] = [];
       for (let gw = 1; gw <= 38; gw++) {
         clubGwMatchProjections[`${c.short}_${gw}`] = [];
       }
     }
-
-    const clubNameByShort = new Map(clubs.map((c) => [c.short, c.name]));
-
-    for (let gw = 1; gw <= 38; gw++) {
-      const matches = scheduleByGw[gw] || [];
-      for (const m of matches) {
-        const hShort = m.home_team?.short_name || '';
-        const aShort = m.away_team?.short_name || '';
-        if (!hShort || !aShort) continue;
-
-        const proj = projectFixture(hShort, aShort, gw);
-        fixtureProjectionsByKey[`${gw}_${hShort}_${aShort}`] = proj;
-
-        const fallbackDateIso = new Date(Date.UTC(2026, 9, 24 + (gw - targetNextGW) * 7)).toISOString();
-        const kickoffTime = m.kickoff_time || fallbackDateIso;
-
-        const hCsRaw = proj.homeCsProbRaw ?? proj.homeCsProb / 100;
-        const aCsRaw = proj.awayCsProbRaw ?? proj.awayCsProb / 100;
-
-        const hEntry: ClubGwMatchProjectionItem = {
-          fixtureId: m.id,
-          oppShort: aShort,
-          oppName: m.away_team?.name || clubNameByShort.get(aShort) || aShort,
-          isHome: true,
-          kickoffTime,
-          teamLambda: proj.lambdaH,
-          oppLambda: proj.lambdaA,
-          teamGoals: proj.homeGoals,
-          oppGoals: proj.awayGoals,
-          csProb: hCsRaw,
-          csProbPct: proj.homeCsProb,
-          expGcPenalty: proj.homeExpGcPenalty,
-        };
-        const aEntry: ClubGwMatchProjectionItem = {
-          fixtureId: m.id,
-          oppShort: hShort,
-          oppName: m.home_team?.name || clubNameByShort.get(hShort) || hShort,
-          isHome: false,
-          kickoffTime,
-          teamLambda: proj.lambdaA,
-          oppLambda: proj.lambdaH,
-          teamGoals: proj.awayGoals,
-          oppGoals: proj.homeGoals,
-          csProb: aCsRaw,
-          csProbPct: proj.awayCsProb,
-          expGcPenalty: proj.awayExpGcPenalty,
-        };
-
-        if (!clubGwMatchProjections[`${hShort}_${gw}`]) clubGwMatchProjections[`${hShort}_${gw}`] = [];
-        if (!clubGwMatchProjections[`${aShort}_${gw}`]) clubGwMatchProjections[`${aShort}_${gw}`] = [];
-        clubGwMatchProjections[`${hShort}_${gw}`].push(hEntry);
-        clubGwMatchProjections[`${aShort}_${gw}`].push(aEntry);
-
-        if (gw === targetNextGW) {
-          if (!clubNextMatchesMap[hShort]) clubNextMatchesMap[hShort] = [];
-          if (!clubNextMatchesMap[aShort]) clubNextMatchesMap[aShort] = [];
-          clubNextMatchesMap[hShort].push({
-            fixtureId: m.id,
-            opponentShort: aShort,
-            opponentName: hEntry.oppName,
-            isHome: true,
-            kickoffTime: m.kickoff_time || '',
-          });
-          clubNextMatchesMap[aShort].push({
-            fixtureId: m.id,
-            opponentShort: hShort,
-            opponentName: aEntry.oppName,
-            isHome: false,
-            kickoffTime: m.kickoff_time || '',
-          });
-        }
-      }
+    for (const m of scheduleByGw[targetNextGW] || []) {
+      const hShort = m.home_team?.short_name || '';
+      const aShort = m.away_team?.short_name || '';
+      if (!hShort || !aShort) continue;
+      if (!clubNextMatchesMap[hShort]) clubNextMatchesMap[hShort] = [];
+      if (!clubNextMatchesMap[aShort]) clubNextMatchesMap[aShort] = [];
+      clubNextMatchesMap[hShort].push({
+        fixtureId: m.id,
+        opponentShort: aShort,
+        opponentName: m.away_team?.name || clubNameByShort.get(aShort) || aShort,
+        isHome: true,
+        kickoffTime: m.kickoff_time || '',
+      });
+      clubNextMatchesMap[aShort].push({
+        fixtureId: m.id,
+        opponentShort: hShort,
+        opponentName: m.home_team?.name || clubNameByShort.get(hShort) || hShort,
+        isHome: false,
+        kickoffTime: m.kickoff_time || '',
+      });
     }
 
-    // 3. Extract Pulse & Precalc matchday participation stats (GW 1..baseHistoricalGW)
+    // Extract matchday participation stats (GW 1..baseHistoricalGW) before Stage 1/3
     const pulsePlayerStats: Record<number, { starts: number; sub: number; unused: number; bench: number }> = {};
     const clubMatchCount: Record<string, number> = {};
     const livePlayerGwMap = new Map<string, { wasStarter: boolean; mins: number }>();
@@ -1006,7 +1149,7 @@ async function getOrBuildCoreContext(
       }
     }
 
-    // 4. Dynamic Explosive Hauls per player
+    // Dynamic Explosive Hauls per player
     const dynamicExplosiveById = new Map<number, { hauls: number; maxPts: number; haulRate: number }>();
     const allPlayers = (cachedData.player_stats || []).filter((p) => p.status !== 'u');
 
@@ -1060,17 +1203,115 @@ async function getOrBuildCoreContext(
       dynamicExplosiveById.set(p.id, { hauls, maxPts, haulRate });
     }
 
-    // 5. Club Squad Projections (HYBRID-B: Starting XI / Sub_9 / Out / Calibration for targetNextGW)
-    const clubSquadProjections: Record<string, ProjectedSquadPlayer[]> = {};
-    for (const c of clubs) {
-      clubSquadProjections[c.short] = [];
-    }
-
+    // =========================================================================
+    // STAGE 1 (STRICTLY UPSTREAM OF STAGE 2): HYBRID LINEUP, ROLES & <72H REST
+    // =========================================================================
     const N = Math.max(baseHistoricalGW, 1);
     const deadlines = cachedData.sync_status?.deadlines;
     const playerPosSeed = buildPulsePositionInfoSeed(allPlayers);
     const playerTeamMap = new Map<number, string>(allPlayers.map((p) => [p.id, p.teamShort]));
     const extraAllCompSides = buildHybridExtraAllCompSides();
+    const clubShorts = clubs.map((c) => c.short);
+    const kickoffsByClub = buildAllCompKickoffIndex(scheduleByGw, matchesWithLineupsByGw);
+
+    const allPlayersByClub = new Map<string, DbPlayerStat[]>();
+    for (const p of allPlayers) {
+      if (!allPlayersByClub.has(p.teamShort)) allPlayersByClub.set(p.teamShort, []);
+      allPlayersByClub.get(p.teamShort)!.push(p);
+    }
+
+    const playerGwStatsLookup = buildPlayerGwStatLookup(allPlayers, historicalMatchesForStats, baseHistoricalGW);
+
+    // 1A. Historical Walk-Forward Stage 1 (GW 1..baseHistoricalGW)
+    const calibByGw = new Map<number, { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> }>();
+    const s1BridgeByGwClub = new Map<string, Stage1BridgeTeamStats>();
+
+    for (let gw = 1; gw <= baseHistoricalGW; gw++) {
+      const gwHistory = buildHybridHistoryStore(
+        historicalMatchesForStats,
+        gw - 1,
+        playerPosSeed,
+        precalculatedReviewData.players,
+        playerTeamMap,
+        extraAllCompSides
+      );
+
+      const gwMatchByClub = new Map<string, { kickoffIso?: string; kickoffMs: number; isHome: boolean }>();
+      for (const m of scheduleByGw[gw] || []) {
+        const koIso = m.kickoff_time || deadlines?.[String(gw)];
+        const koMs = koIso ? Date.parse(koIso) : NaN;
+        const resolvedMs = Number.isFinite(koMs) && koMs > 0 ? koMs : Date.now();
+        const hs = m.home_team?.short_name;
+        const as = m.away_team?.short_name;
+        if (hs && !gwMatchByClub.has(hs)) gwMatchByClub.set(hs, { kickoffIso: m.kickoff_time, kickoffMs: resolvedMs, isHome: true });
+        if (as && !gwMatchByClub.has(as)) gwMatchByClub.set(as, { kickoffIso: m.kickoff_time, kickoffMs: resolvedMs, isHome: false });
+      }
+
+      const gwTargetCutoffByClub: Record<string, number> = {};
+      for (const c of clubs) {
+        const rec = gwMatchByClub.get(c.short);
+        const dlMs = deadlines?.[String(gw)] ? Date.parse(deadlines[String(gw)]) : NaN;
+        if (rec?.kickoffMs) gwTargetCutoffByClub[c.short] = rec.kickoffMs;
+        else if (Number.isFinite(dlMs) && dlMs > 0) gwTargetCutoffByClub[c.short] = dlMs;
+      }
+
+      const gwCalib = selectCausalHybridParamsAndWeights(
+        allPlayers,
+        clubShorts,
+        gw,
+        gwHistory,
+        pastSeasonMap,
+        deadlines,
+        gwTargetCutoffByClub
+      );
+      calibByGw.set(gw, gwCalib);
+
+      const rateSnapshot = buildCausalClubPlayerRateSnapshot(allPlayersByClub, playerGwStatsLookup, gw - 1, playerPosSeed);
+      const dlIso = deadlines?.[String(gw)];
+
+      for (const c of clubs) {
+        const cPlayers = allPlayersByClub.get(c.short) || [];
+        const mMeta = gwMatchByClub.get(c.short);
+        const avMap = new Map<number, CausalAvailability>();
+        for (const p of cPlayers) {
+          avMap.set(
+            p.id,
+            resolveCausalPlayerAvailability({
+              player: p,
+              targetGw: gw,
+              mode: 'historical',
+              earliestKickoffIso: mMeta?.kickoffIso,
+              gwDeadlineIso: dlIso,
+            })
+          );
+        }
+
+        const pred = predictHybridClubLineup({
+          clubShort: c.short,
+          targetGw: gw,
+          targetCutoffMs: gwTargetCutoffByClub[c.short],
+          isHome: mMeta?.isHome,
+          players: cPlayers,
+          availabilityById: avMap,
+          history: gwHistory,
+          pastMap: pastSeasonMap,
+          logitWeights: gwCalib.logitWeights,
+          params: gwCalib.params,
+          precomputedFeatMap: gwCalib.targetFeatMap,
+        });
+
+        const koMs = gwTargetCutoffByClub[c.short] || 0;
+        const hrsRest = resolveClubHoursRest(kickoffsByClub, c.short, koMs);
+        s1BridgeByGwClub.set(`${gw}_${c.short}`, deriveStage1BridgeStats(c.short, pred, rateSnapshot, hrsRest));
+      }
+    }
+
+    // 1B. Target GW Stage 1 (targetNextGW: Club Squad Projections + Stage 1 Bridge Stats)
+    const clubSquadProjections: Record<string, ProjectedSquadPlayer[]> = {};
+    for (const c of clubs) {
+      clubSquadProjections[c.short] = [];
+    }
+
     const hybridHistory = buildHybridHistoryStore(
       historicalMatchesForStats,
       baseHistoricalGW,
@@ -1079,7 +1320,7 @@ async function getOrBuildCoreContext(
       playerTeamMap,
       extraAllCompSides
     );
-    const clubShorts = clubs.map((c) => c.short);
+
     const targetCutoffMsByClub: Record<string, number> = {};
     for (const c of clubs) {
       const koIso = clubNextMatchesMap[c.short]?.[0]?.kickoffTime || deadlines?.[String(targetNextGW)];
@@ -1088,6 +1329,7 @@ async function getOrBuildCoreContext(
         targetCutoffMsByClub[c.short] = parsed;
       }
     }
+
     const {
       params: hybridParams,
       logitWeights: hybridWeights,
@@ -1102,11 +1344,12 @@ async function getOrBuildCoreContext(
       targetCutoffMsByClub
     );
 
-    const allPlayersByClub = new Map<string, DbPlayerStat[]>();
-    for (const p of allPlayers) {
-      if (!allPlayersByClub.has(p.teamShort)) allPlayersByClub.set(p.teamShort, []);
-      allPlayersByClub.get(p.teamShort)!.push(p);
-    }
+    const targetRateSnapshot = buildCausalClubPlayerRateSnapshot(
+      allPlayersByClub,
+      playerGwStatsLookup,
+      baseHistoricalGW,
+      playerPosSeed
+    );
 
     for (const c of clubs) {
       const cPlayers = allPlayersByClub.get(c.short) || [];
@@ -1141,6 +1384,10 @@ async function getOrBuildCoreContext(
         params: hybridParams,
         precomputedFeatMap: hybridTargetFeatMap,
       });
+
+      const koMs = targetCutoffMsByClub[c.short] || 0;
+      const hrsRest = resolveClubHoursRest(kickoffsByClub, c.short, koMs);
+      s1BridgeByGwClub.set(`${targetNextGW}_${c.short}`, deriveStage1BridgeStats(c.short, hybridPred, targetRateSnapshot, hrsRest));
 
       const slotIndexById = new Map<number, number>();
       hybridPred.starterIds.forEach((id, idx) => slotIndexById.set(id, idx));
@@ -1223,6 +1470,201 @@ async function getOrBuildCoreContext(
       }
       clubSquadProjections[c.short] = squad;
     }
+
+    // =========================================================================
+    // STAGE 2 (DOWNSTREAM OF STAGE 1): CAUSAL S9 ENSEMBLE MATCH SCORE / xG / CS%
+    // =========================================================================
+    const nonEplScoreRecords = buildNonEplMatchScoreRecords();
+    const resolveGwFirstKickoffMs = (gw: number, fallbackMs: number): number => {
+      const list = (matchesWithLineupsByGw[gw]?.length ? matchesWithLineupsByGw[gw] : scheduleByGw[gw]) || [];
+      let minMs = Infinity;
+      for (const m of list) {
+        const ms = m?.kickoff_time ? Date.parse(m.kickoff_time) : NaN;
+        if (Number.isFinite(ms) && ms > 0 && ms < minMs) minMs = ms;
+      }
+      if (Number.isFinite(minMs) && minMs < Infinity) return minMs;
+      const dlIso = deadlines?.[String(gw)];
+      const dlMs = dlIso ? Date.parse(dlIso) : NaN;
+      return Number.isFinite(dlMs) && dlMs > 0 ? dlMs : fallbackMs;
+    };
+
+    const causalMatchModelsByGw = new Map<number, MatchScoreModelContext>();
+    for (let gw = 1; gw <= baseHistoricalGW; gw++) {
+      const gwCutoffMs = resolveGwFirstKickoffMs(gw, Date.now());
+      causalMatchModelsByGw.set(
+        gw,
+        fitCausalMatchScoreModel({
+          clubs,
+          players: allPlayers,
+          eplMatchesByGw: historicalMatchesForStats,
+          nonEplRecords: nonEplScoreRecords,
+          maxTrainGw: gw - 1,
+          cutoffMs: gwCutoffMs,
+        })
+      );
+    }
+
+    const futureCutoffMs = resolveGwFirstKickoffMs(targetNextGW, Date.now());
+    const futureMatchModel = fitCausalMatchScoreModel({
+      clubs,
+      players: allPlayers,
+      eplMatchesByGw: historicalMatchesForStats,
+      nonEplRecords: nonEplScoreRecords,
+      maxTrainGw: baseHistoricalGW,
+      cutoffMs: futureCutoffMs,
+    });
+
+    const withFixtureRest = (
+      base: Stage1BridgeTeamStats | undefined,
+      clubShort: string,
+      kickoffIso?: string
+    ): Stage1BridgeTeamStats | undefined => {
+      const koMs = kickoffIso ? Date.parse(kickoffIso) : NaN;
+      if (!Number.isFinite(koMs) || koMs <= 0) return base;
+      const hrsRest = resolveClubHoursRest(kickoffsByClub, clubShort, koMs);
+      const isCongested72h = hrsRest <= 72;
+      if (!base) {
+        return {
+          xiAttDelta: 0,
+          xiDefStrength: 0,
+          minDefAff: 0.88,
+          fatigue72hShare: isCongested72h ? 0.35 : 0,
+          hoursRest: hrsRest,
+          isCongested72h,
+        };
+      }
+      return {
+        ...base,
+        hoursRest: hrsRest,
+        isCongested72h,
+        fatigue72hShare: isCongested72h ? Math.max(base.fatigue72hShare, 0.35) : base.fatigue72hShare,
+      };
+    };
+
+    const projectFixture = (
+      homeShort: string,
+      awayShort: string,
+      gw: number = targetNextGW,
+      kickoffIso?: string
+    ): Stage2FixtureProjection => {
+      if (gw <= baseHistoricalGW) {
+        const causalModel = causalMatchModelsByGw.get(gw) || futureMatchModel;
+        const homeS1 = withFixtureRest(s1BridgeByGwClub.get(`${gw}_${homeShort}`), homeShort, kickoffIso);
+        const awayS1 = withFixtureRest(s1BridgeByGwClub.get(`${gw}_${awayShort}`), awayShort, kickoffIso);
+        return predictDixonColesFixture(causalModel, homeShort, awayShort, {
+          gw,
+          baseHistoricalGW: gw - 1,
+          homeStage1: homeS1,
+          awayStage1: awayS1,
+        });
+      }
+      const s1LookupGw = Math.min(gw, targetNextGW);
+      const homeS1 = withFixtureRest(s1BridgeByGwClub.get(`${s1LookupGw}_${homeShort}`), homeShort, kickoffIso);
+      const awayS1 = withFixtureRest(s1BridgeByGwClub.get(`${s1LookupGw}_${awayShort}`), awayShort, kickoffIso);
+      return predictDixonColesFixture(futureMatchModel, homeShort, awayShort, {
+        gw,
+        baseHistoricalGW,
+        homeStage1: homeS1,
+        awayStage1: awayS1,
+      });
+    };
+
+    const walkForwardStableState = createStableV2State();
+    const futureStableState = createStableV2State();
+
+    const fixtureProjectionsByKey: Record<string, ProjectedFixtureOutcome> = {};
+    for (let gw = 1; gw <= 38; gw++) {
+      const matches = scheduleByGw[gw] || [];
+      const isHistorical = gw <= baseHistoricalGW;
+      const dist = isHistorical ? 0 : Math.max(0, gw - (baseHistoricalGW + 1));
+
+      const slateRows: Array<{
+        m: ScheduleFixtureSummary;
+        hShort: string;
+        aShort: string;
+        proj: Stage2FixtureProjection;
+      }> = [];
+      const slateInputs: StableV2SlateInput[] = [];
+
+      for (const m of matches) {
+        const hShort = m.home_team?.short_name || '';
+        const aShort = m.away_team?.short_name || '';
+        if (!hShort || !aShort) continue;
+
+        const proj = projectFixture(hShort, aShort, gw, m.kickoff_time);
+        slateRows.push({ m, hShort, aShort, proj });
+        slateInputs.push({
+          homeShort: hShort,
+          awayShort: aShort,
+          proj,
+          dist,
+        });
+      }
+
+      if (slateInputs.length > 0) {
+        assignStableV2SlateScores(
+          isHistorical ? walkForwardStableState : futureStableState,
+          slateInputs
+        );
+      }
+
+      for (const { m, hShort, aShort, proj } of slateRows) {
+        const { scoreMatrix: _omitMatrix, ...cleanProj } = proj;
+        fixtureProjectionsByKey[`${gw}_${hShort}_${aShort}`] = cleanProj;
+
+        const fallbackDateIso = new Date(Date.UTC(2026, 9, 24 + (gw - targetNextGW) * 7)).toISOString();
+        const kickoffTime = m.kickoff_time || fallbackDateIso;
+
+        const hCsRaw = cleanProj.homeCsProbRaw ?? cleanProj.homeCsProb / 100;
+        const aCsRaw = cleanProj.awayCsProbRaw ?? cleanProj.awayCsProb / 100;
+
+        const hEntry: ClubGwMatchProjectionItem = {
+          fixtureId: m.id,
+          oppShort: aShort,
+          oppName: m.away_team?.name || clubNameByShort.get(aShort) || aShort,
+          isHome: true,
+          kickoffTime,
+          teamLambda: cleanProj.lambdaH,
+          oppLambda: cleanProj.lambdaA,
+          teamGoals: cleanProj.homeGoals,
+          oppGoals: cleanProj.awayGoals,
+          csProb: hCsRaw,
+          csProbPct: cleanProj.homeCsProb,
+          expGcPenalty: cleanProj.homeExpGcPenalty,
+          winProb: cleanProj.homeWinProb,
+          drawProb: cleanProj.drawProb,
+          lossProb: cleanProj.awayWinProb,
+          isCongested72h: cleanProj.homeCongested72h ?? cleanProj.isCongested72h,
+          oppCongested72h: cleanProj.awayCongested72h,
+        };
+        const aEntry: ClubGwMatchProjectionItem = {
+          fixtureId: m.id,
+          oppShort: hShort,
+          oppName: m.home_team?.name || clubNameByShort.get(hShort) || hShort,
+          isHome: false,
+          kickoffTime,
+          teamLambda: cleanProj.lambdaA,
+          oppLambda: cleanProj.lambdaH,
+          teamGoals: cleanProj.awayGoals,
+          oppGoals: cleanProj.homeGoals,
+          csProb: aCsRaw,
+          csProbPct: cleanProj.awayCsProb,
+          expGcPenalty: cleanProj.awayExpGcPenalty,
+          winProb: cleanProj.awayWinProb,
+          drawProb: cleanProj.drawProb,
+          lossProb: cleanProj.homeWinProb,
+          isCongested72h: cleanProj.awayCongested72h ?? cleanProj.isCongested72h,
+          oppCongested72h: cleanProj.homeCongested72h,
+        };
+
+        if (!clubGwMatchProjections[`${hShort}_${gw}`]) clubGwMatchProjections[`${hShort}_${gw}`] = [];
+        if (!clubGwMatchProjections[`${aShort}_${gw}`]) clubGwMatchProjections[`${aShort}_${gw}`] = [];
+        clubGwMatchProjections[`${hShort}_${gw}`].push(hEntry);
+        clubGwMatchProjections[`${aShort}_${gw}`].push(aEntry);
+      }
+    }
+
+    // Stages 1 & 2 completed upstream; proceed to Stage 3 (All-Player Full-Season xP)
 
     // 6. All-Player Full-Season Projections (GW 1..38, native DGW sum & BGW blank support)
     const squadPlayerById = new Map<number, ProjectedSquadPlayer>();
@@ -1455,6 +1897,10 @@ async function getOrBuildCoreContext(
             teamLambda: Number(teamLambda.toFixed(2)),
             oppLambda: Number(oppLambda.toFixed(2)),
             csProb: matchInfo.csProbPct,
+            winProb: matchInfo.winProb,
+            drawProb: matchInfo.drawProb,
+            lossProb: matchInfo.lossProb,
+            isCongested72h: matchInfo.isCongested72h,
           });
         }
 
@@ -1518,6 +1964,10 @@ async function getOrBuildCoreContext(
       clubStatsMap,
       leagueAvgHomeGoals,
       leagueAvgAwayGoals,
+      playerPosSeed,
+      playerTeamMap,
+      extraAllCompSides,
+      calibByGw,
     };
 
     cachedCoreContext = ctx;
@@ -1975,14 +2425,13 @@ async function getOrBuildReviewBase(
     const projPlayers = corePayload.allPlayerFullSeasonProjections;
     const maeRecapRows: any[] = [];
     const lineupByGwCache = new Map<number, { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number } }>();
-    const activeReviewPlayers = allPlayers.filter((p) => p.status !== 'u');
     const reviewRuntime: HybridReviewRuntimeCache = {
-      playerPosSeed: buildPulsePositionInfoSeed(activeReviewPlayers),
-      playerTeamMap: new Map(activeReviewPlayers.map((p) => [p.id, p.teamShort])),
-      extraAllCompSides: buildHybridExtraAllCompSides(),
+      playerPosSeed: coreCtx.playerPosSeed,
+      playerTeamMap: coreCtx.playerTeamMap,
+      extraAllCompSides: coreCtx.extraAllCompSides,
       deadlines: cachedData.sync_status?.deadlines,
       isCurrentGwFinishedOrConfirmed: coreCtx.epoch.isCurrentGwFinishedOrConfirmed,
-      calibByGw: new Map(),
+      calibByGw: coreCtx.calibByGw,
     };
 
     for (let gw = 1; gw <= maxReviewGW; gw++) {
@@ -2002,19 +2451,34 @@ async function getOrBuildReviewBase(
       let teamGoalsSumDiff = 0;
       let matchGoalsSumDiff = 0;
       let outcomeHits = 0;
+      let probOutcomeHits = 0;
       let exactScoreHits = 0;
       let cleanSheetHits = 0;
+      let predXgTotal = 0;
+      let actualGoalsTotal = 0;
+      let expCsTotal = 0;
+      let scoreCsTotal = 0;
+      let actualCsTotal = 0;
+      let congestedCount = 0;
+      let congestedProbHits = 0;
 
       for (const m of matchesInGw) {
         const hShort = m.home_team?.short_name || '';
         const aShort = m.away_team?.short_name || '';
         if (!hShort || !aShort) continue;
 
-        const proj = corePayload.fixtureProjectionsByKey[`${gw}_${hShort}_${aShort}`] || {
+        const proj: ProjectedFixtureOutcome = corePayload.fixtureProjectionsByKey[`${gw}_${hShort}_${aShort}`] || {
           homeGoals: 1,
           awayGoals: 1,
+          homeWinProb: 0.42,
+          drawProb: 0.27,
+          awayWinProb: 0.31,
           homeCsProb: 30,
           awayCsProb: 25,
+          lambdaH: 1.35,
+          lambdaA: 1.15,
+          homeExpGcPenalty: -0.35,
+          awayExpGcPenalty: -0.45,
         };
 
         // Match exact fixture in DGW array (matches oppShort & isHome)
@@ -2027,10 +2491,18 @@ async function getOrBuildReviewBase(
         const realA = isDone ? hActual!.oppScore : null;
         const projH = proj.homeGoals;
         const projA = proj.awayGoals;
+        const hW = proj.homeWinProb ?? 0.42;
+        const dP = proj.drawProb ?? 0.27;
+        const aW = proj.awayWinProb ?? 0.31;
+        const isCongested72h = Boolean(proj.isCongested72h);
 
         let projRes: 'W' | 'D' | 'L' = 'D';
         if (projH > projA) projRes = 'W';
         else if (projH < projA) projRes = 'L';
+
+        let probRes: 'W' | 'D' | 'L' = 'D';
+        if (hW >= aW && hW >= dP) probRes = 'W';
+        else if (aW > hW && aW >= dP) probRes = 'L';
 
         let realRes: 'W' | 'D' | 'L' | null = null;
         let outcomeHit = false;
@@ -2046,12 +2518,25 @@ async function getOrBuildReviewBase(
 
           outcomeHit = projRes === realRes;
           if (outcomeHit) outcomeHits += 1;
+          const pHit = probRes === realRes;
+          if (pHit) probOutcomeHits += 1;
+
+          if (isCongested72h) {
+            congestedCount += 1;
+            if (pHit) congestedProbHits += 1;
+          }
 
           exactScoreHit = projH === realH && projA === realA;
           if (exactScoreHit) exactScoreHits += 1;
 
           teamGoalsSumDiff += Math.abs(projH - realH) + Math.abs(projA - realA);
           matchGoalsSumDiff += Math.abs(projH + projA - (realH + realA));
+
+          predXgTotal += (proj.lambdaH ?? 1.35) + (proj.lambdaA ?? 1.15);
+          actualGoalsTotal += realH + realA;
+          expCsTotal += (proj.homeCsProbRaw ?? proj.homeCsProb / 100) + (proj.awayCsProbRaw ?? proj.awayCsProb / 100);
+          scoreCsTotal += (projA === 0 ? 1 : 0) + (projH === 0 ? 1 : 0);
+          actualCsTotal += (realA === 0 ? 1 : 0) + (realH === 0 ? 1 : 0);
 
           const realHHasCs = realA === 0;
           const realAHasCs = realH === 0;
@@ -2070,6 +2555,14 @@ async function getOrBuildReviewBase(
           projAwayGoals: projA,
           realHomeGoals: realH,
           realAwayGoals: realA,
+          lambdaH: Number((proj.lambdaH ?? 1.35).toFixed(2)),
+          lambdaA: Number((proj.lambdaA ?? 1.15).toFixed(2)),
+          homeCsProb: proj.homeCsProb,
+          awayCsProb: proj.awayCsProb,
+          homeWinProb: hW,
+          drawProb: dP,
+          awayWinProb: aW,
+          isCongested72h,
           projResult: projRes,
           realResult: realRes,
           outcomeHit,
@@ -2217,6 +2710,16 @@ async function getOrBuildReviewBase(
         matchGoalsMae,
         outcomeHits,
         outcomeAccPct,
+        probOutcomeHits,
+        probOutcomeAccPct: matchesFinished > 0 ? Math.round((probOutcomeHits / matchesFinished) * 1000) / 10 : 0,
+        predXgTotal: Math.round(predXgTotal * 10) / 10,
+        actualGoalsTotal,
+        expCsTotal: Math.round(expCsTotal * 10) / 10,
+        scoreCsTotal,
+        actualCsTotal,
+        congestedCount,
+        congestedProbHits,
+        congestedAccPct: congestedCount > 0 ? Math.round((congestedProbHits / congestedCount) * 1000) / 10 : null,
         exactScoreHits,
         exactScorePct,
         cleanSheetHits,
@@ -2285,7 +2788,6 @@ export async function getServerReviewBundle(
   let gwLineup = reviewBase.lineupByGwCache.get(targetGw);
   if (!gwLineup || force) {
     const allPlayers = cachedData.player_stats || [];
-    const activePlayers = allPlayers.filter((p) => p.status !== 'u');
     gwLineup = buildLineupReviewForGw(
       targetGw,
       maxReviewGW,
@@ -2295,12 +2797,12 @@ export async function getServerReviewBundle(
       reviewBase.actualPlayerStatsMap,
       coreCtx.matchesWithLineupsByGw,
       {
-        playerPosSeed: buildPulsePositionInfoSeed(activePlayers),
-        playerTeamMap: new Map(activePlayers.map((p) => [p.id, p.teamShort])),
-        extraAllCompSides: buildHybridExtraAllCompSides(),
+        playerPosSeed: coreCtx.playerPosSeed,
+        playerTeamMap: coreCtx.playerTeamMap,
+        extraAllCompSides: coreCtx.extraAllCompSides,
         deadlines: cachedData.sync_status?.deadlines,
         isCurrentGwFinishedOrConfirmed: coreCtx.epoch.isCurrentGwFinishedOrConfirmed,
-        calibByGw: new Map(),
+        calibByGw: coreCtx.calibByGw,
       }
     );
     reviewBase.lineupByGwCache.set(targetGw, gwLineup);

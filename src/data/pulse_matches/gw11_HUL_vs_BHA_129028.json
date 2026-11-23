@@ -13,11 +13,11 @@
   "ground": {
     "name": "MKM Stadium, Hull"
   },
-  "status": "U",
-  "phase": "U",
+  "status": "L",
+  "phase": "2",
   "clock": {
-    "label": "0'",
-    "secs": 0
+    "label": "65'",
+    "secs": 3900
   },
   "teams": [
     {
@@ -71,18 +71,18 @@
           ],
           [
             "490094",
-            "101282",
             "243413"
           ],
           [
             "540324",
+            "101282",
             "490884"
           ],
           [
             "169432"
           ]
         ],
-        "formation": "4-5-1"
+        "formation": "4-2-3-1"
       },
       "lineup": [
         {
@@ -935,12 +935,1073 @@
       ]
     }
   ],
-  "events": [],
+  "events": [
+    {
+      "type": "PS",
+      "phase": "1",
+      "clock": {
+        "secs": 0,
+        "label": "1'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 610799,
+      "phase": "1",
+      "clock": {
+        "label": "34'",
+        "secs": 2040
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 606930,
+      "phase": "1",
+      "clock": {
+        "label": "37'",
+        "secs": 2220
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 469266,
+      "description": "ON",
+      "phase": "1",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 490094,
+      "description": "OFF",
+      "phase": "1",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "1",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PS",
+      "phase": "2",
+      "clock": {
+        "secs": 2700,
+        "label": "45'"
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 243951,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 490884,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "45'",
+        "secs": 2700
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 469266,
+      "phase": "2",
+      "clock": {
+        "label": "59'",
+        "secs": 3540
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 451490,
+      "phase": "2",
+      "clock": {
+        "label": "63'",
+        "secs": 3780
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    }
+  ],
   "textstreamEvents": [
     {
       "id": 2913887,
       "type": "lineup",
       "text": "Lineups are announced and players are warming up."
+    },
+    {
+      "id": 2913890,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "start",
+      "text": "First Half begins."
+    },
+    {
+      "id": 2913893,
+      "time": {
+        "secs": 13,
+        "label": "01"
+      },
+      "type": "free kick won",
+      "text": "Tim Iroegbunam (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        66538
+      ]
+    },
+    {
+      "id": 2913894,
+      "time": {
+        "secs": 13,
+        "label": "01"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Pascal Groß (Brighton and Hove Albion).",
+      "playerIds": [
+        22542
+      ]
+    },
+    {
+      "id": 2913895,
+      "time": {
+        "secs": 67,
+        "label": "02"
+      },
+      "type": "free kick won",
+      "text": "Diego Gómez (Brighton and Hove Albion) wins a free kick in the defensive half.",
+      "playerIds": [
+        143240
+      ]
+    },
+    {
+      "id": 2913902,
+      "time": {
+        "secs": 67,
+        "label": "02"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Regan Slater (Hull City).",
+      "playerIds": [
+        21385
+      ]
+    },
+    {
+      "id": 2913905,
+      "time": {
+        "secs": 151,
+        "label": "03"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Mohamed-Ali Cho (Hull City) left footed shot from a difficult angle on the left is high and wide to the left. Assisted by Oliver McBurnie.",
+      "playerIds": [
+        126447,
+        8107
+      ]
+    },
+    {
+      "id": 2913908,
+      "time": {
+        "secs": 840,
+        "label": "15"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Diego Gómez (Brighton and Hove Albion) right footed shot from the centre of the box is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Maxim De Cuyper with a cross.",
+      "playerIds": [
+        143240,
+        67928
+      ]
+    },
+    {
+      "id": 2913911,
+      "time": {
+        "secs": 946,
+        "label": "16"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Nobel Mendy (Hull City).",
+      "playerIds": [
+        133314
+      ]
+    },
+    {
+      "id": 2913912,
+      "time": {
+        "secs": 946,
+        "label": "16"
+      },
+      "type": "free kick won",
+      "text": "Costinha (Brighton and Hove Albion) wins a free kick in the defensive half.",
+      "playerIds": [
+        146970
+      ]
+    },
+    {
+      "id": 2913917,
+      "time": {
+        "secs": 976,
+        "label": "17"
+      },
+      "type": "free kick won",
+      "text": "Regan Slater (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        21385
+      ]
+    },
+    {
+      "id": 2913918,
+      "time": {
+        "secs": 976,
+        "label": "17"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Diego Gómez (Brighton and Hove Albion).",
+      "playerIds": [
+        143240
+      ]
+    },
+    {
+      "id": 2913926,
+      "time": {
+        "secs": 1038,
+        "label": "18"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Georginio Rutter (Brighton and Hove Albion) left footed shot from the right side of the box is blocked. Assisted by Maxim De Cuyper.",
+      "playerIds": [
+        51830,
+        67928
+      ]
+    },
+    {
+      "id": 2913923,
+      "time": {
+        "secs": 1119,
+        "label": "19"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Costinha (Brighton and Hove Albion) right footed shot from the centre of the box misses to the left. Assisted by Pascal Groß.",
+      "playerIds": [
+        146970,
+        22542
+      ]
+    },
+    {
+      "id": 2913929,
+      "time": {
+        "secs": 1234,
+        "label": "21"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Yasin Ayari (Brighton and Hove Albion) right footed shot from the centre of the box is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Georginio Rutter.",
+      "playerIds": [
+        134333,
+        51830
+      ]
+    },
+    {
+      "id": 2913932,
+      "time": {
+        "secs": 1270,
+        "label": "22"
+      },
+      "type": "free kick won",
+      "text": "Tim Iroegbunam (Hull City) wins a free kick in the attacking half.",
+      "playerIds": [
+        66538
+      ]
+    },
+    {
+      "id": 2913933,
+      "time": {
+        "secs": 1270,
+        "label": "22"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lewis Dunk (Brighton and Hove Albion).",
+      "playerIds": [
+        8163
+      ]
+    },
+    {
+      "id": 2913940,
+      "time": {
+        "secs": 1339,
+        "label": "23"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Nobel Mendy (Hull City) header from the centre of the box is high and wide to the left. Assisted by Regan Slater with a cross following a set piece situation.",
+      "playerIds": [
+        133314,
+        21385
+      ]
+    },
+    {
+      "id": 2913938,
+      "time": {
+        "secs": 1383,
+        "label": "24"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Diego Gómez (Brighton and Hove Albion) right footed shot from outside the box is blocked. Assisted by Yasin Ayari.",
+      "playerIds": [
+        143240,
+        134333
+      ]
+    },
+    {
+      "id": 2913939,
+      "time": {
+        "secs": 1384,
+        "label": "24"
+      },
+      "type": "corner",
+      "text": "Corner, Brighton and Hove Albion. Conceded by Elliot Stroud.",
+      "playerIds": [
+        337382
+      ]
+    },
+    {
+      "id": 2913947,
+      "time": {
+        "secs": 1437,
+        "label": "24"
+      },
+      "type": "offside",
+      "text": "Offside, Brighton and Hove Albion. Maxim De Cuyper is caught offside.",
+      "playerIds": [
+        134333,
+        67928
+      ]
+    },
+    {
+      "id": 2913950,
+      "time": {
+        "secs": 1542,
+        "label": "26"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Luka Vuskovic (Brighton and Hove Albion).",
+      "playerIds": [
+        134632
+      ]
+    },
+    {
+      "id": 2913951,
+      "time": {
+        "secs": 1542,
+        "label": "26"
+      },
+      "type": "free kick won",
+      "text": "Oliver McBurnie (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        8107
+      ]
+    },
+    {
+      "id": 2913956,
+      "time": {
+        "secs": 1673,
+        "label": "28"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Nobel Mendy (Hull City) left footed shot from the left side of the box is saved in the centre of the goal by Bart Verbruggen (Brighton and Hove Albion). Assisted by Mohamed Belloumi.",
+      "playerIds": [
+        133314,
+        137549
+      ]
+    },
+    {
+      "id": 2913959,
+      "time": {
+        "secs": 1840,
+        "label": "31"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Matt Crooks (Hull City) left footed shot from the centre of the box is saved in the centre of the goal by Bart Verbruggen (Brighton and Hove Albion). Assisted by Mohamed-Ali Cho with a cross.",
+      "playerIds": [
+        8885,
+        126447
+      ]
+    },
+    {
+      "id": 2913962,
+      "time": {
+        "secs": 1886,
+        "label": "32"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Georginio Rutter (Brighton and Hove Albion) right footed shot from a difficult angle on the right is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Diego Gómez with a through ball.",
+      "playerIds": [
+        51830,
+        143240
+      ]
+    },
+    {
+      "id": 2913965,
+      "time": {
+        "secs": 1927,
+        "label": "33"
+      },
+      "type": "free kick lost",
+      "text": "Handball by Luka Vuskovic (Brighton and Hove Albion).",
+      "playerIds": [
+        134632
+      ]
+    },
+    {
+      "id": 2913974,
+      "time": {
+        "secs": 2000,
+        "label": "34"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Costinha (Brighton and Hove Albion) header from the centre of the box is blocked. Assisted by Yasin Ayari.",
+      "playerIds": [
+        146970,
+        134333
+      ]
+    },
+    {
+      "id": 2913968,
+      "time": {
+        "secs": 2016,
+        "label": "34"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Luka Vuskovic (Brighton and Hove Albion).",
+      "playerIds": [
+        134632
+      ]
+    },
+    {
+      "id": 2913969,
+      "time": {
+        "secs": 2016,
+        "label": "34"
+      },
+      "type": "free kick won",
+      "text": "Mohamed-Ali Cho (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        126447
+      ]
+    },
+    {
+      "id": 2913975,
+      "time": {
+        "secs": 2020,
+        "label": "34"
+      },
+      "type": "yellow card",
+      "text": "Luka Vuskovic (Brighton and Hove Albion) is shown the yellow card.",
+      "playerIds": [
+        134632
+      ]
+    },
+    {
+      "id": 2913976,
+      "time": {
+        "secs": 2059,
+        "label": "35"
+      },
+      "type": "corner",
+      "text": "Corner, Hull City. Conceded by Costinha.",
+      "playerIds": [
+        146970
+      ]
+    },
+    {
+      "id": 2913983,
+      "time": {
+        "secs": 2105,
+        "label": "36"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Oliver McBurnie (Hull City).",
+      "playerIds": [
+        8107
+      ]
+    },
+    {
+      "id": 2913985,
+      "time": {
+        "secs": 2105,
+        "label": "36"
+      },
+      "type": "free kick won",
+      "text": "Olivier Boscagli (Brighton and Hove Albion) wins a free kick in the defensive half.",
+      "playerIds": [
+        20505
+      ]
+    },
+    {
+      "id": 2913994,
+      "time": {
+        "secs": 2177,
+        "label": "37"
+      },
+      "type": "post",
+      "text": "Yasin Ayari (Brighton and Hove Albion) hits the bar with a right footed shot from the centre of the box. Assisted by Diego Gómez.",
+      "playerIds": [
+        134333,
+        143240
+      ]
+    },
+    {
+      "id": 2913996,
+      "time": {
+        "secs": 2183,
+        "label": "37"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Georginio Rutter (Brighton and Hove Albion) right footed shot from the centre of the box is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Yasin Ayari with a headed pass.",
+      "playerIds": [
+        51830,
+        134333
+      ]
+    },
+    {
+      "id": 2913984,
+      "time": {
+        "secs": 2184,
+        "label": "37"
+      },
+      "type": "corner",
+      "text": "Corner, Brighton and Hove Albion. Conceded by Konstantinos Tzolakis.",
+      "playerIds": [
+        55642
+      ]
+    },
+    {
+      "id": 2913993,
+      "time": {
+        "secs": 2205,
+        "label": "37"
+      },
+      "type": "yellow card",
+      "text": "Nobel Mendy (Hull City) is shown the yellow card.",
+      "playerIds": [
+        133314
+      ]
+    },
+    {
+      "id": 2913992,
+      "time": {
+        "secs": 2269,
+        "label": "38"
+      },
+      "type": "free kick won",
+      "text": "Tim Iroegbunam (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        66538
+      ]
+    },
+    {
+      "id": 2913995,
+      "time": {
+        "secs": 2269,
+        "label": "38"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Chema Andrés (Brighton and Hove Albion).",
+      "playerIds": [
+        129259
+      ]
+    },
+    {
+      "id": 2914007,
+      "time": {
+        "secs": 2302,
+        "label": "39"
+      },
+      "type": "free kick won",
+      "text": "Oliver McBurnie (Hull City) wins a free kick in the attacking half.",
+      "playerIds": [
+        8107
+      ]
+    },
+    {
+      "id": 2914008,
+      "time": {
+        "secs": 2302,
+        "label": "39"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Luka Vuskovic (Brighton and Hove Albion).",
+      "playerIds": [
+        134632
+      ]
+    },
+    {
+      "id": 2914013,
+      "time": {
+        "secs": 2361,
+        "label": "40"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Mohamed Belloumi (Hull City) left footed shot from outside the box is close, but misses to the left from a direct free kick.",
+      "playerIds": [
+        137549
+      ]
+    },
+    {
+      "id": 2914016,
+      "time": {
+        "secs": 2471,
+        "label": "42"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lewis Dunk (Brighton and Hove Albion).",
+      "playerIds": [
+        8163
+      ]
+    },
+    {
+      "id": 2914017,
+      "time": {
+        "secs": 2471,
+        "label": "42"
+      },
+      "type": "free kick won",
+      "text": "Oliver McBurnie (Hull City) wins a free kick on the right wing.",
+      "playerIds": [
+        8107
+      ]
+    },
+    {
+      "id": 2914022,
+      "time": {
+        "secs": 2534,
+        "label": "43"
+      },
+      "type": "offside",
+      "text": "Offside, Hull City. Matt Crooks is caught offside.",
+      "playerIds": [
+        21385,
+        8885
+      ]
+    },
+    {
+      "id": 2914025,
+      "time": {
+        "secs": 2568,
+        "label": "43"
+      },
+      "type": "start delay",
+      "text": "Delay in match because of an injury Tim Iroegbunam (Hull City)."
+    },
+    {
+      "id": 2914028,
+      "time": {
+        "secs": 2678,
+        "label": "45"
+      },
+      "type": "end delay",
+      "text": "Delay over. They are ready to continue."
+    },
+    {
+      "id": 2914029,
+      "time": {
+        "secs": 2680,
+        "label": "45"
+      },
+      "type": "substitution",
+      "text": "Substitution, Hull City. Lucas Gourna-Douath replaces Tim Iroegbunam because of an injury.",
+      "playerIds": [
+        75264,
+        66538
+      ]
+    },
+    {
+      "id": 2914034,
+      "time": {
+        "secs": 2700,
+        "label": "45+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 3 minutes of added time."
+    },
+    {
+      "id": 2914040,
+      "time": {
+        "secs": 2838,
+        "label": "45+3"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Diego Gómez (Brighton and Hove Albion) right footed shot from the right side of the six yard box is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Pascal Groß.",
+      "playerIds": [
+        143240,
+        22542
+      ]
+    },
+    {
+      "id": 2914037,
+      "time": {
+        "secs": 2840,
+        "label": "45+3"
+      },
+      "type": "corner",
+      "text": "Corner, Brighton and Hove Albion. Conceded by Konstantinos Tzolakis.",
+      "playerIds": [
+        55642
+      ]
+    },
+    {
+      "id": 2914038,
+      "time": {
+        "secs": 2904,
+        "label": "45+4"
+      },
+      "type": "corner",
+      "text": "Corner, Brighton and Hove Albion. Conceded by Matt Crooks.",
+      "playerIds": [
+        8885
+      ]
+    },
+    {
+      "id": 2914039,
+      "time": {
+        "secs": 2905,
+        "label": "45+4"
+      },
+      "type": "end 1",
+      "text": "First Half ends, Hull City 0, Brighton and Hove Albion 0."
+    },
+    {
+      "id": 2914151,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "substitution",
+      "text": "Substitution, Hull City. Sorba Thomas replaces Mohamed-Ali Cho.",
+      "playerIds": [
+        21455,
+        126447
+      ]
+    },
+    {
+      "id": 2914154,
+      "time": {
+        "secs": 2700,
+        "label": "46"
+      },
+      "type": "start",
+      "text": "Second Half begins Hull City 0, Brighton and Hove Albion 0."
+    },
+    {
+      "id": 2914157,
+      "time": {
+        "secs": 2835,
+        "label": "48"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Luka Vuskovic (Brighton and Hove Albion).",
+      "playerIds": [
+        134632
+      ]
+    },
+    {
+      "id": 2914158,
+      "time": {
+        "secs": 2835,
+        "label": "48"
+      },
+      "type": "free kick won",
+      "text": "Oliver McBurnie (Hull City) wins a free kick in the attacking half.",
+      "playerIds": [
+        8107
+      ]
+    },
+    {
+      "id": 2914163,
+      "time": {
+        "secs": 2912,
+        "label": "49"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Matt Crooks (Hull City).",
+      "playerIds": [
+        8885
+      ]
+    },
+    {
+      "id": 2914164,
+      "time": {
+        "secs": 2912,
+        "label": "49"
+      },
+      "type": "free kick won",
+      "text": "Luka Vuskovic (Brighton and Hove Albion) wins a free kick in the defensive half.",
+      "playerIds": [
+        134632
+      ]
+    },
+    {
+      "id": 2914169,
+      "time": {
+        "secs": 3056,
+        "label": "51"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Pascal Groß (Brighton and Hove Albion) left footed shot from the right side of the box is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Diego Gómez.",
+      "playerIds": [
+        22542,
+        143240
+      ]
+    },
+    {
+      "id": 2914172,
+      "time": {
+        "secs": 3081,
+        "label": "52"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Diego Gómez (Brighton and Hove Albion) right footed shot from a difficult angle on the right is close, but misses to the left. Assisted by Maxim De Cuyper.",
+      "playerIds": [
+        143240,
+        67928
+      ]
+    },
+    {
+      "id": 2914175,
+      "time": {
+        "secs": 3274,
+        "label": "55"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Lewis Dunk (Brighton and Hove Albion) right footed shot from outside the box is saved in the centre of the goal by Konstantinos Tzolakis (Hull City).",
+      "playerIds": [
+        8163
+      ]
+    },
+    {
+      "id": 2914178,
+      "time": {
+        "secs": 3332,
+        "label": "56"
+      },
+      "type": "free kick won",
+      "text": "Mohamed Belloumi (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        137549
+      ]
+    },
+    {
+      "id": 2914179,
+      "time": {
+        "secs": 3332,
+        "label": "56"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Chema Andrés (Brighton and Hove Albion).",
+      "playerIds": [
+        129259
+      ]
+    },
+    {
+      "id": 2914184,
+      "time": {
+        "secs": 3418,
+        "label": "57"
+      },
+      "type": "attempt saved",
+      "text": "Attempt saved. Mohamed Belloumi (Hull City) left footed shot from the right side of the box is saved in the bottom right corner by Bart Verbruggen (Brighton and Hove Albion). Assisted by Semi Ajayi.",
+      "playerIds": [
+        137549,
+        10424
+      ]
+    },
+    {
+      "id": 2914187,
+      "time": {
+        "secs": 3484,
+        "label": "59"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Lucas Gourna-Douath (Hull City).",
+      "playerIds": [
+        75264
+      ]
+    },
+    {
+      "id": 2914188,
+      "time": {
+        "secs": 3484,
+        "label": "59"
+      },
+      "type": "free kick won",
+      "text": "Yasin Ayari (Brighton and Hove Albion) wins a free kick in the attacking half.",
+      "playerIds": [
+        134333
+      ]
+    },
+    {
+      "id": 2914195,
+      "time": {
+        "secs": 3487,
+        "label": "59"
+      },
+      "type": "yellow card",
+      "text": "Lucas Gourna-Douath (Hull City) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        75264
+      ]
+    },
+    {
+      "id": 2914193,
+      "time": {
+        "secs": 3542,
+        "label": "60"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Georginio Rutter (Brighton and Hove Albion) left footed shot from the centre of the box is high and wide to the right. Assisted by Lewis Dunk with a headed pass following a set piece situation.",
+      "playerIds": [
+        51830,
+        8163
+      ]
+    },
+    {
+      "id": 2914202,
+      "time": {
+        "secs": 3573,
+        "label": "60"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Oliver McBurnie (Hull City).",
+      "playerIds": [
+        8107
+      ]
+    },
+    {
+      "id": 2914203,
+      "time": {
+        "secs": 3573,
+        "label": "60"
+      },
+      "type": "free kick won",
+      "text": "Luka Vuskovic (Brighton and Hove Albion) wins a free kick in the defensive half.",
+      "playerIds": [
+        134632
+      ]
+    },
+    {
+      "id": 2914208,
+      "time": {
+        "secs": 3729,
+        "label": "63"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Costinha (Brighton and Hove Albion).",
+      "playerIds": [
+        146970
+      ]
+    },
+    {
+      "id": 2914214,
+      "time": {
+        "secs": 3729,
+        "label": "63"
+      },
+      "type": "free kick won",
+      "text": "Sorba Thomas (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        21455
+      ]
+    },
+    {
+      "id": 2914216,
+      "time": {
+        "secs": 3733,
+        "label": "63"
+      },
+      "type": "yellow card",
+      "text": "Costinha (Brighton and Hove Albion) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        146970
+      ]
+    },
+    {
+      "id": 2914215,
+      "time": {
+        "secs": 3783,
+        "label": "64"
+      },
+      "type": "free kick won",
+      "text": "Lucas Gourna-Douath (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        75264
+      ]
+    },
+    {
+      "id": 2914217,
+      "time": {
+        "secs": 3783,
+        "label": "64"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Pascal Groß (Brighton and Hove Albion).",
+      "playerIds": [
+        22542
+      ]
     }
   ]
 }

@@ -1,0 +1,946 @@
+{
+  "id": 129029,
+  "altIds": {
+    "opta": "g2645301"
+  },
+  "gameweek": {
+    "gameweek": 11
+  },
+  "kickoff": {
+    "millis": 1795365000000,
+    "label": "2026-11-22 16:30:00"
+  },
+  "ground": {
+    "name": "Anfield, Liverpool"
+  },
+  "status": "U",
+  "phase": "U",
+  "clock": {
+    "label": "0'",
+    "secs": 0
+  },
+  "teams": [
+    {
+      "team": {
+        "id": 14,
+        "name": "Liverpool",
+        "shortName": "Liverpool",
+        "club": {
+          "abbr": "LIV"
+        }
+      },
+      "score": 0
+    },
+    {
+      "team": {
+        "id": 1,
+        "name": "Manchester United",
+        "shortName": "Man Utd",
+        "club": {
+          "abbr": "MUN"
+        }
+      },
+      "score": 0
+    }
+  ],
+  "teamLists": [
+    {
+      "teamId": 14,
+      "formation": {
+        "subs": [
+          "449027",
+          "171287",
+          "223541",
+          "214285",
+          "551499",
+          "216094",
+          "591386",
+          "491501",
+          "514514"
+        ],
+        "teamId": "14",
+        "lineup": [
+          [
+            "116535"
+          ],
+          [
+            "445087",
+            "606702",
+            "97032",
+            "544877"
+          ],
+          [
+            "424876",
+            "243016"
+          ],
+          [
+            "611922",
+            "494595",
+            "482616"
+          ],
+          [
+            "219168"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 116535,
+          "altIds": {
+            "opta": "p116535"
+          },
+          "name": {
+            "first": "Alisson Ramsés",
+            "last": "Becker",
+            "display": "Alisson Ramsés Becker"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1,
+          "pulseId": 20559
+        },
+        {
+          "id": 97032,
+          "altIds": {
+            "opta": "p97032"
+          },
+          "name": {
+            "first": "Virgil",
+            "last": "van Dijk",
+            "display": "Virgil van Dijk"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 4
+          },
+          "captain": true,
+          "shirtNumber": 4,
+          "pulseId": 5140
+        },
+        {
+          "id": 606702,
+          "altIds": {
+            "opta": "p606702"
+          },
+          "name": {
+            "first": "Jérémy",
+            "last": "Jacquet",
+            "display": "Jérémy Jacquet"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5,
+          "pulseId": 133104
+        },
+        {
+          "id": 544877,
+          "altIds": {
+            "opta": "p544877"
+          },
+          "name": {
+            "first": "Milos",
+            "last": "Kerkez",
+            "display": "Milos Kerkez"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Left Full Back",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6,
+          "pulseId": 116665
+        },
+        {
+          "id": 494595,
+          "altIds": {
+            "opta": "p494595"
+          },
+          "name": {
+            "first": "Florian",
+            "last": "Wirtz",
+            "display": "Florian Wirtz"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7,
+          "pulseId": 75382
+        },
+        {
+          "id": 424876,
+          "altIds": {
+            "opta": "p424876"
+          },
+          "name": {
+            "first": "Dominik",
+            "last": "Szoboszlai",
+            "display": "Dominik Szoboszlai"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
+            "shirtNum": 8
+          },
+          "captain": false,
+          "shirtNumber": 8,
+          "pulseId": 33231
+        },
+        {
+          "id": 219168,
+          "altIds": {
+            "opta": "p219168"
+          },
+          "name": {
+            "first": "Alexander",
+            "last": "Isak",
+            "display": "Alexander Isak"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Centre Striker",
+            "shirtNum": 9
+          },
+          "captain": false,
+          "shirtNumber": 9,
+          "pulseId": 21737
+        },
+        {
+          "id": 243016,
+          "altIds": {
+            "opta": "p243016"
+          },
+          "name": {
+            "first": "Alexis",
+            "last": "Mac Allister",
+            "display": "Alexis Mac Allister"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10,
+          "pulseId": 63633
+        },
+        {
+          "id": 482616,
+          "altIds": {
+            "opta": "p482616"
+          },
+          "name": {
+            "first": "Bradley",
+            "last": "Barcola",
+            "display": "Bradley Barcola"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "F",
+            "positionInfo": "Left/Right Winger",
+            "shirtNum": 29
+          },
+          "captain": false,
+          "shirtNumber": 29,
+          "pulseId": 68840
+        },
+        {
+          "id": 445087,
+          "altIds": {
+            "opta": "p445087"
+          },
+          "name": {
+            "first": "Ronald",
+            "last": "Araujo",
+            "display": "Ronald Araujo"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Central Defender",
+            "shirtNum": 33
+          },
+          "captain": false,
+          "shirtNumber": 33,
+          "pulseId": 66133
+        },
+        {
+          "id": 611922,
+          "altIds": {
+            "opta": "p611922"
+          },
+          "name": {
+            "first": "Rio",
+            "last": "Ngumoha",
+            "display": "Rio Ngumoha"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "F",
+            "positionInfo": "Left Winger",
+            "shirtNum": 73
+          },
+          "captain": false,
+          "shirtNumber": 73,
+          "pulseId": 134796
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 449027,
+          "altIds": {
+            "opta": "p449027"
+          },
+          "name": {
+            "first": "Giorgi",
+            "last": "Mamardashvili",
+            "display": "Giorgi Mamardashvili"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 25
+          },
+          "captain": false,
+          "shirtNumber": 25,
+          "pulseId": 116496
+        },
+        {
+          "id": 171287,
+          "altIds": {
+            "opta": "p171287"
+          },
+          "name": {
+            "first": "Joe",
+            "last": "Gomez",
+            "display": "Joe Gomez"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Left/Centre/Right Central Defender",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2,
+          "pulseId": 10651
+        },
+        {
+          "id": 223541,
+          "altIds": {
+            "opta": "p223541"
+          },
+          "name": {
+            "first": "Federico",
+            "last": "Chiesa",
+            "display": "Federico Chiesa"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Left/Centre/Right Winger",
+            "shirtNum": 14
+          },
+          "captain": false,
+          "shirtNumber": 14,
+          "pulseId": 15802
+        },
+        {
+          "id": 214285,
+          "altIds": {
+            "opta": "p214285"
+          },
+          "name": {
+            "first": "Kostas",
+            "last": "Tsimikas",
+            "display": "Kostas Tsimikas"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Left Full Back",
+            "shirtNum": 21
+          },
+          "captain": false,
+          "shirtNumber": 21,
+          "pulseId": 16006
+        },
+        {
+          "id": 551499,
+          "altIds": {
+            "opta": "p551499"
+          },
+          "name": {
+            "first": "Víctor",
+            "last": "Muñoz",
+            "display": "Víctor Muñoz"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Left/Right Winger",
+            "shirtNum": 23
+          },
+          "captain": false,
+          "shirtNumber": 23,
+          "pulseId": 119386
+        },
+        {
+          "id": 216094,
+          "altIds": {
+            "opta": "p216094"
+          },
+          "name": {
+            "first": "Jeremie",
+            "last": "Frimpong",
+            "display": "Jeremie Frimpong"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Right Full Back",
+            "shirtNum": 30
+          },
+          "captain": false,
+          "shirtNumber": 30,
+          "pulseId": 19919
+        },
+        {
+          "id": 591386,
+          "altIds": {
+            "opta": "p591386"
+          },
+          "name": {
+            "first": "Trey",
+            "last": "Nyoni",
+            "display": "Trey Nyoni"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Central Midfielder",
+            "shirtNum": 42
+          },
+          "captain": false,
+          "shirtNumber": 42,
+          "pulseId": 130665
+        },
+        {
+          "id": 491501,
+          "altIds": {
+            "opta": "p491501"
+          },
+          "name": {
+            "first": "James",
+            "last": "McConnell",
+            "display": "James McConnell"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Defensive Midfielder",
+            "shirtNum": 53
+          },
+          "captain": false,
+          "shirtNumber": 53,
+          "pulseId": 109138
+        },
+        {
+          "id": 514514,
+          "altIds": {
+            "opta": "p514514"
+          },
+          "name": {
+            "first": "Lewis",
+            "last": "Koumas",
+            "display": "Lewis Koumas"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Centre Striker",
+            "shirtNum": 67
+          },
+          "captain": false,
+          "shirtNumber": 67,
+          "pulseId": 129671
+        }
+      ]
+    },
+    {
+      "teamId": 1,
+      "formation": {
+        "subs": [
+          "21205",
+          "230001",
+          "95658",
+          "184341",
+          "458249",
+          "493250",
+          "532605",
+          "606745",
+          "576628"
+        ],
+        "teamId": "1",
+        "lineup": [
+          [
+            "465247"
+          ],
+          [
+            "550864",
+            "209365",
+            "221820",
+            "216051"
+          ],
+          [
+            "166989",
+            "516895"
+          ],
+          [
+            "596777",
+            "141746",
+            "430871"
+          ],
+          [
+            "446008"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "lineup": [
+        {
+          "id": 465247,
+          "altIds": {
+            "opta": "p465247"
+          },
+          "name": {
+            "first": "Senne",
+            "last": "Lammens",
+            "display": "Senne Lammens"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 1
+          },
+          "captain": false,
+          "shirtNumber": 1,
+          "pulseId": 67910
+        },
+        {
+          "id": 216051,
+          "altIds": {
+            "opta": "p216051"
+          },
+          "name": {
+            "first": "José Diogo",
+            "last": "Dalot Teixeira",
+            "display": "José Diogo Dalot Teixeira"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Right Full Back",
+            "shirtNum": 2
+          },
+          "captain": false,
+          "shirtNumber": 2,
+          "pulseId": 24252
+        },
+        {
+          "id": 209365,
+          "altIds": {
+            "opta": "p209365"
+          },
+          "name": {
+            "first": "Matthijs",
+            "last": "de Ligt",
+            "display": "Matthijs de Ligt"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4,
+          "pulseId": 20226
+        },
+        {
+          "id": 221820,
+          "altIds": {
+            "opta": "p221820"
+          },
+          "name": {
+            "first": "Lisandro",
+            "last": "Martínez",
+            "display": "Lisandro Martínez"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Central Defender",
+            "shirtNum": 6
+          },
+          "captain": false,
+          "shirtNumber": 6,
+          "pulseId": 67191
+        },
+        {
+          "id": 141746,
+          "altIds": {
+            "opta": "p141746"
+          },
+          "name": {
+            "first": "Bruno Miguel",
+            "last": "Borges Fernandes",
+            "display": "Bruno Miguel Borges Fernandes"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Left/Centre/Right Attacking Midfielder",
+            "shirtNum": 8
+          },
+          "captain": true,
+          "shirtNumber": 8,
+          "pulseId": 23396
+        },
+        {
+          "id": 430871,
+          "altIds": {
+            "opta": "p430871"
+          },
+          "name": {
+            "first": "Matheus",
+            "last": "Santos Carneiro da Cunha",
+            "display": "Matheus Santos Carneiro da Cunha"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "F",
+            "positionInfo": "Left/Centre Second Striker",
+            "shirtNum": 10
+          },
+          "captain": false,
+          "shirtNumber": 10,
+          "pulseId": 51202
+        },
+        {
+          "id": 596777,
+          "altIds": {
+            "opta": "p596777"
+          },
+          "name": {
+            "first": "Patrick",
+            "last": "Dorgu",
+            "display": "Patrick Dorgu"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "D",
+            "positionInfo": "Left Full Back",
+            "shirtNum": 13
+          },
+          "captain": false,
+          "shirtNumber": 13,
+          "pulseId": 146567
+        },
+        {
+          "id": 550864,
+          "altIds": {
+            "opta": "p550864"
+          },
+          "name": {
+            "first": "Leny",
+            "last": "Yoro",
+            "display": "Leny Yoro"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 15
+          },
+          "captain": false,
+          "shirtNumber": 15,
+          "pulseId": 118591
+        },
+        {
+          "id": 166989,
+          "altIds": {
+            "opta": "p166989"
+          },
+          "name": {
+            "first": "Youri",
+            "last": "Tielemans",
+            "display": "Youri Tielemans"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Central Midfielder",
+            "shirtNum": 18
+          },
+          "captain": false,
+          "shirtNumber": 18,
+          "pulseId": 5865
+        },
+        {
+          "id": 446008,
+          "altIds": {
+            "opta": "p446008"
+          },
+          "name": {
+            "first": "Bryan",
+            "last": "Mbeumo",
+            "display": "Bryan Mbeumo"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Right Winger",
+            "shirtNum": 19
+          },
+          "captain": false,
+          "shirtNumber": 19,
+          "pulseId": 66360
+        },
+        {
+          "id": 516895,
+          "altIds": {
+            "opta": "p516895"
+          },
+          "name": {
+            "first": "Kobbie",
+            "last": "Mainoo",
+            "display": "Kobbie Mainoo"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Central Midfielder",
+            "shirtNum": 37
+          },
+          "captain": false,
+          "shirtNumber": 37,
+          "pulseId": 108936
+        }
+      ],
+      "substitutes": [
+        {
+          "id": 21205,
+          "altIds": {
+            "opta": "p21205"
+          },
+          "name": {
+            "first": "Tom",
+            "last": "Heaton",
+            "display": "Tom Heaton"
+          },
+          "matchPosition": "G",
+          "info": {
+            "position": "G",
+            "positionInfo": "Goalkeeper",
+            "shirtNum": 22
+          },
+          "captain": false,
+          "shirtNumber": 22,
+          "pulseId": 2933
+        },
+        {
+          "id": 230001,
+          "altIds": {
+            "opta": "p230001"
+          },
+          "name": {
+            "first": "Noussair",
+            "last": "Mazraoui",
+            "display": "Noussair Mazraoui"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Right Full Back",
+            "shirtNum": 3
+          },
+          "captain": false,
+          "shirtNumber": 3,
+          "pulseId": 33245
+        },
+        {
+          "id": 95658,
+          "altIds": {
+            "opta": "p95658"
+          },
+          "name": {
+            "first": "Harry",
+            "last": "Maguire",
+            "display": "Harry Maguire"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5,
+          "pulseId": 9566
+        },
+        {
+          "id": 184341,
+          "altIds": {
+            "opta": "p184341"
+          },
+          "name": {
+            "first": "Mason",
+            "last": "Mount",
+            "display": "Mason Mount"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Attacking Midfielder",
+            "shirtNum": 7
+          },
+          "captain": false,
+          "shirtNumber": 7,
+          "pulseId": 14580
+        },
+        {
+          "id": 458249,
+          "altIds": {
+            "opta": "p458249"
+          },
+          "name": {
+            "first": "Joshua",
+            "last": "Zirkzee",
+            "display": "Joshua Zirkzee"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Centre Striker",
+            "shirtNum": 11
+          },
+          "captain": false,
+          "shirtNumber": 11,
+          "pulseId": 50848
+        },
+        {
+          "id": 493250,
+          "altIds": {
+            "opta": "p493250"
+          },
+          "name": {
+            "first": "Amad",
+            "last": "Diallo",
+            "display": "Amad Diallo"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Right Winger",
+            "shirtNum": 16
+          },
+          "captain": false,
+          "shirtNumber": 16,
+          "pulseId": 69176
+        },
+        {
+          "id": 532605,
+          "altIds": {
+            "opta": "p532605"
+          },
+          "name": {
+            "first": "Andrey",
+            "last": "Nascimento dos Santos",
+            "display": "Andrey Nascimento dos Santos"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Defensive Midfielder",
+            "shirtNum": 17
+          },
+          "captain": false,
+          "shirtNumber": 17,
+          "pulseId": 133245
+        },
+        {
+          "id": 606745,
+          "altIds": {
+            "opta": "p606745"
+          },
+          "name": {
+            "first": "Ayden",
+            "last": "Heaven",
+            "display": "Ayden Heaven"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Left Full Back",
+            "shirtNum": 26
+          },
+          "captain": false,
+          "shirtNumber": 26,
+          "pulseId": 133114
+        },
+        {
+          "id": 576628,
+          "altIds": {
+            "opta": "p576628"
+          },
+          "name": {
+            "first": "Shea",
+            "last": "Lacey",
+            "display": "Shea Lacey"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Right Winger",
+            "shirtNum": 31
+          },
+          "captain": false,
+          "shirtNumber": 31,
+          "pulseId": 130151
+        }
+      ]
+    }
+  ],
+  "events": [],
+  "textstreamEvents": [
+    {
+      "id": 2914211,
+      "type": "lineup",
+      "text": "Lineups are announced and players are warming up."
+    }
+  ]
+}

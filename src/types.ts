@@ -885,6 +885,13 @@ export interface ProjectedFixtureOutcome {
   lambdaA: number;
   homeExpGcPenalty: number;
   awayExpGcPenalty: number;
+  isCongested72h?: boolean;
+  homeCongested72h?: boolean;
+  awayCongested72h?: boolean;
+  stage1HomeAttMod?: number;
+  stage1AwayAttMod?: number;
+  stage1HomeDefMod?: number;
+  stage1AwayDefMod?: number;
 }
 
 export interface PlayerGwMatchDetail {
@@ -900,6 +907,10 @@ export interface PlayerGwMatchDetail {
   teamLambda?: number;
   oppLambda?: number;
   csProb?: number;
+  winProb?: number;
+  drawProb?: number;
+  lossProb?: number;
+  isCongested72h?: boolean;
 }
 
 export interface PlayerGwProjectionCell {
@@ -928,6 +939,11 @@ export interface ClubGwMatchProjectionItem {
   csProb: number;
   csProbPct?: number;
   expGcPenalty: number;
+  winProb?: number;
+  drawProb?: number;
+  lossProb?: number;
+  isCongested72h?: boolean;
+  oppCongested72h?: boolean;
 }
 
 export interface ProjectedSquadPlayer {
