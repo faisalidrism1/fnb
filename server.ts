@@ -1174,6 +1174,57 @@ app.get('/api/projections-scout-squads', async (req, res) => {
   }
 });
 
+app.get('/api/scout-manager-analysis', async (req, res) => {
+  try {
+    if (!cachedData) {
+      return res.status(503).json({ success: false, error: 'Database not initialized yet' });
+    }
+    const rawEntryId = typeof req.query.entryId === 'string' ? req.query.entryId.trim() : '';
+    let entryId: number | undefined;
+    if (rawEntryId) {
+      const parsed = Number(rawEntryId);
+      if (!Number.isInteger(parsed) || parsed <= 0 || parsed >= 100_000_000) {
+        return res.status(400).json({ success: false, error: 'Invalid entryId' });
+      }
+      entryId = parsed;
+    }
+
+    const rawSection = typeof req.query.section === 'string' ? req.query.section.trim() : 'all';
+    const section: 'chips' | 'transfer' | 'all' =
+      rawSection === 'chips' || rawSection === 'transfer' ? rawSection : 'all';
+
+    const rawMode = typeof req.query.transferMode === 'string' ? req.query.transferMode.trim().toUpperCase() : 'FT';
+    const transferMode: 'FT' | 'HIT' = rawMode === 'HIT' ? 'HIT' : 'FT';
+
+    const rawHorizon = Number(req.query.transferHorizon);
+    const transferHorizon: 1 | 3 | 6 = rawHorizon === 3 || rawHorizon === 6 ? rawHorizon : 1;
+
+    const rawLang = typeof req.query.lang === 'string' ? req.query.lang.trim().toLowerCase() : 'id';
+    const lang: 'id' | 'en' = rawLang === 'en' ? 'en' : 'id';
+
+    const force = req.query.force === '1' || req.query.sync === '1';
+
+    const engine = await getDevProjectionEngine();
+    const payload = await engine.getServerScoutManagerAnalysis(cachedData, {
+      entryId,
+      section,
+      transferMode,
+      transferHorizon,
+      lang,
+      force,
+    });
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    });
+    res.json({ success: true, data: payload });
+  } catch (err: any) {
+    console.error('Error in /api/scout-manager-analysis:', err);
+    res.status(500).json({ success: false, error: err?.message || 'Scout manager analysis error' });
+  }
+});
+
 
 // Support both GET and POST so external cron services (cron-job.org, Cloud Scheduler, uptime bots) can easily trigger sync
 const handleSyncRequest = async (req: express.Request, res: express.Response) => {
@@ -2028,9 +2079,11 @@ const DEV_FORMULA_WATCH_FILES = [
   'src/utils/fplProvenGuard.ts',
   'src/utils/tacticalLineupModel.ts',
   'src/utils/hybridLineupModel.ts',
+  'src/utils/scoutSelectionModel.ts',
   'src/utils/scoutNarratives.ts',
   'src/data/playerExplosiveCatalog.ts',
   'src/server/pulsePlayerPositions.ts',
+  'src/server/scoutServerEngine.ts',
   'src/server/projectionEngineServer.ts',
 ];
 
@@ -2207,15 +2260,18 @@ async function startServer() {
         },
         appType: 'spa',
       });
-      try {
-        const loadedEngine = (await vite.ssrLoadModule('/src/server/projectionEngineServer.ts')) as ProjectionEngineModule;
-        hotProjectionEngine = loadedEngine;
-        resolveDevEngineInit(loadedEngine);
-        setupDevFormulaWatcher(vite);
-      } catch (ssrErr: any) {
-        console.warn('[Dev HotReload] Falling back to static projection engine on init error:', ssrErr?.message || ssrErr);
-        resolveDevEngineInit(staticProjectionEngine);
-      }
+      // Load hot-reloadable projection engine asynchronously so GET / and Vite client assets never block on SSR module eval
+      void (async () => {
+        try {
+          const loadedEngine = (await vite.ssrLoadModule('/src/server/projectionEngineServer.ts')) as ProjectionEngineModule;
+          hotProjectionEngine = loadedEngine;
+          resolveDevEngineInit(loadedEngine);
+          setupDevFormulaWatcher(vite);
+        } catch (ssrErr: any) {
+          console.warn('[Dev HotReload] Falling back to static projection engine on init error:', ssrErr?.message || ssrErr);
+          resolveDevEngineInit(staticProjectionEngine);
+        }
+      })();
       return vite.middlewares;
     })().catch((err) => {
       console.error('[Server] Vite middleware initialization failed:', err);
@@ -2267,14 +2323,19 @@ async function startServer() {
             console.warn('[Server] Background PulseAllCompDB warm failed:', err?.message || err);
           });
         }
+        const scheduleWarm = () => {
+          setTimeout(() => {
+            if (cachedData) {
+              engine.warmProjectionEngineIfNeeded(cachedData);
+            }
+          }, 3500);
+        };
         if (cachedData?.current_gw) {
           prewarmMatchesCache(cachedData.current_gw)
             .catch(() => {})
-            .finally(() => {
-              engine.warmProjectionEngineIfNeeded(cachedData);
-            });
+            .finally(scheduleWarm);
         } else if (cachedData) {
-          engine.warmProjectionEngineIfNeeded(cachedData);
+          scheduleWarm();
         }
       });
     }, 300);

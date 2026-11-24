@@ -93,6 +93,7 @@ export interface FitCausalMatchScoreParams {
   eplMatchesByGw: Record<number, any[]>;
   nonEplRecords?: NonEplMatchScoreRecord[];
   maxTrainGw: number;
+  minTrainGw?: number;
   cutoffMs?: number;
 }
 
@@ -545,6 +546,7 @@ export function fitCausalMatchScoreModel(
     eplMatchesByGw,
     nonEplRecords = [],
     maxTrainGw,
+    minTrainGw = 1,
     cutoffMs = Number.MAX_SAFE_INTEGER,
   } = params;
 
@@ -560,13 +562,14 @@ export function fitCausalMatchScoreModel(
 
   const obs: GlmObs[] = [];
   const ingestedEpl = new Set<string>();
+  const effMinGw = Math.max(1, Math.floor(minTrainGw));
   const effTrainGw = Math.max(0, Math.floor(maxTrainGw));
 
   let empGoalsSum = 0;
   let empGoalsW = 0;
 
-  // 1. Ingest causal EPL matches strictly <= effTrainGw
-  for (let gw = 1; gw <= effTrainGw; gw++) {
+  // 1. Ingest causal EPL matches strictly effMinGw <= gw <= effTrainGw
+  for (let gw = effMinGw; gw <= effTrainGw; gw++) {
     const ageGw = effTrainGw - gw;
     const decay = Math.exp((-Math.LN2 * ageGw) / STRUCT.halfLife);
     const matches = eplMatchesByGw[gw] || [];
@@ -627,7 +630,7 @@ export function fitCausalMatchScoreModel(
   // 2. Fallback to precalculated review matches ONLY if missing from live EPL matches
   const precalcList = (precalculatedReviewDataRaw as any)?.matches || [];
   for (const pm of precalcList) {
-    if (!pm?.finished || pm.gw > effTrainGw) continue;
+    if (!pm?.finished || pm.gw < effMinGw || pm.gw > effTrainGw) continue;
     if (!pm.hShort || !pm.aShort || !clubIdx.has(pm.hShort) || !clubIdx.has(pm.aShort)) continue;
     if (ingestedEpl.has(`${pm.gw}_${pm.hShort}_${pm.aShort}`)) continue;
     if (pm.hScore == null || pm.aScore == null) continue;

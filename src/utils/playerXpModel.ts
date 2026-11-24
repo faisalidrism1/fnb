@@ -512,13 +512,15 @@ export function extractHistoricalAppearances(
   precalcPlayers: Record<string, Record<string, { pts: number; mins: number; wasStarter: boolean; wasSub: boolean }>>,
   playerPosSeed: Record<number, string>,
   deadlines: Record<string, string> | undefined,
-  maxGw: number
+  maxGw: number,
+  minGw: number = 1
 ): Stage3HistoricalAppearance[] {
   const playerMetaById = new Map<number, DbPlayerStat>(allPlayers.map((p) => [p.id, p]));
   const rows: Stage3HistoricalAppearance[] = [];
   const seenPlayerGwMatch = new Set<string>();
+  const effMinGw = Math.max(1, Math.floor(minGw));
 
-  for (let gw = 1; gw <= maxGw; gw++) {
+  for (let gw = effMinGw; gw <= maxGw; gw++) {
     const matches = historicalMatchesByGw[gw] || [];
     const fallbackKo = deadlines?.[String(gw)] ? Date.parse(deadlines[String(gw)]) : 0;
 
@@ -2460,6 +2462,7 @@ export interface Stage3PipelineInput {
   provenByPlayerId: Map<number, FplProvenStatus>;
   expectedReturnByPlayerId: Map<number, Date | null>;
   baseHistoricalGW: number;
+  minHistoricalGw?: number;
   targetNextGW: number;
   isCurrentGwFinishedOrConfirmed: boolean;
   tuning?: Partial<Stage3TuningConfig>;
@@ -2480,10 +2483,19 @@ export interface Stage3FixturePlayerCell {
   output: Stage3PlayerOutput;
 }
 
-export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput): {
+const yieldStage3Loop = (): Promise<void> =>
+  new Promise((resolve) => {
+    if (typeof setImmediate === 'function') {
+      setImmediate(resolve);
+    } else {
+      setTimeout(resolve, 0);
+    }
+  });
+
+export async function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput): Promise<{
   playerGwMatchesMap: Map<number, Map<number, Stage3FixturePlayerCell[]>>;
   trainedModels: CausalStage3Models;
-} {
+}> {
   const {
     allPlayers,
     scheduleByGw,
@@ -2499,11 +2511,14 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
     provenByPlayerId,
     expectedReturnByPlayerId,
     baseHistoricalGW,
+    minHistoricalGw = 1,
     targetNextGW,
     isCurrentGwFinishedOrConfirmed,
     tuning: partialTuning,
   } = input;
   const tuning: Stage3TuningConfig = { ...DEFAULT_STAGE3_TUNING, ...(partialTuning || {}) };
+  const effMinHistGw = Math.max(1, Math.floor(minHistoricalGw));
+  const effMaxHistGw = Math.max(0, Math.min(baseHistoricalGW, targetNextGW - 1));
 
   const allPlayersByClub = new Map<string, DbPlayerStat[]>();
   const playerById = new Map<number, DbPlayerStat>();
@@ -2519,7 +2534,8 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
     precalcPlayers,
     playerPosSeed,
     deadlines,
-    baseHistoricalGW
+    effMaxHistGw,
+    effMinHistGw
   );
 
   // Deduplicate actual match appearances per (playerId, gw, oppShort) with GW fallback
@@ -2662,9 +2678,10 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
     learnCausalStage3Priors([], allPlayers, pastSeasonMap, playerPosSeed, tuning)
   );
 
-  // 1. CAUSAL WALK-FORWARD ACROSS HISTORICAL GWs (GW 1..baseHistoricalGW)
-  for (let gw = 1; gw <= baseHistoricalGW; gw++) {
-    const historyBeforeGw = allAppearances.filter((a) => a.gw < gw);
+  // 1. CAUSAL WALK-FORWARD ACROSS HISTORICAL GWs (effMinHistGw..effMaxHistGw)
+  for (let gw = effMinHistGw; gw <= effMaxHistGw; gw++) {
+    await yieldStage3Loop();
+    const historyBeforeGw = allAppearances.filter((a) => a.gw >= effMinHistGw && a.gw < gw);
     const priors = learnCausalStage3Priors(historyBeforeGw, allPlayers, pastSeasonMap, playerPosSeed, tuning);
     const { globalK: causalGlobalK, posK: causalPosK } = computeCausalXiCalib(gw);
 
@@ -2773,7 +2790,9 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             cross.nonEplMins7d.get(p.id) || 0
           );
           const mwProof = Boolean(s1?.midweekProofByPlayer.get(p.id) || cross.midweekProof.get(p.id));
-          const recentStartRate = hs ? hs.startsCount / Math.max(1, gw - 1) : gwSiProb;
+          const recentStartRate = hs
+            ? hs.startsCount / Math.max(1, gw - effMinHistGw)
+            : gwSiProb;
 
           const { xMinRes, feats } = predictCalibratedXMinP7({
             pos,
@@ -3008,6 +3027,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
 
   // Track club fixture counts per future GW for gentle DGW fatigue scaling
   for (let gw = targetNextGW; gw <= 38; gw++) {
+    await yieldStage3Loop();
     const gwSchedule = scheduleByGw[gw] || [];
     const seenFixtures = new Set<string>();
     const clubGwFixCount = new Map<string, number>();
@@ -3066,18 +3086,20 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
       ) => {
         const squad = allPlayersByClub.get(clubShort) || [];
         const s1 = stage1ByGwClub.get(`${targetNextGW}_${clubShort}`);
+        const fallbackGwAnchorMs = Date.UTC(2026, 7, 22, 14, 0, 0) + Math.max(0, gw - 1) * 7 * 86400_000;
+        const resolvedCutoffMs = cutoffMs > 0 ? cutoffMs : fallbackGwAnchorMs;
         const cross = isImmediateGw
           ? computeCausalCrossCompPlayerSignals(
               crossCompIndex,
               clubShort,
-              cutoffMs || Date.now(),
+              resolvedCutoffMs,
               fullLastKo,
               fullLastStarted,
               fullLastMins
             )
           : { nonEplMins7d: new Map<number, number>(), midweekProof: new Map<number, boolean>() };
         const isDgwClub = (clubGwFixCount.get(clubShort) || 1) >= 2;
-        const matchDate = new Date(cutoffMs || Date.now());
+        const matchDate = new Date(resolvedCutoffMs);
 
         const candidateSpecs = squad.map((p) => {
           const hs = fullHistSummary.get(p.id);
@@ -3217,7 +3239,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             ? Boolean(s1?.midweekProofByPlayer.get(p.id) || cross.midweekProof.get(p.id))
             : false;
           const recentStartRate = hs
-            ? hs.startsCount / Math.max(1, baseHistoricalGW)
+            ? hs.startsCount / Math.max(1, effMaxHistGw - effMinHistGw + 1)
             : gwSiProb;
 
           const { xMinRes } = predictCalibratedXMinP7({

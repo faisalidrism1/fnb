@@ -984,22 +984,27 @@ function renderCaveatPhrasing(caveat: CaveatType | null, p: ScoutNarrativeInput,
  * and article-wide tracking so no two picks reuse the exact same template or matchup phrasing.
  */
 export function generateCaptainArticlePicks(
-  top10: ScoutNarrativeInput[],
+  topCandidates: ScoutNarrativeInput[],
   matchProjections: Map<string, MatchProjInput> | Record<string, MatchProjInput>,
   targetNextGW: number,
   isId: boolean,
   allPlayers?: ScoutNarrativeInput[],
-  clubNameMap?: Record<string, string>
+  clubNameMap?: Record<string, string>,
+  ratingFloorScore?: number
 ): Array<ScoutNarrativeInput & { rank: number; rating: number; narrative: string }> {
-  if (top10.length === 0) return [];
+  if (topCandidates.length === 0) return [];
 
-  const maxScore = top10[0]?.captainScore || 1;
-  const minScore = top10[top10.length - 1]?.captainScore || 0;
+  const maxScore = topCandidates[0]?.captainScore || 1;
+  const listMinScore = topCandidates[topCandidates.length - 1]?.captainScore || 0;
+  const minScore =
+    typeof ratingFloorScore === 'number' && Number.isFinite(ratingFloorScore)
+      ? Math.min(listMinScore, ratingFloorScore)
+      : listMinScore;
   const scoreRange = Math.max(0.1, maxScore - minScore);
 
-  const leagueRankMap = buildLeagueStatRankMap(allPlayers && allPlayers.length > 0 ? allPlayers : top10);
+  const leagueRankMap = buildLeagueStatRankMap(allPlayers && allPlayers.length > 0 ? allPlayers : topCandidates);
 
-  // Track counters across the 10-pick article so shared traits/matchups NEVER repeat the same sentence!
+  // Track counters across the adaptive-length article so shared traits/matchups NEVER repeat the same sentence!
   const traitCounter = new Map<TraitType, number>();
   const matchCatCounter = new Map<string, number>();
   const cleanTemplatePool = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -1007,9 +1012,9 @@ export function generateCaptainArticlePicks(
   let cleanUseIdx = 0;
   let caveatUseIdx = 0;
 
-  return top10.map((p, idx) => {
+  return topCandidates.map((p, idx) => {
     const rank = idx + 1;
-    const normalizedScore = ((p.captainScore || 0) - minScore) / scoreRange;
+    const normalizedScore = Math.max(0, Math.min(1, ((p.captainScore || 0) - minScore) / scoreRange));
     const rating = Math.min(99, Math.max(72, Math.round(74 + normalizedScore * (98 - 74))));
 
     const match = (matchProjections instanceof Map)

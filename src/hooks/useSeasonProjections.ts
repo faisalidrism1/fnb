@@ -151,7 +151,17 @@ export function useSeasonProjections({
       .catch(() => {});
     loadScoutSquadsFromIndexedDB<ServerScoutSquadsPayload>()
       .then((cached) => {
-        if (!mounted || !cached || !cached.epochKey || !cached.fhTarget || !cached.wcTarget) {
+        if (
+          !mounted ||
+          !cached ||
+          !cached.epochKey ||
+          !cached.fhTarget ||
+          !cached.wcTarget ||
+          !Array.isArray(cached.fhTarget.starters) ||
+          !Array.isArray(cached.wcTarget.starters) ||
+          !Array.isArray(cached.captainPicks?.id) ||
+          !Array.isArray(cached.differentialPicks?.id)
+        ) {
           return;
         }
         if (isEpochCompatible(cached.epochKey, epochInfo.epochKey)) {
@@ -258,8 +268,16 @@ export function useSeasonProjections({
   useEffect(() => {
     if (!enabled || !leagueData) return;
 
+    const scoutHasServerData = Boolean(
+      scoutSquadsPayload &&
+      Array.isArray(scoutSquadsPayload.fhTarget?.starters) &&
+      Array.isArray(scoutSquadsPayload.wcTarget?.starters) &&
+      Array.isArray(scoutSquadsPayload.captainPicks?.id) &&
+      Array.isArray(scoutSquadsPayload.differentialPicks?.id)
+    );
     const scoutMatches = Boolean(
       scoutSquadsPayload &&
+      scoutHasServerData &&
       (isEpochCompatible(scoutSquadsPayload.epochKey, epochInfo.epochKey) ||
         (verifiedScoutEpochRef.current === epochInfo.epochKey &&
           scoutSquadsPayload.epochKey === verifiedScoutServerEpochRef.current))

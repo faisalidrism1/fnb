@@ -25,7 +25,16 @@ const pastSeasonMap = pastSeasonRaw as Record<string, PastSeasonPlayerRecord>;
  * Proven status is only applied to players who actively maintain a regular/starting role
  * in the current Premier League season, acting as a guard against temporary 2-GW blanks (like Haaland/Salah).
  */
-export function getFplProvenStatus(player: Partial<DbPlayerStat>): FplProvenStatus {
+export interface FplProvenCausalOptions {
+  minGw?: number;
+  maxGw?: number;
+  strictCausal?: boolean;
+}
+
+export function getFplProvenStatus(
+  player: Partial<DbPlayerStat>,
+  options?: FplProvenCausalOptions
+): FplProvenStatus {
   const id = player.id || 0;
   const webName = player.webName || '';
   const pos = (player.position || 'MID') as PositionType;
@@ -33,19 +42,43 @@ export function getFplProvenStatus(player: Partial<DbPlayerStat>): FplProvenStat
     ? (player.nowCost > 20 ? player.nowCost / 10 : player.nowCost)
     : 5.0;
 
+  const hasWindowFilter =
+    Boolean(options?.strictCausal) ||
+    options?.minGw !== undefined ||
+    options?.maxGw !== undefined;
+  const minGw = Math.max(1, options?.minGw ?? 1);
+  const maxGw = Math.min(38, options?.maxGw ?? 38);
+
   const past = pastSeasonMap[String(id)];
   const expProfile: PlayerExplosiveProfile | undefined = PLAYER_EXPLOSIVE_CATALOG[id];
 
   const pastPts = past?.total_points || 0;
   const pastMins = past?.minutes || 0;
 
-  // 1. Current Season Minutes & Role Verification
-  const gwHistory = player.gwHistory || [];
+  // 1. Current Season Minutes & Role Verification (filtered to [minGw..maxGw] when causal bounds provided)
+  const rawHistory = player.gwHistory || [];
+  const gwHistory = hasWindowFilter
+    ? rawHistory.filter((h) => {
+        const r = Number(h?.round || 0);
+        return r >= minGw && r <= maxGw;
+      })
+    : rawHistory;
   const completedGWsCount = Math.max(gwHistory.length, 1);
-  const currentMins = Number(player.minutes || 0);
-  const currentStarts = Number(player.starts || 0);
+  const histMins = gwHistory.reduce((s, h) => s + Number(h.minutes || 0), 0);
+  const histStarts = gwHistory.filter((h) => Number(h.minutes || 0) >= 55).length;
+  const histPts = gwHistory.reduce((s, h) => s + Number(h.points || 0), 0);
+  const histPlayed = gwHistory.filter((h) => Number(h.minutes || 0) > 0).length;
+
+  const currentMins = options?.strictCausal
+    ? (gwHistory.length > 0 ? histMins : Number(player.minutes || 0))
+    : Number(player.minutes || 0);
+  const currentStarts = options?.strictCausal
+    ? (gwHistory.length > 0 ? histStarts : Number(player.starts || 0))
+    : Number(player.starts || 0);
   const currentStatus = player.status || 'a';
-  const currentPpg = Number(player.pointsPerGame || 0);
+  const currentPpg = options?.strictCausal
+    ? (histPlayed > 0 ? Number((histPts / histPlayed).toFixed(1)) : Number(player.pointsPerGame || 0))
+    : Number(player.pointsPerGame || 0);
 
   // Minutes per completed GW
   const minsPerGW = currentMins / completedGWsCount;
@@ -67,11 +100,18 @@ export function getFplProvenStatus(player: Partial<DbPlayerStat>): FplProvenStat
 
   const returnRate = playedGWCount > 0 ? Math.round((returnGWCount / playedGWCount) * 100) : 0;
   const historyHauls = gwHistory.filter((h) => Number(h.points || 0) >= 10).length;
-  const doubleDigitHauls = Math.max(
-    Number(player.doubleDigitHauls ?? 0),
-    historyHauls,
-    expProfile?.hauls ?? 0
-  );
+  const causalCatalogHauls = expProfile
+    ? hasWindowFilter
+      ? (expProfile.haulGWs || []).filter((hw) => hw.gw >= minGw && hw.gw <= maxGw).length
+      : (expProfile.hauls ?? 0)
+    : 0;
+  const doubleDigitHauls = options?.strictCausal
+    ? Math.max(Number(player.doubleDigitHauls ?? 0), historyHauls)
+    : Math.max(
+        Number(player.doubleDigitHauls ?? 0),
+        historyHauls,
+        causalCatalogHauls
+      );
 
   // HARD GATEWAY: Fit Benchwarmer Filter
   // If at least 3 GWs have elapsed, and player is fully fit ('a'),

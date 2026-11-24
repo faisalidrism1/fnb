@@ -1068,15 +1068,119 @@ export interface ServerReviewBundlePayload {
   maeRecapRows: any[];
 }
 
+export interface ScoutPlayerCardItem {
+  id: number;
+  webName: string;
+  teamShort: string;
+  position: PositionType;
+  cost: number;
+  xP1: number;
+  avgXp6: number;
+  photo: string;
+}
+
 export interface SolvedScoutSquadResult {
   starterIds: number[];
   benchIds: number[];
+  starters?: ScoutPlayerCardItem[];
+  bench?: ScoutPlayerCardItem[];
   xiCost: number;
   xiBudget: number;
   totalCost: number;
   budget: number;
   xiXp: number;
   formation: string;
+}
+
+export interface ScoutArticlePickRenderedItem {
+  id: number;
+  webName: string;
+  teamShort: string;
+  clubName: string;
+  position: PositionType;
+  cost: number;
+  fnbOwn: number;
+  rank: number;
+  rating: number;
+  narrative: string;
+}
+
+export interface ScoutChipStatusItem {
+  key: 'WC' | 'TC' | 'BB' | 'FH';
+  name: string;
+  short: string;
+  used: { gw: number; points: number } | null;
+}
+
+export interface ScoutEditorialParagraph {
+  chipKey?: 'WC' | 'TC' | 'BB' | 'FH';
+  chipLead?: string;
+  text: string;
+}
+
+export interface ServerScoutChipsAnalysis {
+  needChip: boolean;
+  chipName: string | null;
+  gain: number;
+  reason: string;
+  chipSet: ScoutChipStatusItem[];
+  isSecondHalf: boolean;
+  halfStartGW: number;
+  halfEndGW: number;
+  currentFT: number;
+  openingNarrative: string;
+  chipParagraphs: ScoutEditorialParagraph[];
+  allUsed: boolean;
+}
+
+export interface ServerScoutTransferMove {
+  out: {
+    id: number;
+    webName: string;
+    cost: number;
+    effXpH: number;
+  };
+  in: {
+    id: number;
+    webName: string;
+    cost: number;
+    effXpH: number;
+  };
+  isHit: boolean;
+  stepNum: number;
+}
+
+export interface ServerScoutTransferAnalysis {
+  needTransfer: boolean;
+  moves: ServerScoutTransferMove[];
+  netGain: number;
+  hitCount: number;
+  hitCost: number;
+  ftUsed: number;
+  reason: string;
+  reasonParagraphs: string[];
+  startXiXpH: number;
+  endXiXpH: number;
+  startBank: number;
+  endBank: number;
+  startFormation: string;
+  endFormation: string;
+  horizonCount: number;
+  horizonEndGw: number;
+  horizonLabel: string;
+}
+
+export interface ServerScoutManagerAnalysisPayload {
+  epochKey: string;
+  generatedAt: string;
+  targetNextGW: number;
+  baseHistoricalGW: number;
+  entryId: number;
+  entryName?: string;
+  ftAllowance: number;
+  bankBalance: number;
+  chips?: ServerScoutChipsAnalysis;
+  transfer?: ServerScoutTransferAnalysis;
 }
 
 export interface ScoutTransferHorizonPolicy {
@@ -1157,6 +1261,14 @@ export interface ServerScoutSquadsPayload {
   fhTarget: SolvedScoutSquadResult;
   wcTarget: SolvedScoutSquadResult;
   chipSetByGw: Record<number, { fhSquadIds: number[]; wcSquadIds: number[] }>;
+  captainPicks?: {
+    id: ScoutArticlePickRenderedItem[];
+    en: ScoutArticlePickRenderedItem[];
+  };
+  differentialPicks?: {
+    id: ScoutArticlePickRenderedItem[];
+    en: ScoutArticlePickRenderedItem[];
+  };
   policy?: ScoutSelectionPolicy;
 }
 

@@ -368,12 +368,16 @@ export function buildClubSplitStatsMap(
   clubs: Array<{ id: number; name: string; short: string }>,
   players: DbPlayerStat[] = [],
   matchesByGW: Record<number, any[]> = {},
-  baseHistoricalGW: number = 7
+  baseHistoricalGW: number = 7,
+  options?: { minHistoricalGW?: number; skipRawPlayerAggregates?: boolean }
 ): {
   clubStatsMap: Record<string, ClubSplitStats>;
   leagueAvgHomeGoals: number;
   leagueAvgAwayGoals: number;
 } {
+  const minHistoricalGW = Math.max(1, options?.minHistoricalGW ?? 1);
+  const skipRawPlayerAggregates = Boolean(options?.skipRawPlayerAggregates);
+  const windowMatchCount = Math.max(baseHistoricalGW - minHistoricalGW + 1, 1);
   const statsMap: Record<string, ClubSplitStats> = {};
 
   for (const c of clubs) {
@@ -381,7 +385,7 @@ export function buildClubSplitStatsMap(
       id: c.id,
       name: c.name,
       short: c.short,
-      totalMatches: Math.max(baseHistoricalGW, 1),
+      totalMatches: windowMatchCount,
       gf: 0,
       ga: 0,
       cs: 0,
@@ -410,16 +414,18 @@ export function buildClubSplitStatsMap(
     };
   }
 
-  // 1. Process player aggregates (total season metrics)
-  for (const p of players) {
-    const c = p.teamShort;
-    if (!statsMap[c]) continue;
-    statsMap[c].gf += p.goalsScored || 0;
-    statsMap[c].xg += p.expectedGoals || 0;
-    if (p.position === 'GKP' || p.position === 'DEF') {
-      if ((p.goalsConceded || 0) > statsMap[c].ga) statsMap[c].ga = p.goalsConceded;
-      if ((p.cleanSheets || 0) > statsMap[c].cs) statsMap[c].cs = p.cleanSheets;
-      if ((p.expectedGoalsConceded || 0) > statsMap[c].xgc) statsMap[c].xgc = p.expectedGoalsConceded;
+  // 1. Process player aggregates (skipped when building strict windowed baseline from match history only)
+  if (!skipRawPlayerAggregates) {
+    for (const p of players) {
+      const c = p.teamShort;
+      if (!statsMap[c]) continue;
+      statsMap[c].gf += p.goalsScored || 0;
+      statsMap[c].xg += p.expectedGoals || 0;
+      if (p.position === 'GKP' || p.position === 'DEF') {
+        if ((p.goalsConceded || 0) > statsMap[c].ga) statsMap[c].ga = p.goalsConceded;
+        if ((p.cleanSheets || 0) > statsMap[c].cs) statsMap[c].cs = p.cleanSheets;
+        if ((p.expectedGoalsConceded || 0) > statsMap[c].xgc) statsMap[c].xgc = p.expectedGoalsConceded;
+      }
     }
   }
 
@@ -429,12 +435,12 @@ export function buildClubSplitStatsMap(
   let totalHomeMatches = 0;
   let totalAwayMatches = 0;
 
-  const recentWindowStart = Math.max(1, baseHistoricalGW - 3); // last 4 GWs
+  const recentWindowStart = Math.max(minHistoricalGW, baseHistoricalGW - 3); // last 4 GWs within window
 
   const ingestedMatchKeySet = new Set<string>();
 
   // A. Prioritize live / app-fetched matches from matchesByGW FIRST
-  for (let gw = 1; gw <= baseHistoricalGW; gw++) {
+  for (let gw = minHistoricalGW; gw <= baseHistoricalGW; gw++) {
     const matches = matchesByGW[gw] || [];
     const isRecent = gw >= recentWindowStart;
     const recencyWeight = isRecent ? (gw - recentWindowStart + 1) : 0;
@@ -514,7 +520,7 @@ export function buildClubSplitStatsMap(
   // B. Fallback to verified precalculatedReviewData ONLY for GW/fixtures not already ingested from matchesByGW
   const precalcList = (precalculatedReviewDataRaw as any)?.matches || [];
   for (const m of precalcList) {
-    if (m.gw > baseHistoricalGW || !m.finished) continue;
+    if (m.gw < minHistoricalGW || m.gw > baseHistoricalGW || !m.finished) continue;
     const hShort = m.hShort;
     const aShort = m.aShort;
     if (ingestedMatchKeySet.has(`${m.gw}_${hShort}_${aShort}`)) continue;

@@ -336,7 +336,8 @@ export function solveScoutSquadForGwMode(params: {
     };
   }
 
-  const wcEndGw = Math.min(maxGwCap, targetGw + Math.max(1, wcHorizonLen) - 1);
+  const effectiveMaxGwCap = calibrationMode ? Math.min(maxGwCap, targetNextGW - 1) : maxGwCap;
+  const wcEndGw = Math.min(effectiveMaxGwCap, targetGw + Math.max(1, wcHorizonLen) - 1);
   const utilCache = new Map<number, number>();
   const rawXpCache = new Map<number, number>();
   const tieCache = new Map<number, number>();
@@ -1237,8 +1238,9 @@ export function runScoutTransferSearch(params: {
   } = params;
 
   const hPolicy = getTransferHorizonPolicy(policy, horizonCount);
-  const effHorizonCount = Math.max(1, Math.min(horizonCount, 38 - startGw + 1));
-  const horizonEndGw = Math.min(38, startGw + effHorizonCount - 1);
+  const maxAllowedHorizonGw = startGw < targetNextGW ? targetNextGW - 1 : 38;
+  const effHorizonCount = Math.max(1, Math.min(horizonCount, maxAllowedHorizonGw - startGw + 1));
+  const horizonEndGw = Math.min(maxAllowedHorizonGw, startGw + effHorizonCount - 1);
 
   const clubIdxMap = new Map<string, number>();
   let nextClubIdx = 0;
@@ -1787,31 +1789,34 @@ export interface ScoutCalibrationInput {
 export function estimateCausalFtAtGw(params: {
   entryId: number;
   upToPrevGw: number;
+  targetNextGW?: number;
   allTransfers?: Array<{ entry_id: number; event: number }>;
   standingsByGw?: Record<number, StandingsRow[]>;
   allChipsUsed?: ScoutCalibrationInput['allChipsUsed'];
 }): number {
-  const { entryId, upToPrevGw, allTransfers, standingsByGw, allChipsUsed } = params;
-  if (upToPrevGw < 1) return 1;
+  const { entryId, upToPrevGw, targetNextGW, allTransfers, standingsByGw, allChipsUsed } = params;
+  const effUpToPrevGw =
+    targetNextGW !== undefined ? Math.min(upToPrevGw, Math.max(0, targetNextGW - 1)) : upToPrevGw;
+  if (effUpToPrevGw < 1) return 1;
 
   const chipRow = allChipsUsed?.find((c) => c.entry_id === entryId);
   const preserveGws = new Set<number>();
-  if (chipRow?.wc1?.gw) preserveGws.add(chipRow.wc1.gw);
-  if (chipRow?.wc2?.gw) preserveGws.add(chipRow.wc2.gw);
-  if (chipRow?.fh1?.gw) preserveGws.add(chipRow.fh1.gw);
-  if (chipRow?.fh2?.gw) preserveGws.add(chipRow.fh2.gw);
+  if (chipRow?.wc1?.gw && chipRow.wc1.gw <= effUpToPrevGw) preserveGws.add(chipRow.wc1.gw);
+  if (chipRow?.wc2?.gw && chipRow.wc2.gw <= effUpToPrevGw) preserveGws.add(chipRow.wc2.gw);
+  if (chipRow?.fh1?.gw && chipRow.fh1.gw <= effUpToPrevGw) preserveGws.add(chipRow.fh1.gw);
+  if (chipRow?.fh2?.gw && chipRow.fh2.gw <= effUpToPrevGw) preserveGws.add(chipRow.fh2.gw);
 
   const countByGw = new Map<number, number>();
   if (allTransfers) {
     for (const tr of allTransfers) {
-      if (tr.entry_id === entryId && tr.event <= upToPrevGw) {
+      if (tr.entry_id === entryId && tr.event <= effUpToPrevGw) {
         countByGw.set(tr.event, (countByGw.get(tr.event) || 0) + 1);
       }
     }
   }
 
   let ft = 1;
-  for (let gw = 2; gw <= upToPrevGw; gw++) {
+  for (let gw = 2; gw <= effUpToPrevGw; gw++) {
     const row = standingsByGw?.[gw]?.find((r) => r.entry_id === entryId);
     const chipName = (row?.active_chip || '').toLowerCase();
     if (preserveGws.has(gw) || chipName.includes('wildcard') || chipName.includes('free')) {
@@ -1828,7 +1833,16 @@ export function estimateCausalFtAtGw(params: {
   return ft;
 }
 
-export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): ScoutSelectionPolicy {
+const yieldScoutLoop = (): Promise<void> =>
+  new Promise((resolve) => {
+    if (typeof setImmediate === 'function') {
+      setImmediate(resolve);
+    } else {
+      setTimeout(resolve, 0);
+    }
+  });
+
+export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): Promise<ScoutSelectionPolicy> {
   const {
     players,
     baseHistoricalGW,
@@ -1843,41 +1857,68 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
     minCalibrationGw = 3,
   } = input;
 
-  const endCalGw = Math.min(baseHistoricalGW, maxCalibrationGw ?? baseHistoricalGW);
-  if (endCalGw < minCalibrationGw || players.length < 15) {
+  const effMinCalGw = Math.max(3, minCalibrationGw);
+  const endCalGw = Math.min(baseHistoricalGW, targetNextGW - 1, maxCalibrationGw ?? (targetNextGW - 1));
+  if (endCalGw < effMinCalGw || players.length < 15) {
     return {
       ...DEFAULT_SCOUT_SELECTION_POLICY,
-      calibrationGwRange: [minCalibrationGw, Math.max(minCalibrationGw, endCalGw)],
+      calibrationGwRange: [effMinCalGw, Math.max(effMinCalGw, endCalGw)],
     };
   }
 
+  // Strictly isolate actuals and baseline lookups to [effMinCalGw..endCalGw] (GW 3..n-1)
+  const causalActualStatsMap: Record<number, Record<number, ActualPlayerReviewStat>> = {};
+  for (const [pidStr, gMap] of Object.entries(actualPlayerStatsMap || {})) {
+    const pid = Number(pidStr);
+    const filtered: Record<number, ActualPlayerReviewStat> = {};
+    for (const [gwStr, st] of Object.entries(gMap || {})) {
+      const g = Number(gwStr);
+      if (g >= effMinCalGw && g <= endCalGw) {
+        filtered[g] = st;
+      }
+    }
+    if (Object.keys(filtered).length > 0) {
+      causalActualStatsMap[pid] = filtered;
+    }
+  }
+  const causalTransfers = allTransfers?.filter((tr) => tr.event < targetNextGW);
+  const causalChips = allChipsUsed?.map((c) => ({
+    ...c,
+    wc1: c.wc1 && c.wc1.gw < targetNextGW ? c.wc1 : null,
+    wc2: c.wc2 && c.wc2.gw < targetNextGW ? c.wc2 : null,
+    fh1: c.fh1 && c.fh1.gw < targetNextGW ? c.fh1 : null,
+    fh2: c.fh2 && c.fh2.gw < targetNextGW ? c.fh2 : null,
+  }));
+
   const posById = new Map<number, PositionType>(players.map((p) => [p.id, p.position]));
   const evalGws: number[] = [];
-  for (let s = minCalibrationGw; s <= endCalGw; s++) {
-    if (Object.keys(actualPlayerStatsMap).length > 0) {
+  for (let s = effMinCalGw; s <= endCalGw; s++) {
+    if (Object.keys(causalActualStatsMap).length > 0) {
       evalGws.push(s);
     }
   }
   if (evalGws.length === 0) {
     return {
       ...DEFAULT_SCOUT_SELECTION_POLICY,
-      calibrationGwRange: [minCalibrationGw, endCalGw],
+      calibrationGwRange: [effMinCalGw, endCalGw],
     };
   }
 
   const recencyWeight = (gw: number) => Math.exp(-(endCalGw - gw) / 6.0);
-  const getActualPts = (pid: number, gw: number) => Number(actualPlayerStatsMap[pid]?.[gw]?.pts || 0);
-  const getActualStatsForGw = (gw: number) => (pid: number) => actualPlayerStatsMap[pid]?.[gw];
+  const getActualPts = (pid: number, gw: number) =>
+    gw >= effMinCalGw && gw <= endCalGw ? Number(causalActualStatsMap[pid]?.[gw]?.pts || 0) : 0;
+  const getActualStatsForGw = (gw: number) => (pid: number) =>
+    gw >= effMinCalGw && gw <= endCalGw ? causalActualStatsMap[pid]?.[gw] : undefined;
 
-  // Build strict causal ownership maps for GW s using ownership_players[s - 1]
+  // Build strict causal ownership maps for GW s using ownership_players[s - 1] (strictly s - 1 <= targetNextGW - 2)
   const causalOwnPctByGw = new Map<number, Map<number, number>>();
   const causalSquadsByGw = new Map<number, Array<{ entryId: number; squadIds: number[]; ft: number }>>();
 
   for (const s of evalGws) {
     const prevGw = s - 1;
-    const ownList = ownershipPlayersByGw?.[prevGw] || [];
+    const ownList = prevGw < targetNextGW ? ownershipPlayersByGw?.[prevGw] || [] : [];
     const totalManagers = Math.max(
-      standingsByGw?.[prevGw]?.length || standingsByGw?.[s]?.length || 97,
+      standingsByGw?.[prevGw]?.length || (s < targetNextGW ? standingsByGw?.[s]?.length : 0) || 97,
       1
     );
     const pctMap = new Map<number, number>();
@@ -1898,7 +1939,7 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
     causalOwnPctByGw.set(s, pctMap);
 
     // Sample representative managers evenly across standings ranks for transfer walk-forward calibration
-    const standingsPrev = standingsByGw?.[prevGw] || standingsByGw?.[s] || [];
+    const standingsPrev = standingsByGw?.[prevGw] || (s < targetNextGW ? standingsByGw?.[s] : undefined) || [];
     const sampled: Array<{ entryId: number; squadIds: number[]; ft: number }> = [];
     const targetSampleCount = 8;
     const step = Math.max(1, Math.floor(standingsPrev.length / targetSampleCount));
@@ -1909,9 +1950,10 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
         const ft = estimateCausalFtAtGw({
           entryId: eid,
           upToPrevGw: prevGw,
-          allTransfers,
+          targetNextGW,
+          allTransfers: causalTransfers,
           standingsByGw,
-          allChipsUsed,
+          allChipsUsed: causalChips,
         });
         sampled.push({ entryId: eid, squadIds: sq.slice(0, 15), ft });
       }
@@ -1947,6 +1989,7 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
   };
 
   for (const wTail of capGrid.wTail) {
+    await yieldScoutLoop();
     for (const wHaul of capGrid.wHaul) {
       for (const wPStart of capGrid.wPStart) {
         for (const wPen of capGrid.wPen) {
@@ -2028,6 +2071,7 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
   };
 
   for (const wHorizon of diffGrid.wHorizon) {
+    await yieldScoutLoop();
     for (const wTail of diffGrid.wTail) {
       for (const wHaul of diffGrid.wHaul) {
         for (const wPStart of diffGrid.wPStart) {
@@ -2131,6 +2175,7 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
   };
 
   for (const cfg of fhCandidates) {
+    await yieldScoutLoop();
     const testPolicy: ScoutSelectionPolicy = { ...policyWithCapDiff, picksFH: cfg };
     let wSum = 0;
     let wTotal = 0;
@@ -2198,6 +2243,7 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
   const effectiveWcStarts = wcEvalStarts.length > 0 ? wcEvalStarts : evalGws;
 
   for (const cfg of wcCandidates) {
+    await yieldScoutLoop();
     const testPolicy: ScoutSelectionPolicy = { ...policyWithCapDiff, picksFH: bestFhCfg, picksWC: cfg };
     let wSum = 0;
     let wTotal = 0;
@@ -2357,10 +2403,10 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
   // =========================================================================
   // 5. CALIBRATE TRANSFER POLICY (1 GW, 3 GW, 6 GW ON CAUSAL MANAGER SQUADS)
   // =========================================================================
-  const evalTransferHorizon = (
+  const evalTransferHorizon = async (
     horizon: 1 | 3,
     candidates: ScoutTransferHorizonPolicy[]
-  ): { best: ScoutTransferHorizonPolicy; avgNetGain: number } => {
+  ): Promise<{ best: ScoutTransferHorizonPolicy; avgNetGain: number }> => {
     const validS = horizon === 1 ? evalGws : evalGws.filter((s) => s <= endCalGw - 2);
     const activeS = validS.length > 0 ? validS : evalGws;
 
@@ -2415,6 +2461,7 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
     }
 
     for (const cand of candidates) {
+      await yieldScoutLoop();
       const testPol: ScoutSelectionPolicy = {
         ...policyWithCapDiff,
         picksFH: bestFhCfg,
@@ -2560,8 +2607,8 @@ export function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInput): S
     }
   }
 
-  const h1Res = evalTransferHorizon(1, h1Grid);
-  const h3Res = evalTransferHorizon(3, h3Grid);
+  const h1Res = await evalTransferHorizon(1, h1Grid);
+  const h3Res = await evalTransferHorizon(3, h3Grid);
 
   // Derive causal H6 policy scaled smoothly from observed H1 -> H3 progression
   const h6Policy: ScoutTransferHorizonPolicy = {

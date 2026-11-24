@@ -249,8 +249,11 @@ export function buildHybridHistoryStore(
   playerPositionInfoSeed?: Record<number, string>,
   precalcPlayers?: Record<string, Record<string, { mins?: number; wasStarter?: boolean; wasSub?: boolean }>>,
   playerTeamMap?: Map<number, string>,
-  extraAllCompSides?: HybridMatchClubSide[]
+  extraAllCompSides?: HybridMatchClubSide[],
+  options?: { minGw?: number; maxKickoffMs?: number }
 ): HybridHistoryStore {
+  const minGw = Math.max(1, options?.minGw ?? 1);
+  const maxKickoffMs = options?.maxKickoffMs;
   const eplClubSides: Record<string, HybridMatchClubSide[]> = {};
   const allCompClubSides: Record<string, HybridMatchClubSide[]> = {};
   const eplKickoffMsByGwClub: Record<string, number> = {};
@@ -359,7 +362,7 @@ export function buildHybridHistoryStore(
     coveredClubGw.add(`${clubShort}_${gw}`);
   };
 
-  for (let gw = 1; gw <= upToGw; gw++) {
+  for (let gw = minGw; gw <= upToGw; gw++) {
     const matches = matchesByGw[gw] || [];
     for (const m of matches) {
       if (!m) continue;
@@ -373,7 +376,7 @@ export function buildHybridHistoryStore(
   }
 
   if (precalcPlayers && playerTeamMap) {
-    for (let gw = 1; gw <= upToGw; gw++) {
+    for (let gw = minGw; gw <= upToGw; gw++) {
       const byTeam = new Map<string, HybridMatchClubSide>();
       const fallbackKoMs = resolveFallbackGwKickoffMs(gw);
       for (const [idStr, gwMap] of Object.entries(precalcPlayers)) {
@@ -418,11 +421,14 @@ export function buildHybridHistoryStore(
     }
   }
 
-  // Merge Non-EPL cross-competition club sides chronologically
+  // Merge Non-EPL cross-competition club sides chronologically (strictly before maxKickoffMs when provided)
   if (Array.isArray(extraAllCompSides) && extraAllCompSides.length > 0) {
     for (const extra of extraAllCompSides) {
       if (!extra || !extra.clubShort || extra.compAbbr === 'EN_PR') continue;
       if (!extra.kickoffMs || !Number.isFinite(extra.kickoffMs)) continue;
+      if (maxKickoffMs !== undefined && Number.isFinite(maxKickoffMs) && extra.kickoffMs >= maxKickoffMs) {
+        continue;
+      }
       if (extra.playerPosInfo) {
         for (const [idStr, info] of Object.entries(extra.playerPosInfo)) {
           const pId = Number(idStr);
@@ -1037,20 +1043,22 @@ function fitLogisticFromCachedFeatures(
   history: HybridHistoryStore,
   featByGwPlayer: Map<number, Map<number, PlayerFeaturesAtGw>>,
   l2: number,
-  deadlines?: Record<string, string>
+  deadlines?: Record<string, string>,
+  minGw: number = 1
 ): number[] {
   const dim = 15;
   const fallback = [-3.5, 1.2, 1.0, 1.4, 0.8, 0.1, 0.4, -0.2, 0.5, 0.2, 0.6, 0.4, -0.3, -0.1, 1.6];
-  if (targetGw <= 2) return fallback;
+  const minEvalGw = Math.max(2, minGw);
+  if (targetGw <= minEvalGw) return fallback;
 
-  // Strictly EPL training labels
+  // Strictly EPL training labels within [minGw..targetGw-1]
   const eplMap = history.eplClubSides || history.clubSides;
   const actualStarterByGwClub = new Map<string, Set<number>>();
   const playedClubsByGw = new Map<number, Set<string>>();
   for (const [clubShort, sides] of Object.entries(eplMap)) {
     for (const side of sides) {
       const sGw = side.eplGw ?? side.gw;
-      if (sGw >= targetGw) continue;
+      if (sGw < minGw || sGw >= targetGw) continue;
       actualStarterByGwClub.set(`${sGw}_${clubShort}`, new Set(side.starterIds));
       let set = playedClubsByGw.get(sGw);
       if (!set) {
@@ -1065,7 +1073,7 @@ function fitLogisticFromCachedFeatures(
   const samplesY: number[] = [];
   const samplesW: number[] = [];
 
-  for (let s = 2; s < targetGw; s++) {
+  for (let s = minEvalGw; s < targetGw; s++) {
     const clubsPlayed = playedClubsByGw.get(s);
     const featMap = featByGwPlayer.get(s);
     if (!clubsPlayed || !featMap) continue;
@@ -1149,11 +1157,13 @@ export function fitCausalLogisticCalibration(
   l2: number,
   kalmanGain: number,
   deadlines?: Record<string, string>,
-  halfLifeDays: number = DEFAULT_HYBRID_PARAMS.halfLifeDays
+  halfLifeDays: number = DEFAULT_HYBRID_PARAMS.halfLifeDays,
+  minGw: number = 1
 ): number[] {
   const priorAffCache = new Map<number, Record<CanonicalTacticalRole, number>>();
   const featByGwPlayer = new Map<number, Map<number, PlayerFeaturesAtGw>>();
-  for (let s = 2; s < targetGw; s++) {
+  const startS = Math.max(2, minGw);
+  for (let s = startS; s < targetGw; s++) {
     const fMap = new Map<number, PlayerFeaturesAtGw>();
     const byClub = new Map<string, PlayerFeaturesAtGw[]>();
     for (const p of allPlayers) {
@@ -1168,7 +1178,7 @@ export function fitCausalLogisticCalibration(
     for (const cFeats of byClub.values()) populateClubCompRole(cFeats);
     featByGwPlayer.set(s, fMap);
   }
-  return fitLogisticFromCachedFeatures(allPlayers, targetGw, history, featByGwPlayer, l2, deadlines);
+  return fitLogisticFromCachedFeatures(allPlayers, targetGw, history, featByGwPlayer, l2, deadlines, minGw);
 }
 
 export function predictCalibratedStartProb(feat: PlayerFeaturesAtGw, weights: number[]): number {
@@ -1234,12 +1244,15 @@ export function selectCausalHybridParamsAndWeights(
   history: HybridHistoryStore,
   pastMap: Record<string, PastSeasonMinutesRecord>,
   deadlines?: Record<string, string>,
-  targetCutoffMsByClub?: Record<string, number>
+  targetCutoffMsByClub?: Record<string, number>,
+  minGw: number = 1
 ): { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> } {
+  const effMinGw = Math.max(1, minGw);
+  const minEvalGw = Math.max(3, effMinGw);
   const base = { ...DEFAULT_HYBRID_PARAMS };
   const priorAffCache = new Map<number, Record<CanonicalTacticalRole, number>>();
 
-  if (targetGw <= 3) {
+  if (targetGw <= minEvalGw) {
     const wLogit = fitCausalLogisticCalibration(
       allPlayers,
       targetGw,
@@ -1250,7 +1263,8 @@ export function selectCausalHybridParamsAndWeights(
       base.l2,
       base.kalmanGain,
       deadlines,
-      base.halfLifeDays
+      base.halfLifeDays,
+      effMinGw
     );
     const fMap = new Map<number, PlayerFeaturesAtGw>();
     const byClub = new Map<string, PlayerFeaturesAtGw[]>();
@@ -1280,14 +1294,14 @@ export function selectCausalHybridParamsAndWeights(
     return { params: base, logitWeights: wLogit, targetFeatMap: fMap };
   }
 
-  const penaltyScale = 1 / Math.max(1, targetGw - 2);
+  const penaltyScale = 1 / Math.max(1, targetGw - (minEvalGw - 1));
   const eplMap = history.eplClubSides || history.clubSides;
 
   const actualSidesByKey = new Map<string, HybridMatchClubSide>();
   for (const c of clubs) {
     for (const s of eplMap[c] || []) {
       const sGw = s.eplGw ?? s.gw;
-      if (sGw < targetGw) actualSidesByKey.set(`${sGw}_${c}`, s);
+      if (sGw >= effMinGw && sGw < targetGw) actualSidesByKey.set(`${sGw}_${c}`, s);
     }
   }
 
@@ -1303,7 +1317,7 @@ export function selectCausalHybridParamsAndWeights(
   for (const fc of formCandidates) {
     let hits = 0;
     let tot = 0;
-    for (let s = 3; s < targetGw; s++) {
+    for (let s = minEvalGw; s < targetGw; s++) {
       for (const c of clubs) {
         const act = actualSidesByKey.get(`${s}_${c}`);
         if (!act?.formationLabel) continue;
@@ -1354,9 +1368,10 @@ export function selectCausalHybridParamsAndWeights(
   let bestFeatByGwPlayer = new Map<number, Map<number, PlayerFeaturesAtGw>>();
   const bestWByS = new Map<number, number[]>();
 
+  const featureStartS = Math.max(2, effMinGw);
   for (const fr of featureRegimes) {
     const featByGwPlayer = new Map<number, Map<number, PlayerFeaturesAtGw>>();
-    for (let s = 2; s <= targetGw; s++) {
+    for (let s = featureStartS; s <= targetGw; s++) {
       const fMap = new Map<number, PlayerFeaturesAtGw>();
       const dlIso = deadlines?.[String(s)];
       for (const c of clubs) {
@@ -1406,8 +1421,8 @@ export function selectCausalHybridParamsAndWeights(
       let playerEvalCount = 0;
       const wMapForCand = new Map<number, number[]>();
 
-      for (let s = 3; s < targetGw; s++) {
-        const wLogit = fitLogisticFromCachedFeatures(allPlayers, s, history, featByGwPlayer, l2, deadlines);
+      for (let s = minEvalGw; s < targetGw; s++) {
+        const wLogit = fitLogisticFromCachedFeatures(allPlayers, s, history, featByGwPlayer, l2, deadlines, effMinGw);
         wMapForCand.set(s, wLogit);
         const fMap = featByGwPlayer.get(s)!;
         const dlIso = deadlines?.[String(s)];
@@ -1473,7 +1488,8 @@ export function selectCausalHybridParamsAndWeights(
     history,
     bestFeatByGwPlayer,
     bestCalibCand.l2,
-    deadlines
+    deadlines,
+    effMinGw
   );
 
   // --- Stage 3: Sub_9 (All-Comp Bench Signal + RoleSquadPrior) ---
@@ -1499,7 +1515,7 @@ export function selectCausalHybridParamsAndWeights(
     slotsOut: CanonicalTacticalRole[];
   }> = [];
 
-  for (let s = 3; s < targetGw; s++) {
+  for (let s = minEvalGw; s < targetGw; s++) {
     const fMap = bestFeatByGwPlayer.get(s)!;
     const wLogit = bestWByS.get(s)!;
     const dlIso = deadlines?.[String(s)];
