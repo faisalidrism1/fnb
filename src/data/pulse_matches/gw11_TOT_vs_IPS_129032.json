@@ -1016,6 +1016,7 @@
     {
       "type": "G",
       "personId": 154566,
+      "assistId": 611917,
       "phase": "2",
       "clock": {
         "label": "51'",
@@ -2179,28 +2180,16 @@
       ]
     },
     {
-      "id": 2912620,
-      "time": {
-        "secs": 3057,
-        "label": "51"
-      },
-      "type": "attempt saved",
-      "text": "Attempt saved. Luca Williams-Barnett (Tottenham Hotspur) left footed shot from the left side of the box is saved in the bottom right corner by Christian Walton (Ipswich Town). Assisted by Marcos Senesi.",
-      "playerIds": [
-        134791,
-        54989
-      ]
-    },
-    {
       "id": 2912413,
       "time": {
         "secs": 3060,
         "label": "52"
       },
       "type": "goal",
-      "text": "Goal! Tottenham Hotspur 2, Ipswich Town 0. Dominic Solanke (Tottenham Hotspur) right footed shot from very close range to the centre of the goal.",
+      "text": "Goal! Tottenham Hotspur 2, Ipswich Town 0. Dominic Solanke (Tottenham Hotspur) right footed shot from very close range to the centre of the goal. Assisted by Luca Williams-Barnett.",
       "playerIds": [
-        10443
+        10443,
+        134791
       ]
     },
     {

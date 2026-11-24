@@ -2023,6 +2023,7 @@ app.get('/api/container/status', (req, res) => {
 
 const DEV_FORMULA_WATCH_FILES = [
   'src/utils/projectionModel.ts',
+  'src/utils/matchScoreModel.ts',
   'src/utils/playerXpModel.ts',
   'src/utils/fplProvenGuard.ts',
   'src/utils/tacticalLineupModel.ts',

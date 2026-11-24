@@ -102,6 +102,7 @@ export interface Stage2FixtureContext {
 
 export interface Stage3XMinResult {
   pStart: number;
+  pStartRaw: number;
   pSubOn: number;
   pPlay: number;
   pPlay60: number;
@@ -134,11 +135,15 @@ export interface CausalStage3Priors {
   goalRate90ByRole: Record<FineRole, number>;
   assistRate90ByRole: Record<FineRole, number>;
   dcPer90ByRole: Record<FineRole, number>;
+  defConScaleByPos: Record<FplPosition, number>;
   bpsBase90ByPos: Record<FplPosition, number>;
   savesPerOppLambdaGkp: number;
   ycPer90ByPos: Record<FplPosition, number>;
   rcPer90ByPos: Record<FplPosition, number>;
   ogPer90ByPos: Record<FplPosition, number>;
+  assistsPerGoal: number;
+  starterGoalShare: number;
+  avgBonusPerMatch: number;
   penRatePerMatch: number;
   penGoalShare: number;
   penSaveRate: number;
@@ -166,6 +171,7 @@ export interface CausalTrainingRow {
   isCongested72h: boolean;
   modelPreds: [number, number, number, number, number, number, number, number];
   pStart: number;
+  pPlay: number;
   pPlay60: number;
   xMin: number;
   expGoals: number;
@@ -196,6 +202,53 @@ export interface P9HitEvaluationResult {
 const POSITIONS: FplPosition[] = ['GKP', 'DEF', 'MID', 'FWD'];
 const FINE_ROLES: FineRole[] = ['GK', 'CB', 'FB', 'DM', 'CM', 'AM_W', 'FWD'];
 const QUANTILE_PROBS: number[] = Array.from({ length: 16 }, (_, i) => (i + 0.5) / 16);
+
+export interface Stage3TuningConfig {
+  // #3 Adaptive 25/26 Fade-Out & Anti-Double-Counting Dead-Ball
+  pastFadeMins: number;
+  pastRoleFadeMins: number;
+  histRecTau: number;
+  rawMinsMix: number;
+  kGoalMins: number;
+  kAssistMins: number;
+  dbFade: number;
+  dbFloor: number;
+  // #4 Stage 2 TeamLambda/WinProb & Bonus/CS Alignment
+  goalNormMixAll: number;
+  p5WinEdge: number;
+  bpsTemp: number;
+  bpsMatchMult: number;
+  // #5 Recent-GW Calibration & XI Timing
+  calibEwmaHalfLife: number;
+  calibGlobPriorClubs: number;
+  calibPosPriorClubs: number;
+  covBeta: number;
+  alphaRisk: number;
+  benchStartScale: number;
+  formGain: number;
+}
+
+export const DEFAULT_STAGE3_TUNING: Stage3TuningConfig = {
+  pastFadeMins: 720,
+  pastRoleFadeMins: 12000,
+  histRecTau: 5.5,
+  rawMinsMix: 0.68,
+  kGoalMins: 320,
+  kAssistMins: 360,
+  dbFade: 0.85,
+  dbFloor: 0.18,
+  goalNormMixAll: 1.00,
+  p5WinEdge: 11.0,
+  bpsTemp: 3.0,
+  bpsMatchMult: 1.14,
+  calibEwmaHalfLife: 2.0,
+  calibGlobPriorClubs: 4,
+  calibPosPriorClubs: 5,
+  covBeta: 0.78,
+  alphaRisk: 0.62,
+  benchStartScale: 0.75,
+  formGain: 0.30,
+};
 
 function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
@@ -622,7 +675,8 @@ export function learnCausalStage3Priors(
   historyBeforeGw: Stage3HistoricalAppearance[],
   allPlayers: DbPlayerStat[],
   pastSeasonMap: Record<string, PastSeasonXpRecord>,
-  playerPosSeed: Record<number, string>
+  playerPosSeed: Record<number, string>,
+  tuning: Stage3TuningConfig = DEFAULT_STAGE3_TUNING
 ): CausalStage3Priors {
   const starterMinsAcc: Record<FplPosition, { sum: number; n: number }> = {
     GKP: { sum: 0, n: 0 },
@@ -668,6 +722,10 @@ export function learnCausalStage3Priors(
   let totalPenScoredOrMissed = 0;
   let totalPenSaved = 0;
   let totalClubAppearances = 0;
+  let totalGoalsObs = 0;
+  let starterGoalsObs = 0;
+  let totalAssistsObs = 0;
+  let totalBonusObs = 0;
 
   for (const r of historyBeforeGw) {
     const pos = r.position;
@@ -677,6 +735,7 @@ export function learnCausalStage3Priors(
       p60StartAcc[pos].n += 1;
       if (r.mins >= 60) p60StartAcc[pos].hit += 1;
       totalClubAppearances += 1;
+      starterGoalsObs += r.goals;
     } else if (r.wasBench) {
       subBenchAcc[pos].n += 1;
       if (r.mins > 0) {
@@ -686,6 +745,10 @@ export function learnCausalStage3Priors(
     }
 
     if (r.mins > 0) {
+      totalGoalsObs += r.goals;
+      totalAssistsObs += r.assists;
+      totalBonusObs += r.bonus;
+
       const ra = roleAcc[r.fineRole];
       ra.mins += r.mins;
       ra.goals += r.goals;
@@ -803,7 +866,10 @@ export function learnCausalStage3Priors(
   for (const fr of FINE_ROLES) {
     const ra = roleAcc[fr];
     const past = pastRoleAcc[fr];
-    const pastW = 0.25;
+    const roleFade = Number.isFinite(tuning.pastRoleFadeMins)
+      ? clamp(1 - ra.mins / Math.max(1, tuning.pastRoleFadeMins), 0.05, 1)
+      : 1;
+    const pastW = 0.25 * roleFade;
     const obsAttG = 0.65 * ra.xg + 0.35 * ra.goals + pastW * past.goals;
     const obsAttA = 0.65 * ra.xa + 0.35 * ra.assists + pastW * past.assists;
     const effMins = ra.mins + pastW * past.mins + 1200;
@@ -812,6 +878,22 @@ export function learnCausalStage3Priors(
     dcPer90ByRole[fr] = ((ra.dc + (1200 / 90) * defaultDc90[fr]) / (ra.mins + 1200)) * 90;
   }
 
+  const dcActualHits: Record<FplPosition, number> = { GKP: 0, DEF: 0, MID: 0, FWD: 0 };
+  const dcExpHits: Record<FplPosition, number> = { GKP: 0, DEF: 0, MID: 0, FWD: 0 };
+  for (const r of historyBeforeGw) {
+    if (r.mins <= 0 || r.position === 'GKP') continue;
+    const pos = r.position;
+    const thresh = FPL_SCORING_TABLE.DEFENSIVE_CONTRIBUTION.THRESHOLDS[pos];
+    if (r.dc >= thresh) dcActualHits[pos] += 1;
+    dcExpHits[pos] += defConHitProb(dcPer90ByRole[r.fineRole] * (r.mins / 90), thresh);
+  }
+  const defConScaleByPos: Record<FplPosition, number> = {
+    GKP: 1.0,
+    DEF: clamp((dcActualHits.DEF + 25) / (dcExpHits.DEF + 25), 0.78, 1.32),
+    MID: clamp((dcActualHits.MID + 25) / (dcExpHits.MID + 25), 0.78, 1.32),
+    FWD: clamp((dcActualHits.FWD + 25) / (dcExpHits.FWD + 25), 0.78, 1.32),
+  };
+
   const gkpPa = posRateAcc.GKP;
   const savesPerOppLambdaGkp =
     gkpPa.gc > 15
@@ -819,6 +901,20 @@ export function learnCausalStage3Priors(
       : 2.65;
 
   const teamMatchesObs = Math.max(1, totalClubAppearances / 11);
+  const estMatchesObs = Math.max(1, totalClubAppearances / 22);
+  const assistsPerGoal =
+    totalGoalsObs >= 10
+      ? clamp((totalAssistsObs + 40 * 0.83) / (totalGoalsObs + 40), 0.72, 0.86)
+      : 0.83;
+  const starterGoalShare =
+    totalGoalsObs >= 10
+      ? clamp((starterGoalsObs + 30 * 0.83) / (totalGoalsObs + 30), 0.74, 0.92)
+      : 0.83;
+  const avgBonusPerMatch =
+    estMatchesObs >= 8
+      ? clamp((totalBonusObs + 20 * 6.0) / (estMatchesObs + 20), 5.0, 6.8)
+      : 6.0;
+
   const estPenRate =
     teamMatchesObs >= 20 && totalPenEvents > 0
       ? clamp((totalPenEvents / 0.22) / teamMatchesObs, 0.08, 0.22)
@@ -837,16 +933,20 @@ export function learnCausalStage3Priors(
     goalRate90ByRole,
     assistRate90ByRole,
     dcPer90ByRole,
+    defConScaleByPos,
     bpsBase90ByPos,
     savesPerOppLambdaGkp,
     ycPer90ByPos,
     rcPer90ByPos,
     ogPer90ByPos,
+    assistsPerGoal,
+    starterGoalShare,
+    avgBonusPerMatch,
     penRatePerMatch: estPenRate,
     penGoalShare: 0.78,
     penSaveRate: estPenSaveRate,
-    kGoalMins: 480,
-    kAssistMins: 540,
+    kGoalMins: tuning.kGoalMins,
+    kAssistMins: tuning.kAssistMins,
     wXgVsG: 0.68,
     wXaVsA: 0.68,
   };
@@ -954,7 +1054,8 @@ interface PlayerHistorySummary {
 function summarizePlayerCausalHistory(
   historyBeforeGw: Stage3HistoricalAppearance[],
   targetGw: number,
-  priors: CausalStage3Priors
+  priors: CausalStage3Priors,
+  histRecTau: number = DEFAULT_STAGE3_TUNING.histRecTau
 ): Map<number, PlayerHistorySummary> {
   const byPlayer = new Map<number, PlayerHistorySummary>();
   const sorted = [...historyBeforeGw].sort((a, b) => a.gw - b.gw || a.kickoffMs - b.kickoffMs);
@@ -1004,7 +1105,8 @@ function summarizePlayerCausalHistory(
     }
 
     const age = Math.max(0, targetGw - 1 - r.gw);
-    const recW = Math.exp(-age / 3.8);
+    const recW = Math.exp(-age / Math.max(1, histRecTau));
+    const formW = Math.exp(-age / 3.8);
 
     if (r.wasStarter && r.mins > 0) {
       s.startsCount += 1;
@@ -1071,8 +1173,8 @@ function summarizePlayerCausalHistory(
 
     s.ptsSum += r.pts;
     s.weightedPts += r.pts * recW;
-    s.recentPtsDecayed += r.pts * recW;
-    s.recentWeightSum += recW;
+    s.recentPtsDecayed += r.pts * formW;
+    s.recentWeightSum += formW;
 
     if (r.kickoffMs >= s.lastKoMs) {
       s.lastKoMs = r.kickoffMs;
@@ -1207,6 +1309,7 @@ export function predictCalibratedXMinP7(params: {
   gwSiProb: number;
   gwIsOut: boolean;
   availFactor: number;
+  isStarterPredicted?: boolean;
   isBenchPredicted: boolean;
   isCongested72h: boolean;
   nonEplMins7d: number;
@@ -1217,12 +1320,14 @@ export function predictCalibratedXMinP7(params: {
   priors: CausalStage3Priors;
   xminModels: CausalXMinModels;
   horizonOffset?: number;
+  tuning?: Stage3TuningConfig;
 }): { xMinRes: Stage3XMinResult; feats: ReturnType<typeof buildXMinFeatureVectors> } {
   const {
     pos,
     gwSiProb,
     gwIsOut,
     availFactor,
+    isStarterPredicted = false,
     isBenchPredicted,
     isCongested72h,
     nonEplMins7d,
@@ -1233,6 +1338,7 @@ export function predictCalibratedXMinP7(params: {
     priors,
     xminModels,
     horizonOffset = 0,
+    tuning = DEFAULT_STAGE3_TUNING,
   } = params;
 
   const feats = buildXMinFeatureVectors(
@@ -1249,12 +1355,17 @@ export function predictCalibratedXMinP7(params: {
 
   if (gwIsOut || availFactor <= 0 || gwSiProb <= 0) {
     return {
-      xMinRes: { pStart: 0, pSubOn: 0, pPlay: 0, pPlay60: 0, muStart: 0, muCameo: 0, xMin: 0 },
+      xMinRes: { pStart: 0, pStartRaw: 0, pSubOn: 0, pPlay: 0, pPlay60: 0, muStart: 0, muCameo: 0, xMin: 0 },
       feats,
     };
   }
 
-  const pStart = clamp(gwSiProb, 0, 0.995);
+  const pStartRaw = clamp(gwSiProb, 0, 0.995);
+  // Preserve starter separation via alphaRisk while attenuating non-starter spillover (benchStartScale)
+  const pStart = isStarterPredicted
+    ? clamp(1 - tuning.alphaRisk * (1 - pStartRaw), pStartRaw, 0.995)
+    : clamp(pStartRaw * tuning.benchStartScale, 0, 0.995);
+
   const rawMuStart = dot(xminModels.starterMinsBeta[pos], feats.starterFeat);
   const muStart = clamp(
     Number.isFinite(rawMuStart) ? rawMuStart : priors.starterMinsByPos[pos],
@@ -1264,7 +1375,7 @@ export function predictCalibratedXMinP7(params: {
 
   const p60GivenStart = clamp(sigmoid(dot(xminModels.p60Beta[pos], feats.p60Feat)), 0.30, 0.995);
   const p60Adjusted =
-    pos === 'GKP' ? Math.max(0.95, p60GivenStart) : clamp(p60GivenStart, 0.30, 0.985);
+    pos === 'GKP' ? Math.max(0.95, p60GivenStart) : clamp(p60GivenStart, 0.30, 0.99);
 
   const rawSubProbCond = clamp(sigmoid(dot(xminModels.subOnBeta[pos], feats.subOnFeat)), 0.002, 0.85);
   // Modulate non-starter sub-on probability cleanly by availability and non-bench penalty
@@ -1282,11 +1393,11 @@ export function predictCalibratedXMinP7(params: {
   );
 
   const pPlay = clamp(pStart + pSubOn, 0, 1);
-  const pPlay60 = clamp(pStart * p60Adjusted, 0, 0.99);
+  const pPlay60 = clamp(pStart * p60Adjusted, 0, 0.995);
   const xMin = clamp(pStart * muStart + pSubOn * muCameo, 0, 92);
 
   return {
-    xMinRes: { pStart, pSubOn, pPlay, pPlay60, muStart, muCameo, xMin },
+    xMinRes: { pStart, pStartRaw, pSubOn, pPlay, pPlay60, muStart, muCameo, xMin },
     feats,
   };
 }
@@ -1332,6 +1443,7 @@ function buildCausalRatesForPlayer(params: {
   nonEplMins7d: number;
   midweekProof: boolean;
   horizonOffset: number;
+  tuning?: Stage3TuningConfig;
 }): CausalPlayerRates {
   const {
     player,
@@ -1347,6 +1459,7 @@ function buildCausalRatesForPlayer(params: {
     nonEplMins7d,
     midweekProof,
     horizonOffset,
+    tuning = DEFAULT_STAGE3_TUNING,
   } = params;
 
   const pos = POSITIONS.includes(player.position as FplPosition)
@@ -1356,19 +1469,24 @@ function buildCausalRatesForPlayer(params: {
   const roleGoal90 = priors.goalRate90ByRole[fineRole];
   const roleAssist90 = priors.assistRate90ByRole[fineRole];
 
+  const wMins = hist?.weightedMins || 0;
+  const rawMins = hist?.totalMins || 0;
+
   let priorXg90 = roleGoal90;
   let priorXa90 = roleAssist90;
   if (past && past.minutes >= 450) {
-    const pastMinsWeight = clamp(past.minutes / (past.minutes + 900), 0, 0.72);
+    const pastSeasonFade = Number.isFinite(tuning.pastFadeMins)
+      ? clamp(1 - rawMins / Math.max(1, tuning.pastFadeMins), 0, 1)
+      : 1;
+    const pastMinsWeight = clamp(past.minutes / (past.minutes + 900), 0, 0.72) * pastSeasonFade;
     const pastG90 = (past.goals_scored / past.minutes) * 90;
     const pastA90 = (past.assists / past.minutes) * 90;
     priorXg90 = pastMinsWeight * pastG90 + (1 - pastMinsWeight) * roleGoal90;
     priorXa90 = pastMinsWeight * pastA90 + (1 - pastMinsWeight) * roleAssist90;
   }
 
-  const wMins = hist?.weightedMins || 0;
-  const rawMins = hist?.totalMins || 0;
-  const effSampleMins = 0.60 * wMins + 0.40 * rawMins;
+  const rawMix = clamp(tuning.rawMinsMix, 0, 1);
+  const effSampleMins = (1 - rawMix) * wMins + rawMix * rawMins;
 
   const sampleXg90 =
     wMins > 0
@@ -1381,21 +1499,25 @@ function buildCausalRatesForPlayer(params: {
 
   const wg = effSampleMins / (effSampleMins + priors.kGoalMins);
   const wa = effSampleMins / (effSampleMins + priors.kAssistMins);
-  let postXg90 = Math.max(0.005, wg * sampleXg90 + (1 - wg) * priorXg90);
-  let postXa90 = Math.max(0.005, wa * sampleXa90 + (1 - wa) * priorXa90);
+  let postXg90 = pos === 'GKP' ? 0 : Math.max(0.004, wg * sampleXg90 + (1 - wg) * priorXg90);
+  let postXa90 = pos === 'GKP' ? Math.max(0.001, wa * sampleXa90 + (1 - wa) * priorXa90) : Math.max(0.004, wa * sampleXa90 + (1 - wa) * priorXa90);
 
-  // Dead-ball additive boost calibrated from league-wide set-piece & pen shares
-  if (deadBall.isPrimaryPen) {
-    postXg90 += priors.penRatePerMatch * priors.penGoalShare * 0.65;
-  } else if (deadBall.isSecondaryPen) {
-    postXg90 += priors.penRatePerMatch * priors.penGoalShare * 0.12;
-  }
-  if (deadBall.isFkTaker) {
-    postXg90 += 0.025;
-    postXa90 += 0.025;
-  }
-  if (deadBall.isCornerTaker) {
-    postXa90 += 0.055;
+  // Dead-ball additive boost with causal fade as sample xG/xA already embeds pens/set-pieces
+  if (pos !== 'GKP') {
+    const dbMultG = Math.max(tuning.dbFloor, 1 - tuning.dbFade * wg);
+    const dbMultA = Math.max(tuning.dbFloor, 1 - tuning.dbFade * wa);
+    if (deadBall.isPrimaryPen) {
+      postXg90 += priors.penRatePerMatch * priors.penGoalShare * 0.65 * dbMultG;
+    } else if (deadBall.isSecondaryPen) {
+      postXg90 += priors.penRatePerMatch * priors.penGoalShare * 0.12 * dbMultG;
+    }
+    if (deadBall.isFkTaker) {
+      postXg90 += 0.025 * dbMultG;
+      postXa90 += 0.025 * dbMultA;
+    }
+    if (deadBall.isCornerTaker) {
+      postXa90 += 0.055 * dbMultA;
+    }
   }
 
   const dcPer90 =
@@ -1419,19 +1541,24 @@ function buildCausalRatesForPlayer(params: {
       ? ((hist!.weightedYc + (600 / 90) * priors.ycPer90ByPos[pos]) / (wMins + 600)) * 90
       : priors.ycPer90ByPos[pos];
 
-  // Causal form delta & regression bounce strictly from causal history
+  // Causal form delta & symmetric mild regression bounce strictly from causal history
   let formDelta = 0;
   let regressionBounce = 0;
   if (hist && hist.totalAppearances >= 2) {
     const seasonAvgPts = hist.ptsSum / Math.max(1, hist.totalAppearances);
     const recentAvgPts = hist.recentPtsDecayed / Math.max(0.5, hist.recentWeightSum);
-    formDelta = clamp((recentAvgPts - seasonAvgPts) * 0.16, -0.45, 0.60);
+    formDelta = clamp((recentAvgPts - seasonAvgPts) * tuning.formGain, -0.55, 0.70);
     if (formDelta < 0 && proven && proven.guardFactor > 0) {
       formDelta = Math.max(formDelta * (1 - proven.guardFactor), proven.maxBlankDropPenalty);
     }
     const expInv = hist.rawXg + hist.rawXa;
     const actInv = hist.rawGoals + hist.rawAssists;
-    if (expInv > actInv + 0.65) regressionBounce = clamp((expInv - actInv) * 0.18, 0, 0.35);
+    const diffInv = expInv - actInv;
+    if (diffInv > 0.65) {
+      regressionBounce = clamp(diffInv * 0.16, 0, 0.28);
+    } else if (diffInv < -0.85) {
+      regressionBounce = -clamp((-diffInv - 0.85) * 0.12, 0, 0.22);
+    }
   }
 
   return {
@@ -1505,10 +1632,12 @@ export function refitStage3LearnedComponents(
 
   for (const pos of POSITIONS) {
     const posRows = trainingRows.filter((r) => r.position === pos);
+    const activePosRows = posRows.filter((r) => r.pPlay >= 0.10);
+    const resFitRows = activePosRows.length >= 24 ? activePosRows : posRows;
 
     // P2 Residual Ridge: learns residual (actualPts - P7_analytical) on active/played signals
-    if (posRows.length >= 24) {
-      const X2 = posRows.map((r) => [
+    if (resFitRows.length >= 24) {
+      const X2 = resFitRows.map((r) => [
         1,
         r.expGoals,
         r.expAssists,
@@ -1517,17 +1646,17 @@ export function refitStage3LearnedComponents(
         r.isPrimaryPen ? 1 : 0,
         r.xMin / 90,
       ]);
-      const y2 = posRows.map((r) => r.actualPts - r.modelPreds[6]);
+      const y2 = resFitRows.map((r) => r.actualPts - r.modelPreds[6]);
       p2ResidualBetaByPos[pos] = fitRidge(X2, y2, 35.0, 0);
     } else {
       p2ResidualBetaByPos[pos] = [0, 0, 0, 0, 0, 0, 0];
     }
 
     // P6 Centered Tail scale: causal correlation between non-linear upside signal & residual
-    if (posRows.length >= 24) {
+    if (resFitRows.length >= 24) {
       let num = 0;
       let den = 0;
-      for (const r of posRows) {
+      for (const r of resFitRows) {
         const tailSig = Math.max(0, r.expGoals * 3.0 + r.expAssists * 1.5 - 0.65);
         const res = r.actualPts - r.modelPreds[6];
         num += tailSig * res;
@@ -1539,14 +1668,14 @@ export function refitStage3LearnedComponents(
     }
 
     // P8 Congestion Ridge residual over congested/play features
-    if (posRows.length >= 28) {
-      const X8 = posRows.map((r) => [
+    if (resFitRows.length >= 28) {
+      const X8 = resFitRows.map((r) => [
         1,
         r.isCongested72h ? 1 : 0,
         r.isCongested72h ? r.xMin / 90 : 0,
         (r.teamLambda - 1.35) * (r.xMin / 90),
       ]);
-      const y8 = posRows.map((r) => r.actualPts - r.modelPreds[6]);
+      const y8 = resFitRows.map((r) => r.actualPts - r.modelPreds[6]);
       p8CongBetaByPos[pos] = fitRidge(X8, y8, 45.0, 0);
     } else {
       p8CongBetaByPos[pos] = [0, 0, 0, 0];
@@ -1575,12 +1704,15 @@ function computeFixtureSideModels(params: {
   players: CausalPlayerRates[];
   teamLambda: number;
   oppLambda: number;
+  winProb: number;
+  lossProb: number;
   csProb: number;
   expGcPenalty: number;
   priors: CausalStage3Priors;
   models: CausalStage3Models;
+  tuning: Stage3TuningConfig;
 }) {
-  const { players, teamLambda, oppLambda, csProb, expGcPenalty, priors, models } = params;
+  const { players, teamLambda, oppLambda, winProb, lossProb, csProb, expGcPenalty, priors, models, tuning } = params;
 
   // Club expected active goal/assist pool for P4 team-share normalization
   let sumRawGoalMass = 0;
@@ -1592,8 +1724,10 @@ function computeFixtureSideModels(params: {
   }
 
   const goalScaleP4 = sumRawGoalMass > 0.15 ? clamp(teamLambda / sumRawGoalMass, 0.55, 1.55) : 1.0;
-  const expectedTeamAssists = teamLambda * 0.72;
+  const expectedTeamAssists = teamLambda * priors.assistsPerGoal;
   const assistScaleP4 = sumRawAssistMass > 0.12 ? clamp(expectedTeamAssists / sumRawAssistMass, 0.55, 1.55) : 1.0;
+  const goalNormMix = 0.38;
+  const topDownMix = clamp(tuning.goalNormMixAll, 0, 1);
 
   return players.map((p) => {
     const pos = p.position;
@@ -1608,12 +1742,16 @@ function computeFixtureSideModels(params: {
 
     // Opponent defensive environment modulation vs average PL lambda (~1.35)
     const oppDefMod = clamp(Math.pow(Math.max(teamLambda, 0.35) / 1.35, 0.58), 0.55, 1.68);
-    const expGoalsRaw = p.postXg90 * minsRatio * oppDefMod;
-    const expAssistsRaw = p.postXa90 * minsRatio * Math.pow(oppDefMod, 0.85);
+    const expGoalsRawUnnorm = p.postXg90 * minsRatio * oppDefMod;
+    const expAssistsRawUnnorm = p.postXa90 * minsRatio * Math.pow(oppDefMod, 0.85);
 
     // P4 team-share normalized goals & assists
     const expGoalsP4 = p.postXg90 * minsRatio * goalScaleP4;
     const expAssistsP4 = p.postXa90 * minsRatio * assistScaleP4;
+
+    // Top-down Stage 2 alignment blend across analytical models
+    const expGoalsRaw = (1 - topDownMix) * expGoalsRawUnnorm + topDownMix * expGoalsP4;
+    const expAssistsRaw = (1 - topDownMix) * expAssistsRawUnnorm + topDownMix * expAssistsP4;
 
     // Clean Sheet (condition on playing >=60 mins)
     const csPts = xm.pPlay60 * csProb * csPtsUnit;
@@ -1635,13 +1773,17 @@ function computeFixtureSideModels(params: {
       savesPts *= xm.pPlay;
     }
 
-    // Defensive Contribution (DC / DefCon: DEF>=10 -> +2, MID/FWD>=12 -> +2)
+    // Defensive Contribution (DC / DefCon: DEF>=10 -> +2, MID/FWD>=12 -> +2; no 60m gate)
     let defConPts = 0;
-    if (pos !== 'GKP') {
+    if (pos !== 'GKP' && xm.pPlay > 0.01) {
       const thresh = FPL_SCORING_TABLE.DEFENSIVE_CONTRIBUTION.THRESHOLDS[pos];
       const oppActivityScale = clamp(Math.pow(Math.max(oppLambda, 0.45) / 1.35, 0.18), 0.86, 1.16);
       const expDcMatch = p.dcPer90 * minsRatio * oppActivityScale;
-      defConPts = xm.pPlay60 * FPL_SCORING_TABLE.DEFENSIVE_CONTRIBUTION.POINTS * defConHitProb(expDcMatch, thresh);
+      defConPts =
+        xm.pPlay *
+        FPL_SCORING_TABLE.DEFENSIVE_CONTRIBUTION.POINTS *
+        priors.defConScaleByPos[pos] *
+        defConHitProb(expDcMatch, thresh);
     }
 
     // Cards & OG
@@ -1666,7 +1808,8 @@ function computeFixtureSideModels(params: {
       (pos === 'GKP' || pos === 'DEF' ? xm.pPlay60 * csProb * FPL_BPS_METRICS.CLEAN_SHEET_GKP_DEF : 0) +
       (pos === 'GKP' ? (expSaves / 3) * FPL_BPS_METRICS.PER_THREE_SAVES * xm.pPlay : 0) +
       (pos === 'GKP' || pos === 'DEF' ? -Math.max(0, oppLambda * 0.5) * 2 * xm.pPlay : 0) -
-      minsRatio * p.ycPer90 * 3;
+      minsRatio * p.ycPer90 * 3 +
+      xm.pPlay60 * (winProb - lossProb) * tuning.p5WinEdge;
 
     // Analytical P7 bonus prior (before match-wide tournament scaling)
     const bpsScaledBonusP7 =
@@ -1696,8 +1839,8 @@ function computeFixtureSideModels(params: {
     const p3Poisson = Math.max(
       0,
       expApp +
-        (0.55 * expGoalsRaw + 0.45 * expGoalsP4) * goalPtsUnit +
-        (0.55 * expAssistsRaw + 0.45 * expAssistsP4) * assistPtsUnit +
+        ((1 - goalNormMix) * expGoalsRaw + goalNormMix * expGoalsP4) * goalPtsUnit +
+        ((1 - goalNormMix) * expAssistsRaw + goalNormMix * expAssistsP4) * assistPtsUnit +
         csPts +
         gcPenalty +
         savesPts +
@@ -1722,7 +1865,7 @@ function computeFixtureSideModels(params: {
         cardPenalty
     );
 
-    // P2 Conditional Hurdle + Causal Ridge Residual
+    // P2 Conditional Hurdle + Causal Ridge Residual (gated by pPlay)
     const r2Feat = [
       1,
       expGoalsRaw,
@@ -1732,7 +1875,7 @@ function computeFixtureSideModels(params: {
       p.deadBall.isPrimaryPen ? 1 : 0,
       minsRatio,
     ];
-    const p2Residual = dot(models.p2ResidualBetaByPos[pos], r2Feat);
+    const p2Residual = dot(models.p2ResidualBetaByPos[pos], r2Feat) * xm.pPlay;
     const p2Hurdle = Math.max(0, p7Analytical + clamp(p2Residual, -1.2, 2.2));
 
     // P6 Centered Tail-Adjusted
@@ -1742,14 +1885,14 @@ function computeFixtureSideModels(params: {
     const spikeSignal = clamp((p.formDelta + p.regressionBounce) * formDecay, -0.45, 0.55) * Math.min(1, minsRatio * 1.2);
     const p6Tail = Math.max(0, p7Analytical + tailAdj + spikeSignal);
 
-    // P8 Congestion Interaction
+    // P8 Congestion Interaction (gated by pPlay)
     const r8Feat = [
       1,
       p.isCongested72h ? 1 : 0,
       p.isCongested72h ? minsRatio : 0,
       (teamLambda - 1.35) * minsRatio,
     ];
-    const p8CongAdj = dot(models.p8CongBetaByPos[pos], r8Feat);
+    const p8CongAdj = dot(models.p8CongBetaByPos[pos], r8Feat) * xm.pPlay;
     const p8Copula = Math.max(0, p7Analytical + clamp(p8CongAdj, -1.0, 1.0));
 
     return {
@@ -1764,6 +1907,7 @@ function computeFixtureSideModels(params: {
       savesPts,
       expSaves,
       defConPts,
+      bpsScaledBonusP7,
       cardPenalty,
       expBps,
       p2Hurdle,
@@ -1783,36 +1927,51 @@ export function evaluateFixtureStage3Xp(params: {
   models: CausalStage3Models;
   mcIterations: number;
   collectQuantileLadder: boolean;
+  tuning?: Stage3TuningConfig;
 }): {
   homeOutputs: Map<number, Stage3PlayerOutput>;
   awayOutputs: Map<number, Stage3PlayerOutput>;
 } {
-  const { fixture, homePlayers, awayPlayers, models, mcIterations, collectQuantileLadder } = params;
+  const {
+    fixture,
+    homePlayers,
+    awayPlayers,
+    models,
+    mcIterations,
+    collectQuantileLadder,
+    tuning = DEFAULT_STAGE3_TUNING,
+  } = params;
   const priors = models.priors;
 
   const hSide = computeFixtureSideModels({
     players: homePlayers,
     teamLambda: fixture.homeLambda,
     oppLambda: fixture.awayLambda,
+    winProb: fixture.homeWinProb,
+    lossProb: fixture.awayWinProb,
     csProb: fixture.homeCsProb,
     expGcPenalty: fixture.homeExpGcPenalty,
     priors,
     models,
+    tuning,
   });
   const aSide = computeFixtureSideModels({
     players: awayPlayers,
     teamLambda: fixture.awayLambda,
     oppLambda: fixture.homeLambda,
+    winProb: fixture.awayWinProb,
+    lossProb: fixture.homeWinProb,
     csProb: fixture.awayCsProb,
     expGcPenalty: fixture.awayExpGcPenalty,
     priors,
     models,
+    tuning,
   });
 
   // P5: Causal Softmax Tournament BPS across all active players in this fixture
   const allMatchEntries = [...hSide, ...aSide];
   const bpsScores = allMatchEntries.map((e) => e.expBps);
-  const temp = 4.5;
+  const temp = Math.max(1.0, tuning.bpsTemp);
   let expSum = 0;
   const maxBps = bpsScores.length > 0 ? Math.max(...bpsScores) : 0;
   const expWeights = bpsScores.map((b, idx) => {
@@ -1825,8 +1984,7 @@ export function evaluateFixtureStage3Xp(params: {
   const p5BonusByIdx = allMatchEntries.map((e, idx) => {
     if (expSum <= 0 || e.player.xMinRes.pPlay <= 0.01) return 0;
     const share = expWeights[idx] / expSum;
-    // Match awards 6 total bonus points (3 + 2 + 1) across ~22+ players
-    return clamp(share * 6.0 * 1.45, 0, 2.7);
+    return clamp(share * priors.avgBonusPerMatch * tuning.bpsMatchMult, 0, 2.7);
   });
 
   // P1: Monte Carlo Joint Fixture Simulation
@@ -1837,6 +1995,7 @@ export function evaluateFixtureStage3Xp(params: {
   const N = allMatchEntries.length;
   const isHomeSide = allMatchEntries.map((_, idx) => idx < hSide.length);
   const simPts = allMatchEntries.map(() => new Float32Array(M));
+  const simBonusPts = new Float32Array(N);
 
   // Normalize player goal/assist share weights within each team (conditioned on playing)
   const computeWeights = (list: typeof hSide, key: 'expGoalsP4' | 'expAssistsP4') => {
@@ -1915,13 +2074,13 @@ export function evaluateFixtureStage3Xp(params: {
           ? samplePoisson(Math.max(0.5, entry.expSaves * (0.7 + 0.3 * (oppConceded / Math.max(0.8, isHomeSide[i] ? fixture.awayLambda : fixture.homeLambda)))), rand)
           : 0;
 
-      // DefCon
+      // DefCon (no 60-minute gate per official FPL scoring rules)
       let dcPtsDrawn = 0;
       let dcCountDrawn = 0;
       if (pos !== 'GKP') {
         const thresh = FPL_SCORING_TABLE.DEFENSIVE_CONTRIBUTION.THRESHOLDS[pos];
         const dcMean = p.dcPer90 * mRatio;
-        const hitP = played60 ? defConHitProb(dcMean, thresh) : 0;
+        const hitP = clamp(defConHitProb(dcMean, thresh) * priors.defConScaleByPos[pos], 0, 0.96);
         if (rand() < hitP) dcPtsDrawn = 2;
         dcCountDrawn = Math.round(dcMean);
       }
@@ -1996,8 +2155,8 @@ export function evaluateFixtureStage3Xp(params: {
               ? FPL_BPS_METRICS.GOAL_SCORED_MID
               : FPL_BPS_METRICS.GOAL_SCORED_DEF_GKP;
 
-          // ~78% of goals have an FPL assist from another teammate
-          if (rand() < 0.78 && aWSum > 0) {
+          // Causal league-learned assist-per-goal propensity
+          if (rand() < priors.assistsPerGoal && aWSum > 0) {
             const availA = Math.max(0.0001, aWSum - astWeights[scorer - startIdx]);
             let rA = rand() * availA;
             let assister = -1;
@@ -2039,6 +2198,7 @@ export function evaluateFixtureStage3Xp(params: {
       const ptsAward = rankPtsAvail;
       for (let k = idx; k < tieEnd; k++) {
         iterBasePts[orderIdx[k]] += ptsAward;
+        simBonusPts[orderIdx[k]] += ptsAward;
       }
       const tieCount = tieEnd - idx;
       rankPtsAvail -= tieCount;
@@ -2088,12 +2248,9 @@ export function evaluateFixtureStage3Xp(params: {
       if (v >= 10) haulCount++;
     }
     const p1Mc = sumSim / M;
-    const q75 = dist[Math.min(M - 1, Math.floor(0.75 * M))];
-    const q85 = dist[Math.min(M - 1, Math.floor(0.85 * M))];
-    const pHaul10 = haulCount / M;
-    const ladder = collectQuantileLadder
-      ? QUANTILE_PROBS.map((q) => Number(dist[Math.min(M - 1, Math.floor(q * M))].toFixed(1)))
-      : [];
+    const mcBonMean = simBonusPts[i] / M;
+    const blendedBonus = 0.70 * mcBonMean + 0.30 * p5BonusByIdx[i];
+    const bonusDelta = blendedBonus - entry.bpsScaledBonusP7;
 
     const p5Bps = Math.max(
       0,
@@ -2104,19 +2261,26 @@ export function evaluateFixtureStage3Xp(params: {
         entry.gcPenalty +
         entry.savesPts +
         entry.defConPts +
-        p5BonusByIdx[i] +
+        blendedBonus +
         entry.cardPenalty
     );
 
+    const p2Adj = Math.max(0, entry.p2Hurdle + 0.50 * bonusDelta);
+    const p3Adj = Math.max(0, entry.p3Poisson + 0.70 * bonusDelta);
+    const p4Adj = Math.max(0, entry.p4TeamShare + 0.70 * bonusDelta);
+    const p6Adj = Math.max(0, entry.p6Tail + 0.70 * bonusDelta);
+    const p7Adj = Math.max(0, entry.p7Analytical + 0.70 * bonusDelta);
+    const p8Adj = Math.max(0, entry.p8Copula + 0.70 * bonusDelta);
+
     const modelPreds: [number, number, number, number, number, number, number, number] = [
       p1Mc,
-      entry.p2Hurdle,
-      entry.p3Poisson,
-      entry.p4TeamShare,
+      p2Adj,
+      p3Adj,
+      p4Adj,
       p5Bps,
-      entry.p6Tail,
-      entry.p7Analytical,
-      entry.p8Copula,
+      p6Adj,
+      p7Adj,
+      p8Adj,
     ];
 
     const weights = models.p10WeightsByPos[pos];
@@ -2125,10 +2289,18 @@ export function evaluateFixtureStage3Xp(params: {
       p10Raw += weights[k] * modelPreds[k];
     }
 
-    // Apply mild horizon form/proven reliability modifier as explicit spikeMod while anchoring on P10
-    const baseXp = Math.max(0, Math.round(entry.p7Analytical * 10) / 10);
+    const baseXp = Math.max(0, Math.round(p7Adj * 10) / 10);
     const xp = Math.max(0, Math.round(p10Raw * 10) / 10);
     const spikeMod = Math.round((xp - baseXp) * 10) / 10;
+
+    const q75Raw = dist[Math.min(M - 1, Math.floor(0.75 * M))];
+    const q85Raw = dist[Math.min(M - 1, Math.floor(0.85 * M))];
+    const mcQ75 = Number(Math.max(xp, q75Raw).toFixed(1));
+    const mcQ85 = Number(Math.max(mcQ75, q85Raw).toFixed(1));
+    const pHaul10 = haulCount / M;
+    const ladder = collectQuantileLadder
+      ? QUANTILE_PROBS.map((q) => Number(dist[Math.min(M - 1, Math.floor(q * M))].toFixed(1)))
+      : [];
 
     const output: Stage3PlayerOutput = {
       playerId: p.playerId,
@@ -2138,8 +2310,8 @@ export function evaluateFixtureStage3Xp(params: {
       xMin: Number(p.xMinRes.xMin.toFixed(1)),
       pStart: Number(p.xMinRes.pStart.toFixed(3)),
       pPlay60: Number(p.xMinRes.pPlay60.toFixed(3)),
-      mcQ75: Number(q75.toFixed(1)),
-      mcQ85: Number(q85.toFixed(1)),
+      mcQ75,
+      mcQ85,
       mcPHaul10: Number(pHaul10.toFixed(3)),
       mcQuantiles: ladder,
       modelPreds,
@@ -2155,6 +2327,18 @@ export function evaluateFixtureStage3Xp(params: {
 // ============================================================================
 // P9: RISK-AWARE 1-GW -4 HIT EVALUATOR (USES P1 MC QUANTILE LADDERS)
 // ============================================================================
+export interface P9PolicyThresholds {
+  minNetNonMid?: number;
+  minNetMid?: number;
+  minNetBroken?: number;
+  minPBeatNonMid?: number;
+  minPBeatMid?: number;
+  minPBeatBroken?: number;
+  minMultiGwDiff?: number;
+  minMultiGwBrokenDiff?: number;
+  minMultiGwNet?: number;
+}
+
 export function evaluateP9HitTransfer(params: {
   posIn: PositionType | string;
   posOut: PositionType | string;
@@ -2164,6 +2348,7 @@ export function evaluateP9HitTransfer(params: {
   outQuantiles?: number[];
   outIsBroken?: boolean;
   horizonCount: number;
+  policyThresholds?: P9PolicyThresholds;
 }): P9HitEvaluationResult {
   const {
     posIn,
@@ -2173,6 +2358,7 @@ export function evaluateP9HitTransfer(params: {
     outQuantiles,
     outIsBroken = false,
     horizonCount,
+    policyThresholds,
   } = params;
 
   const netXp1 = Number((inXp1 - outXp1 - 4.0).toFixed(2));
@@ -2195,13 +2381,16 @@ export function evaluateP9HitTransfer(params: {
     meanSimNet = Number((diffSum / totalPairs - 4.0).toFixed(2));
   } else {
     // Smooth analytical fallback if ladders unavailable
-    const z = (netXp1) / 3.6;
+    const z = netXp1 / 3.6;
     pBeatHit4 = Number(normalCdf(z).toFixed(3));
   }
 
   // On multi-GW horizons (3 GW / 6 GW), hit cost amortizes over horizon while preserving P9 risk sanity check
   if (horizonCount > 1) {
-    const viable = outIsBroken ? inXp1 - outXp1 >= 0.8 : inXp1 - outXp1 >= 0.4 || netXp1 >= -1.8;
+    const reqBrokenDiff = policyThresholds?.minMultiGwBrokenDiff ?? 0.6;
+    const reqDiff = policyThresholds?.minMultiGwDiff ?? 0.3;
+    const reqNet = policyThresholds?.minMultiGwNet ?? -2.2;
+    const viable = outIsBroken ? inXp1 - outXp1 >= reqBrokenDiff : inXp1 - outXp1 >= reqDiff || netXp1 >= reqNet;
     return {
       viable,
       netXp1,
@@ -2211,13 +2400,18 @@ export function evaluateP9HitTransfer(params: {
     };
   }
 
-  // 1-GW instant -4 hit: informed directly by walk-forward P9 findings!
-  // FWD / DEF / GKP require positive instant net surplus & healthy P(gain > 4).
-  // MID 1-GW -4 hits showed elevated variance in simulation (26-31% beat rate)
-  // unless upside / net gain clears a strict margin or fixes an injured/dead slot.
+  // 1-GW instant -4 hit thresholds: driven by causal walk-forward policyThresholds when available
   const isMid = posIn === 'MID';
-  const minNetReq = outIsBroken ? 0.5 : isMid ? 2.2 : 1.0;
-  const minPBeatReq = outIsBroken ? 0.42 : isMid ? 0.54 : 0.48;
+  const minNetReq = outIsBroken
+    ? (policyThresholds?.minNetBroken ?? 0.5)
+    : isMid
+    ? (policyThresholds?.minNetMid ?? 2.2)
+    : (policyThresholds?.minNetNonMid ?? 1.0);
+  const minPBeatReq = outIsBroken
+    ? (policyThresholds?.minPBeatBroken ?? 0.42)
+    : isMid
+    ? (policyThresholds?.minPBeatMid ?? 0.54)
+    : (policyThresholds?.minPBeatNonMid ?? 0.48);
 
   if (netXp1 < minNetReq) {
     return {
@@ -2268,6 +2462,7 @@ export interface Stage3PipelineInput {
   baseHistoricalGW: number;
   targetNextGW: number;
   isCurrentGwFinishedOrConfirmed: boolean;
+  tuning?: Partial<Stage3TuningConfig>;
 }
 
 export interface Stage3FixturePlayerCell {
@@ -2306,7 +2501,9 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
     baseHistoricalGW,
     targetNextGW,
     isCurrentGwFinishedOrConfirmed,
+    tuning: partialTuning,
   } = input;
+  const tuning: Stage3TuningConfig = { ...DEFAULT_STAGE3_TUNING, ...(partialTuning || {}) };
 
   const allPlayersByClub = new Map<string, DbPlayerStat[]>();
   const playerById = new Map<number, DbPlayerStat>();
@@ -2345,15 +2542,131 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
   const xminSamples: XMinObsSample[] = [];
   const stage3TrainingRows: CausalTrainingRow[] = [];
 
+  // Causal walk-forward XI calibration history strictly from gw < targetGw
+  interface ClubGwXiObs {
+    gw: number;
+    actClubXi: number;
+    predClubXi: number;
+    actByPos: Record<FplPosition, number>;
+    predByPos: Record<FplPosition, number>;
+  }
+  const clubXiObsHistory: ClubGwXiObs[] = [];
+
+  const computeCausalXiCalib = (
+    targetGw: number
+  ): { globalK: number; posK: Record<FplPosition, number> } => {
+    const globPriorClubs = tuning.calibGlobPriorClubs;
+    const posPriorClubs = tuning.calibPosPriorClubs;
+    const ewmaHalfLife = tuning.calibEwmaHalfLife;
+    const avgClubPrior = 40.0;
+
+    if (clubXiObsHistory.length < 10) {
+      return { globalK: 1.0, posK: { GKP: 1.0, DEF: 1.0, MID: 1.0, FWD: 1.0 } };
+    }
+
+    let wActSum = globPriorClubs * avgClubPrior;
+    let wPredSum = globPriorClubs * avgClubPrior;
+
+    const wActPos: Record<FplPosition, number> = { GKP: 0, DEF: 0, MID: 0, FWD: 0 };
+    const wPredPos: Record<FplPosition, number> = { GKP: 0, DEF: 0, MID: 0, FWD: 0 };
+    const baselinePosPerClub: Record<FplPosition, number> = {
+      GKP: 3.8,
+      DEF: 14.5,
+      MID: 15.2,
+      FWD: 6.5,
+    };
+
+    for (const obs of clubXiObsHistory) {
+      const age = Math.max(0, targetGw - 1 - obs.gw);
+      const w = Math.exp((-age * Math.LN2) / ewmaHalfLife);
+      wActSum += w * obs.actClubXi;
+      wPredSum += w * obs.predClubXi;
+      for (const pos of POSITIONS) {
+        wActPos[pos] += w * obs.actByPos[pos];
+        wPredPos[pos] += w * obs.predByPos[pos];
+      }
+    }
+
+    const globalK = clamp(wActSum / Math.max(1, wPredSum), 0.85, 1.28);
+
+    // Compute raw positional residual ratios and mean-normalize so posK does not double-count globalK
+    const rawPosK = {} as Record<FplPosition, number>;
+    let posMassTotal = 0;
+    let weightedRawPosK = 0;
+    for (const pos of POSITIONS) {
+      const priorMass = posPriorClubs * baselinePosPerClub[pos];
+      const rk = clamp(
+        (wActPos[pos] + priorMass) / Math.max(1, wPredPos[pos] + priorMass),
+        0.78,
+        1.24
+      );
+      rawPosK[pos] = rk;
+      const obsMass = Math.max(1, wPredPos[pos]);
+      posMassTotal += obsMass;
+      weightedRawPosK += obsMass * rk;
+    }
+    const meanRawPosK = posMassTotal > 0 ? weightedRawPosK / posMassTotal : 1.0;
+    const posK = {} as Record<FplPosition, number>;
+    for (const pos of POSITIONS) {
+      posK[pos] = clamp(rawPosK[pos] / Math.max(0.5, meanRawPosK), 0.80, 1.22);
+    }
+
+    return { globalK, posK };
+  };
+
+  const applyXiScaleToOutput = (
+    out: Stage3PlayerOutput,
+    scale: number
+  ): Stage3PlayerOutput => {
+    if (out.xp <= 0 || Math.abs(scale - 1.0) < 1e-4) return out;
+    const scaledXp = Math.max(0, Math.round(out.xp * scale * 10) / 10);
+    const scaledBase = Math.max(0, Math.round(out.baseXp * scale * 10) / 10);
+    const scaledQ75 = Number(Math.max(scaledXp, out.mcQ75 * scale).toFixed(1));
+    const scaledQ85 = Number(Math.max(scaledQ75, out.mcQ85 * scale).toFixed(1));
+    const scaledLadder =
+      out.mcQuantiles.length > 0
+        ? out.mcQuantiles.map((v) => Number((v * scale).toFixed(1)))
+        : out.mcQuantiles;
+    const scaledPreds = out.modelPreds.map((v) => v * scale) as Stage3PlayerOutput['modelPreds'];
+    return {
+      ...out,
+      xp: scaledXp,
+      baseXp: scaledBase,
+      spikeMod: Math.round((scaledXp - scaledBase) * 10) / 10,
+      mcQ75: scaledQ75,
+      mcQ85: scaledQ85,
+      mcQuantiles: scaledLadder,
+      modelPreds: scaledPreds,
+    };
+  };
+
+  const computeClubCovLift = (
+    prepRates: Array<{ isStarterPredicted: boolean; pStart: number }>
+  ): number => {
+    let sumStart = 0;
+    let cnt = 0;
+    for (const r of prepRates) {
+      if (r.isStarterPredicted) {
+        sumStart += r.pStart;
+        cnt++;
+      }
+    }
+    if (cnt === 0) return 1.0;
+    const meanStart = clamp(sumStart / cnt, 0.72, 1.0);
+    // covBeta recovers conditional XI coverage gap while keeping early GWs balanced
+    return clamp(1 + tuning.covBeta * (1 / meanStart - 1), 1.0, 1.28);
+  };
+
   // Initialize models on GW 1 priors (pastSeason + structural priors, zero leakage)
   let currentModels = createInitialStage3Models(
-    learnCausalStage3Priors([], allPlayers, pastSeasonMap, playerPosSeed)
+    learnCausalStage3Priors([], allPlayers, pastSeasonMap, playerPosSeed, tuning)
   );
 
   // 1. CAUSAL WALK-FORWARD ACROSS HISTORICAL GWs (GW 1..baseHistoricalGW)
   for (let gw = 1; gw <= baseHistoricalGW; gw++) {
     const historyBeforeGw = allAppearances.filter((a) => a.gw < gw);
-    const priors = learnCausalStage3Priors(historyBeforeGw, allPlayers, pastSeasonMap, playerPosSeed);
+    const priors = learnCausalStage3Priors(historyBeforeGw, allPlayers, pastSeasonMap, playerPosSeed, tuning);
+    const { globalK: causalGlobalK, posK: causalPosK } = computeCausalXiCalib(gw);
 
     if (gw >= 3 && xminSamples.length >= 24) {
       currentModels = {
@@ -2369,7 +2682,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
       };
     }
 
-    const histSummaryById = summarizePlayerCausalHistory(historyBeforeGw, gw, priors);
+    const histSummaryById = summarizePlayerCausalHistory(historyBeforeGw, gw, priors, tuning.histRecTau);
     const lastKoByPlayer = new Map<number, number>();
     const lastStartedByPlayer = new Map<number, boolean>();
     const lastMinsByPlayer = new Map<number, number>();
@@ -2438,6 +2751,8 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
         const prepared: Array<{
           rates: CausalPlayerRates;
           feats: ReturnType<typeof buildXMinFeatureVectors>;
+          isStarterPredicted: boolean;
+          isBenchPredicted: boolean;
         }> = [];
 
         for (const p of squad) {
@@ -2449,6 +2764,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
           const av = s1?.availabilityById.get(p.id);
           const siPct = s1?.siByPlayer.get(p.id) ?? 0;
           const gwSiProb = clamp(siPct / 100, 0, 0.995);
+          const isStarterPredicted = Boolean(s1?.starterIds.has(p.id));
           const isBenchPredicted = Boolean(s1?.benchIds.has(p.id));
           const isDoubtful = av?.status === 'd';
           const gwIsOut = Boolean(av && av.avail <= 0) || gwSiProb <= 0.005;
@@ -2464,6 +2780,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             gwSiProb,
             gwIsOut,
             availFactor: av?.avail ?? 1,
+            isStarterPredicted,
             isBenchPredicted,
             isCongested72h,
             nonEplMins7d: nonEpl7d,
@@ -2474,6 +2791,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             priors,
             xminModels: currentModels.xminModels,
             horizonOffset: 0,
+            tuning,
           });
 
           const rates = buildCausalRatesForPlayer({
@@ -2495,9 +2813,10 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             nonEplMins7d: nonEpl7d,
             midweekProof: mwProof,
             horizonOffset: 0,
+            tuning,
           });
 
-          prepared.push({ rates, feats });
+          prepared.push({ rates, feats, isStarterPredicted, isBenchPredicted });
         }
         return prepared;
       };
@@ -2512,9 +2831,11 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
         models: currentModels,
         mcIterations: 160,
         collectQuantileLadder: false,
+        tuning,
       });
 
       const storeAndCollect = (
+        clubShort: string,
         prepList: typeof hPrep,
         outMap: Map<number, Stage3PlayerOutput>,
         oppShort: string,
@@ -2527,10 +2848,29 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
         lossProb: number,
         isCongested: boolean
       ) => {
+        const covLift = computeClubCovLift(
+          prepList.map((item) => ({
+            isStarterPredicted: item.isStarterPredicted,
+            pStart: item.rates.xMinRes.pStart,
+          }))
+        );
+
+        let predClubXi = 0;
+        let actClubXi = 0;
+        const predByPos: Record<FplPosition, number> = { GKP: 0, DEF: 0, MID: 0, FWD: 0 };
+        const actByPos: Record<FplPosition, number> = { GKP: 0, DEF: 0, MID: 0, FWD: 0 };
+        let hasClubActualStarters = false;
+
         for (const item of prepList) {
           const pid = item.rates.playerId;
-          const out = outMap.get(pid);
-          if (!out) continue;
+          const rawOut = outMap.get(pid);
+          if (!rawOut) continue;
+
+          const pos = item.rates.position;
+          const calibScale = item.isStarterPredicted
+            ? clamp(covLift * causalGlobalK * causalPosK[pos], 0.85, 1.28)
+            : 1.0;
+          const out = applyXiScaleToOutput(rawOut, calibScale);
 
           const pGwMap = playerGwMatchesMap.get(pid)!;
           if (!pGwMap.has(gw)) pGwMap.set(gw, []);
@@ -2549,11 +2889,23 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             output: out,
           });
 
+          // Track cov-lifted raw Stage 3 XI totals BEFORE globalK/posK so causal residual calibration stays unbiased
+          if (item.isStarterPredicted) {
+            const covOnlyXp = rawOut.xp * covLift;
+            predClubXi += covOnlyXp;
+            predByPos[pos] += covOnlyXp;
+          }
+
           // Feed causal observation into training buffers AFTER prediction for GW
           const actual =
             actualAppLookup.get(`${pid}_${gw}_${oppShort}`) ?? actualAppLookup.get(`${pid}_${gw}`);
           if (actual) {
-            if (actual.wasStarter || actual.wasBench || actual.mins > 0) {
+            if (actual.wasStarter) {
+              hasClubActualStarters = true;
+              actClubXi += actual.pts;
+              actByPos[actual.position] += actual.pts;
+            }
+            if (actual.wasStarter || actual.wasBench || actual.mins > 0 || item.rates.xMinRes.pStart >= 0.04) {
               xminSamples.push({
                 position: actual.position,
                 wasStarter: actual.wasStarter,
@@ -2564,7 +2916,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
                 cameoFeat: item.feats.cameoFeat,
               });
             }
-            if (actual.wasStarter || actual.mins > 0 || out.pStart >= 0.08) {
+            if (item.isStarterPredicted || item.isBenchPredicted || out.pStart >= 0.04) {
               stage3TrainingRows.push({
                 gw,
                 playerId: pid,
@@ -2574,24 +2926,38 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
                 actualMins: actual.mins,
                 wasStarter: actual.wasStarter,
                 isCongested72h: isCongested,
-                modelPreds: out.modelPreds,
-                pStart: out.pStart,
-                pPlay60: out.pPlay60,
-                xMin: out.xMin,
-                expGoals: (item.rates.postXg90 * out.xMin) / 90,
-                expAssists: (item.rates.postXa90 * out.xMin) / 90,
+                modelPreds: rawOut.modelPreds,
+                pStart: rawOut.pStart,
+                pPlay: item.rates.xMinRes.pPlay,
+                pPlay60: rawOut.pPlay60,
+                xMin: rawOut.xMin,
+                expGoals: (item.rates.postXg90 * rawOut.xMin) / 90,
+                expAssists: (item.rates.postXa90 * rawOut.xMin) / 90,
                 csExpected:
-                  out.pPlay60 * (isHome ? fixtureCtx.homeCsProb : fixtureCtx.awayCsProb),
-                bpsSignal: (item.rates.bpsBase90 * out.xMin) / 90,
+                  rawOut.pPlay60 * (isHome ? fixtureCtx.homeCsProb : fixtureCtx.awayCsProb),
+                bpsSignal: (item.rates.bpsBase90 * rawOut.xMin) / 90,
                 isPrimaryPen: item.rates.deadBall.isPrimaryPen,
                 teamLambda,
               });
             }
           }
         }
+
+        if (hasClubActualStarters && predClubXi > 10) {
+          clubXiObsHistory.push({
+            gw,
+            actClubXi,
+            predClubXi,
+            actByPos,
+            predByPos,
+          });
+        } else if (clubShort && !hasClubActualStarters) {
+          // Skip unplayed/deferred club side from XI calibration history
+        }
       };
 
       storeAndCollect(
+        hShort,
         hPrep,
         homeOutputs,
         aShort,
@@ -2605,6 +2971,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
         fixtureCtx.homeCongested72h
       );
       storeAndCollect(
+        aShort,
         aPrep,
         awayOutputs,
         hShort,
@@ -2621,14 +2988,15 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
   }
 
   // 2. FINAL FIT ON ALL OBSERVED GWs (1..baseHistoricalGW) FOR TARGET & FUTURE GWs (targetNextGW..38)
-  const finalPriors = learnCausalStage3Priors(allAppearances, allPlayers, pastSeasonMap, playerPosSeed);
+  const finalPriors = learnCausalStage3Priors(allAppearances, allPlayers, pastSeasonMap, playerPosSeed, tuning);
+  const { globalK: finalGlobalK, posK: finalPosK } = computeCausalXiCalib(targetNextGW);
   const finalTrainedModels: CausalStage3Models = {
     ...refitStage3LearnedComponents(currentModels, stage3TrainingRows),
     priors: finalPriors,
     xminModels: fitCausalXMinModels(xminSamples, finalPriors),
   };
 
-  const fullHistSummary = summarizePlayerCausalHistory(allAppearances, targetNextGW, finalPriors);
+  const fullHistSummary = summarizePlayerCausalHistory(allAppearances, targetNextGW, finalPriors, tuning.histRecTau);
   const fullLastKo = new Map<number, number>();
   const fullLastStarted = new Map<number, boolean>();
   const fullLastMins = new Map<number, number>();
@@ -2711,8 +3079,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
         const isDgwClub = (clubGwFixCount.get(clubShort) || 1) >= 2;
         const matchDate = new Date(cutoffMs || Date.now());
 
-        const prepared: CausalPlayerRates[] = [];
-        for (const p of squad) {
+        const candidateSpecs = squad.map((p) => {
           const hs = fullHistSummary.get(p.id);
           const pos = POSITIONS.includes(p.position as FplPosition)
             ? (p.position as FplPosition)
@@ -2809,6 +3176,40 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             gwSiProb *= 0.94;
           }
 
+          return {
+            p,
+            hs,
+            pos,
+            fineRole,
+            rawSi,
+            isBenchPredicted,
+            isDoubtful,
+            gwIsOut,
+            gwSiProb,
+            availFactor,
+          };
+        });
+
+        // For immediate targetNextGW use exact Stage 1 starters; for future horizons pick top 1 GKP + top 10 outfield by gwSiProb
+        const futureStarterIds = new Set<number>();
+        if (isImmediateGw && s1) {
+          for (const id of s1.starterIds) futureStarterIds.add(id);
+        } else {
+          const bestGkp = candidateSpecs
+            .filter((c) => c.pos === 'GKP' && !c.gwIsOut)
+            .sort((a, b) => b.gwSiProb - a.gwSiProb)[0];
+          if (bestGkp) futureStarterIds.add(bestGkp.p.id);
+          const outfields = candidateSpecs
+            .filter((c) => c.pos !== 'GKP' && !c.gwIsOut)
+            .sort((a, b) => b.gwSiProb - a.gwSiProb)
+            .slice(0, 10);
+          for (const c of outfields) futureStarterIds.add(c.p.id);
+        }
+
+        const prepared: Array<{ rates: CausalPlayerRates; isStarterPredicted: boolean }> = [];
+        for (const c of candidateSpecs) {
+          const { p, hs, pos, fineRole, rawSi, isBenchPredicted, isDoubtful, gwIsOut, gwSiProb, availFactor } = c;
+          const isStarterPredicted = futureStarterIds.has(p.id);
           const nonEpl7d = isImmediateGw
             ? Math.max(s1?.nonEplMins7dByPlayer.get(p.id) || 0, cross.nonEplMins7d.get(p.id) || 0)
             : 0;
@@ -2824,6 +3225,7 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             gwSiProb,
             gwIsOut,
             availFactor,
+            isStarterPredicted,
             isBenchPredicted: isImmediateGw ? isBenchPredicted : rawSi < 50,
             isCongested72h: isImmediateGw ? isCongested72h : false,
             nonEplMins7d: nonEpl7d,
@@ -2834,10 +3236,12 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
             priors: finalPriors,
             xminModels: finalTrainedModels.xminModels,
             horizonOffset,
+            tuning,
           });
 
-          prepared.push(
-            buildCausalRatesForPlayer({
+          prepared.push({
+            isStarterPredicted,
+            rates: buildCausalRatesForPlayer({
               player: p,
               fineRole,
               hist: hs,
@@ -2856,8 +3260,9 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
               nonEplMins7d: nonEpl7d,
               midweekProof: mwProof,
               horizonOffset,
-            })
-          );
+              tuning,
+            }),
+          });
         }
         return prepared;
       };
@@ -2867,15 +3272,16 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
 
       const { homeOutputs, awayOutputs } = evaluateFixtureStage3Xp({
         fixture: fixtureCtx,
-        homePlayers: hPrep,
-        awayPlayers: aPrep,
+        homePlayers: hPrep.map((x) => x.rates),
+        awayPlayers: aPrep.map((x) => x.rates),
         models: finalTrainedModels,
         mcIterations: mcIter,
         collectQuantileLadder: isImmediateGw,
+        tuning,
       });
 
       const storeFuture = (
-        prepList: CausalPlayerRates[],
+        prepList: typeof hPrep,
         outMap: Map<number, Stage3PlayerOutput>,
         oppShort: string,
         isHome: boolean,
@@ -2887,9 +3293,21 @@ export function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineInput):
         lossProb: number,
         isCongested: boolean
       ) => {
-        for (const r of prepList) {
-          const out = outMap.get(r.playerId);
-          if (!out) continue;
+        const covLift = computeClubCovLift(
+          prepList.map((item) => ({
+            isStarterPredicted: item.isStarterPredicted,
+            pStart: item.rates.xMinRes.pStart,
+          }))
+        );
+        for (const item of prepList) {
+          const r = item.rates;
+          const rawOut = outMap.get(r.playerId);
+          if (!rawOut) continue;
+          const calibScale = item.isStarterPredicted
+            ? clamp(covLift * finalGlobalK * finalPosK[r.position], 0.85, 1.28)
+            : 1.0;
+          const out = applyXiScaleToOutput(rawOut, calibScale);
+
           const pGwMap = playerGwMatchesMap.get(r.playerId)!;
           if (!pGwMap.has(gw)) pGwMap.set(gw, []);
           pGwMap.get(gw)!.push({

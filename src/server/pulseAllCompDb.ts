@@ -1464,8 +1464,12 @@ export async function syncPulseAllCompDatabase(options?: {
 
       writeJsonAtomic(PULSE_ALL_COMP_HISTORY_PATH, hist);
       writeJsonAtomic(PULSE_ALL_COMP_SCHEDULE_PATH, currentSchedule);
+      const syncDetailNote =
+        failedMatches > 0
+          ? `${newlyFetchedMatches} newly synced, ${failedMatches} pending`
+          : `${newlyFetchedMatches} newly synced`;
       console.log(
-        `[PulseAllCompDB] History DB saved: ${hist.summary.finalizedMatches} matches, ${hist.summary.totalClubSides} club-sides, ${hist.summary.mappedFplAppearances} mapped FPL appearances (${newlyFetchedMatches} newly synced, ${failedMatches} failed).`
+        `[PulseAllCompDB] History DB saved: ${hist.summary.finalizedMatches} matches, ${hist.summary.totalClubSides} club-sides, ${hist.summary.mappedFplAppearances} mapped FPL appearances (${syncDetailNote}).`
       );
     } else if (needsScheduleFetch) {
       hist.plSeasonId = currentSchedule.plSeasonId;

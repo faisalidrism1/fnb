@@ -874,26 +874,6 @@
           "pulseId": 119614
         },
         {
-          "id": 201895,
-          "altIds": {
-            "opta": "p201895"
-          },
-          "name": {
-            "first": "Omar",
-            "last": "Alderete",
-            "display": "Omar Alderete"
-          },
-          "matchPosition": "D",
-          "info": {
-            "position": "D",
-            "positionInfo": "Central Defender",
-            "shirtNum": 15
-          },
-          "captain": false,
-          "shirtNumber": 15,
-          "pulseId": 66659
-        },
-        {
           "id": 549940,
           "altIds": {
             "opta": "p549940"
@@ -926,12 +906,32 @@
           "matchPosition": "F",
           "info": {
             "position": "F",
-            "positionInfo": "Centre Striker",
+            "positionInfo": "Left Winger",
             "shirtNum": 57
           },
           "captain": false,
           "shirtNumber": 57,
           "pulseId": 135764
+        },
+        {
+          "id": 201895,
+          "altIds": {
+            "opta": "p201895"
+          },
+          "name": {
+            "first": "Omar",
+            "last": "Alderete",
+            "display": "Omar Alderete"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Central Defender",
+            "shirtNum": 15
+          },
+          "captain": false,
+          "shirtNumber": 15,
+          "pulseId": 66659
         }
       ]
     }

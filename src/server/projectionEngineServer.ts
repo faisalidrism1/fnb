@@ -54,6 +54,11 @@ import {
   resolveCausalPlayerAvailability,
   selectCausalHybridParamsAndWeights,
 } from '../utils/hybridLineupModel.ts';
+import {
+  ScoutModelPlayerInput,
+  calibrateScoutPolicyWalkForward,
+  solveScoutSquadForGwMode,
+} from '../utils/scoutSelectionModel.ts';
 import { getFplProvenStatus } from '../utils/fplProvenGuard.ts';
 import { ALL_SEASON_FIXTURES } from '../data/allSeasonFixtures.ts';
 import pastSeasonRaw from '../data/playersPastSeason2025_26.json' with { type: 'json' };
@@ -146,6 +151,7 @@ const FORMULA_SOURCE_FILES = [
   'src/utils/fplProvenGuard.ts',
   'src/utils/tacticalLineupModel.ts',
   'src/utils/hybridLineupModel.ts',
+  'src/utils/scoutSelectionModel.ts',
   'src/utils/scoutNarratives.ts',
   'src/data/playerExplosiveCatalog.ts',
   'src/server/pulsePlayerPositions.ts',
@@ -673,6 +679,7 @@ interface CoreRuntimeContext {
   playerTeamMap: Map<number, string>;
   extraAllCompSides: HybridMatchClubSide[];
   calibByGw: Map<number, { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> }>;
+  quantilesByPlayerGw: Map<number, Map<number, number[]>>;
 }
 
 let cachedCoreContext: CoreRuntimeContext | null = null;
@@ -1744,6 +1751,8 @@ async function getOrBuildCoreContext(
       return acc;
     };
 
+    const quantilesByPlayerGw = new Map<number, Map<number, number[]>>();
+
     const allPlayerFullSeasonProjections: ProjectedPlayerCoreItem[] = allPlayers.map((p) => {
       const cShort = p.teamShort;
       const pos = p.position as PositionType;
@@ -1805,7 +1814,7 @@ async function getOrBuildCoreContext(
           if (out.pPlay60 > maxPPlay60) maxPPlay60 = out.pPlay60;
           sumQ85 += out.mcQ85;
           noHaulProbProduct *= 1 - Math.max(0, Math.min(1, out.mcPHaul10));
-          if (gw === targetNextGW && out.mcQuantiles && out.mcQuantiles.length > 0) {
+          if ((gw <= baseHistoricalGW || gw === targetNextGW) && out.mcQuantiles && out.mcQuantiles.length > 0) {
             targetQuantileLadders.push(out.mcQuantiles);
           }
 
@@ -1833,7 +1842,17 @@ async function getOrBuildCoreContext(
 
         const combinedOpp = matchDetails.map((d) => d.oppLabel).join(' + ');
         const combinedPHaul10 = Number((1 - noHaulProbProduct).toFixed(3));
-        const mcQuantiles = gw === targetNextGW ? combineDgwQuantiles(targetQuantileLadders) : undefined;
+        const combinedQuantiles =
+          targetQuantileLadders.length > 0 ? combineDgwQuantiles(targetQuantileLadders) : undefined;
+        if (combinedQuantiles && combinedQuantiles.length > 0) {
+          let qMap = quantilesByPlayerGw.get(p.id);
+          if (!qMap) {
+            qMap = new Map();
+            quantilesByPlayerGw.set(p.id, qMap);
+          }
+          qMap.set(gw, combinedQuantiles);
+        }
+        const mcQuantiles = gw === targetNextGW ? combinedQuantiles : undefined;
 
         fullSeasonPointsMap[gw] = {
           opp: combinedOpp,
@@ -1904,6 +1923,7 @@ async function getOrBuildCoreContext(
       playerTeamMap,
       extraAllCompSides,
       calibByGw,
+      quantilesByPlayerGw,
     };
 
     cachedCoreContext = ctx;
@@ -2287,74 +2307,11 @@ async function getOrBuildReviewBase(
     }
 
     // 2. Actual Player Stats Map (sums points & mins across DGW fixtures!)
-    const actualPlayerStatsMap: Record<number, Record<number, ActualPlayerReviewStat>> = {};
-    for (const [idStr, gws] of Object.entries(precalculatedReviewData.players)) {
-      const pId = Number(idStr);
-      actualPlayerStatsMap[pId] = {};
-      for (const [gwStr, stat] of Object.entries(gws)) {
-        const gw = Number(gwStr);
-        if (gw > maxReviewGW) continue;
-        actualPlayerStatsMap[pId][gw] = {
-          pts: stat.pts,
-          mins: stat.mins,
-          wasStarter: stat.wasStarter,
-          wasSub: stat.wasSub,
-        };
-      }
-    }
-
-    for (let gw = 1; gw <= maxReviewGW; gw++) {
-      const matches = matchesWithLineupsByGw[gw];
-      if (!Array.isArray(matches) || matches.length === 0) continue;
-
-      const gwAccumulator = new Map<number, ActualPlayerReviewStat>();
-      for (const m of matches) {
-        for (const p of [
-          ...(Array.isArray(m.home_lineup) ? m.home_lineup : []),
-          ...(Array.isArray(m.away_lineup) ? m.away_lineup : []),
-        ]) {
-          if (!p?.id) continue;
-          const cur = gwAccumulator.get(p.id) || { pts: 0, mins: 0, wasStarter: false, wasSub: false, matchCount: 0 };
-          cur.pts += typeof p.gw_points === 'number' ? p.gw_points : (p.stats?.total_points || 0);
-          cur.mins += p.stats?.minutes || 0;
-          cur.wasStarter = true;
-          cur.matchCount = (cur.matchCount || 0) + 1;
-          gwAccumulator.set(p.id, cur);
-        }
-        for (const p of [
-          ...(Array.isArray(m.home_bench) ? m.home_bench : []),
-          ...(Array.isArray(m.away_bench) ? m.away_bench : []),
-        ]) {
-          if (!p?.id) continue;
-          const mins = p.stats?.minutes || 0;
-          const cur = gwAccumulator.get(p.id) || { pts: 0, mins: 0, wasStarter: false, wasSub: false, matchCount: 0 };
-          cur.pts += typeof p.gw_points === 'number' ? p.gw_points : (p.stats?.total_points || 0);
-          cur.mins += mins;
-          if (!cur.wasStarter && mins > 0) cur.wasSub = true;
-          cur.matchCount = (cur.matchCount || 0) + 1;
-          gwAccumulator.set(p.id, cur);
-        }
-      }
-      for (const [pId, stat] of gwAccumulator.entries()) {
-        if (!actualPlayerStatsMap[pId]) actualPlayerStatsMap[pId] = {};
-        actualPlayerStatsMap[pId][gw] = stat;
-      }
-    }
-
-    // Also backfill from gwHistory if any GW wasn't covered by Pulse/Precalc
-    for (const p of cachedData.player_stats || []) {
-      for (const h of p.gwHistory || []) {
-        if (h.round <= maxReviewGW && !actualPlayerStatsMap[p.id]?.[h.round]) {
-          if (!actualPlayerStatsMap[p.id]) actualPlayerStatsMap[p.id] = {};
-          actualPlayerStatsMap[p.id][h.round] = {
-            pts: Number(h.points || 0),
-            mins: Number(h.minutes || 0),
-            wasStarter: Number(h.minutes || 0) >= 55,
-            wasSub: Number(h.minutes || 0) > 0 && Number(h.minutes || 0) < 55,
-          };
-        }
-      }
-    }
+    const actualPlayerStatsMap = buildServerActualPlayerStatsMap(
+      cachedData,
+      matchesWithLineupsByGw,
+      maxReviewGW
+    );
 
     // 3. Precompute full MAE Recap Rows (GW 1..maxReviewGW) with confirmed-GW memoization
     const allPlayers = cachedData.player_stats || [];
@@ -2758,741 +2715,86 @@ export async function getServerReviewBundle(
 }
 
 // ============================================================================
-// SCOUT ENGINE: DUAL-BUDGET FH & WC HILL-CLIMBING SOLVER (SERVER CACHED)
+// SHARED ACTUAL PLAYER STATS BUILDER (FOR REVIEW + SCOUT WALK-FORWARD)
 // ============================================================================
-interface SolverPlayer {
-  id: number;
-  position: PositionType;
-  teamShort: string;
-  cost: number;
-  pts: number;
-  mins: number;
-  status: string;
-  fullSeasonPointsMap: Record<number, PlayerGwProjectionCell>;
-  xP1: number;
-  avgXp6: number;
+function buildServerActualPlayerStatsMap(
+  cachedData: TransformedLeagueData,
+  matchesWithLineupsByGw: Record<number, any[]>,
+  maxReviewGW: number
+): Record<number, Record<number, ActualPlayerReviewStat>> {
+  const actualPlayerStatsMap: Record<number, Record<number, ActualPlayerReviewStat>> = {};
+  for (const [idStr, gws] of Object.entries(precalculatedReviewData.players)) {
+    const pId = Number(idStr);
+    actualPlayerStatsMap[pId] = {};
+    for (const [gwStr, stat] of Object.entries(gws)) {
+      const gw = Number(gwStr);
+      if (gw > maxReviewGW) continue;
+      actualPlayerStatsMap[pId][gw] = {
+        pts: stat.pts,
+        mins: stat.mins,
+        wasStarter: stat.wasStarter,
+        wasSub: stat.wasSub,
+      };
+    }
+  }
+
+  for (let gw = 1; gw <= maxReviewGW; gw++) {
+    const matches = matchesWithLineupsByGw[gw];
+    if (!Array.isArray(matches) || matches.length === 0) continue;
+
+    const gwAccumulator = new Map<number, ActualPlayerReviewStat>();
+    for (const m of matches) {
+      for (const p of [
+        ...(Array.isArray(m.home_lineup) ? m.home_lineup : []),
+        ...(Array.isArray(m.away_lineup) ? m.away_lineup : []),
+      ]) {
+        if (!p?.id) continue;
+        const cur = gwAccumulator.get(p.id) || { pts: 0, mins: 0, wasStarter: false, wasSub: false, matchCount: 0 };
+        cur.pts += typeof p.gw_points === 'number' ? p.gw_points : (p.stats?.total_points || 0);
+        cur.mins += p.stats?.minutes || 0;
+        cur.wasStarter = true;
+        cur.matchCount = (cur.matchCount || 0) + 1;
+        gwAccumulator.set(p.id, cur);
+      }
+      for (const p of [
+        ...(Array.isArray(m.home_bench) ? m.home_bench : []),
+        ...(Array.isArray(m.away_bench) ? m.away_bench : []),
+      ]) {
+        if (!p?.id) continue;
+        const mins = p.stats?.minutes || 0;
+        const cur = gwAccumulator.get(p.id) || { pts: 0, mins: 0, wasStarter: false, wasSub: false, matchCount: 0 };
+        cur.pts += typeof p.gw_points === 'number' ? p.gw_points : (p.stats?.total_points || 0);
+        cur.mins += mins;
+        if (!cur.wasStarter && mins > 0) cur.wasSub = true;
+        cur.matchCount = (cur.matchCount || 0) + 1;
+        gwAccumulator.set(p.id, cur);
+      }
+    }
+    for (const [pId, stat] of gwAccumulator.entries()) {
+      if (!actualPlayerStatsMap[pId]) actualPlayerStatsMap[pId] = {};
+      actualPlayerStatsMap[pId][gw] = stat;
+    }
+  }
+
+  for (const p of cachedData.player_stats || []) {
+    for (const h of p.gwHistory || []) {
+      if (h.round <= maxReviewGW && !actualPlayerStatsMap[p.id]?.[h.round]) {
+        if (!actualPlayerStatsMap[p.id]) actualPlayerStatsMap[p.id] = {};
+        actualPlayerStatsMap[p.id][h.round] = {
+          pts: Number(h.points || 0),
+          mins: Number(h.minutes || 0),
+          wasStarter: Number(h.minutes || 0) >= 55,
+          wasSub: Number(h.minutes || 0) > 0 && Number(h.minutes || 0) < 55,
+        };
+      }
+    }
+  }
+  return actualPlayerStatsMap;
 }
 
-function solveServerScoutForGwMode(
-  players: SolverPlayer[],
-  baseHistoricalGW: number,
-  targetNextGW: number,
-  targetGw: number,
-  mode: 'FH' | 'WC',
-  fastMode: boolean = false
-) {
-  const MAX_XI_BUDGET = 83.0;
-  const MAX_SQUAD_BUDGET = 100.0;
-  const completedGws = Math.max(baseHistoricalGW, 1);
-  const isFH = mode === 'FH';
-
-  if (players.length < 15) {
-    return {
-      starterIds: [] as number[],
-      benchIds: [] as number[],
-      xiCost: 0,
-      xiBudget: MAX_XI_BUDGET,
-      totalCost: 0,
-      budget: MAX_SQUAD_BUDGET,
-      xiXp: 0,
-      formation: '3-4-3',
-    };
-  }
-
-  const getPlayerGwXp = (p: SolverPlayer, gw: number): number => {
-    if (gw === targetNextGW) {
-      if (p.status === 'i' || p.status === 's' || p.status === 'u') return 0;
-      return p.xP1;
-    }
-    const cell = p.fullSeasonPointsMap?.[gw];
-    if (cell && typeof cell.xp === 'number') {
-      return Math.round(cell.xp * 10) / 10;
-    }
-    return p.xP1;
-  };
-
-  const wcEndGw = Math.min(38, targetGw + 5);
-  const avgWindowXp = (p: SolverPlayer, startGw: number, endGw: number) => {
-    let sum = 0;
-    let cnt = 0;
-    for (let g = startGw; g <= endGw; g++) {
-      sum += getPlayerGwXp(p, g);
-      cnt++;
-    }
-    return cnt > 0 ? Math.round((sum / cnt) * 10) / 10 : getPlayerGwXp(p, startGw);
-  };
-
-  const xpCache = new Map<number, number>();
-  const tieCache = new Map<number, number>();
-  for (const p of players) {
-    const g1 = getPlayerGwXp(p, targetGw);
-    const g6 =
-      targetGw === targetNextGW && wcEndGw === Math.min(38, targetNextGW + 5)
-        ? p.avgXp6
-        : avgWindowXp(p, targetGw, wcEndGw);
-    xpCache.set(p.id, isFH ? g1 : g6);
-    tieCache.set(p.id, isFH ? g6 : g1);
-  }
-
-  const getXp = (p: SolverPlayer) => xpCache.get(p.id) ?? 0;
-  const getTie = (p: SolverPlayer) => tieCache.get(p.id) ?? 0;
-  const benchWeight = isFH ? 0.012 : 0.035;
-
-  const minMins = Math.min(90, completedGws * 20);
-  const fitCandidates = players.filter((p) => {
-    if (targetGw === targetNextGW) return p.status === 'a' && p.mins >= minMins;
-    return getPlayerGwXp(p, targetGw) > 0 && p.mins >= minMins;
-  });
-  const backupCandidates = players.filter((p) => {
-    if (targetGw === targetNextGW) return p.status !== 'i' && p.status !== 'u';
-    return getPlayerGwXp(p, targetGw) > 0 || (p.status !== 'i' && p.status !== 'u');
-  });
-
-  const posPool: Record<'GKP' | 'DEF' | 'MID' | 'FWD', SolverPlayer[]> = {
-    GKP: [],
-    DEF: [],
-    MID: [],
-    FWD: [],
-  };
-
-  const topN = fastMode ? 14 : 18;
-  const valN = fastMode ? 8 : 12;
-  const cheapN = fastMode ? 6 : 8;
-
-  for (const pos of ['GKP', 'DEF', 'MID', 'FWD'] as const) {
-    const primary = fitCandidates.filter((p) => p.position === pos);
-    const source = primary.length >= 6 ? primary : backupCandidates.filter((p) => p.position === pos);
-    const fallback = source.length >= 5 ? source : players.filter((p) => p.position === pos);
-
-    const topXp = [...fallback]
-      .sort((a, b) => getXp(b) - getXp(a) || getTie(b) - getTie(a) || b.pts - a.pts || a.cost - b.cost)
-      .slice(0, topN);
-    const topValue = [...fallback]
-      .sort((a, b) => getXp(b) / Math.max(b.cost, 3.8) - getXp(a) / Math.max(a.cost, 3.8))
-      .slice(0, valN);
-    const cheapPlaying = [...fallback]
-      .filter((p) => p.mins / completedGws >= 35)
-      .sort((a, b) => a.cost - b.cost || getXp(b) - getXp(a))
-      .slice(0, cheapN);
-    const ultraCheap = [...fallback].sort((a, b) => a.cost - b.cost || getXp(b) - getXp(a)).slice(0, cheapN);
-
-    const merged = new Map<number, SolverPlayer>();
-    for (const item of [...topXp, ...topValue, ...cheapPlaying, ...ultraCheap]) {
-      merged.set(item.id, item);
-    }
-    posPool[pos] = Array.from(merged.values());
-  }
-
-  const clubIdxMap = new Map<string, number>();
-  let nextClubIdx = 0;
-  const getClubIdx = (teamShort: string) => {
-    let idx = clubIdxMap.get(teamShort);
-    if (idx === undefined) {
-      idx = nextClubIdx++;
-      clubIdxMap.set(teamShort, idx);
-    }
-    return idx;
-  };
-
-  type PoolMeta = {
-    p: SolverPlayer;
-    id: number;
-    posIdx: 0 | 1 | 2 | 3;
-    cost: number;
-    xp: number;
-    tie: number;
-    clubIdx: number;
-  };
-
-  const POS_TO_IDX: Record<'GKP' | 'DEF' | 'MID' | 'FWD', 0 | 1 | 2 | 3> = {
-    GKP: 0,
-    DEF: 1,
-    MID: 2,
-    FWD: 3,
-  };
-
-  const metaById = new Map<number, PoolMeta>();
-  const posPoolMeta: [PoolMeta[], PoolMeta[], PoolMeta[], PoolMeta[]] = [[], [], [], []];
-  const posPoolByXpOnly: [PoolMeta[], PoolMeta[], PoolMeta[], PoolMeta[]] = [[], [], [], []];
-
-  for (const pos of ['GKP', 'DEF', 'MID', 'FWD'] as const) {
-    const pIdx = POS_TO_IDX[pos];
-    const metas = posPool[pos].map((p) => {
-      const m: PoolMeta = {
-        p,
-        id: p.id,
-        posIdx: pIdx,
-        cost: p.cost,
-        xp: getXp(p),
-        tie: getTie(p),
-        clubIdx: getClubIdx(p.teamShort),
-      };
-      metaById.set(p.id, m);
-      return m;
-    });
-    posPoolByXpOnly[pIdx] = [...metas].sort((a, b) => b.xp - a.xp);
-    posPoolMeta[pIdx] = [...metas].sort((a, b) => b.xp - a.xp || b.tie - a.tie);
-  }
-  const numClubs = Math.max(nextClubIdx, 1);
-
-  const FORMATIONS: Array<[number, number, number]> = [
-    [3, 4, 3],
-    [3, 5, 2],
-    [4, 3, 3],
-    [4, 4, 2],
-    [4, 5, 1],
-    [5, 3, 2],
-    [5, 4, 1],
-    [5, 2, 3],
-  ];
-
-  const isDualBudgetValidNums = (xiCost: number, cost: number) =>
-    xiCost <= MAX_XI_BUDGET + 0.001 && cost <= MAX_SQUAD_BUDGET + 0.001;
-  const calcBudgetExcessNums = (xiCost: number, cost: number) =>
-    Math.max(0, xiCost - MAX_XI_BUDGET) + Math.max(0, cost - MAX_SQUAD_BUDGET);
-  const cmpMeta = (a: PoolMeta, b: PoolMeta) => (b.xp !== a.xp ? b.xp - a.xp : b.tie - a.tie);
-
-  const scratchArr1: PoolMeta[] = new Array(5);
-  const scratchArr2: PoolMeta[] = new Array(5);
-
-  const evalGroup = (arr: PoolMeta[], sCount: number) => {
-    let sXp = 0;
-    let bXp = 0;
-    let sCost = 0;
-    let tCost = 0;
-    for (let i = 0; i < arr.length; i++) {
-      const item = arr[i];
-      tCost += item.cost;
-      if (i < sCount) {
-        sXp += item.xp;
-        sCost += item.cost;
-      } else {
-        bXp += item.xp;
-      }
-    }
-    return { sXp, bXp, sCost, tCost };
-  };
-
-  const evalReplaced1 = (arr: PoolMeta[], replaceIdx: number, inM: PoolMeta, sCount: number) => {
-    const len = arr.length;
-    let w = 0;
-    let inserted = false;
-    for (let i = 0; i < len; i++) {
-      if (i === replaceIdx) continue;
-      const cur = arr[i];
-      if (!inserted && cmpMeta(cur, inM) > 0) {
-        scratchArr1[w++] = inM;
-        inserted = true;
-      }
-      scratchArr1[w++] = cur;
-    }
-    if (!inserted) scratchArr1[w++] = inM;
-
-    let sXp = 0;
-    let bXp = 0;
-    let sCost = 0;
-    let tCost = 0;
-    for (let i = 0; i < len; i++) {
-      const item = scratchArr1[i];
-      tCost += item.cost;
-      if (i < sCount) {
-        sXp += item.xp;
-        sCost += item.cost;
-      } else {
-        bXp += item.xp;
-      }
-    }
-    return { sXp, bXp, sCost, tCost };
-  };
-
-  const evalReplaced2Same = (
-    arr: PoolMeta[],
-    idx1: number,
-    in1: PoolMeta,
-    idx2: number,
-    in2: PoolMeta,
-    sCount: number
-  ) => {
-    const len = arr.length;
-    const firstIn = cmpMeta(in1, in2) <= 0 ? in1 : in2;
-    const secondIn = firstIn === in1 ? in2 : in1;
-    let w = 0;
-    let ins = 0;
-    for (let i = 0; i < len; i++) {
-      if (i === idx1 || i === idx2) continue;
-      const cur = arr[i];
-      if (ins === 0 && cmpMeta(cur, firstIn) > 0) {
-        scratchArr2[w++] = firstIn;
-        ins = 1;
-      }
-      if (ins === 1 && cmpMeta(cur, secondIn) > 0) {
-        scratchArr2[w++] = secondIn;
-        ins = 2;
-      }
-      scratchArr2[w++] = cur;
-    }
-    if (ins === 0) {
-      scratchArr2[w++] = firstIn;
-      scratchArr2[w++] = secondIn;
-    } else if (ins === 1) {
-      scratchArr2[w++] = secondIn;
-    }
-
-    let sXp = 0;
-    let bXp = 0;
-    let sCost = 0;
-    let tCost = 0;
-    for (let i = 0; i < len; i++) {
-      const item = scratchArr2[i];
-      tCost += item.cost;
-      if (i < sCount) {
-        sXp += item.xp;
-        sCost += item.cost;
-      } else {
-        bXp += item.xp;
-      }
-    }
-    return { sXp, bXp, sCost, tCost };
-  };
-
-  const optimizeForFormation = (seedSquad: SolverPlayer[], dCount: number, mCount: number, fCount: number) => {
-    const sCounts: [number, number, number, number] = [1, dCount, mCount, fCount];
-    const groups: [PoolMeta[], PoolMeta[], PoolMeta[], PoolMeta[]] = [[], [], [], []];
-    const clubCounts = new Int32Array(numClubs);
-    const currentIds = new Set<number>();
-
-    for (const p of seedSquad) {
-      const m = metaById.get(p.id);
-      if (!m) return null;
-      clubCounts[m.clubIdx]++;
-      if (clubCounts[m.clubIdx] > 3) return null;
-      groups[m.posIdx].push(m);
-      currentIds.add(m.id);
-    }
-    for (let g = 0; g < 4; g++) groups[g].sort(cmpMeta);
-
-    const gStats = [
-      evalGroup(groups[0], sCounts[0]),
-      evalGroup(groups[1], sCounts[1]),
-      evalGroup(groups[2], sCounts[2]),
-      evalGroup(groups[3], sCounts[3]),
-    ];
-
-    const getTotals = () => {
-      let xiXp = 0;
-      let benchXp = 0;
-      let rawXiCost = 0;
-      let rawCost = 0;
-      for (let g = 0; g < 4; g++) {
-        xiXp += gStats[g].sXp;
-        benchXp += gStats[g].bXp;
-        rawXiCost += gStats[g].sCost;
-        rawCost += gStats[g].tCost;
-      }
-      return {
-        xiXp,
-        benchXp,
-        xiCost: Math.round(rawXiCost * 10) / 10,
-        cost: Math.round(rawCost * 10) / 10,
-        obj: xiXp + benchWeight * benchXp,
-      };
-    };
-
-    const applySwap1 = (posIdx: 0 | 1 | 2 | 3, slotIdx: number, inM: PoolMeta) => {
-      const outM = groups[posIdx][slotIdx];
-      currentIds.delete(outM.id);
-      currentIds.add(inM.id);
-      clubCounts[outM.clubIdx]--;
-      clubCounts[inM.clubIdx]++;
-      groups[posIdx][slotIdx] = inM;
-      groups[posIdx].sort(cmpMeta);
-      gStats[posIdx] = evalGroup(groups[posIdx], sCounts[posIdx]);
-    };
-
-    let baseTot = getTotals();
-    let repairGuard = 0;
-    while (calcBudgetExcessNums(baseTot.xiCost, baseTot.cost) > 0.001 && repairGuard < 36) {
-      repairGuard++;
-      const curExcess = calcBudgetExcessNums(baseTot.xiCost, baseTot.cost);
-      let bestPos: 0 | 1 | 2 | 3 = 0;
-      let bestSlot = -1;
-      let bestIn: PoolMeta | null = null;
-      let bestLossPerReduction = Infinity;
-
-      for (let posIdx = 0 as 0 | 1 | 2 | 3; posIdx < 4; posIdx = (posIdx + 1) as 0 | 1 | 2 | 3) {
-        const grp = groups[posIdx];
-        const pool = posPoolMeta[posIdx];
-        const sCnt = sCounts[posIdx];
-        const otherXiXp = baseTot.xiXp - gStats[posIdx].sXp;
-        const otherBenchXp = baseTot.benchXp - gStats[posIdx].bXp;
-        const baseRawXiCost = gStats[0].sCost + gStats[1].sCost + gStats[2].sCost + gStats[3].sCost - gStats[posIdx].sCost;
-        const baseRawTotalCost = gStats[0].tCost + gStats[1].tCost + gStats[2].tCost + gStats[3].tCost - gStats[posIdx].tCost;
-
-        for (let slotIdx = 0; slotIdx < grp.length; slotIdx++) {
-          const outM = grp[slotIdx];
-          for (const inM of pool) {
-            if (inM.cost >= outM.cost - 0.05 || currentIds.has(inM.id)) continue;
-            if (inM.clubIdx !== outM.clubIdx && clubCounts[inM.clubIdx] >= 3) continue;
-            const rep = evalReplaced1(grp, slotIdx, inM, sCnt);
-            const nextXiCost = Math.round((baseRawXiCost + rep.sCost) * 10) / 10;
-            const nextCost = Math.round((baseRawTotalCost + rep.tCost) * 10) / 10;
-            const reduction = curExcess - calcBudgetExcessNums(nextXiCost, nextCost);
-            if (reduction <= 0.001) continue;
-            const nextObj = otherXiXp + rep.sXp + benchWeight * (otherBenchXp + rep.bXp);
-            const lossPerReduction = (baseTot.obj - nextObj) / reduction;
-            if (lossPerReduction < bestLossPerReduction) {
-              bestLossPerReduction = lossPerReduction;
-              bestPos = posIdx;
-              bestSlot = slotIdx;
-              bestIn = inM;
-            }
-          }
-        }
-      }
-      if (bestSlot === -1 || !bestIn) break;
-      applySwap1(bestPos, bestSlot, bestIn);
-      baseTot = getTotals();
-    }
-
-    if (!isDualBudgetValidNums(baseTot.xiCost, baseTot.cost)) return null;
-
-    const swapCheapLimit = fastMode ? 4 : 8;
-    const swapUpLimit = fastMode ? 3 : 6;
-    const flatSlots: Array<{ posIdx: 0 | 1 | 2 | 3; slotIdx: number; m: PoolMeta }> = new Array(15);
-
-    for (let iter = 0; iter < 40; iter++) {
-      const stepTot = getTotals();
-      const sumRawXiCost = gStats[0].sCost + gStats[1].sCost + gStats[2].sCost + gStats[3].sCost;
-      const sumRawCost = gStats[0].tCost + gStats[1].tCost + gStats[2].tCost + gStats[3].tCost;
-
-      let bestNextObj = stepTot.obj + 1e-6;
-      let bestSwapKind: 0 | 1 | 2 = 0;
-      let b1Pos: 0 | 1 | 2 | 3 = 0;
-      let b1Slot = 0;
-      let b1In: PoolMeta | null = null;
-      let b2Pos: 0 | 1 | 2 | 3 = 0;
-      let b2Slot = 0;
-      let b2In: PoolMeta | null = null;
-
-      for (let posIdx = 0 as 0 | 1 | 2 | 3; posIdx < 4; posIdx = (posIdx + 1) as 0 | 1 | 2 | 3) {
-        const grp = groups[posIdx];
-        const pool = posPoolMeta[posIdx];
-        const sCnt = sCounts[posIdx];
-        const otherXiXp = stepTot.xiXp - gStats[posIdx].sXp;
-        const otherBenchXp = stepTot.benchXp - gStats[posIdx].bXp;
-        const baseOtherRawXiCost = sumRawXiCost - gStats[posIdx].sCost;
-        const baseOtherRawCost = sumRawCost - gStats[posIdx].tCost;
-
-        for (let slotIdx = 0; slotIdx < grp.length; slotIdx++) {
-          const outM = grp[slotIdx];
-          for (const inM of pool) {
-            if (inM.xp <= outM.xp) break;
-            if (currentIds.has(inM.id)) continue;
-            const nextCost = Math.round((stepTot.cost - outM.cost + inM.cost) * 10) / 10;
-            if (nextCost > MAX_SQUAD_BUDGET + 0.001) continue;
-            if (inM.clubIdx !== outM.clubIdx && clubCounts[inM.clubIdx] >= 3) continue;
-
-            const rep = evalReplaced1(grp, slotIdx, inM, sCnt);
-            const nextXiCost = Math.round((baseOtherRawXiCost + rep.sCost) * 10) / 10;
-            const nextTotCost = Math.round((baseOtherRawCost + rep.tCost) * 10) / 10;
-            if (!isDualBudgetValidNums(nextXiCost, nextTotCost)) continue;
-
-            const nextObj = otherXiXp + rep.sXp + benchWeight * (otherBenchXp + rep.bXp);
-            if (nextObj > bestNextObj) {
-              bestNextObj = nextObj;
-              bestSwapKind = 1;
-              b1Pos = posIdx;
-              b1Slot = slotIdx;
-              b1In = inM;
-            }
-          }
-        }
-      }
-
-      if (bestSwapKind === 1 && b1In) {
-        applySwap1(b1Pos, b1Slot, b1In);
-        continue;
-      }
-
-      if (!fastMode || iter < 8) {
-        let fIdx = 0;
-        for (let p = 0 as 0 | 1 | 2 | 3; p < 4; p = (p + 1) as 0 | 1 | 2 | 3) {
-          const grp = groups[p];
-          for (let s = 0; s < grp.length; s++) flatSlots[fIdx++] = { posIdx: p, slotIdx: s, m: grp[s] };
-        }
-
-        const cheaperBySlot: PoolMeta[][] = new Array(15);
-        const upgradesBySlot: PoolMeta[][] = new Array(15);
-        for (let k = 0; k < 15; k++) {
-          const slot = flatSlots[k];
-          const outM = slot.m;
-          const xpPool = posPoolByXpOnly[slot.posIdx];
-          const cheapList: PoolMeta[] = [];
-          const upList: PoolMeta[] = [];
-          for (let idx = 0; idx < xpPool.length; idx++) {
-            const cand = xpPool[idx];
-            if (currentIds.has(cand.id)) continue;
-            if (cand.cost < outM.cost - 0.05 && cheapList.length < swapCheapLimit) cheapList.push(cand);
-            if (cand.xp > outM.xp) upList.push(cand);
-          }
-          cheaperBySlot[k] = cheapList;
-          upgradesBySlot[k] = upList;
-        }
-
-        for (let i = 0; i < 15; i++) {
-          const s1 = flatSlots[i];
-          const out1 = s1.m;
-          const cheaper1 = cheaperBySlot[i];
-          if (cheaper1.length === 0) continue;
-
-          for (let c1 = 0; c1 < cheaper1.length; c1++) {
-            const in1 = cheaper1[c1];
-            const remSquadBudget = MAX_SQUAD_BUDGET - (stepTot.cost - out1.cost + in1.cost);
-
-            for (let j = 0; j < 15; j++) {
-              if (j === i) continue;
-              const s2 = flatSlots[j];
-              const out2 = s2.m;
-              const upAll = upgradesBySlot[j];
-              let takenUp = 0;
-
-              for (let u2 = 0; u2 < upAll.length && takenUp < swapUpLimit; u2++) {
-                const in2 = upAll[u2];
-                if (in2.id === in1.id || in2.cost - out2.cost > remSquadBudget + 0.001) continue;
-                takenUp++;
-
-                const oc1 = out1.clubIdx;
-                const oc2 = out2.clubIdx;
-                const ic1 = in1.clubIdx;
-                const ic2 = in2.clubIdx;
-                if (ic1 === ic2) {
-                  const freed = (oc1 === ic1 ? 1 : 0) + (oc2 === ic1 ? 1 : 0);
-                  if (clubCounts[ic1] - freed + 2 > 3) continue;
-                } else {
-                  const freed1 = (oc1 === ic1 ? 1 : 0) + (oc2 === ic1 ? 1 : 0);
-                  if (clubCounts[ic1] - freed1 + 1 > 3) continue;
-                  const freed2 = (oc1 === ic2 ? 1 : 0) + (oc2 === ic2 ? 1 : 0);
-                  if (clubCounts[ic2] - freed2 + 1 > 3) continue;
-                }
-
-                let nextXiXp: number;
-                let nextBenchXp: number;
-                let nextRawXiCost: number;
-                let nextRawTotalCost: number;
-
-                if (s1.posIdx === s2.posIdx) {
-                  const grp = groups[s1.posIdx];
-                  const rep = evalReplaced2Same(grp, s1.slotIdx, in1, s2.slotIdx, in2, sCounts[s1.posIdx]);
-                  nextXiXp = stepTot.xiXp - gStats[s1.posIdx].sXp + rep.sXp;
-                  nextBenchXp = stepTot.benchXp - gStats[s1.posIdx].bXp + rep.bXp;
-                  nextRawXiCost = sumRawXiCost - gStats[s1.posIdx].sCost + rep.sCost;
-                  nextRawTotalCost = sumRawCost - gStats[s1.posIdx].tCost + rep.tCost;
-                } else {
-                  const rep1 = evalReplaced1(groups[s1.posIdx], s1.slotIdx, in1, sCounts[s1.posIdx]);
-                  const rep2 = evalReplaced1(groups[s2.posIdx], s2.slotIdx, in2, sCounts[s2.posIdx]);
-                  nextXiXp = stepTot.xiXp - gStats[s1.posIdx].sXp - gStats[s2.posIdx].sXp + rep1.sXp + rep2.sXp;
-                  nextBenchXp = stepTot.benchXp - gStats[s1.posIdx].bXp - gStats[s2.posIdx].bXp + rep1.bXp + rep2.bXp;
-                  nextRawXiCost = sumRawXiCost - gStats[s1.posIdx].sCost - gStats[s2.posIdx].sCost + rep1.sCost + rep2.sCost;
-                  nextRawTotalCost = sumRawCost - gStats[s1.posIdx].tCost - gStats[s2.posIdx].tCost + rep1.tCost + rep2.tCost;
-                }
-
-                const nextXiCost = Math.round(nextRawXiCost * 10) / 10;
-                const nextTotCost = Math.round(nextRawTotalCost * 10) / 10;
-                if (!isDualBudgetValidNums(nextXiCost, nextTotCost)) continue;
-
-                const nextObj = nextXiXp + benchWeight * nextBenchXp;
-                if (nextObj > bestNextObj) {
-                  bestNextObj = nextObj;
-                  bestSwapKind = 2;
-                  b1Pos = s1.posIdx;
-                  b1Slot = s1.slotIdx;
-                  b1In = in1;
-                  b2Pos = s2.posIdx;
-                  b2Slot = s2.slotIdx;
-                  b2In = in2;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      if (bestSwapKind === 2 && b1In && b2In) {
-        if (b1Pos === b2Pos) {
-          const out1 = groups[b1Pos][b1Slot];
-          const out2 = groups[b2Pos][b2Slot];
-          currentIds.delete(out1.id);
-          currentIds.delete(out2.id);
-          currentIds.add(b1In.id);
-          currentIds.add(b2In.id);
-          clubCounts[out1.clubIdx]--;
-          clubCounts[out2.clubIdx]--;
-          clubCounts[b1In.clubIdx]++;
-          clubCounts[b2In.clubIdx]++;
-          groups[b1Pos][b1Slot] = b1In;
-          groups[b2Pos][b2Slot] = b2In;
-          groups[b1Pos].sort(cmpMeta);
-          gStats[b1Pos] = evalGroup(groups[b1Pos], sCounts[b1Pos]);
-        } else {
-          applySwap1(b1Pos, b1Slot, b1In);
-          applySwap1(b2Pos, b2Slot, b2In);
-        }
-      } else {
-        break;
-      }
-    }
-
-    const finalTot = getTotals();
-    if (!isDualBudgetValidNums(finalTot.xiCost, finalTot.cost)) return null;
-
-    const starterIds: number[] = [
-      groups[0][0].id,
-      ...groups[1].slice(0, dCount).map((m) => m.id),
-      ...groups[2].slice(0, mCount).map((m) => m.id),
-      ...groups[3].slice(0, fCount).map((m) => m.id),
-    ];
-    const benchOut = [
-      ...groups[1].slice(dCount),
-      ...groups[2].slice(mCount),
-      ...groups[3].slice(fCount),
-    ]
-      .sort((a, b) => b.xp - a.xp)
-      .map((m) => m.id);
-    const benchIds: number[] = groups[0][1] ? [groups[0][1].id, ...benchOut] : benchOut;
-
-    return {
-      starterIds,
-      benchIds,
-      xiXp: finalTot.xiXp,
-      xiCost: finalTot.xiCost,
-      cost: finalTot.cost,
-      obj: finalTot.obj,
-      formation: `${dCount}-${mCount}-${fCount}`,
-    };
-  };
-
-  const buildCheapestSeed = () => {
-    const picked: SolverPlayer[] = [];
-    const cc: Record<string, number> = {};
-    const used = new Set<number>();
-    const quotas: Array<['GKP' | 'DEF' | 'MID' | 'FWD', number]> = [
-      ['GKP', 2],
-      ['DEF', 5],
-      ['MID', 5],
-      ['FWD', 3],
-    ];
-    for (const [pos, need] of quotas) {
-      const list = [...posPool[pos]].sort((a, b) => a.cost - b.cost || getXp(b) - getXp(a));
-      let taken = 0;
-      for (const p of list) {
-        if (taken >= need) break;
-        if (!used.has(p.id) && (cc[p.teamShort] || 0) < 3) {
-          picked.push(p);
-          used.add(p.id);
-          cc[p.teamShort] = (cc[p.teamShort] || 0) + 1;
-          taken++;
-        }
-      }
-    }
-    return picked;
-  };
-
-  const buildTopDownSeed = (dCount: number, mCount: number, fCount: number) => {
-    const picked: SolverPlayer[] = [];
-    const cc: Record<string, number> = {};
-    const used = new Set<number>();
-    const tryAdd = (p: SolverPlayer) => {
-      if (!used.has(p.id) && (cc[p.teamShort] || 0) < 3) {
-        picked.push(p);
-        used.add(p.id);
-        cc[p.teamShort] = (cc[p.teamShort] || 0) + 1;
-        return true;
-      }
-      return false;
-    };
-    const starterQuotas: Array<['GKP' | 'DEF' | 'MID' | 'FWD', number]> = [
-      ['GKP', 1],
-      ['DEF', dCount],
-      ['MID', mCount],
-      ['FWD', fCount],
-    ];
-    for (const [pos, need] of starterQuotas) {
-      const list = [...posPool[pos]].sort((a, b) => getXp(b) - getXp(a) || a.cost - b.cost);
-      let taken = 0;
-      for (const p of list) {
-        if (taken >= need) break;
-        if (tryAdd(p)) taken++;
-      }
-    }
-    const benchQuotas: Array<['GKP' | 'DEF' | 'MID' | 'FWD', number]> = [
-      ['GKP', 1],
-      ['DEF', 5 - dCount],
-      ['MID', 5 - mCount],
-      ['FWD', 3 - fCount],
-    ];
-    for (const [pos, need] of benchQuotas) {
-      if (need <= 0) continue;
-      const list = [...posPool[pos]].sort((a, b) => a.cost - b.cost || getXp(b) - getXp(a));
-      let taken = 0;
-      for (const p of list) {
-        if (taken >= need) break;
-        if (tryAdd(p)) taken++;
-      }
-    }
-    return picked;
-  };
-
-  const cheapSeed = buildCheapestSeed();
-  let bestOverall: ReturnType<typeof optimizeForFormation> = null;
-
-  for (const [dCount, mCount, fCount] of FORMATIONS) {
-    const seeds = [cheapSeed, buildTopDownSeed(dCount, mCount, fCount)];
-    for (const seed of seeds) {
-      if (seed.length !== 15) continue;
-      const res = optimizeForFormation(seed, dCount, mCount, fCount);
-      if (!res) continue;
-      if (
-        !bestOverall ||
-        res.obj > bestOverall.obj + 1e-6 ||
-        (Math.abs(res.obj - bestOverall.obj) <= 1e-6 && res.xiXp > bestOverall.xiXp)
-      ) {
-        bestOverall = res;
-      }
-    }
-  }
-
-  if (!bestOverall) {
-    const s15 = cheapSeed.slice(0, 15);
-    const gkps = s15.filter((p) => p.position === 'GKP');
-    const defs = s15.filter((p) => p.position === 'DEF');
-    const mids = s15.filter((p) => p.position === 'MID');
-    const fwds = s15.filter((p) => p.position === 'FWD');
-    const st = [gkps[0], ...defs.slice(0, 3), ...mids.slice(0, 4), ...fwds.slice(0, 3)].filter(Boolean);
-    const bn = [gkps[1], ...defs.slice(3), ...mids.slice(4), ...fwds.slice(3)].filter(Boolean);
-    return {
-      starterIds: st.map((p) => p.id),
-      benchIds: bn.map((p) => p.id),
-      xiCost: Math.round(st.reduce((s, p) => s + p.cost, 0) * 10) / 10,
-      xiBudget: MAX_XI_BUDGET,
-      totalCost: Math.round(s15.reduce((s, p) => s + p.cost, 0) * 10) / 10,
-      budget: MAX_SQUAD_BUDGET,
-      xiXp: Math.round(st.reduce((s, p) => s + getXp(p), 0) * 10) / 10,
-      formation: '3-4-3',
-    };
-  }
-
-  return {
-    starterIds: bestOverall.starterIds,
-    benchIds: bestOverall.benchIds,
-    xiCost: bestOverall.xiCost,
-    xiBudget: MAX_XI_BUDGET,
-    totalCost: bestOverall.cost,
-    budget: MAX_SQUAD_BUDGET,
-    xiXp: Math.round(bestOverall.xiXp * 10) / 10,
-    formation: bestOverall.formation,
-  };
-}
-
+// ============================================================================
+// SCOUT ENGINE: UNIFIED CAUSAL ISOLATED WALK-FORWARD CALIBRATOR & SOLVER
+// ============================================================================
 export async function getServerScoutSquads(
   cachedData: TransformedLeagueData,
   force: boolean = false
@@ -3508,36 +2810,56 @@ export async function getServerScoutSquads(
   const buildPromise = (async (): Promise<ServerScoutSquadsPayload> => {
     const startMs = Date.now();
     const coreCtx = await getOrBuildCoreContext(cachedData, force);
-    const { baseHistoricalGW, targetNextGW } = coreCtx.epoch;
-    const rawById = new Map((cachedData.player_stats || []).map((p) => [p.id, p]));
+    const { baseHistoricalGW, targetNextGW, maxReviewGW } = coreCtx.epoch;
 
-    const solverPlayers: SolverPlayer[] = coreCtx.corePayload.allPlayerFullSeasonProjections.map((proj) => {
-      const raw = rawById.get(proj.id);
-      const cell1 = proj.fullSeasonPointsMap?.[targetNextGW];
-      const xP1 = cell1?.xp ?? 0;
+    const actualPlayerStatsMap = buildServerActualPlayerStatsMap(
+      cachedData,
+      coreCtx.matchesWithLineupsByGw,
+      maxReviewGW
+    );
 
-      const wcGws = [targetNextGW, targetNextGW + 1, targetNextGW + 2, targetNextGW + 3, targetNextGW + 4, targetNextGW + 5].filter(
-        (g) => g <= 38
-      );
-      const sum6 = wcGws.reduce((s, g) => s + (proj.fullSeasonPointsMap?.[g]?.xp ?? xP1), 0);
-      const avgXp6 = wcGws.length > 0 ? Number((sum6 / wcGws.length).toFixed(1)) : xP1;
-
-      return {
+    const scoutPlayers: ScoutModelPlayerInput[] = coreCtx.corePayload.allPlayerFullSeasonProjections.map(
+      (proj) => ({
         id: proj.id,
         position: proj.position,
         teamShort: proj.teamShort,
         cost: proj.nowCost,
-        pts: raw?.totalPoints || 0,
-        mins: Math.max(raw?.minutes || 0, 1),
         status: proj.status || 'a',
+        chanceOfPlaying: proj.chance ?? null,
+        deadBall: proj.deadBall,
         fullSeasonPointsMap: proj.fullSeasonPointsMap,
-        xP1: Number(xP1.toFixed(1)),
-        avgXp6,
-      };
+      })
+    );
+
+    // Run strict causal isolated walk-forward policy calibration across GW 3..baseHistoricalGW
+    const policy = calibrateScoutPolicyWalkForward({
+      players: scoutPlayers,
+      baseHistoricalGW,
+      targetNextGW,
+      actualPlayerStatsMap,
+      ownershipPlayersByGw: cachedData.ownership_players || {},
+      standingsByGw: cachedData.standings || {},
+      allTransfers: cachedData.all_transfers,
+      allChipsUsed: cachedData.all_chips_used,
+      quantilesByPlayerGw: coreCtx.quantilesByPlayerGw,
     });
 
-    const fhTarget = solveServerScoutForGwMode(solverPlayers, baseHistoricalGW, targetNextGW, targetNextGW, 'FH', false);
-    const wcTarget = solveServerScoutForGwMode(solverPlayers, baseHistoricalGW, targetNextGW, targetNextGW, 'WC', false);
+    const fhTarget = solveScoutSquadForGwMode({
+      players: scoutPlayers,
+      targetNextGW,
+      targetGw: targetNextGW,
+      mode: 'FH',
+      policy,
+      fastMode: false,
+    });
+    const wcTarget = solveScoutSquadForGwMode({
+      players: scoutPlayers,
+      targetNextGW,
+      targetGw: targetNextGW,
+      mode: 'WC',
+      policy,
+      fastMode: false,
+    });
 
     const halfEndGW = targetNextGW >= 20 ? 38 : 19;
     const chipSetByGw: Record<number, { fhSquadIds: number[]; wcSquadIds: number[] }> = {};
@@ -3549,8 +2871,22 @@ export async function getServerScoutSquads(
           wcSquadIds: [...wcTarget.starterIds, ...wcTarget.benchIds],
         };
       } else {
-        const fhRes = solveServerScoutForGwMode(solverPlayers, baseHistoricalGW, targetNextGW, g, 'FH', true);
-        const wcRes = solveServerScoutForGwMode(solverPlayers, baseHistoricalGW, targetNextGW, g, 'WC', true);
+        const fhRes = solveScoutSquadForGwMode({
+          players: scoutPlayers,
+          targetNextGW,
+          targetGw: g,
+          mode: 'FH',
+          policy,
+          fastMode: true,
+        });
+        const wcRes = solveScoutSquadForGwMode({
+          players: scoutPlayers,
+          targetNextGW,
+          targetGw: g,
+          mode: 'WC',
+          policy,
+          fastMode: true,
+        });
         chipSetByGw[g] = {
           fhSquadIds: [...fhRes.starterIds, ...fhRes.benchIds],
           wcSquadIds: [...wcRes.starterIds, ...wcRes.benchIds],
@@ -3565,11 +2901,12 @@ export async function getServerScoutSquads(
       fhTarget,
       wcTarget,
       chipSetByGw,
+      policy,
     };
 
     cachedScoutPayload = payload;
     console.log(
-      `[ProjectionEngine] Solved Scout FH/WC Squads epoch=${coreCtx.epoch.epochKey} (${Object.keys(chipSetByGw).length} GWs) in ${Date.now() - startMs}ms`
+      `[ProjectionEngine] Solved Walk-Fwd Scout Squads+Policy epoch=${coreCtx.epoch.epochKey} (${Object.keys(chipSetByGw).length} GWs, cal=GW${policy.calibrationGwRange[0]}-${policy.calibrationGwRange[1]}) in ${Date.now() - startMs}ms`
     );
     return payload;
   })();

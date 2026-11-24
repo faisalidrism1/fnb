@@ -13,11 +13,12 @@
   "ground": {
     "name": "MKM Stadium, Hull"
   },
-  "status": "L",
-  "phase": "2",
+  "status": "C",
+  "phase": "F",
+  "outcome": "H",
   "clock": {
-    "label": "65'",
-    "secs": 3900
+    "label": "Full Time",
+    "secs": 5400
   },
   "teams": [
     {
@@ -29,7 +30,7 @@
           "abbr": "HUL"
         }
       },
-      "score": 0
+      "score": 2
     },
     {
       "team": {
@@ -1079,6 +1080,296 @@
         "homeScore": 0,
         "awayScore": 0
       }
+    },
+    {
+      "type": "S",
+      "personId": 232351,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 608227,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 532529,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 509416,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 647850,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 463067,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 592031,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 204120,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "67'",
+        "secs": 4020
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 552946,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "68'",
+        "secs": 4080
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 101282,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "68'",
+        "secs": 4080
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 231416,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "80'",
+        "secs": 4800
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 514254,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "80'",
+        "secs": 4800
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "Y",
+      "personId": 592984,
+      "phase": "2",
+      "clock": {
+        "label": "81'",
+        "secs": 4860
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 496181,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "84'",
+        "secs": 5040
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 193278,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "84'",
+        "secs": 5040
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "YR",
+      "personId": 451490,
+      "phase": "2",
+      "clock": {
+        "label": "89'",
+        "secs": 5340
+      },
+      "score": {
+        "homeScore": 0,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 169432,
+      "assistId": 469266,
+      "phase": "2",
+      "clock": {
+        "label": "92'",
+        "secs": 5520
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 612855,
+      "description": "ON",
+      "phase": "2",
+      "clock": {
+        "label": "94'",
+        "secs": 5640
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "S",
+      "personId": 592984,
+      "description": "OFF",
+      "phase": "2",
+      "clock": {
+        "label": "94'",
+        "secs": 5640
+      },
+      "score": {
+        "homeScore": 1,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "G",
+      "personId": 169432,
+      "assistId": 540324,
+      "phase": "2",
+      "clock": {
+        "label": "95'",
+        "secs": 5700
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
+    },
+    {
+      "type": "PE",
+      "phase": "2",
+      "clock": {
+        "secs": 5700,
+        "label": "90+5'"
+      },
+      "score": {
+        "homeScore": 2,
+        "awayScore": 0
+      }
     }
   ],
   "textstreamEvents": [
@@ -1099,7 +1390,7 @@
     {
       "id": 2913893,
       "time": {
-        "secs": 13,
+        "secs": 10,
         "label": "01"
       },
       "type": "free kick won",
@@ -1111,7 +1402,7 @@
     {
       "id": 2913894,
       "time": {
-        "secs": 13,
+        "secs": 10,
         "label": "01"
       },
       "type": "free kick lost",
@@ -1251,7 +1542,7 @@
         "label": "21"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Yasin Ayari (Brighton and Hove Albion) right footed shot from the centre of the box is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Georginio Rutter.",
+      "text": "Attempt saved. Yasin Ayari (Brighton and Hove Albion) right footed shot from the centre of the box is saved in the top centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Georginio Rutter.",
       "playerIds": [
         134333,
         51830
@@ -1288,7 +1579,7 @@
         "label": "23"
       },
       "type": "miss",
-      "text": "Attempt missed. Nobel Mendy (Hull City) header from the centre of the box is high and wide to the left. Assisted by Regan Slater with a cross following a set piece situation.",
+      "text": "Attempt missed. Nobel Mendy (Hull City) header from the centre of the box is high and wide to the left. Assisted by Regan Slater following a set piece situation.",
       "playerIds": [
         133314,
         21385
@@ -1389,7 +1680,7 @@
         "label": "32"
       },
       "type": "attempt saved",
-      "text": "Attempt saved. Georginio Rutter (Brighton and Hove Albion) right footed shot from a difficult angle on the right is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Diego Gómez with a through ball.",
+      "text": "Attempt saved. Georginio Rutter (Brighton and Hove Albion) right footed shot from the right side of the box is saved in the centre of the goal by Konstantinos Tzolakis (Hull City). Assisted by Diego Gómez with a through ball.",
       "playerIds": [
         51830,
         143240
@@ -1533,7 +1824,7 @@
     {
       "id": 2913993,
       "time": {
-        "secs": 2205,
+        "secs": 2194,
         "label": "37"
       },
       "type": "yellow card",
@@ -1642,7 +1933,7 @@
     {
       "id": 2914025,
       "time": {
-        "secs": 2568,
+        "secs": 2559,
         "label": "43"
       },
       "type": "start delay",
@@ -1651,7 +1942,7 @@
     {
       "id": 2914028,
       "time": {
-        "secs": 2678,
+        "secs": 2676,
         "label": "45"
       },
       "type": "end delay",
@@ -1660,7 +1951,7 @@
     {
       "id": 2914029,
       "time": {
-        "secs": 2680,
+        "secs": 2678,
         "label": "45"
       },
       "type": "substitution",
@@ -1815,7 +2106,7 @@
         "label": "52"
       },
       "type": "miss",
-      "text": "Attempt missed. Diego Gómez (Brighton and Hove Albion) right footed shot from a difficult angle on the right is close, but misses to the left. Assisted by Maxim De Cuyper.",
+      "text": "Attempt missed. Diego Gómez (Brighton and Hove Albion) right footed shot from a difficult angle on the right misses to the left. Assisted by Maxim De Cuyper.",
       "playerIds": [
         143240,
         67928
@@ -2002,6 +2293,420 @@
       "playerIds": [
         22542
       ]
+    },
+    {
+      "id": 2914226,
+      "time": {
+        "secs": 3871,
+        "label": "65"
+      },
+      "type": "miss",
+      "text": "Attempt missed. Mohamed Belloumi (Hull City) left footed shot from the centre of the box is close, but misses to the right. Assisted by Regan Slater following a fast break.",
+      "playerIds": [
+        137549,
+        21385
+      ]
+    },
+    {
+      "id": 2914229,
+      "time": {
+        "secs": 3973,
+        "label": "67"
+      },
+      "type": "substitution",
+      "text": "Substitution, Brighton and Hove Albion. Jack Hinshelwood replaces Yasin Ayari.",
+      "playerIds": [
+        112739,
+        134333
+      ]
+    },
+    {
+      "id": 2914235,
+      "time": {
+        "secs": 3977,
+        "label": "67"
+      },
+      "type": "substitution",
+      "text": "Substitution, Brighton and Hove Albion. Charalampos Kostoulas replaces Georginio Rutter.",
+      "playerIds": [
+        145043,
+        51830
+      ]
+    },
+    {
+      "id": 2914233,
+      "time": {
+        "secs": 3990,
+        "label": "67"
+      },
+      "type": "substitution",
+      "text": "Substitution, Brighton and Hove Albion. Yankuba Minteh replaces Olivier Boscagli.",
+      "playerIds": [
+        136175,
+        20505
+      ]
+    },
+    {
+      "id": 2914234,
+      "time": {
+        "secs": 4020,
+        "label": "68"
+      },
+      "type": "substitution",
+      "text": "Substitution, Hull City. Ryan Giles replaces Elliot Stroud.",
+      "playerIds": [
+        20081,
+        337382
+      ]
+    },
+    {
+      "id": 2914232,
+      "time": {
+        "secs": 4024,
+        "label": "68"
+      },
+      "type": "substitution",
+      "text": "Substitution, Hull City. Jens Hjertø-Dahl replaces Matt Crooks.",
+      "playerIds": [
+        336928,
+        8885
+      ]
+    },
+    {
+      "id": 2914244,
+      "time": {
+        "secs": 4089,
+        "label": "69"
+      },
+      "type": "corner",
+      "text": "Corner, Brighton and Hove Albion. Conceded by Lewie Coyle.",
+      "playerIds": [
+        13486
+      ]
+    },
+    {
+      "id": 2914247,
+      "time": {
+        "secs": 4283,
+        "label": "72"
+      },
+      "type": "corner",
+      "text": "Corner, Hull City. Conceded by Costinha.",
+      "playerIds": [
+        146970
+      ]
+    },
+    {
+      "id": 2914250,
+      "time": {
+        "secs": 4519,
+        "label": "76"
+      },
+      "type": "offside",
+      "text": "Offside, Hull City. Lewie Coyle is caught offside.",
+      "playerIds": [
+        137549,
+        13486
+      ]
+    },
+    {
+      "id": 2914253,
+      "time": {
+        "secs": 4629,
+        "label": "78"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Jens Hjertø-Dahl (Hull City) right footed shot from the centre of the box is blocked. Assisted by Regan Slater.",
+      "playerIds": [
+        336928,
+        21385
+      ]
+    },
+    {
+      "id": 2914258,
+      "time": {
+        "secs": 4700,
+        "label": "79"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Charalampos Kostoulas (Brighton and Hove Albion) right footed shot from the right side of the box is blocked.",
+      "playerIds": [
+        145043
+      ]
+    },
+    {
+      "id": 2914256,
+      "time": {
+        "secs": 4702,
+        "label": "79"
+      },
+      "type": "free kick won",
+      "text": "Regan Slater (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        21385
+      ]
+    },
+    {
+      "id": 2914259,
+      "time": {
+        "secs": 4702,
+        "label": "79"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jack Hinshelwood (Brighton and Hove Albion).",
+      "playerIds": [
+        112739
+      ]
+    },
+    {
+      "id": 2914257,
+      "time": {
+        "secs": 4779,
+        "label": "80"
+      },
+      "type": "substitution",
+      "text": "Substitution, Brighton and Hove Albion. Ferdi Kadıoğlu replaces Diego Gómez.",
+      "playerIds": [
+        50727,
+        143240
+      ]
+    },
+    {
+      "id": 2914269,
+      "time": {
+        "secs": 4841,
+        "label": "81"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Chema Andrés (Brighton and Hove Albion).",
+      "playerIds": [
+        129259
+      ]
+    },
+    {
+      "id": 2914270,
+      "time": {
+        "secs": 4841,
+        "label": "81"
+      },
+      "type": "free kick won",
+      "text": "Lewie Coyle (Hull City) wins a free kick on the right wing.",
+      "playerIds": [
+        13486
+      ]
+    },
+    {
+      "id": 2914268,
+      "time": {
+        "secs": 4845,
+        "label": "81"
+      },
+      "type": "yellow card",
+      "text": "Chema Andrés (Brighton and Hove Albion) is shown the yellow card for a bad foul.",
+      "playerIds": [
+        129259
+      ]
+    },
+    {
+      "id": 2914278,
+      "time": {
+        "secs": 4889,
+        "label": "82"
+      },
+      "type": "attempt blocked",
+      "text": "Attempt blocked. Regan Slater (Hull City) right footed shot from outside the box is blocked. Assisted by Jens Hjertø-Dahl.",
+      "playerIds": [
+        21385,
+        336928
+      ]
+    },
+    {
+      "id": 2914277,
+      "time": {
+        "secs": 4890,
+        "label": "82"
+      },
+      "type": "corner",
+      "text": "Corner, Hull City. Conceded by Chema Andrés.",
+      "playerIds": [
+        129259
+      ]
+    },
+    {
+      "id": 2914283,
+      "time": {
+        "secs": 4927,
+        "label": "83"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Jens Hjertø-Dahl (Hull City).",
+      "playerIds": [
+        336928
+      ]
+    },
+    {
+      "id": 2914284,
+      "time": {
+        "secs": 4927,
+        "label": "83"
+      },
+      "type": "free kick won",
+      "text": "Chema Andrés (Brighton and Hove Albion) wins a free kick in the defensive half.",
+      "playerIds": [
+        129259
+      ]
+    },
+    {
+      "id": 2914289,
+      "time": {
+        "secs": 5035,
+        "label": "84"
+      },
+      "type": "substitution",
+      "text": "Substitution, Hull City. Brooke Norton-Cuffy replaces Lewie Coyle.",
+      "playerIds": [
+        108919,
+        13486
+      ]
+    },
+    {
+      "id": 2914292,
+      "time": {
+        "secs": 5143,
+        "label": "86"
+      },
+      "type": "offside",
+      "text": "Offside, Hull City. Jens Hjertø-Dahl is caught offside.",
+      "playerIds": [
+        8107,
+        336928
+      ]
+    },
+    {
+      "id": 2914295,
+      "time": {
+        "secs": 5321,
+        "label": "89"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Costinha (Brighton and Hove Albion).",
+      "playerIds": [
+        146970
+      ]
+    },
+    {
+      "id": 2914296,
+      "time": {
+        "secs": 5321,
+        "label": "89"
+      },
+      "type": "free kick won",
+      "text": "Sorba Thomas (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        21455
+      ]
+    },
+    {
+      "id": 2914301,
+      "time": {
+        "secs": 5328,
+        "label": "89"
+      },
+      "type": "secondyellow card",
+      "text": "Second yellow card to Costinha (Brighton and Hove Albion) for a bad foul.",
+      "playerIds": [
+        146970
+      ]
+    },
+    {
+      "id": 2914304,
+      "time": {
+        "secs": 5400,
+        "label": "90+1"
+      },
+      "type": "added time",
+      "text": "Fourth official has announced 4 minutes of added time."
+    },
+    {
+      "id": 2914305,
+      "time": {
+        "secs": 5481,
+        "label": "90+2"
+      },
+      "type": "goal",
+      "text": "Goal! Hull City 1, Brighton and Hove Albion 0. Oliver McBurnie (Hull City) right footed shot from the centre of the box to the bottom right corner. Assisted by Lucas Gourna-Douath following a fast break.",
+      "playerIds": [
+        8107,
+        75264
+      ]
+    },
+    {
+      "id": 2914310,
+      "time": {
+        "secs": 5581,
+        "label": "90+4"
+      },
+      "type": "free kick won",
+      "text": "Oliver McBurnie (Hull City) wins a free kick in the defensive half.",
+      "playerIds": [
+        8107
+      ]
+    },
+    {
+      "id": 2914311,
+      "time": {
+        "secs": 5581,
+        "label": "90+4"
+      },
+      "type": "free kick lost",
+      "text": "Foul by Yankuba Minteh (Brighton and Hove Albion).",
+      "playerIds": [
+        136175
+      ]
+    },
+    {
+      "id": 2914312,
+      "time": {
+        "secs": 5620,
+        "label": "90+4"
+      },
+      "type": "substitution",
+      "text": "Substitution, Brighton and Hove Albion. Ibrahim Osman replaces Chema Andrés.",
+      "playerIds": [
+        136398,
+        129259
+      ]
+    },
+    {
+      "id": 2914319,
+      "time": {
+        "secs": 5662,
+        "label": "90+5"
+      },
+      "type": "goal",
+      "text": "Goal! Hull City 2, Brighton and Hove Albion 0. Oliver McBurnie (Hull City) right footed shot from very close range to the centre of the goal. Assisted by Mohamed Belloumi following a fast break.",
+      "playerIds": [
+        8107,
+        137549
+      ]
+    },
+    {
+      "id": 2914322,
+      "time": {
+        "secs": 5740,
+        "label": "90+6"
+      },
+      "type": "end 2",
+      "text": "Second Half ends, Hull City 2, Brighton and Hove Albion 0."
+    },
+    {
+      "id": 2914325,
+      "time": {
+        "secs": 0,
+        "label": "01"
+      },
+      "type": "end 14",
+      "text": "Match ends, Hull City 2, Brighton and Hove Albion 0."
     }
   ]
 }

@@ -1079,6 +1079,77 @@ export interface SolvedScoutSquadResult {
   formation: string;
 }
 
+export interface ScoutTransferHorizonPolicy {
+  ftValueBase: number;
+  repairFtValue: number;
+  hitSurplusMargin: number;
+  marginalHitMargin: number;
+  pStartRelWeight: number;
+  upsideWeight: number;
+  minInPStart: number;
+  p9MinNetNonMid: number;
+  p9MinNetMid: number;
+  p9MinNetBroken: number;
+  p9MinPBeatNonMid: number;
+  p9MinPBeatMid: number;
+  p9MinPBeatBroken: number;
+}
+
+export interface ScoutSelectionPolicy {
+  version: string;
+  calibrationGwRange: [number, number];
+  picksFH: {
+    benchWeight: number;
+    pStartGamma: number;
+    upsideBeta: number;
+    minPStart: number;
+  };
+  picksWC: {
+    benchWeight: number;
+    pStartGamma: number;
+    upsideBeta: number;
+    minPStart: number;
+  };
+  captain: {
+    wTail: number;
+    wHaul: number;
+    wPStart: number;
+    wPen: number;
+    defPenalty: number;
+    minPStart: number;
+  };
+  differential: {
+    wHorizon: number;
+    wTail: number;
+    wHaul: number;
+    wPStart: number;
+    wPen: number;
+    minPStart: number;
+    maxFnbOwn: number;
+  };
+  chips: {
+    tcTailWeight: number;
+    tcReliabilityAlpha: number;
+    bbMinPStart: number;
+    bbReliabilityAlpha: number;
+  };
+  transfer: {
+    h1: ScoutTransferHorizonPolicy;
+    h3: ScoutTransferHorizonPolicy;
+    h6: ScoutTransferHorizonPolicy;
+  };
+  walkForwardSummary?: {
+    fhAvgActualPts: number;
+    wcAvgActualPtsPerGw: number;
+    capTop1AvgActualPts: number;
+    capTop3AvgActualPts: number;
+    diffTop3AvgActualPts: number;
+    transferAvgNetGainH1: number;
+    transferAvgNetGainH3: number;
+    evaluatedGws: number[];
+  };
+}
+
 export interface ServerScoutSquadsPayload {
   epochKey: string;
   generatedAt: string;
@@ -1086,5 +1157,7 @@ export interface ServerScoutSquadsPayload {
   fhTarget: SolvedScoutSquadResult;
   wcTarget: SolvedScoutSquadResult;
   chipSetByGw: Record<number, { fhSquadIds: number[]; wcSquadIds: number[] }>;
+  policy?: ScoutSelectionPolicy;
 }
+
 

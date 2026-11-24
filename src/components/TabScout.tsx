@@ -16,6 +16,7 @@ import {
   FplProvenStatus,
   DeadBallDutyStatus,
   PlayerGwProjectionCell,
+  ScoutSelectionPolicy,
 } from '../types.ts';
 import { useUserProfileId } from '../utils/userProfile.ts';
 import { useLanguage } from '../utils/i18n.ts';
@@ -27,7 +28,15 @@ import {
 } from '../utils/scoutNarratives.ts';
 import { Star, ArrowRight, Zap, CheckCircle, X } from 'lucide-react';
 import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
-import { evaluateP9HitTransfer } from '../utils/playerXpModel.ts';
+import {
+  DEFAULT_SCOUT_SELECTION_POLICY,
+  ScoutModelPlayerInput,
+  getCellAtGw,
+  isScoutPlayerEligibleAtGw,
+  runScoutTransferSearch,
+  scoreCaptainAtGw,
+  scoreDifferentialAtGw,
+} from '../utils/scoutSelectionModel.ts';
 import { loadScoutSquadsFromIndexedDB, saveScoutSquadsToIndexedDB } from '../storage.ts';
 
 interface TabScoutProps {
@@ -309,6 +318,40 @@ export const TabScout: React.FC<TabScoutProps> = ({
     return new Map<number, any>(playerProjections.map((p) => [p.id, p]));
   }, [playerProjections]);
 
+  const [picksType, setPicksType] = useState<'FH' | 'WC'>('FH');
+  const [localScoutSquadsPayload, setLocalScoutSquadsPayload] = useState<ServerScoutSquadsPayload | null>(null);
+  const [isLoadingLocalScoutSquads, setIsLoadingLocalScoutSquads] = useState<boolean>(false);
+  const scoutSquadsCacheRef = useRef<Map<string, ServerScoutSquadsPayload>>(new Map());
+  const inFlightScoutRef = useRef<{
+    epochKey: string;
+    promise: Promise<ServerScoutSquadsPayload | null>;
+  } | null>(null);
+
+  const isEpochCompatible = (payloadEpoch?: string | null, targetEpoch?: string | null): boolean => {
+    if (!payloadEpoch || !targetEpoch) return false;
+    if (payloadEpoch === targetEpoch) return true;
+    const payloadParts = payloadEpoch.split(':');
+    const targetParts = targetEpoch.split(':');
+    if (targetParts.length === 3 && payloadParts.length >= 4) {
+      return payloadEpoch.startsWith(`${targetEpoch}:`);
+    }
+    return false;
+  };
+
+  const scoutSquadsPayload =
+    sharedScoutSquads && isEpochCompatible(sharedScoutSquads.epochKey, effectiveEpochKey)
+      ? sharedScoutSquads
+      : localScoutSquadsPayload && isEpochCompatible(localScoutSquadsPayload.epochKey, effectiveEpochKey)
+      ? localScoutSquadsPayload
+      : null;
+  const isLoadingScoutSquads = Boolean(
+    !scoutSquadsPayload && (isLoadingSharedScoutSquads || isLoadingLocalScoutSquads)
+  );
+  const scoutPolicy: ScoutSelectionPolicy = useMemo(
+    () => scoutSquadsPayload?.policy || DEFAULT_SCOUT_SELECTION_POLICY,
+    [scoutSquadsPayload?.policy]
+  );
+
   // Player pool mapped from raw database elements / player_stats with TabProjection Single Source of Truth
   const playerPool = useMemo(() => {
     const rawList = leagueData?.player_stats || [];
@@ -426,36 +469,28 @@ export const TabScout: React.FC<TabScoutProps> = ({
       // Player xGI per 90 minutes
       const xGi90 = Number(((xGI / mins) * 90).toFixed(2));
 
-      // Server-computed FPL Proven Guard status & Stage 3 distributions
+      // Server-computed Stage 3 distributions & causal walk-forward Captain / Differential utilities
       const proven = proj?.proven || DEFAULT_UNPROVEN_STATUS;
       const hasStage3Target = targetCell?.xMin !== undefined;
       const targetXMin = targetCell?.xMin;
+      const targetPStart = targetCell?.pStart;
       const mcQ85 = targetCell?.mcQ85;
       const mcPHaul10 = targetCell?.mcPHaul10;
       const mcQuantiles = targetCell?.mcQuantiles;
 
-      // Unified Captain Score: Anchored directly on Projection Points (xP1) + Stage 3 ceiling tie-breaker
-      const posArmbandBias = p.position === 'FWD' ? 1.5 : p.position === 'MID' ? 1.0 : p.position === 'DEF' ? -2.0 : -3.2;
-      const penArmbandBias = deadBall.isPrimaryPen ? 0.8 : 0;
-      const haulCeilingBias =
-        mcPHaul10 !== undefined
-          ? Math.min(1.8, hauls * 0.25 + mcPHaul10 * 3.0 + Math.max(0, (mcQ85 ?? xP1) - xP1) * 0.12)
-          : Math.min(1.5, hauls * 0.4);
-      const provenBias = proven.tier === 'ELITE' ? 1.2 : proven.tier === 'ESTABLISHED' ? 0.5 : 0;
-      const captainScore = Number((xP1 * 10 + posArmbandBias + penArmbandBias + haulCeilingBias + provenBias).toFixed(2));
+      const modelInput: ScoutModelPlayerInput = {
+        id: p.id,
+        position: p.position || 'MID',
+        teamShort: cShort,
+        cost,
+        status,
+        chanceOfPlaying,
+        deadBall,
+        fullSeasonPointsMap: (fullSeasonPointsMap || {}) as Record<number, PlayerGwProjectionCell>,
+      };
 
-      // Unified Differential Score (<5% FNB ownership): Anchored on Projection Points (xP1 + 3-GW avg xP) + subtle upside tie-breaker
-      const diffCeilingTie =
-        mcQ85 !== undefined
-          ? Math.min(2.2, hauls * 0.45 + Math.max(0, mcQ85 - xP1) * 0.25)
-          : Math.min(3.0, hauls * 0.9);
-      const diffScore = Number((
-        xP1 * 5.5 +
-        avgXp3 * 4.5 +
-        diffCeilingTie +
-        (deadBall.isPrimaryPen ? 1.5 : 0) +
-        Math.min(2.5, xGi90 * 2.5)
-      ).toFixed(1));
+      const captainScore = scoreCaptainAtGw(modelInput, targetNextGW, targetNextGW, scoutPolicy);
+      const diffScore = scoreDifferentialAtGw(modelInput, targetNextGW, targetNextGW, scoutPolicy);
 
       return {
         id: p.id,
@@ -503,15 +538,17 @@ export const TabScout: React.FC<TabScoutProps> = ({
         fullSeasonPointsMap: (fullSeasonPointsMap || {}) as Record<number, PlayerGwProjectionCell>,
         hasStage3Target,
         targetXMin,
+        targetPStart,
         mcQ85,
         mcPHaul10,
         mcQuantiles,
         captainScore,
         diffScore,
         proven,
+        modelInput,
       };
     });
-  }, [leagueData?.player_stats, fnbOwnershipMap, targetNextGW, projMap, targetGwMatchProjections, clubNameMap]);
+  }, [leagueData?.player_stats, fnbOwnershipMap, targetNextGW, projMap, targetGwMatchProjections, clubNameMap, scoutPolicy]);
 
   const getPoolPlayerGwXp = (p: (typeof playerPool)[number], gw: number): number => {
     if (gw === targetNextGW) {
@@ -526,28 +563,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
   };
 
   // ==========================================
-  // 1. SUBTAB: PICKS (Server-Solved Free Hit vs Wildcard)
+  // 1. SUBTAB: PICKS (Server-Solved Causal Walk-Forward Free Hit vs Wildcard)
   // ==========================================
-  const [picksType, setPicksType] = useState<'FH' | 'WC'>('FH');
-  const [localScoutSquadsPayload, setLocalScoutSquadsPayload] = useState<ServerScoutSquadsPayload | null>(null);
-  const [isLoadingLocalScoutSquads, setIsLoadingLocalScoutSquads] = useState<boolean>(false);
-  const scoutSquadsCacheRef = useRef<Map<string, ServerScoutSquadsPayload>>(new Map());
-  const inFlightScoutRef = useRef<{
-    epochKey: string;
-    promise: Promise<ServerScoutSquadsPayload | null>;
-  } | null>(null);
-
-  const isEpochCompatible = (payloadEpoch?: string | null, targetEpoch?: string | null): boolean => {
-    if (!payloadEpoch || !targetEpoch) return false;
-    if (payloadEpoch === targetEpoch) return true;
-    const payloadParts = payloadEpoch.split(':');
-    const targetParts = targetEpoch.split(':');
-    if (targetParts.length === 3 && payloadParts.length >= 4) {
-      return payloadEpoch.startsWith(`${targetEpoch}:`);
-    }
-    return false;
-  };
-
   useEffect(() => {
     const handleFormulaUpdated = async (e: Event) => {
       scoutSquadsCacheRef.current.clear();
@@ -652,16 +669,6 @@ export const TabScout: React.FC<TabScoutProps> = ({
     };
   }, [leagueData, effectiveEpochKey, sharedScoutSquads, isLoadingSharedScoutSquads, formulaRevision]);
 
-  const scoutSquadsPayload =
-    sharedScoutSquads && isEpochCompatible(sharedScoutSquads.epochKey, effectiveEpochKey)
-      ? sharedScoutSquads
-      : localScoutSquadsPayload && isEpochCompatible(localScoutSquadsPayload.epochKey, effectiveEpochKey)
-      ? localScoutSquadsPayload
-      : null;
-  const isLoadingScoutSquads = Boolean(
-    !scoutSquadsPayload && (isLoadingSharedScoutSquads || isLoadingLocalScoutSquads)
-  );
-
   const playerPoolById = useMemo(() => {
     return new Map(playerPool.map((p) => [p.id, p]));
   }, [playerPool]);
@@ -734,32 +741,55 @@ export const TabScout: React.FC<TabScoutProps> = ({
   }, [picksSquad.starters]);
 
   // ==========================================
-  // 2. SUBTAB: CAPTAIN (Top 10 Attacking Weighted, Non-Blank Priority)
+  // 2. SUBTAB: CAPTAIN (Causal Walk-Forward Top 10, Non-Blank Priority)
   // ==========================================
   const captainPicks = useMemo(() => {
     if (subTab !== 'captain') return [];
-    const activeNonBlank = playerPool.filter((p) => p.status === 'a' && p.mins >= 250 && !p.isBlankTarget);
-    const list = activeNonBlank.length >= 10
-      ? [...activeNonBlank]
-      : playerPool.filter((p) => p.status === 'a' && p.mins >= 250);
+    const activeNonBlank = playerPool.filter((p) =>
+      isScoutPlayerEligibleAtGw({
+        player: p.modelInput,
+        gw: targetNextGW,
+        targetNextGW,
+        minPStart: scoutPolicy.captain.minPStart,
+        minXMin: 25,
+      })
+    );
+    const list =
+      activeNonBlank.length >= 10
+        ? [...activeNonBlank]
+        : playerPool.filter((p) => p.status !== 'i' && p.status !== 's' && p.status !== 'u' && p.xP1 > 0);
     list.sort((a, b) => b.captainScore - a.captainScore);
     const top10 = list.slice(0, 10);
     return narrativeFns.generateCaptainArticlePicks(top10, targetGwMatchProjections, targetNextGW, isId, playerPool, clubNameMap);
-  }, [subTab, playerPool, isId, targetNextGW, targetGwMatchProjections, clubNameMap, narrativeFns]);
+  }, [subTab, playerPool, isId, targetNextGW, targetGwMatchProjections, clubNameMap, narrativeFns, scoutPolicy]);
 
   // ==========================================
-  // 3. SUBTAB: DIFFERENTIAL (<5% FNB Ownership, Top 3, Non-Blank Priority)
+  // 3. SUBTAB: DIFFERENTIAL (<5% FNB Ownership, Causal Walk-Forward Top 3)
   // ==========================================
   const differentialPicks = useMemo(() => {
     if (subTab !== 'differential') return [];
-    const nonBlankDiffs = playerPool.filter((p) => p.fnbOwn < 5.0 && p.status === 'a' && p.mins >= 270 && !p.isBlankTarget);
-    const diffs = nonBlankDiffs.length >= 3
-      ? [...nonBlankDiffs]
-      : playerPool.filter((p) => p.fnbOwn < 5.0 && p.status === 'a' && p.mins >= 270);
+    const maxOwn = scoutPolicy.differential.maxFnbOwn;
+    const nonBlankDiffs = playerPool.filter(
+      (p) =>
+        p.fnbOwn < maxOwn &&
+        isScoutPlayerEligibleAtGw({
+          player: p.modelInput,
+          gw: targetNextGW,
+          targetNextGW,
+          minPStart: scoutPolicy.differential.minPStart,
+          minXMin: 25,
+        })
+    );
+    const diffs =
+      nonBlankDiffs.length >= 3
+        ? [...nonBlankDiffs]
+        : playerPool.filter(
+            (p) => p.fnbOwn < maxOwn && p.status !== 'i' && p.status !== 's' && p.status !== 'u' && p.xP1 > 0
+          );
     diffs.sort((a, b) => b.diffScore - a.diffScore);
     const top3 = diffs.slice(0, 3);
     return narrativeFns.generateDifferentialArticlePicks(top3, targetGwMatchProjections, targetNextGW, isId, playerPool, clubNameMap);
-  }, [subTab, playerPool, isId, targetNextGW, targetGwMatchProjections, clubNameMap, narrativeFns]);
+  }, [subTab, playerPool, isId, targetNextGW, targetGwMatchProjections, clubNameMap, narrativeFns, scoutPolicy]);
 
   // ==========================================
   // 4. SUBTAB: CHIPS (Per-GW Active Set Simulation & Global Optimal Chip Schedule)
@@ -1012,8 +1042,18 @@ export const TabScout: React.FC<TabScoutProps> = ({
     ];
 
     const getOptimalXiAtGw = (squad15: PoolPlayer[], gw: number) => {
-      const sortFn = (a: PoolPlayer, b: PoolPlayer) =>
-        getPoolPlayerGwXp(b, gw) - getPoolPlayerGwXp(a, gw) || b.captainScore - a.captainScore || b.pts - a.pts;
+      const sortFn = (a: PoolPlayer, b: PoolPlayer) => {
+        const xpDiff = getPoolPlayerGwXp(b, gw) - getPoolPlayerGwXp(a, gw);
+        if (xpDiff !== 0) return xpDiff;
+        const capDiff =
+          scoreCaptainAtGw(b.modelInput, gw, targetNextGW, scoutPolicy) -
+          scoreCaptainAtGw(a.modelInput, gw, targetNextGW, scoutPolicy);
+        if (capDiff !== 0) return capDiff;
+        return (
+          getCellAtGw(b.modelInput, gw, targetNextGW).pStart -
+          getCellAtGw(a.modelInput, gw, targetNextGW).pStart
+        );
+      };
 
       const gkps = squad15.filter((p) => p.position === 'GKP').sort(sortFn);
       const defs = squad15.filter((p) => p.position === 'DEF').sort(sortFn);
@@ -1059,15 +1099,36 @@ export const TabScout: React.FC<TabScoutProps> = ({
 
       const bestStarter = [...bestStarters].sort(sortFn)[0] || null;
       const capXp = bestStarter ? getPoolPlayerGwXp(bestStarter, gw) : 0;
-      const sorted15 = [...squad15].sort(sortFn);
-      const tcCandidate = sorted15[0] || bestStarter;
+
+      // Causal Triple Captain candidate weighted by walk-forward calibrated reliability + upside tail
+      const tcRanked = [...squad15].sort((a, b) => {
+        const ca = getCellAtGw(a.modelInput, gw, targetNextGW);
+        const cb = getCellAtGw(b.modelInput, gw, targetNextGW);
+        const tcA =
+          ca.xp * (1 - scoutPolicy.chips.tcReliabilityAlpha + scoutPolicy.chips.tcReliabilityAlpha * ca.pStart) +
+          scoutPolicy.chips.tcTailWeight * Math.max(0, ca.mcQ85 - ca.xp);
+        const tcB =
+          cb.xp * (1 - scoutPolicy.chips.tcReliabilityAlpha + scoutPolicy.chips.tcReliabilityAlpha * cb.pStart) +
+          scoutPolicy.chips.tcTailWeight * Math.max(0, cb.mcQ85 - cb.xp);
+        return tcB - tcA || sortFn(a, b);
+      });
+      const tcCandidate = tcRanked[0] || bestStarter;
       const tcXp = tcCandidate ? getPoolPlayerGwXp(tcCandidate, gw) : 0;
+
+      // Causal Bench Boost reliability-weighted expectation (keeps raw benchXp intact for transparent display)
+      const reliableBenchXp = bestBench.reduce((sum, bp) => {
+        const c = getCellAtGw(bp.modelInput, gw, targetNextGW);
+        if (c.pStart < scoutPolicy.chips.bbMinPStart) return sum;
+        const rel = 1 - scoutPolicy.chips.bbReliabilityAlpha + scoutPolicy.chips.bbReliabilityAlpha * c.pStart;
+        return sum + getPoolPlayerGwXp(bp, gw) * rel;
+      }, 0);
 
       return {
         starters: bestStarters,
         bench: bestBench,
         xiXp: round1(bestXiXp),
         benchXp: round1(bestBenchXp),
+        reliableBenchXp: round1(reliableBenchXp),
         bestStarter,
         capXp: round1(capXp),
         xiPlusCap: round1(bestXiXp + capXp),
@@ -1131,7 +1192,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
         opp: tcOpp,
       });
 
-      // 2. BB at GW g
+      // 2. BB at GW g (reliableBenchXp when calibrated non-zero, preserving raw display clarity)
       const benchDetails = [...teamAtG.bench]
         .sort((a, b) => getPoolPlayerGwXp(b, g) - getPoolPlayerGwXp(a, g))
         .map((b) => ({
@@ -1141,7 +1202,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
         }));
       bbByGw.set(g, {
         gw: g,
-        gain: teamAtG.benchXp,
+        gain: teamAtG.reliableBenchXp > 0 ? teamAtG.reliableBenchXp : teamAtG.benchXp,
         benchDetails,
       });
 
@@ -1502,6 +1563,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
     isId,
     targetNextGW,
     ftAllowance,
+    scoutPolicy,
   ]);
 
   // ==========================================
@@ -1565,515 +1627,80 @@ export const TabScout: React.FC<TabScoutProps> = ({
       };
     }
 
-    // Per-player effective value profile parameterized dynamically across 1 / 3 / 6 GW horizon
-    const getEffProfile = (p: (typeof playerPool)[number]) => {
-      const minsPerGw = p.mins / completedGws;
-      const isOutStatus = p.status === 'i' || p.status === 's' || p.status === 'u';
-      const isSevereDoubt = p.status === 'd' && p.chanceOfPlaying !== null && p.chanceOfPlaying <= 25;
-      const isDoubt = p.status === 'd' && !isSevereDoubt;
-      const isBenchFodder =
-        !isOutStatus &&
-        !isSevereDoubt &&
-        (p.targetXMin !== undefined
-          ? p.targetXMin < 18
-          : minsPerGw < 25 || (completedGws >= 3 && p.mins < 75));
-      const isRotationRisk =
-        !isOutStatus &&
-        !isSevereDoubt &&
-        !isBenchFodder &&
-        (p.targetXMin !== undefined ? p.targetXMin < 45 && minsPerGw < 45 : minsPerGw < 45);
-
-      let availWeights: number[];
-      if (isOutStatus) {
-        availWeights = [0.0, 0.15, 0.35, 0.55, 0.70, 0.80];
-      } else if (isSevereDoubt) {
-        const ch1 = Math.max(0.0, (p.chanceOfPlaying ?? 0) / 100);
-        availWeights = [ch1, 0.35, 0.60, 0.80, 0.90, 1.0];
-      } else if (isDoubt) {
-        const ch = (p.chanceOfPlaying ?? 60) / 100;
-        availWeights = [ch, Math.min(1.0, ch + 0.25), Math.min(1.0, ch + 0.40), 1.0, 1.0, 1.0];
-      } else {
-        availWeights = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-      }
-
-      const minsMult = isBenchFodder ? 0.15 : isRotationRisk ? 0.68 : 1.0;
-      const g1 = p.fixtures6?.[0]?.xp ?? p.xP1;
-      const horizonFixtures = (p.fixtures6 || []).slice(0, horizonCount);
-
-      // Stage 3 cells already incorporate calibrated xMin_P7 + availability & return dates; avoid double-discounting
-      let sumH = 0;
-      for (let i = 0; i < horizonCount; i++) {
-        const gwXp = p.fixtures6?.[i]?.xp ?? g1;
-        if (p.hasStage3Target) {
-          sumH += gwXp;
-        } else {
-          const w = availWeights[Math.min(i, availWeights.length - 1)];
-          sumH += gwXp * w * minsMult;
-        }
-      }
-
-      const effXp1 = round2(p.hasStage3Target ? g1 : g1 * availWeights[0] * minsMult);
-      const effXpH = round2(sumH);
-
-      const sampleMins = Math.max(p.mins, 90);
-      const xGi90 = round2((p.xGI / sampleMins) * 90);
-      const threat90 = round1((p.threat / sampleMins) * 90);
-      const creat90 = round1((p.creativity / sampleMins) * 90);
-      const hasExplosiveUpside =
-        p.hauls >= 2 ||
-        p.maxGwPoints >= 11 ||
-        p.captainScore >= 52 ||
-        xGi90 >= 0.52 ||
-        (p.mcPHaul10 !== undefined && p.mcPHaul10 >= 0.16);
-      const explosiveBonus =
-        p.hauls >= 2 || (p.mcPHaul10 !== undefined && p.mcPHaul10 >= 0.18)
-          ? 1.1
-          : p.maxGwPoints >= 11 || p.captainScore >= 52 || xGi90 >= 0.55
-          ? 0.65
-          : 0.0;
-
-      return {
-        p,
-        minsPerGw: Math.round(minsPerGw),
-        isBroken: isOutStatus || isSevereDoubt || isBenchFodder,
-        isOutStatus: isOutStatus || isSevereDoubt,
-        isBenchFodder,
-        isDoubt,
-        isNailedSafe:
-          p.status === 'a' &&
-          (p.targetXMin !== undefined ? p.targetXMin >= 55 : minsPerGw >= 50),
-        effXp1,
-        effXpH,
-        horizonFixtures,
-        xGi90,
-        threat90,
-        creat90,
-        hasExplosiveUpside,
-        explosiveBonus,
-      };
-    };
-
-    type EffPlayer = ReturnType<typeof getEffProfile>;
-    const effById = new Map<number, EffPlayer>();
-    for (const p of playerPool) {
-      effById.set(p.id, getEffProfile(p));
-    }
-    const getEff = (id: number) => effById.get(id)!;
-
-    // Legal FPL Starting XI Solver (evaluates all valid formations: 1 GKP, 3-5 DEF, 2-5 MID, 1-3 FWD)
-    const VALID_FORMATIONS: Array<[number, number, number]> = [
-      [3, 4, 3],
-      [3, 5, 2],
-      [4, 3, 3],
-      [4, 4, 2],
-      [4, 5, 1],
-      [5, 3, 2],
-      [5, 4, 1],
-      [5, 2, 3],
-    ];
-
-    const solveOptimalXI = (squadIds: number[]) => {
-      const gkps: EffPlayer[] = [];
-      const defs: EffPlayer[] = [];
-      const mids: EffPlayer[] = [];
-      const fwds: EffPlayer[] = [];
-
-      for (let i = 0; i < squadIds.length; i++) {
-        const item = getEff(squadIds[i]);
-        if (!item) continue;
-        const pos = item.p.position;
-        if (pos === 'GKP') gkps.push(item);
-        else if (pos === 'DEF') defs.push(item);
-        else if (pos === 'MID') mids.push(item);
-        else fwds.push(item);
-      }
-
-      const byEff = (a: EffPlayer, b: EffPlayer) => b.effXpH - a.effXpH || b.effXp1 - a.effXp1;
-      gkps.sort(byEff);
-      defs.sort(byEff);
-      mids.sort(byEff);
-      fwds.sort(byEff);
-
-      const startGkp = gkps[0];
-      const benchGkp = gkps[1];
-
-      // Precompute prefix sums for O(1) formation scoring across all 8 formations
-      const defPref = [0];
-      for (let i = 0; i < defs.length; i++) defPref.push(defPref[i] + defs[i].effXpH);
-      const midPref = [0];
-      for (let i = 0; i < mids.length; i++) midPref.push(midPref[i] + mids[i].effXpH);
-      const fwdPref = [0];
-      for (let i = 0; i < fwds.length; i++) fwdPref.push(fwdPref[i] + fwds[i].effXpH);
-
-      let bestD = -1;
-      let bestM = -1;
-      let bestF = -1;
-      let bestObj = -1e9;
-
-      for (let f = 0; f < VALID_FORMATIONS.length; f++) {
-        const [dCount, mCount, fCount] = VALID_FORMATIONS[f];
-        if (defs.length < dCount || mids.length < mCount || fwds.length < fCount) continue;
-        const obj = defPref[dCount] + midPref[mCount] + fwdPref[fCount];
-        if (obj > bestObj) {
-          bestObj = obj;
-          bestD = dCount;
-          bestM = mCount;
-          bestF = fCount;
-        }
-      }
-
-      let bestFormLabel = '3-4-3';
-      let bestStarters: EffPlayer[];
-      let bestBenchOut: EffPlayer[];
-
-      if (bestD >= 0) {
-        bestFormLabel = `${bestD}-${bestM}-${bestF}`;
-        bestStarters = startGkp ? [startGkp] : [];
-        for (let i = 0; i < bestD; i++) bestStarters.push(defs[i]);
-        for (let i = 0; i < bestM; i++) bestStarters.push(mids[i]);
-        for (let i = 0; i < bestF; i++) bestStarters.push(fwds[i]);
-
-        bestBenchOut = [];
-        for (let i = bestD; i < defs.length; i++) bestBenchOut.push(defs[i]);
-        for (let i = bestM; i < mids.length; i++) bestBenchOut.push(mids[i]);
-        for (let i = bestF; i < fwds.length; i++) bestBenchOut.push(fwds[i]);
-        bestBenchOut.sort(byEff);
-      } else {
-        const sortedAll = [...gkps, ...defs, ...mids, ...fwds].sort((a, b) => b.effXpH - a.effXpH);
-        bestStarters = sortedAll.slice(0, 11);
-        bestBenchOut = sortedAll.slice(11);
-      }
-
-      const bench = benchGkp ? [benchGkp, ...bestBenchOut] : bestBenchOut;
-      let rawXiXp1 = 0;
-      let rawXiXpH = 0;
-      let rawStartersCost = 0;
-      let brokenStarters = 0;
-      let safeStarterCount = 0;
-      for (let i = 0; i < bestStarters.length; i++) {
-        const x = bestStarters[i];
-        rawXiXp1 += x.effXp1;
-        rawXiXpH += x.effXpH;
-        rawStartersCost += x.p.cost;
-        if (x.isBroken) brokenStarters++;
-        if (x.isNailedSafe) safeStarterCount++;
-      }
-      let benchPlayables = 0;
-      for (let i = 0; i < bestBenchOut.length; i++) {
-        if (bestBenchOut[i].isNailedSafe) benchPlayables++;
-      }
-
-      const xiXp1 = round1(rawXiXp1);
-      const xiXpH = round1(rawXiXpH);
-      const benchDepthH = round2(
-        (bestBenchOut[0]?.effXpH || 0) * 0.05 +
-        (bestBenchOut[1]?.effXpH || 0) * 0.02 +
-        (benchGkp?.effXpH || 0) * 0.01
-      );
-      const startersCost = round1(rawStartersCost);
-
-      return {
-        starters: bestStarters,
-        bench,
-        formation: bestFormLabel,
-        xiXp1,
-        xiXpH,
-        benchDepthH,
-        brokenStarters,
-        safeStarterCount,
-        benchPlayables,
-        startersCost,
-      };
-    };
-
-    const baseIds = currentSquad15.map((p) => p.id);
-    const baseXI = solveOptimalXI(baseIds);
-
-    // Dynamic "Nilai 1 FT" (Opportunity Cost) scaled to active horizon
-    const normalFtValue =
-      horizonCount === 1
-        ? ftAllowance >= 5 ? 1.2 : ftAllowance === 4 ? 2.0 : 2.8
-        : horizonCount <= 3
-        ? ftAllowance >= 5 ? 1.5 : ftAllowance === 4 ? 2.5 : 3.4
-        : ftAllowance >= 5 ? 1.8 : ftAllowance === 4 ? 3.2 : 4.4;
-    const repairFtValue = horizonCount === 1 ? 1.2 : horizonCount <= 3 ? 1.5 : 1.8;
-    const getFtCostForStep = (stepIndex1Based: number) => {
-      return stepIndex1Based <= baseXI.brokenStarters ? repairFtValue : normalFtValue;
-    };
-
-    // Build wide candidate IN pool per position maximizing horizon points across all price tiers within budget
-    const baseIdSet = new Set(baseIds);
-    const fitInPool = playerPool
-      .filter(
-        (p) =>
-          p.status === 'a' &&
-          (p.targetXMin === undefined || p.targetXMin >= 30) &&
-          p.mins >= Math.min(135, completedGws * 25) &&
-          !baseIdSet.has(p.id)
-      )
-      .map((p) => getEff(p.id));
-
-    const candidatesByPos: Record<string, EffPlayer[]> = { GKP: [], DEF: [], MID: [], FWD: [] };
-    for (const pos of ['GKP', 'DEF', 'MID', 'FWD']) {
-      const posList = fitInPool.filter((e) => e.p.position === pos);
-      const topByXp = [...posList]
-        .sort((a, b) => b.effXpH - a.effXpH || b.effXp1 - a.effXp1)
-        .slice(0, 18);
-      const topEnablers = [...posList]
-        .filter((e) => e.p.cost <= (pos === 'FWD' ? 6.0 : pos === 'MID' ? 5.5 : 4.6) && e.minsPerGw >= 55)
-        .sort((a, b) => b.effXpH / Math.max(b.p.cost, 4) - a.effXpH / Math.max(a.p.cost, 4))
-        .slice(0, 4);
-      const merged = new Map<number, EffPlayer>();
-      for (const item of [...topByXp, ...topEnablers]) {
-        merged.set(item.p.id, item);
-      }
-      candidatesByPos[pos] = Array.from(merged.values());
-    }
-
-    interface TransferStep {
-      out: EffPlayer;
-      in: EffPlayer;
-      bankBefore: number;
-      bankAfter: number;
-      isHit: boolean;
-      stepNum: number;
-    }
-
-    interface SearchState {
-      squadIds: number[];
-      bank: number;
-      moves: TransferStep[];
-      xi: ReturnType<typeof solveOptimalXI>;
-      xiGain1: number;
-      xiGainH: number;
-      depthGainH: number;
-      explosiveDelta: number;
-      provenPenalty: number;
-      ftCost: number;
-      hitCount: number;
-      hitCost: number;
-      netDecisionScore: number;
-      meetsHitGuard: boolean;
-    }
-
-    const hitSurplusMargin = horizonCount === 1 ? 1.5 : horizonCount <= 3 ? 2.5 : 4.0;
-
-    const evaluateState = (squadIds: number[], bank: number, moves: TransferStep[]): SearchState => {
-      const xi = moves.length === 0 ? baseXI : solveOptimalXI(squadIds);
-      const xiGain1 = round1(xi.xiXp1 - baseXI.xiXp1);
-      const xiGainH = round1(xi.xiXpH - baseXI.xiXpH);
-      // Subtle bench tie-breaker only (never enough to trigger or subsidize a -4 hit)
-      const depthGainH = round2(Math.max(-1.0, Math.min(1.2, xi.benchDepthH - baseXI.benchDepthH)));
-      // Tiny positive preference for utilizing available budget toward stronger on-pitch XI when points are close
-      const budgetUtilizationTieBreak = round2(Math.max(0, xi.startersCost - baseXI.startersCost) * 0.005);
-
-      let explosiveDelta = 0;
-      let provenPenalty = 0;
-      for (const m of moves) {
-        explosiveDelta += 0.25 * (m.in.explosiveBonus - 0.5 * m.out.explosiveBonus);
-        if (m.out.p.proven?.isProven && m.out.p.status === 'a') {
-          provenPenalty += m.out.p.proven.tier === 'ELITE' ? 2.5 : 1.5;
-        }
-      }
-      explosiveDelta = round2(explosiveDelta);
-      provenPenalty = round2(provenPenalty);
-
-      const k = moves.length;
-      const ftUsed = Math.min(k, ftAllowance);
-      const hitCount = Math.max(0, k - ftAllowance);
-      const hitCost = hitCount * 4;
-
-      let ftCost = 0;
-      for (let i = 1; i <= ftUsed; i++) {
-        ftCost += getFtCostForStep(i);
-      }
-      ftCost = round2(ftCost);
-
-      // P9 risk-aware hit viability guard using P1 MC quantile ladders & position-aware variance gates
-      const repairedStarter = xi.brokenStarters < baseXI.brokenStarters;
-      let p9HitViable = true;
-      if (hitCount > 0) {
-        const rankedByGain1 = [...moves].sort(
-          (a, b) => (b.in.effXp1 - b.out.effXp1) - (a.in.effXp1 - a.out.effXp1)
-        );
-        const hitMoves = rankedByGain1.slice(ftUsed);
-        for (const hm of hitMoves) {
-          const p9 = evaluateP9HitTransfer({
-            posIn: hm.in.p.position,
-            posOut: hm.out.p.position,
-            inXp1: hm.in.effXp1,
-            outXp1: hm.out.effXp1,
-            inQuantiles: hm.in.p.mcQuantiles,
-            outQuantiles: hm.out.p.mcQuantiles,
-            outIsBroken: hm.out.isBroken,
-            horizonCount,
-          });
-          if (!p9.viable) {
-            p9HitViable = false;
-            break;
-          }
-        }
-      }
-
-      const activeHitMargin = horizonCount === 1 && repairedStarter && p9HitViable ? 0.8 : hitSurplusMargin;
-      const meetsHitGuard =
-        hitCount === 0 ||
-        (p9HitViable &&
-          xiGainH >= hitCost + hitCount * activeHitMargin &&
-          (horizonCount === 1 ? xiGain1 > 0 : xiGain1 >= -0.5 || repairedStarter));
-
-      // Account for future-FT opportunity cost on hits so extra hits stop when diminishing returns kick in
-      const effectiveHitCost = hitCost + hitCount * activeHitMargin;
-      const netDecisionScore = round2(
-        xiGainH + depthGainH + explosiveDelta + budgetUtilizationTieBreak - provenPenalty - effectiveHitCost - ftCost
-      );
-
-      return {
-        squadIds,
-        bank: round1(bank),
-        moves,
-        xi,
-        xiGain1,
-        xiGainH,
-        depthGainH,
-        explosiveDelta,
-        provenPenalty,
-        ftCost,
-        hitCount,
-        hitCost,
-        netDecisionScore,
-        meetsHitGuard,
-      };
-    };
-
-    const initialState = evaluateState(baseIds, round1(bankBalance), []);
-    const isHitMode = transferMode === 'HIT';
-    // Unlimited hits based on squad needs (up to full 15-man squad if crisis like 10 injured players)
-    const maxDepth = isHitMode ? 15 : ftAllowance;
-
-    const allEvaluatedStates: SearchState[] = [initialState];
-    let frontier: SearchState[] = [initialState];
-
-    for (let depth = 1; depth <= maxDepth; depth++) {
-      const nextMap = new Map<string, SearchState>();
-
-      for (const state of frontier) {
-        const currentSet = new Set(state.squadIds);
-        const boughtIds = new Set(state.moves.map((m) => m.in.p.id));
-        const soldIds = new Set(state.moves.map((m) => m.out.p.id));
-        const clubCounts: Record<string, number> = {};
-        for (const id of state.squadIds) {
-          const team = getEff(id)?.p.teamShort;
-          if (team) clubCounts[team] = (clubCounts[team] || 0) + 1;
-        }
-
-        // At deep hit depths, prioritize fixing remaining broken/weak slots so search remains <15ms up to 15 moves
-        const outOrder = [...state.squadIds]
-          .filter((id) => !boughtIds.has(id))
-          .sort((a, b) => Number(getEff(b)?.isBroken || 0) - Number(getEff(a)?.isBroken || 0) || (getEff(a)?.effXpH || 0) - (getEff(b)?.effXpH || 0));
-
-        const outCandidates = depth > ftAllowance + 2 ? outOrder.slice(0, 8) : outOrder;
-
-        for (const outId of outCandidates) {
-          const outEff = getEff(outId);
-          if (!outEff) continue;
-          const pos = outEff.p.position;
-          const inCandidates = candidatesByPos[pos] || [];
-
-          for (const inEff of inCandidates) {
-            if (currentSet.has(inEff.p.id) || soldIds.has(inEff.p.id)) continue;
-            const newBank = round1(state.bank + outEff.p.cost - inEff.p.cost);
-            if (newBank < -0.05) continue;
-
-            // Enforce max 3 players per Premier League club
-            const nextClubCount =
-              (clubCounts[inEff.p.teamShort] || 0) + (inEff.p.teamShort === outEff.p.teamShort ? 0 : 1);
-            if (nextClubCount > 3) continue;
-
-            const newSquadIds = state.squadIds.map((id) => (id === outId ? inEff.p.id : id));
-            const step: TransferStep = {
-              out: outEff,
-              in: inEff,
-              bankBefore: state.bank,
-              bankAfter: Math.max(0, newBank),
-              isHit: depth > ftAllowance,
-              stepNum: depth,
-            };
-            const evaluated = evaluateState(newSquadIds, Math.max(0, newBank), [...state.moves, step]);
-
-            // Allow budget-freeing step to continue searching even in hit mode, otherwise prune strictly worse hit steps
-            const isBudgetUnlock = newBank >= state.bank + 1.5;
-            if (depth > ftAllowance && !isBudgetUnlock && evaluated.netDecisionScore <= state.netDecisionScore + 0.2) {
-              continue;
-            }
-
-            const key = [...newSquadIds].sort((a, b) => a - b).join(',');
-            const existing = nextMap.get(key);
-            if (!existing || evaluated.netDecisionScore > existing.netDecisionScore) {
-              nextMap.set(key, evaluated);
-            }
-          }
-        }
-      }
-
-      const layerStates = Array.from(nextMap.values());
-      if (layerStates.length === 0) break;
-
-      for (const st of layerStates) {
-        if (st.meetsHitGuard) {
-          allEvaluatedStates.push(st);
-        }
-      }
-
-      const byScore = [...layerStates].sort((a, b) => b.netDecisionScore - a.netDecisionScore).slice(0, 10);
-      const byBankUnlock = [...layerStates]
-        .filter((s) => s.bank >= round1(initialState.bank + 1.5))
-        .sort((a, b) => b.bank - a.bank || b.netDecisionScore - a.netDecisionScore)
-        .slice(0, 3);
-
-      const mergedBeam = new Map<string, SearchState>();
-      for (const s of [...byScore, ...byBankUnlock]) {
-        const k = [...s.squadIds].sort((a, b) => a - b).join(',');
-        mergedBeam.set(k, s);
-      }
-      frontier = Array.from(mergedBeam.values());
-    }
-
-    // Reject any hit plan where fewer transfers/hits achieve nearly the same or better real XI net (prevents good FTs from subsidizing marginal extra hits)
-    const bestRealXiNetByHit = new Map<number, number>();
-    for (const st of allEvaluatedStates) {
-      const realNet = round1(st.xiGainH - st.hitCost);
-      const prevBest = bestRealXiNetByHit.get(st.hitCount);
-      if (prevBest === undefined || realNet > prevBest) {
-        bestRealXiNetByHit.set(st.hitCount, realNet);
-      }
-    }
-
-    const marginalHitMargin = horizonCount === 1 ? 1.5 : horizonCount <= 3 ? 2.5 : 3.5;
-    const marginallyValidStates = allEvaluatedStates.filter((st) => {
-      if (st.hitCount === 0) return true;
-      const stRealNet = round1(st.xiGainH - st.hitCost);
-      for (const [prevHit, prevRealNet] of bestRealXiNetByHit.entries()) {
-        if (prevHit < st.hitCount) {
-          const extraHits = st.hitCount - prevHit;
-          if (stRealNet < prevRealNet + extraHits * marginalHitMargin) {
-            return false;
-          }
-        }
-      }
-      return true;
+    const currentIds15 = currentSquad15.map((p) => p.id);
+    const searchRes = runScoutTransferSearch({
+      players: playerPool.map((p) => p.modelInput),
+      squad15Ids: currentIds15,
+      bank: round1(bankBalance),
+      ftAllowance,
+      transferMode,
+      startGw: targetNextGW,
+      targetNextGW,
+      horizonCount,
+      policy: scoutPolicy,
+      maxHitDepth: 15,
+      beamWidth: 10,
+      candidateTopN: 18,
     });
 
-    const sortedBest = [...marginallyValidStates].sort(
-      (a, b) => b.netDecisionScore - a.netDecisionScore || a.hitCount - b.hitCount
-    );
-    const bestState = sortedBest[0] || initialState;
-    const needTransfer = bestState.moves.length > 0 && bestState.netDecisionScore > 0;
-    const ftUsed = Math.min(bestState.moves.length, ftAllowance);
-    const savedFt = Math.max(0, ftAllowance - ftUsed);
-    const netGain = round1(bestState.xiGainH - bestState.hitCost);
+    const hydrateMoveSide = (
+      p: (typeof playerPool)[number],
+      effXp1: number,
+      effXpH: number,
+      flags?: { isOutStatus?: boolean; isBenchFodder?: boolean; isDoubt?: boolean }
+    ) => {
+      const sampleMins = Math.max(p.mins, 90);
+      return {
+        p,
+        minsPerGw: Math.round(p.mins / completedGws),
+        isOutStatus: Boolean(flags?.isOutStatus),
+        isBenchFodder: Boolean(flags?.isBenchFodder),
+        isDoubt: Boolean(flags?.isDoubt),
+        effXp1,
+        effXpH,
+        horizonFixtures: (p.fixtures6 || []).slice(0, horizonCount),
+        xGi90: round2((p.xGI / sampleMins) * 90),
+        threat90: round1((p.threat / sampleMins) * 90),
+        creat90: round1((p.creativity / sampleMins) * 90),
+      };
+    };
 
-    const formatFixturesText = (eff: EffPlayer) => {
+    const hydratedMoves = searchRes.moves
+      .map((m) => {
+        const outP = poolMap.get(m.outId);
+        const inP = poolMap.get(m.inId);
+        if (!outP || !inP) return null;
+        return {
+          out: hydrateMoveSide(outP, m.effXp1Out, m.effXpHOut, {
+            isOutStatus: m.isOutStatusOut,
+            isBenchFodder: m.isBenchFodderOut,
+            isDoubt: m.isDoubtOut,
+          }),
+          in: hydrateMoveSide(inP, m.effXp1In, m.effXpHIn),
+          bankBefore: m.bankBefore,
+          bankAfter: m.bankAfter,
+          isHit: m.isHit,
+          stepNum: m.stepNum,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => Boolean(x));
+
+    const bestState = {
+      moves: hydratedMoves,
+      xi: searchRes.endXI,
+      xiGainH: round1(searchRes.endXI.xiXpH - searchRes.startXI.xiXpH),
+      hitCount: searchRes.hitCount,
+      hitCost: searchRes.hitCost,
+      bank: searchRes.endBank,
+    };
+    const baseXI = searchRes.startXI;
+    const needTransfer = searchRes.needTransfer && hydratedMoves.length > 0;
+    const ftUsed = searchRes.ftUsed;
+    const savedFt = Math.max(0, ftAllowance - ftUsed);
+    const netGain = searchRes.netGain;
+    const isHitMode = transferMode === 'HIT';
+
+    const formatFixturesText = (eff: ReturnType<typeof hydrateMoveSide>) => {
       const list = eff.horizonFixtures;
       if (list.length <= 3) {
         return list.map((f) => `${f.opp} (${f.xp.toFixed(1)} xP)`).join(', ');
@@ -2346,7 +1973,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
       horizonEndGw,
       horizonLabel,
     };
-  }, [subTab, activeManager, activeSquad, playerPool, transferMode, transferHorizon, ftAllowance, bankBalance, isId, baseHistoricalGW, targetNextGW]);
+  }, [subTab, activeManager, activeSquad, playerPool, transferMode, transferHorizon, ftAllowance, bankBalance, isId, baseHistoricalGW, targetNextGW, scoutPolicy]);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-3 space-y-3">

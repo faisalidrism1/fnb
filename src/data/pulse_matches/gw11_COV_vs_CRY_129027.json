@@ -127,26 +127,6 @@
           "pulseId": 22043
         },
         {
-          "id": 480457,
-          "altIds": {
-            "opta": "p480457"
-          },
-          "name": {
-            "first": "Jack",
-            "last": "Rudoni",
-            "display": "Jack Rudoni"
-          },
-          "matchPosition": "M",
-          "info": {
-            "position": "M",
-            "positionInfo": "Centre Central Midfielder",
-            "shirtNum": 5
-          },
-          "captain": false,
-          "shirtNumber": 5,
-          "pulseId": 66304
-        },
-        {
           "id": 461102,
           "altIds": {
             "opta": "p461102"
@@ -165,6 +145,26 @@
           "captain": false,
           "shirtNumber": 4,
           "pulseId": 63836
+        },
+        {
+          "id": 480457,
+          "altIds": {
+            "opta": "p480457"
+          },
+          "name": {
+            "first": "Jack",
+            "last": "Rudoni",
+            "display": "Jack Rudoni"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Centre Central Midfielder",
+            "shirtNum": 5
+          },
+          "captain": false,
+          "shirtNumber": 5,
+          "pulseId": 66304
         },
         {
           "id": 168144,
@@ -449,26 +449,6 @@
           "pulseId": 19694
         },
         {
-          "id": 627221,
-          "altIds": {
-            "opta": "p627221"
-          },
-          "name": {
-            "first": "Sidiki",
-            "last": "Cherif",
-            "display": "Sidiki Cherif"
-          },
-          "matchPosition": "F",
-          "info": {
-            "position": "F",
-            "positionInfo": "Centre Striker",
-            "shirtNum": 49
-          },
-          "captain": false,
-          "shirtNumber": 49,
-          "pulseId": 337821
-        },
-        {
           "id": 196100,
           "altIds": {
             "opta": "p196100"
@@ -487,6 +467,26 @@
           "captain": false,
           "shirtNumber": 38,
           "pulseId": 20361
+        },
+        {
+          "id": 627221,
+          "altIds": {
+            "opta": "p627221"
+          },
+          "name": {
+            "first": "Sidiki",
+            "last": "Cherif",
+            "display": "Sidiki Cherif"
+          },
+          "matchPosition": "F",
+          "info": {
+            "position": "F",
+            "positionInfo": "Centre Striker",
+            "shirtNum": 49
+          },
+          "captain": false,
+          "shirtNumber": 49,
+          "pulseId": 337821
         }
       ]
     },
