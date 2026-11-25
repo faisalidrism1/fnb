@@ -4,6 +4,7 @@ import fs from 'fs';
 import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle, computeNextSyncWIB } from './src/server/dataFetcher.ts';
 import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache, prewarmMatchesCache, invalidateFixturesScheduleCache, getCachedBootstrapStatic } from './src/server/matchesFetcher.ts';
 import crypto from 'node:crypto';
+import zlib from 'node:zlib';
 import * as staticProjectionEngine from './src/server/projectionEngineServer.ts';
 type ProjectionEngineModule = typeof import('./src/server/projectionEngineServer.ts');
 
@@ -211,6 +212,53 @@ const HOST = resolveServerHost();
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+
+// Lightweight gzip compression for /api/* JSON/text payloads (>= 1KB), excluding SSE / pre-gzipped responses
+app.use((req, res, next) => {
+  if (req.method === 'HEAD' || !req.path.startsWith('/api/') || req.path === '/api/events') {
+    return next();
+  }
+  const acceptEncoding = String(req.headers['accept-encoding'] || '');
+  if (!/\bgzip\b/i.test(acceptEncoding)) {
+    return next();
+  }
+  const origSend = res.send.bind(res);
+  res.send = ((body?: any): express.Response => {
+    if (res.headersSent || res.getHeader('Content-Encoding')) {
+      return origSend(body);
+    }
+    const ct = String(res.getHeader('Content-Type') || '');
+    if (ct.includes('text/event-stream') || ct.includes('image/')) {
+      return origSend(body);
+    }
+    if (body === undefined || body === null) {
+      return origSend(body);
+    }
+    const buf = Buffer.isBuffer(body)
+      ? body
+      : typeof body === 'string'
+      ? Buffer.from(body, 'utf8')
+      : null;
+    if (!buf || buf.length < 1024) {
+      return origSend(body);
+    }
+    zlib.gzip(buf, { level: 6 }, (err, compressed) => {
+      if (err || res.headersSent) {
+        origSend(body);
+        return;
+      }
+      if (!res.getHeader('Content-Type')) {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      }
+      res.setHeader('Content-Encoding', 'gzip');
+      res.setHeader('Vary', 'Accept-Encoding');
+      res.removeHeader('Content-Length');
+      origSend(compressed);
+    });
+    return res;
+  }) as any;
+  next();
+});
 
 // Instant healthcheck endpoint (responds immediately even while background DB/Vite init completes)
 app.get('/api/health', (_req, res) => {
@@ -1120,13 +1168,20 @@ app.get('/api/projections-core', async (req, res) => {
       invalidateFixturesScheduleCache();
       engine.invalidateProjectionEngine('manual force');
     }
-    const payload = await engine.getServerProjectionCore(cachedData, force);
+    const buffers = await engine.getServerProjectionCoreClientBuffers(cachedData, force);
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0',
+      'Content-Type': 'application/json; charset=utf-8',
+      'Vary': 'Accept-Encoding',
     });
-    res.json({ success: true, data: payload });
+    const acceptsGzip = /\bgzip\b/i.test(String(req.headers['accept-encoding'] || ''));
+    if (acceptsGzip) {
+      res.setHeader('Content-Encoding', 'gzip');
+      return res.send(buffers.gzipBuffer);
+    }
+    return res.send(buffers.jsonBuffer);
   } catch (err: any) {
     console.error('Error in /api/projections-core:', err);
     res.status(500).json({ success: false, error: err?.message || 'Projection core error' });
@@ -1141,13 +1196,35 @@ app.get('/api/projections-review', async (req, res) => {
     const engine = await getDevProjectionEngine();
     const force = req.query.force === '1' || req.query.sync === '1';
     const gwParam = req.query.gw ? Number(req.query.gw) : undefined;
-    const payload = await engine.getServerReviewBundle(cachedData, gwParam, force);
+    const rawSection = typeof req.query.section === 'string' ? req.query.section.trim().toLowerCase() : 'all';
+    const section =
+      rawSection === 'score' ||
+      rawSection === 'lineup' ||
+      rawSection === 'points' ||
+      rawSection === 'mae'
+        ? rawSection
+        : 'all';
+    const includeMatches = req.query.includeMatches !== '0';
+
+    const buffers = await engine.getServerReviewSectionBuffers(cachedData, {
+      section,
+      gw: gwParam,
+      includeMatches,
+      force,
+    });
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0',
+      'Content-Type': 'application/json; charset=utf-8',
+      'Vary': 'Accept-Encoding',
     });
-    res.json({ success: true, data: payload });
+    const acceptsGzip = /\bgzip\b/i.test(String(req.headers['accept-encoding'] || ''));
+    if (acceptsGzip) {
+      res.setHeader('Content-Encoding', 'gzip');
+      return res.send(buffers.gzipBuffer);
+    }
+    return res.send(buffers.jsonBuffer);
   } catch (err: any) {
     console.error('Error in /api/projections-review:', err);
     res.status(500).json({ success: false, error: err?.message || 'Review bundle error' });
@@ -1161,13 +1238,20 @@ app.get('/api/projections-scout-squads', async (req, res) => {
     }
     const engine = await getDevProjectionEngine();
     const force = req.query.force === '1' || req.query.sync === '1';
-    const payload = await engine.getServerScoutSquads(cachedData, force);
+    const buffers = await engine.getServerScoutSquadsBuffers(cachedData, force);
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0',
+      'Content-Type': 'application/json; charset=utf-8',
+      'Vary': 'Accept-Encoding',
     });
-    res.json({ success: true, data: payload });
+    const acceptsGzip = /\bgzip\b/i.test(String(req.headers['accept-encoding'] || ''));
+    if (acceptsGzip) {
+      res.setHeader('Content-Encoding', 'gzip');
+      return res.send(buffers.gzipBuffer);
+    }
+    return res.send(buffers.jsonBuffer);
   } catch (err: any) {
     console.error('Error in /api/projections-scout-squads:', err);
     res.status(500).json({ success: false, error: err?.message || 'Scout solver error' });
@@ -2323,22 +2407,20 @@ async function startServer() {
             console.warn('[Server] Background PulseAllCompDB warm failed:', err?.message || err);
           });
         }
-        const scheduleWarm = () => {
-          setTimeout(() => {
-            if (cachedData) {
-              engine.warmProjectionEngineIfNeeded(cachedData);
-            }
-          }, 3500);
+        const runWarm = () => {
+          if (cachedData) {
+            engine.warmProjectionEngineIfNeeded(cachedData);
+          }
         };
         if (cachedData?.current_gw) {
           prewarmMatchesCache(cachedData.current_gw)
             .catch(() => {})
-            .finally(scheduleWarm);
+            .finally(runWarm);
         } else if (cachedData) {
-          scheduleWarm();
+          runWarm();
         }
       });
-    }, 300);
+    }, 50);
   });
 
   httpServer.on('error', (err: any) => {

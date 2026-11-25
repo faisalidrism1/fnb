@@ -916,63 +916,66 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
               const isBgwClub = nextMatches.length === 0;
               const squad = clubSquadProjections[club.short] || [];
 
-              // Sort squad for expanded table by role (Starting -> Bench -> Out) and position (GKP -> DEF -> MID -> FWD)
-              const sortedSquad = [...squad].sort((a, b) => {
-                let vA: any = a.si;
-                let vB: any = b.si;
+              // Sort squad only when club accordion is expanded in list view
+              const sortedSquad =
+                isExpanded && lineupViewMode === 'list'
+                  ? [...squad].sort((a, b) => {
+                      let vA: any = a.si;
+                      let vB: any = b.si;
 
-                if (lineupSortCol === 'role' || lineupSortCol === 'status') {
-                  const roleDiff = (ROLE_ORDER[a.role] || 99) - (ROLE_ORDER[b.role] || 99);
-                  if (roleDiff !== 0) return lineupSortDir === 'asc' ? roleDiff : -roleDiff;
+                      if (lineupSortCol === 'role' || lineupSortCol === 'status') {
+                        const roleDiff = (ROLE_ORDER[a.role] || 99) - (ROLE_ORDER[b.role] || 99);
+                        if (roleDiff !== 0) return lineupSortDir === 'asc' ? roleDiff : -roleDiff;
 
-                  if (
-                    a.role === 'starting' &&
-                    b.role === 'starting' &&
-                    a.tacticalSlotIndex !== undefined &&
-                    b.tacticalSlotIndex !== undefined
-                  ) {
-                    const slotDiff = a.tacticalSlotIndex - b.tacticalSlotIndex;
-                    if (slotDiff !== 0) return lineupSortDir === 'asc' ? slotDiff : -slotDiff;
-                  }
+                        if (
+                          a.role === 'starting' &&
+                          b.role === 'starting' &&
+                          a.tacticalSlotIndex !== undefined &&
+                          b.tacticalSlotIndex !== undefined
+                        ) {
+                          const slotDiff = a.tacticalSlotIndex - b.tacticalSlotIndex;
+                          if (slotDiff !== 0) return lineupSortDir === 'asc' ? slotDiff : -slotDiff;
+                        }
 
-                  const posDiff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
-                  if (posDiff !== 0) return posDiff;
+                        const posDiff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
+                        if (posDiff !== 0) return posDiff;
 
-                  return b.si - a.si || b.starts - a.starts || b.sub - a.sub || b.unused - a.unused || b.nowCost - a.nowCost;
-                }
+                        return b.si - a.si || b.starts - a.starts || b.sub - a.sub || b.unused - a.unused || b.nowCost - a.nowCost;
+                      }
 
-                if (lineupSortCol === 'pos') {
-                  const posDiff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
-                  if (posDiff !== 0) return lineupSortDir === 'asc' ? posDiff : -posDiff;
+                      if (lineupSortCol === 'pos') {
+                        const posDiff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
+                        if (posDiff !== 0) return lineupSortDir === 'asc' ? posDiff : -posDiff;
 
-                  const roleDiff = (ROLE_ORDER[a.role] || 99) - (ROLE_ORDER[b.role] || 99);
-                  if (roleDiff !== 0) return roleDiff;
+                        const roleDiff = (ROLE_ORDER[a.role] || 99) - (ROLE_ORDER[b.role] || 99);
+                        if (roleDiff !== 0) return roleDiff;
 
-                  return b.si - a.si || b.starts - a.starts || b.sub - a.sub || b.unused - a.unused || b.nowCost - a.nowCost;
-                }
+                        return b.si - a.si || b.starts - a.starts || b.sub - a.sub || b.unused - a.unused || b.nowCost - a.nowCost;
+                      }
 
-                if (lineupSortCol === 'num') {
-                  vA = a.shirtNum;
-                  vB = b.shirtNum;
-                } else if (lineupSortCol === 'player') return lineupSortDir === 'asc' ? a.webName.localeCompare(b.webName) : b.webName.localeCompare(a.webName);
-                else if (lineupSortCol === 'si') {
-                  vA = a.si;
-                  vB = b.si;
-                } else if (lineupSortCol === 'starts') {
-                  vA = a.starts;
-                  vB = b.starts;
-                } else if (lineupSortCol === 'sub' || lineupSortCol === 'bench') {
-                  vA = a.sub;
-                  vB = b.sub;
-                } else if (lineupSortCol === 'unused') {
-                  vA = a.unused;
-                  vB = b.unused;
-                } else if (lineupSortCol === 'out') {
-                  vA = a.outOfSquad;
-                  vB = b.outOfSquad;
-                }
-                return lineupSortDir === 'asc' ? vA - vB : vB - vA;
-              });
+                      if (lineupSortCol === 'num') {
+                        vA = a.shirtNum;
+                        vB = b.shirtNum;
+                      } else if (lineupSortCol === 'player') return lineupSortDir === 'asc' ? a.webName.localeCompare(b.webName) : b.webName.localeCompare(a.webName);
+                      else if (lineupSortCol === 'si') {
+                        vA = a.si;
+                        vB = b.si;
+                      } else if (lineupSortCol === 'starts') {
+                        vA = a.starts;
+                        vB = b.starts;
+                      } else if (lineupSortCol === 'sub' || lineupSortCol === 'bench') {
+                        vA = a.sub;
+                        vB = b.sub;
+                      } else if (lineupSortCol === 'unused') {
+                        vA = a.unused;
+                        vB = b.unused;
+                      } else if (lineupSortCol === 'out') {
+                        vA = a.outOfSquad;
+                        vB = b.outOfSquad;
+                      }
+                      return lineupSortDir === 'asc' ? vA - vB : vB - vA;
+                    })
+                  : squad;
 
               return (
                 <div

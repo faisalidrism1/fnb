@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import {
   ScoutSubTab,
   TransformedLeagueData,
@@ -73,7 +73,9 @@ const isScoutSquadsPayloadComplete = (payload?: ServerScoutSquadsPayload | null)
       Array.isArray(payload.captainPicks?.id) &&
       Array.isArray(payload.captainPicks?.en) &&
       Array.isArray(payload.differentialPicks?.id) &&
-      Array.isArray(payload.differentialPicks?.en)
+      Array.isArray(payload.differentialPicks?.en) &&
+      Array.isArray(payload.differentialPicksAll?.id) &&
+      Array.isArray(payload.differentialPicksAll?.en)
   );
 };
 
@@ -91,6 +93,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
   sharedTargetNextGW,
   sharedScoutSquads,
   isLoadingSharedScoutSquads = false,
+  playerProjections = [],
+  sharedClubGwMatchProjections,
 }) => {
   const { language } = useLanguage();
   // FNB League default ('fnb') and Indonesian ('id') both use Bahasa Indonesia for narratives
@@ -101,6 +105,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
   const [formulaRevision, setFormulaRevision] = useState<number>(0);
   const [syncRevision, setSyncRevision] = useState<number>(0);
   const [picksType, setPicksType] = useState<'FH' | 'WC'>('FH');
+  const [activePicksBreakdownId, setActivePicksBreakdownId] = useState<number | null>(null);
+  const [diffMode, setDiffMode] = useState<'EXCLUDE' | 'ALL'>('EXCLUDE');
   const [transferMode, setTransferMode] = useState<'FT' | 'HIT'>('FT');
   const [transferHorizon, setTransferHorizon] = useState<1 | 3 | 6>(1);
 
@@ -137,27 +143,11 @@ export const TabScout: React.FC<TabScoutProps> = ({
     return `${baseHistoricalGW}:${st}:${PROJECTION_FORMULA_VERSION}`;
   }, [sharedEpochKey, leagueData?.sync_status?.projection_epoch_key, currentGW, baseHistoricalGW, eventsStatus, gwStatus]);
 
-  // Resolve target entryId (user's selected profile or standings #1 fallback)
+  // Resolve target entryId strictly from user's selected profile (0 when Guest)
   const resolvedEntryId = useMemo(() => {
     if (profileId && Number.isInteger(profileId) && profileId > 0) return profileId;
-    const standingsMap = leagueData?.standings || {};
-    const tryList = standingsMap[currentGW]?.length
-      ? standingsMap[currentGW]
-      : standingsMap[baseHistoricalGW]?.length
-      ? standingsMap[baseHistoricalGW]
-      : undefined;
-    if (tryList && tryList.length > 0) {
-      return tryList[0].entry_id;
-    }
-    const keys = Object.keys(standingsMap)
-      .map(Number)
-      .filter((n) => !isNaN(n) && (standingsMap[n]?.length || 0) > 0);
-    if (keys.length > 0) {
-      const latest = Math.max(...keys);
-      return standingsMap[latest]?.[0]?.entry_id || 0;
-    }
     return 0;
-  }, [profileId, leagueData?.standings, currentGW, baseHistoricalGW]);
+  }, [profileId]);
 
   // ==========================================
   // SERVER SCOUT SQUADS (PICKS, CAPTAIN, DIFFERENTIAL)
@@ -292,6 +282,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
   }, [leagueData, effectiveEpochKey, sharedScoutSquads, isLoadingSharedScoutSquads, formulaRevision]);
 
   const managerAnalysisQueryKey = useMemo(() => {
+    if (resolvedEntryId <= 0) return '';
     if (subTab === 'chips') {
       return `${effectiveEpochKey}:${resolvedEntryId}:chips:${langKey}:${formulaRevision}:${syncRevision}`;
     }
@@ -302,7 +293,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
   }, [effectiveEpochKey, resolvedEntryId, subTab, transferMode, transferHorizon, langKey, formulaRevision, syncRevision]);
 
   useEffect(() => {
-    if (!active || !leagueData || !managerAnalysisQueryKey) return;
+    if (!active || !leagueData || !managerAnalysisQueryKey || resolvedEntryId <= 0) return;
     if (subTab !== 'chips' && subTab !== 'transfer') return;
 
     const cached = managerAnalysisCacheRef.current.get(managerAnalysisQueryKey);
@@ -376,6 +367,68 @@ export const TabScout: React.FC<TabScoutProps> = ({
     managerAnalysisQueryKey,
   ]);
 
+  // Silent background prefetch for Chips + Transfer sections while Scout tab is active
+  useEffect(() => {
+    if (!active || !leagueData || resolvedEntryId <= 0 || !scoutSquadsPayload) return;
+    let mounted = true;
+    const targets: Array<{ key: string; url: string }> = [
+      {
+        key: `${effectiveEpochKey}:${resolvedEntryId}:chips:${langKey}:${formulaRevision}:${syncRevision}`,
+        url: `/api/scout-manager-analysis?section=chips&lang=${langKey}&entryId=${resolvedEntryId}`,
+      },
+      {
+        key: `${effectiveEpochKey}:${resolvedEntryId}:transfer:${transferMode}:${transferHorizon}:${langKey}:${formulaRevision}:${syncRevision}`,
+        url: `/api/scout-manager-analysis?section=transfer&transferMode=${transferMode}&transferHorizon=${transferHorizon}&lang=${langKey}&entryId=${resolvedEntryId}`,
+      },
+    ];
+
+    const timer = window.setTimeout(() => {
+      if (!mounted) return;
+      for (const target of targets) {
+        if (managerAnalysisCacheRef.current.has(target.key) || inFlightManagerAnalysisRef.current.has(target.key)) {
+          continue;
+        }
+        const fetchPromise = fetch(`${target.url}&_t=${Date.now()}`, { cache: 'no-store' })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((json) => (json?.success && json.data ? (json.data as ServerScoutManagerAnalysisPayload) : null))
+          .catch(() => null)
+          .finally(() => {
+            if (inFlightManagerAnalysisRef.current.get(target.key) === fetchPromise) {
+              inFlightManagerAnalysisRef.current.delete(target.key);
+            }
+          });
+        inFlightManagerAnalysisRef.current.set(target.key, fetchPromise);
+        fetchPromise.then((payload) => {
+          if (!mounted || !payload) return;
+          if (managerAnalysisCacheRef.current.size >= 80) {
+            const oldest = managerAnalysisCacheRef.current.keys().next().value;
+            if (oldest !== undefined) managerAnalysisCacheRef.current.delete(oldest);
+          }
+          managerAnalysisCacheRef.current.set(target.key, payload);
+          setManagerAnalysisMap((prev) =>
+            prev[target.key] ? prev : { ...prev, [target.key]: payload }
+          );
+        });
+      }
+    }, 60);
+
+    return () => {
+      mounted = false;
+      window.clearTimeout(timer);
+    };
+  }, [
+    active,
+    leagueData,
+    resolvedEntryId,
+    scoutSquadsPayload,
+    effectiveEpochKey,
+    transferMode,
+    transferHorizon,
+    langKey,
+    formulaRevision,
+    syncRevision,
+  ]);
+
   // ==========================================
   // DERIVED DISPLAY STATE FROM SERVER PAYLOADS
   // ==========================================
@@ -422,6 +475,97 @@ export const TabScout: React.FC<TabScoutProps> = ({
     };
   }, [picksSquad.starters]);
 
+  const playerProjById = useMemo(() => {
+    const map = new Map<number, ProjectedPlayerCoreItem>();
+    for (const p of playerProjections) {
+      map.set(p.id, p);
+    }
+    return map;
+  }, [playerProjections]);
+
+  const getPicksBreakdownRows = useCallback(
+    (player: ScoutPlayerCardItem): ScoutPitchBreakdownRow[] => {
+      const endGw = picksType === 'FH' ? targetNextGW : Math.min(targetNextGW + 5, 38);
+      const corePlayer = playerProjById.get(player.id);
+      const rows: ScoutPitchBreakdownRow[] = [];
+      for (let gw = targetNextGW; gw <= endGw; gw++) {
+        const cell = corePlayer?.fullSeasonPointsMap?.[gw];
+        if (cell) {
+          const oppText = cell.isBlank || !cell.opp || cell.opp === '-' ? 'BGW' : cell.opp;
+          rows.push({
+            gw,
+            opp: oppText,
+            xp: typeof cell.xp === 'number' ? cell.xp : 0,
+          });
+        } else {
+          const clubMatches = sharedClubGwMatchProjections?.[`${player.teamShort}_${gw}`] || [];
+          const oppText =
+            clubMatches.length > 0
+              ? clubMatches.map((m) => `${m.oppShort} (${m.isHome ? 'H' : 'A'})`).join(' + ')
+              : '-';
+          rows.push({
+            gw,
+            opp: oppText,
+            xp: gw === targetNextGW ? player.xP1 : player.avgXp6,
+          });
+        }
+      }
+      return rows;
+    },
+    [picksType, targetNextGW, playerProjById, sharedClubGwMatchProjections]
+  );
+
+  const getTargetFixtureInfo = useCallback(
+    (playerId: number, teamShort: string): { fixtureText: string | null; targetXp: number | null } => {
+      const cell = playerProjById.get(playerId)?.fullSeasonPointsMap?.[targetNextGW];
+      if (cell) {
+        const fixtureText = cell.isBlank || !cell.opp || cell.opp === '-' ? 'BGW' : cell.opp;
+        return {
+          fixtureText,
+          targetXp: typeof cell.xp === 'number' ? cell.xp : null,
+        };
+      }
+      const clubMatches = sharedClubGwMatchProjections?.[`${teamShort}_${targetNextGW}`] || [];
+      const fixtureText =
+        clubMatches.length > 0
+          ? clubMatches.map((m) => `${m.oppShort} (${m.isHome ? 'H' : 'A'})`).join(' + ')
+          : null;
+      return { fixtureText, targetXp: null };
+    },
+    [playerProjById, sharedClubGwMatchProjections, targetNextGW]
+  );
+
+  const handleTogglePicksBreakdown = useCallback((playerId: number) => {
+    setActivePicksBreakdownId((prev) => (prev === playerId ? null : playerId));
+  }, []);
+
+  useEffect(() => {
+    if (subTab !== 'picks') {
+      setActivePicksBreakdownId(null);
+    }
+  }, [subTab, effectiveEpochKey]);
+
+  useEffect(() => {
+    if (activePicksBreakdownId === null) return;
+    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest('[data-scout-breakdown-card]')) {
+        setActivePicksBreakdownId(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActivePicksBreakdownId(null);
+      }
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activePicksBreakdownId]);
+
   const captainPicks = useMemo(() => {
     if (subTab !== 'captain') return [];
     return scoutSquadsPayload?.captainPicks?.[langKey] || [];
@@ -429,8 +573,15 @@ export const TabScout: React.FC<TabScoutProps> = ({
 
   const differentialPicks = useMemo(() => {
     if (subTab !== 'differential') return [];
+    if (diffMode === 'ALL') {
+      return (
+        scoutSquadsPayload?.differentialPicksAll?.[langKey] ||
+        scoutSquadsPayload?.differentialPicks?.[langKey] ||
+        []
+      );
+    }
     return scoutSquadsPayload?.differentialPicks?.[langKey] || [];
-  }, [subTab, scoutSquadsPayload?.differentialPicks, langKey]);
+  }, [subTab, diffMode, scoutSquadsPayload?.differentialPicks, scoutSquadsPayload?.differentialPicksAll, langKey]);
 
   const activeManagerPayload = managerAnalysisQueryKey
     ? managerAnalysisMap[managerAnalysisQueryKey] || null
@@ -514,17 +665,22 @@ export const TabScout: React.FC<TabScoutProps> = ({
           </div>
 
           {/* Regulation Pitch View (Compact & 5-Across Single Row Guaranteed) */}
-          <div className="relative w-full max-w-4xl mx-auto rounded-2xl overflow-hidden border border-slate-200/80 dark:border-white/10 shadow-xl">
+          {(() => {
+            const isBenchBreakdownOpen =
+              activePicksBreakdownId !== null && picksSquad.bench.some((p) => p.id === activePicksBreakdownId);
+            const isStarterBreakdownOpen = activePicksBreakdownId !== null && !isBenchBreakdownOpen;
+            return (
+          <div className={`relative w-full max-w-4xl mx-auto rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xl ${activePicksBreakdownId !== null ? 'z-40' : 'z-20'}`}>
             {isLoadingScoutSquads && picksSquad.starters.length === 0 ? (
-              <div className="bg-[#00aa52] py-16 px-4 text-center text-white text-xs font-bold">
+              <div className="bg-[#00aa52] rounded-t-2xl py-16 px-4 text-center text-white text-xs font-bold">
                 {isId ? 'Memuat optimasi skuad terbaik...' : 'Loading optimal squad...'}
               </div>
             ) : null}
-            {/* Pitch Grass Surface */}
-            <div className="relative w-full pt-3 sm:pt-4 pb-3.5 sm:pb-5 px-1.5 sm:px-3 bg-[#00aa52] select-none">
+            {/* Pitch Grass Surface (overflow-visible so Quick xP Breakdown Popups never clip) */}
+            <div className={`relative w-full pt-3 sm:pt-4 pb-3.5 sm:pb-5 px-1.5 sm:px-3 bg-[#00aa52] rounded-t-2xl select-none ${isStarterBreakdownOpen ? 'z-30' : 'z-10'}`}>
               {/* 10 Alternating Horizontal Lawn Mowing Stripes */}
               <div
-                className="absolute inset-0 flex flex-col pointer-events-none overflow-hidden"
+                className="absolute inset-0 flex flex-col pointer-events-none overflow-hidden rounded-t-2xl"
                 style={{ clipPath: 'polygon(6% 0%, 94% 0%, 98.5% 100%, 1.5% 100%)' }}
               >
                 {Array.from({ length: 10 }).map((_, i) => (
@@ -536,7 +692,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
               </div>
 
               {/* Pitch Markings SVG */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute inset-0 overflow-hidden rounded-t-2xl pointer-events-none">
                 <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 1200">
                   <line x1="70" y1="0" x2="930" y2="0" stroke="rgba(255,255,255,0.9)" strokeWidth="3.5" />
                   <line x1="70" y1="0" x2="15" y2="1200" stroke="rgba(255,255,255,0.88)" strokeWidth="3.5" />
@@ -552,7 +708,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
               </div>
 
               {/* Pitch Players Grid */}
-              <div className="relative z-10 space-y-2.5 sm:space-y-3.5">
+              <div className={`relative ${isStarterBreakdownOpen ? 'z-40' : 'z-10'} space-y-2.5 sm:space-y-3.5`}>
                 {/* 1. GKP */}
                 <div className="flex justify-center items-center gap-1.5 sm:gap-3 flex-nowrap">
                   {pitchStarters.gks.map((p) => (
@@ -560,7 +716,11 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       key={p.id}
                       player={p}
                       picksType={picksType}
-                      onClick={() => onSelectPlayer?.(p.id)}
+                      isId={isId}
+                      isBreakdownOpen={activePicksBreakdownId === p.id}
+                      breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
+                      onToggleBreakdown={handleTogglePicksBreakdown}
+                      onSelectPlayer={() => onSelectPlayer?.(p.id)}
                     />
                   ))}
                 </div>
@@ -572,7 +732,11 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       key={p.id}
                       player={p}
                       picksType={picksType}
-                      onClick={() => onSelectPlayer?.(p.id)}
+                      isId={isId}
+                      isBreakdownOpen={activePicksBreakdownId === p.id}
+                      breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
+                      onToggleBreakdown={handleTogglePicksBreakdown}
+                      onSelectPlayer={() => onSelectPlayer?.(p.id)}
                     />
                   ))}
                 </div>
@@ -584,7 +748,11 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       key={p.id}
                       player={p}
                       picksType={picksType}
-                      onClick={() => onSelectPlayer?.(p.id)}
+                      isId={isId}
+                      isBreakdownOpen={activePicksBreakdownId === p.id}
+                      breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
+                      onToggleBreakdown={handleTogglePicksBreakdown}
+                      onSelectPlayer={() => onSelectPlayer?.(p.id)}
                     />
                   ))}
                 </div>
@@ -596,7 +764,11 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       key={p.id}
                       player={p}
                       picksType={picksType}
-                      onClick={() => onSelectPlayer?.(p.id)}
+                      isId={isId}
+                      isBreakdownOpen={activePicksBreakdownId === p.id}
+                      breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
+                      onToggleBreakdown={handleTogglePicksBreakdown}
+                      onSelectPlayer={() => onSelectPlayer?.(p.id)}
                     />
                   ))}
                 </div>
@@ -604,20 +776,26 @@ export const TabScout: React.FC<TabScoutProps> = ({
             </div>
 
             {/* Bench Dugout (4 players cleanly on 1 row) */}
-            <div className="bg-[#005a2b] border-t border-[#007038] px-1.5 sm:px-3 py-2">
-              <div className="flex justify-center items-center gap-1.5 sm:gap-4 flex-nowrap">
+            <div className={`relative bg-[#005a2b] border-t border-[#007038] rounded-b-2xl px-1.5 sm:px-3 py-2 ${isBenchBreakdownOpen ? 'z-40' : 'z-20'}`}>
+              <div className={`relative ${isBenchBreakdownOpen ? 'z-40' : 'z-10'} flex justify-center items-start gap-1.5 sm:gap-4 flex-nowrap`}>
                 {picksSquad.bench.map((p) => (
                   <ScoutPitchCard
                     key={p.id}
                     player={p}
                     picksType={picksType}
+                    isId={isId}
                     isBench
-                    onClick={() => onSelectPlayer?.(p.id)}
+                    isBreakdownOpen={activePicksBreakdownId === p.id}
+                    breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
+                    onToggleBreakdown={handleTogglePicksBreakdown}
+                    onSelectPlayer={() => onSelectPlayer?.(p.id)}
                   />
                 ))}
               </div>
             </div>
           </div>
+            );
+          })()}
         </div>
         );
       })()}
@@ -641,29 +819,48 @@ export const TabScout: React.FC<TabScoutProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-              {captainPicks.map((p) => (
+              {captainPicks.map((p) => {
+                const { fixtureText, targetXp } = getTargetFixtureInfo(p.id, p.teamShort);
+                return (
                 <div
                   key={p.id}
                   onClick={() => onSelectPlayer?.(p.id)}
                   className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl p-3 shadow-sm hover:border-[#00ff87]/60 transition-all cursor-pointer flex flex-col justify-between gap-2"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-lg bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] flex items-center justify-center text-xs font-black">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="w-6 h-6 rounded-lg bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] flex items-center justify-center text-xs font-black shrink-0">
                         {p.rank}
                       </span>
-                      <div>
-                        <h4 className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
                           {p.webName}
                         </h4>
-                        <span className="text-[11px] font-bold text-slate-400">
+                        <div className="text-[11px] font-bold text-slate-400">
                           {p.clubName} • {p.position} • £{p.cost.toFixed(1)}m
-                        </span>
+                        </div>
+                        {(fixtureText || targetXp !== null) && (
+                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] font-bold mt-0.5">
+                            {fixtureText && (
+                              <span className="text-slate-700 dark:text-slate-200 font-extrabold">
+                                {fixtureText === 'BGW' ? 'BGW' : `vs ${fixtureText}`}
+                              </span>
+                            )}
+                            {fixtureText && targetXp !== null && (
+                              <span className="text-slate-400">•</span>
+                            )}
+                            {targetXp !== null && (
+                              <span className="text-emerald-600 dark:text-[#00ff87] font-mono font-black">
+                                {targetXp.toFixed(1)} xP
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Clean Rating Badge */}
-                    <div className="flex items-center gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-md text-xs font-black">
+                    <div className="flex items-center gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-md text-xs font-black shrink-0">
                       <Star className="w-3.5 h-3.5 fill-current" />
                       <span>{p.rating}</span>
                     </div>
@@ -674,7 +871,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
                     {p.narrative}
                   </p>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -685,7 +883,42 @@ export const TabScout: React.FC<TabScoutProps> = ({
       {/* ======================================================== */}
       {subTab === 'differential' && (
         <div className="space-y-2">
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between gap-2 bg-white dark:bg-[#1a0f2e] px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setDiffMode('EXCLUDE')}
+                title={
+                  isId
+                    ? 'Tampilkan 3 differential <5% di luar skuad Picks (FH/WC) & Captain'
+                    : 'Show top 3 <5% differentials outside Picks (FH/WC) & Captain'
+                }
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-black tracking-wide transition-all cursor-pointer ${
+                  diffMode === 'EXCLUDE'
+                    ? 'bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                }`}
+              >
+                Exclude Picks &amp; (C)
+              </button>
+              <button
+                type="button"
+                onClick={() => setDiffMode('ALL')}
+                title={
+                  isId
+                    ? 'Tampilkan semua 3 differential <5% terbaik termasuk Picks & Captain'
+                    : 'Show all top 3 <5% differentials including Picks & Captain'
+                }
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-black tracking-wide transition-all cursor-pointer ${
+                  diffMode === 'ALL'
+                    ? 'bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                }`}
+              >
+                All
+              </button>
+            </div>
+
             <span
               title={isId ? `Target Differential: GW ${targetNextGW}` : `Differential Target: GW ${targetNextGW}`}
               className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0"
@@ -699,29 +932,48 @@ export const TabScout: React.FC<TabScoutProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {differentialPicks.map((p) => (
+              {differentialPicks.map((p) => {
+                const { fixtureText, targetXp } = getTargetFixtureInfo(p.id, p.teamShort);
+                return (
                 <div
                   key={p.id}
                   onClick={() => onSelectPlayer?.(p.id)}
                   className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl p-3.5 shadow-sm hover:border-[#00ff87]/60 transition-all cursor-pointer flex flex-col justify-between gap-2.5"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-[#00ff87] flex items-center justify-center text-xs font-black">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-[#00ff87] flex items-center justify-center text-xs font-black shrink-0">
                         {p.rank}
                       </span>
-                      <div>
-                        <h4 className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
                           {p.webName}
                         </h4>
-                        <span className="text-[11px] font-bold text-slate-400">
+                        <div className="text-[11px] font-bold text-slate-400">
                           {p.clubName} • {p.position} • £{p.cost.toFixed(1)}m
-                        </span>
+                        </div>
+                        {(fixtureText || targetXp !== null) && (
+                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] font-bold mt-0.5">
+                            {fixtureText && (
+                              <span className="text-slate-700 dark:text-slate-200 font-extrabold">
+                                {fixtureText === 'BGW' ? 'BGW' : `vs ${fixtureText}`}
+                              </span>
+                            )}
+                            {fixtureText && targetXp !== null && (
+                              <span className="text-slate-400">•</span>
+                            )}
+                            {targetXp !== null && (
+                              <span className="text-emerald-600 dark:text-[#00ff87] font-mono font-black">
+                                {targetXp.toFixed(1)} xP
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Ownership & Rating Badges */}
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <span className="text-[11px] font-black text-rose-500 bg-rose-500/10 px-1.5 py-0.5 rounded">
                         {p.fnbOwn.toFixed(1)}%
                       </span>
@@ -736,7 +988,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
                     {p.narrative}
                   </p>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -776,7 +1029,11 @@ export const TabScout: React.FC<TabScoutProps> = ({
               </span>
             </div>
 
-            {!chipsAnalysis ? (
+            {resolvedEntryId <= 0 ? (
+              <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl py-10 px-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
+                Please select a team profile in Settings first to view your personalized Chips analysis.
+              </div>
+            ) : !chipsAnalysis ? (
               <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl py-10 px-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
                 {isLoadingManagerAnalysis
                   ? (isId ? 'Menghitung jadwal chip optimal di server...' : 'Computing optimal chip schedule on server...')
@@ -829,6 +1086,14 @@ export const TabScout: React.FC<TabScoutProps> = ({
                         +{chipsAnalysis.gain.toFixed(1)} xP{chipsAnalysis.chipName === 'Wildcard' ? '/GW' : ''} projected gain
                       </span>
                     </div>
+                    {chipsAnalysis.comboPlan && (
+                      <div className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-500/10 text-[#37003c] dark:text-[#00ff87] border border-purple-500/20 dark:border-[#00ff87]/25">
+                          <ArrowRight className="w-3 h-3 shrink-0" />
+                          {chipsAnalysis.comboPlan.nextChipName} GW {chipsAnalysis.comboPlan.nextGw} (+{chipsAnalysis.comboPlan.nextGain.toFixed(1)} xP)
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl p-5 w-full shadow-sm space-y-2">
@@ -925,7 +1190,11 @@ export const TabScout: React.FC<TabScoutProps> = ({
 
           {/* Full-Width Content Card (Sejajar Captain & Differential) */}
           <div className="w-full text-center">
-            {!transferRecommendation ? (
+            {resolvedEntryId <= 0 ? (
+              <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl py-10 px-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
+                Please select a team profile in Settings first to view your personalized Transfer recommendations.
+              </div>
+            ) : !transferRecommendation ? (
               <div className="bg-white dark:bg-[#1a0f2e] border border-slate-200 dark:border-white/10 rounded-xl py-10 px-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400">
                 {isLoadingManagerAnalysis
                   ? (isId ? 'Menjalankan simulasi transfer optimal di server...' : 'Running transfer optimization on server...')
@@ -997,8 +1266,17 @@ export const TabScout: React.FC<TabScoutProps> = ({
                             {m.out.webName}
                           </h4>
                         </div>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          £{m.out.cost.toFixed(1)}m • {m.out.effXpH.toFixed(1)} pts
+                        <span
+                          title={
+                            m.out.sellingPrice !== undefined && Math.abs(m.out.sellingPrice - m.out.cost) >= 0.05
+                              ? (isId
+                                  ? `Harga jual £${m.out.sellingPrice.toFixed(1)}m (harga pasar £${m.out.cost.toFixed(1)}m — aturan 50% FPL)`
+                                  : `Selling price £${m.out.sellingPrice.toFixed(1)}m (market £${m.out.cost.toFixed(1)}m — 50% FPL rule)`)
+                              : undefined
+                          }
+                          className="text-[10px] text-slate-400 font-mono"
+                        >
+                          £{(m.out.sellingPrice ?? m.out.cost).toFixed(1)}m • {m.out.effXpH.toFixed(1)} pts
                         </span>
                       </div>
 
@@ -1084,32 +1362,54 @@ export const TabScout: React.FC<TabScoutProps> = ({
 // ==========================================
 // PITCH PLAYER CARD COMPONENT
 // ==========================================
+interface ScoutPitchBreakdownRow {
+  gw: number;
+  opp: string;
+  xp: number;
+}
+
 interface ScoutPitchCardProps {
   player: ScoutPlayerCardItem;
   picksType: 'FH' | 'WC';
+  isId: boolean;
   isBench?: boolean;
-  onClick?: () => void;
+  isBreakdownOpen?: boolean;
+  breakdownRows?: ScoutPitchBreakdownRow[];
+  onToggleBreakdown?: (playerId: number) => void;
+  onSelectPlayer?: () => void;
 }
 
 const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
   player,
   picksType,
+  isId,
   isBench = false,
-  onClick,
+  isBreakdownOpen = false,
+  breakdownRows,
+  onToggleBreakdown,
+  onSelectPlayer,
 }) => {
   const displayXp = picksType === 'FH' ? player.xP1 : player.avgXp6;
+  const breakdownTooltip = isId
+    ? 'Klik kotak nama / angka xP untuk melihat breakdown xP per GW'
+    : 'Click player name or xP box to view GW xP breakdown';
 
   return (
     <div
-      onClick={onClick}
-      className={`group flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 select-none min-w-0 shrink-0 ${
-        isBench
-          ? 'w-[calc((100%-18px)/4)] max-w-[78px] sm:max-w-none sm:w-22 md:w-24'
-          : 'w-[calc((100%-16px)/5)] max-w-[82px] sm:max-w-none sm:w-22 md:w-24'
-      }`}
+      data-scout-breakdown-card={player.id}
+      className={`relative flex flex-col items-center justify-center select-none min-w-0 shrink-0 ${
+        isBreakdownOpen ? 'z-50' : 'z-10'
+      } w-[calc((100%-16px)/5)] max-w-[82px] sm:max-w-none sm:w-22 md:w-24`}
     >
-      {/* Kit / Player Photo */}
-      <div className="relative w-[54px] h-[54px] max-w-full sm:w-16 sm:h-16 md:w-[74px] md:h-[74px] flex items-center justify-center">
+      {/* Kit / Player Photo - Klik membuka modal detail pemain */}
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelectPlayer?.();
+        }}
+        title={player.webName}
+        className="relative z-0 w-[54px] h-[54px] max-w-full sm:w-16 sm:h-16 md:w-[74px] md:h-[74px] flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+      >
         {player.photo ? (
           <img
             src={player.photo}
@@ -1128,16 +1428,65 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
       </div>
 
       {/* Strip Area (Dark Premier League Purple/Black Name Strip + Neon Green Cost & xP Strip) */}
-      <div className="relative w-full">
-        {/* Name Strip (Dark Premier League Purple/Black) */}
-        <div className="w-full bg-[#37003c] group-hover:bg-[#4d0054] text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center">
+      <div className="relative z-10 w-full">
+        {/* QUICK xP BREAKDOWN POPUP (MENEMPEL TEPAT DI ATAS BOX NAMA, LEBAR SAMA / MIN-W-FULL, BORDER TIPIS 3 SISI) */}
+        {isBreakdownOpen && breakdownRows && breakdownRows.length > 0 && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute bottom-full left-1/2 -translate-x-1/2 min-w-full w-max max-w-[148px] sm:max-w-[172px] bg-[#1e0026]/95 dark:bg-[#12001a]/95 backdrop-blur-md rounded-t shadow-2xl px-1.5 sm:px-2 py-1 z-50 animate-in fade-in duration-75 border-t border-x border-purple-500/40 border-b-0"
+          >
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-x-1.5 sm:gap-x-2 gap-y-1 text-[8px] sm:text-[9.5px] md:text-[10.5px] font-mono leading-tight">
+              {breakdownRows.map((row, idx, arr) => {
+                const isLast = idx === arr.length - 1;
+                const borderClass = isLast ? '' : 'border-b border-purple-900/30 pb-[1.5px]';
+                return (
+                  <React.Fragment key={row.gw}>
+                    {/* Kolom 1: GW (e.g. GW12) */}
+                    <span className={`text-left font-black text-[#00ff87] tracking-tight whitespace-nowrap ${borderClass}`}>
+                      GW{row.gw}
+                    </span>
+                    {/* Kolom 2: Opponent H/A (e.g. MCI (H)) */}
+                    <span className={`text-center font-bold text-slate-200 whitespace-nowrap truncate max-w-[88px] sm:max-w-[115px] ${borderClass}`}>
+                      {row.opp}
+                    </span>
+                    {/* Kolom 3: xP */}
+                    <span
+                      className={`text-right font-black whitespace-nowrap ${borderClass} ${
+                        row.xp > 0 ? 'text-[#00ff87]' : 'text-slate-300'
+                      }`}
+                    >
+                      {row.xp.toFixed(1)}
+                    </span>
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Name Strip (Dark Premier League Purple/Black) - Klik toggle popup xP */}
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleBreakdown?.(player.id);
+          }}
+          title={breakdownTooltip}
+          className="w-full bg-[#37003c] hover:bg-[#4d0054] text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center cursor-pointer"
+        >
           <span className="block text-[9px] sm:text-[10.5px] font-extrabold truncate leading-tight">
             {player.webName}
           </span>
         </div>
 
-        {/* Cost & Projected Points Strip (Neon Green) */}
-        <div className="w-full bg-[#00ff87] group-hover:bg-[#2eff9e] text-[#37003c] text-center py-0.5 px-1 rounded-b-md flex items-center justify-between font-black text-[8.5px] sm:text-[9.5px] leading-tight transition-colors">
+        {/* Cost & Projected Points Strip (Neon Green) - Klik toggle popup xP */}
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleBreakdown?.(player.id);
+          }}
+          title={breakdownTooltip}
+          className="w-full bg-[#00ff87] hover:bg-[#2eff9e] text-[#37003c] text-center py-0.5 px-1 rounded-b-md flex items-center justify-between font-black text-[8.5px] sm:text-[9.5px] leading-tight transition-colors cursor-pointer"
+        >
           <span>£{player.cost.toFixed(1)}</span>
           <span>{displayXp}</span>
         </div>

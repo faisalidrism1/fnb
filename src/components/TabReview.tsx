@@ -6,11 +6,13 @@ import {
   ChevronRight,
   Search,
   Layers,
-  LayoutGrid
+  LayoutGrid,
+  ArrowUpRight
 } from 'lucide-react';
 import {
   TransformedLeagueData,
   ReviewSubTab,
+  ReviewSectionType,
   PositionType,
   GwEventStatus,
   SyncStatus,
@@ -26,6 +28,11 @@ import { useLanguage } from '../utils/i18n.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
+import {
+  computeMaeDiagnosticSummary,
+  computeScoreHorizonSummary,
+  computePointsSliceSummary
+} from '../utils/reviewMetrics.ts';
 
 interface TabReviewProps {
   leagueData?: TransformedLeagueData;
@@ -80,6 +87,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
   currentGW,
   availableGWs = [],
   subTab,
+  onSelectSubTab,
   onSelectPlayer,
   gwStatus,
   eventsStatus,
@@ -268,13 +276,15 @@ export const TabReview: React.FC<TabReviewProps> = ({
     setLineupReviewGW((prev) => Math.min(Math.max(prev, 1), maxReviewGW));
   }, [maxReviewGW]);
 
-  // Epoch-gated Server Review Bundle Fetch (syncs ONLY on Live -> Provisional / Provisional -> Confirmed)
+  // Epoch-gated Sectioned Review Fetch (fetches only active subtab slice and caches per epoch)
   const [reviewBundle, setReviewBundle] = useState<ServerReviewBundlePayload | null>(null);
   const reviewBundleRef = useRef<ServerReviewBundlePayload | null>(null);
   reviewBundleRef.current = reviewBundle;
   const [isLoadingReview, setIsLoadingReview] = useState<boolean>(false);
   const [formulaRevision, setFormulaRevision] = useState<number>(0);
-  const reviewCacheRef = useRef<Map<string, ServerReviewBundlePayload>>(new Map());
+  const lineupGwCacheRef = useRef<
+    Map<string, { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number } }>
+  >(new Map());
   const inFlightReviewRef = useRef<{
     key: string;
     promise: Promise<ServerReviewBundlePayload | null>;
@@ -294,7 +304,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
   useEffect(() => {
     const handleFormulaUpdated = () => {
-      reviewCacheRef.current.clear();
+      lineupGwCacheRef.current.clear();
       inFlightReviewRef.current = null;
       setReviewBundle(null);
       setFormulaRevision((prev) => prev + 1);
@@ -303,41 +313,72 @@ export const TabReview: React.FC<TabReviewProps> = ({
     return () => window.removeEventListener('fpl:formula-updated', handleFormulaUpdated);
   }, []);
 
+  const activeSection: ReviewSectionType =
+    subTab === 'line-up'
+      ? 'lineup'
+      : subTab === 'score'
+      ? 'score'
+      : subTab === 'points'
+      ? 'points'
+      : 'mae';
+
   useEffect(() => {
     if (active === false || !leagueData) return;
-    const currentBundle = reviewBundleRef.current;
+    let currentBundle = reviewBundleRef.current;
     if (
       currentBundle &&
       currentBundle.epochKey &&
       !isEpochCompatible(currentBundle.epochKey, targetEpochKey)
     ) {
+      lineupGwCacheRef.current.clear();
+      currentBundle = null;
       setReviewBundle(null);
     }
-    const reqGw = subTab === 'line-up' ? lineupReviewGW : maxReviewGW;
-    const exactKey = `${targetEpochKey}:${reqGw}`;
-    const exactCached = reviewCacheRef.current.get(exactKey);
-    if (exactCached) {
-      if (currentBundle !== exactCached) setReviewBundle(exactCached);
+
+    const reqGw = activeSection === 'lineup' ? lineupReviewGW : maxReviewGW;
+    const hasMatches = Boolean(currentBundle?.actualMatchLookup);
+    const lineupCacheKey = `${targetEpochKey}:${reqGw}`;
+    const cachedLineupGw = activeSection === 'lineup' ? lineupGwCacheRef.current.get(lineupCacheKey) : undefined;
+
+    if (activeSection === 'lineup' && cachedLineupGw && hasMatches) {
+      if (currentBundle && currentBundle.lineupGw !== reqGw) {
+        setReviewBundle({
+          ...currentBundle,
+          lineupGw: reqGw,
+          lineupReviewPerClub: cachedLineupGw.lineupReviewPerClub,
+          lineupGwSummary: cachedLineupGw.lineupGwSummary,
+        });
+      }
       setIsLoadingReview(false);
       return;
     }
-    if (
-      subTab !== 'line-up' &&
-      currentBundle &&
-      isEpochCompatible(currentBundle.epochKey, targetEpochKey)
-    ) {
+
+    const isSectionReady =
+      (activeSection === 'score' && hasMatches) ||
+      (activeSection === 'points' && hasMatches && Boolean(currentBundle?.actualPlayerStatsMap)) ||
+      (activeSection === 'mae' && Boolean(currentBundle?.maeRecapRows)) ||
+      (activeSection === 'lineup' && hasMatches && currentBundle?.lineupGw === reqGw && Boolean(currentBundle?.lineupReviewPerClub));
+
+    if (isSectionReady) {
       setIsLoadingReview(false);
       return;
     }
+
+    const includeMatchesParam =
+      hasMatches && (activeSection === 'lineup' || activeSection === 'points') ? '&includeMatches=0' : '';
+    const fetchKey = `${targetEpochKey}:${activeSection}:${reqGw}:${includeMatchesParam ? 0 : 1}`;
 
     let cancelled = false;
     setIsLoadingReview(true);
 
     let activePromise: Promise<ServerReviewBundlePayload | null>;
-    if (inFlightReviewRef.current && inFlightReviewRef.current.key === exactKey) {
+    if (inFlightReviewRef.current && inFlightReviewRef.current.key === fetchKey) {
       activePromise = inFlightReviewRef.current.promise;
     } else {
-      const fetchPromise = fetch(`/api/projections-review?gw=${reqGw}&_t=${Date.now()}`, { cache: 'no-store' })
+      const fetchPromise = fetch(
+        `/api/projections-review?section=${activeSection}&gw=${reqGw}${includeMatchesParam}&_t=${Date.now()}`,
+        { cache: 'no-store' }
+      )
         .then((res) => (res.ok ? res.json() : null))
         .then((json) => (json?.success && json.data ? (json.data as ServerReviewBundlePayload) : null))
         .catch(() => null)
@@ -346,18 +387,36 @@ export const TabReview: React.FC<TabReviewProps> = ({
             inFlightReviewRef.current = null;
           }
         });
-      inFlightReviewRef.current = { key: exactKey, promise: fetchPromise };
+      inFlightReviewRef.current = { key: fetchKey, promise: fetchPromise };
       activePromise = fetchPromise;
     }
 
     activePromise.then((payload) => {
       if (cancelled) return;
       if (payload) {
-        reviewCacheRef.current.set(`${targetEpochKey}:${reqGw}`, payload);
-        if (payload.epochKey) {
-          reviewCacheRef.current.set(`${payload.epochKey}:${payload.lineupGw}`, payload);
+        if (activeSection === 'lineup' && payload.lineupReviewPerClub && payload.lineupGwSummary) {
+          lineupGwCacheRef.current.set(`${targetEpochKey}:${payload.lineupGw}`, {
+            lineupReviewPerClub: payload.lineupReviewPerClub,
+            lineupGwSummary: payload.lineupGwSummary,
+          });
         }
-        setReviewBundle(payload);
+        setReviewBundle((prev) => {
+          const base = prev && isEpochCompatible(prev.epochKey, payload.epochKey) ? prev : null;
+          return {
+            epochKey: payload.epochKey || base?.epochKey || targetEpochKey,
+            generatedAt: payload.generatedAt || new Date().toISOString(),
+            section: payload.section || activeSection,
+            maxReviewGW: payload.maxReviewGW ?? base?.maxReviewGW ?? maxReviewGW,
+            lineupGw: activeSection === 'lineup' ? payload.lineupGw : base?.lineupGw ?? payload.lineupGw,
+            actualMatchLookup: payload.actualMatchLookup ?? base?.actualMatchLookup,
+            actualPlayerStatsMap: payload.actualPlayerStatsMap ?? base?.actualPlayerStatsMap,
+            lineupReviewPerClub:
+              activeSection === 'lineup' ? payload.lineupReviewPerClub : base?.lineupReviewPerClub,
+            lineupGwSummary:
+              activeSection === 'lineup' ? payload.lineupGwSummary : base?.lineupGwSummary,
+            maeRecapRows: payload.maeRecapRows ?? base?.maeRecapRows,
+          };
+        });
       }
       setIsLoadingReview(false);
     });
@@ -365,7 +424,24 @@ export const TabReview: React.FC<TabReviewProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [active, leagueData, targetEpochKey, subTab, lineupReviewGW, maxReviewGW, formulaRevision]);
+  }, [active, leagueData, targetEpochKey, activeSection, lineupReviewGW, maxReviewGW, formulaRevision]);
+
+  const jumpToReviewSubTab = useCallback(
+    (target: 'line-up' | 'score' | 'points', gw: number) => {
+      const clamped = Math.min(Math.max(gw, 1), maxReviewGW);
+      if (target === 'line-up') {
+        setLineupReviewGW(clamped);
+      } else if (target === 'score') {
+        setScoreGwStart(clamped);
+        setScoreGwEnd(clamped);
+      } else {
+        setPointsGwStart(clamped);
+        setPointsGwEnd(clamped);
+      }
+      onSelectSubTab?.(target);
+    },
+    [maxReviewGW, onSelectSubTab]
+  );
 
   const actualMatchLookup = useMemo(
     () => reviewBundle?.actualMatchLookup || ({} as Record<string, ActualMatchReviewEntry[]>),
@@ -403,8 +479,14 @@ export const TabReview: React.FC<TabReviewProps> = ({
   // SUBTAB 2: SCORE REVIEW (Match Scoreboard & Club Matrix with DGW/BGW)
   // =========================================================================
   const [scoreViewMode, setScoreViewMode] = useState<'scoreboard' | 'matrix'>('scoreboard');
+  const [scoreResultFilter, setScoreResultFilter] = useState<'all' | 'exact' | 'wdl' | 'miss'>('all');
   const [matrixSortCol, setMatrixSortCol] = useState<string>('pts');
   const [matrixSortDir, setMatrixSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const scoreHorizonSummary = useMemo(() => {
+    if (subTab !== 'score') return null;
+    return computeScoreHorizonSummary(horizonGWs, scheduleByGw, actualMatchLookup, projectFixture);
+  }, [subTab, horizonGWs, scheduleByGw, actualMatchLookup, projectFixture]);
 
   const handleMatrixSort = (col: string) => {
     if (matrixSortCol === col) {
@@ -678,6 +760,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
   // =========================================================================
   const [lineupSortCol, setLineupSortCol] = useState<string>('role');
   const [lineupSortDir, setLineupSortDir] = useState<'asc' | 'desc'>('asc');
+  const [lineupFilterMode, setLineupFilterMode] = useState<'all' | 'misses'>('all');
 
   const [expandedClubs, setExpandedClubs] = useState<Set<string>>(() => new Set());
   const toggleClubAccordion = (short: string) => {
@@ -689,6 +772,18 @@ export const TabReview: React.FC<TabReviewProps> = ({
     });
   };
 
+  const handleLineupSort = useCallback(
+    (col: string, defaultDir: 'asc' | 'desc' = 'asc') => {
+      if (lineupSortCol === col) {
+        setLineupSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      } else {
+        setLineupSortCol(col);
+        setLineupSortDir(defaultDir);
+      }
+    },
+    [lineupSortCol]
+  );
+
   const lineupReviewPerClub = useMemo(
     () => reviewBundle?.lineupReviewPerClub || {},
     [reviewBundle]
@@ -699,12 +794,107 @@ export const TabReview: React.FC<TabReviewProps> = ({
     [reviewBundle]
   );
 
+  const clubLineupItems = useMemo(() => {
+    if (subTab !== 'line-up') return [];
+    const rankReal = (p: any) => (p.realStarted ? 1 : p.realSub ? 2 : p.realUnusedSub ? 3 : 4);
+    return clubs.map((club) => {
+      const squad = lineupReviewPerClub[club.short] || [];
+      const actualList = actualMatchLookup[`${lineupReviewGW}_${club.short}`] || [];
+      const isMatchPlayed = actualList.some((m) => m.finished || m.teamScore !== null);
+
+      const starters = squad.filter((p) => p.role === 'starting');
+      const starterAccurate = starters.filter((p) => p.realStarted).length;
+      const lineupAccPct = starters.length > 0 ? Math.round((starterAccurate / 11) * 100) : 0;
+      const missedStarters = isMatchPlayed ? starters.filter((p) => !p.realStarted) : [];
+      const unexpectedStarters = isMatchPlayed
+        ? squad.filter((p) => p.role !== 'starting' && p.realStarted)
+        : [];
+
+      const projForm = squad.find((p) => p.projectedFormation)?.projectedFormation || '-';
+      const realForm = squad.find((p) => p.actualFormation)?.actualFormation || null;
+
+      const sortedSquad = [...squad].sort((a, b) => {
+        if (lineupSortCol === 'num') {
+          return lineupSortDir === 'asc' ? a.shirtNum - b.shirtNum : b.shirtNum - a.shirtNum;
+        }
+        if (lineupSortCol === 'player') {
+          return lineupSortDir === 'asc' ? a.webName.localeCompare(b.webName) : b.webName.localeCompare(a.webName);
+        }
+        if (lineupSortCol === 'pos') {
+          const diff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
+          if (diff !== 0) return lineupSortDir === 'asc' ? diff : -diff;
+          return b.si - a.si;
+        }
+        if (lineupSortCol === 'proj') {
+          const rDiff = (ROLE_ORDER[a.role] || 99) - (ROLE_ORDER[b.role] || 99);
+          if (rDiff !== 0) return lineupSortDir === 'asc' ? rDiff : -rDiff;
+          return b.si - a.si;
+        }
+        if (lineupSortCol === 'real') {
+          const diff = rankReal(a) - rankReal(b);
+          if (diff !== 0) return lineupSortDir === 'asc' ? diff : -diff;
+          return b.realMins - a.realMins;
+        }
+        if (lineupSortCol === 'match') {
+          const mDiff = (a.isAccuracyMatch ? 1 : 0) - (b.isAccuracyMatch ? 1 : 0);
+          if (mDiff !== 0) return lineupSortDir === 'asc' ? mDiff : -mDiff;
+          return b.si - a.si;
+        }
+        if (lineupSortCol === 'pts') {
+          return lineupSortDir === 'asc' ? a.realPts - b.realPts : b.realPts - a.realPts;
+        }
+        const rDiff = (ROLE_ORDER[a.role] || 99) - (ROLE_ORDER[b.role] || 99);
+        if (rDiff !== 0) return lineupSortDir === 'asc' ? rDiff : -rDiff;
+        const pDiff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
+        if (pDiff !== 0) return pDiff;
+        return b.si - a.si;
+      });
+
+      return {
+        club,
+        actualList,
+        isMatchPlayed,
+        starterAccurate,
+        lineupAccPct,
+        missedStarters,
+        unexpectedStarters,
+        projForm,
+        realForm,
+        sortedSquad,
+      };
+    });
+  }, [subTab, clubs, lineupReviewPerClub, actualMatchLookup, lineupReviewGW, lineupSortCol, lineupSortDir]);
+
+  const lineupExtendedStats = useMemo(() => {
+    let highAccClubs = 0;
+    let formExactClubs = 0;
+    let formKnownClubs = 0;
+    let missClubsCount = 0;
+    for (const item of clubLineupItems) {
+      if (!item.isMatchPlayed) continue;
+      if (item.starterAccurate >= 10) highAccClubs += 1;
+      else missClubsCount += 1;
+      if (item.realForm) {
+        formKnownClubs += 1;
+        if (item.realForm === item.projForm) formExactClubs += 1;
+      }
+    }
+    return { highAccClubs, formExactClubs, formKnownClubs, missClubsCount };
+  }, [clubLineupItems]);
+
+  const displayedClubLineupItems = useMemo(() => {
+    if (lineupFilterMode === 'misses') {
+      return clubLineupItems.filter((item) => item.isMatchPlayed && item.starterAccurate < 10);
+    }
+    return clubLineupItems;
+  }, [clubLineupItems, lineupFilterMode]);
+
   // =========================================================================
   // SUBTAB 3: PLAYER POINTS REVIEW (Final xP vs Real Points Side-by-Side)
   // =========================================================================
   const [posFilter, setPosFilter] = useState<'ALL' | PositionType>('ALL');
   const [clubFilter, setClubFilter] = useState<string>('ALL');
-  const [myTeamOnly, setMyTeamOnly] = useState<boolean>(false);
+  const [pointsFocusFilter, setPointsFocusFilter] = useState<'all' | 'played' | 'my-team'>('played');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const [pointsSortCol, setPointsSortCol] = useState<string>('totalReal');
@@ -716,13 +906,13 @@ export const TabReview: React.FC<TabReviewProps> = ({
       setPointsSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setPointsSortCol(col);
-      setPointsSortDir(col === 'player' || col === 'club' || col === 'pos' || col === 'mae' ? 'asc' : 'desc');
+      setPointsSortDir(col === 'player' || col === 'club' || col === 'pos' ? 'asc' : 'desc');
     }
   };
 
   useEffect(() => {
     setVisibleCount(50);
-  }, [posFilter, clubFilter, myTeamOnly, deferredSearchQuery, pointsSortCol, pointsSortDir, pointsGwStart, pointsGwEnd]);
+  }, [posFilter, clubFilter, pointsFocusFilter, deferredSearchQuery, pointsSortCol, pointsSortDir, pointsGwStart, pointsGwEnd]);
 
   const playerPointsReviewRows = useMemo(() => {
     if (subTab !== 'points') return [];
@@ -756,6 +946,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
       let sumReal = 0;
       let sumAbsDiff = 0;
       let matchCount = 0;
+      let totalMins = 0;
 
       const playerStatByGw = actualPlayerStatsMap[p.id];
 
@@ -807,6 +998,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
           sumProj += xp;
           sumReal += realPts;
           sumAbsDiff += Math.abs(diff);
+          totalMins += realMins;
         }
 
         gwMap[gw] = {
@@ -846,6 +1038,8 @@ export const TabReview: React.FC<TabReviewProps> = ({
         avgProj,
         avgReal,
         mae,
+        playedMatchCount: matchCount,
+        totalMins,
       };
     });
   }, [subTab, playerProjections, leagueData?.player_stats, horizonGWs, sharedClubGwMatchProjections, actualPlayerStatsMap, actualMatchLookup]);
@@ -859,7 +1053,9 @@ export const TabReview: React.FC<TabReviewProps> = ({
     if (clubFilter !== 'ALL') {
       list = list.filter((p) => p.teamShort === clubFilter);
     }
-    if (myTeamOnly && ownedPlayerIds.size > 0) {
+    if (pointsFocusFilter === 'played') {
+      list = list.filter((p) => p.totalMins > 0);
+    } else if (pointsFocusFilter === 'my-team' && ownedPlayerIds.size > 0) {
       list = list.filter((p) => ownedPlayerIds.has(p.id));
     }
     if (deferredSearchQuery.trim()) {
@@ -916,7 +1112,12 @@ export const TabReview: React.FC<TabReviewProps> = ({
     });
 
     return list;
-  }, [playerPointsReviewRows, posFilter, clubFilter, myTeamOnly, ownedPlayerIds, deferredSearchQuery, pointsSortCol, pointsSortDir]);
+  }, [playerPointsReviewRows, posFilter, clubFilter, pointsFocusFilter, ownedPlayerIds, deferredSearchQuery, pointsSortCol, pointsSortDir]);
+
+  const pointsSliceSummary = useMemo(() => {
+    if (subTab !== 'points') return null;
+    return computePointsSliceSummary(filteredPointsReviewRows);
+  }, [subTab, filteredPointsReviewRows]);
 
   const displayedPointsReviewRows = useMemo(() => {
     return filteredPointsReviewRows.slice(0, visibleCount);
@@ -1028,61 +1229,10 @@ export const TabReview: React.FC<TabReviewProps> = ({
   }, [allMaeRecapRows, maeHorizonPreset]);
 
   // Dynamic Summary computed strictly over filteredMaeRows (matches horizon filter)
-  const seasonMaeSummary = useMemo(() => {
-    let totalMatches = 0;
-    let totalOutcomeHits = 0;
-    let totalExactScoreHits = 0;
-    let sumTeamGoalsDiff = 0;
-    let sumStartersHit = 0;
-    let sumStartersProj = 0;
-    let sumStartersAbsDiff = 0;
-    let sumStartersCount = 0;
-    let sumActiveAbsDiff = 0;
-    let sumActiveCount = 0;
-    let finishedGwsCount = 0;
-
-    for (const row of filteredMaeRows) {
-      if (!row.isFinished && row.matchesFinished === 0) continue;
-      finishedGwsCount += 1;
-      totalMatches += row.matchesFinished;
-      totalOutcomeHits += row.outcomeHits;
-      totalExactScoreHits += row.exactScoreHits;
-      sumTeamGoalsDiff += row.teamGoalsMae * (row.matchesFinished * 2);
-      sumStartersHit += row.totalStartersHit;
-      sumStartersProj += row.totalStartersPredicted;
-      sumStartersAbsDiff += row.startersXpMae * row.startersCount;
-      sumStartersCount += row.startersCount;
-      sumActiveAbsDiff += row.activeXpMae * row.activeCount;
-      sumActiveCount += row.activeCount;
-    }
-
-    const seasonOutcomeAcc = totalMatches > 0 ? Math.round((totalOutcomeHits / totalMatches) * 1000) / 10 : 0;
-    const seasonExactScore = totalMatches > 0 ? Math.round((totalExactScoreHits / totalMatches) * 1000) / 10 : 0;
-    const seasonGoalMae = totalMatches > 0 ? Math.round((sumTeamGoalsDiff / (totalMatches * 2)) * 100) / 100 : 0;
-    const seasonLineupAcc = sumStartersProj > 0 ? Math.round((sumStartersHit / sumStartersProj) * 1000) / 10 : 0;
-    const seasonAvgStarters = finishedGwsCount > 0 ? Math.round((sumStartersHit / (finishedGwsCount * 20)) * 10) / 10 : 0;
-    const seasonStartersMae = sumStartersCount > 0 ? Math.round((sumStartersAbsDiff / sumStartersCount) * 100) / 100 : 0;
-    const seasonActiveMae = sumActiveCount > 0 ? Math.round((sumActiveAbsDiff / sumActiveCount) * 100) / 100 : 0;
-
-    const goalScore = Math.max(0, Math.min(100, Math.round((1 - seasonGoalMae / 2.2) * 100)));
-    const ptsScore = Math.max(0, Math.min(100, Math.round((1 - seasonStartersMae / 5.0) * 100)));
-    const seasonComposite = Math.round(seasonLineupAcc * 0.35 + seasonOutcomeAcc * 0.30 + goalScore * 0.15 + ptsScore * 0.20);
-    const seasonGrade = seasonComposite >= 82 ? 'A+' : seasonComposite >= 75 ? 'A' : seasonComposite >= 68 ? 'B+' : seasonComposite >= 60 ? 'B' : 'C';
-
-    return {
-      totalMatches,
-      seasonOutcomeAcc,
-      seasonExactScore,
-      seasonGoalMae,
-      seasonLineupAcc,
-      seasonAvgStarters,
-      seasonStartersMae,
-      seasonActiveMae,
-      seasonComposite,
-      seasonGrade,
-      finishedGwsCount
-    };
-  }, [filteredMaeRows]);
+  const seasonMaeSummary = useMemo(
+    () => computeMaeDiagnosticSummary(filteredMaeRows, allMaeRecapRows),
+    [filteredMaeRows, allMaeRecapRows]
+  );
 
   // Sorted rows by selected table column
   const sortedMaeRows = useMemo(() => {
@@ -1129,9 +1279,9 @@ export const TabReview: React.FC<TabReviewProps> = ({
       {/* 1. SUBTAB: LINE UP REVIEW (GW N ACCORDION PER 20 CLUBS)                  */}
       {/* ========================================================================= */}
       {subTab === 'line-up' && (
-        <div className="space-y-1.5">
-          {/* Compact Header Bar matching TabProjection */}
-          <div className="bg-white dark:bg-[#1a0f2e] px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 flex items-center justify-between gap-2 w-full min-w-0">
+        <div className="space-y-2">
+          {/* Compact Header Bar */}
+          <div className="bg-white dark:bg-[#1a0f2e] px-2.5 sm:px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 w-full min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
               <div className="flex items-center gap-1 shrink-0">
                 <button
@@ -1160,351 +1310,406 @@ export const TabReview: React.FC<TabReviewProps> = ({
                 </button>
               </div>
 
-              {lineupGwSummary.playedClubs > 0 && (
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate tabular-nums">
-                  {isIdLang
-                    ? `Rata-rata ${lineupGwSummary.avgHit}/11 · ${lineupGwSummary.pct}%`
-                    : `Avg ${lineupGwSummary.avgHit}/11 · ${lineupGwSummary.pct}%`}
-                </span>
-              )}
+              {/* Focus Filter: All vs Misses (<10/11) */}
+              <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 whitespace-nowrap shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setLineupFilterMode('all')}
+                  className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    lineupFilterMode === 'all'
+                      ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  {isIdLang ? `Semua (${clubLineupItems.length})` : `All (${clubLineupItems.length})`}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLineupFilterMode('misses')}
+                  className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap tabular-nums ${
+                    lineupFilterMode === 'misses'
+                      ? 'bg-white dark:bg-[#1a0f2e] text-rose-600 dark:text-rose-400 shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  {isIdLang ? `Meleset <10 (${lineupExtendedStats.missClubsCount})` : `<10/11 (${lineupExtendedStats.missClubsCount})`}
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 ml-auto shrink-0">
               <button
                 type="button"
-                onClick={() => setExpandedClubs(new Set(clubs.map((c) => c.short)))}
-                className="text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white cursor-pointer px-1.5 sm:px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 whitespace-nowrap"
+                onClick={() => setExpandedClubs(new Set(displayedClubLineupItems.map((item) => item.club.short)))}
+                className="text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white cursor-pointer px-2 py-1 rounded-lg bg-slate-100 dark:bg-white/5 whitespace-nowrap"
               >
-                {isIdLang ? 'Buka' : 'Expand'}
+                {isIdLang ? 'Buka Semua' : 'Expand All'}
               </button>
               <button
                 type="button"
                 onClick={() => setExpandedClubs(new Set())}
-                className="text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white cursor-pointer px-1.5 sm:px-2 py-0.5 rounded bg-slate-100 dark:bg-white/5 whitespace-nowrap"
+                className="text-[10px] sm:text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white cursor-pointer px-2 py-1 rounded-lg bg-slate-100 dark:bg-white/5 whitespace-nowrap"
               >
                 {isIdLang ? 'Tutup' : 'Collapse'}
               </button>
             </div>
           </div>
 
-          {isLoadingReview && !reviewBundle && (
+          {/* Compact Lineup KPI Strip */}
+          {lineupGwSummary.playedClubs > 0 && (
+            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 shadow-xs grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-white/5">
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {isIdLang ? 'Starter Tepat' : 'Starter Accuracy'}
+                </span>
+                <span className="text-base font-black text-[#37003c] dark:text-[#00ff87] tabular-nums">
+                  {lineupGwSummary.avgHit}/11 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">({lineupGwSummary.pct}%)</span>
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {isIdLang ? 'Tepat ≥10/11' : '≥10/11 Clubs'}
+                </span>
+                <span className="text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                  {lineupExtendedStats.highAccClubs}/{lineupGwSummary.playedClubs} {isIdLang ? 'klub' : 'clubs'}
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {isIdLang ? 'Perlu Dicek (<10)' : 'Needs Review (<10)'}
+                </span>
+                <span className="text-base font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                  {lineupExtendedStats.missClubsCount} {isIdLang ? 'klub' : 'clubs'}
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {isIdLang ? 'Formasi Tepat' : 'Formation Match'}
+                </span>
+                <span className="text-base font-black text-slate-900 dark:text-white tabular-nums">
+                  {lineupExtendedStats.formKnownClubs > 0
+                    ? `${lineupExtendedStats.formExactClubs}/${lineupExtendedStats.formKnownClubs}`
+                    : '-'}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {isLoadingReview && !reviewBundle?.lineupReviewPerClub && (
             <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 p-6 flex items-center justify-center">
               <div className="w-5 h-5 border-2 border-[#37003c] dark:border-[#00ff87] border-t-transparent rounded-full animate-spin" />
             </div>
           )}
 
-          {/* 20 Club Accordions */}
-          <div className="space-y-1.5">
-            {clubs.map((club) => {
-              const isExpanded = expandedClubs.has(club.short);
-              const squad = lineupReviewPerClub[club.short] || [];
-              const actualList = actualMatchLookup[`${lineupReviewGW}_${club.short}`] || [];
-              const isMatchPlayed = actualList.some((m) => m.finished || m.teamScore !== null);
+          {/* Club Accordions */}
+          {displayedClubLineupItems.length === 0 && !isLoadingReview ? (
+            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 p-6 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">
+              {lineupFilterMode === 'misses'
+                ? isIdLang
+                  ? `Semua klub di GW ${lineupReviewGW} mencapai ≥10/11 starter tepat.`
+                  : `All played clubs in GW ${lineupReviewGW} hit ≥10/11 starters.`
+                : isIdLang
+                ? 'Belum ada data lineup untuk GW ini.'
+                : 'No lineup review data for this Gameweek yet.'}
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {displayedClubLineupItems.map((item) => {
+                const {
+                  club,
+                  actualList,
+                  isMatchPlayed,
+                  starterAccurate,
+                  lineupAccPct,
+                  missedStarters,
+                  unexpectedStarters,
+                  projForm,
+                  realForm,
+                  sortedSquad,
+                } = item;
+                const isExpanded = expandedClubs.has(club.short);
 
-              const starterCount = squad.filter((p) => p.role === 'starting').length;
-              const starterAccurate = squad.filter((p) => p.role === 'starting' && p.realStarted).length;
-              const lineupAccPct = starterCount > 0 ? Math.round((starterAccurate / 11) * 100) : 0;
+                const getMatchChipClass = (res: 'W' | 'D' | 'L' | null) => {
+                  if (res === 'W') return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25';
+                  if (res === 'D') return 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/25';
+                  if (res === 'L') return 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/25';
+                  return 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-white/10';
+                };
 
-              const projForm = squad.find((p) => p.projectedFormation)?.projectedFormation || '-';
-              const realForm = squad.find((p) => p.actualFormation)?.actualFormation || null;
+                const accTextColor =
+                  starterAccurate >= 10
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : starterAccurate >= 8
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-rose-600 dark:text-rose-400';
 
-              const sortedSquad = [...squad].sort((a, b) => {
-                if (lineupSortCol === 'num') {
-                  return lineupSortDir === 'asc' ? a.shirtNum - b.shirtNum : b.shirtNum - a.shirtNum;
-                }
-                if (lineupSortCol === 'player') {
-                  return lineupSortDir === 'asc' ? a.webName.localeCompare(b.webName) : b.webName.localeCompare(a.webName);
-                }
-                if (lineupSortCol === 'pos') {
-                  const diff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
-                  if (diff !== 0) return lineupSortDir === 'asc' ? diff : -diff;
-                  return b.si - a.si;
-                }
-                if (lineupSortCol === 'proj') {
-                  const rDiff = (ROLE_ORDER[a.role] || 99) - (ROLE_ORDER[b.role] || 99);
-                  if (rDiff !== 0) return lineupSortDir === 'asc' ? rDiff : -rDiff;
-                  return b.si - a.si;
-                }
-                if (lineupSortCol === 'real') {
-                  const rankReal = (p: any) => (p.realStarted ? 1 : p.realSub ? 2 : p.realUnusedSub ? 3 : 4);
-                  const diff = rankReal(a) - rankReal(b);
-                  if (diff !== 0) return lineupSortDir === 'asc' ? diff : -diff;
-                  return b.realMins - a.realMins;
-                }
-                if (lineupSortCol === 'match') {
-                  const mDiff = (a.isAccuracyMatch ? 1 : 0) - (b.isAccuracyMatch ? 1 : 0);
-                  if (mDiff !== 0) return lineupSortDir === 'asc' ? mDiff : -mDiff;
-                  return b.si - a.si;
-                }
-                if (lineupSortCol === 'pts') {
-                  return lineupSortDir === 'asc' ? a.realPts - b.realPts : b.realPts - a.realPts;
-                }
-                const rDiff = (ROLE_ORDER[a.role] || 99) - (ROLE_ORDER[b.role] || 99);
-                if (rDiff !== 0) return lineupSortDir === 'asc' ? rDiff : -rDiff;
-                const pDiff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
-                if (pDiff !== 0) return pDiff;
-                return b.si - a.si;
-              });
-
-              const handleLineupSort = (col: string, defaultDir: 'asc' | 'desc' = 'asc') => {
-                if (lineupSortCol === col) {
-                  setLineupSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-                } else {
-                  setLineupSortCol(col);
-                  setLineupSortDir(defaultDir);
-                }
-              };
-
-              const getMatchChipClass = (res: 'W' | 'D' | 'L' | null) => {
-                if (res === 'W') return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25';
-                if (res === 'D') return 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/25';
-                if (res === 'L') return 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/25';
-                return 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-white/10';
-              };
-
-              const accTextColor =
-                starterAccurate >= 9
-                  ? 'text-emerald-600 dark:text-emerald-400'
-                  : starterAccurate >= 7
-                  ? 'text-amber-600 dark:text-amber-400'
-                  : 'text-rose-600 dark:text-rose-400';
-
-              return (
-                <div
-                  key={club.id}
-                  className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-xs"
-                >
-                  {/* Accordion Header Row */}
+                return (
                   <div
-                    onClick={() => toggleClubAccordion(club.short)}
-                    className="px-2 sm:px-3 py-1.5 flex items-center justify-between gap-1.5 sm:gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors select-none w-full min-w-0 overflow-hidden"
+                    key={club.id}
+                    className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-xs"
                   >
-                    <div className="flex items-center gap-1.5 min-w-0 shrink">
-                      <img
-                        src={clubBadgeMap.get(club.short) || club.badgeUrl}
-                        alt={club.name}
-                        className="w-4 h-4 sm:w-4.5 sm:h-4.5 object-contain shrink-0 filter drop-shadow select-none self-center"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.src = '/default_team_badge.png';
-                        }}
-                      />
-                      <span className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white truncate max-w-[130px] xs:max-w-[170px] sm:max-w-none">
-                        {club.name}
-                      </span>
-                    </div>
+                    {/* Accordion Header Row */}
+                    <div
+                      onClick={() => toggleClubAccordion(club.short)}
+                      className="px-2.5 sm:px-3 py-1.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors select-none w-full min-w-0"
+                    >
+                      <div className="flex items-center justify-between gap-1.5 sm:gap-2 w-full min-w-0 overflow-hidden">
+                        <div className="flex items-center gap-1.5 min-w-0 shrink">
+                          <img
+                            src={clubBadgeMap.get(club.short) || club.badgeUrl}
+                            alt={club.name}
+                            className="w-4 h-4 sm:w-4.5 sm:h-4.5 object-contain shrink-0 filter drop-shadow select-none self-center"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = '/default_team_badge.png';
+                            }}
+                          />
+                          <span className="font-extrabold text-xs sm:text-sm text-slate-900 dark:text-white truncate max-w-[130px] xs:max-w-[170px] sm:max-w-none">
+                            {club.name}
+                          </span>
+                        </div>
 
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-500 dark:text-slate-400 shrink-0">
-                      <span
-                        title={realForm && realForm !== projForm ? `Proj ${projForm} vs Real ${realForm}` : `Formation ${projForm}`}
-                        className="hidden sm:inline-flex items-center justify-center font-mono font-bold text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 shrink-0 tabular-nums"
-                      >
-                        {projForm}{realForm && realForm !== projForm ? ` → ${realForm}` : ''}
-                      </span>
+                        <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-slate-500 dark:text-slate-400 shrink-0">
+                          <span
+                            title={realForm && realForm !== projForm ? `Proj ${projForm} vs Real ${realForm}` : `Formation ${projForm}`}
+                            className="hidden sm:inline-flex items-center justify-center font-mono font-bold text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 shrink-0 tabular-nums"
+                          >
+                            {projForm}{realForm && realForm !== projForm ? ` → ${realForm}` : ''}
+                          </span>
 
-                      {actualList.length === 0 ? (
-                        <span className="inline-flex items-center justify-center text-center min-w-[60px] text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-400 border border-slate-200/60 dark:border-white/10 shrink-0 whitespace-nowrap">
-                          BGW
-                        </span>
-                      ) : (
-                        <div className="flex items-center gap-1 shrink-0">
-                          {actualList.map((actualMatch, mIdx) => {
-                            const mDone = Boolean(actualMatch.finished || actualMatch.teamScore !== null);
-                            return (
-                              <span
-                                key={`${actualMatch.oppShort}-${mIdx}`}
-                                className={`inline-flex items-center justify-center text-center min-w-[74px] sm:min-w-[94px] text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded shrink-0 whitespace-nowrap tabular-nums ${getMatchChipClass(actualMatch.result)}`}
-                              >
-                                {actualMatch.oppShort} ({actualMatch.isHome ? 'H' : 'A'})
-                                {mDone && actualMatch.teamScore !== null && actualMatch.oppScore !== null
-                                  ? ` · ${actualMatch.teamScore}-${actualMatch.oppScore}`
-                                  : ''}
+                          {actualList.length === 0 ? (
+                            <span className="inline-flex items-center justify-center text-center min-w-[60px] text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-400 border border-slate-200/60 dark:border-white/10 shrink-0 whitespace-nowrap">
+                              BGW
+                            </span>
+                          ) : (
+                            <div className="flex items-center gap-1 shrink-0">
+                              {actualList.map((actualMatch, mIdx) => {
+                                const mDone = Boolean(actualMatch.finished || actualMatch.teamScore !== null);
+                                return (
+                                  <span
+                                    key={`${actualMatch.oppShort}-${mIdx}`}
+                                    className={`inline-flex items-center justify-center text-center min-w-[74px] sm:min-w-[94px] text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded shrink-0 whitespace-nowrap tabular-nums ${getMatchChipClass(actualMatch.result)}`}
+                                  >
+                                    {actualMatch.oppShort} ({actualMatch.isHome ? 'H' : 'A'})
+                                    {mDone && actualMatch.teamScore !== null && actualMatch.oppScore !== null
+                                      ? ` · ${actualMatch.teamScore}-${actualMatch.oppScore}`
+                                      : ''}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {isMatchPlayed ? (
+                            <span className={`font-black text-[11px] tabular-nums shrink-0 whitespace-nowrap w-[68px] text-right ${accTextColor}`}>
+                              {starterAccurate}/11 ({lineupAccPct}%)
+                            </span>
+                          ) : actualList.length === 0 ? (
+                            <span className="font-semibold text-[11px] text-slate-400 shrink-0 whitespace-nowrap w-[68px] text-right">
+                              Blank
+                            </span>
+                          ) : (
+                            <span className="font-semibold text-[11px] text-slate-400 shrink-0 whitespace-nowrap w-[68px] text-right">
+                              {isIdLang ? 'Belum' : 'Pending'}
+                            </span>
+                          )}
+
+                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
+                        </div>
+                      </div>
+
+                      {/* Inline Miss Summary (visible without expanding all 20 accordions) */}
+                      {!isExpanded && isMatchPlayed && missedStarters.length > 0 && (
+                        <div className="mt-1 pt-1 border-t border-slate-100 dark:border-white/5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10.5px] leading-snug text-slate-500 dark:text-slate-400">
+                          <span className="truncate">
+                            <span className="font-bold text-rose-600 dark:text-rose-400">
+                              {isIdLang ? 'Meleset: ' : 'Missed: '}
+                            </span>
+                            <span className="text-slate-700 dark:text-slate-300 font-medium">
+                              {missedStarters
+                                .map((m: any) => `${m.webName} (${m.realSub ? `Sub ${m.realMins}'` : m.realUnusedSub ? 'Bench' : 'Out'})`)
+                                .join(', ')}
+                            </span>
+                          </span>
+                          {unexpectedStarters.length > 0 && (
+                            <span className="truncate">
+                              <span className="font-bold text-amber-600 dark:text-amber-400">
+                                {isIdLang ? 'Starter Tak Terduga: ' : 'Unexpected XI: '}
                               </span>
-                            );
-                          })}
+                              <span className="text-slate-700 dark:text-slate-300 font-medium">
+                                {unexpectedStarters
+                                  .map((u: any) => `${u.webName} (${u.si}%)`)
+                                  .join(', ')}
+                              </span>
+                            </span>
+                          )}
                         </div>
                       )}
-
-                      {isMatchPlayed ? (
-                        <span className={`font-black text-[11px] tabular-nums shrink-0 whitespace-nowrap w-[68px] text-right ${accTextColor}`}>
-                          {starterAccurate}/11 ({lineupAccPct}%)
-                        </span>
-                      ) : actualList.length === 0 ? (
-                        <span className="font-semibold text-[11px] text-slate-400 shrink-0 whitespace-nowrap w-[68px] text-right">
-                          Blank
-                        </span>
-                      ) : (
-                        <span className="font-semibold text-[11px] text-slate-400 shrink-0 whitespace-nowrap w-[68px] text-right">
-                          {isIdLang ? 'Belum' : 'Pending'}
-                        </span>
-                      )}
-
-                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
                     </div>
-                  </div>
 
-                  {/* Expanded Squad Comparison Table */}
-                  {isExpanded && (
-                    <div className="border-t border-slate-200 dark:border-white/10 overflow-x-auto">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="bg-slate-100/90 dark:bg-white/5 text-slate-600 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-white/10 text-[11px] whitespace-nowrap select-none">
-                            <th
-                              onClick={() => handleLineupSort('num', 'asc')}
-                              className="py-1 px-2 w-8 text-center cursor-pointer hover:text-black dark:hover:text-white"
-                            >
-                              #
-                            </th>
-                            <th
-                              onClick={() => handleLineupSort('player', 'asc')}
-                              className="py-1 px-2 min-w-[130px] cursor-pointer hover:text-black dark:hover:text-white"
-                            >
-                              {isIdLang ? 'Pemain' : 'Player'}
-                            </th>
-                            <th
-                              onClick={() => handleLineupSort('pos', 'asc')}
-                              className="py-1 px-1.5 w-11 text-center cursor-pointer hover:text-black dark:hover:text-white"
-                            >
-                              Pos
-                            </th>
-                            <th
-                              onClick={() => handleLineupSort('proj', 'asc')}
-                              className="py-1 px-2 w-32 min-w-[122px] text-[#37003c] dark:text-[#00ff87] font-black border-r border-slate-200 dark:border-white/10 cursor-pointer"
-                            >
-                              {isIdLang ? 'Proyeksi' : 'Projected'}
-                            </th>
-                            <th
-                              onClick={() => handleLineupSort('real', 'asc')}
-                              className="py-1 px-2 w-28 min-w-[108px] text-slate-800 dark:text-slate-200 font-black border-r border-slate-200 dark:border-white/10 cursor-pointer"
-                            >
-                              {isIdLang ? 'Aktual' : 'Actual'}
-                            </th>
-                            <th
-                              onClick={() => handleLineupSort('match', 'desc')}
-                              className="py-1 px-1.5 w-14 text-center cursor-pointer hover:text-black dark:hover:text-white"
-                            >
-                              {isIdLang ? 'Tepat' : 'Match'}
-                            </th>
-                            <th
-                              onClick={() => handleLineupSort('pts', 'desc')}
-                              className="py-1 px-2 w-14 text-right cursor-pointer hover:text-black dark:hover:text-white"
-                            >
-                              Pts
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                          {sortedSquad.map((player) => {
-                            const isStarting = player.role === 'starting';
-                            const isOwned = ownedPlayerIds.has(player.id);
-
-                            return (
-                              <tr
-                                key={player.id}
-                                onClick={() => onSelectPlayer?.(player.id, lineupReviewGW)}
-                                className={`transition-colors cursor-pointer whitespace-nowrap leading-none ${
-                                  isOwned
-                                    ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
-                                    : isStarting
-                                    ? 'bg-emerald-50/25 dark:bg-emerald-950/10 hover:bg-emerald-50/50'
-                                    : 'hover:bg-slate-50 dark:hover:bg-white/[0.02]'
-                                }`}
+                    {/* Expanded Squad Comparison Table */}
+                    {isExpanded && (
+                      <div className="border-t border-slate-200 dark:border-white/10 overflow-x-auto">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="bg-slate-100/90 dark:bg-white/5 text-slate-600 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-white/10 text-[11px] whitespace-nowrap select-none">
+                              <th
+                                onClick={() => handleLineupSort('num', 'asc')}
+                                className="py-1 px-2 w-8 text-center cursor-pointer hover:text-black dark:hover:text-white"
                               >
-                                <td className="py-1 px-2 w-8 text-center font-bold text-slate-400 tabular-nums">
-                                  {player.shirtNum > 0 ? player.shirtNum : '-'}
-                                </td>
-                                <td className="py-1 px-2 min-w-[130px] font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                                  {player.webName}
-                                </td>
-                                <td className="py-1 px-1.5 w-11 text-center">
-                                  <span
-                                    className={`w-8 inline-block text-center px-1 py-0.5 rounded-full text-[10px] font-black leading-none ${
-                                      player.position === 'FWD'
-                                        ? 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300'
-                                        : player.position === 'MID'
-                                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
-                                        : player.position === 'DEF'
-                                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300'
-                                        : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
-                                    }`}
-                                  >
-                                    {player.position}
-                                  </span>
-                                </td>
+                                #
+                              </th>
+                              <th
+                                onClick={() => handleLineupSort('player', 'asc')}
+                                className="py-1 px-2 min-w-[130px] cursor-pointer hover:text-black dark:hover:text-white"
+                              >
+                                {isIdLang ? 'Pemain' : 'Player'}
+                              </th>
+                              <th
+                                onClick={() => handleLineupSort('pos', 'asc')}
+                                className="py-1 px-1.5 w-11 text-center cursor-pointer hover:text-black dark:hover:text-white"
+                              >
+                                Pos
+                              </th>
+                              <th
+                                onClick={() => handleLineupSort('proj', 'asc')}
+                                className="py-1 px-2 w-32 min-w-[122px] text-[#37003c] dark:text-[#00ff87] font-black border-r border-slate-200 dark:border-white/10 cursor-pointer"
+                              >
+                                {isIdLang ? 'Proyeksi (SI%)' : 'Projected (SI%)'}
+                              </th>
+                              <th
+                                onClick={() => handleLineupSort('real', 'asc')}
+                                className="py-1 px-2 w-28 min-w-[108px] text-slate-800 dark:text-slate-200 font-black border-r border-slate-200 dark:border-white/10 cursor-pointer"
+                              >
+                                {isIdLang ? 'Aktual' : 'Actual'}
+                              </th>
+                              <th
+                                onClick={() => handleLineupSort('match', 'desc')}
+                                className="py-1 px-1.5 w-14 text-center cursor-pointer hover:text-black dark:hover:text-white"
+                              >
+                                {isIdLang ? 'Tepat' : 'Match'}
+                              </th>
+                              <th
+                                onClick={() => handleLineupSort('pts', 'desc')}
+                                className="py-1 px-2 w-14 text-right cursor-pointer hover:text-black dark:hover:text-white"
+                              >
+                                Pts
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                            {sortedSquad.map((player) => {
+                              const isStarting = player.role === 'starting';
+                              const isOwned = ownedPlayerIds.has(player.id);
 
-                                {/* Projected Role & SI% */}
-                                <td className="py-1 px-2 w-32 border-r border-slate-200 dark:border-white/10 whitespace-nowrap">
-                                  <div className="flex items-center justify-between gap-1.5">
-                                    {player.role === 'starting' ? (
-                                      <span className="w-13 text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
-                                        Start
+                              return (
+                                <tr
+                                  key={player.id}
+                                  onClick={() => onSelectPlayer?.(player.id, lineupReviewGW)}
+                                  className={`transition-colors cursor-pointer whitespace-nowrap leading-none ${
+                                    isOwned
+                                      ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}`
+                                      : isStarting
+                                      ? 'bg-emerald-50/25 dark:bg-emerald-950/10 hover:bg-emerald-50/50'
+                                      : 'hover:bg-slate-50 dark:hover:bg-white/[0.02]'
+                                  }`}
+                                >
+                                  <td className="py-1 px-2 w-8 text-center font-bold text-slate-400 tabular-nums">
+                                    {player.shirtNum > 0 ? player.shirtNum : '-'}
+                                  </td>
+                                  <td className="py-1 px-2 min-w-[130px] font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                                    {player.webName}
+                                  </td>
+                                  <td className="py-1 px-1.5 w-11 text-center">
+                                    <span
+                                      className={`w-8 inline-block text-center px-1 py-0.5 rounded-full text-[10px] font-black leading-none ${
+                                        player.position === 'FWD'
+                                          ? 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300'
+                                          : player.position === 'MID'
+                                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+                                          : player.position === 'DEF'
+                                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300'
+                                          : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300'
+                                      }`}
+                                    >
+                                      {player.position}
+                                    </span>
+                                  </td>
+
+                                  {/* Projected Role & SI% */}
+                                  <td className="py-1 px-2 w-32 border-r border-slate-200 dark:border-white/10 whitespace-nowrap">
+                                    <div className="flex items-center justify-between gap-1.5">
+                                      {player.role === 'starting' ? (
+                                        <span className="w-13 text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                                          Start
+                                        </span>
+                                      ) : player.role === 'bench' ? (
+                                        <span className="w-13 text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                                          Bench
+                                        </span>
+                                      ) : (
+                                        <span className="w-13 text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                                          Out
+                                        </span>
+                                      )}
+                                      <span className="font-black text-xs text-[#37003c] dark:text-[#00ff87] tabular-nums">
+                                        {player.si}%
                                       </span>
-                                    ) : player.role === 'bench' ? (
-                                      <span className="w-13 text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
-                                        Bench
+                                    </div>
+                                  </td>
+
+                                  {/* Actual Status (Minutes only, no duplicate points) */}
+                                  <td className="py-1 px-2 w-28 border-r border-slate-200 dark:border-white/10 whitespace-nowrap">
+                                    {!player.isMatchPlayed ? (
+                                      <span className="text-[11px] font-medium text-slate-400">
+                                        {isIdLang ? 'Belum' : 'Pending'}
+                                      </span>
+                                    ) : player.realStarted ? (
+                                      <span className="w-[74px] text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-600 text-white tabular-nums">
+                                        Start ({player.realMins}&apos;)
+                                      </span>
+                                    ) : player.realSub ? (
+                                      <span className="w-[74px] text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-500 text-white tabular-nums">
+                                        Sub ({player.realMins}&apos;)
+                                      </span>
+                                    ) : player.realUnusedSub ? (
+                                      <span className="w-[74px] text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 tabular-nums">
+                                        Bench (0&apos;)
                                       </span>
                                     ) : (
-                                      <span className="w-13 text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                                      <span className="w-[74px] text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-50 dark:bg-white/5 text-slate-400">
                                         Out
                                       </span>
                                     )}
-                                    <span className="font-black text-xs text-[#37003c] dark:text-[#00ff87] tabular-nums">
-                                      {player.si}%
-                                    </span>
-                                  </div>
-                                </td>
+                                  </td>
 
-                                {/* Actual Status (Minutes only, no duplicate points) */}
-                                <td className="py-1 px-2 w-28 border-r border-slate-200 dark:border-white/10 whitespace-nowrap">
-                                  {!player.isMatchPlayed ? (
-                                    <span className="text-[11px] font-medium text-slate-400">
-                                      {isIdLang ? 'Belum' : 'Pending'}
-                                    </span>
-                                  ) : player.realStarted ? (
-                                    <span className="w-[74px] text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-600 text-white tabular-nums">
-                                      Start ({player.realMins}&apos;)
-                                    </span>
-                                  ) : player.realSub ? (
-                                    <span className="w-[74px] text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-500 text-white tabular-nums">
-                                      Sub ({player.realMins}&apos;)
-                                    </span>
-                                  ) : player.realUnusedSub ? (
-                                    <span className="w-[74px] text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 tabular-nums">
-                                      Bench (0&apos;)
-                                    </span>
-                                  ) : (
-                                    <span className="w-[74px] text-center inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-50 dark:bg-white/5 text-slate-400">
-                                      Out
-                                    </span>
-                                  )}
-                                </td>
+                                  {/* Accuracy Check (Unboxed) */}
+                                  <td className="py-1 px-1.5 w-14 text-center whitespace-nowrap">
+                                    {!player.isMatchPlayed ? (
+                                      <span className="text-slate-400">-</span>
+                                    ) : player.isAccuracyMatch ? (
+                                      <span className="font-black text-xs text-emerald-600 dark:text-emerald-400">✓</span>
+                                    ) : (
+                                      <span className="font-black text-xs text-rose-500 dark:text-rose-400">✗</span>
+                                    )}
+                                  </td>
 
-                                {/* Accuracy Check (Unboxed) */}
-                                <td className="py-1 px-1.5 w-14 text-center whitespace-nowrap">
-                                  {!player.isMatchPlayed ? (
-                                    <span className="text-slate-400">-</span>
-                                  ) : player.isAccuracyMatch ? (
-                                    <span className="font-black text-xs text-emerald-600 dark:text-emerald-400">✓</span>
-                                  ) : (
-                                    <span className="font-black text-xs text-rose-500 dark:text-rose-400">✗</span>
-                                  )}
-                                </td>
-
-                                {/* Actual GW Points */}
-                                <td className="py-1 px-2 w-14 text-right font-black text-xs tabular-nums text-slate-900 dark:text-white">
-                                  {player.isMatchPlayed ? player.realPts : '-'}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                                  {/* Actual GW Points */}
+                                  <td className="py-1 px-2 w-14 text-right font-black text-xs tabular-nums text-slate-900 dark:text-white">
+                                    {player.isMatchPlayed ? player.realPts : '-'}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -1513,41 +1718,67 @@ export const TabReview: React.FC<TabReviewProps> = ({
       {/* ========================================================================= */}
       {subTab === 'score' && (
         <div className="space-y-2">
-          {/* Controls Bar: Horizon Slider + Mode Switcher, Quick Presets & Total GW */}
+          {/* Controls Bar: Horizon Slider + Mode Switcher, Result Filter & Quick Presets */}
           <div className="bg-white dark:bg-[#1a0f2e] px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 space-y-2">
             {renderGwHorizonControl({ fullWidthEndAligned: true })}
 
-            <div className="flex items-center justify-between gap-2 border-t border-slate-100 dark:border-white/5 pt-2">
-              <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 whitespace-nowrap shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setScoreViewMode('scoreboard')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0 ${
-                    scoreViewMode === 'scoreboard'
-                      ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
-                  }`}
-                >
-                  <LayoutGrid className="w-3 h-3" />
-                  Scoreboard
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setScoreViewMode('matrix')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0 ${
-                    scoreViewMode === 'matrix'
-                      ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
-                  }`}
-                >
-                  <Layers className="w-3 h-3" />
-                  Matrix
-                </button>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 dark:border-white/5 pt-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 whitespace-nowrap shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setScoreViewMode('scoreboard')}
+                    className={`px-2.5 py-1 rounded-md text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0 ${
+                      scoreViewMode === 'scoreboard'
+                        ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                    }`}
+                  >
+                    <LayoutGrid className="w-3 h-3" />
+                    Scoreboard
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setScoreViewMode('matrix')}
+                    className={`px-2.5 py-1 rounded-md text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0 ${
+                      scoreViewMode === 'matrix'
+                        ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                    }`}
+                  >
+                    <Layers className="w-3 h-3" />
+                    Matrix
+                  </button>
+                </div>
+
+                {scoreViewMode === 'scoreboard' && (
+                  <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 whitespace-nowrap shrink-0">
+                    {[
+                      { id: 'all' as const, label: isIdLang ? 'Semua' : 'All' },
+                      { id: 'exact' as const, label: 'Exact ✓' },
+                      { id: 'wdl' as const, label: 'WDL ✓' },
+                      { id: 'miss' as const, label: isIdLang ? 'Meleset ✗' : 'Miss ✗' },
+                    ].map((rf) => (
+                      <button
+                        key={rf.id}
+                        type="button"
+                        onClick={() => setScoreResultFilter(rf.id)}
+                        className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                          scoreResultFilter === rf.id
+                            ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                        }`}
+                      >
+                        {rf.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Quick Presets (Desktop) + Jumlah GW Horizon */}
-              <div className="flex items-center gap-2 ml-auto shrink-0">
-                <div className="hidden md:flex items-center gap-1 shrink-0">
+              {/* Quick Presets + Jumlah GW Horizon */}
+              <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                <div className="hidden sm:flex items-center gap-1 shrink-0">
                   {[
                     { label: '1 GW', start: maxReviewGW, end: maxReviewGW },
                     { label: '3 GW', start: Math.max(1, maxReviewGW - 2), end: maxReviewGW },
@@ -1582,8 +1813,83 @@ export const TabReview: React.FC<TabReviewProps> = ({
             </div>
           </div>
 
+          {/* Horizon Accuracy Summary Strip */}
+          {scoreHorizonSummary && scoreHorizonSummary.finishedMatches > 0 && (
+            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 shadow-xs grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-white/5">
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {isIdLang ? 'Hasil (WDL)' : 'Outcome (WDL)'}
+                </span>
+                <span className="text-base font-black text-[#37003c] dark:text-[#00ff87] tabular-nums">
+                  {scoreHorizonSummary.wdlPct}%{' '}
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                    ({scoreHorizonSummary.wdlHits}/{scoreHorizonSummary.finishedMatches})
+                  </span>
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {isIdLang ? 'Skor Persis' : 'Exact Score'}
+                </span>
+                <span className="text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                  {scoreHorizonSummary.exactPct}%{' '}
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                    ({scoreHorizonSummary.exactHits}/{scoreHorizonSummary.finishedMatches})
+                  </span>
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Goal MAE / Tim
+                </span>
+                <span className="text-base font-black text-slate-900 dark:text-white tabular-nums">
+                  ±{scoreHorizonSummary.teamGoalMae}{' '}
+                  <span className="text-[11px] font-semibold text-slate-400">
+                    (P {scoreHorizonSummary.projGoalsTotal} vs R {scoreHorizonSummary.realGoalsTotal})
+                  </span>
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Clean Sheet
+                </span>
+                <span className="text-base font-black text-slate-900 dark:text-white tabular-nums">
+                  {scoreHorizonSummary.csPct}%{' '}
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                    ({scoreHorizonSummary.csHits}/{scoreHorizonSummary.finishedMatches * 2})
+                  </span>
+                </span>
+              </div>
+            </div>
+          )}
+
+          {isLoadingReview && !reviewBundle?.actualMatchLookup && (
+            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 p-6 flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-[#37003c] dark:border-[#00ff87] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
           {/* MODE 1: MATCH SCOREBOARD (Symmetric Proj vs Real Card matching TabProjection) */}
           {scoreViewMode === 'scoreboard' && (() => {
+            const matchPassesScoreFilter = (m: any, gw: number) => {
+              if (scoreResultFilter === 'all') return true;
+              const hShort = m.home_team?.short_name || '';
+              const aShort = m.away_team?.short_name || '';
+              if (!hShort || !aShort) return false;
+              const proj = projectFixture(hShort, aShort, gw);
+              const actualHList = actualMatchLookup[`${gw}_${hShort}`] || [];
+              const actualH = actualHList.find((e) => e.isHome && e.oppShort === aShort) || actualHList[0];
+              const isDone = Boolean(actualH && actualH.finished && actualH.teamScore !== null && actualH.oppScore !== null);
+              if (!isDone || actualH.teamScore === null || actualH.oppScore === null) return false;
+              const isExact = proj.homeGoals === actualH.teamScore && proj.awayGoals === actualH.oppScore;
+              const projRes = proj.homeGoals > proj.awayGoals ? 'H' : proj.homeGoals < proj.awayGoals ? 'A' : 'D';
+              const realRes = actualH.teamScore > actualH.oppScore ? 'H' : actualH.teamScore < actualH.oppScore ? 'A' : 'D';
+              const isResultMatch = projRes === realRes;
+              if (scoreResultFilter === 'exact') return isExact;
+              if (scoreResultFilter === 'wdl') return isResultMatch;
+              return !isResultMatch;
+            };
+
             const renderScoreboardCard = (m: any, gw: number, cardKey: string) => {
               const hShort = m.home_team?.short_name || 'HOM';
               const aShort = m.away_team?.short_name || 'AWY';
@@ -1702,14 +2008,15 @@ export const TabReview: React.FC<TabReviewProps> = ({
             return (
               <div className="@container bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 shadow-xs overflow-hidden">
                 <div className="overflow-x-auto">
-                  {horizonGWs.length === 1 ? (
-                    <div className="p-3">
+                  {horizonGWs.length === 1 || scoreResultFilter !== 'all' ? (
+                    <div className="p-3 space-y-3">
                       {horizonGWs.map((gw) => {
-                        const matches = scheduleByGw[gw] || [];
+                        const rawMatches = scheduleByGw[gw] || [];
+                        const filteredMatches = rawMatches.filter((m) => matchPassesScoreFilter(m, gw));
                         let wdlHits = 0;
                         let exactHits = 0;
                         let doneCount = 0;
-                        for (const m of matches) {
+                        for (const m of rawMatches) {
                           const hShort = m.home_team?.short_name || '';
                           const aShort = m.away_team?.short_name || '';
                           if (!hShort || !aShort) continue;
@@ -1725,6 +2032,10 @@ export const TabReview: React.FC<TabReviewProps> = ({
                           }
                         }
 
+                        if (scoreResultFilter !== 'all' && filteredMatches.length === 0 && horizonGWs.length > 1) {
+                          return null;
+                        }
+
                         return (
                           <div key={gw} className="space-y-2">
                             <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-slate-100/90 dark:bg-white/5 border border-slate-200/80 dark:border-white/10">
@@ -1734,12 +2045,19 @@ export const TabReview: React.FC<TabReviewProps> = ({
                               {doneCount > 0 && (
                                 <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 tabular-nums">
                                   WDL {wdlHits}/{doneCount} · Exact {exactHits}/{doneCount}
+                                  {scoreResultFilter !== 'all' ? ` · ${filteredMatches.length} tampil` : ''}
                                 </span>
                               )}
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
-                              {matches.map((m, idx) => renderScoreboardCard(m, gw, `${gw}-${idx}`))}
-                            </div>
+                            {filteredMatches.length === 0 ? (
+                              <div className="py-4 text-center text-xs font-semibold text-slate-400">
+                                {isIdLang ? 'Tidak ada laga dengan filter ini pada GW tersebut.' : 'No matches match this filter in this GW.'}
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+                                {filteredMatches.map((m, idx) => renderScoreboardCard(m, gw, `${gw}-${idx}`))}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
@@ -2022,13 +2340,13 @@ export const TabReview: React.FC<TabReviewProps> = ({
       {/* ========================================================================= */}
       {subTab === 'points' && (
         <div className="space-y-2">
-          {/* Controls Bar matching TabProjection */}
+          {/* Controls Bar */}
           <div className="bg-white dark:bg-[#1a0f2e] px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 space-y-2">
             {renderGwHorizonControl({ fullWidthEndAligned: true })}
 
             <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 dark:border-white/5 pt-2 whitespace-nowrap">
               {/* Position Dropdown */}
-              <div className="flex items-center gap-1.5 order-1 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Pos:</span>
                 <CustomPopoverSelect
                   value={posFilter}
@@ -2045,7 +2363,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
               </div>
 
               {/* Club Dropdown */}
-              <div className="flex items-center gap-1.5 order-2 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Club:</span>
                 <CustomPopoverSelect
                   value={clubFilter}
@@ -2058,28 +2376,32 @@ export const TabReview: React.FC<TabReviewProps> = ({
                 />
               </div>
 
-              {/* My Team Toggle */}
-              {ownedPlayerIds.size > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setMyTeamOnly((prev) => !prev)}
-                  className={`order-2 px-2.5 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer shrink-0 ${
-                    myTeamOnly
-                      ? 'bg-emerald-600 text-white border-emerald-600 dark:bg-[#00ff87] dark:text-[#37003c] dark:border-[#00ff87]'
-                      : 'bg-white dark:bg-[#1b0d2d] text-slate-700 dark:text-slate-200 border-slate-300 dark:border-purple-800/60 hover:border-emerald-500'
-                  }`}
-                >
-                  {isIdLang ? 'Tim Saya' : 'My Team'}
-                </button>
-              )}
-
-              {/* Jumlah GW Horizon */}
-              <span className="order-3 md:order-6 ml-auto md:ml-0 px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0">
-                {horizonGWs.length} GW
-              </span>
+              {/* Focus Filter Segmented */}
+              <div className="flex items-center bg-slate-100 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 whitespace-nowrap shrink-0">
+                {[
+                  { id: 'played' as const, label: isIdLang ? "Main (>0')" : "Played (>0')" },
+                  { id: 'all' as const, label: isIdLang ? 'Semua' : 'All' },
+                  ...(ownedPlayerIds.size > 0
+                    ? [{ id: 'my-team' as const, label: isIdLang ? 'Tim Saya' : 'My Team' }]
+                    : []),
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setPointsFocusFilter(f.id)}
+                    className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
+                      pointsFocusFilter === f.id
+                        ? 'bg-white dark:bg-[#1a0f2e] text-[#37003c] dark:text-[#00ff87] shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
 
               {/* Search Bar */}
-              <div className="relative order-4 md:order-3 flex-1 min-w-[160px] md:flex-initial md:w-44 lg:w-52">
+              <div className="relative flex-1 min-w-[140px] sm:flex-initial sm:w-40 lg:w-48">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
@@ -2090,8 +2412,8 @@ export const TabReview: React.FC<TabReviewProps> = ({
                 />
               </div>
 
-              {/* Quick Presets (Desktop XL) */}
-              <div className="hidden xl:flex items-center gap-1 order-5 md:order-4 xl:ml-auto shrink-0">
+              {/* Quick Horizon Presets */}
+              <div className="hidden sm:flex items-center gap-1 ml-auto shrink-0">
                 {[
                   { label: '1 GW', start: maxReviewGW, end: maxReviewGW },
                   { label: '3 GW', start: Math.max(1, maxReviewGW - 2), end: maxReviewGW },
@@ -2107,7 +2429,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
                         setGwStart(preset.start);
                         setGwEnd(preset.end);
                       }}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
+                      className={`px-2 py-1 rounded-lg text-[10px] font-extrabold cursor-pointer transition-colors whitespace-nowrap shrink-0 ${
                         isActive
                           ? 'bg-[#37003c]/15 text-[#37003c] dark:bg-[#00ff87]/20 dark:text-[#00ff87] border border-[#37003c]/30 dark:border-[#00ff87]/40'
                           : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10'
@@ -2119,12 +2441,105 @@ export const TabReview: React.FC<TabReviewProps> = ({
                 })}
               </div>
 
-              {/* Total Filtered Players */}
-              <div className="order-6 md:order-5 md:ml-auto xl:ml-0 text-xs font-bold text-slate-400 shrink-0 tabular-nums">
-                {filteredPointsReviewRows.length} {isIdLang ? 'pemain' : 'players'}
+              <span className="px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c] tabular-nums whitespace-nowrap shadow-xs shrink-0">
+                {horizonGWs.length} GW
+              </span>
+            </div>
+
+            {/* Quick Audit Sort Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 dark:border-white/5 pt-2 text-[11px]">
+              <div className="flex flex-wrap items-center gap-1">
+                <span className="text-slate-400 font-bold mr-1">
+                  {isIdLang ? 'Urutkan:' : 'Sort:'}
+                </span>
+                {[
+                  { label: 'Real Pts', col: 'totalReal', dir: 'desc' as const },
+                  { label: 'xP Proj', col: 'totalProj', dir: 'desc' as const },
+                  { label: isIdLang ? 'MAE Terbesar' : 'Highest MAE', col: 'mae', dir: 'desc' as const },
+                  { label: 'Over (+)', col: 'diff', dir: 'desc' as const },
+                  { label: 'Under (-)', col: 'diff', dir: 'asc' as const },
+                ].map((s) => {
+                  const activeSort = pointsSortCol === s.col && pointsSortDir === s.dir;
+                  return (
+                    <button
+                      key={s.label}
+                      type="button"
+                      onClick={() => {
+                        setPointsSortCol(s.col);
+                        setPointsSortDir(s.dir);
+                      }}
+                      className={`px-2 py-0.5 rounded-md font-bold cursor-pointer transition-colors whitespace-nowrap ${
+                        activeSort
+                          ? 'bg-[#37003c] text-white dark:bg-[#00ff87] dark:text-[#37003c]'
+                          : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
               </div>
+
+              <span className="text-xs font-bold text-slate-400 tabular-nums shrink-0">
+                {filteredPointsReviewRows.length} {isIdLang ? 'pemain' : 'players'}
+              </span>
             </div>
           </div>
+
+          {/* Filtered Slice Bias & MAE Summary Strip */}
+          {pointsSliceSummary && pointsSliceSummary.evaluatedPlayers > 0 && (
+            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 shadow-xs grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-white/5">
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {isIdLang ? 'Rata-rata (Proj → Real)' : 'Average (Proj → Real)'}
+                </span>
+                <span className="text-base font-black text-slate-900 dark:text-white tabular-nums">
+                  <span className="text-[#37003c] dark:text-[#00ff87]">{pointsSliceSummary.avgProj}</span>
+                  <span className="text-slate-400 mx-1">→</span>
+                  {pointsSliceSummary.avgReal}
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Bias (Real - xP)
+                </span>
+                <span
+                  className={`text-base font-black tabular-nums ${
+                    pointsSliceSummary.avgBias >= 0
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-rose-600 dark:text-rose-400'
+                  }`}
+                >
+                  {pointsSliceSummary.avgBias > 0 ? `+${pointsSliceSummary.avgBias}` : pointsSliceSummary.avgBias}
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  {isIdLang ? 'MAE Rata-rata' : 'Average MAE'}
+                </span>
+                <span className="text-base font-black text-slate-900 dark:text-white tabular-nums">
+                  ±{pointsSliceSummary.avgMae}
+                </span>
+              </div>
+              <div className="px-3 py-2 flex flex-col">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  MAE / Posisi
+                </span>
+                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 tabular-nums mt-0.5">
+                  {(['GKP', 'DEF', 'MID', 'FWD'] as const)
+                    .filter((pos) => pointsSliceSummary.posMae[pos] !== null)
+                    .map((pos) => `${pos} ±${pointsSliceSummary.posMae[pos]}`)
+                    .join(' · ') || '-'}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {isLoadingReview && !reviewBundle?.actualPlayerStatsMap && (
+            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 p-6 flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-[#37003c] dark:border-[#00ff87] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
 
           {/* Player Points Comparison Table */}
           <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
@@ -2494,6 +2909,53 @@ export const TabReview: React.FC<TabReviewProps> = ({
             </div>
           </div>
 
+          {/* Diagnostic Triage & Position MAE Strip */}
+          {seasonMaeSummary.finishedGwsCount > 0 && (
+            <div className="bg-white dark:bg-[#1a0f2e] px-3 py-2 rounded-xl border border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-slate-700 dark:text-slate-200">
+                <span className="font-black text-[#37003c] dark:text-[#00ff87]">
+                  {isIdLang ? 'Fokus Tinjauan:' : 'Review Focus:'}
+                </span>
+                <span className="font-semibold">
+                  {seasonMaeSummary.weakestStage === 'lineup'
+                    ? isIdLang
+                      ? `Line Up XI (${seasonMaeSummary.seasonLineupAcc}%)`
+                      : `Line Up XI (${seasonMaeSummary.seasonLineupAcc}%)`
+                    : seasonMaeSummary.weakestStage === 'outcome'
+                    ? isIdLang
+                      ? `Outcome WDL (${seasonMaeSummary.seasonOutcomeAcc}%)`
+                      : `Outcome WDL (${seasonMaeSummary.seasonOutcomeAcc}%)`
+                    : seasonMaeSummary.weakestStage === 'goals'
+                    ? `Goal MAE (±${seasonMaeSummary.seasonGoalMae})`
+                    : `Starter xP MAE (±${seasonMaeSummary.seasonStartersMae} · ${seasonMaeSummary.weakestPos} ±${seasonMaeSummary.posMae[seasonMaeSummary.weakestPos]})`}
+                </span>
+                {seasonMaeSummary.recent3Composite !== null && maeHorizonPreset === 'all' && (
+                  <span className="text-slate-500 dark:text-slate-400 tabular-nums">
+                    · {isIdLang ? 'Tren 3 GW:' : 'Last 3:'}{' '}
+                    <strong className="text-slate-800 dark:text-white">{seasonMaeSummary.recent3Composite}%</strong>
+                    {' vs '}
+                    {seasonMaeSummary.seasonComposite}%
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-slate-600 dark:text-slate-300 font-semibold tabular-nums">
+                <span>
+                  GKP ±{seasonMaeSummary.posMae.GKP} · DEF ±{seasonMaeSummary.posMae.DEF} · MID ±{seasonMaeSummary.posMae.MID} · FWD ±{seasonMaeSummary.posMae.FWD}
+                </span>
+                <span className={seasonMaeSummary.ptsBias >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}>
+                  · Bias {seasonMaeSummary.ptsBias > 0 ? `+${seasonMaeSummary.ptsBias}` : seasonMaeSummary.ptsBias}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {isLoadingReview && !reviewBundle?.maeRecapRows && (
+            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 p-6 flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-[#37003c] dark:border-[#00ff87] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
           {/* Master Accuracy Recap Table */}
           <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
@@ -2748,13 +3210,44 @@ export const TabReview: React.FC<TabReviewProps> = ({
                             <td colSpan={colSpanCount} className="p-3 sm:p-4 border-t border-slate-200 dark:border-white/10">
                               <div className="space-y-3">
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-white/10 pb-2">
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex flex-wrap items-center gap-2">
                                     <span className="text-xs font-black text-[#37003c] dark:text-[#00ff87]">
                                       GW {row.gw} · {isIdLang ? 'Rincian Evaluasi' : 'Evaluation Breakdown'}
                                     </span>
                                     <span className="text-[11px] font-semibold text-slate-400 tabular-nums">
                                       {row.matchesFinished}/{row.matchesTotal} {isIdLang ? 'laga' : 'matches'}
                                     </span>
+                                    {onSelectSubTab && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const targetTab =
+                                            selectedDrilldownTab === 'lineup'
+                                              ? 'line-up'
+                                              : selectedDrilldownTab === 'points'
+                                              ? 'points'
+                                              : 'score';
+                                          jumpToReviewSubTab(targetTab, row.gw);
+                                        }}
+                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10.5px] font-bold bg-[#37003c]/10 text-[#37003c] dark:bg-[#00ff87]/15 dark:text-[#00ff87] hover:bg-[#37003c]/20 dark:hover:bg-[#00ff87]/25 cursor-pointer transition-colors whitespace-nowrap"
+                                      >
+                                        <span>
+                                          {selectedDrilldownTab === 'lineup'
+                                            ? isIdLang
+                                              ? `Buka Line Up GW ${row.gw}`
+                                              : `Open Line Up GW ${row.gw}`
+                                            : selectedDrilldownTab === 'points'
+                                            ? isIdLang
+                                              ? `Buka Poin GW ${row.gw}`
+                                              : `Open Points GW ${row.gw}`
+                                            : isIdLang
+                                            ? `Buka Skor GW ${row.gw}`
+                                            : `Open Score GW ${row.gw}`}
+                                        </span>
+                                        <ArrowUpRight className="w-3 h-3" />
+                                      </button>
+                                    )}
                                   </div>
 
                                   <div className="flex items-center bg-slate-200/70 dark:bg-white/5 p-0.5 rounded-lg border border-slate-200 dark:border-white/10 shrink-0">

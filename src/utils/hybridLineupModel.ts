@@ -1037,93 +1037,141 @@ function solveLinearSystem(A: number[][], b: number[]): number[] {
   return M.map((row, i) => (Math.abs(row[i]) > 1e-12 ? row[n] : 0));
 }
 
-function fitLogisticFromCachedFeatures(
+export interface HybridLogisticGwBlock {
+  gw: number;
+  count: number;
+  xFlat: Float64Array;
+  yArr: Uint8Array;
+}
+
+export interface HybridCalibrationMemo {
+  minGw: number;
+  formStatsByKey: Map<string, { hits: number; tot: number }>;
+  featByRegimeGw: Map<string, Map<number, PlayerFeaturesAtGw>>;
+  availByGwClubKo: Map<string, Map<number, number>>;
+  logisticBlockByRegimeGw: Map<string, HybridLogisticGwBlock>;
+  stage2EvalByKey: Map<
+    string,
+    { wLogit: number[]; xiHitSum: number; clubEvalCount: number; logLossSum: number; playerEvalCount: number }
+  >;
+}
+
+export function createHybridCalibrationMemo(minGw: number = 1): HybridCalibrationMemo {
+  return {
+    minGw: Math.max(1, minGw),
+    formStatsByKey: new Map(),
+    featByRegimeGw: new Map(),
+    availByGwClubKo: new Map(),
+    logisticBlockByRegimeGw: new Map(),
+    stage2EvalByKey: new Map(),
+  };
+}
+
+const LOGIT_FALLBACK = [-3.5, 1.2, 1.0, 1.4, 0.8, 0.1, 0.4, -0.2, 0.5, 0.2, 0.6, 0.4, -0.3, -0.1, 1.6];
+
+function buildLogisticGwBlock(
+  s: number,
   allPlayers: DbPlayerStat[],
-  targetGw: number,
+  clubsPlayed: Set<string> | undefined,
+  actualStarterByGwClub: Map<string, Set<number>>,
   history: HybridHistoryStore,
-  featByGwPlayer: Map<number, Map<number, PlayerFeaturesAtGw>>,
-  l2: number,
+  featMap: Map<number, PlayerFeaturesAtGw> | undefined,
   deadlines?: Record<string, string>,
-  minGw: number = 1
-): number[] {
-  const dim = 15;
-  const fallback = [-3.5, 1.2, 1.0, 1.4, 0.8, 0.1, 0.4, -0.2, 0.5, 0.2, 0.6, 0.4, -0.3, -0.1, 1.6];
-  const minEvalGw = Math.max(2, minGw);
-  if (targetGw <= minEvalGw) return fallback;
-
-  // Strictly EPL training labels within [minGw..targetGw-1]
-  const eplMap = history.eplClubSides || history.clubSides;
-  const actualStarterByGwClub = new Map<string, Set<number>>();
-  const playedClubsByGw = new Map<number, Set<string>>();
-  for (const [clubShort, sides] of Object.entries(eplMap)) {
-    for (const side of sides) {
-      const sGw = side.eplGw ?? side.gw;
-      if (sGw < minGw || sGw >= targetGw) continue;
-      actualStarterByGwClub.set(`${sGw}_${clubShort}`, new Set(side.starterIds));
-      let set = playedClubsByGw.get(sGw);
-      if (!set) {
-        set = new Set();
-        playedClubsByGw.set(sGw, set);
-      }
-      set.add(clubShort);
-    }
+  availCache?: Map<string, Map<number, number>>
+): HybridLogisticGwBlock {
+  if (!clubsPlayed || !featMap || clubsPlayed.size === 0) {
+    return { gw: s, count: 0, xFlat: new Float64Array(0), yArr: new Uint8Array(0) };
   }
+  const dlIso = deadlines?.[String(s)];
+  const xBuf: number[] = [];
+  const yBuf: number[] = [];
 
-  const samplesX: number[][] = [];
-  const samplesY: number[] = [];
-  const samplesW: number[] = [];
-
-  for (let s = minEvalGw; s < targetGw; s++) {
-    const clubsPlayed = playedClubsByGw.get(s);
-    const featMap = featByGwPlayer.get(s);
-    if (!clubsPlayed || !featMap) continue;
-    const recencyW = Math.pow(0.88, targetGw - 1 - s);
-    const dlIso = deadlines?.[String(s)];
-
-    for (const p of allPlayers) {
-      if (!clubsPlayed.has(p.teamShort)) continue;
-      if (dlIso) {
-        const koMs = history.eplKickoffMsByGwClub?.[`${s}_${p.teamShort}`];
-        const av = resolveCausalPlayerAvailability({
+  // Cache club-level availability for identical (s, club, koMs)
+  for (const p of allPlayers) {
+    if (!clubsPlayed.has(p.teamShort)) continue;
+    if (dlIso) {
+      const koMs = history.eplKickoffMsByGwClub?.[`${s}_${p.teamShort}`] || 0;
+      const avKey = `${s}_${p.teamShort}_${koMs}`;
+      let avClubMap = availCache?.get(avKey);
+      let avVal = avClubMap?.get(p.id);
+      if (avVal === undefined) {
+        avVal = resolveCausalPlayerAvailability({
           player: p,
           targetGw: s,
           mode: 'historical',
           earliestKickoffIso: koMs ? new Date(koMs).toISOString() : undefined,
           gwDeadlineIso: dlIso,
-        });
-        if (av.avail <= 0) continue;
+        }).avail;
+        if (availCache) {
+          if (!avClubMap) {
+            avClubMap = new Map<number, number>();
+            availCache.set(avKey, avClubMap);
+          }
+          avClubMap.set(p.id, avVal);
+        }
       }
-      const feat = featMap.get(p.id);
-      if (!feat) continue;
-      const started = actualStarterByGwClub.get(`${s}_${p.teamShort}`)?.has(p.id) ? 1 : 0;
-      samplesX.push(buildFeatureVector(feat));
-      samplesY.push(started);
-      samplesW.push(recencyW);
+      if (avVal <= 0) continue;
     }
+    const feat = featMap.get(p.id);
+    if (!feat) continue;
+    const started = actualStarterByGwClub.get(`${s}_${p.teamShort}`)?.has(p.id) ? 1 : 0;
+    const vec = buildFeatureVector(feat);
+    for (let d = 0; d < 15; d++) xBuf.push(vec[d]);
+    yBuf.push(started);
   }
 
-  if (samplesX.length < 40) return fallback;
+  return {
+    gw: s,
+    count: yBuf.length,
+    xFlat: Float64Array.from(xBuf),
+    yArr: Uint8Array.from(yBuf),
+  };
+}
 
-  const w = [...fallback];
+function solveNewtonLogisticFromBlocks(
+  blocks: HybridLogisticGwBlock[],
+  targetGw: number,
+  l2: number
+): number[] {
+  const dim = 15;
+  let totalCount = 0;
+  for (let b = 0; b < blocks.length; b++) totalCount += blocks[b].count;
+  if (totalCount < 40) return [...LOGIT_FALLBACK];
+
+  const w = [...LOGIT_FALLBACK];
+  const H = Array.from({ length: dim }, () => new Array<number>(dim).fill(0));
+  const g = new Array<number>(dim).fill(0);
 
   for (let iter = 0; iter < 8; iter++) {
-    const H = Array.from({ length: dim }, () => new Array<number>(dim).fill(0));
-    const g = new Array<number>(dim).fill(0);
+    for (let d = 0; d < dim; d++) {
+      g[d] = 0;
+      for (let k = 0; k < dim; k++) H[d][k] = 0;
+    }
 
-    for (let idx = 0; idx < samplesX.length; idx++) {
-      const x = samplesX[idx];
-      const y = samplesY[idx];
-      const sw = samplesW[idx];
-      let z = 0;
-      for (let d = 0; d < dim; d++) z += w[d] * x[d];
-      const p = sigmoid(z);
-      const err = sw * (p - y);
-      const hess = sw * Math.max(1e-5, p * (1 - p));
+    for (let b = 0; b < blocks.length; b++) {
+      const blk = blocks[b];
+      if (blk.count === 0) continue;
+      const sw = Math.pow(0.88, targetGw - 1 - blk.gw);
+      const xFlat = blk.xFlat;
+      const yArr = blk.yArr;
+      const nRows = blk.count;
 
-      for (let d = 0; d < dim; d++) {
-        g[d] += err * x[d];
-        for (let k = d; k < dim; k++) {
-          H[d][k] += hess * x[d] * x[k];
+      for (let idx = 0; idx < nRows; idx++) {
+        const base = idx * dim;
+        let z = 0;
+        for (let d = 0; d < dim; d++) z += w[d] * xFlat[base + d];
+        const p = sigmoid(z);
+        const err = sw * (p - yArr[idx]);
+        const hess = sw * Math.max(1e-5, p * (1 - p));
+
+        for (let d = 0; d < dim; d++) {
+          const xd = xFlat[base + d];
+          g[d] += err * xd;
+          const hxd = hess * xd;
+          const hRow = H[d];
+          for (let k = d; k < dim; k++) {
+            hRow[k] += hxd * xFlat[base + k];
+          }
         }
       }
     }
@@ -1139,12 +1187,74 @@ function fitLogisticFromCachedFeatures(
     let maxStep = 0;
     for (let d = 0; d < dim; d++) {
       w[d] -= step[d];
-      if (Math.abs(step[d]) > maxStep) maxStep = Math.abs(step[d]);
+      const absS = Math.abs(step[d]);
+      if (absS > maxStep) maxStep = absS;
     }
     if (maxStep < 1e-4) break;
   }
 
   return w;
+}
+
+function fitLogisticFromCachedFeatures(
+  allPlayers: DbPlayerStat[],
+  targetGw: number,
+  history: HybridHistoryStore,
+  featByGwPlayer: Map<number, Map<number, PlayerFeaturesAtGw>>,
+  l2: number,
+  deadlines?: Record<string, string>,
+  minGw: number = 1,
+  blockCache?: Map<string, HybridLogisticGwBlock>,
+  regimeKey?: string,
+  availCache?: Map<string, Map<number, number>>,
+  preActualStarterByGwClub?: Map<string, Set<number>>,
+  prePlayedClubsByGw?: Map<number, Set<string>>
+): number[] {
+  const minEvalGw = Math.max(2, minGw);
+  if (targetGw <= minEvalGw) return [...LOGIT_FALLBACK];
+
+  let actualStarterByGwClub = preActualStarterByGwClub;
+  let playedClubsByGw = prePlayedClubsByGw;
+  if (!actualStarterByGwClub || !playedClubsByGw) {
+    const eplMap = history.eplClubSides || history.clubSides;
+    actualStarterByGwClub = new Map<string, Set<number>>();
+    playedClubsByGw = new Map<number, Set<string>>();
+    for (const [clubShort, sides] of Object.entries(eplMap)) {
+      for (const side of sides) {
+        const sGw = side.eplGw ?? side.gw;
+        if (sGw < minGw || sGw >= targetGw) continue;
+        actualStarterByGwClub.set(`${sGw}_${clubShort}`, new Set(side.starterIds));
+        let set = playedClubsByGw.get(sGw);
+        if (!set) {
+          set = new Set();
+          playedClubsByGw.set(sGw, set);
+        }
+        set.add(clubShort);
+      }
+    }
+  }
+
+  const blocks: HybridLogisticGwBlock[] = [];
+  for (let s = minEvalGw; s < targetGw; s++) {
+    const bKey = regimeKey !== undefined ? `${regimeKey}_${s}` : undefined;
+    let blk = bKey && blockCache ? blockCache.get(bKey) : undefined;
+    if (!blk) {
+      blk = buildLogisticGwBlock(
+        s,
+        allPlayers,
+        playedClubsByGw.get(s),
+        actualStarterByGwClub,
+        history,
+        featByGwPlayer.get(s),
+        deadlines,
+        availCache
+      );
+      if (bKey && blockCache) blockCache.set(bKey, blk);
+    }
+    blocks.push(blk);
+  }
+
+  return solveNewtonLogisticFromBlocks(blocks, targetGw, l2);
 }
 
 export function fitCausalLogisticCalibration(
@@ -1245,12 +1355,15 @@ export function selectCausalHybridParamsAndWeights(
   pastMap: Record<string, PastSeasonMinutesRecord>,
   deadlines?: Record<string, string>,
   targetCutoffMsByClub?: Record<string, number>,
-  minGw: number = 1
+  minGw: number = 1,
+  externalMemo?: HybridCalibrationMemo
 ): { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> } {
   const effMinGw = Math.max(1, minGw);
   const minEvalGw = Math.max(3, effMinGw);
   const base = { ...DEFAULT_HYBRID_PARAMS };
   const priorAffCache = new Map<number, Record<CanonicalTacticalRole, number>>();
+  const memo =
+    externalMemo && externalMemo.minGw === effMinGw ? externalMemo : createHybridCalibrationMemo(effMinGw);
 
   if (targetGw <= minEvalGw) {
     const wLogit = fitCausalLogisticCalibration(
@@ -1298,12 +1411,66 @@ export function selectCausalHybridParamsAndWeights(
   const eplMap = history.eplClubSides || history.clubSides;
 
   const actualSidesByKey = new Map<string, HybridMatchClubSide>();
+  const actualStarterByGwClub = new Map<string, Set<number>>();
+  const playedClubsByGw = new Map<number, Set<string>>();
   for (const c of clubs) {
     for (const s of eplMap[c] || []) {
       const sGw = s.eplGw ?? s.gw;
-      if (sGw >= effMinGw && sGw < targetGw) actualSidesByKey.set(`${sGw}_${c}`, s);
+      if (sGw >= effMinGw && sGw < targetGw) {
+        actualSidesByKey.set(`${sGw}_${c}`, s);
+        actualStarterByGwClub.set(`${sGw}_${c}`, new Set(s.starterIds));
+        let set = playedClubsByGw.get(sGw);
+        if (!set) {
+          set = new Set<string>();
+          playedClubsByGw.set(sGw, set);
+        }
+        set.add(c);
+      }
     }
   }
+  // Ensure playedClubsByGw / actualStarterByGwClub covers any club in eplMap just in case
+  for (const [clubShort, sides] of Object.entries(eplMap)) {
+    for (const s of sides) {
+      const sGw = s.eplGw ?? s.gw;
+      if (sGw >= effMinGw && sGw < targetGw && !actualStarterByGwClub.has(`${sGw}_${clubShort}`)) {
+        actualStarterByGwClub.set(`${sGw}_${clubShort}`, new Set(s.starterIds));
+        let set = playedClubsByGw.get(sGw);
+        if (!set) {
+          set = new Set<string>();
+          playedClubsByGw.set(sGw, set);
+        }
+        set.add(clubShort);
+      }
+    }
+  }
+
+  const getAvailCached = (
+    s: number,
+    c: string,
+    cPlayers: DbPlayerStat[],
+    koMs: number,
+    dlIso: string
+  ): Map<number, number> => {
+    const key = `${s}_${c}_${koMs || 0}`;
+    let avMap = memo.availByGwClubKo.get(key);
+    if (avMap) return avMap;
+    avMap = new Map<number, number>();
+    const koIso = koMs > 0 ? new Date(koMs).toISOString() : undefined;
+    for (const p of cPlayers) {
+      avMap.set(
+        p.id,
+        resolveCausalPlayerAvailability({
+          player: p,
+          targetGw: s,
+          mode: 'historical',
+          earliestKickoffIso: koIso,
+          gwDeadlineIso: dlIso,
+        }).avail
+      );
+    }
+    memo.availByGwClubKo.set(key, avMap);
+    return avMap;
+  };
 
   // --- Stage 1: Formation parameters (using EPL + Major comps, strictly excluding EN_LC) ---
   const formCandidates: Array<Pick<HybridTuneParams, 'lambdaF' | 'venueBoost' | 'wV6'>> = [
@@ -1314,29 +1481,40 @@ export function selectCausalHybridParamsAndWeights(
 
   let bestFormCand = formCandidates[0];
   let bestFormObj = -Infinity;
-  for (const fc of formCandidates) {
+  for (let fcIdx = 0; fcIdx < formCandidates.length; fcIdx++) {
+    const fc = formCandidates[fcIdx];
     let hits = 0;
     let tot = 0;
     for (let s = minEvalGw; s < targetGw; s++) {
-      for (const c of clubs) {
-        const act = actualSidesByKey.get(`${s}_${c}`);
-        if (!act?.formationLabel) continue;
-        const cutoffMs = resolveTargetCutoffMs(c, s, history, act.kickoffMs, deadlines);
-        const pred = predictFormationInternal(
-          c,
-          s,
-          act.isHome,
-          history,
-          fc.lambdaF,
-          fc.venueBoost,
-          base.formHalfLifeDays,
-          cutoffMs
-        );
-        if (pred?.label) {
-          tot++;
-          if (pred.label === act.formationLabel) hits++;
+      const fKey = `${fcIdx}_${s}`;
+      let sStat = memo.formStatsByKey.get(fKey);
+      if (!sStat) {
+        let sHits = 0;
+        let sTot = 0;
+        for (const c of clubs) {
+          const act = actualSidesByKey.get(`${s}_${c}`);
+          if (!act?.formationLabel) continue;
+          const cutoffMs = resolveTargetCutoffMs(c, s, history, act.kickoffMs, deadlines);
+          const pred = predictFormationInternal(
+            c,
+            s,
+            act.isHome,
+            history,
+            fc.lambdaF,
+            fc.venueBoost,
+            base.formHalfLifeDays,
+            cutoffMs
+          );
+          if (pred?.label) {
+            sTot++;
+            if (pred.label === act.formationLabel) sHits++;
+          }
         }
+        sStat = { hits: sHits, tot: sTot };
+        memo.formStatsByKey.set(fKey, sStat);
       }
+      hits += sStat.hits;
+      tot += sStat.tot;
     }
     const priorDist =
       Math.abs(fc.lambdaF - base.lambdaF) + Math.abs(fc.venueBoost - base.venueBoost) + Math.abs(fc.wV6 - base.wV6);
@@ -1366,18 +1544,27 @@ export function selectCausalHybridParamsAndWeights(
   };
   let bestCalibObj = -Infinity;
   let bestFeatByGwPlayer = new Map<number, Map<number, PlayerFeaturesAtGw>>();
+  let bestRegimeKey = 'hl14';
   const bestWByS = new Map<number, number[]>();
 
   const featureStartS = Math.max(2, effMinGw);
   for (const fr of featureRegimes) {
+    const regimeKey = `hl${fr.halfLifeDays}`;
     const featByGwPlayer = new Map<number, Map<number, PlayerFeaturesAtGw>>();
     for (let s = featureStartS; s <= targetGw; s++) {
+      const mKey = `${regimeKey}_${s}`;
+      if (s < targetGw) {
+        const cachedF = memo.featByRegimeGw.get(mKey);
+        if (cachedF) {
+          featByGwPlayer.set(s, cachedF);
+          continue;
+        }
+      }
       const fMap = new Map<number, PlayerFeaturesAtGw>();
       const dlIso = deadlines?.[String(s)];
       for (const c of clubs) {
         const cPlayers = playersByClub.get(c) || [];
         const cFeats: PlayerFeaturesAtGw[] = [];
-        const avMap = new Map<number, number>();
         const cutoffMs = resolveTargetCutoffMs(
           c,
           s,
@@ -1385,7 +1572,6 @@ export function selectCausalHybridParamsAndWeights(
           s === targetGw ? targetCutoffMsByClub?.[c] : undefined,
           deadlines
         );
-        const koIso = cutoffMs > 0 ? new Date(cutoffMs).toISOString() : undefined;
         for (const p of cPlayers) {
           const f = extractPlayerFeaturesBeforeGw(p, s, history, pastMap, fr.decay, fr.mShrink, fr.kalmanGain, priorAffCache, {
             halfLifeDays: fr.halfLifeDays,
@@ -1396,22 +1582,14 @@ export function selectCausalHybridParamsAndWeights(
           });
           fMap.set(p.id, f);
           cFeats.push(f);
-          if (dlIso) {
-            avMap.set(
-              p.id,
-              resolveCausalPlayerAvailability({
-                player: p,
-                targetGw: s,
-                mode: 'historical',
-                earliestKickoffIso: koIso,
-                gwDeadlineIso: dlIso,
-              }).avail
-            );
-          }
         }
-        populateClubCompRole(cFeats, dlIso ? avMap : undefined);
+        const avMap = dlIso ? getAvailCached(s, c, cPlayers, cutoffMs, dlIso) : undefined;
+        populateClubCompRole(cFeats, avMap);
       }
       featByGwPlayer.set(s, fMap);
+      if (s < targetGw) {
+        memo.featByRegimeGw.set(mKey, fMap);
+      }
     }
 
     for (const l2 of l2Grid) {
@@ -1422,48 +1600,75 @@ export function selectCausalHybridParamsAndWeights(
       const wMapForCand = new Map<number, number[]>();
 
       for (let s = minEvalGw; s < targetGw; s++) {
-        const wLogit = fitLogisticFromCachedFeatures(allPlayers, s, history, featByGwPlayer, l2, deadlines, effMinGw);
-        wMapForCand.set(s, wLogit);
-        const fMap = featByGwPlayer.get(s)!;
-        const dlIso = deadlines?.[String(s)];
+        const evalKey = `${regimeKey}_${l2}_${s}`;
+        let evalRec = memo.stage2EvalByKey.get(evalKey);
+        if (!evalRec) {
+          const wLogit = fitLogisticFromCachedFeatures(
+            allPlayers,
+            s,
+            history,
+            featByGwPlayer,
+            l2,
+            deadlines,
+            effMinGw,
+            memo.logisticBlockByRegimeGw,
+            regimeKey,
+            memo.availByGwClubKo,
+            actualStarterByGwClub,
+            playedClubsByGw
+          );
+          const fMap = featByGwPlayer.get(s)!;
+          const dlIso = deadlines?.[String(s)];
+          let sXiHitSum = 0;
+          let sClubEvalCount = 0;
+          let sLogLossSum = 0;
+          let sPlayerEvalCount = 0;
 
-        for (const c of clubs) {
-          const act = actualSidesByKey.get(`${s}_${c}`);
-          if (!act) continue;
-          const starterSet = new Set(act.starterIds);
-          const cPlayers = playersByClub.get(c) || [];
-          const scored: Array<{ id: number; pos: PositionType; pStart: number }> = [];
-          const koMs = act.kickoffMs || history.eplKickoffMsByGwClub?.[`${s}_${c}`];
-          const koIso = koMs ? new Date(koMs).toISOString() : undefined;
+          for (const c of clubs) {
+            const act = actualSidesByKey.get(`${s}_${c}`);
+            if (!act) continue;
+            const starterSet = actualStarterByGwClub.get(`${s}_${c}`) || new Set(act.starterIds);
+            const cPlayers = playersByClub.get(c) || [];
+            const scored: Array<{ id: number; pos: PositionType; pStart: number }> = [];
+            const koMs = act.kickoffMs || history.eplKickoffMsByGwClub?.[`${s}_${c}`] || 0;
+            const avMap = dlIso ? getAvailCached(s, c, cPlayers, koMs, dlIso) : undefined;
 
-          for (const p of cPlayers) {
-            const feat = fMap.get(p.id)!;
-            const av = dlIso
-              ? resolveCausalPlayerAvailability({
-                  player: p,
-                  targetGw: s,
-                  mode: 'historical',
-                  earliestKickoffIso: koIso,
-                  gwDeadlineIso: dlIso,
-                })
-              : { avail: 1.0 };
-            const prob = Math.min(0.999, Math.max(0.001, predictCalibratedStartProb(feat, wLogit) * av.avail));
-            const y = starterSet.has(p.id) ? 1 : 0;
-            logLossSum += -(y * Math.log(prob) + (1 - y) * Math.log(1 - prob));
-            playerEvalCount++;
-            scored.push({ id: p.id, pos: p.position as PositionType, pStart: prob });
+            for (const p of cPlayers) {
+              const feat = fMap.get(p.id)!;
+              const availVal = avMap ? (avMap.get(p.id) ?? 1.0) : 1.0;
+              const prob = Math.min(0.999, Math.max(0.001, predictCalibratedStartProb(feat, wLogit) * availVal));
+              const y = starterSet.has(p.id) ? 1 : 0;
+              sLogLossSum += -(y * Math.log(prob) + (1 - y) * Math.log(1 - prob));
+              sPlayerEvalCount++;
+              scored.push({ id: p.id, pos: p.position as PositionType, pStart: prob });
+            }
+
+            const gks = scored.filter((x) => x.pos === 'GKP').sort((a, b) => b.pStart - a.pStart);
+            const outs = scored.filter((x) => x.pos !== 'GKP').sort((a, b) => b.pStart - a.pStart);
+            let hits = 0;
+            if (gks[0] && starterSet.has(gks[0].id)) hits++;
+            for (let i = 0; i < Math.min(10, outs.length); i++) {
+              if (starterSet.has(outs[i].id)) hits++;
+            }
+            sXiHitSum += hits / 11;
+            sClubEvalCount++;
           }
 
-          const gks = scored.filter((x) => x.pos === 'GKP').sort((a, b) => b.pStart - a.pStart);
-          const outs = scored.filter((x) => x.pos !== 'GKP').sort((a, b) => b.pStart - a.pStart);
-          let hits = 0;
-          if (gks[0] && starterSet.has(gks[0].id)) hits++;
-          for (let i = 0; i < Math.min(10, outs.length); i++) {
-            if (starterSet.has(outs[i].id)) hits++;
-          }
-          xiHitSum += hits / 11;
-          clubEvalCount++;
+          evalRec = {
+            wLogit,
+            xiHitSum: sXiHitSum,
+            clubEvalCount: sClubEvalCount,
+            logLossSum: sLogLossSum,
+            playerEvalCount: sPlayerEvalCount,
+          };
+          memo.stage2EvalByKey.set(evalKey, evalRec);
         }
+
+        wMapForCand.set(s, evalRec.wLogit);
+        xiHitSum += evalRec.xiHitSum;
+        clubEvalCount += evalRec.clubEvalCount;
+        logLossSum += evalRec.logLossSum;
+        playerEvalCount += evalRec.playerEvalCount;
       }
 
       const avgXiAcc = clubEvalCount > 0 ? xiHitSum / clubEvalCount : 0;
@@ -1475,6 +1680,7 @@ export function selectCausalHybridParamsAndWeights(
       if (obj > bestCalibObj + 1e-9) {
         bestCalibObj = obj;
         bestCalibCand = { ...fr, l2 };
+        bestRegimeKey = regimeKey;
         bestFeatByGwPlayer = featByGwPlayer;
         bestWByS.clear();
         for (const [s, w] of wMapForCand.entries()) bestWByS.set(s, w);
@@ -1489,7 +1695,12 @@ export function selectCausalHybridParamsAndWeights(
     bestFeatByGwPlayer,
     bestCalibCand.l2,
     deadlines,
-    effMinGw
+    effMinGw,
+    memo.logisticBlockByRegimeGw,
+    bestRegimeKey,
+    memo.availByGwClubKo,
+    actualStarterByGwClub,
+    playedClubsByGw
   );
 
   // --- Stage 3: Sub_9 (All-Comp Bench Signal + RoleSquadPrior) ---
@@ -1523,31 +1734,23 @@ export function selectCausalHybridParamsAndWeights(
       const act = actualSidesByKey.get(`${s}_${c}`);
       if (!act) continue;
       const cPlayers = playersByClub.get(c) || [];
-      const koMs = act.kickoffMs || history.eplKickoffMsByGwClub?.[`${s}_${c}`];
-      const koIso = koMs ? new Date(koMs).toISOString() : undefined;
+      const koMs = act.kickoffMs || history.eplKickoffMsByGwClub?.[`${s}_${c}`] || 0;
+      const avMap = dlIso ? getAvailCached(s, c, cPlayers, koMs, dlIso) : undefined;
       const scored = cPlayers.map((p) => {
         const feat = fMap.get(p.id)!;
-        const av = dlIso
-          ? resolveCausalPlayerAvailability({
-              player: p,
-              targetGw: s,
-              mode: 'historical',
-              earliestKickoffIso: koIso,
-              gwDeadlineIso: dlIso,
-            })
-          : { avail: 1.0 };
+        const availVal = avMap ? (avMap.get(p.id) ?? 1.0) : 1.0;
         return {
           p,
           feat,
-          avail: av.avail,
-          pStart: predictCalibratedStartProb(feat, wLogit) * av.avail,
+          avail: availVal,
+          pStart: predictCalibratedStartProb(feat, wLogit) * availVal,
         };
       });
       const gks = scored.filter((x) => x.p.position === 'GKP' && x.avail > 0).sort((a, b) => b.pStart - a.pStart);
       const outs = scored.filter((x) => x.p.position !== 'GKP' && x.avail > 0).sort((a, b) => b.pStart - a.pStart);
       evalPools.push({
         actBenchSet: new Set([...act.subOnIds, ...act.unusedBenchIds]),
-        actStartSet: new Set(act.starterIds),
+        actStartSet: actualStarterByGwClub.get(`${s}_${c}`) || new Set(act.starterIds),
         backupGkpId: gks[1]?.p.id,
         remOutPool: outs.slice(10).map((x) => ({
           id: x.p.id,

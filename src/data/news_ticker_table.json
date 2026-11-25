@@ -1,7 +1,7 @@
 [
   {
     "id": "CF_STANDINGS_GAMEWEEK_WINNER",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -27,7 +27,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_DEADLINE",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -50,7 +50,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_3_ajayi",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -78,7 +78,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_3_man_utd_brentford",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -104,7 +104,7 @@
   },
   {
     "id": "CF_PLAYER_TOP_PERFORMER_GW_SCORER",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -129,7 +129,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_2_r19_r20",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -155,7 +155,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_3_chikabandeng",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -180,7 +180,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_2_evanilson",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -208,7 +208,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_2_maverick",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -233,7 +233,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_2_roefs",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -260,7 +260,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_8_fulham_bournemouth",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -286,7 +286,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -312,7 +312,7 @@
   },
   {
     "id": "CF_MATCH_BONUS_POINTS",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -337,7 +337,7 @@
   },
   {
     "id": "CF_CAPTAIN_POPULAR_MOST_CAPTAINED",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -362,7 +362,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_brentford_kelleher",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -387,7 +387,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_2_thor",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -412,7 +412,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_10_arsenal_man_city",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -438,7 +438,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_3_r16_r17",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -464,7 +464,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_3_belloumi",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -492,7 +492,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_hall",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -517,7 +517,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_3_pendoel_selection",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -542,7 +542,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_5_everton_liverpool",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -568,7 +568,7 @@
   },
   {
     "id": "CF_STANDINGS_WEEKLY_WINS_MOST",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -594,7 +594,7 @@
   },
   {
     "id": "CF_MATCH_DEFENSIVE_CONTRIBUTION",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -619,7 +619,7 @@
   },
   {
     "id": "CF_TRANSFER_IN_MOST_BOUGHT",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -645,7 +645,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_bournemouth_silva",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -670,7 +670,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_3_wirtz",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -698,7 +698,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_4_ipswich_town_aston_villa",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -724,7 +724,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_1_lewis_potter",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -752,7 +752,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_3_bulu_ketek_zombie",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -777,7 +777,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_9_sunderland_spurs",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -803,7 +803,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_RISE",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -828,7 +828,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_spurs_van_hecke",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -853,7 +853,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_2_barnes",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -882,7 +882,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_1_nott_m_forest_chelsea",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -907,7 +907,7 @@
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_1_tavernier",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -935,7 +935,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_red_tarkowski",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -960,7 +960,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_2_kinsky",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -988,7 +988,7 @@
   },
   {
     "id": "CF_CHIP_FREE_HIT_1_legendkiller_fc",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1013,7 +1013,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_1_denay_fc",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1038,7 +1038,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_2_petrikor",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1063,7 +1063,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_6_brighton_newcastle",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1089,7 +1089,7 @@
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_1_r17_r18",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1115,7 +1115,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_hull_city_tzolakis",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1140,7 +1140,7 @@
   },
   {
     "id": "CF_LINEUP_BENCH_POINTS_1_tzolakis",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1168,7 +1168,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_2_leeds_coventry_city",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1194,7 +1194,7 @@
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_1_maverick",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1219,7 +1219,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_1_calvert_lewin",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1247,7 +1247,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_1_anti_koruptor_laknat",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1272,7 +1272,7 @@
   },
   {
     "id": "CF_CAPTAIN_DIFFERENTIAL_RETURN_1_ehajrakab_fc",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1299,7 +1299,7 @@
   },
   {
     "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_raya",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1324,7 +1324,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_3_pedro_porro",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1351,7 +1351,7 @@
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_7_crystal_palace_hull_city",
-    "timestamp_produksi": "2026-11-24T22:52:29.167Z",
+    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",

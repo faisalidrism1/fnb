@@ -90,13 +90,21 @@ const FPL_HEADERS = {
 
 const MANAGER_FINANCE_CACHE_MAX = 250;
 const MANAGER_FINANCE_TTL_MS = 30_000;
+const HISTORICAL_PRICE_TTL_MS = 6 * 60 * 60 * 1000;
 const managerFinanceCache = new Map<
   number,
-  { timestamp: number; bank: number; history: any[]; chips: any[]; entryName?: string }
+  { timestamp: number; bank: number; history: any[]; chips: any[]; transfers: any[]; entryName?: string }
+>();
+let bootstrapStartPriceCache: { timestamp: number; startCostTenthsById: Map<number, number> } | null = null;
+const elementRoundPriceCache = new Map<
+  number,
+  { timestamp: number; roundValueTenths: Map<number, number> }
 >();
 
 export function clearScoutManagerFinanceCache(): void {
   managerFinanceCache.clear();
+  bootstrapStartPriceCache = null;
+  elementRoundPriceCache.clear();
 }
 
 const round1 = (n: number): number => Math.round(n * 10) / 10;
@@ -688,8 +696,9 @@ export const CAPTAIN_ADAPTIVE_PARAMS = {
 } as const;
 
 export function computeServerCaptainAndDifferentialPicks(
-  ctx: ServerScoutRuntimeContext
-): Pick<ServerScoutSquadsPayload, 'captainPicks' | 'differentialPicks'> {
+  ctx: ServerScoutRuntimeContext,
+  excludedPicksPlayerIds?: Iterable<number>
+): Pick<ServerScoutSquadsPayload, 'captainPicks' | 'differentialPicks' | 'differentialPicksAll'> {
   const { playerPool, targetNextGW, targetGwMatchProjections, clubNameMap, policy } = ctx;
 
   // 1. Adaptive Captain Candidates (3..10 slots controlled by strict gate, ceiling, and relative dropoff from #1)
@@ -806,30 +815,58 @@ export function computeServerCaptainAndDifferentialPicks(
     capRatingFloorScore
   ).map((x) => toRenderedPick(x as any));
 
-  // 2. Differential Top 3
+  // 2. Differential Top 3 (both Exclude Picks & Captain default + All <5% mode)
   const maxOwn = policy.differential.maxFnbOwn;
-  const nonBlankDiffs = playerPool.filter(
-    (p) =>
-      p.fnbOwn < maxOwn &&
-      isScoutPlayerEligibleAtGw({
-        player: p.modelInput,
-        gw: targetNextGW,
-        targetNextGW,
-        minPStart: policy.differential.minPStart,
-        minXMin: 25,
-      })
-  );
-  const diffList =
-    nonBlankDiffs.length >= 3
-      ? [...nonBlankDiffs]
-      : playerPool.filter(
-          (p) => p.fnbOwn < maxOwn && p.status !== 'i' && p.status !== 's' && p.status !== 'u' && p.xP1 > 0
-        );
-  diffList.sort((a, b) => b.diffScore - a.diffScore);
-  const top3Diff = diffList.slice(0, 3);
+  const selectTop3Diff = (excludedIds?: Set<number>): ServerScoutPoolPlayer[] => {
+    const isAllowed = (p: ServerScoutPoolPlayer) => !excludedIds || !excludedIds.has(p.id);
+    const nonBlank = playerPool.filter(
+      (p) =>
+        isAllowed(p) &&
+        p.fnbOwn < maxOwn &&
+        isScoutPlayerEligibleAtGw({
+          player: p.modelInput,
+          gw: targetNextGW,
+          targetNextGW,
+          minPStart: policy.differential.minPStart,
+          minXMin: 25,
+        })
+    );
+    const list =
+      nonBlank.length >= 3
+        ? [...nonBlank]
+        : playerPool.filter(
+            (p) =>
+              isAllowed(p) &&
+              p.fnbOwn < maxOwn &&
+              p.status !== 'i' &&
+              p.status !== 's' &&
+              p.status !== 'u' &&
+              p.xP1 > 0
+          );
+    list.sort((a, b) => b.diffScore - a.diffScore || b.xP1 - a.xP1 || a.id - b.id);
+    return list.slice(0, 3);
+  };
+
+  const excludedDiffIds = new Set<number>([
+    ...(excludedPicksPlayerIds || []),
+    ...selectedCapCandidates.map((c) => c.id),
+  ]);
+
+  const top3DiffAll = selectTop3Diff();
+  let top3DiffExcluded = selectTop3Diff(excludedDiffIds);
+  if (top3DiffExcluded.length < 3) {
+    const seen = new Set(top3DiffExcluded.map((p) => p.id));
+    for (const p of top3DiffAll) {
+      if (!seen.has(p.id)) {
+        top3DiffExcluded.push(p);
+        seen.add(p.id);
+      }
+      if (top3DiffExcluded.length >= 3) break;
+    }
+  }
 
   const diffId = generateDifferentialArticlePicks(
-    top3Diff,
+    top3DiffExcluded,
     targetGwMatchProjections,
     targetNextGW,
     true,
@@ -837,7 +874,24 @@ export function computeServerCaptainAndDifferentialPicks(
     clubNameMap
   ).map((x) => toRenderedPick(x as any));
   const diffEn = generateDifferentialArticlePicks(
-    top3Diff,
+    top3DiffExcluded,
+    targetGwMatchProjections,
+    targetNextGW,
+    false,
+    playerPool,
+    clubNameMap
+  ).map((x) => toRenderedPick(x as any));
+
+  const diffAllId = generateDifferentialArticlePicks(
+    top3DiffAll,
+    targetGwMatchProjections,
+    targetNextGW,
+    true,
+    playerPool,
+    clubNameMap
+  ).map((x) => toRenderedPick(x as any));
+  const diffAllEn = generateDifferentialArticlePicks(
+    top3DiffAll,
     targetGwMatchProjections,
     targetNextGW,
     false,
@@ -848,6 +902,7 @@ export function computeServerCaptainAndDifferentialPicks(
   return {
     captainPicks: { id: capId, en: capEn },
     differentialPicks: { id: diffId, en: diffEn },
+    differentialPicksAll: { id: diffAllId, en: diffAllEn },
   };
 }
 
@@ -944,12 +999,12 @@ export async function fetchServerManagerFinances(params: {
   baseHistoricalGW: number;
   targetNextGW?: number;
   force?: boolean;
-}): Promise<{ bankBalance: number; ftAllowance: number }> {
+}): Promise<{ bankBalance: number; ftAllowance: number; transfers: any[]; chips: any[] }> {
   const { cachedData, entryId, baseHistoricalGW, targetNextGW, force = false } = params;
   const dbFt = computeDbEstimatedFtAllowance(cachedData, entryId, baseHistoricalGW, targetNextGW);
 
   if (!Number.isInteger(entryId) || entryId <= 0 || entryId >= 100_000_000) {
-    return { bankBalance: 0, ftAllowance: dbFt };
+    return { bankBalance: 0, ftAllowance: dbFt, transfers: [], chips: [] };
   }
 
   const now = Date.now();
@@ -968,18 +1023,20 @@ export async function fetchServerManagerFinances(params: {
       }
     };
 
-    const [entryRes, historyRes] = await Promise.all([
+    const [entryRes, historyRes, transfersRes] = await Promise.all([
       fetchJsonWithTimeout(`https://fantasy.premierleague.com/api/entry/${entryId}/`),
       fetchJsonWithTimeout(`https://fantasy.premierleague.com/api/entry/${entryId}/history/`),
+      fetchJsonWithTimeout(`https://fantasy.premierleague.com/api/entry/${entryId}/transfers/`),
     ]);
 
-    if (entryRes || historyRes) {
+    if (entryRes || historyRes || transfersRes) {
       const bankRaw = entryRes?.last_deadline_bank != null ? entryRes.last_deadline_bank / 10 : 0;
       detail = {
         timestamp: now,
         bank: Math.max(0, round1(Number(bankRaw || 0))),
         history: Array.isArray(historyRes?.current) ? historyRes.current : [],
         chips: Array.isArray(historyRes?.chips) ? historyRes.chips : [],
+        transfers: Array.isArray(transfersRes) ? transfersRes : [],
         entryName: entryRes?.name || undefined,
       };
       if (managerFinanceCache.size >= MANAGER_FINANCE_CACHE_MAX) {
@@ -991,12 +1048,12 @@ export async function fetchServerManagerFinances(params: {
   }
 
   if (!detail) {
-    return { bankBalance: 0, ftAllowance: dbFt };
+    return { bankBalance: 0, ftAllowance: dbFt, transfers: [], chips: [] };
   }
 
   const history = [...detail.history].sort((a: any, b: any) => Number(a.event || 0) - Number(b.event || 0));
   if (history.length === 0) {
-    return { bankBalance: detail.bank, ftAllowance: dbFt };
+    return { bankBalance: detail.bank, ftAllowance: dbFt, transfers: detail.transfers, chips: detail.chips };
   }
 
   const maxPreTarget = targetNextGW !== undefined ? Math.max(0, targetNextGW - 1) : baseHistoricalGW;
@@ -1031,7 +1088,280 @@ export async function fetchServerManagerFinances(params: {
   return {
     bankBalance: detail.bank,
     ftAllowance: ft,
+    transfers: detail.transfers,
+    chips: detail.chips,
   };
+}
+
+export async function resolveManagerSellingPrices(params: {
+  cachedData: TransformedLeagueData;
+  entryId: number;
+  activeSquadIds: number[];
+  upToGw: number;
+  playerPoolById: Map<number, ServerScoutPoolPlayer>;
+  transfersFromApi?: any[];
+  chipsFromApi?: any[];
+}): Promise<Map<number, number>> {
+  const {
+    cachedData,
+    entryId,
+    activeSquadIds,
+    upToGw,
+    playerPoolById,
+    transfersFromApi,
+    chipsFromApi,
+  } = params;
+  const sellingPriceById = new Map<number, number>();
+  if (!entryId || entryId <= 0 || activeSquadIds.length === 0) return sellingPriceById;
+
+  const wcGwsSet = new Set<number>();
+  const fhGwsSet = new Set<number>();
+
+  for (const c of chipsFromApi || []) {
+    const ev = Number(c?.event || 0);
+    const nm = String(c?.name || '').toLowerCase();
+    if (ev >= 1 && ev <= upToGw) {
+      if (nm.includes('wildcard') || nm === 'wc') wcGwsSet.add(ev);
+      if (nm.includes('freehit') || nm === 'fh') fhGwsSet.add(ev);
+    }
+  }
+  const chipRow = cachedData.all_chips_used?.find((c) => c.entry_id === entryId);
+  if (chipRow) {
+    if (chipRow.wc1?.gw && chipRow.wc1.gw <= upToGw) wcGwsSet.add(chipRow.wc1.gw);
+    if (chipRow.wc2?.gw && chipRow.wc2.gw <= upToGw) wcGwsSet.add(chipRow.wc2.gw);
+    if (chipRow.fh1?.gw && chipRow.fh1.gw <= upToGw) fhGwsSet.add(chipRow.fh1.gw);
+    if (chipRow.fh2?.gw && chipRow.fh2.gw <= upToGw) fhGwsSet.add(chipRow.fh2.gw);
+  }
+  for (let g = 1; g <= upToGw; g++) {
+    const st = cachedData.standings?.[g]?.find((r) => r.entry_id === entryId);
+    const chipNm = String(st?.active_chip || '').toLowerCase();
+    if (chipNm.includes('wildcard') || chipNm === 'wc') wcGwsSet.add(g);
+    if (chipNm.includes('free') || chipNm === 'fh') fhGwsSet.add(g);
+  }
+
+  const wcGwsAsc = Array.from(wcGwsSet).sort((a, b) => a - b);
+  const wcGwsDesc = [...wcGwsAsc].reverse();
+
+  // Build per-GW squad sets for this manager from ownership_players
+  const gwSquadSetMap = new Map<number, Set<number>>();
+  let earliestOwnedGw = upToGw;
+  for (let g = 1; g <= upToGw; g++) {
+    const list = cachedData.ownership_players?.[g];
+    if (!Array.isArray(list) || list.length === 0) continue;
+    const set = new Set<number>();
+    for (const p of list) {
+      if (Array.isArray(p.owners) && p.owners.some((o) => o.entry_id === entryId)) {
+        set.add(p.id);
+      }
+    }
+    if (set.size > 0) {
+      gwSquadSetMap.set(g, set);
+      if (g < earliestOwnedGw) earliestOwnedGw = g;
+    }
+  }
+
+  type NormTransfer = {
+    event: number;
+    timeMs: number;
+    inId: number;
+    inCostTenths: number;
+    outId: number;
+  };
+  const rawTransfers: NormTransfer[] = [];
+  if (Array.isArray(transfersFromApi) && transfersFromApi.length > 0) {
+    for (const t of transfersFromApi) {
+      const ev = Number(t?.event || 0);
+      if (ev < 1 || ev > upToGw) continue;
+      rawTransfers.push({
+        event: ev,
+        timeMs: Date.parse(String(t?.time || '')) || 0,
+        inId: Number(t?.element_in || 0),
+        inCostTenths: Number(t?.element_in_cost || 0),
+        outId: Number(t?.element_out || 0),
+      });
+    }
+  } else {
+    for (const t of cachedData.all_transfers || []) {
+      if (t.entry_id !== entryId || t.event < 1 || t.event > upToGw) continue;
+      rawTransfers.push({
+        event: Number(t.event),
+        timeMs: Date.parse(String(t.time || '')) || 0,
+        inId: Number(t.element_in?.id || 0),
+        inCostTenths: Number(t.element_in?.cost || 0),
+        outId: Number(t.element_out?.id || 0),
+      });
+    }
+  }
+  rawTransfers.sort((a, b) => a.event - b.event || a.timeMs - b.timeMs);
+
+  const purchaseCostTenthsById = new Map<number, number>();
+  const neededAcquiredGwById = new Map<number, number>();
+
+  for (const playerId of activeSquadIds) {
+    let lastIn: NormTransfer | null = null;
+    let lastOut: NormTransfer | null = null;
+    for (const tr of rawTransfers) {
+      if (tr.inId === playerId) lastIn = tr;
+      if (tr.outId === playerId) lastOut = tr;
+    }
+
+    let stayedSinceLastIn =
+      Boolean(lastIn) &&
+      lastIn!.inCostTenths > 0 &&
+      (!lastOut ||
+        lastOut.event < lastIn!.event ||
+        (lastOut.event === lastIn!.event && lastOut.timeMs < lastIn!.timeMs));
+
+    if (stayedSinceLastIn && lastIn) {
+      for (const wcGw of wcGwsAsc) {
+        if (wcGw > lastIn.event && gwSquadSetMap.has(wcGw) && !gwSquadSetMap.get(wcGw)!.has(playerId)) {
+          stayedSinceLastIn = false;
+          break;
+        }
+      }
+    }
+
+    if (stayedSinceLastIn && lastIn) {
+      purchaseCostTenthsById.set(playerId, lastIn.inCostTenths);
+      continue;
+    }
+
+    let acquiredGw = earliestOwnedGw;
+    for (const wcGw of wcGwsDesc) {
+      const wcSet = gwSquadSetMap.get(wcGw);
+      if (!wcSet || !wcSet.has(playerId)) continue;
+      let prevGw: number | undefined;
+      for (let g = wcGw - 1; g >= 1; g--) {
+        if (!fhGwsSet.has(g) && gwSquadSetMap.has(g)) {
+          prevGw = g;
+          break;
+        }
+      }
+      if (prevGw === undefined || !gwSquadSetMap.get(prevGw)!.has(playerId)) {
+        acquiredGw = wcGw;
+        break;
+      }
+    }
+
+    if (fhGwsSet.has(upToGw)) {
+      let prevGw: number | undefined;
+      for (let g = upToGw - 1; g >= 1; g--) {
+        if (!fhGwsSet.has(g) && gwSquadSetMap.has(g)) {
+          prevGw = g;
+          break;
+        }
+      }
+      if (prevGw !== undefined && !gwSquadSetMap.get(prevGw)!.has(playerId)) {
+        acquiredGw = upToGw;
+      }
+    }
+
+    neededAcquiredGwById.set(playerId, acquiredGw);
+  }
+
+  const fetchJsonQuick = async (url: string): Promise<any | null> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    try {
+      const res = await fetch(url, { headers: FPL_HEADERS, signal: controller.signal });
+      return res.ok ? await res.json() : null;
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  const now = Date.now();
+  const needsStartPrices = Array.from(neededAcquiredGwById.values()).some((gw) => gw <= 1);
+  if (
+    needsStartPrices &&
+    (!bootstrapStartPriceCache || now - bootstrapStartPriceCache.timestamp >= HISTORICAL_PRICE_TTL_MS)
+  ) {
+    const boot = await fetchJsonQuick('https://fantasy.premierleague.com/api/bootstrap-static/');
+    if (Array.isArray(boot?.elements)) {
+      const startMap = new Map<number, number>();
+      for (const el of boot.elements) {
+        const id = Number(el?.id || 0);
+        const nowC = Number(el?.now_cost || 0);
+        const delta = Number(el?.cost_change_start || 0);
+        if (id > 0 && nowC > 0) {
+          startMap.set(id, Math.max(35, nowC - delta));
+        }
+      }
+      bootstrapStartPriceCache = { timestamp: now, startCostTenthsById: startMap };
+    }
+  }
+
+  const playersNeedingElementSummary: number[] = [];
+  for (const [playerId, acqGw] of neededAcquiredGwById.entries()) {
+    if (acqGw <= 1) {
+      const startCost = bootstrapStartPriceCache?.startCostTenthsById.get(playerId);
+      if (startCost && startCost > 0) {
+        purchaseCostTenthsById.set(playerId, startCost);
+        continue;
+      }
+    }
+    const cachedEl = elementRoundPriceCache.get(playerId);
+    if (!cachedEl || now - cachedEl.timestamp >= HISTORICAL_PRICE_TTL_MS) {
+      playersNeedingElementSummary.push(playerId);
+    }
+  }
+
+  if (playersNeedingElementSummary.length > 0) {
+    await Promise.all(
+      playersNeedingElementSummary.map(async (playerId) => {
+        const summary = await fetchJsonQuick(
+          `https://fantasy.premierleague.com/api/element-summary/${playerId}/`
+        );
+        const roundMap = new Map<number, number>();
+        if (Array.isArray(summary?.history)) {
+          for (const h of summary.history) {
+            const r = Number(h?.round || 0);
+            const v = Number(h?.value || 0);
+            if (r > 0 && v > 0) roundMap.set(r, v);
+          }
+        }
+        elementRoundPriceCache.set(playerId, { timestamp: now, roundValueTenths: roundMap });
+      })
+    );
+  }
+
+  for (const [playerId, acqGw] of neededAcquiredGwById.entries()) {
+    if (purchaseCostTenthsById.has(playerId)) continue;
+    const roundMap = elementRoundPriceCache.get(playerId)?.roundValueTenths;
+    if (roundMap && roundMap.size > 0) {
+      let matched = roundMap.get(acqGw);
+      if (!matched) {
+        // Fallback for Blank GW or late arrival: nearest prior GW, then earliest subsequent GW
+        let bestLower = -1;
+        let bestHigher = Infinity;
+        for (const r of roundMap.keys()) {
+          if (r < acqGw && r > bestLower) bestLower = r;
+          if (r > acqGw && r < bestHigher) bestHigher = r;
+        }
+        if (bestLower > 0) matched = roundMap.get(bestLower);
+        else if (bestHigher < Infinity) matched = roundMap.get(bestHigher);
+      }
+      if (matched && matched > 0) {
+        purchaseCostTenthsById.set(playerId, matched);
+      }
+    }
+  }
+
+  for (const playerId of activeSquadIds) {
+    const poolP = playerPoolById.get(playerId);
+    if (!poolP) continue;
+    const nowCostTenths = Math.round(poolP.cost * 10);
+    const purchaseTenths = purchaseCostTenthsById.get(playerId) ?? nowCostTenths;
+    const sellingTenths =
+      nowCostTenths <= purchaseTenths
+        ? nowCostTenths
+        : purchaseTenths + Math.floor((nowCostTenths - purchaseTenths) / 2);
+    sellingPriceById.set(playerId, round1(sellingTenths / 10));
+  }
+
+  return sellingPriceById;
 }
 
 function getPoolPlayerGwXp(p: ServerScoutPoolPlayer, gw: number, targetNextGW: number): number {
@@ -1154,7 +1484,17 @@ export function computeServerChipsAnalysis(params: {
     };
   }
 
-  const getOptimalXiAtGw = (squad15: ServerScoutPoolPlayer[], gw: number) => {
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  const quantileSorted = (sorted: number[], q: number, fallback: number): number => {
+    if (sorted.length === 0) return fallback;
+    const pos = Math.max(0, Math.min(sorted.length - 1, (sorted.length - 1) * q));
+    const lo = Math.floor(pos);
+    const hi = Math.ceil(pos);
+    return lo === hi ? sorted[lo] : lerp(sorted[lo], sorted[hi], pos - lo);
+  };
+
+  const evalXiCache = new Map<string, ReturnType<typeof computeXiAtGw>>();
+  function computeXiAtGw(squad15: ServerScoutPoolPlayer[], gw: number) {
     const sortFn = (a: ServerScoutPoolPlayer, b: ServerScoutPoolPlayer) => {
       const xpDiff = getPoolPlayerGwXp(b, gw, targetNextGW) - getPoolPlayerGwXp(a, gw, targetNextGW);
       if (xpDiff !== 0) return xpDiff;
@@ -1216,26 +1556,42 @@ export function computeServerChipsAnalysis(params: {
     const bestStarter = [...bestStarters].sort(sortFn)[0] || null;
     const capXp = bestStarter ? getPoolPlayerGwXp(bestStarter, gw, targetNextGW) : 0;
 
-    const tcRanked = [...squad15].sort((a, b) => {
-      const ca = getCellAtGw(a.modelInput, gw, targetNextGW);
-      const cb = getCellAtGw(b.modelInput, gw, targetNextGW);
-      const tcA =
-        ca.xp * (1 - policy.chips.tcReliabilityAlpha + policy.chips.tcReliabilityAlpha * ca.pStart) +
-        policy.chips.tcTailWeight * Math.max(0, ca.mcQ85 - ca.xp);
-      const tcB =
-        cb.xp * (1 - policy.chips.tcReliabilityAlpha + policy.chips.tcReliabilityAlpha * cb.pStart) +
-        policy.chips.tcTailWeight * Math.max(0, cb.mcQ85 - cb.xp);
-      return tcB - tcA || sortFn(a, b);
-    });
+    const getTcScore = (p: ServerScoutPoolPlayer) => {
+      const c = getCellAtGw(p.modelInput, gw, targetNextGW);
+      return (
+        c.xp * (1 - policy.chips.tcReliabilityAlpha + policy.chips.tcReliabilityAlpha * c.pStart) +
+        policy.chips.tcTailWeight * Math.max(0, c.mcQ85 - c.xp)
+      );
+    };
+    const tcRanked = [...squad15].sort((a, b) => getTcScore(b) - getTcScore(a) || sortFn(a, b));
     const tcCandidate = tcRanked[0] || bestStarter;
     const tcXp = tcCandidate ? getPoolPlayerGwXp(tcCandidate, gw, targetNextGW) : 0;
+    const tcEffScore = tcCandidate ? getTcScore(tcCandidate) : 0;
+    const tcCellRaw = tcCandidate?.fullSeasonPointsMap?.[gw];
+    const tcIsDgw = Boolean(tcCellRaw?.isDgw || (tcCellRaw?.matchCount ?? 0) >= 2);
 
+    let activeBenchCount = 0;
+    let benchIsDgwCount = 0;
     const reliableBenchXp = bestBench.reduce((sum, bp) => {
       const c = getCellAtGw(bp.modelInput, gw, targetNextGW);
-      if (c.pStart < policy.chips.bbMinPStart) return sum;
+      const rawCell = bp.fullSeasonPointsMap?.[gw];
+      if (!c.isBlank && (rawCell?.isDgw || (rawCell?.matchCount ?? 0) >= 2)) {
+        benchIsDgwCount++;
+      }
+      if (c.pStart < policy.chips.bbMinPStart || c.isBlank) return sum;
+      const xpVal = getPoolPlayerGwXp(bp, gw, targetNextGW);
+      if (xpVal > 0) activeBenchCount++;
       const rel = 1 - policy.chips.bbReliabilityAlpha + policy.chips.bbReliabilityAlpha * c.pStart;
-      return sum + getPoolPlayerGwXp(bp, gw, targetNextGW) * rel;
+      return sum + xpVal * rel;
     }, 0);
+
+    let activeStarterCount = 0;
+    for (const st of bestStarters) {
+      const c = getCellAtGw(st.modelInput, gw, targetNextGW);
+      if (!c.isBlank && c.pStart >= 0.25 && getPoolPlayerGwXp(st, gw, targetNextGW) > 0) {
+        activeStarterCount++;
+      }
+    }
 
     return {
       starters: bestStarters,
@@ -1243,26 +1599,97 @@ export function computeServerChipsAnalysis(params: {
       xiXp: round1(bestXiXp),
       benchXp: round1(bestBenchXp),
       reliableBenchXp: round1(reliableBenchXp),
+      activeBenchCount,
+      benchIsDgwCount,
+      activeStarterCount,
       bestStarter,
       capXp: round1(capXp),
       xiPlusCap: round1(bestXiXp + capXp),
       tcCandidate,
       tcXp: round1(tcXp),
+      tcEffScore: round1(tcEffScore),
+      tcIsDgw,
     };
+  }
+
+  const getOptimalXiAtGw = (squad15: ServerScoutPoolPlayer[], gw: number, squadKey?: string) => {
+    if (!squadKey) return computeXiAtGw(squad15, gw);
+    const cacheKey = `${squadKey}:${gw}`;
+    let res = evalXiCache.get(cacheKey);
+    if (!res) {
+      res = computeXiAtGw(squad15, gw);
+      evalXiCache.set(cacheKey, res);
+    }
+    return res;
   };
 
   const gwRange: number[] = [];
   for (let g = targetNextGW; g <= halfEndGW; g++) gwRange.push(g);
 
-  const teamOptCache = new Map<number, ReturnType<typeof getOptimalXiAtGw>>();
   const maxEvalGw = isSecondHalf ? 38 : Math.min(38, halfEndGW + 5);
   for (let g = targetNextGW; g <= maxEvalGw; g++) {
-    teamOptCache.set(g, getOptimalXiAtGw(managerSquad15, g));
+    getOptimalXiAtGw(managerSquad15, g, 'team');
   }
+
+  // Data-driven league benchmarks across remaining half-season GWs (zero arbitrary hardcoding)
+  const activeStarterXps = ctx.playerPool
+    .map((p) => {
+      const c = getCellAtGw(p.modelInput, targetNextGW, targetNextGW);
+      return !c.isBlank && c.pStart >= 0.60 && p.xP1 > 0 ? p.xP1 : -1;
+    })
+    .filter((v) => v > 0)
+    .sort((a, b) => a - b);
+  const medianStarterXp = quantileSorted(activeStarterXps, 0.50, 3.5);
+
+  const leagueTopCapByGw = new Map<number, number>();
+  const gwHasDgwMap = new Map<number, boolean>();
+  for (const g of gwRange) {
+    let topCap = 0;
+    let hasDgw = false;
+    for (const p of ctx.playerPool) {
+      const c = getCellAtGw(p.modelInput, g, targetNextGW);
+      if (c.isBlank || c.pStart < 0.55) continue;
+      const rawCell = p.fullSeasonPointsMap?.[g];
+      if (rawCell?.isDgw || (rawCell?.matchCount ?? 0) >= 2) hasDgw = true;
+      const tcS =
+        c.xp * (1 - policy.chips.tcReliabilityAlpha + policy.chips.tcReliabilityAlpha * c.pStart) +
+        policy.chips.tcTailWeight * Math.max(0, c.mcQ85 - c.xp);
+      if (tcS > topCap) topCap = tcS;
+    }
+    leagueTopCapByGw.set(g, topCap);
+    gwHasDgwMap.set(g, hasDgw);
+  }
+  const sortedTopCaps = Array.from(leagueTopCapByGw.values()).filter((v) => v > 0).sort((a, b) => a - b);
+  const typicalCapScore = quantileSorted(sortedTopCaps, 0.50, medianStarterXp * 2);
+  const p75CapScore = quantileSorted(sortedTopCaps, 0.75, typicalCapScore * 1.15);
+
+  const waitFraction = (g: number): number => {
+    const remAfter = Math.max(0, halfEndGW - g);
+    if (remAfter === 0) return 0;
+    const span = Math.max(1, Math.min(8, halfEndGW - halfStartGW));
+    return Math.min(1, Math.sqrt(remAfter / span));
+  };
+
+  const hasFutureDgwAfter = (g: number): { exists: boolean; peakCapScore: number } => {
+    let exists = false;
+    let peakCapScore = 0;
+    for (const k of gwRange) {
+      if (k <= g) continue;
+      if (gwHasDgwMap.get(k)) {
+        exists = true;
+        peakCapScore = Math.max(peakCapScore, leagueTopCapByGw.get(k) || 0);
+      }
+    }
+    return { exists, peakCapScore };
+  };
 
   const scoutChipSetSimByGw = new Map<
     number,
-    { fhSquad15: ServerScoutPoolPlayer[]; wcSquad15: ServerScoutPoolPlayer[] }
+    {
+      fhSquad15: ServerScoutPoolPlayer[];
+      wcSquad15: ServerScoutPoolPlayer[];
+      wcBbNextSquad15: ServerScoutPoolPlayer[];
+    }
   >();
   for (const [gwKey, val] of Object.entries(scoutPayload.chipSetByGw || {})) {
     const gwNum = Number(gwKey);
@@ -1274,203 +1701,506 @@ export function computeServerChipsAnalysis(params: {
       wcSquad15: (val.wcSquadIds || [])
         .map((id) => playerPoolById.get(id))
         .filter((p): p is ServerScoutPoolPlayer => Boolean(p)),
+      wcBbNextSquad15: (val.wcBbNextSquadIds || [])
+        .map((id) => playerPoolById.get(id))
+        .filter((p): p is ServerScoutPoolPlayer => Boolean(p)),
     });
   }
 
   type ChipKey = 'WC' | 'TC' | 'BB' | 'FH';
-  type TcGwInfo = { gw: number; gain: number; playerName: string; opp: string };
-  type BbGwInfo = { gw: number; gain: number; benchDetails: Array<{ name: string; xp: number; opp: string }> };
+  type TcGwInfo = {
+    gw: number;
+    gain: number;
+    scheduleValue: number;
+    eligible: boolean;
+    playerName: string;
+    opp: string;
+    isDgw: boolean;
+  };
+  type BbGwInfo = {
+    gw: number;
+    gain: number;
+    scheduleValue: number;
+    eligible: boolean;
+    activeBenchCount: number;
+    benchDetails: Array<{ name: string; xp: number; opp: string }>;
+  };
   type FhGwInfo = {
     gw: number;
     gain: number;
+    scheduleValue: number;
+    eligible: boolean;
     fhScore: number;
     teamScore: number;
     fhCapName: string;
     teamCapName: string;
     diffNames: string[];
   };
+  type WcVariant = 'normal' | 'bb_next';
   type WcGwInfo = {
     gw: number;
+    variant: WcVariant;
     gain: number;
+    discountedGain: number;
     horizonEnd: number;
     horizonLen: number;
     diffStarters: number;
     heldByFt: boolean;
     eligible: boolean;
+    comboEligibleWithBb: boolean;
     keyAdditions: string[];
+    squad15: ServerScoutPoolPlayer[];
+    squadKey: string;
   };
 
-  const tcByGw = new Map<number, TcGwInfo>();
-  const bbByGw = new Map<number, BbGwInfo>();
-  const fhByGw = new Map<number, FhGwInfo>();
-  const wcByGw = new Map<number, WcGwInfo>();
-
-  for (const g of gwRange) {
-    const teamAtG = teamOptCache.get(g)!;
-    const teamStarterIds = new Set(teamAtG.starters.map((p) => p.id));
-
-    const tcCand = teamAtG.tcCandidate;
+  const evalTcAtGw = (squad15: ServerScoutPoolPlayer[], squadKey: string, g: number): TcGwInfo => {
+    const opt = getOptimalXiAtGw(squad15, g, squadKey);
+    const tcCand = opt.tcCandidate;
     const tcOpp = tcCand?.fullSeasonPointsMap?.[g]?.opp || '-';
-    tcByGw.set(g, {
+    const wf = waitFraction(g);
+    const futDgw = hasFutureDgwAfter(g);
+    const tcMin =
+      wf === 0
+        ? 0.1
+        : Math.max(typicalCapScore * (1 + 0.14 * wf), lerp(0.1, p75CapScore, wf));
+    const blockedByFutureDgw =
+      !opt.tcIsDgw && futDgw.exists && g < halfEndGW && opt.tcEffScore < futDgw.peakCapScore;
+    const eligible = opt.tcXp > 0 && !blockedByFutureDgw && opt.tcEffScore >= tcMin;
+    return {
       gw: g,
-      gain: teamAtG.tcXp,
+      gain: opt.tcXp,
+      scheduleValue: round1(opt.tcEffScore),
+      eligible,
       playerName: tcCand?.webName || '-',
       opp: tcOpp,
-    });
+      isDgw: opt.tcIsDgw,
+    };
+  };
 
-    const benchDetails = [...teamAtG.bench]
+  const evalBbAtGw = (squad15: ServerScoutPoolPlayer[], squadKey: string, g: number): BbGwInfo => {
+    const opt = getOptimalXiAtGw(squad15, g, squadKey);
+    const gain = opt.reliableBenchXp > 0 ? opt.reliableBenchXp : opt.benchXp;
+    const wf = waitFraction(g);
+    const minActiveBench = wf >= 0.45 ? 3 : wf > 0 ? 2 : 1;
+    const bbRef = 4 * medianStarterXp;
+    const bbMin = wf === 0 ? 0.1 : lerp(0.1, bbRef * 0.90, wf);
+    const eligible =
+      gain > 0 &&
+      opt.activeBenchCount >= minActiveBench &&
+      (opt.benchIsDgwCount >= 2 || gain >= bbMin);
+    const benchDetails = [...opt.bench]
       .sort((a, b) => getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW))
       .map((b) => ({
         name: b.webName,
         xp: getPoolPlayerGwXp(b, g, targetNextGW),
         opp: b.fullSeasonPointsMap?.[g]?.opp || '-',
       }));
-    bbByGw.set(g, {
+    return {
       gw: g,
-      gain: teamAtG.reliableBenchXp > 0 ? teamAtG.reliableBenchXp : teamAtG.benchXp,
+      gain,
+      scheduleValue: round1(gain),
+      eligible,
+      activeBenchCount: opt.activeBenchCount,
       benchDetails,
-    });
+    };
+  };
+
+  const evalFhAtGw = (
+    baseSquad15: ServerScoutPoolPlayer[],
+    baseKey: string,
+    fhSquad15: ServerScoutPoolPlayer[],
+    g: number
+  ): FhGwInfo => {
+    const baseAtG = getOptimalXiAtGw(baseSquad15, g, baseKey);
+    const fhAtG = getOptimalXiAtGw(fhSquad15, g, `fh:${g}`);
+    const fhGain = round1(fhAtG.xiPlusCap - baseAtG.xiPlusCap);
+    const wf = waitFraction(g);
+    const isCrisis = baseAtG.activeStarterCount < 11;
+    const fhMin =
+      wf === 0
+        ? 0.1
+        : isCrisis
+        ? lerp(0.1, 0.55 * medianStarterXp, wf)
+        : lerp(0.1, 1.35 * medianStarterXp, wf);
+    const baseStarterIds = new Set(baseAtG.starters.map((p) => p.id));
+    const diffNames = fhAtG.starters
+      .filter((p) => !baseStarterIds.has(p.id))
+      .sort((a, b) => getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW))
+      .slice(0, 3)
+      .map((p) => p.webName);
+    return {
+      gw: g,
+      gain: fhGain,
+      scheduleValue: fhGain,
+      eligible: fhGain > 0 && fhGain >= fhMin,
+      fhScore: fhAtG.xiPlusCap,
+      teamScore: baseAtG.xiPlusCap,
+      fhCapName: fhAtG.bestStarter?.webName || '-',
+      teamCapName: baseAtG.bestStarter?.webName || '-',
+      diffNames,
+    };
+  };
+
+  const evalWcVariantAtGw = (
+    wcSquad15: ServerScoutPoolPlayer[],
+    squadKey: string,
+    variant: WcVariant,
+    g: number
+  ): WcGwInfo => {
+    const teamAtG = getOptimalXiAtGw(managerSquad15, g, 'team');
+    const teamStarterIds = new Set(teamAtG.starters.map((p) => p.id));
+    const horizonEnd = Math.min(38, g + 5);
+    const horizonLen = horizonEnd - g + 1;
+    let diffSum = 0;
+    let discountedSum = 0;
+    for (let k = g; k <= horizonEnd; k++) {
+      const wcAtK = getOptimalXiAtGw(wcSquad15, k, squadKey);
+      const teamAtK = getOptimalXiAtGw(managerSquad15, k, 'team');
+      const delta = wcAtK.xiPlusCap - teamAtK.xiPlusCap;
+      diffSum += delta;
+      discountedSum += Math.pow(0.88, k - g) * delta;
+    }
+    const avgGain = round1(diffSum / horizonLen);
+    const discountedGain = round1(discountedSum);
+    const wcAtG = getOptimalXiAtGw(wcSquad15, g, squadKey);
+    const diffStarterPlayers = wcAtG.starters.filter((p) => !teamStarterIds.has(p.id));
+    const diffStarters = diffStarterPlayers.length;
+    const heldByFt = diffStarters <= ftAllowance;
+    const keyAdditions = diffStarterPlayers
+      .sort((a, b) => getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW))
+      .slice(0, 3)
+      .map((p) => p.webName);
+
+    const wf = waitFraction(g);
+    const wcMinAvg = wf === 0 ? 0.05 : lerp(0.05, 0.28 * medianStarterXp, wf);
+    const wcMinDisc = wf === 0 ? 0.2 : lerp(0.2, 1.15 * medianStarterXp, wf);
+    const eligible = !heldByFt && avgGain >= wcMinAvg && discountedGain >= wcMinDisc;
+    const comboEligibleWithBb = !heldByFt && avgGain > 0 && discountedGain > 0;
+
+    return {
+      gw: g,
+      variant,
+      gain: avgGain,
+      discountedGain,
+      horizonEnd,
+      horizonLen,
+      diffStarters,
+      heldByFt,
+      eligible,
+      comboEligibleWithBb,
+      keyAdditions,
+      squad15: wcSquad15,
+      squadKey,
+    };
+  };
+
+  const tcPreWcByGw = new Map<number, TcGwInfo>();
+  const bbPreWcByGw = new Map<number, BbGwInfo>();
+  const fhPreWcByGw = new Map<number, FhGwInfo>();
+  const wcNormalByGw = new Map<number, WcGwInfo>();
+  const wcBbNextByGw = new Map<number, WcGwInfo>();
+
+  for (const g of gwRange) {
+    tcPreWcByGw.set(g, evalTcAtGw(managerSquad15, 'team', g));
+    bbPreWcByGw.set(g, evalBbAtGw(managerSquad15, 'team', g));
 
     const simG = scoutChipSetSimByGw.get(g);
     if (simG && simG.fhSquad15.length > 0) {
-      const fhAtG = getOptimalXiAtGw(simG.fhSquad15, g);
-      const fhGain = round1(fhAtG.xiPlusCap - teamAtG.xiPlusCap);
-      const diffNames = fhAtG.starters
-        .filter((p) => !teamStarterIds.has(p.id))
-        .sort((a, b) => getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW))
-        .slice(0, 3)
-        .map((p) => p.webName);
-      fhByGw.set(g, {
-        gw: g,
-        gain: fhGain,
-        fhScore: fhAtG.xiPlusCap,
-        teamScore: teamAtG.xiPlusCap,
-        fhCapName: fhAtG.bestStarter?.webName || '-',
-        teamCapName: teamAtG.bestStarter?.webName || '-',
-        diffNames,
-      });
+      fhPreWcByGw.set(g, evalFhAtGw(managerSquad15, 'team', simG.fhSquad15, g));
     }
-
     if (simG && simG.wcSquad15.length > 0) {
-      const horizonEnd = Math.min(38, g + 5);
-      const horizonLen = horizonEnd - g + 1;
-      let diffSum = 0;
-      for (let k = g; k <= horizonEnd; k++) {
-        const wcAtK = getOptimalXiAtGw(simG.wcSquad15, k);
-        const teamAtK = teamOptCache.get(k) || getOptimalXiAtGw(managerSquad15, k);
-        diffSum += wcAtK.xiPlusCap - teamAtK.xiPlusCap;
+      wcNormalByGw.set(g, evalWcVariantAtGw(simG.wcSquad15, `wc:${g}`, 'normal', g));
+    }
+    if (simG && simG.wcBbNextSquad15.length > 0 && g < halfEndGW) {
+      wcBbNextByGw.set(g, evalWcVariantAtGw(simG.wcBbNextSquad15, `wcbb:${g}`, 'bb_next', g));
+    }
+  }
+
+  const availableSet = new Set<ChipKey>(availableChips.map((c) => c.key));
+  const hasWcAvail = availableSet.has('WC');
+  const hasBbAvail = availableSet.has('BB');
+  const hasFhAvail = availableSet.has('FH');
+  const hasTcAvail = availableSet.has('TC');
+
+  type ScheduledChipPlacement = {
+    key: ChipKey;
+    gw: number;
+    gain: number;
+    scheduleValue: number;
+    wcVariant?: WcVariant;
+    wcInfo?: WcGwInfo;
+    fhInfo?: FhGwInfo;
+    bbInfo?: BbGwInfo;
+    tcInfo?: TcGwInfo;
+  };
+
+  // Build candidate WC options (both normal WC and WC BB-setup paired with BB at w+1)
+  const wcCandidates: WcGwInfo[] = [];
+  if (hasWcAvail) {
+    const normalElig = Array.from(wcNormalByGw.values())
+      .filter((v) => v.eligible)
+      .sort((a, b) => b.discountedGain - a.discountedGain || a.gw - b.gw);
+    const chosenNormal = normalElig.slice(0, 6);
+    const targetNorm = wcNormalByGw.get(targetNextGW);
+    if (targetNorm?.eligible && !chosenNormal.some((x) => x.gw === targetNextGW)) {
+      chosenNormal.push(targetNorm);
+    }
+    wcCandidates.push(...chosenNormal);
+
+    if (hasBbAvail) {
+      const bbComboCands: WcGwInfo[] = [];
+      for (const wcBb of wcBbNextByGw.values()) {
+        if (!wcBb.comboEligibleWithBb || wcBb.gw + 1 > halfEndGW) continue;
+        const bbNext = evalBbAtGw(wcBb.squad15, wcBb.squadKey, wcBb.gw + 1);
+        const wf = waitFraction(wcBb.gw);
+        const combinedMin =
+          wf === 0 ? 0.3 : lerp(0.3, (1.15 + 4 * 0.90) * medianStarterXp, wf);
+        if (bbNext.eligible && wcBb.discountedGain + bbNext.scheduleValue >= combinedMin) {
+          bbComboCands.push(wcBb);
+        }
       }
-      const avgGain = round1(diffSum / horizonLen);
-      const wcAtG = getOptimalXiAtGw(simG.wcSquad15, g);
-      const diffStarterPlayers = wcAtG.starters.filter((p) => !teamStarterIds.has(p.id));
-      const diffStarters = diffStarterPlayers.length;
-      const heldByFt = diffStarters <= ftAllowance;
-      const keyAdditions = diffStarterPlayers
-        .sort((a, b) => getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW))
-        .slice(0, 3)
-        .map((p) => p.webName);
-
-      wcByGw.set(g, {
-        gw: g,
-        gain: avgGain,
-        horizonEnd,
-        horizonLen,
-        diffStarters,
-        heldByFt,
-        eligible: !heldByFt && avgGain > 0,
-        keyAdditions,
+      bbComboCands.sort((a, b) => {
+        const bbA = evalBbAtGw(a.squad15, a.squadKey, a.gw + 1).scheduleValue;
+        const bbB = evalBbAtGw(b.squad15, b.squadKey, b.gw + 1).scheduleValue;
+        return b.discountedGain + bbB - (a.discountedGain + bbA) || a.gw - b.gw;
       });
+      const chosenBbCombo = bbComboCands.slice(0, 5);
+      const targetBb = bbComboCands.find((x) => x.gw === targetNextGW);
+      if (targetBb && !chosenBbCombo.some((x) => x.gw === targetNextGW)) {
+        chosenBbCombo.push(targetBb);
+      }
+      wcCandidates.push(...chosenBbCombo);
     }
   }
 
-  const eligibleByChip = new Map<ChipKey, Array<{ gw: number; gain: number }>>();
-  const allPeakByChip = new Map<ChipKey, { gw: number; gain: number } | null>();
-
-  for (const chip of availableChips) {
-    let entries: Array<{ gw: number; gain: number }> = [];
-    let rawAll: Array<{ gw: number; gain: number }> = [];
-
-    if (chip.key === 'TC') {
-      rawAll = Array.from(tcByGw.values()).map((v) => ({ gw: v.gw, gain: v.gain }));
-      entries = rawAll.filter((v) => v.gain > 0);
-    } else if (chip.key === 'BB') {
-      rawAll = Array.from(bbByGw.values()).map((v) => ({ gw: v.gw, gain: v.gain }));
-      entries = rawAll.filter((v) => v.gain > 0);
-    } else if (chip.key === 'FH') {
-      rawAll = Array.from(fhByGw.values()).map((v) => ({ gw: v.gw, gain: v.gain }));
-      entries = rawAll.filter((v) => v.gain > 0);
-    } else {
-      const wcVals = Array.from(wcByGw.values());
-      rawAll = wcVals.map((v) => ({ gw: v.gw, gain: v.gain }));
-      entries = wcVals.filter((v) => v.eligible).map((v) => ({ gw: v.gw, gain: v.gain }));
-    }
-
-    rawAll.sort((a, b) => b.gain - a.gain || a.gw - b.gw);
-    entries.sort((a, b) => b.gain - a.gain || a.gw - b.gw);
-
-    allPeakByChip.set(chip.key, entries[0] || rawAll[0] || null);
-    eligibleByChip.set(chip.key, entries.slice(0, 6));
-  }
-
-  const schedulableKeys = availableChips
-    .map((c) => c.key)
-    .filter((k) => (eligibleByChip.get(k)?.length || 0) > 0);
-
-  let bestAssignment = new Map<ChipKey, { gw: number; gain: number }>();
-  let bestCount = -1;
-  let bestTotalGain = -Infinity;
+  let bestAssignment = new Map<ChipKey, ScheduledChipPlacement>();
+  let bestTotalScheduleValue = -Infinity;
+  let bestCountPlaced = -1;
   let bestEarlinessScore = -Infinity;
 
   const usedGws = new Set<number>();
-  const currentAssignment = new Map<ChipKey, { gw: number; gain: number }>();
+  const currentAssignment = new Map<ChipKey, ScheduledChipPlacement>();
 
-  const searchSchedule = (idx: number, countPlaced: number, sumGain: number, earliness: number) => {
-    if (idx >= schedulableKeys.length) {
-      if (
-        countPlaced > bestCount ||
-        (countPlaced === bestCount &&
-          (sumGain > bestTotalGain + 1e-6 ||
-            (Math.abs(sumGain - bestTotalGain) <= 1e-6 && earliness > bestEarlinessScore)))
-      ) {
-        bestCount = countPlaced;
-        bestTotalGain = sumGain;
-        bestEarlinessScore = earliness;
-        bestAssignment = new Map(currentAssignment);
+  const recordIfBest = (sumVal: number, countPlaced: number, earliness: number) => {
+    if (
+      sumVal > bestTotalScheduleValue + 1e-6 ||
+      (Math.abs(sumVal - bestTotalScheduleValue) <= 1e-6 &&
+        (countPlaced > bestCountPlaced ||
+          (countPlaced === bestCountPlaced && earliness > bestEarlinessScore)))
+    ) {
+      bestTotalScheduleValue = sumVal;
+      bestCountPlaced = countPlaced;
+      bestEarlinessScore = earliness;
+      bestAssignment = new Map(currentAssignment);
+    }
+  };
+
+  const searchTc = (
+    wcChoice: WcGwInfo | null,
+    sumVal: number,
+    countPlaced: number,
+    earliness: number
+  ) => {
+    if (!hasTcAvail) {
+      recordIfBest(sumVal, countPlaced, earliness);
+      return;
+    }
+    const cands: TcGwInfo[] = [];
+    for (const g of gwRange) {
+      if (usedGws.has(g)) continue;
+      const info =
+        wcChoice && g > wcChoice.gw
+          ? evalTcAtGw(wcChoice.squad15, wcChoice.squadKey, g)
+          : tcPreWcByGw.get(g)!;
+      if (info.eligible) cands.push(info);
+    }
+    cands.sort((a, b) => b.scheduleValue - a.scheduleValue || a.gw - b.gw);
+    const topCands = cands.slice(0, 5);
+    const targetCand = cands.find((c) => c.gw === targetNextGW);
+    if (targetCand && !topCands.some((c) => c.gw === targetNextGW)) topCands.push(targetCand);
+
+    for (const tc of topCands) {
+      usedGws.add(tc.gw);
+      currentAssignment.set('TC', {
+        key: 'TC',
+        gw: tc.gw,
+        gain: tc.gain,
+        scheduleValue: tc.scheduleValue,
+        tcInfo: tc,
+      });
+      recordIfBest(sumVal + tc.scheduleValue, countPlaced + 1, earliness - tc.gw);
+      currentAssignment.delete('TC');
+      usedGws.delete(tc.gw);
+    }
+
+    // Explicit Hold option when no week passes threshold or saving chip is optimal
+    recordIfBest(sumVal, countPlaced, earliness);
+  };
+
+  const searchBb = (
+    wcChoice: WcGwInfo | null,
+    sumVal: number,
+    countPlaced: number,
+    earliness: number
+  ) => {
+    if (!hasBbAvail) {
+      searchTc(wcChoice, sumVal, countPlaced, earliness);
+      return;
+    }
+
+    // When testing WC BB-Setup at GW w, BB must pair at w + 1
+    if (wcChoice?.variant === 'bb_next') {
+      const targetBbGw = wcChoice.gw + 1;
+      if (targetBbGw <= halfEndGW && !usedGws.has(targetBbGw)) {
+        const bb = evalBbAtGw(wcChoice.squad15, wcChoice.squadKey, targetBbGw);
+        if (bb.eligible) {
+          usedGws.add(bb.gw);
+          currentAssignment.set('BB', {
+            key: 'BB',
+            gw: bb.gw,
+            gain: bb.gain,
+            scheduleValue: bb.scheduleValue,
+            bbInfo: bb,
+          });
+          searchTc(wcChoice, sumVal + bb.scheduleValue, countPlaced + 1, earliness - bb.gw);
+          currentAssignment.delete('BB');
+          usedGws.delete(bb.gw);
+        }
       }
       return;
     }
 
-    const key = schedulableKeys[idx];
-    const candidates = eligibleByChip.get(key) || [];
-    let placedAny = false;
-    for (const cand of candidates) {
-      if (usedGws.has(cand.gw)) continue;
-      placedAny = true;
-      usedGws.add(cand.gw);
-      currentAssignment.set(key, cand);
-      searchSchedule(idx + 1, countPlaced + 1, sumGain + cand.gain, earliness - cand.gw);
-      usedGws.delete(cand.gw);
-      currentAssignment.delete(key);
+    const cands: BbGwInfo[] = [];
+    for (const g of gwRange) {
+      if (usedGws.has(g)) continue;
+      const info =
+        wcChoice && g > wcChoice.gw
+          ? evalBbAtGw(wcChoice.squad15, wcChoice.squadKey, g)
+          : bbPreWcByGw.get(g)!;
+      if (info.eligible) cands.push(info);
+    }
+    cands.sort((a, b) => b.scheduleValue - a.scheduleValue || a.gw - b.gw);
+    const topCands = cands.slice(0, 5);
+    const targetCand = cands.find((c) => c.gw === targetNextGW);
+    if (targetCand && !topCands.some((c) => c.gw === targetNextGW)) topCands.push(targetCand);
+
+    for (const bb of topCands) {
+      usedGws.add(bb.gw);
+      currentAssignment.set('BB', {
+        key: 'BB',
+        gw: bb.gw,
+        gain: bb.gain,
+        scheduleValue: bb.scheduleValue,
+        bbInfo: bb,
+      });
+      searchTc(wcChoice, sumVal + bb.scheduleValue, countPlaced + 1, earliness - bb.gw);
+      currentAssignment.delete('BB');
+      usedGws.delete(bb.gw);
     }
 
-    if (!placedAny || schedulableKeys.length > gwRange.length) {
-      searchSchedule(idx + 1, countPlaced, sumGain, earliness);
-    }
+    // Explicit Hold option for BB
+    searchTc(wcChoice, sumVal, countPlaced, earliness);
   };
 
-  searchSchedule(0, 0, 0, 0);
+  const searchFh = (
+    wcChoice: WcGwInfo | null,
+    sumVal: number,
+    countPlaced: number,
+    earliness: number
+  ) => {
+    if (!hasFhAvail) {
+      searchBb(wcChoice, sumVal, countPlaced, earliness);
+      return;
+    }
 
-  let activeChipAtTarget: { key: ChipKey; name: string; short: string; gain: number } | null = null;
+    const cands: FhGwInfo[] = [];
+    for (const g of gwRange) {
+      if (usedGws.has(g)) continue;
+      if (wcChoice?.variant === 'bb_next' && g === wcChoice.gw + 1) continue;
+      const simG = scoutChipSetSimByGw.get(g);
+      if (!simG || simG.fhSquad15.length === 0) continue;
+      const info =
+        wcChoice && g > wcChoice.gw
+          ? evalFhAtGw(wcChoice.squad15, wcChoice.squadKey, simG.fhSquad15, g)
+          : fhPreWcByGw.get(g);
+      if (info && info.eligible) cands.push(info);
+    }
+    cands.sort((a, b) => b.scheduleValue - a.scheduleValue || a.gw - b.gw);
+    const topCands = cands.slice(0, 5);
+    const targetCand = cands.find((c) => c.gw === targetNextGW);
+    if (targetCand && !topCands.some((c) => c.gw === targetNextGW)) topCands.push(targetCand);
+
+    for (const fh of topCands) {
+      usedGws.add(fh.gw);
+      currentAssignment.set('FH', {
+        key: 'FH',
+        gw: fh.gw,
+        gain: fh.gain,
+        scheduleValue: fh.scheduleValue,
+        fhInfo: fh,
+      });
+      searchBb(wcChoice, sumVal + fh.scheduleValue, countPlaced + 1, earliness - fh.gw);
+      currentAssignment.delete('FH');
+      usedGws.delete(fh.gw);
+    }
+
+    // Explicit Hold option for FH
+    searchBb(wcChoice, sumVal, countPlaced, earliness);
+  };
+
+  if (hasWcAvail) {
+    for (const wc of wcCandidates) {
+      usedGws.add(wc.gw);
+      currentAssignment.set('WC', {
+        key: 'WC',
+        gw: wc.gw,
+        gain: wc.gain,
+        scheduleValue: wc.discountedGain,
+        wcVariant: wc.variant,
+        wcInfo: wc,
+      });
+      searchFh(wc, wc.discountedGain, 1, -wc.gw);
+      currentAssignment.delete('WC');
+      usedGws.delete(wc.gw);
+    }
+  }
+  // Explicit Hold option for WC (or start directly when WC already used)
+  searchFh(null, 0, 0, 0);
+
+  let activeChipAtTarget: ScheduledChipPlacement | null = null;
   for (const chip of availableChips) {
     const assigned = bestAssignment.get(chip.key);
     if (assigned && assigned.gw === targetNextGW) {
-      activeChipAtTarget = {
-        key: chip.key,
-        name: chip.name,
-        short: chip.short,
-        gain: assigned.gain,
-      };
+      activeChipAtTarget = assigned;
       break;
+    }
+  }
+
+  // Detect consecutive WC -> BB / TC sequential plan when WC is recommended at targetNextGW
+  const winningWc = bestAssignment.get('WC');
+  const activeWcContext = winningWc?.wcInfo || null;
+  let comboPlan: ServerScoutChipsAnalysis['comboPlan'] = undefined;
+  if (activeChipAtTarget?.key === 'WC' && activeWcContext) {
+    const bbAssigned = bestAssignment.get('BB');
+    const tcAssigned = bestAssignment.get('TC');
+    const nextSequential =
+      bbAssigned && bbAssigned.gw === targetNextGW + 1
+        ? { key: 'BB' as const, name: 'Bench Boost', item: bbAssigned }
+        : tcAssigned && tcAssigned.gw === targetNextGW + 1
+        ? { key: 'TC' as const, name: 'Triple Captain', item: tcAssigned }
+        : bbAssigned && bbAssigned.gw === targetNextGW + 2
+        ? { key: 'BB' as const, name: 'Bench Boost', item: bbAssigned }
+        : tcAssigned && tcAssigned.gw === targetNextGW + 2
+        ? { key: 'TC' as const, name: 'Triple Captain', item: tcAssigned }
+        : null;
+    if (nextSequential) {
+      comboPlan = {
+        nextChipKey: nextSequential.key,
+        nextChipName: nextSequential.name,
+        nextGw: nextSequential.item.gw,
+        nextGain: nextSequential.item.gain,
+        combinedGain: round1(activeChipAtTarget.scheduleValue + nextSequential.item.scheduleValue),
+      };
     }
   }
 
@@ -1481,123 +2211,196 @@ export function computeServerChipsAnalysis(params: {
     ? 'the second half of the season (GW 20–38)'
     : 'the first half of the season (GW 1–19)';
 
-  const chipParagraphs: ScoutEditorialParagraph[] = [];
-  const futureChipSummaries: string[] = [];
+  const rawChipParagraphs: Array<ScoutEditorialParagraph & { sortGw: number; peakGw: number }> = [];
+  const rawFutureChipSummaries: Array<{ label: string; gw: number }> = [];
 
   for (const chip of availableChips) {
     const assigned = bestAssignment.get(chip.key) || null;
-    const peak = allPeakByChip.get(chip.key) || null;
     const isNow = assigned?.gw === targetNextGW;
 
     if (chip.key === 'TC') {
-      const cur = tcByGw.get(targetNextGW);
-      const optGw = assigned?.gw ?? peak?.gw ?? null;
-      const opt = optGw ? tcByGw.get(optGw) : undefined;
+      const cur = tcPreWcByGw.get(targetNextGW);
+      const rawSorted = Array.from(tcPreWcByGw.values()).sort(
+        (a, b) => b.scheduleValue - a.scheduleValue || a.gw - b.gw
+      );
+      const peak = rawSorted[0] || null;
+      const opt = assigned?.tcInfo || null;
       const curGain = cur?.gain ?? 0;
-      const optGain = opt?.gain ?? 0;
-      if (opt && !isNow && optGain > 0) futureChipSummaries.push(`Triple Captain (GW ${opt.gw})`);
+      const postWcNote =
+        opt && activeWcContext && opt.gw > activeWcContext.gw
+          ? isId
+            ? ` (memaksimalkan target kapten baru pasca-Wildcard GW ${activeWcContext.gw})`
+            : ` (captaining your upgraded post-Wildcard GW ${activeWcContext.gw} squad)`
+          : '';
+
+      if (opt && !isNow) rawFutureChipSummaries.push({ label: `Triple Captain (GW ${opt.gw})`, gw: opt.gw });
 
       const clashClause =
-        peak && assigned && peak.gw !== assigned.gw
+        !isNow && opt && peak && peak.gw !== opt.gw && peak.eligible
           ? isId
             ? ` Meski GW ${peak.gw} juga menyentuh ${fmt(peak.gain)} xP, slot pekan itu lebih maksimal dipakai oleh chip lain.`
             : ` While GW ${peak.gw} reaches ${fmt(peak.gain)} xP, that week delivers greater overall value with another chip.`
           : '';
 
-      const text =
-        opt && optGain > 0
-          ? isNow
-            ? isId
-              ? `layak langsung diarahkan kepada ${opt.playerName} saat menghadapi ${opt.opp} di GW ${opt.gw}. Proyeksi ${fmt(opt.gain)} xP miliknya merupakan potensi kapten tertinggi skuad Anda hingga GW ${halfEndGW}, menjadikannya momen paling meyakinkan untuk memaksimalkan ban kapten tiga kali lipat.${clashClause}`
-              : `stands out for ${opt.playerName} against ${opt.opp} in GW ${opt.gw}. His ${fmt(opt.gain)} xP projection is your squad's strongest single-week captain ceiling through GW ${halfEndGW}.${clashClause}`
-            : isId
-            ? `lebih bijak disimpan hingga GW ${opt.gw}, saat ${opt.playerName} menjumpai ${opt.opp} dengan proyeksi puncak ${fmt(opt.gain)} xP — unggul di atas opsi terbaik Anda pekan ini, ${cur?.playerName || '-'} (${cur?.opp || '-'}, ${fmt(curGain)} xP).${clashClause}`
-            : `is better saved for GW ${opt.gw}, when ${opt.playerName} faces ${opt.opp} at a peak ${fmt(opt.gain)} xP — edging your top GW ${targetNextGW} option ${cur?.playerName || '-'} (${cur?.opp || '-'}, ${fmt(curGain)} xP).${clashClause}`
+      const text = opt
+        ? isNow
+          ? isId
+            ? `layak langsung diarahkan kepada ${opt.playerName} saat menghadapi ${opt.opp} di GW ${opt.gw}. Proyeksi +${fmt(opt.gain)} xP tambahannya${opt.isDgw ? ' pada Double Gameweek ini' : ''} merupakan peluang kapten paling meyakinkan hingga GW ${halfEndGW}.${clashClause}`
+            : `stands out for ${opt.playerName} against ${opt.opp} in GW ${opt.gw}. His +${fmt(opt.gain)} xP extra projection${opt.isDgw ? ' in this Double Gameweek' : ''} clears the value bar through GW ${halfEndGW}.${clashClause}`
           : isId
-          ? `belum menemukan kandidat kapten yang cukup menonjol di sisa ${setShortLabel}.`
-          : `lacks a standout captaincy ceiling across the rest of ${setShortLabelEn}.`;
+          ? `lebih bijak disimpan hingga GW ${opt.gw}, saat ${opt.playerName} menghadapi ${opt.opp} dengan proyeksi +${fmt(opt.gain)} xP${postWcNote} — unggul di atas opsi terbaik pekan ini, ${cur?.playerName || '-'} (${cur?.opp || '-'}, ${fmt(curGain)} xP).${clashClause}`
+          : `is better saved for GW ${opt.gw}, when ${opt.playerName} faces ${opt.opp} at +${fmt(opt.gain)} xP${postWcNote} — beating your GW ${targetNextGW} option ${cur?.playerName || '-'} (${cur?.opp || '-'}, ${fmt(curGain)} xP).${clashClause}`
+        : peak && peak.gain > 0
+        ? isId
+          ? `sebaiknya ditahan dulu di GW ${targetNextGW}. Kandidat terkuat sementara baru ${peak.playerName} di GW ${peak.gw} (${peak.opp}, ${fmt(peak.gain)} xP), yang belum cukup ekstrem untuk membakar Triple Captain selagi masih ada ${halfEndGW - targetNextGW} pekan menuju GW ${halfEndGW}.`
+          : `should be held for now. Your highest current projection is ${peak.playerName} in GW ${peak.gw} (${peak.opp}, ${fmt(peak.gain)} xP), which doesn't clear the threshold to spend Triple Captain with ${halfEndGW - targetNextGW} weeks left before GW ${halfEndGW}.`
+        : isId
+        ? `belum menemukan kandidat kapten yang cukup menonjol di sisa ${setShortLabel}.`
+        : `lacks a standout captaincy ceiling across the rest of ${setShortLabelEn}.`;
 
-      chipParagraphs.push({ chipKey: 'TC', chipLead: 'Triple Captain', text });
+      rawChipParagraphs.push({
+        chipKey: 'TC',
+        chipLead: 'Triple Captain',
+        text,
+        sortGw: opt ? opt.gw : Number.MAX_SAFE_INTEGER,
+        peakGw: peak?.gw ?? Number.MAX_SAFE_INTEGER,
+      });
     } else if (chip.key === 'BB') {
-      const cur = bbByGw.get(targetNextGW);
-      const optGw = assigned?.gw ?? peak?.gw ?? null;
-      const opt = optGw ? bbByGw.get(optGw) : undefined;
+      const cur = bbPreWcByGw.get(targetNextGW);
+      const rawSorted = Array.from(bbPreWcByGw.values()).sort(
+        (a, b) => b.scheduleValue - a.scheduleValue || a.gw - b.gw
+      );
+      const peak = rawSorted[0] || null;
+      const opt = assigned?.bbInfo || null;
       const curGain = cur?.gain ?? 0;
-      const optGain = opt?.gain ?? 0;
-      if (opt && !isNow && optGain > 0) futureChipSummaries.push(`Bench Boost (GW ${opt.gw})`);
+
+      if (opt && !isNow) rawFutureChipSummaries.push({ label: `Bench Boost (GW ${opt.gw})`, gw: opt.gw });
 
       const benchText = opt ? opt.benchDetails.map((b) => `${b.name} ${fmt(b.xp)}`).join(', ') : '';
+      const isPostWcCombo = Boolean(opt && activeWcContext && opt.gw > activeWcContext.gw);
+      const postWcLeadId =
+        activeWcContext?.variant === 'bb_next'
+          ? `disiapkan berurutan tepat sesudah Wildcard GW ${activeWcContext.gw}: ke-15 pemain skuad baru Anda siap tempur dengan total bangku ${fmt(opt?.gain || 0)} xP (${benchText})`
+          : activeWcContext
+          ? `berkolaborasi dengan skuad baru hasil Wildcard GW ${activeWcContext.gw}, membuat empat penghuni bangku memproyeksikan ${fmt(opt?.gain || 0)} xP (${benchText})`
+          : `mencapai ${fmt(opt?.gain || 0)} xP (${benchText})`;
+      const postWcLeadEn =
+        activeWcContext?.variant === 'bb_next'
+          ? `pairs sequentially right after your GW ${activeWcContext.gw} Wildcard, setting up a full 15-starter squad worth ${fmt(opt?.gain || 0)} xP on the bench (${benchText})`
+          : activeWcContext
+          ? `benefits from your upgraded GW ${activeWcContext.gw} Wildcard squad, lifting bench output to ${fmt(opt?.gain || 0)} xP (${benchText})`
+          : `combines for ${fmt(opt?.gain || 0)} xP (${benchText})`;
+
       const clashClause =
-        peak && assigned && peak.gw !== assigned.gw
+        !isNow && opt && peak && peak.gw !== opt.gw && peak.eligible && !isPostWcCombo
           ? isId
             ? ` Pekan GW ${peak.gw} sebenarnya menyentuh ${fmt(peak.gain)} xP, tetapi dialihkan agar tidak bertabrakan dengan jadwal chip lain.`
             : ` GW ${peak.gw} hits ${fmt(peak.gain)} xP, but yields that slot to maximize combined chip-set points.`
           : '';
 
-      const text =
-        opt && optGain > 0
-          ? isNow
-            ? isId
-              ? `menemukan pekan idealnya sekarang. Keempat penghuni bangku cadangan Anda aktif menyumbang poin dengan total ${fmt(opt.gain)} xP (${benchText}) — kedalaman bangku terkuat hingga GW ${halfEndGW}.${clashClause}`
-              : `hits its sweet spot right now, with all four bench spots combining for ${fmt(opt.gain)} xP (${benchText}) — your deepest bench return through GW ${halfEndGW}.${clashClause}`
-            : isId
-            ? `belum cukup padat pekan ini karena empat pemain cadangan Anda baru memproyeksikan ${fmt(curGain)} xP. Momen terkuatnya baru hadir di GW ${opt.gw}, ketika kuartet cadangan (${benchText}) secara kolektif mencapai ${fmt(opt.gain)} xP.${clashClause}`
-            : `can stay on ice this week with your bench projecting just ${fmt(curGain)} xP. Its peak arrives in GW ${opt.gw}, when your four bench players (${benchText}) combine for ${fmt(opt.gain)} xP.${clashClause}`
+      const text = opt
+        ? isNow
+          ? isId
+            ? `menemukan pekan idealnya sekarang. Bangku cadangan Anda aktif menyumbang poin dengan total ${fmt(opt.gain)} xP (${benchText}) — kedalaman bangku terkuat hingga GW ${halfEndGW}.${clashClause}`
+            : `hits its sweet spot right now, with your bench combining for ${fmt(opt.gain)} xP (${benchText}) — your strongest bench return through GW ${halfEndGW}.${clashClause}`
           : isId
-          ? `belum layak diaktifkan karena proyeksi poin bangku cadangan masih 0.0 xP.`
-          : `offers no return yet with bench projections sitting at 0.0 xP.`;
+          ? `belum perlu dipakai pekan ini karena bangku cadangan saat ini baru memproyeksikan ${fmt(curGain)} xP. Momen terbaiknya hadir di GW ${opt.gw}, saat kuartet bangku ${postWcLeadId}.${clashClause}`
+          : `can wait this week with your current bench projecting ${fmt(curGain)} xP. Its ideal window lands in GW ${opt.gw}, where it ${postWcLeadEn}.${clashClause}`
+        : peak && peak.gain > 0
+        ? isId
+          ? `sebaiknya tetap disimpan karena proyeksi bangku terbaik skuad saat ini baru ${fmt(peak.gain)} xP di GW ${peak.gw} — belum cukup tinggi untuk mengorbankan chip selagi masih tersisa ${halfEndGW - targetNextGW} pekan menuju GW ${halfEndGW}.`
+          : `should be saved for now: your current squad's highest bench outlook is only ${fmt(peak.gain)} xP in GW ${peak.gw}, below the threshold with ${halfEndGW - targetNextGW} weeks left before GW ${halfEndGW}.`
+        : isId
+        ? `belum layak diaktifkan karena proyeksi poin bangku cadangan masih 0.0 xP.`
+        : `offers no return yet with bench projections sitting at 0.0 xP.`;
 
-      chipParagraphs.push({ chipKey: 'BB', chipLead: 'Bench Boost', text });
+      rawChipParagraphs.push({
+        chipKey: 'BB',
+        chipLead: 'Bench Boost',
+        text,
+        sortGw: opt ? opt.gw : Number.MAX_SAFE_INTEGER,
+        peakGw: peak?.gw ?? Number.MAX_SAFE_INTEGER,
+      });
     } else if (chip.key === 'FH') {
-      const cur = fhByGw.get(targetNextGW);
-      const optGw = assigned?.gw ?? (peak && peak.gain > 0 ? peak.gw : null);
-      const opt = optGw ? fhByGw.get(optGw) : undefined;
+      const cur = fhPreWcByGw.get(targetNextGW);
+      const rawSorted = Array.from(fhPreWcByGw.values()).sort(
+        (a, b) => b.scheduleValue - a.scheduleValue || a.gw - b.gw
+      );
+      const peak = rawSorted[0] || null;
+      const opt = assigned?.fhInfo || null;
       const curGain = cur?.gain ?? 0;
-      const optGain = opt?.gain ?? 0;
-      if (opt && !isNow && optGain > 0) futureChipSummaries.push(`Free Hit (GW ${opt.gw})`);
+
+      if (opt && !isNow) rawFutureChipSummaries.push({ label: `Free Hit (GW ${opt.gw})`, gw: opt.gw });
 
       const diffStr = opt?.diffNames.length ? opt.diffNames.join(', ') : '-';
       const clashClause =
-        peak && assigned && peak.gw !== assigned.gw
+        !isNow && opt && peak && peak.gw !== opt.gw && peak.eligible
           ? isId
             ? ` GW ${peak.gw} sempat mencatat +${fmt(peak.gain)} xP, namun digeser demi memaksimalkan perolehan total seluruh chip.`
             : ` GW ${peak.gw} showed +${fmt(peak.gain)} xP, shifted to maximize overall chip-set gains.`
           : '';
 
-      const text =
-        opt && optGain > 0
-          ? isNow
-            ? isId
-              ? `memberi lompatan instan di GW ${opt.gw}, mengangkat proyeksi Starting XI plus kapten dari ${fmt(opt.teamScore)} xP menjadi ${fmt(opt.fhScore)} xP (+${fmt(opt.gain)} xP). Kehadiran pembeda seperti ${diffStr} menutup celah jadwal skuad saat ini.${clashClause}`
-              : `provides an immediate GW ${opt.gw} surge, lifting your best XI plus captain from ${fmt(opt.teamScore)} xP to ${fmt(opt.fhScore)} xP (+${fmt(opt.gain)} xP) behind key picks like ${diffStr}.${clashClause}`
-            : isId
-            ? `belum perlu tergesa-gesa dipakai pekan ini karena selisihnya baru ${fmtSigned(curGain)} xP (${fmt(cur?.fhScore || 0)} vs ${fmt(cur?.teamScore || 0)} xP). Lonjakan terbaiknya muncul di GW ${opt.gw}, di mana skuad bebas transfer mampu mendongkrak perolehan dari ${fmt(opt.teamScore)} menjadi ${fmt(opt.fhScore)} xP (+${fmt(opt.gain)} xP) berkat masuknya ${diffStr}.${clashClause}`
-            : `can wait with GW ${targetNextGW} offering only ${fmtSigned(curGain)} xP (${fmt(cur?.fhScore || 0)} vs ${fmt(cur?.teamScore || 0)} xP). The real swing lands in GW ${opt.gw}, lifting your XI plus captain from ${fmt(opt.teamScore)} to ${fmt(opt.fhScore)} xP (+${fmt(opt.gain)} xP) via ${diffStr}.${clashClause}`
+      const text = opt
+        ? isNow
+          ? isId
+            ? `memberi lompatan instan di GW ${opt.gw}, mengangkat proyeksi Starting XI plus kapten dari ${fmt(opt.teamScore)} xP menjadi ${fmt(opt.fhScore)} xP (+${fmt(opt.gain)} xP). Kehadiran pembeda seperti ${diffStr} menutup celah jadwal skuad saat ini.${clashClause}`
+            : `provides an immediate GW ${opt.gw} surge, lifting your best XI plus captain from ${fmt(opt.teamScore)} xP to ${fmt(opt.fhScore)} xP (+${fmt(opt.gain)} xP) behind key picks like ${diffStr}.${clashClause}`
           : isId
-          ? `juga belum mendesak di sisa ${setShortLabel} karena kerangka XI Anda saat ini sudah mampu menandingi komposisi bebas transfer (selisih terbaik hanya ${peak ? `${fmtSigned(peak.gain)} xP di GW ${peak.gw}` : '0.0 xP'}).`
-          : `isn't needed across ${setShortLabelEn} as your current XI already holds its own against a one-week rebuild (best delta: ${peak ? `${fmtSigned(peak.gain)} xP in GW ${peak.gw}` : '0.0 xP'}).`;
+          ? `belum perlu tergesa-gesa dipakai pekan ini karena selisihnya baru ${fmtSigned(curGain)} xP (${fmt(cur?.fhScore || 0)} vs ${fmt(cur?.teamScore || 0)} xP). Lonjakan nyatanya muncul di GW ${opt.gw}, mendongkrak proyeksi dari ${fmt(opt.teamScore)} menjadi ${fmt(opt.fhScore)} xP (+${fmt(opt.gain)} xP) lewat ${diffStr}.${clashClause}`
+          : `can wait with GW ${targetNextGW} offering only ${fmtSigned(curGain)} xP (${fmt(cur?.fhScore || 0)} vs ${fmt(cur?.teamScore || 0)} xP). The real swing lands in GW ${opt.gw}, lifting your XI plus captain from ${fmt(opt.teamScore)} to ${fmt(opt.fhScore)} xP (+${fmt(opt.gain)} xP) via ${diffStr}.${clashClause}`
+        : isId
+        ? `sebaiknya ditahan untuk Blank/Double Gameweek atau situasi darurat skuad, karena selisih terbaik di pekan tersisa baru ${peak ? `${fmtSigned(peak.gain)} xP di GW ${peak.gw}` : '0.0 xP'} — terlalu tipis untuk membakar Free Hit.`
+        : `should be held for a Blank/Double Gameweek or injury crisis, as the best one-week delta ahead is only ${peak ? `${fmtSigned(peak.gain)} xP in GW ${peak.gw}` : '0.0 xP'} — too thin to spend Free Hit.`;
 
-      chipParagraphs.push({ chipKey: 'FH', chipLead: 'Free Hit', text });
+      rawChipParagraphs.push({
+        chipKey: 'FH',
+        chipLead: 'Free Hit',
+        text,
+        sortGw: opt ? opt.gw : Number.MAX_SAFE_INTEGER,
+        peakGw: peak?.gw ?? Number.MAX_SAFE_INTEGER,
+      });
     } else {
-      const cur = wcByGw.get(targetNextGW);
-      const optGw = assigned?.gw ?? (peak && peak.gain > 0 ? peak.gw : null);
-      const opt = optGw ? wcByGw.get(optGw) : undefined;
-      const allWcVals = Array.from(wcByGw.values());
-      const anyHeldOnly = allWcVals.length > 0 && allWcVals.every((v) => v.heldByFt || v.gain <= 0);
+      const cur = wcNormalByGw.get(targetNextGW);
+      const rawSorted = Array.from(wcNormalByGw.values()).sort(
+        (a, b) => b.discountedGain - a.discountedGain || a.gw - b.gw
+      );
+      const peak = rawSorted[0] || null;
+      const opt = assigned?.wcInfo || null;
       const curDiff = cur?.diffStarters ?? 0;
 
-      if (!opt || anyHeldOnly) {
-        const text = isId
-          ? `sebaiknya ditahan karena kerangka Starting XI Anda di seluruh pekan tersisa hanya terpaut ${curDiff} pemain dari komposisi idealnya — masih terjangkau dengan ${ftAllowance} Free Transfer yang dimiliki tanpa perlu menghabiskan chip.`
-          : `should be held since your Starting XI differs by only ${curDiff} players across candidate weeks — easily manageable with your ${ftAllowance} Free Transfers.`;
-        chipParagraphs.push({ chipKey: 'WC', chipLead: 'Wildcard', text });
+      if (!opt) {
+        const allHeldByFt =
+          rawSorted.length > 0 && rawSorted.every((v) => v.heldByFt || v.gain <= 0);
+        const text =
+          allHeldByFt || curDiff <= ftAllowance
+            ? isId
+              ? `sebaiknya ditahan karena kerangka Starting XI Anda hanya terpaut ${curDiff} pemain dari komposisi idealnya — masih terjangkau dengan ${ftAllowance} Free Transfer yang dimiliki tanpa perlu menghabiskan chip.`
+              : `should be held since your Starting XI differs by only ${curDiff} players — easily manageable with your ${ftAllowance} Free Transfers.`
+            : isId
+            ? `belum mendesak diaktifkan karena margin perombakan terbaiknya (${peak ? `+${fmt(peak.gain)} xP/GW di GW ${peak.gw}` : 'tipis'}) belum cukup lebar dibanding pemakaian Free Transfer bertahap.`
+            : `isn't urgent yet as the best rebuild margin (${peak ? `+${fmt(peak.gain)} xP/GW in GW ${peak.gw}` : 'marginal'}) doesn't clear the bar over rolling Free Transfers.`;
+        rawChipParagraphs.push({
+          chipKey: 'WC',
+          chipLead: 'Wildcard',
+          text,
+          sortGw: Number.MAX_SAFE_INTEGER,
+          peakGw: peak?.gw ?? Number.MAX_SAFE_INTEGER,
+        });
         continue;
       }
 
-      if (!isNow) futureChipSummaries.push(`Wildcard (GW ${opt.gw})`);
+      if (!isNow) rawFutureChipSummaries.push({ label: `Wildcard (GW ${opt.gw})`, gw: opt.gw });
       const keyAdds = opt.keyAdditions.length ? opt.keyAdditions.join(', ') : '-';
+      const seqNoteId =
+        isNow && comboPlan
+          ? ` Sekaligus, perombakan ini menyiapkan skuad penuh untuk mengaktifkan ${comboPlan.nextChipName} di GW ${comboPlan.nextGw} (+${fmt(comboPlan.nextGain)} xP).`
+          : '';
+      const seqNoteEn =
+        isNow && comboPlan
+          ? ` Crucially, this rebuild also primes your squad for a consecutive ${comboPlan.nextChipName} in GW ${comboPlan.nextGw} (+${fmt(comboPlan.nextGain)} xP).`
+          : '';
       const clashClause =
-        peak && assigned && peak.gw !== assigned.gw
+        !isNow && peak && peak.gw !== opt.gw && peak.eligible
           ? isId
             ? ` Jendela GW ${peak.gw} sebenarnya memproyeksikan +${fmt(peak.gain)} xP/GW, namun pekan tersebut diprioritaskan untuk chip lain.`
             : ` GW ${peak.gw} projected +${fmt(peak.gain)} xP/GW, but that week is reserved for another chip.`
@@ -1606,8 +2409,8 @@ export function computeServerChipsAnalysis(params: {
       let text = '';
       if (isNow) {
         text = isId
-          ? `paling masuk akal diaktifkan di GW ${opt.gw} untuk merombak struktur tim menghadapi rentang GW ${opt.gw}–${opt.horizonEnd}. Ada ${opt.diffStarters} perubahan pada Starting XI terbaik yang melampaui jangkauan ${ftAllowance} Free Transfer saat ini, dengan tambahan rata-rata +${fmt(opt.gain)} xP per pekan lewat pilar seperti ${keyAdds}.${clashClause}`
-          : `makes sense now in GW ${opt.gw} to reshape your core for GW ${opt.gw}–${opt.horizonEnd}. With ${opt.diffStarters} Starting XI upgrades beyond your ${ftAllowance} Free Transfers, it adds +${fmt(opt.gain)} xP per week behind targets like ${keyAdds}.${clashClause}`;
+          ? `paling masuk akal diaktifkan di GW ${opt.gw} untuk merombak struktur tim menghadapi rentang GW ${opt.gw}–${opt.horizonEnd}. Ada ${opt.diffStarters} perubahan pada Starting XI terbaik yang melampaui jangkauan ${ftAllowance} Free Transfer saat ini, dengan tambahan rata-rata +${fmt(opt.gain)} xP per pekan lewat pilar seperti ${keyAdds}.${seqNoteId}${clashClause}`
+          : `makes sense now in GW ${opt.gw} to reshape your core for GW ${opt.gw}–${opt.horizonEnd}. With ${opt.diffStarters} Starting XI upgrades beyond your ${ftAllowance} Free Transfers, it adds +${fmt(opt.gain)} xP per week behind targets like ${keyAdds}.${seqNoteEn}${clashClause}`;
       } else if (cur?.heldByFt) {
         text = isId
           ? `belum perlu disentuh di GW ${targetNextGW} karena perbedaan Starting XI terbaiknya hanya ${cur.diffStarters} pemain — masih sanggup dibereskan dengan ${ftAllowance} Free Transfer yang Anda pegang. Perombakan menyeluruh baru terasa dampaknya mulai GW ${opt.gw} (horizon GW ${opt.gw}–${opt.horizonEnd}) dengan ${opt.diffStarters} perubahan XI dan dorongan rata-rata +${fmt(opt.gain)} xP per pekan lewat ${keyAdds}.${clashClause}`
@@ -1618,9 +2421,23 @@ export function computeServerChipsAnalysis(params: {
           : `offers ${cur ? `+${fmt(cur.gain)}` : '+0.0'} xP/GW now, yet GW ${opt.gw}–${opt.horizonEnd} delivers a stronger +${fmt(opt.gain)} xP/GW lift across ${opt.diffStarters} XI changes featuring ${keyAdds}.${clashClause}`;
       }
 
-      chipParagraphs.push({ chipKey: 'WC', chipLead: 'Wildcard', text });
+      rawChipParagraphs.push({
+        chipKey: 'WC',
+        chipLead: 'Wildcard',
+        text,
+        sortGw: opt.gw,
+        peakGw: peak?.gw ?? Number.MAX_SAFE_INTEGER,
+      });
     }
   }
+
+  rawChipParagraphs.sort((a, b) => a.sortGw - b.sortGw || a.peakGw - b.peakGw);
+  const chipParagraphs: ScoutEditorialParagraph[] = rawChipParagraphs.map(
+    ({ chipKey, chipLead, text }) => ({ chipKey, chipLead, text })
+  );
+
+  rawFutureChipSummaries.sort((a, b) => a.gw - b.gw);
+  const futureChipSummaries = rawFutureChipSummaries.map((item) => item.label);
 
   const joinNatural = (items: string[]) => {
     if (items.length <= 1) return items[0] || '';
@@ -1632,24 +2449,41 @@ export function computeServerChipsAnalysis(params: {
 
   const availListText = joinNatural(availableChips.map((c) => c.name));
   const futureChipText = joinNatural(futureChipSummaries);
+  const chipNameByKey: Record<ChipKey, string> = {
+    WC: 'Wildcard',
+    TC: 'Triple Captain',
+    BB: 'Bench Boost',
+    FH: 'Free Hit',
+  };
+  const activeChipName = activeChipAtTarget ? chipNameByKey[activeChipAtTarget.key] : null;
   let openingNarrative = '';
-  if (activeChipAtTarget) {
-    const restFutureText = futureChipSummaries.length
+  if (activeChipAtTarget && activeChipName) {
+    const comboClauseId = comboPlan
+      ? ` Strategi ini sekaligus menyiapkan skuad untuk lanjut mengaktifkan ${comboPlan.nextChipName} di GW ${comboPlan.nextGw} (+${fmt(comboPlan.nextGain)} xP).`
+      : '';
+    const comboClauseEn = comboPlan
+      ? ` This also sets up a sequential ${comboPlan.nextChipName} in GW ${comboPlan.nextGw} (+${fmt(comboPlan.nextGain)} xP).`
+      : '';
+    const remainingFuture = futureChipSummaries.filter(
+      (s) => !comboPlan || !s.startsWith(`${comboPlan.nextChipName} (GW ${comboPlan.nextGw})`)
+    );
+    const remainingFutureText = joinNatural(remainingFuture);
+    const restFutureText = remainingFuture.length
       ? isId
-        ? ` Sisa chip lainnya paling ideal disimpan untuk ${futureChipText}.`
-        : ` Your other remaining chips line up best at ${futureChipText}.`
+        ? ` Sisa chip lainnya paling ideal disimpan untuk ${remainingFutureText}.`
+        : ` Your other remaining chips line up best at ${remainingFutureText}.`
       : '';
     openingNarrative = isId
-      ? `GW ${targetNextGW} menjadi titik paling menguntungkan untuk mengaktifkan ${activeChipAtTarget.name} (+${fmt(activeChipAtTarget.gain)} xP${activeChipAtTarget.key === 'WC' ? '/GW' : ''}) di sisa ${setShortLabel}, mempertimbangkan ${availableChips.length} chip yang masih Anda pegang (${availListText}).${restFutureText}`
-      : `GW ${targetNextGW} stands out as the prime week to play ${activeChipAtTarget.name} (+${fmt(activeChipAtTarget.gain)} xP${activeChipAtTarget.key === 'WC' ? '/GW' : ''}) across the rest of ${setShortLabelEn}, factoring in your remaining chips (${availListText}).${restFutureText}`;
+      ? `GW ${targetNextGW} menjadi titik paling menguntungkan untuk mengaktifkan ${activeChipName} (+${fmt(activeChipAtTarget.gain)} xP${activeChipAtTarget.key === 'WC' ? '/GW' : ''}) di sisa ${setShortLabel}, mempertimbangkan ${availableChips.length} chip yang masih Anda pegang (${availListText}).${comboClauseId}${restFutureText}`
+      : `GW ${targetNextGW} stands out as the prime week to play ${activeChipName} (+${fmt(activeChipAtTarget.gain)} xP${activeChipAtTarget.key === 'WC' ? '/GW' : ''}) across the rest of ${setShortLabelEn}, factoring in your remaining chips (${availListText}).${comboClauseEn}${restFutureText}`;
   } else {
     const waitWindowText = futureChipSummaries.length
       ? isId
-        ? ` Untuk ${availableChips.length} chip yang masih tersedia (${availListText}), jendela terbaiknya justru jatuh di pekan-pekan mendatang (${futureChipText}).`
+        ? ` Untuk ${availableChips.length} chip yang masih tersedia (${availListText}), jendela terbaiknya baru muncul di pekan mendatang (${futureChipText}).`
         : ` Across your available chips (${availListText}), stronger peaks arrive later in the set (${futureChipText}).`
       : isId
-      ? ` Tidak satu pun dari chip yang tersisa (${availListText}) memberi nilai tambah berarti di GW ${targetNextGW}.`
-      : ` None of your remaining chips (${availListText}) deliver enough upside in GW ${targetNextGW}.`;
+      ? ` Belum ada satu pun dari chip yang tersisa (${availListText}) yang menembus ambang nilai optimal di GW ${targetNextGW}.`
+      : ` None of your remaining chips (${availListText}) clear the value threshold in GW ${targetNextGW}.`;
     openingNarrative = isId
       ? `Belum ada alasan kuat untuk membakar chip di GW ${targetNextGW}.${waitWindowText} Langkah paling bijak pekan ini adalah menjaga amunisi chip dan memoles skuad lewat ${ftAllowance} Free Transfer yang Anda miliki.`
       : `There is no pressing reason to trigger a chip in GW ${targetNextGW}.${waitWindowText} Holding your chips and shaping the squad with your ${ftAllowance} Free Transfers is the smart play this week.`;
@@ -1661,7 +2495,7 @@ export function computeServerChipsAnalysis(params: {
 
   return {
     needChip: Boolean(activeChipAtTarget),
-    chipName: activeChipAtTarget ? activeChipAtTarget.name : null,
+    chipName: activeChipName,
     gain: activeChipAtTarget ? activeChipAtTarget.gain : 0,
     reason: activePlanText,
     chipSet,
@@ -1672,6 +2506,7 @@ export function computeServerChipsAnalysis(params: {
     openingNarrative,
     chipParagraphs,
     allUsed: false,
+    ...(comboPlan ? { comboPlan } : {}),
   };
 }
 
@@ -1685,6 +2520,7 @@ export function computeServerTransferAnalysis(params: {
   transferHorizon: 1 | 3 | 6;
   lang: 'id' | 'en';
   quantilesByPlayerGw?: Map<number, Map<number, number[]>>;
+  sellingPriceById?: Map<number, number>;
 }): ServerScoutTransferAnalysis {
   const {
     ctx,
@@ -1696,6 +2532,7 @@ export function computeServerTransferAnalysis(params: {
     transferHorizon,
     lang,
     quantilesByPlayerGw,
+    sellingPriceById,
   } = params;
   const isId = lang !== 'en';
   const { baseHistoricalGW, minFormingGW, maxFormingGW, targetNextGW, playerPool, playerPoolById, policy } = ctx;
@@ -1743,6 +2580,7 @@ export function computeServerTransferAnalysis(params: {
     horizonCount,
     policy,
     quantilesByPlayerGw,
+    sellingPriceById,
     maxHitDepth: 15,
     beamWidth: 10,
     candidateTopN: 18,
@@ -1752,7 +2590,7 @@ export function computeServerTransferAnalysis(params: {
     p: ServerScoutPoolPlayer,
     effXp1: number,
     effXpH: number,
-    flags?: { isOutStatus?: boolean; isBenchFodder?: boolean; isDoubt?: boolean }
+    flags?: { isOutStatus?: boolean; isBenchFodder?: boolean; isDoubt?: boolean; sellingPrice?: number }
   ) => {
     const sampleMins = Math.max(p.mins, 90);
     return {
@@ -1761,6 +2599,7 @@ export function computeServerTransferAnalysis(params: {
       isOutStatus: Boolean(flags?.isOutStatus),
       isBenchFodder: Boolean(flags?.isBenchFodder),
       isDoubt: Boolean(flags?.isDoubt),
+      sellingPrice: flags?.sellingPrice ?? round1(p.cost),
       effXp1,
       effXpH,
       horizonFixtures: (p.fixtures6 || []).slice(0, horizonCount),
@@ -1780,6 +2619,7 @@ export function computeServerTransferAnalysis(params: {
           isOutStatus: m.isOutStatusOut,
           isBenchFodder: m.isBenchFodderOut,
           isDoubt: m.isDoubtOut,
+          sellingPrice: m.sellingPriceOut ?? sellingPriceById?.get(outP.id) ?? round1(outP.cost),
         }),
         in: hydrateMoveSide(inP, m.effXp1In, m.effXpHIn),
         bankBefore: m.bankBefore,
@@ -1884,6 +2724,14 @@ export function computeServerTransferAnalysis(params: {
     bestState.moves.forEach((m, moveIdx) => {
       const outP = m.out.p;
       const inP = m.in.p;
+      const outSellPrice = m.out.sellingPrice;
+      const hasSellDiscount = outSellPrice < outP.cost - 0.05;
+      const outPriceMetaId = hasSellDiscount
+        ? `£${outP.cost.toFixed(1)}m, jual £${outSellPrice.toFixed(1)}m`
+        : `£${outP.cost.toFixed(1)}m`;
+      const outPriceMetaEn = hasSellDiscount
+        ? `£${outP.cost.toFixed(1)}m, sells £${outSellPrice.toFixed(1)}m`
+        : `£${outP.cost.toFixed(1)}m`;
       const xpDiff = round1(m.in.effXpH - m.out.effXpH);
       const outFixStr = formatFixturesText(m.out) || '-';
       const inFixStr = formatFixturesText(m.in) || '-';
@@ -1896,30 +2744,30 @@ export function computeServerTransferAnalysis(params: {
         const chanceId = outP.chanceOfPlaying !== null ? ` (${outP.chanceOfPlaying}% peluang main)` : '';
         const newsNote = outP.news ? ` — "${outP.news}"` : '';
         const outVariantsId = [
-          `Mengandalkan ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) terlalu berisiko setelah ia ${stTextId}${chanceId}${newsNote}, membuat proyeksinya mentok di ${m.out.effXpH.toFixed(1)} pts melawan ${outFixStr}.`,
-          `Kabar terbaru memaksa kita mencoret ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) yang sedang ${stTextId}${chanceId}${newsNote}; menghadapi ${outFixStr}, ekspektasi poinnya turun ke ${m.out.effXpH.toFixed(1)} pts.`,
-          `Slot ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) butuh penanganan cepat karena statusnya ${stTextId}${chanceId}${newsNote}, sehingga potensi poinnya hanya ${m.out.effXpH.toFixed(1)} pts pada laga ${outFixStr}.`,
+          `Mengandalkan ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) terlalu berisiko setelah ia ${stTextId}${chanceId}${newsNote}, membuat proyeksinya mentok di ${m.out.effXpH.toFixed(1)} pts melawan ${outFixStr}.`,
+          `Kabar terbaru memaksa kita mencoret ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) yang sedang ${stTextId}${chanceId}${newsNote}; menghadapi ${outFixStr}, ekspektasi poinnya turun ke ${m.out.effXpH.toFixed(1)} pts.`,
+          `Slot ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) butuh penanganan cepat karena statusnya ${stTextId}${chanceId}${newsNote}, sehingga potensi poinnya hanya ${m.out.effXpH.toFixed(1)} pts pada laga ${outFixStr}.`,
         ];
         const stTextEn = outP.status === 's' ? 'suspended' : outP.status === 'i' ? 'injured' : 'a major doubt';
         const chanceEn = outP.chanceOfPlaying !== null ? ` (${outP.chanceOfPlaying}% chance)` : '';
         const outVariantsEn = [
-          `Holding ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) carries too much risk while he is ${stTextEn}${chanceEn}${newsNote}, leaving him at just ${m.out.effXpH.toFixed(1)} pts against ${outFixStr}.`,
-          `Availability concerns force an exit for ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m), currently ${stTextEn}${chanceEn}${newsNote} with only ${m.out.effXpH.toFixed(1)} pts projected versus ${outFixStr}.`,
-          `${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) needs replacing immediately after being flagged ${stTextEn}${chanceEn}${newsNote}, capping his output at ${m.out.effXpH.toFixed(1)} pts against ${outFixStr}.`,
+          `Holding ${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) carries too much risk while he is ${stTextEn}${chanceEn}${newsNote}, leaving him at just ${m.out.effXpH.toFixed(1)} pts against ${outFixStr}.`,
+          `Availability concerns force an exit for ${outP.webName} (${outP.clubName}, ${outPriceMetaEn}), currently ${stTextEn}${chanceEn}${newsNote} with only ${m.out.effXpH.toFixed(1)} pts projected versus ${outFixStr}.`,
+          `${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) needs replacing immediately after being flagged ${stTextEn}${chanceEn}${newsNote}, capping his output at ${m.out.effXpH.toFixed(1)} pts against ${outFixStr}.`,
         ];
         const outIdx = (baseSeed + moveIdx) % outVariantsId.length;
         outSentenceId = outVariantsId[outIdx];
         outSentenceEn = outVariantsEn[outIdx];
       } else if (m.out.isBenchFodder) {
         const outVariantsId = [
-          `Slot ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) praktis menganggur karena baru mengumpulkan ${outP.mins} menit (${m.out.minsPerGw} mnt/GW, ${outP.starts} starter), dengan proyeksi hanya ${m.out.effXpH.toFixed(1)} pts saat meladeni ${outFixStr}.`,
-          `Minimnya jam terbang ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m)—cuma ${outP.mins} menit dari ${outP.starts} kali starter—membuat nilainya tertahan di ${m.out.effXpH.toFixed(1)} pts di laga ${outFixStr}.`,
-          `Mempertahankan ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) sulit memberi kontribusi nyata mengingat menit bermainnya baru ${outP.mins} mnt (rata-rata ${m.out.minsPerGw} mnt/GW) dan proyeksi ${m.out.effXpH.toFixed(1)} pts menghadapi ${outFixStr}.`,
+          `Slot ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) praktis menganggur karena baru mengumpulkan ${outP.mins} menit (${m.out.minsPerGw} mnt/GW, ${outP.starts} starter), dengan proyeksi hanya ${m.out.effXpH.toFixed(1)} pts saat meladeni ${outFixStr}.`,
+          `Minimnya jam terbang ${outP.webName} (${outP.clubName}, ${outPriceMetaId})—cuma ${outP.mins} menit dari ${outP.starts} kali starter—membuat nilainya tertahan di ${m.out.effXpH.toFixed(1)} pts di laga ${outFixStr}.`,
+          `Mempertahankan ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) sulit memberi kontribusi nyata mengingat menit bermainnya baru ${outP.mins} mnt (rata-rata ${m.out.minsPerGw} mnt/GW) dan proyeksi ${m.out.effXpH.toFixed(1)} pts menghadapi ${outFixStr}.`,
         ];
         const outVariantsEn = [
-          `${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) has become deadwood at just ${outP.mins} minutes (${m.out.minsPerGw}/GW, ${outP.starts} starts), projecting only ${m.out.effXpH.toFixed(1)} pts versus ${outFixStr}.`,
-          `Lack of pitch time makes ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) an easy sell—only ${outP.mins} mins across ${outP.starts} starts leaves him at ${m.out.effXpH.toFixed(1)} pts against ${outFixStr}.`,
-          `Keeping ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) wastes a squad spot while he sits on ${outP.mins} mins (${m.out.minsPerGw}/GW) and ${m.out.effXpH.toFixed(1)} projected pts for ${outFixStr}.`,
+          `${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) has become deadwood at just ${outP.mins} minutes (${m.out.minsPerGw}/GW, ${outP.starts} starts), projecting only ${m.out.effXpH.toFixed(1)} pts versus ${outFixStr}.`,
+          `Lack of pitch time makes ${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) an easy sell—only ${outP.mins} mins across ${outP.starts} starts leaves him at ${m.out.effXpH.toFixed(1)} pts against ${outFixStr}.`,
+          `Keeping ${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) wastes a squad spot while he sits on ${outP.mins} mins (${m.out.minsPerGw}/GW) and ${m.out.effXpH.toFixed(1)} projected pts for ${outFixStr}.`,
         ];
         const outIdx = (baseSeed + moveIdx) % outVariantsId.length;
         outSentenceId = outVariantsId[outIdx];
@@ -1927,12 +2775,12 @@ export function computeServerTransferAnalysis(params: {
       } else if (m.out.isDoubt) {
         const newsNote = outP.news ? `, "${outP.news}"` : '';
         const outVariantsId = [
-          `Status ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) yang masih abu-abu (${outP.chanceOfPlaying ?? 50}% peluang tampil${newsNote}) memangkas ekspektasinya menjadi ${m.out.effXpH.toFixed(1)} pts menghadapi ${outFixStr}.`,
-          `Dengan kondisi kebugaran ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) belum 100% (${outP.chanceOfPlaying ?? 50}%${newsNote}), proyeksi poinnya menyusut ke ${m.out.effXpH.toFixed(1)} pts melawan ${outFixStr}.`,
+          `Status ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) yang masih abu-abu (${outP.chanceOfPlaying ?? 50}% peluang tampil${newsNote}) memangkas ekspektasinya menjadi ${m.out.effXpH.toFixed(1)} pts menghadapi ${outFixStr}.`,
+          `Dengan kondisi kebugaran ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) belum 100% (${outP.chanceOfPlaying ?? 50}%${newsNote}), proyeksi poinnya menyusut ke ${m.out.effXpH.toFixed(1)} pts melawan ${outFixStr}.`,
         ];
         const outVariantsEn = [
-          `With ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) flagged doubtful (${outP.chanceOfPlaying ?? 50}% chance${newsNote}), his projection drops to ${m.out.effXpH.toFixed(1)} pts against ${outFixStr}.`,
-          `Fitness uncertainty around ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) (${outP.chanceOfPlaying ?? 50}%${newsNote}) pulls his expectation down to ${m.out.effXpH.toFixed(1)} pts versus ${outFixStr}.`,
+          `With ${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) flagged doubtful (${outP.chanceOfPlaying ?? 50}% chance${newsNote}), his projection drops to ${m.out.effXpH.toFixed(1)} pts against ${outFixStr}.`,
+          `Fitness uncertainty around ${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) (${outP.chanceOfPlaying ?? 50}%${newsNote}) pulls his expectation down to ${m.out.effXpH.toFixed(1)} pts versus ${outFixStr}.`,
         ];
         const outIdx = (baseSeed + moveIdx) % outVariantsId.length;
         outSentenceId = outVariantsId[outIdx];
@@ -1943,19 +2791,19 @@ export function computeServerTransferAnalysis(params: {
           ? `${outP.pts} pts, ${outP.cleanSheets} clean sheet, Form ${outP.form.toFixed(1)}`
           : `${outP.pts} pts (${outP.goals}G/${outP.assists}A), Form ${outP.form.toFixed(1)}, ${m.out.xGi90.toFixed(2)} xGI/90'`;
         const outVariantsId = [
-          `Meski ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) mengantongi ${outStatId}, lajunya tertahan jadwal ${outFixStr} yang cuma menjanjikan ${m.out.effXpH.toFixed(1)} pts sehingga dananya layak dialihkan.`,
-          `Melepas ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) memang tak mudah menilik catatan ${outStatId}, namun benturan lawan ${outFixStr} membatasi proyeksinya di ${m.out.effXpH.toFixed(1)} pts.`,
-          `Di atas kertas ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) cukup solid (${outStatId}), tetapi menghadapi ${outFixStr} plafon poinnya melandai ke ${m.out.effXpH.toFixed(1)} pts—membuka ruang untuk opsi yang lebih tajam.`,
-          `Dana £${outP.cost.toFixed(1)}m pada ${outP.webName} (${outP.clubName}) mulai kurang maksimal; kendati mencatat ${outStatId}, duel ${outFixStr} hanya memberinya proyeksi ${m.out.effXpH.toFixed(1)} pts.`,
+          `Meski ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) mengantongi ${outStatId}, lajunya tertahan jadwal ${outFixStr} yang cuma menjanjikan ${m.out.effXpH.toFixed(1)} pts sehingga dananya layak dialihkan.`,
+          `Melepas ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) memang tak mudah menilik catatan ${outStatId}, namun benturan lawan ${outFixStr} membatasi proyeksinya di ${m.out.effXpH.toFixed(1)} pts.`,
+          `Di atas kertas ${outP.webName} (${outP.clubName}, ${outPriceMetaId}) cukup solid (${outStatId}), tetapi menghadapi ${outFixStr} plafon poinnya melandai ke ${m.out.effXpH.toFixed(1)} pts—membuka ruang untuk opsi yang lebih tajam.`,
+          `Dana jual £${outSellPrice.toFixed(1)}m dari ${outP.webName} (${outP.clubName}) mulai kurang maksimal; kendati mencatat ${outStatId}, duel ${outFixStr} hanya memberinya proyeksi ${m.out.effXpH.toFixed(1)} pts.`,
         ];
         const outStatEn = isOutDef
           ? `${outP.pts} pts, ${outP.cleanSheets} clean sheets, Form ${outP.form.toFixed(1)}`
           : `${outP.pts} pts (${outP.goals}G/${outP.assists}A), Form ${outP.form.toFixed(1)}, ${m.out.xGi90.toFixed(2)} xGI/90'`;
         const outVariantsEn = [
-          `Although ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) holds ${outStatEn}, a tougher schedule (${outFixStr}) caps him at ${m.out.effXpH.toFixed(1)} pts and opens an upgrade route.`,
-          `Parting with ${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) comes despite ${outStatEn}, as ${outFixStr} suppresses his projection to ${m.out.effXpH.toFixed(1)} pts.`,
-          `${outP.webName} (${outP.clubName}, £${outP.cost.toFixed(1)}m) has delivered ${outStatEn}, yet ${outFixStr} limits his ceiling to ${m.out.effXpH.toFixed(1)} pts when better fixtures beckon elsewhere.`,
-          `Reallocating £${outP.cost.toFixed(1)}m from ${outP.webName} (${outP.clubName}, ${outStatEn}) makes tactical sense with ${outFixStr} yielding just ${m.out.effXpH.toFixed(1)} pts.`,
+          `Although ${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) holds ${outStatEn}, a tougher schedule (${outFixStr}) caps him at ${m.out.effXpH.toFixed(1)} pts and opens an upgrade route.`,
+          `Parting with ${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) comes despite ${outStatEn}, as ${outFixStr} suppresses his projection to ${m.out.effXpH.toFixed(1)} pts.`,
+          `${outP.webName} (${outP.clubName}, ${outPriceMetaEn}) has delivered ${outStatEn}, yet ${outFixStr} limits his ceiling to ${m.out.effXpH.toFixed(1)} pts when better fixtures beckon elsewhere.`,
+          `Reallocating £${outSellPrice.toFixed(1)}m from ${outP.webName} (${outP.clubName}, ${outStatEn}) makes tactical sense with ${outFixStr} yielding just ${m.out.effXpH.toFixed(1)} pts.`,
         ];
         const outIdx = (baseSeed + moveIdx) % outVariantsId.length;
         outSentenceId = outVariantsId[outIdx];
@@ -2056,6 +2904,7 @@ export function computeServerTransferAnalysis(params: {
       id: m.out.p.id,
       webName: m.out.p.webName,
       cost: m.out.p.cost,
+      sellingPrice: m.out.sellingPrice,
       effXpH: m.out.effXpH,
     },
     in: {

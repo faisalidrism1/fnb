@@ -274,6 +274,12 @@ export const Header: React.FC<HeaderProps> = ({
         isActive: adminSubTab === 'news-ticker',
       },
       {
+        id: 'mae',
+        label: t('subtab_review_mae'),
+        onClick: () => onSelectAdminSubTab?.('mae'),
+        isActive: adminSubTab === 'mae',
+      },
+      {
         id: 'line-up',
         label: t('subtab_projection_lineup'),
         onClick: () => onSelectAdminSubTab?.('line-up'),
@@ -290,12 +296,6 @@ export const Header: React.FC<HeaderProps> = ({
         label: t('subtab_projection_points'),
         onClick: () => onSelectAdminSubTab?.('points'),
         isActive: adminSubTab === 'points',
-      },
-      {
-        id: 'mae',
-        label: t('subtab_review_mae'),
-        onClick: () => onSelectAdminSubTab?.('mae'),
-        isActive: adminSubTab === 'mae',
       },
     ];
   }

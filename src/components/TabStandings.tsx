@@ -5,6 +5,7 @@ import {
   Medal,
   ArrowUpDown,
   Search,
+  AlarmClock,
 } from 'lucide-react';
 import {
   StandingsRow,
@@ -453,53 +454,62 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               </p>
 
               {/* 4 Countdown items: Days box putih dengan border ungu tua, boxes waktu ungu tua */}
-              <div className="flex items-center justify-center gap-2 sm:gap-3 pt-2">
-                {/* Days Box */}
-                <div className="flex flex-col items-center">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white dark:bg-[#1f0d38] text-[#37003c] dark:text-[#00ff87] rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c] dark:border-[#00ff87]/60">
-                    <span className="text-xl sm:text-2xl font-black font-mono tracking-tight text-[#37003c] dark:text-[#00ff87]">
-                      {days}
+              <div className="w-full grid grid-cols-[1fr_auto_1fr] items-start pt-2">
+                <div aria-hidden="true" />
+                <div className="flex items-center justify-center gap-2 sm:gap-3">
+                  {/* Days Box */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white dark:bg-[#1f0d38] text-[#37003c] dark:text-[#00ff87] rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c] dark:border-[#00ff87]/60">
+                      <span className="text-xl sm:text-2xl font-black font-mono tracking-tight text-[#37003c] dark:text-[#00ff87]">
+                        {days}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                      {t('countdown_days')}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    {t('countdown_days')}
-                  </span>
-                </div>
 
-                {/* Hours Box */}
-                <div className="flex flex-col items-center">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
-                    <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
-                      {padZero(hours)}
+                  {/* Hours Box */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
+                      <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
+                        {padZero(hours)}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                      {t('countdown_hours')}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    {t('countdown_hours')}
-                  </span>
-                </div>
 
-                {/* Minutes Box */}
-                <div className="flex flex-col items-center">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
-                    <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
-                      {padZero(minutes)}
+                  {/* Minutes Box */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
+                      <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
+                        {padZero(minutes)}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                      {t('countdown_minutes')}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    {t('countdown_minutes')}
-                  </span>
-                </div>
 
-                {/* Seconds Box */}
-                <div className="flex flex-col items-center">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
-                    <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
-                      {padZero(seconds)}
+                  {/* Seconds Box */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#37003c] text-white rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c]">
+                      <span className="text-xl sm:text-2xl font-black font-mono tracking-tight">
+                        {padZero(seconds)}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+                      {t('countdown_seconds')}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
-                    {t('countdown_seconds')}
-                  </span>
+                </div>
+                <div className="flex items-center justify-center h-14 sm:h-16">
+                  <AlarmClock
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-[#37003c] dark:text-[#00ff87] pointer-events-none"
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             </div>

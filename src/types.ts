@@ -902,8 +902,8 @@ export interface PlayerGwMatchDetail {
   isHome: boolean;
   kickoffTime?: string;
   xp: number;
-  baseXp: number;
-  spikeMod: number;
+  baseXp?: number;
+  spikeMod?: number;
   teamLambda?: number;
   oppLambda?: number;
   csProb?: number;
@@ -1056,16 +1056,19 @@ export interface ActualPlayerReviewStat {
   matchCount?: number;
 }
 
+export type ReviewSectionType = 'all' | 'score' | 'lineup' | 'points' | 'mae';
+
 export interface ServerReviewBundlePayload {
   epochKey: string;
   generatedAt: string;
+  section?: ReviewSectionType;
   maxReviewGW: number;
   lineupGw: number;
-  actualMatchLookup: Record<string, ActualMatchReviewEntry[]>;
-  actualPlayerStatsMap: Record<number, Record<number, ActualPlayerReviewStat>>;
-  lineupReviewPerClub: Record<string, any[]>;
-  lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number };
-  maeRecapRows: any[];
+  actualMatchLookup?: Record<string, ActualMatchReviewEntry[]>;
+  actualPlayerStatsMap?: Record<number, Record<number, ActualPlayerReviewStat>>;
+  lineupReviewPerClub?: Record<string, any[]>;
+  lineupGwSummary?: { playedClubs: number; totalHit: number; avgHit: number; pct: number };
+  maeRecapRows?: any[];
 }
 
 export interface ScoutPlayerCardItem {
@@ -1131,6 +1134,13 @@ export interface ServerScoutChipsAnalysis {
   openingNarrative: string;
   chipParagraphs: ScoutEditorialParagraph[];
   allUsed: boolean;
+  comboPlan?: {
+    nextChipKey: 'BB' | 'TC';
+    nextChipName: string;
+    nextGw: number;
+    nextGain: number;
+    combinedGain: number;
+  };
 }
 
 export interface ServerScoutTransferMove {
@@ -1138,6 +1148,7 @@ export interface ServerScoutTransferMove {
     id: number;
     webName: string;
     cost: number;
+    sellingPrice?: number;
     effXpH: number;
   };
   in: {
@@ -1260,12 +1271,16 @@ export interface ServerScoutSquadsPayload {
   targetNextGW: number;
   fhTarget: SolvedScoutSquadResult;
   wcTarget: SolvedScoutSquadResult;
-  chipSetByGw: Record<number, { fhSquadIds: number[]; wcSquadIds: number[] }>;
+  chipSetByGw: Record<number, { fhSquadIds: number[]; wcSquadIds: number[]; wcBbNextSquadIds?: number[] }>;
   captainPicks?: {
     id: ScoutArticlePickRenderedItem[];
     en: ScoutArticlePickRenderedItem[];
   };
   differentialPicks?: {
+    id: ScoutArticlePickRenderedItem[];
+    en: ScoutArticlePickRenderedItem[];
+  };
+  differentialPicksAll?: {
     id: ScoutArticlePickRenderedItem[];
     en: ScoutArticlePickRenderedItem[];
   };

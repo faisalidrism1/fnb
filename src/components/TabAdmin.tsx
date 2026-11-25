@@ -1325,7 +1325,7 @@ export const TabAdmin: React.FC<TabAdminProps> = ({
   const isReviewSubTab = REVIEW_SUBTABS.has(subTab);
   const [hasVisitedReview, setHasVisitedReview] = useState<boolean>(() => isReviewSubTab);
   const [lastReviewSubTab, setLastReviewSubTab] = useState<ReviewSubTab>(() =>
-    isReviewSubTab ? (subTab as ReviewSubTab) : 'line-up'
+    isReviewSubTab ? (subTab as ReviewSubTab) : 'mae'
   );
 
   useEffect(() => {

@@ -127,26 +127,6 @@
           "pulseId": 22043
         },
         {
-          "id": 461102,
-          "altIds": {
-            "opta": "p461102"
-          },
-          "name": {
-            "first": "Bobby",
-            "last": "Thomas",
-            "display": "Bobby Thomas"
-          },
-          "matchPosition": "D",
-          "info": {
-            "position": "D",
-            "positionInfo": "Centre Central Defender",
-            "shirtNum": 4
-          },
-          "captain": false,
-          "shirtNumber": 4,
-          "pulseId": 63836
-        },
-        {
           "id": 480457,
           "altIds": {
             "opta": "p480457"
@@ -165,6 +145,26 @@
           "captain": false,
           "shirtNumber": 5,
           "pulseId": 66304
+        },
+        {
+          "id": 461102,
+          "altIds": {
+            "opta": "p461102"
+          },
+          "name": {
+            "first": "Bobby",
+            "last": "Thomas",
+            "display": "Bobby Thomas"
+          },
+          "matchPosition": "D",
+          "info": {
+            "position": "D",
+            "positionInfo": "Centre Central Defender",
+            "shirtNum": 4
+          },
+          "captain": false,
+          "shirtNumber": 4,
+          "pulseId": 63836
         },
         {
           "id": 168144,
@@ -449,26 +449,6 @@
           "pulseId": 19694
         },
         {
-          "id": 196100,
-          "altIds": {
-            "opta": "p196100"
-          },
-          "name": {
-            "first": "Gustavo",
-            "last": "Hamer",
-            "display": "Gustavo Hamer"
-          },
-          "matchPosition": "M",
-          "info": {
-            "position": "M",
-            "positionInfo": "Central Midfielder",
-            "shirtNum": 38
-          },
-          "captain": false,
-          "shirtNumber": 38,
-          "pulseId": 20361
-        },
-        {
           "id": 627221,
           "altIds": {
             "opta": "p627221"
@@ -487,6 +467,26 @@
           "captain": false,
           "shirtNumber": 49,
           "pulseId": 337821
+        },
+        {
+          "id": 196100,
+          "altIds": {
+            "opta": "p196100"
+          },
+          "name": {
+            "first": "Gustavo",
+            "last": "Hamer",
+            "display": "Gustavo Hamer"
+          },
+          "matchPosition": "M",
+          "info": {
+            "position": "M",
+            "positionInfo": "Central Midfielder",
+            "shirtNum": 38
+          },
+          "captain": false,
+          "shirtNumber": 38,
+          "pulseId": 20361
         }
       ]
     },

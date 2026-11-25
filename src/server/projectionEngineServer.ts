@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { gzipSync } from 'node:zlib';
 import {
   TransformedLeagueData,
   DbPlayerStat,
@@ -17,6 +18,7 @@ import {
   ServerProjectionCorePayload,
   ActualMatchReviewEntry,
   ActualPlayerReviewStat,
+  ReviewSectionType,
   ServerReviewBundlePayload,
   ServerScoutSquadsPayload,
   ServerScoutManagerAnalysisPayload,
@@ -52,6 +54,7 @@ import {
   HybridTuneParams,
   PlayerFeaturesAtGw,
   buildHybridHistoryStore,
+  createHybridCalibrationMemo,
   predictHybridClubLineup,
   resolveCausalPlayerAvailability,
   selectCausalHybridParamsAndWeights,
@@ -71,6 +74,7 @@ import {
   fetchServerManagerFinances,
   hydrateSolvedSquadWithCards,
   resolveManagerAndSquadForScout,
+  resolveManagerSellingPrices,
 } from './scoutServerEngine.ts';
 import { getFplProvenStatus } from '../utils/fplProvenGuard.ts';
 import { ALL_SEASON_FIXTURES } from '../data/allSeasonFixtures.ts';
@@ -713,14 +717,23 @@ let inFlightCoreBuild: { epochKey: string; promise: Promise<CoreRuntimeContext> 
 let cachedScoutCoreContext: CoreRuntimeContext | null = null;
 let inFlightScoutCoreBuild: { epochKey: string; promise: Promise<CoreRuntimeContext> } | null = null;
 
+interface ReviewLookupsCache {
+  epochKey: string;
+  actualMatchLookup: Record<string, ActualMatchReviewEntry[]>;
+  actualPlayerStatsMap: Record<number, Record<number, ActualPlayerReviewStat>>;
+  lineupByGwCache: Map<number, { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number } }>;
+}
+
 interface ReviewBaseCache {
   epochKey: string;
   actualMatchLookup: Record<string, ActualMatchReviewEntry[]>;
   actualPlayerStatsMap: Record<number, Record<number, ActualPlayerReviewStat>>;
   maeRecapRows: any[];
-  lineupByGwCache: Map<number, { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: any }>;
+  lineupByGwCache: Map<number, { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number } }>;
 }
 
+let cachedReviewLookups: ReviewLookupsCache | null = null;
+let inFlightReviewLookupsBuild: { epochKey: string; promise: Promise<ReviewLookupsCache> } | null = null;
 let cachedReviewBase: ReviewBaseCache | null = null;
 let inFlightReviewBuild: { epochKey: string; promise: Promise<ReviewBaseCache> } | null = null;
 // Finished-GW MAE rows survive epoch bumps when GW <= N-1 and already Confirmed!
@@ -733,6 +746,16 @@ let cachedScoutContext: ServerScoutRuntimeContext | null = null;
 const MANAGER_ANALYSIS_CACHE_MAX = 150;
 const cachedManagerAnalysis = new Map<string, ServerScoutManagerAnalysisPayload>();
 const inFlightManagerAnalysis = new Map<string, Promise<ServerScoutManagerAnalysisPayload>>();
+
+interface SerializedResponseCache {
+  epochKey: string;
+  jsonBuffer: Buffer;
+  gzipBuffer: Buffer;
+}
+let cachedCoreClientBuffers: SerializedResponseCache | null = null;
+let cachedScoutSquadsBuffers: SerializedResponseCache | null = null;
+const REVIEW_BUFFER_CACHE_MAX = 60;
+const cachedReviewSectionBuffers = new Map<string, SerializedResponseCache>();
 
 export function hasProjectionCoreCache(): boolean {
   return cachedCoreContext !== null;
@@ -751,11 +774,16 @@ export function invalidateProjectionEngine(reason?: string): void {
   inFlightCoreBuild = null;
   cachedScoutCoreContext = null;
   inFlightScoutCoreBuild = null;
+  cachedReviewLookups = null;
+  inFlightReviewLookupsBuild = null;
   cachedReviewBase = null;
   inFlightReviewBuild = null;
   cachedScoutPayload = null;
   inFlightScoutBuild = null;
   cachedScoutContext = null;
+  cachedCoreClientBuffers = null;
+  cachedScoutSquadsBuffers = null;
+  cachedReviewSectionBuffers.clear();
   cachedManagerAnalysis.clear();
   inFlightManagerAnalysis.clear();
   clearScoutManagerFinanceCache();
@@ -774,10 +802,10 @@ export function warmProjectionEngineIfNeeded(cachedData: TransformedLeagueData |
     return;
   }
   const warmTask = coreWarm
-    ? getServerScoutSquads(cachedData, false)
-    : getOrBuildCoreContext(cachedData, false).then(
-        () => new Promise<void>((resolve) => setTimeout(resolve, 150))
-      ).then(() => getServerScoutSquads(cachedData, false));
+    ? getServerScoutSquadsBuffers(cachedData, false)
+    : getServerProjectionCoreClientBuffers(cachedData, false).then(() =>
+        getServerScoutSquadsBuffers(cachedData, false)
+      );
 
   warmTask
     .then(() => {
@@ -1719,6 +1747,7 @@ async function buildRuntimeCoreContext(
   );
 
   // 1A. Historical Walk-Forward Stage 1 (minFormingGW..baseHistoricalGW)
+  const hybridMemo = createHybridCalibrationMemo(minFormingGW);
   const calibByGw = new Map<number, { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> }>();
   const s1BridgeByGwClub = new Map<string, Stage1BridgeTeamStats>();
   const stage1ByGwClub = new Map<string, Stage1SnapshotForStage3>();
@@ -1766,7 +1795,8 @@ async function buildRuntimeCoreContext(
       pastSeasonMap,
       deadlines,
       gwTargetCutoffByClub,
-      minFormingGW
+      minFormingGW,
+      hybridMemo
     );
     await new Promise<void>((resolve) => setImmediate(resolve));
     calibByGw.set(gw, gwCalib);
@@ -1875,7 +1905,8 @@ async function buildRuntimeCoreContext(
     pastSeasonMap,
     deadlines,
     targetCutoffMsByClub,
-    minFormingGW
+    minFormingGW,
+    hybridMemo
   );
 
   const targetRateSnapshot = buildCausalClubPlayerRateSnapshot(
@@ -2573,6 +2604,72 @@ export async function getServerProjectionCore(
   return ctx.corePayload;
 }
 
+function serializeProjectionCoreForClient(
+  payload: ServerProjectionCorePayload
+): ServerProjectionCorePayload {
+  const maxReviewGW = payload.maxReviewGW;
+  const targetNextGW = payload.targetNextGW;
+  const slimPlayers: ProjectedPlayerCoreItem[] = payload.allPlayerFullSeasonProjections.map((p) => {
+    const slimMap: Record<number, PlayerGwProjectionCell> = {};
+    for (const [gwStr, cell] of Object.entries(p.fullSeasonPointsMap || {})) {
+      const gw = Number(gwStr);
+      const slimCell: PlayerGwProjectionCell = {
+        opp: cell.opp,
+        isHome: cell.isHome,
+        xp: cell.xp,
+        matchCount: cell.matchCount,
+      };
+      if (cell.isBlank) slimCell.isBlank = true;
+      if (cell.isDgw) slimCell.isDgw = true;
+      if (gw <= maxReviewGW) {
+        if (cell.baseXp !== undefined) slimCell.baseXp = cell.baseXp;
+        if (cell.spikeMod !== undefined) slimCell.spikeMod = cell.spikeMod;
+      }
+      if (gw >= targetNextGW && (cell.matchCount >= 2 || cell.isDgw) && Array.isArray(cell.matches)) {
+        slimCell.matches = cell.matches.map((m) => ({
+          oppShort: m.oppShort,
+          isHome: m.isHome,
+          xp: m.xp,
+        }));
+      }
+      slimMap[gw] = slimCell;
+    }
+    return {
+      ...p,
+      fullSeasonPointsMap: slimMap,
+    };
+  });
+
+  return {
+    ...payload,
+    allPlayerFullSeasonProjections: slimPlayers,
+  };
+}
+
+export async function getServerProjectionCoreClientBuffers(
+  cachedData: TransformedLeagueData,
+  force: boolean = false
+): Promise<SerializedResponseCache> {
+  const epoch = computeProjectionEpochInfo(cachedData);
+  if (!force && cachedCoreClientBuffers && cachedCoreClientBuffers.epochKey === epoch.epochKey) {
+    return cachedCoreClientBuffers;
+  }
+  const corePayload = await getServerProjectionCore(cachedData, force);
+  if (!force && cachedCoreClientBuffers && cachedCoreClientBuffers.epochKey === corePayload.epochKey) {
+    return cachedCoreClientBuffers;
+  }
+  const clientPayload = serializeProjectionCoreForClient(corePayload);
+  const jsonBuffer = Buffer.from(JSON.stringify({ success: true, data: clientPayload }), 'utf-8');
+  const gzipBuffer = gzipSync(jsonBuffer, { level: 6 });
+  const entry: SerializedResponseCache = {
+    epochKey: corePayload.epochKey,
+    jsonBuffer,
+    gzipBuffer,
+  };
+  cachedCoreClientBuffers = entry;
+  return entry;
+}
+
 // ============================================================================
 // REVIEW ENGINE: ACTUALS + LINEUP REVIEW + FULL MAE RECAP (SERVER CACHED)
 // ============================================================================
@@ -2731,35 +2828,19 @@ function buildLineupReviewForGw(
       const realPts = realGw ? realGw.pts : 0;
 
       let isAccuracyMatch = false;
-      let accuracyStatusLabel = '-';
-      let accuracyBadgeColor = 'bg-slate-500/10 text-slate-400 border-slate-500/20';
-
       if (isMatchPlayed) {
         if (role === 'starting') isAccuracyMatch = realStarted;
         else if (role === 'bench') isAccuracyMatch = realSub || realUnusedSub;
         else isAccuracyMatch = realNotInSquad;
-
-        if (isAccuracyMatch) {
-          accuracyStatusLabel = '✓';
-          accuracyBadgeColor = 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30';
-        } else {
-          accuracyStatusLabel = '✗';
-          accuracyBadgeColor = 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/30';
-        }
       }
 
       return {
         id: p.id,
         webName: p.webName,
-        fullName: p.fullName,
         position: p.position as PositionType,
         shirtNum: (p as any).shirtNum || 0,
-        nowCost: (p.nowCost || 50) / 10,
-        status: av.status,
         role,
         si: siVal,
-        projectedFormation,
-        actualFormation,
         isMatchPlayed,
         realStarted,
         realSub,
@@ -2768,8 +2849,6 @@ function buildLineupReviewForGw(
         realMins,
         realPts,
         isAccuracyMatch,
-        accuracyStatusLabel,
-        accuracyBadgeColor,
       };
     });
 
@@ -2780,6 +2859,12 @@ function buildLineupReviewForGw(
       if (pDiff !== 0) return pDiff;
       return b.si - a.si;
     });
+
+    // Attach club formations once on first squad element to avoid 30x duplication
+    if (scored.length > 0) {
+      if (projectedFormation) (scored[0] as any).projectedFormation = projectedFormation;
+      if (actualFormation) (scored[0] as any).actualFormation = actualFormation;
+    }
 
     clubsData[c.short] = scored;
     if (isMatchPlayed) {
@@ -2797,19 +2882,29 @@ function buildLineupReviewForGw(
   };
 }
 
-async function getOrBuildReviewBase(
+async function getOrBuildReviewLookups(
   cachedData: TransformedLeagueData,
   force: boolean = false
-): Promise<ReviewBaseCache> {
+): Promise<ReviewLookupsCache> {
   const epoch = computeProjectionEpochInfo(cachedData);
-  if (!force && cachedReviewBase && cachedReviewBase.epochKey === epoch.epochKey) {
-    return cachedReviewBase;
+  if (!force && cachedReviewLookups && cachedReviewLookups.epochKey === epoch.epochKey) {
+    return cachedReviewLookups;
   }
-  if (!force && inFlightReviewBuild && inFlightReviewBuild.epochKey === epoch.epochKey) {
-    return inFlightReviewBuild.promise;
+  if (!force && cachedReviewBase && cachedReviewBase.epochKey === epoch.epochKey) {
+    const reused: ReviewLookupsCache = {
+      epochKey: cachedReviewBase.epochKey,
+      actualMatchLookup: cachedReviewBase.actualMatchLookup,
+      actualPlayerStatsMap: cachedReviewBase.actualPlayerStatsMap,
+      lineupByGwCache: cachedReviewBase.lineupByGwCache,
+    };
+    cachedReviewLookups = reused;
+    return reused;
+  }
+  if (!force && inFlightReviewLookupsBuild && inFlightReviewLookupsBuild.epochKey === epoch.epochKey) {
+    return inFlightReviewLookupsBuild.promise;
   }
 
-  const buildPromise = (async (): Promise<ReviewBaseCache> => {
+  const buildPromise = (async (): Promise<ReviewLookupsCache> => {
     const startMs = Date.now();
     const coreCtx = await getOrBuildCoreContext(cachedData, force);
     const { corePayload, matchesWithLineupsByGw } = coreCtx;
@@ -2935,11 +3030,51 @@ async function getOrBuildReviewBase(
       maxReviewGW
     );
 
+    const lookups: ReviewLookupsCache = {
+      epochKey: epoch.epochKey,
+      actualMatchLookup,
+      actualPlayerStatsMap,
+      lineupByGwCache: new Map(),
+    };
+    cachedReviewLookups = lookups;
+    console.log(`[ProjectionEngine] Built Review Lookups epoch=${epoch.epochKey} in ${Date.now() - startMs}ms`);
+    return lookups;
+  })();
+
+  inFlightReviewLookupsBuild = { epochKey: epoch.epochKey, promise: buildPromise };
+  try {
+    return await buildPromise;
+  } finally {
+    if (inFlightReviewLookupsBuild?.promise === buildPromise) {
+      inFlightReviewLookupsBuild = null;
+    }
+  }
+}
+
+async function getOrBuildReviewBase(
+  cachedData: TransformedLeagueData,
+  force: boolean = false
+): Promise<ReviewBaseCache> {
+  const epoch = computeProjectionEpochInfo(cachedData);
+  if (!force && cachedReviewBase && cachedReviewBase.epochKey === epoch.epochKey) {
+    return cachedReviewBase;
+  }
+  if (!force && inFlightReviewBuild && inFlightReviewBuild.epochKey === epoch.epochKey) {
+    return inFlightReviewBuild.promise;
+  }
+
+  const buildPromise = (async (): Promise<ReviewBaseCache> => {
+    const startMs = Date.now();
+    const coreCtx = await getOrBuildCoreContext(cachedData, force);
+    const lookups = await getOrBuildReviewLookups(cachedData, force);
+    const { corePayload, matchesWithLineupsByGw } = coreCtx;
+    const { actualMatchLookup, actualPlayerStatsMap, lineupByGwCache } = lookups;
+    const maxReviewGW = corePayload.maxReviewGW;
+
     // 3. Precompute full MAE Recap Rows (GW 1..maxReviewGW) with confirmed-GW memoization
     const allPlayers = cachedData.player_stats || [];
     const projPlayers = corePayload.allPlayerFullSeasonProjections;
     const maeRecapRows: any[] = [];
-    const lineupByGwCache = new Map<number, { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number } }>();
     const reviewRuntime: HybridReviewRuntimeCache = {
       playerPosSeed: coreCtx.playerPosSeed,
       playerTeamMap: coreCtx.playerTeamMap,
@@ -3326,6 +3461,7 @@ export async function getServerReviewBundle(
   return {
     epochKey: coreCtx.epoch.epochKey,
     generatedAt: new Date().toISOString(),
+    section: 'all',
     maxReviewGW,
     lineupGw: targetGw,
     actualMatchLookup: reviewBase.actualMatchLookup,
@@ -3334,6 +3470,167 @@ export async function getServerReviewBundle(
     lineupGwSummary: gwLineup.lineupGwSummary,
     maeRecapRows: reviewBase.maeRecapRows,
   };
+}
+
+export async function getServerReviewSectionPayload(
+  cachedData: TransformedLeagueData,
+  options: {
+    section?: ReviewSectionType;
+    gw?: number;
+    includeMatches?: boolean;
+    force?: boolean;
+  } = {}
+): Promise<ServerReviewBundlePayload> {
+  const section: ReviewSectionType =
+    options.section === 'score' ||
+    options.section === 'lineup' ||
+    options.section === 'points' ||
+    options.section === 'mae'
+      ? options.section
+      : 'all';
+  const force = Boolean(options.force);
+  const includeMatches = options.includeMatches !== false;
+
+  if (section === 'all') {
+    return getServerReviewBundle(cachedData, options.gw, force);
+  }
+
+  const coreCtx = await getOrBuildCoreContext(cachedData, force);
+  const maxReviewGW = coreCtx.corePayload.maxReviewGW;
+  const targetGw = Math.min(Math.max(Number(options.gw) || maxReviewGW, 1), maxReviewGW);
+
+  if (section === 'mae') {
+    const reviewBase = await getOrBuildReviewBase(cachedData, force);
+    return {
+      epochKey: coreCtx.epoch.epochKey,
+      generatedAt: new Date().toISOString(),
+      section: 'mae',
+      maxReviewGW,
+      lineupGw: targetGw,
+      maeRecapRows: reviewBase.maeRecapRows,
+    };
+  }
+
+  const lookups = await getOrBuildReviewLookups(cachedData, force);
+
+  if (section === 'score') {
+    return {
+      epochKey: coreCtx.epoch.epochKey,
+      generatedAt: new Date().toISOString(),
+      section: 'score',
+      maxReviewGW,
+      lineupGw: targetGw,
+      actualMatchLookup: lookups.actualMatchLookup,
+    };
+  }
+
+  if (section === 'points') {
+    return {
+      epochKey: coreCtx.epoch.epochKey,
+      generatedAt: new Date().toISOString(),
+      section: 'points',
+      maxReviewGW,
+      lineupGw: targetGw,
+      ...(includeMatches ? { actualMatchLookup: lookups.actualMatchLookup } : {}),
+      actualPlayerStatsMap: lookups.actualPlayerStatsMap,
+    };
+  }
+
+  // section === 'lineup' (computes ONLY requested GW if not already cached)
+  let gwLineup = lookups.lineupByGwCache.get(targetGw);
+  if (!gwLineup || force) {
+    const allPlayers = cachedData.player_stats || [];
+    gwLineup = buildLineupReviewForGw(
+      targetGw,
+      maxReviewGW,
+      coreCtx.corePayload.clubs,
+      allPlayers,
+      lookups.actualMatchLookup,
+      lookups.actualPlayerStatsMap,
+      coreCtx.matchesWithLineupsByGw,
+      {
+        playerPosSeed: coreCtx.playerPosSeed,
+        playerTeamMap: coreCtx.playerTeamMap,
+        extraAllCompSides: coreCtx.extraAllCompSides,
+        deadlines: cachedData.sync_status?.deadlines,
+        isCurrentGwFinishedOrConfirmed: coreCtx.epoch.isCurrentGwFinishedOrConfirmed,
+        calibByGw: coreCtx.calibByGw,
+      }
+    );
+    lookups.lineupByGwCache.set(targetGw, gwLineup);
+  }
+
+  return {
+    epochKey: coreCtx.epoch.epochKey,
+    generatedAt: new Date().toISOString(),
+    section: 'lineup',
+    maxReviewGW,
+    lineupGw: targetGw,
+    ...(includeMatches ? { actualMatchLookup: lookups.actualMatchLookup } : {}),
+    lineupReviewPerClub: gwLineup.lineupReviewPerClub,
+    lineupGwSummary: gwLineup.lineupGwSummary,
+  };
+}
+
+export async function getServerReviewSectionBuffers(
+  cachedData: TransformedLeagueData,
+  options: {
+    section?: ReviewSectionType;
+    gw?: number;
+    includeMatches?: boolean;
+    force?: boolean;
+  } = {}
+): Promise<SerializedResponseCache> {
+  const section: ReviewSectionType =
+    options.section === 'score' ||
+    options.section === 'lineup' ||
+    options.section === 'points' ||
+    options.section === 'mae'
+      ? options.section
+      : 'all';
+  const force = Boolean(options.force);
+  const includeMatches = options.includeMatches !== false;
+  const epoch = computeProjectionEpochInfo(cachedData);
+  const effGw = section === 'lineup' || section === 'all'
+    ? Math.min(Math.max(Number(options.gw) || epoch.maxReviewGW, 1), epoch.maxReviewGW)
+    : epoch.maxReviewGW;
+  const cacheKey = `${epoch.epochKey}:${section}:${effGw}:${includeMatches ? 1 : 0}`;
+
+  if (!force) {
+    const hit = cachedReviewSectionBuffers.get(cacheKey);
+    if (hit && hit.epochKey === epoch.epochKey) {
+      return hit;
+    }
+  }
+
+  const payload = await getServerReviewSectionPayload(cachedData, {
+    section,
+    gw: effGw,
+    includeMatches,
+    force,
+  });
+  const finalKey = `${payload.epochKey}:${section}:${payload.lineupGw}:${includeMatches ? 1 : 0}`;
+  if (!force) {
+    const hitAfter = cachedReviewSectionBuffers.get(finalKey);
+    if (hitAfter && hitAfter.epochKey === payload.epochKey) {
+      return hitAfter;
+    }
+  }
+
+  const jsonBuffer = Buffer.from(JSON.stringify({ success: true, data: payload }), 'utf-8');
+  const gzipBuffer = gzipSync(jsonBuffer, { level: 6 });
+  const entry: SerializedResponseCache = {
+    epochKey: payload.epochKey,
+    jsonBuffer,
+    gzipBuffer,
+  };
+
+  if (cachedReviewSectionBuffers.size >= REVIEW_BUFFER_CACHE_MAX) {
+    const firstKey = cachedReviewSectionBuffers.keys().next().value;
+    if (firstKey !== undefined) cachedReviewSectionBuffers.delete(firstKey);
+  }
+  cachedReviewSectionBuffers.set(finalKey, entry);
+  return entry;
 }
 
 // ============================================================================
@@ -3533,14 +3830,29 @@ export async function getServerScoutSquads(
     });
 
     const halfEndGW = targetNextGW >= 20 ? 38 : 19;
-    const chipSetByGw: Record<number, { fhSquadIds: number[]; wcSquadIds: number[] }> = {};
+    const chipSetByGw: Record<number, { fhSquadIds: number[]; wcSquadIds: number[]; wcBbNextSquadIds?: number[] }> = {};
 
     for (let g = targetNextGW; g <= halfEndGW; g++) {
       await new Promise<void>((resolve) => setImmediate(resolve));
+      const wcBbRes =
+        g < halfEndGW
+          ? solveScoutSquadForGwMode({
+              players: scoutPlayers,
+              targetNextGW,
+              targetGw: g,
+              mode: 'WC',
+              policy,
+              fastMode: true,
+              bbSetupGw: g + 1,
+            })
+          : null;
+      const wcBbNextSquadIds = wcBbRes ? [...wcBbRes.starterIds, ...wcBbRes.benchIds] : undefined;
+
       if (g === targetNextGW) {
         chipSetByGw[g] = {
           fhSquadIds: [...fhTargetRaw.starterIds, ...fhTargetRaw.benchIds],
           wcSquadIds: [...wcTargetRaw.starterIds, ...wcTargetRaw.benchIds],
+          ...(wcBbNextSquadIds ? { wcBbNextSquadIds } : {}),
         };
       } else {
         const fhRes = solveScoutSquadForGwMode({
@@ -3562,6 +3874,7 @@ export async function getServerScoutSquads(
         chipSetByGw[g] = {
           fhSquadIds: [...fhRes.starterIds, ...fhRes.benchIds],
           wcSquadIds: [...wcRes.starterIds, ...wcRes.benchIds],
+          ...(wcBbNextSquadIds ? { wcBbNextSquadIds } : {}),
         };
       }
     }
@@ -3577,7 +3890,16 @@ export async function getServerScoutSquads(
 
     const fhTarget = hydrateSolvedSquadWithCards(fhTargetRaw, scoutCtx.playerPoolById);
     const wcTarget = hydrateSolvedSquadWithCards(wcTargetRaw, scoutCtx.playerPoolById);
-    const { captainPicks, differentialPicks } = computeServerCaptainAndDifferentialPicks(scoutCtx);
+    const excludedPicksIds = new Set<number>([
+      ...fhTargetRaw.starterIds,
+      ...fhTargetRaw.benchIds,
+      ...wcTargetRaw.starterIds,
+      ...wcTargetRaw.benchIds,
+    ]);
+    const { captainPicks, differentialPicks, differentialPicksAll } = computeServerCaptainAndDifferentialPicks(
+      scoutCtx,
+      excludedPicksIds
+    );
 
     const payload: ServerScoutSquadsPayload = {
       epochKey: scoutCoreCtx.epoch.epochKey,
@@ -3588,6 +3910,7 @@ export async function getServerScoutSquads(
       chipSetByGw,
       captainPicks,
       differentialPicks,
+      differentialPicksAll,
       policy,
     };
 
@@ -3606,6 +3929,29 @@ export async function getServerScoutSquads(
       inFlightScoutBuild = null;
     }
   }
+}
+
+export async function getServerScoutSquadsBuffers(
+  cachedData: TransformedLeagueData,
+  force: boolean = false
+): Promise<SerializedResponseCache> {
+  const epoch = computeProjectionEpochInfo(cachedData);
+  if (!force && cachedScoutSquadsBuffers && cachedScoutSquadsBuffers.epochKey === epoch.epochKey) {
+    return cachedScoutSquadsBuffers;
+  }
+  const payload = await getServerScoutSquads(cachedData, force);
+  if (!force && cachedScoutSquadsBuffers && cachedScoutSquadsBuffers.epochKey === payload.epochKey) {
+    return cachedScoutSquadsBuffers;
+  }
+  const jsonBuffer = Buffer.from(JSON.stringify({ success: true, data: payload }), 'utf-8');
+  const gzipBuffer = gzipSync(jsonBuffer, { level: 6 });
+  const entry: SerializedResponseCache = {
+    epochKey: payload.epochKey,
+    jsonBuffer,
+    gzipBuffer,
+  };
+  cachedScoutSquadsBuffers = entry;
+  return entry;
 }
 
 export interface ServerScoutManagerAnalysisOptions {
@@ -3663,15 +4009,35 @@ export async function getServerScoutManagerAnalysis(
   );
   const resolvedEntryId = activeManager?.entry_id || 0;
 
-  const { bankBalance, ftAllowance } = await fetchServerManagerFinances({
-    cachedData: scoutData,
-    entryId: resolvedEntryId,
-    baseHistoricalGW: scoutCtx.baseHistoricalGW,
-    targetNextGW: scoutCtx.targetNextGW,
-    force,
-  });
+  const { bankBalance, ftAllowance, transfers: managerTransfers, chips: managerChips } =
+    await fetchServerManagerFinances({
+      cachedData: scoutData,
+      entryId: resolvedEntryId,
+      baseHistoricalGW: scoutCtx.baseHistoricalGW,
+      targetNextGW: scoutCtx.targetNextGW,
+      force,
+    });
 
-  const cacheKey = `${scoutCoreCtx.epoch.epochKey}:${resolvedEntryId}:${ftAllowance}:${bankBalance}:${section}:${transferMode}:${transferHorizon}:${lang}`;
+  const sellingPriceById =
+    section === 'transfer' || section === 'all'
+      ? await resolveManagerSellingPrices({
+          cachedData: scoutData,
+          entryId: resolvedEntryId,
+          activeSquadIds,
+          upToGw: scoutCtx.effectiveOwnershipGW,
+          playerPoolById: scoutCtx.playerPoolById,
+          transfersFromApi: managerTransfers,
+          chipsFromApi: managerChips,
+        })
+      : undefined;
+
+  const spSig = sellingPriceById
+    ? Array.from(sellingPriceById.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([id, sp]) => `${id}:${sp}`)
+        .join(',')
+    : 'none';
+  const cacheKey = `${scoutCoreCtx.epoch.epochKey}:${resolvedEntryId}:${ftAllowance}:${bankBalance}:${section}:${transferMode}:${transferHorizon}:${lang}:${spSig}`;
   if (!force) {
     const cached = cachedManagerAnalysis.get(cacheKey);
     if (cached) return cached;
@@ -3706,6 +4072,7 @@ export async function getServerScoutManagerAnalysis(
             transferHorizon,
             lang,
             quantilesByPlayerGw: scoutCoreCtx.quantilesByPlayerGw,
+            sellingPriceById,
           })
         : undefined;
 
