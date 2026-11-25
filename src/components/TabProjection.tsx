@@ -34,7 +34,7 @@ import {
 } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
-import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import { useSeasonProjections } from '../hooks/useSeasonProjections.ts';
 
 export type SeasonProjectionsEngineResult = ReturnType<typeof useSeasonProjections>;
@@ -2102,11 +2102,11 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
           {/* Full Player Projections Table */}
           <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className={`w-full text-left text-xs border-collapse ${horizonGWs.length <= 6 ? 'md:table-fixed' : ''}`}>
               <thead>
                 <tr className="bg-slate-100/90 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] whitespace-nowrap">
                   <th
-                    className="py-1 px-1.5 sm:px-2 sticky left-0 z-20 bg-slate-100 dark:bg-[#20133b] border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] whitespace-nowrap"
+                    className="py-1 px-1.5 sm:px-2 md:px-3 sticky left-0 z-20 bg-slate-100 dark:bg-[#20133b] border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] md:w-auto md:min-w-[180px] whitespace-nowrap"
                     onClick={() => {
                       setPointsSortCol('player');
                       setPointsSortDir(pointsSortDir === 'asc' ? 'desc' : 'asc');
@@ -2115,7 +2115,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                     Player
                   </th>
                   <th
-                    className="py-1 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] whitespace-nowrap"
+                    className="py-1 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] md:w-20 md:min-w-[72px] whitespace-nowrap"
                     onClick={() => {
                       setPointsSortCol('club');
                       setPointsSortDir(pointsSortDir === 'asc' ? 'desc' : 'asc');
@@ -2124,7 +2124,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                     Club
                   </th>
                   <th
-                    className="py-1 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] whitespace-nowrap"
+                    className="py-1 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] md:w-16 md:min-w-[64px] whitespace-nowrap"
                     onClick={() => {
                       setPointsSortCol('pos');
                       setPointsSortDir(pointsSortCol === 'pos' && pointsSortDir === 'asc' ? 'desc' : 'asc');
@@ -2133,7 +2133,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                     Pos
                   </th>
                   <th
-                    className="py-1 px-1 sm:px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[56px] min-w-[56px] sm:w-16 sm:min-w-[64px] whitespace-nowrap"
+                    className="py-1 px-1 sm:px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[56px] min-w-[56px] sm:w-16 sm:min-w-[64px] md:w-20 md:min-w-[80px] whitespace-nowrap"
                     onClick={() => {
                       setPointsSortCol('price');
                       setPointsSortDir(pointsSortDir === 'asc' ? 'desc' : 'asc');
@@ -2146,7 +2146,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                   {horizonGWs.map((gw) => (
                     <th
                       key={gw}
-                      className="py-1 px-1.5 sm:px-2 text-center border-r border-slate-200 dark:border-white/10 w-[78px] min-w-[78px] sm:w-[90px] sm:min-w-[90px] whitespace-nowrap cursor-pointer hover:text-black dark:hover:text-white"
+                      className="py-1 px-1.5 sm:px-2 text-center border-r border-slate-200 dark:border-white/10 w-[78px] min-w-[78px] sm:w-[90px] sm:min-w-[90px] md:w-[98px] md:min-w-[98px] whitespace-nowrap cursor-pointer hover:text-black dark:hover:text-white"
                       onClick={() => {
                         setPointsSortCol(`gw_${gw}`);
                         setPointsSortDir(pointsSortDir === 'asc' ? 'desc' : 'asc');
@@ -2158,7 +2158,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
                   {/* Summary Columns */}
                   <th
-                    className="py-1 px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer font-black text-[#37003c] dark:text-[#00ff87] w-16 whitespace-nowrap"
+                    className="py-1 px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer font-black text-[#37003c] dark:text-[#00ff87] w-16 md:w-20 whitespace-nowrap"
                     onClick={() => {
                       setPointsSortCol('total');
                       setPointsSortDir(pointsSortDir === 'asc' ? 'desc' : 'asc');
@@ -2167,7 +2167,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                     Total
                   </th>
                   <th
-                    className="py-1 px-1.5 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-14 whitespace-nowrap"
+                    className="py-1 px-1.5 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-14 md:w-16 whitespace-nowrap"
                     onClick={() => {
                       setPointsSortCol('avg');
                       setPointsSortDir(pointsSortDir === 'asc' ? 'desc' : 'asc');
@@ -2176,7 +2176,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                     Avg
                   </th>
                   <th
-                    className="py-1 px-2 text-right cursor-pointer hover:text-black dark:hover:text-white w-14 whitespace-nowrap"
+                    className="py-1 px-2 text-right cursor-pointer hover:text-black dark:hover:text-white w-14 md:w-16 whitespace-nowrap"
                     onClick={() => {
                       setPointsSortCol('value');
                       setPointsSortDir(pointsSortDir === 'asc' ? 'desc' : 'asc');
@@ -2193,22 +2193,22 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                   <tr
                     key={player.id}
                     onClick={() => onSelectPlayer?.(player.id)}
-                    className={`transition-colors cursor-pointer whitespace-nowrap leading-none ${
+                    className={`group transition-colors cursor-pointer whitespace-nowrap leading-none ${
                       isOwned ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}` : 'hover:bg-slate-50 dark:hover:bg-white/[0.02]'
                     }`}
                   >
                     {/* Sticky Player Name */}
                     <td
-                      className={`py-1 px-1.5 sm:px-2 sticky left-0 z-10 border-r border-slate-200 dark:border-white/10 font-bold text-slate-900 dark:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] whitespace-nowrap ${
-                        isOwned ? 'bg-emerald-100 dark:bg-[#163832]' : 'bg-white dark:bg-[#1a0f2e]'
+                      className={`py-1 px-1.5 sm:px-2 md:px-3 sticky left-0 z-10 border-r border-slate-200 dark:border-white/10 font-bold text-slate-900 dark:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] md:w-auto md:min-w-[180px] whitespace-nowrap md:truncate transition-colors ${
+                        isOwned ? USER_STICKY_CELL_BG : 'bg-white dark:bg-[#1a0f2e]'
                       }`}
                     >
                       {player.webName}
                     </td>
-                    <td className="py-0.5 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 font-bold w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] whitespace-nowrap">
+                    <td className="py-0.5 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 font-bold w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] md:w-20 md:min-w-[72px] whitespace-nowrap">
                       {player.teamShort}
                     </td>
-                    <td className="py-0.5 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] whitespace-nowrap">
+                    <td className="py-0.5 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] md:w-16 md:min-w-[64px] whitespace-nowrap">
                       <span
                         className={`w-8 sm:w-9 inline-block text-center px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none whitespace-nowrap ${getPosBadgeColorClass(
                           player.position
@@ -2217,7 +2217,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                         {player.position}
                       </span>
                     </td>
-                    <td className="py-0.5 px-1 sm:px-2 text-right border-r border-slate-200 dark:border-white/10 tabular-nums font-semibold text-slate-700 dark:text-slate-300 w-[56px] min-w-[56px] sm:w-16 sm:min-w-[64px] whitespace-nowrap">
+                    <td className="py-0.5 px-1 sm:px-2 text-right border-r border-slate-200 dark:border-white/10 tabular-nums font-semibold text-slate-700 dark:text-slate-300 w-[56px] min-w-[56px] sm:w-16 sm:min-w-[64px] md:w-20 md:min-w-[80px] whitespace-nowrap">
                       £{player.nowCost.toFixed(1)}m
                     </td>
 
@@ -2228,7 +2228,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                         return (
                           <td
                             key={gw}
-                            className="py-0.5 px-1.5 sm:px-2 border-r border-slate-200 dark:border-white/10 w-[78px] min-w-[78px] sm:w-[90px] sm:min-w-[90px] whitespace-nowrap bg-slate-50/40 dark:bg-white/[0.015]"
+                            className="py-0.5 px-1.5 sm:px-2 border-r border-slate-200 dark:border-white/10 w-[78px] min-w-[78px] sm:w-[90px] sm:min-w-[90px] md:w-[98px] md:min-w-[98px] whitespace-nowrap bg-slate-50/40 dark:bg-white/[0.015]"
                           >
                             <div className="w-full flex items-center justify-between gap-1 leading-none text-slate-400">
                               <span className="text-[10px] font-semibold">Blank</span>
@@ -2248,7 +2248,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                         <td
                           key={gw}
                           title={dgwTooltip}
-                          className={`py-0.5 px-1.5 sm:px-2 border-r border-slate-200 dark:border-white/10 w-[78px] min-w-[78px] sm:w-[90px] sm:min-w-[90px] whitespace-nowrap ${
+                          className={`py-0.5 px-1.5 sm:px-2 border-r border-slate-200 dark:border-white/10 w-[78px] min-w-[78px] sm:w-[90px] sm:min-w-[90px] md:w-[98px] md:min-w-[98px] whitespace-nowrap ${
                             isDgw ? 'bg-emerald-500/[0.08] dark:bg-[#00ff87]/[0.07]' : ''
                           }`}
                         >
@@ -2280,13 +2280,13 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                     })}
 
                     {/* Summary Columns */}
-                    <td className="py-0.5 px-2 text-right font-black text-xs text-[#37003c] dark:text-[#00ff87] border-r border-slate-200 dark:border-white/10 tabular-nums w-16 whitespace-nowrap">
+                    <td className="py-0.5 px-2 text-right font-black text-xs text-[#37003c] dark:text-[#00ff87] border-r border-slate-200 dark:border-white/10 tabular-nums w-16 md:w-20 whitespace-nowrap">
                       {player.totalXp.toFixed(1)}
                     </td>
-                    <td className="py-0.5 px-1.5 text-right tabular-nums text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-white/10 whitespace-nowrap text-xs w-14">
+                    <td className="py-0.5 px-1.5 text-right tabular-nums text-slate-700 dark:text-slate-300 border-r border-slate-200 dark:border-white/10 whitespace-nowrap text-xs w-14 md:w-16">
                       {player.avgXp.toFixed(1)}
                     </td>
-                    <td className="py-0.5 px-2 text-right tabular-nums font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap text-xs w-14">
+                    <td className="py-0.5 px-2 text-right tabular-nums font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap text-xs w-14 md:w-16">
                       {player.valueRatio.toFixed(1)}
                     </td>
                   </tr>

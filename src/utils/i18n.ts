@@ -181,6 +181,8 @@ export interface Translations {
   settings_profile_placeholder: string;
   settings_profile_active: string;
   settings_display_heading: string;
+  settings_theme_title: string;
+  settings_theme_desc: string;
   settings_keep_awake_title: string;
   settings_keep_awake_desc: string;
   settings_keep_awake_active: string;
@@ -475,6 +477,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_profile_placeholder: 'Select Team & Manager...',
     settings_profile_active: 'Active profile: {team} ({manager})',
     settings_display_heading: 'Display',
+    settings_theme_title: 'Dark Mode',
+    settings_theme_desc: 'Switch between Light (default) and Dark display theme',
     settings_keep_awake_title: 'Keep Screen Awake',
     settings_keep_awake_desc: 'Prevent screen from dimming or locking during live matchday',
     settings_keep_awake_active: 'Screen lock active — Display will stay awake while this tab is open.',
@@ -768,6 +772,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_profile_placeholder: 'Select Team & Manager...',
     settings_profile_active: 'Active profile: {team} ({manager})',
     settings_display_heading: 'Display',
+    settings_theme_title: 'Dark Mode',
+    settings_theme_desc: 'Switch between Light (default) and Dark display theme',
     settings_keep_awake_title: 'Keep Screen Awake',
     settings_keep_awake_desc: 'Prevent screen from dimming or locking during live matchday',
     settings_keep_awake_active: 'Screen lock active — Display will stay awake while this tab is open.',
@@ -1061,6 +1067,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_profile_placeholder: 'Pilih Tim & Manajer...',
     settings_profile_active: 'Profil aktif: {team} ({manager})',
     settings_display_heading: 'Tampilan',
+    settings_theme_title: 'Mode Gelap',
+    settings_theme_desc: 'Beralih antara tampilan terang (Light, default) dan gelap (Dark)',
     settings_keep_awake_title: 'Layar Tetap Menyala',
     settings_keep_awake_desc: 'Mencegah layar HP/laptop redup atau terkunci saat matchday live',
     settings_keep_awake_active: 'Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.',

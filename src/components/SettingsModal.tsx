@@ -4,6 +4,7 @@ import {
   X,
   User,
   Sun,
+  Moon,
   Radio,
   Globe,
   Shield,
@@ -26,6 +27,7 @@ interface SettingsModalProps {
   onSelectProfile?: (entryId: number) => void;
   isAdminUnlocked?: boolean;
   onUnlockAdmin?: () => void;
+  onLockAdmin?: () => void;
 }
 
 export interface FnbTeamProfile {
@@ -43,6 +45,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onSelectProfile,
   isAdminUnlocked,
   onUnlockAdmin,
+  onLockAdmin,
 }) => {
   // Extract all unique teams and managers from FNB League data
   const fnbTeams = useMemo(() => {
@@ -96,6 +99,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     return 'guest'; // View as Guest default if user has never selected a Team/Manager
   });
 
+  // Light / Dark Mode state (default Light when not yet configured by user)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('fnb_setting_theme') === 'dark';
+    } catch {
+      return false;
+    }
+  });
+
   // Keep Screen Awake state
   const [keepScreenAwake, setKeepScreenAwake] = useState<boolean>(() => {
     try {
@@ -142,6 +154,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       }, 1000);
     } else {
       setAdminAuthMessage('Access denied.');
+    }
+  };
+
+  const handleLockAdmin = () => {
+    try {
+      localStorage.removeItem('fnb_admin_unlocked');
+      window.dispatchEvent(new CustomEvent('fnb:admin-locked'));
+    } catch {}
+    if (onLockAdmin) {
+      onLockAdmin();
     }
   };
 
@@ -195,6 +217,36 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     } else {
       await releaseWakeLock();
     }
+  };
+
+  // Sync theme state if changed from another tab or external event
+  useEffect(() => {
+    const syncTheme = () => {
+      try {
+        setIsDarkMode(localStorage.getItem('fnb_setting_theme') === 'dark');
+      } catch {}
+    };
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'fnb_setting_theme' || e.key === null) syncTheme();
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const handleToggleTheme = () => {
+    const nextDark = !isDarkMode;
+    const nextTheme = nextDark ? 'dark' : 'light';
+    setIsDarkMode(nextDark);
+    document.documentElement.classList.toggle('dark', nextDark);
+    document.documentElement.style.colorScheme = nextTheme;
+    try {
+      localStorage.setItem('fnb_setting_theme', nextTheme);
+      window.dispatchEvent(
+        new CustomEvent('fnb:setting-changed', {
+          detail: { key: 'theme', value: nextTheme },
+        })
+      );
+    } catch {}
   };
 
   const handleToggleNewsTicker = () => {
@@ -394,11 +446,71 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             )}
           </div>
 
-          {/* ================= 2. TOGGLES: KEEP SCREEN AWAKE & NEWS TICKER ================= */}
+          {/* ================= 2. TOGGLES: DISPLAY (LIGHT/DARK, KEEP SCREEN AWAKE, NEWS TICKER) ================= */}
           <div className="pt-4 space-y-3">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               {t('settings_display_heading')}
             </span>
+
+            {/* Toggle 0: Light / Dark Mode */}
+            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-purple-950/30 border border-slate-200/80 dark:border-purple-900/40 hover:border-slate-300 dark:hover:border-purple-800/60 transition-colors">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                    isDarkMode
+                      ? 'bg-purple-500/15 text-[#00ff87]'
+                      : 'bg-indigo-500/10 text-indigo-600'
+                  }`}
+                >
+                  {isDarkMode ? (
+                    <Moon className="w-4 h-4 stroke-[2.2]" />
+                  ) : (
+                    <Sun className="w-4 h-4 stroke-[2.2]" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white leading-tight">
+                      {t('settings_theme_title')}
+                    </span>
+                    <span
+                      className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded font-mono ${
+                        isDarkMode
+                          ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-[#00ff87]'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {isDarkMode ? 'DARK' : 'LIGHT'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                    {t('settings_theme_desc')}
+                  </p>
+                </div>
+              </div>
+
+              {/* iOS style toggle */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isDarkMode}
+                aria-label={t('settings_theme_title')}
+                onClick={handleToggleTheme}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#37003c] dark:focus-visible:ring-[#00ff87] ${
+                  isDarkMode
+                    ? 'bg-[#00ff87]'
+                    : 'bg-slate-300 dark:bg-purple-950/80'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow-md ring-0 transition duration-200 ease-in-out ${
+                    isDarkMode
+                      ? 'translate-x-5 bg-[#37003c]'
+                      : 'translate-x-0 bg-[#ffffff]'
+                  }`}
+                />
+              </button>
+            </div>
 
             {/* Toggle 1: Keep Screen Awake */}
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-purple-950/30 border border-slate-200/80 dark:border-purple-900/40 hover:border-slate-300 dark:hover:border-purple-800/60 transition-colors space-y-2">
@@ -444,7 +556,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow-md ring-0 transition duration-200 ease-in-out ${
                       keepScreenAwake
                         ? 'translate-x-5 bg-[#37003c]'
-                        : 'translate-x-0 bg-white'
+                        : 'translate-x-0 bg-[#ffffff]'
                     }`}
                   />
                 </button>
@@ -508,7 +620,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow-md ring-0 transition duration-200 ease-in-out ${
                     newsTicker
                       ? 'translate-x-5 bg-[#37003c]'
-                      : 'translate-x-0 bg-white'
+                      : 'translate-x-0 bg-[#ffffff]'
                   }`}
                 />
               </button>
@@ -639,6 +751,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={() => {
+                if (isAdminUnlocked) {
+                  handleLockAdmin();
+                  return;
+                }
                 setIsAdminPopupOpen(true);
                 setAdminCodeInput('');
                 setAdminAuthMessage(null);
@@ -654,12 +770,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <span className="text-xs sm:text-sm font-black tracking-tight text-white">
                       {t('settings_admin_title')}
                     </span>
+                    {isAdminUnlocked && (
+                      <span className="px-1.5 py-0.5 rounded bg-[#00ff87]/20 border border-[#00ff87]/50 text-[#00ff87] text-[9px] font-black uppercase tracking-wider">
+                        {language === 'id' ? 'Aktif' : 'Active'}
+                      </span>
+                    )}
                   </div>
-                  {adminDesc && (
-                    <p className="text-[10.5px] sm:text-[11px] text-purple-200/80 font-medium truncate mt-0.5">
-                      {adminDesc}
-                    </p>
-                  )}
+                  <p className="text-[10.5px] sm:text-[11px] text-purple-200/80 font-medium truncate mt-0.5">
+                    {isAdminUnlocked
+                      ? (language === 'id' ? 'Ketuk untuk mengunci & menyembunyikan tab Admin' : 'Tap to lock & hide Admin tab')
+                      : (adminDesc || (language === 'id' ? 'Masukkan kode aktivasi untuk membuka tab Admin' : 'Enter activation code to unlock Admin tab'))}
+                  </p>
                 </div>
               </div>
 
@@ -710,7 +831,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className="space-y-3"
             >
               <input
-                type="text"
+                type="password"
+                inputMode="numeric"
                 value={adminCodeInput}
                 onChange={(e) => {
                   setAdminCodeInput(e.target.value);

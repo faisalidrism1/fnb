@@ -26,7 +26,7 @@ import {
 } from '../types.ts';
 import { useLanguage } from '../utils/i18n.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
-import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
 import {
   computeMaeDiagnosticSummary,
@@ -2543,29 +2543,29 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
           {/* Player Points Comparison Table */}
           <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
-            <table className="w-full text-left text-xs border-collapse">
+            <table className={`w-full text-left text-xs border-collapse ${horizonGWs.length <= 12 ? 'md:table-fixed' : ''}`}>
               <thead>
                 <tr className="bg-slate-100/90 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] whitespace-nowrap select-none">
                   <th
-                    className="py-1.5 px-1.5 sm:px-2 sticky left-0 z-20 bg-slate-100 dark:bg-[#20133b] border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] whitespace-nowrap"
+                    className="py-1.5 px-1.5 sm:px-2 sticky left-0 z-20 bg-slate-100 dark:bg-[#20133b] border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] md:w-auto md:min-w-[108px] whitespace-nowrap"
                     onClick={() => handlePointsSort('player')}
                   >
                     Player
                   </th>
                   <th
-                    className="py-1.5 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] whitespace-nowrap"
+                    className="py-1.5 px-1 sm:px-1.5 md:px-1 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] md:w-[38px] md:min-w-[38px] whitespace-nowrap"
                     onClick={() => handlePointsSort('club')}
                   >
                     Club
                   </th>
                   <th
-                    className="py-1.5 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] whitespace-nowrap"
+                    className="py-1.5 px-1 sm:px-1.5 md:px-1 text-center border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] md:w-[40px] md:min-w-[40px] whitespace-nowrap"
                     onClick={() => handlePointsSort('pos')}
                   >
                     Pos
                   </th>
                   <th
-                    className="py-1.5 px-1 sm:px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[56px] min-w-[56px] sm:w-16 sm:min-w-[64px] whitespace-nowrap"
+                    className="py-1.5 px-1 sm:px-2 md:px-1 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-[56px] min-w-[56px] sm:w-16 sm:min-w-[64px] md:w-[50px] md:min-w-[50px] whitespace-nowrap"
                     onClick={() => handlePointsSort('cost')}
                   >
                     Price
@@ -2579,7 +2579,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
                       <th
                         key={gw}
                         onClick={() => handlePointsSort(colKey)}
-                        className={`py-1.5 px-1.5 text-center border-r border-slate-200 dark:border-white/10 w-[86px] min-w-[84px] sm:w-[96px] sm:min-w-[92px] whitespace-nowrap cursor-pointer transition-colors tabular-nums ${
+                        className={`py-1.5 px-1.5 md:px-1 text-center border-r border-slate-200 dark:border-white/10 w-[86px] min-w-[84px] sm:w-[96px] sm:min-w-[92px] md:w-[68px] md:min-w-[68px] md:text-[10.5px] whitespace-nowrap cursor-pointer transition-colors tabular-nums ${
                           isSorted
                             ? 'bg-[#37003c]/[0.08] dark:bg-[#00ff87]/[0.1] text-[#37003c] dark:text-[#00ff87]'
                             : 'hover:text-black dark:hover:text-white'
@@ -2596,31 +2596,31 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
                   {/* Summary Columns: Proj, Real, Diff, Avg, MAE */}
                   <th
-                    className="py-1.5 px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-14 whitespace-nowrap"
+                    className="py-1.5 px-2 md:px-1 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-14 md:w-[42px] whitespace-nowrap"
                     onClick={() => handlePointsSort('totalProj')}
                   >
                     Proj
                   </th>
                   <th
-                    className="py-1.5 px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer font-black text-[#37003c] dark:text-[#00ff87] bg-[#37003c]/[0.04] dark:bg-[#00ff87]/[0.05] w-14 whitespace-nowrap"
+                    className="py-1.5 px-2 md:px-1 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer font-black text-[#37003c] dark:text-[#00ff87] bg-[#37003c]/[0.04] dark:bg-[#00ff87]/[0.05] w-14 md:w-[40px] whitespace-nowrap"
                     onClick={() => handlePointsSort('totalReal')}
                   >
                     Real
                   </th>
                   <th
-                    className="py-1.5 px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-14 whitespace-nowrap"
+                    className="py-1.5 px-2 md:px-1 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-14 md:w-[46px] whitespace-nowrap"
                     onClick={() => handlePointsSort('diff')}
                   >
                     Diff
                   </th>
                   <th
-                    className="py-1.5 px-2 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-16 whitespace-nowrap"
+                    className="py-1.5 px-2 md:px-1 text-right border-r border-slate-200 dark:border-white/10 cursor-pointer hover:text-black dark:hover:text-white w-16 md:w-[42px] whitespace-nowrap"
                     onClick={() => handlePointsSort('avgReal')}
                   >
                     Avg
                   </th>
                   <th
-                    className="py-1.5 px-2 text-right cursor-pointer hover:text-black dark:hover:text-white w-14 whitespace-nowrap"
+                    className="py-1.5 px-2 md:px-1 text-right cursor-pointer hover:text-black dark:hover:text-white w-14 md:w-[42px] whitespace-nowrap"
                     onClick={() => handlePointsSort('mae')}
                     title="Mean Absolute Error"
                   >
@@ -2635,24 +2635,24 @@ export const TabReview: React.FC<TabReviewProps> = ({
                   <tr
                     key={player.id}
                     onClick={() => onSelectPlayer?.(player.id, maxReviewGW)}
-                    className={`transition-colors cursor-pointer whitespace-nowrap leading-none ${
+                    className={`group transition-colors cursor-pointer whitespace-nowrap leading-none ${
                       isOwned ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}` : 'hover:bg-slate-50 dark:hover:bg-white/[0.02]'
                     }`}
                   >
                     {/* Sticky Player Name */}
                     <td
-                      className={`py-1 px-1.5 sm:px-2 sticky left-0 z-10 border-r border-slate-200 dark:border-white/10 font-bold text-slate-900 dark:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] whitespace-nowrap ${
-                        isOwned ? 'bg-emerald-100 dark:bg-[#163832]' : 'bg-white dark:bg-[#1a0f2e]'
+                      className={`py-1 px-1.5 sm:px-2 sticky left-0 z-10 border-r border-slate-200 dark:border-white/10 font-bold text-slate-900 dark:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] md:w-auto md:min-w-[108px] whitespace-nowrap md:truncate transition-colors ${
+                        isOwned ? USER_STICKY_CELL_BG : 'bg-white dark:bg-[#1a0f2e]'
                       }`}
                     >
                       {player.webName}
                     </td>
-                    <td className="py-1 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 font-bold w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] whitespace-nowrap">
+                    <td className="py-1 px-1 sm:px-1.5 md:px-1 text-center border-r border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 font-bold w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] md:w-[38px] md:min-w-[38px] md:text-[11px] whitespace-nowrap">
                       {player.teamShort}
                     </td>
-                    <td className="py-1 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] whitespace-nowrap">
+                    <td className="py-1 px-1 sm:px-1.5 md:px-0.5 text-center border-r border-slate-200 dark:border-white/10 w-[42px] min-w-[42px] sm:w-12 sm:min-w-[48px] md:w-[40px] md:min-w-[40px] whitespace-nowrap">
                       <span
-                        className={`w-8 sm:w-9 inline-block text-center px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] font-black leading-none whitespace-nowrap ${
+                        className={`w-8 sm:w-9 md:w-8 inline-block text-center px-1 sm:px-1.5 md:px-1 py-0.5 rounded-full text-[10px] font-black leading-none whitespace-nowrap ${
                           player.position === 'FWD'
                             ? 'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300'
                             : player.position === 'MID'
@@ -2665,7 +2665,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
                         {player.position}
                       </span>
                     </td>
-                    <td className="py-1 px-1 sm:px-2 text-right border-r border-slate-200 dark:border-white/10 tabular-nums font-semibold text-slate-700 dark:text-slate-300 w-[56px] min-w-[56px] sm:w-16 sm:min-w-[64px] whitespace-nowrap">
+                    <td className="py-1 px-1 sm:px-2 md:px-1 text-right border-r border-slate-200 dark:border-white/10 tabular-nums font-semibold text-slate-700 dark:text-slate-300 w-[56px] min-w-[56px] sm:w-16 sm:min-w-[64px] md:w-[50px] md:min-w-[50px] md:text-[11px] whitespace-nowrap">
                       £{player.nowCost.toFixed(1)}m
                     </td>
 
@@ -2676,11 +2676,11 @@ export const TabReview: React.FC<TabReviewProps> = ({
                         return (
                           <td
                             key={gw}
-                            className="py-1 px-1.5 text-center text-slate-400 border-r border-slate-200 dark:border-white/10 w-[86px] min-w-[84px] sm:w-[96px] sm:min-w-[92px] whitespace-nowrap bg-slate-50/40 dark:bg-white/[0.015]"
+                            className="py-1 px-1.5 md:px-1 text-center text-slate-400 border-r border-slate-200 dark:border-white/10 w-[86px] min-w-[84px] sm:w-[96px] sm:min-w-[92px] md:w-[68px] md:min-w-[68px] whitespace-nowrap bg-slate-50/40 dark:bg-white/[0.015]"
                           >
                             <div className="flex flex-col gap-0.5 leading-none tabular-nums">
-                              <span className="text-[10px] font-semibold text-slate-400">Blank</span>
-                              <span className="text-xs font-bold text-slate-400">0.0</span>
+                              <span className="text-[10px] md:text-[9px] font-semibold text-slate-400">Blank</span>
+                              <span className="text-xs md:text-[11px] font-bold text-slate-400">0.0</span>
                             </div>
                           </td>
                         );
@@ -2692,10 +2692,10 @@ export const TabReview: React.FC<TabReviewProps> = ({
                         <td
                           key={gw}
                           title={`Proj: ${item.xp} (Base ${item.baseXp} / Spike ${item.spikeMod}) | Real: ${item.hasReal ? `${item.realPts} pts (${item.realMins}')` : 'Pending'}`}
-                          className="py-1 px-1.5 border-r border-slate-200 dark:border-white/10 w-[86px] min-w-[84px] sm:w-[96px] sm:min-w-[92px] whitespace-nowrap"
+                          className="py-1 px-1.5 md:px-1 border-r border-slate-200 dark:border-white/10 w-[86px] min-w-[84px] sm:w-[96px] sm:min-w-[92px] md:w-[68px] md:min-w-[68px] whitespace-nowrap"
                         >
                           <div className="flex flex-col gap-0.5 leading-none tabular-nums">
-                            <div className="flex items-center justify-between gap-1 text-[10px]">
+                            <div className="flex items-center justify-between gap-1 md:gap-0.5 text-[10px] md:text-[9px]">
                               <span className={`font-medium truncate ${item.isDgw ? 'text-purple-600 dark:text-[#00ff87] font-bold' : 'text-slate-400'}`}>
                                 {item.opp}
                               </span>
@@ -2711,7 +2711,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
                                 <span className="text-slate-400 shrink-0">-</span>
                               )}
                             </div>
-                            <div className="flex items-center justify-between gap-1 text-xs">
+                            <div className="flex items-center justify-between gap-1 md:gap-0.5 text-xs md:text-[11px]">
                               <span className="font-bold text-[#37003c] dark:text-[#00ff87]">
                                 {item.xp.toFixed(1)}
                               </span>
@@ -2725,24 +2725,24 @@ export const TabReview: React.FC<TabReviewProps> = ({
                     })}
 
                     {/* Summary Columns */}
-                    <td className="py-1 px-2 text-right font-bold text-xs text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-white/10 tabular-nums w-14 whitespace-nowrap">
+                    <td className="py-1 px-2 md:px-1 text-right font-bold text-xs md:text-[11px] text-slate-600 dark:text-slate-300 border-r border-slate-200 dark:border-white/10 tabular-nums w-14 md:w-[42px] whitespace-nowrap">
                       {player.totalProj.toFixed(1)}
                     </td>
-                    <td className="py-1 px-2 text-right font-black text-xs text-[#37003c] dark:text-[#00ff87] bg-[#37003c]/[0.03] dark:bg-[#00ff87]/[0.04] border-r border-slate-200 dark:border-white/10 tabular-nums w-14 whitespace-nowrap">
+                    <td className="py-1 px-2 md:px-1 text-right font-black text-xs md:text-[11px] text-[#37003c] dark:text-[#00ff87] bg-[#37003c]/[0.03] dark:bg-[#00ff87]/[0.04] border-r border-slate-200 dark:border-white/10 tabular-nums w-14 md:w-[40px] whitespace-nowrap">
                       {player.totalReal}
                     </td>
                     <td
-                      className={`py-1 px-2 text-right font-extrabold text-xs border-r border-slate-200 dark:border-white/10 tabular-nums w-14 whitespace-nowrap ${
+                      className={`py-1 px-2 md:px-1 text-right font-extrabold text-xs md:text-[11px] border-r border-slate-200 dark:border-white/10 tabular-nums w-14 md:w-[46px] whitespace-nowrap ${
                         player.diff >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                       }`}
                     >
                       {player.diff > 0 ? `+${player.diff}` : player.diff}
                     </td>
-                    <td className="py-1 px-2 text-right tabular-nums border-r border-slate-200 dark:border-white/10 whitespace-nowrap w-16 leading-tight">
-                      <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{player.avgReal}</div>
-                      <div className="text-[10px] font-semibold text-slate-400">P {player.avgProj}</div>
+                    <td className="py-1 px-2 md:px-1 text-right tabular-nums border-r border-slate-200 dark:border-white/10 whitespace-nowrap w-16 md:w-[42px] leading-tight">
+                      <div className="text-xs md:text-[11px] font-bold text-slate-800 dark:text-slate-200">{player.avgReal}</div>
+                      <div className="text-[10px] md:text-[9px] font-semibold text-slate-400">P {player.avgProj}</div>
                     </td>
-                    <td className="py-1 px-2 text-right tabular-nums font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap text-xs w-14">
+                    <td className="py-1 px-2 md:px-1 text-right tabular-nums font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap text-xs md:text-[11px] w-14 md:w-[42px]">
                       ±{player.mae}
                     </td>
                   </tr>

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ArrowUpDown, Search } from 'lucide-react';
 import { ChipUsedRow } from '../types.ts';
 import { useLanguage } from '../utils/i18n.ts';
-import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 
 interface TabChipsProps {
   chips: ChipUsedRow[];
@@ -117,12 +117,12 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
       <div className="@container bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
         {/* Chips Table: Team & Manager dynamically sized to remaining screen space with comfortable chips */}
         <div className="overflow-x-auto scrollbar-none sm:scrollbar-thin">
-          <table className="text-left text-xs text-slate-700 border-separate border-spacing-0">
+          <table className="md:w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
             <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
               <tr>
                 {/* Frozen Team & Manager Column - Dynamically sized to fill remaining screen space */}
                 <th
-                  className="sticky left-0 z-30 bg-[#37003c] py-2.5 px-2 sm:px-2.5 whitespace-nowrap border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] cursor-pointer hover:bg-purple-950 transition-colors leading-tight w-[calc(100cqw-184px)] min-w-[calc(100cqw-184px)] max-w-[calc(100cqw-184px)] sm:w-auto sm:min-w-[160px] sm:max-w-none"
+                  className="sticky left-0 z-30 bg-[#37003c] py-2.5 px-2 sm:px-2.5 md:px-4 whitespace-nowrap border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] cursor-pointer hover:bg-purple-950 transition-colors leading-tight w-[calc(100cqw-184px)] min-w-[calc(100cqw-184px)] max-w-[calc(100cqw-184px)] sm:w-auto sm:min-w-[160px] sm:max-w-none md:min-w-[260px]"
                   onClick={() => handleSort('entry_name')}
                 >
                   <div className="flex items-center gap-1 truncate">
@@ -133,7 +133,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
                 {/* WC1 */}
                 <th
-                  className="py-2.5 px-1.5 sm:px-2.5 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none leading-tight"
+                  className="py-2.5 px-1.5 sm:px-2.5 md:px-3 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none md:w-[88px] lg:w-[100px] leading-tight"
                   onClick={() => handleSort('wc1')}
                 >
                   <div className="flex items-center justify-center gap-0.5">
@@ -144,7 +144,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
                 {/* TC1 */}
                 <th
-                  className="py-2.5 px-1.5 sm:px-2.5 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none leading-tight"
+                  className="py-2.5 px-1.5 sm:px-2.5 md:px-3 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none md:w-[88px] lg:w-[100px] leading-tight"
                   onClick={() => handleSort('tc1')}
                 >
                   <div className="flex items-center justify-center gap-0.5">
@@ -155,7 +155,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
                 {/* BB1 */}
                 <th
-                  className="py-2.5 px-1.5 sm:px-2.5 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none leading-tight"
+                  className="py-2.5 px-1.5 sm:px-2.5 md:px-3 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none md:w-[88px] lg:w-[100px] leading-tight"
                   onClick={() => handleSort('bb1')}
                 >
                   <div className="flex items-center justify-center gap-0.5">
@@ -166,7 +166,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
                 {/* FH1 with dividing right border */}
                 <th
-                  className="py-2.5 px-1.5 sm:px-2.5 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 border-r border-r-purple-900/60 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none leading-tight"
+                  className="py-2.5 px-1.5 sm:px-2.5 md:px-3 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 border-r border-r-purple-900/60 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none md:w-[88px] lg:w-[100px] leading-tight"
                   onClick={() => handleSort('fh1')}
                 >
                   <div className="flex items-center justify-center gap-0.5">
@@ -177,7 +177,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
                 {/* WC2 */}
                 <th
-                  className="py-2.5 px-1.5 sm:px-2.5 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none leading-tight"
+                  className="py-2.5 px-1.5 sm:px-2.5 md:px-3 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none md:w-[88px] lg:w-[100px] leading-tight"
                   onClick={() => handleSort('wc2')}
                 >
                   <div className="flex items-center justify-center gap-0.5">
@@ -188,7 +188,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
                 {/* TC2 */}
                 <th
-                  className="py-2.5 px-1.5 sm:px-2.5 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none leading-tight"
+                  className="py-2.5 px-1.5 sm:px-2.5 md:px-3 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none md:w-[88px] lg:w-[100px] leading-tight"
                   onClick={() => handleSort('tc2')}
                 >
                   <div className="flex items-center justify-center gap-0.5">
@@ -199,7 +199,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
                 {/* BB2 */}
                 <th
-                  className="py-2.5 px-1.5 sm:px-2.5 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none leading-tight"
+                  className="py-2.5 px-1.5 sm:px-2.5 md:px-3 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none md:w-[88px] lg:w-[100px] leading-tight"
                   onClick={() => handleSort('bb2')}
                 >
                   <div className="flex items-center justify-center gap-0.5">
@@ -210,7 +210,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
                 {/* FH2 */}
                 <th
-                  className="py-2.5 px-1.5 sm:px-2.5 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none leading-tight"
+                  className="py-2.5 px-1.5 sm:px-2.5 md:px-3 text-center cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[46px] min-w-[46px] max-w-[46px] sm:w-14 sm:min-w-[56px] sm:max-w-none md:w-[88px] lg:w-[100px] leading-tight"
                   onClick={() => handleSort('fh2')}
                 >
                   <div className="flex items-center justify-center gap-0.5">
@@ -236,10 +236,10 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
                     {/* Frozen Team & Manager Column - Dynamically sized to fill remaining screen space */}
                     <td
                       onClick={() => onSelectManager(row.entry_id, currentGW)}
-                      className={`sticky left-0 z-20 py-2.5 px-2 sm:px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors w-[calc(100cqw-184px)] min-w-[calc(100cqw-184px)] max-w-[calc(100cqw-184px)] sm:w-auto sm:min-w-[160px] sm:max-w-none cursor-pointer ${
+                      className={`sticky left-0 z-20 py-2.5 px-2 sm:px-2.5 md:px-4 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors w-[calc(100cqw-184px)] min-w-[calc(100cqw-184px)] max-w-[calc(100cqw-184px)] sm:w-auto sm:min-w-[160px] sm:max-w-none md:min-w-[260px] cursor-pointer ${
                         isUser
-                          ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
-                          : 'bg-white group-hover:bg-purple-50/50'
+                          ? USER_STICKY_CELL_BG
+                          : 'bg-white group-hover:bg-purple-50'
                       }`}
                       title={t('tooltip_chip_team', { entry_name: row.entry_name, gw: currentGW || (language === 'id' ? 'terkini' : 'current') })}
                     >

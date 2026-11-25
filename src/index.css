@@ -5,7 +5,7 @@
 :root {
   --app-font: 'Plus Jakarta Sans', sans-serif;
   --font-sans: 'Plus Jakarta Sans', sans-serif;
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 html, body, #root, #root * {
@@ -128,6 +128,14 @@ code, kbd, pre, .font-mono {
   color: #64748b !important;
 }
 
+.dark .text-purple-900:not([class*="dark:text-"]) {
+  color: #d8b4fe;
+}
+
+.dark .hover\:text-\[\#37003c\]:hover {
+  color: #00ff87 !important;
+}
+
 /* Interactive States & Hovers */
 .dark .hover\:bg-slate-50:hover,
 .dark .hover\:bg-slate-100:hover,
@@ -143,12 +151,11 @@ code, kbd, pre, .font-mono {
 }
 
 /* Sticky frozen table columns in Dark Mode */
-.dark td.sticky,
-.dark th.sticky {
+.dark td.sticky.bg-white {
   background-color: #150926;
 }
 
-.dark tr:hover td.sticky {
+.dark tr:hover td.sticky.bg-white {
   background-color: #23103e !important;
 }
 

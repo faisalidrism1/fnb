@@ -5,7 +5,6 @@ import {
   Medal,
   ArrowUpDown,
   Search,
-  AlarmClock,
 } from 'lucide-react';
 import {
   StandingsRow,
@@ -20,7 +19,7 @@ import { getGameweekStatus } from '../utils/gwStatus.ts';
 import { StandingsChart } from './StandingsChart.tsx';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage, formatDeadlineByLanguage } from '../utils/i18n.ts';
-import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 
 interface TabStandingsProps {
   standings: Record<number, StandingsRow[]>;
@@ -391,16 +390,16 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
             ? t('status_provisional')
             : t('status_confirmed');
 
-        let statusBadgeClasses = 'bg-[#00ff87]/20 border border-[#00c968] text-[#006e36]';
+        let statusBadgeClasses = 'bg-[#00ff87]/20 border border-[#00c968] text-[#006e36] dark:text-[#00ff87]';
 
         if (calculatedStatus === 'Not Started') {
           statusBadgeClasses = 'bg-slate-100 border border-slate-300 text-slate-600';
         } else if (calculatedStatus === 'Live') {
-          statusBadgeClasses = 'bg-[#e90052]/15 border border-[#e90052] text-[#e90052]';
+          statusBadgeClasses = 'bg-[#e90052]/15 border border-[#e90052] text-[#e90052] dark:text-[#ff4d88]';
         } else if (calculatedStatus === 'Provisional') {
-          statusBadgeClasses = 'bg-amber-400/20 border border-amber-500 text-amber-800';
+          statusBadgeClasses = 'bg-amber-400/20 border border-amber-500 text-amber-800 dark:text-amber-300';
         } else {
-          statusBadgeClasses = 'bg-[#00ff87]/20 border border-[#00c968] text-[#006e36]';
+          statusBadgeClasses = 'bg-[#00ff87]/20 border border-[#00c968] text-[#006e36] dark:text-[#00ff87]';
         }
 
         // Live Table GW N
@@ -454,9 +453,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               </p>
 
               {/* 4 Countdown items: Days box putih dengan border ungu tua, boxes waktu ungu tua */}
-              <div className="w-full grid grid-cols-[1fr_auto_1fr] items-start pt-2">
-                <div aria-hidden="true" />
-                <div className="flex items-center justify-center gap-2 sm:gap-3">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 pt-2">
                   {/* Days Box */}
                   <div className="flex flex-col items-center">
                     <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white dark:bg-[#1f0d38] text-[#37003c] dark:text-[#00ff87] rounded-xl shadow-xs flex items-center justify-center border-2 border-[#37003c] dark:border-[#00ff87]/60">
@@ -505,14 +502,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-center h-14 sm:h-16">
-                  <AlarmClock
-                    className="w-5 h-5 sm:w-6 sm:h-6 text-[#37003c] dark:text-[#00ff87] pointer-events-none"
-                    aria-hidden="true"
-                  />
-                </div>
               </div>
-            </div>
 
             {/* Gameweek [N] Status */}
             <div className="flex items-center gap-3 py-1">
@@ -689,8 +679,8 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                 currentGwLifecycleStatus.status === 'Live'
                   ? 'bg-[#ff2851]/15 border-[#ff2851] text-[#ff2851]'
                   : currentGwLifecycleStatus.status === 'Provisional'
-                  ? 'bg-amber-400/20 border-amber-500 text-amber-700 dark:text-amber-400'
-                  : 'bg-[#00ff87]/30 text-[#0f5132] border-[#00ff87]'
+                  ? 'bg-amber-400/20 border-amber-500 text-amber-700 dark:text-amber-300'
+                  : 'bg-[#00ff87]/30 text-[#0f5132] dark:text-[#00ff87] border-[#00ff87]'
               }`}>
                 {currentGwBadgeText}
               </span>
@@ -713,12 +703,12 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
           {/* Table directly below filter - Horizontal padding reduced by 50% */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+              <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
                   {/* Frozen Rank Column - Slim & Minimalist */}
                   <th
-                    className="sticky left-0 z-30 bg-[#37003c] py-2 px-0.5 text-center cursor-pointer hover:bg-purple-950 transition-colors w-12 min-w-[48px] max-w-[48px] border-b border-purple-900 leading-tight"
+                    className="sticky left-0 z-30 bg-[#37003c] py-2 px-0.5 md:px-2 text-center cursor-pointer hover:bg-purple-950 transition-colors w-12 min-w-[48px] max-w-[48px] md:w-14 md:min-w-[56px] md:max-w-[56px] border-b border-purple-900 leading-tight"
                     onClick={() => handleSort('rank')}
                   >
                     <div className="flex items-center justify-center gap-0.5">
@@ -729,7 +719,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
 
                   {/* Frozen Team & Manager Column - Seamless with table */}
                   <th
-                    className="sticky left-[48px] z-30 bg-[#37003c] py-2 px-1 cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 border-r border-purple-900/40 leading-tight"
+                    className="sticky left-[48px] md:left-[56px] z-30 bg-[#37003c] py-2 px-1 md:px-3 cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 border-r border-purple-900/40 md:w-[27%] leading-tight"
                     onClick={() => handleSort('entry_name')}
                   >
                     <div className="flex items-center gap-1">
@@ -738,13 +728,13 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </div>
                   </th>
 
-                  {/* Total Points - Wrapped header */}
+                  {/* Total Points - Wrapped on mobile, single-line on desktop */}
                   <th
-                    className="py-1.5 px-0.5 text-right cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-10 leading-tight"
+                    className="py-1.5 md:py-2 px-0.5 md:px-3 text-right cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-10 md:w-[96px] md:min-w-[96px] leading-tight"
                     onClick={() => handleSort('total_points')}
                   >
-                    <div className="flex items-center justify-end gap-0.5">
-                      <div className="flex flex-col leading-tight text-right">
+                    <div className="flex items-center justify-end gap-0.5 md:gap-1">
+                      <div className="flex flex-col md:flex-row md:gap-1 leading-tight text-right whitespace-nowrap">
                         {language === 'id' ? (
                           <>
                             <span>Total</span>
@@ -761,13 +751,13 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                     </div>
                   </th>
 
-                  {/* GW Points - Wrapped header */}
+                  {/* GW Points - Wrapped on mobile, single-line on desktop */}
                   <th
-                    className="py-1.5 px-0.5 text-right cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[40px] min-w-[40px] leading-tight"
+                    className="py-1.5 md:py-2 px-0.5 md:px-3 text-right cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 w-[40px] min-w-[40px] md:w-[92px] md:min-w-[92px] leading-tight"
                     onClick={() => handleSort('event_points')}
                   >
-                    <div className="flex items-center justify-end gap-0.5">
-                      <div className="flex flex-col leading-tight text-right">
+                    <div className="flex items-center justify-end gap-0.5 md:gap-1">
+                      <div className="flex flex-col md:flex-row md:gap-1 leading-tight text-right whitespace-nowrap">
                         {language === 'id' ? (
                           <>
                             <span>Poin</span>
@@ -786,22 +776,22 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
 
                   {/* Hits */}
                   <th
-                    className="py-2 px-0.5 text-right cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 leading-tight"
+                    className="py-2 px-0.5 md:px-3 text-right cursor-pointer hover:bg-purple-950 transition-colors border-b border-purple-900 md:w-[76px] md:min-w-[76px] leading-tight"
                     onClick={() => handleSort('event_transfers_cost')}
                   >
-                    <div className="flex items-center justify-end gap-0.5">
+                    <div className="flex items-center justify-end gap-0.5 md:gap-1">
                       <span>{t('col_hits')}</span>
                       <ArrowUpDown className="w-2.5 h-2.5 text-purple-300" />
                     </div>
                   </th>
 
                   {/* Chip */}
-                  <th className="py-2 px-0.5 text-center border-b border-purple-900 w-[40px] min-w-[40px] leading-tight">
+                  <th className="py-2 px-0.5 md:px-3 text-center border-b border-purple-900 w-[40px] min-w-[40px] md:w-[88px] md:min-w-[88px] leading-tight">
                     {t('col_chip')}
                   </th>
 
                   {/* Captain & Vice */}
-                  <th className="py-2 px-1 border-b border-purple-900 leading-tight">
+                  <th className="py-2 px-1 md:px-3 border-b border-purple-900 md:w-auto leading-tight">
                     {t('col_captain_vice')}
                   </th>
                 </tr>
@@ -820,10 +810,10 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                       onClick={() => onSelectManager(row.entry_id, selectedGW)}
                     >
                       {/* Frozen Rank Column - Last rank in parentheses & movement below */}
-                      <td className={`sticky left-0 z-20 py-2 px-0.5 text-center whitespace-nowrap w-12 min-w-[48px] max-w-[48px] border-b border-slate-100 transition-colors ${
+                      <td className={`sticky left-0 z-20 py-2 px-0.5 md:px-2 text-center whitespace-nowrap w-12 min-w-[48px] max-w-[48px] md:w-14 md:min-w-[56px] md:max-w-[56px] border-b border-slate-100 transition-colors ${
                         isUser
-                          ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
-                          : 'bg-white group-hover:bg-purple-50/50'
+                          ? USER_STICKY_CELL_BG
+                          : 'bg-white group-hover:bg-purple-50'
                       }`}>
                         <div className="flex flex-col items-center justify-center leading-none">
                           <div className="flex items-baseline justify-center gap-0.5 leading-none">
@@ -863,37 +853,37 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                       </td>
 
                       {/* Frozen Team & Manager Column - Seamless border and matching hover */}
-                      <td className={`sticky left-[48px] z-20 py-2 px-1 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors ${
+                      <td className={`sticky left-[48px] md:left-[56px] z-20 py-2 px-1 md:px-3 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors ${
                         isUser
-                          ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
-                          : 'bg-white group-hover:bg-purple-50/50'
+                          ? USER_STICKY_CELL_BG
+                          : 'bg-white group-hover:bg-purple-50'
                       }`}>
-                        <div className="whitespace-nowrap">
-                          <p className="font-extrabold text-slate-900 text-xs hover:text-[#37003c] leading-snug whitespace-nowrap">
+                        <div className="whitespace-nowrap md:min-w-0">
+                          <p className="font-extrabold text-slate-900 text-xs hover:text-[#37003c] leading-snug whitespace-nowrap md:truncate">
                             {row.entry_name}
                           </p>
-                          <p className="text-[11px] text-slate-500 font-medium leading-tight whitespace-nowrap">
+                          <p className="text-[11px] text-slate-500 font-medium leading-tight whitespace-nowrap md:truncate">
                             {row.player_name}
                           </p>
                         </div>
                       </td>
 
                       {/* Total Points */}
-                      <td className="py-2 px-0.5 text-right whitespace-nowrap border-b border-slate-100">
+                      <td className="py-2 px-0.5 md:px-3 text-right whitespace-nowrap border-b border-slate-100">
                         <span className="font-black text-slate-900 text-xs sm:text-sm">
                           {row.total_points}
                         </span>
                       </td>
 
                       {/* GW Points */}
-                      <td className="py-2 px-0.5 text-right whitespace-nowrap border-b border-slate-100 w-[40px] min-w-[40px]">
+                      <td className="py-2 px-0.5 md:px-3 text-right whitespace-nowrap border-b border-slate-100 w-[40px] min-w-[40px] md:w-auto">
                         <span className="font-bold text-emerald-600 dark:text-[#00ff87] text-xs">
                           {row.event_points}
                         </span>
                       </td>
 
                       {/* Hits */}
-                      <td className="py-2 px-0.5 text-right whitespace-nowrap border-b border-slate-100">
+                      <td className="py-2 px-0.5 md:px-3 text-right whitespace-nowrap border-b border-slate-100">
                         {row.event_transfers_cost > 0 ? (
                           <span className="font-bold text-rose-600 dark:text-rose-400 text-xs">
                             -{row.event_transfers_cost}
@@ -904,7 +894,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                       </td>
 
                       {/* Chip */}
-                      <td className="py-2 px-0.5 text-center whitespace-nowrap border-b border-slate-100 w-[40px] min-w-[40px]">
+                      <td className="py-2 px-0.5 md:px-3 text-center whitespace-nowrap border-b border-slate-100 w-[40px] min-w-[40px] md:w-auto">
                         {row.active_chip ? (
                           <span className="inline-block bg-[#37003c] text-[#00ff87] font-black text-[10px] px-1.5 py-0.5 rounded-full border border-[#00ff87]/60 uppercase shadow-xs">
                             {row.active_chip}
@@ -915,7 +905,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                       </td>
 
                       {/* Captain & Vice Captain */}
-                      <td className="py-2 px-1 whitespace-nowrap border-b border-slate-100">
+                      <td className="py-2 px-1 md:px-3 whitespace-nowrap border-b border-slate-100">
                         <div className="space-y-0.5">
                           {row.captain ? (
                             <div
@@ -1004,7 +994,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
                   <th
-                    className="py-2.5 px-2 text-center w-[68px] sm:w-[84px] shrink-0 border-b border-purple-900 cursor-pointer hover:bg-purple-950 transition-colors leading-tight"
+                    className="py-2.5 px-2 md:px-4 text-center w-[68px] sm:w-[84px] md:w-[120px] shrink-0 border-b border-purple-900 cursor-pointer hover:bg-purple-950 transition-colors leading-tight"
                     onClick={() => handleGwChampSort('event')}
                     title={t('tooltip_sort_gw')}
                   >
@@ -1013,14 +1003,14 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                       <ArrowUpDown className="w-2.5 h-2.5 text-purple-300 shrink-0" />
                     </div>
                   </th>
-                  <th className="py-2.5 px-2 text-left border-b border-purple-900 leading-tight">
+                  <th className="py-2.5 px-2 md:px-4 text-left border-b border-purple-900 leading-tight">
                     {t('col_team_manager')}
                   </th>
-                  <th className="py-2.5 px-1.5 text-center w-[52px] sm:w-[64px] shrink-0 border-b border-purple-900 leading-tight">
+                  <th className="py-2.5 px-1.5 md:px-3 text-center w-[52px] sm:w-[64px] md:w-[100px] shrink-0 border-b border-purple-900 leading-tight">
                     {t('col_rank')}
                   </th>
                   <th
-                    className="py-2.5 px-2 text-right w-[66px] sm:w-[80px] shrink-0 border-b border-purple-900 cursor-pointer hover:bg-purple-950 transition-colors leading-tight"
+                    className="py-2.5 px-2 md:px-4 text-right w-[66px] sm:w-[80px] md:w-[120px] shrink-0 border-b border-purple-900 cursor-pointer hover:bg-purple-950 transition-colors leading-tight"
                     onClick={() => handleGwChampSort('points')}
                     title={t('tooltip_sort_pts')}
                   >
@@ -1131,16 +1121,16 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
             <table className="w-full text-left text-xs text-slate-700 border-collapse table-auto sm:table-fixed">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
-                  <th className="py-2.5 px-1.5 text-center w-[46px] sm:w-[54px] shrink-0 border-b border-purple-900 leading-tight">
+                  <th className="py-2.5 px-1.5 md:px-3 text-center w-[46px] sm:w-[54px] md:w-[84px] shrink-0 border-b border-purple-900 leading-tight">
                     {t('col_rank')}
                   </th>
-                  <th className="py-2.5 px-2 border-b border-purple-900 text-left leading-tight">
+                  <th className="py-2.5 px-2 md:px-4 border-b border-purple-900 text-left leading-tight">
                     {t('col_team_manager')}
                   </th>
-                  <th className="py-2.5 px-1.5 text-center w-[54px] sm:w-[64px] shrink-0 border-b border-purple-900 leading-tight">
+                  <th className="py-2.5 px-1.5 md:px-3 text-center w-[54px] sm:w-[64px] md:w-[96px] shrink-0 border-b border-purple-900 leading-tight">
                     {t('col_wins')}
                   </th>
-                  <th className="py-2.5 px-2 text-right w-[86px] sm:w-[110px] shrink-0 border-b border-purple-900 leading-tight">
+                  <th className="py-2.5 px-2 md:px-4 text-right w-[86px] sm:w-[110px] md:w-[260px] lg:w-[320px] shrink-0 border-b border-purple-900 leading-tight">
                     {t('col_gw')}
                   </th>
                 </tr>
@@ -1267,18 +1257,18 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                 <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                   <tr>
                     {/* Rank Column */}
-                    <th className="py-2.5 px-1 text-center w-[36px] sm:w-[44px] shrink-0 border-b border-purple-900 leading-tight">
+                    <th className="py-2.5 px-1 md:px-3 text-center w-[36px] sm:w-[44px] md:w-[72px] shrink-0 border-b border-purple-900 leading-tight">
                     </th>
                     {/* Team & Manager */}
-                    <th className="py-2.5 px-2 border-b border-purple-900 text-left leading-tight">
+                    <th className="py-2.5 px-2 md:px-4 border-b border-purple-900 text-left leading-tight">
                       {t('col_team_manager')}
                     </th>
                     {/* Hits */}
-                    <th className="py-2.5 px-1.5 text-right w-[60px] sm:w-[72px] shrink-0 border-b border-purple-900 leading-tight">
+                    <th className="py-2.5 px-1.5 md:px-3 text-right w-[60px] sm:w-[72px] md:w-[116px] shrink-0 border-b border-purple-900 leading-tight">
                       {t('col_hits')}
                     </th>
                     {/* Last Rank */}
-                    <th className="py-2.5 px-2 text-right w-[54px] sm:w-[66px] shrink-0 border-b border-purple-900 leading-tight">
+                    <th className="py-2.5 px-2 md:px-4 text-right w-[54px] sm:w-[66px] md:w-[110px] shrink-0 border-b border-purple-900 leading-tight">
                       {t('col_rank')}
                     </th>
                   </tr>

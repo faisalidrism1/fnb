@@ -6,7 +6,7 @@ import {
 } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
-import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 
 interface TabTransferProps {
   transfers: TransferItem[];
@@ -217,39 +217,39 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
           {/* Requested column order: Team & Manager, Player In, Player Out, GW, Time (WIB) */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+              <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
                 <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                   <tr>
                     {/* 1. Frozen Team & Manager */}
-                    <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-3 border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
+                    <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-3 md:px-3.5 md:w-[22%] border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
                       {t('col_team_manager')}
                     </th>
                     {/* 2. Player In */}
-                    <th className="py-2 px-2.5 border-b border-purple-900 leading-tight">
+                    <th className="py-2 px-2.5 md:px-3 md:w-[20%] border-b border-purple-900 leading-tight">
                       {t('col_player_in')}
                     </th>
                     {/* 3. Player Out */}
-                    <th className="py-2 px-2.5 border-b border-purple-900 leading-tight">
+                    <th className="py-2 px-2.5 md:px-3 md:w-[20%] border-b border-purple-900 leading-tight">
                       {t('col_player_out')}
                     </th>
                     {/* 4. In Pts */}
-                    <th className="py-2 px-2 text-center border-b border-purple-900 w-16 min-w-[56px] whitespace-nowrap leading-tight">
+                    <th className="py-2 px-2 text-center border-b border-purple-900 w-16 min-w-[56px] md:w-[76px] whitespace-nowrap leading-tight">
                       {language === 'id' ? 'Poin In' : 'In Pts'}
                     </th>
                     {/* 5. Out Pts */}
-                    <th className="py-2 px-2 text-center border-b border-purple-900 w-16 min-w-[56px] whitespace-nowrap leading-tight">
+                    <th className="py-2 px-2 text-center border-b border-purple-900 w-16 min-w-[56px] md:w-[76px] whitespace-nowrap leading-tight">
                       {language === 'id' ? 'Poin Out' : 'Out Pts'}
                     </th>
                     {/* 6. Gap */}
-                    <th className="py-2 px-2 text-center border-b border-purple-900 w-14 min-w-[52px] leading-tight">
+                    <th className="py-2 px-2 text-center border-b border-purple-900 w-14 min-w-[52px] md:w-[68px] leading-tight">
                       Gap
                     </th>
                     {/* 7. GW */}
-                    <th className="py-2 px-2 text-center border-b border-purple-900 w-14 min-w-[56px] leading-tight">
+                    <th className="py-2 px-2 text-center border-b border-purple-900 w-14 min-w-[56px] md:w-[72px] leading-tight">
                       {t('col_gw')}
                     </th>
                     {/* 8. Time (WIB) */}
-                    <th className="py-2 px-2.5 border-b border-purple-900 w-32 min-w-[120px] leading-tight">
+                    <th className="py-2 px-2.5 md:px-3 border-b border-purple-900 w-32 min-w-[120px] md:w-[136px] leading-tight">
                       {t('col_time_wib')}
                     </th>
                   </tr>
@@ -278,19 +278,19 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                           }`}
                         >
                           {/* 1. Frozen Team & Manager - Without text wrap */}
-                          <td className={`sticky left-0 z-20 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
+                          <td className={`sticky left-0 z-20 py-2 px-3 md:px-3.5 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                             isUser
-                              ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
-                              : 'bg-white group-hover:bg-purple-50/50'
+                              ? USER_STICKY_CELL_BG
+                              : 'bg-white group-hover:bg-purple-50'
                           }`}>
                             <div
-                              className="cursor-pointer hover:text-[#37003c] whitespace-nowrap"
+                              className="cursor-pointer hover:text-[#37003c] whitespace-nowrap md:min-w-0"
                               onClick={() => onSelectManager(t.entry_id, t.event)}
                             >
-                              <p className="font-extrabold text-slate-900 text-xs whitespace-nowrap leading-tight">
+                              <p className="font-extrabold text-slate-900 text-xs whitespace-nowrap md:truncate leading-tight">
                                 {t.entry_name}
                               </p>
-                              <p className="text-[11px] text-slate-500 font-medium whitespace-nowrap leading-tight">
+                              <p className="text-[11px] text-slate-500 font-medium whitespace-nowrap md:truncate leading-tight">
                                 {t.player_name}
                               </p>
                             </div>
@@ -303,7 +303,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                                 onSelectPlayer(t.element_in.id, t.event);
                               }
                             }}
-                            className={`py-2 px-2.5 whitespace-nowrap ${
+                            className={`py-2 px-2.5 md:px-3 whitespace-nowrap ${
                               onSelectPlayer && t.element_in?.id
                                 ? 'cursor-pointer hover:bg-emerald-50/60 transition-colors group/pin'
                                 : ''
@@ -314,11 +314,11 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                                 : undefined
                             }
                           >
-                            <div className="whitespace-nowrap leading-tight">
-                              <p className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs whitespace-nowrap group-hover/pin:underline">
+                            <div className="whitespace-nowrap leading-tight md:min-w-0">
+                              <p className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs whitespace-nowrap md:truncate group-hover/pin:underline">
                                 {t.element_in.name}
                               </p>
-                              <p className="text-[10px] text-slate-500 whitespace-nowrap font-medium">
+                              <p className="text-[10px] text-slate-500 whitespace-nowrap md:truncate font-medium">
                                 {t.element_in.position ? `${t.element_in.position} • ` : ''}{t.element_in.club} • £{(t.element_in.cost / 10).toFixed(1)}m
                               </p>
                             </div>
@@ -331,7 +331,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                                 onSelectPlayer(t.element_out.id, t.event);
                               }
                             }}
-                            className={`py-2 px-2.5 whitespace-nowrap ${
+                            className={`py-2 px-2.5 md:px-3 whitespace-nowrap ${
                               onSelectPlayer && t.element_out?.id
                                 ? 'cursor-pointer hover:bg-rose-50/60 transition-colors group/pout'
                                 : ''
@@ -342,11 +342,11 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                                 : undefined
                             }
                           >
-                            <div className="whitespace-nowrap leading-tight">
-                              <p className="font-extrabold text-rose-500 dark:text-rose-400 text-xs whitespace-nowrap group-hover/pout:underline">
+                            <div className="whitespace-nowrap leading-tight md:min-w-0">
+                              <p className="font-extrabold text-rose-500 dark:text-rose-400 text-xs whitespace-nowrap md:truncate group-hover/pout:underline">
                                 {t.element_out.name}
                               </p>
-                              <p className="text-[10px] text-slate-500 whitespace-nowrap font-medium">
+                              <p className="text-[10px] text-slate-500 whitespace-nowrap md:truncate font-medium">
                                 {t.element_out.position ? `${t.element_out.position} • ` : ''}{t.element_out.club} • £{(t.element_out.cost / 10).toFixed(1)}m
                               </p>
                             </div>
@@ -389,7 +389,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                           </td>
 
                           {/* 8. Time (WIB) - Clock icon removed */}
-                          <td className="py-2 px-2.5 whitespace-nowrap">
+                          <td className="py-2 px-2.5 md:px-3 whitespace-nowrap">
                             <span className="text-slate-500 text-[11px] whitespace-nowrap font-medium">
                               {(() => {
                                 if (t.formatted_time_wib) {
@@ -475,23 +475,23 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
 
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+              <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
                 <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                   <tr>
                     {/* Frozen # Column */}
-                    <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-1 text-center w-10 min-w-[40px] max-w-[40px] border-b border-purple-900 border-r border-purple-900/60 leading-tight">
+                    <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-1 text-center w-10 min-w-[40px] max-w-[40px] md:w-14 md:min-w-[56px] md:max-w-[56px] border-b border-purple-900 border-r border-purple-900/60 leading-tight">
                       #
                     </th>
                     {/* Frozen Player Column */}
-                    <th className="sticky left-[40px] z-30 bg-[#37003c] py-2 px-3 border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
+                    <th className="sticky left-[40px] md:left-[56px] z-30 bg-[#37003c] py-2 px-3 md:px-4 border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
                       {t('col_player')}
                     </th>
-                    <th className="py-2 px-2.5 border-b border-purple-900 text-center leading-tight">{t('col_club')}</th>
-                    <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
-                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
-                    <th className="py-2 px-2 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
-                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
-                    <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">{language === 'id' ? 'Masuk' : 'In'}</th>
+                    <th className="py-2 px-2.5 md:w-24 border-b border-purple-900 text-center leading-tight">{t('col_club')}</th>
+                    <th className="py-2 px-2 md:w-20 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
+                    <th className="py-2 px-2.5 md:px-3 md:w-24 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
+                    <th className="py-2 px-2 md:px-3 md:w-24 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
+                    <th className="py-2 px-2.5 md:px-3 md:w-28 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
+                    <th className="py-2 px-3 md:px-4 md:w-32 text-right border-b border-purple-900 leading-tight">{language === 'id' ? 'Masuk' : 'In'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -505,7 +505,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                     currentTransferredIn.map((item, idx) => (
                       <tr key={item.id} className="hover:bg-purple-50/30 transition-colors group">
                         {/* Frozen # Column */}
-                        <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50/50 py-2 px-1 text-center border-r border-slate-100 w-10 min-w-[40px] max-w-[40px]">
+                        <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50 py-2 px-1 text-center border-r border-slate-100 w-10 min-w-[40px] max-w-[40px] md:w-14 md:min-w-[56px] md:max-w-[56px]">
                           <span className="font-bold text-slate-500">{idx + 1}</span>
                         </td>
                         {/* Frozen Player Column */}
@@ -516,21 +516,21 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                               onSelectPlayer(item.id, targetGw);
                             }
                           }}
-                          className={`sticky left-[40px] z-20 bg-white group-hover:bg-purple-100/70 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
+                          className={`sticky left-[40px] md:left-[56px] z-20 bg-white group-hover:bg-purple-50 py-2 px-3 md:px-4 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                             onSelectPlayer ? 'cursor-pointer' : ''
                           }`}
                           title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${item.web_name}` : `Click to view details for ${item.web_name}`) : undefined}
                         >
-                          <p className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs whitespace-nowrap">
+                          <p className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs whitespace-nowrap md:truncate">
                             {item.web_name}
                           </p>
                         </td>
-                        <td className="py-2 px-2.5 text-center whitespace-nowrap">
+                        <td className="py-2 px-2.5 md:w-24 text-center whitespace-nowrap">
                           <span className="font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-[11px] whitespace-nowrap">
                             {item.team_short_name}
                           </span>
                         </td>
-                        <td className="py-2 px-2 text-center whitespace-nowrap">
+                        <td className="py-2 px-2 md:w-20 text-center whitespace-nowrap">
                           <span
                             className={`font-black text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap ${
                               item.position === 'FWD'
@@ -545,18 +545,18 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                             {item.position}
                           </span>
                         </td>
-                        <td className="py-2 px-2.5 text-right whitespace-nowrap font-mono">
+                        <td className="py-2 px-2.5 md:px-3 md:w-24 text-right whitespace-nowrap font-mono">
                           £{(item.now_cost / 10).toFixed(1)}m
                         </td>
-                        <td className="py-2 px-2 text-right whitespace-nowrap">
+                        <td className="py-2 px-2 md:px-3 md:w-24 text-right whitespace-nowrap">
                           <span className="font-extrabold text-purple-900 bg-purple-50 border border-purple-200/70 px-1.5 py-0.5 rounded text-[11px]">
                             {item.gw_points ?? 0}
                           </span>
                         </td>
-                        <td className="py-2 px-2.5 text-right whitespace-nowrap font-black text-slate-900">
+                        <td className="py-2 px-2.5 md:px-3 md:w-28 text-right whitespace-nowrap font-black text-slate-900">
                           {item.total_points}
                         </td>
-                        <td className="py-2 px-3 text-right whitespace-nowrap">
+                        <td className="py-2 px-3 md:px-4 md:w-32 text-right whitespace-nowrap">
                           <span className="font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-xs whitespace-nowrap">
                             +{item.transfer_count} In
                           </span>
@@ -623,23 +623,23 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
 
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+              <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
                 <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                   <tr>
                     {/* Frozen # Column */}
-                    <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-1 text-center w-10 min-w-[40px] max-w-[40px] border-b border-purple-900 border-r border-purple-900/60 leading-tight">
+                    <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-1 text-center w-10 min-w-[40px] max-w-[40px] md:w-14 md:min-w-[56px] md:max-w-[56px] border-b border-purple-900 border-r border-purple-900/60 leading-tight">
                       #
                     </th>
                     {/* Frozen Player Column */}
-                    <th className="sticky left-[40px] z-30 bg-[#37003c] py-2 px-3 border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
+                    <th className="sticky left-[40px] md:left-[56px] z-30 bg-[#37003c] py-2 px-3 md:px-4 border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
                       {t('col_player')}
                     </th>
-                    <th className="py-2 px-2.5 border-b border-purple-900 text-center leading-tight">{t('col_club')}</th>
-                    <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
-                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
-                    <th className="py-2 px-2 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
-                    <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
-                    <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">{language === 'id' ? 'Keluar' : 'Out'}</th>
+                    <th className="py-2 px-2.5 md:w-24 border-b border-purple-900 text-center leading-tight">{t('col_club')}</th>
+                    <th className="py-2 px-2 md:w-20 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
+                    <th className="py-2 px-2.5 md:px-3 md:w-24 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
+                    <th className="py-2 px-2 md:px-3 md:w-24 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
+                    <th className="py-2 px-2.5 md:px-3 md:w-28 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
+                    <th className="py-2 px-3 md:px-4 md:w-32 text-right border-b border-purple-900 leading-tight">{language === 'id' ? 'Keluar' : 'Out'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -653,7 +653,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                     currentTransferredOut.map((item, idx) => (
                       <tr key={item.id} className="hover:bg-purple-50/30 transition-colors group">
                         {/* Frozen # Column */}
-                        <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50/50 py-2 px-1 text-center border-r border-slate-100 w-10 min-w-[40px] max-w-[40px]">
+                        <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50 py-2 px-1 text-center border-r border-slate-100 w-10 min-w-[40px] max-w-[40px] md:w-14 md:min-w-[56px] md:max-w-[56px]">
                           <span className="font-bold text-slate-500">{idx + 1}</span>
                         </td>
                         {/* Frozen Player Column */}
@@ -664,21 +664,21 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                               onSelectPlayer(item.id, targetGw);
                             }
                           }}
-                          className={`sticky left-[40px] z-20 bg-white group-hover:bg-purple-100/70 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
+                          className={`sticky left-[40px] md:left-[56px] z-20 bg-white group-hover:bg-purple-50 py-2 px-3 md:px-4 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                             onSelectPlayer ? 'cursor-pointer' : ''
                           }`}
                           title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${item.web_name}` : `Click to view details for ${item.web_name}`) : undefined}
                         >
-                          <p className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs whitespace-nowrap">
+                          <p className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs whitespace-nowrap md:truncate">
                             {item.web_name}
                           </p>
                         </td>
-                        <td className="py-2 px-2.5 text-center whitespace-nowrap">
+                        <td className="py-2 px-2.5 md:w-24 text-center whitespace-nowrap">
                           <span className="font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-[11px] whitespace-nowrap">
                             {item.team_short_name}
                           </span>
                         </td>
-                        <td className="py-2 px-2 text-center whitespace-nowrap">
+                        <td className="py-2 px-2 md:w-20 text-center whitespace-nowrap">
                           <span
                             className={`font-black text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap ${
                               item.position === 'FWD'
@@ -693,18 +693,18 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                             {item.position}
                           </span>
                         </td>
-                        <td className="py-2 px-2.5 text-right whitespace-nowrap font-mono">
+                        <td className="py-2 px-2.5 md:px-3 md:w-24 text-right whitespace-nowrap font-mono">
                           £{(item.now_cost / 10).toFixed(1)}m
                         </td>
-                        <td className="py-2 px-2 text-right whitespace-nowrap">
+                        <td className="py-2 px-2 md:px-3 md:w-24 text-right whitespace-nowrap">
                           <span className="font-extrabold text-purple-900 bg-purple-50 border border-purple-200/70 px-1.5 py-0.5 rounded text-[11px]">
                             {item.gw_points ?? 0}
                           </span>
                         </td>
-                        <td className="py-2 px-2.5 text-right whitespace-nowrap font-black text-slate-900">
+                        <td className="py-2 px-2.5 md:px-3 md:w-28 text-right whitespace-nowrap font-black text-slate-900">
                           {item.total_points}
                         </td>
-                        <td className="py-2 px-3 text-right whitespace-nowrap">
+                        <td className="py-2 px-3 md:px-4 md:w-32 text-right whitespace-nowrap">
                           <span className="font-black text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md text-xs whitespace-nowrap">
                             -{item.transfer_count} Out
                           </span>

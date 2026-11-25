@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CaptainPlayerItem, ClubCaptainItem, StandingsRow } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
-import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 
 interface TabCaptainProps {
   captains: Record<number, CaptainPlayerItem[]>;
@@ -110,26 +110,26 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
       {subTab === 'most-captained-player' && (
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700 border-separate border-spacing-0">
+            <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
                   {/* Frozen # Column */}
-                  <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-1 text-center w-11 min-w-[44px] max-w-[44px] border-b border-purple-900 border-r border-purple-900/60 leading-tight">
+                  <th className="sticky left-0 z-30 bg-[#37003c] py-2 px-1 text-center w-11 min-w-[44px] max-w-[44px] md:w-14 md:min-w-[56px] md:max-w-[56px] border-b border-purple-900 border-r border-purple-900/60 leading-tight">
                     #
                   </th>
                   {/* Frozen Player Column */}
-                  <th className="sticky left-[44px] z-30 bg-[#37003c] py-2 px-3 whitespace-nowrap border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
+                  <th className="sticky left-[44px] md:left-[56px] z-30 bg-[#37003c] py-2 px-3 md:px-4 whitespace-nowrap border-b border-purple-900 border-r border-purple-900/60 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.25)] leading-tight">
                     {t('col_player')}
                   </th>
-                  <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">{t('col_club')}</th>
-                  <th className="py-2 px-2 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
-                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
+                  <th className="py-2 px-2 md:w-24 text-center border-b border-purple-900 leading-tight">{t('col_club')}</th>
+                  <th className="py-2 px-2 md:w-20 text-center border-b border-purple-900 leading-tight">{t('col_pos')}</th>
+                  <th className="py-2 px-2.5 md:px-3 md:w-24 text-right border-b border-purple-900 leading-tight">{t('col_cost')}</th>
                   {/* GW Pts added to the left of Total Pts */}
-                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
-                  <th className="py-2 px-2.5 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
+                  <th className="py-2 px-2.5 md:px-3 md:w-24 text-right border-b border-purple-900 leading-tight">{t('col_gw_pts')}</th>
+                  <th className="py-2 px-2.5 md:px-3 md:w-28 text-right border-b border-purple-900 leading-tight">{t('col_total_pts')}</th>
                   {/* Swapped: (C) first, then (VC) */}
-                  <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">{t('col_c')}</th>
-                  <th className="py-2 px-3 text-right border-b border-purple-900 leading-tight">{t('col_vc')}</th>
+                  <th className="py-2 px-3 md:px-4 md:w-36 text-right border-b border-purple-900 leading-tight">{t('col_c')}</th>
+                  <th className="py-2 px-3 md:px-4 md:w-36 text-right border-b border-purple-900 leading-tight">{t('col_vc')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -150,10 +150,10 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                       }`}
                     >
                       {/* Frozen # Column */}
-                      <td className={`sticky left-0 z-20 py-2 px-1 text-center whitespace-nowrap border-r border-slate-100 w-11 min-w-[44px] max-w-[44px] transition-colors ${
+                      <td className={`sticky left-0 z-20 py-2 px-1 text-center whitespace-nowrap border-r border-slate-100 w-11 min-w-[44px] max-w-[44px] md:w-14 md:min-w-[56px] md:max-w-[56px] transition-colors ${
                         isUserCaptain
-                          ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
-                          : 'bg-white group-hover:bg-purple-50/50'
+                          ? USER_STICKY_CELL_BG
+                          : 'bg-white group-hover:bg-purple-50'
                       }`}>
                         <span className="font-bold text-slate-500">{idx + 1}</span>
                       </td>
@@ -165,14 +165,14 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                             onSelectPlayer(p.id, selectedGW);
                           }
                         }}
-                        className={`sticky left-[44px] z-20 py-2 px-3 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
+                        className={`sticky left-[44px] md:left-[56px] z-20 py-2 px-3 md:px-4 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                           isUserCaptain
-                            ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
-                            : 'bg-white group-hover:bg-purple-100/70'
+                            ? USER_STICKY_CELL_BG
+                            : 'bg-white group-hover:bg-purple-50'
                         } ${onSelectPlayer ? 'cursor-pointer' : ''}`}
                         title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${p.web_name}` : `Click to view details for ${p.web_name}`) : undefined}
                       >
-                        <div className="flex items-center gap-2 whitespace-nowrap">
+                        <div className="flex items-center gap-2 whitespace-nowrap md:min-w-0">
                           <img
                             src={proxyJerseyUrl}
                             alt={p.team_short_name}
@@ -188,21 +188,21 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                               }
                             }}
                           />
-                          <span className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs sm:text-sm whitespace-nowrap">
+                          <span className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs sm:text-sm whitespace-nowrap md:truncate">
                             {p.web_name}
                           </span>
                         </div>
                       </td>
 
                       {/* Club */}
-                      <td className="py-2 px-2 text-center whitespace-nowrap">
+                      <td className="py-2 px-2 md:w-24 text-center whitespace-nowrap">
                         <span className="font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[11px] whitespace-nowrap">
                           {p.team_short_name}
                         </span>
                       </td>
 
                       {/* Pos */}
-                      <td className="py-2 px-2 text-center whitespace-nowrap">
+                      <td className="py-2 px-2 md:w-20 text-center whitespace-nowrap">
                         <span
                           className={`font-black text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap ${
                             p.position === 'FWD'
@@ -219,22 +219,22 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                       </td>
 
                       {/* Cost */}
-                      <td className="py-2 px-2.5 text-right whitespace-nowrap font-mono">
+                      <td className="py-2 px-2.5 md:px-3 md:w-24 text-right whitespace-nowrap font-mono">
                         £{((p.now_cost || 0) / 10).toFixed(1)}m
                       </td>
 
                       {/* GW Pts */}
-                      <td className="py-2 px-2.5 text-right whitespace-nowrap font-black text-purple-900">
+                      <td className="py-2 px-2.5 md:px-3 md:w-24 text-right whitespace-nowrap font-black text-purple-900">
                         {p.gw_points || 0}
                       </td>
 
                       {/* Total Pts */}
-                      <td className="py-2 px-2.5 text-right whitespace-nowrap font-black text-slate-900">
+                      <td className="py-2 px-2.5 md:px-3 md:w-28 text-right whitespace-nowrap font-black text-slate-900">
                         {p.total_points}
                       </td>
 
                       {/* (C) - Captain picks with progress bar */}
-                      <td className="py-2 px-3 text-right whitespace-nowrap">
+                      <td className="py-2 px-3 md:px-4 md:w-36 text-right whitespace-nowrap">
                         <div className="flex flex-col items-end whitespace-nowrap">
                           <span className="font-black text-purple-900 text-xs whitespace-nowrap">
                             {p.captain_count}{' '}
@@ -252,7 +252,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                       </td>
 
                       {/* (VC) - Vice captain styled identical to (C) */}
-                      <td className="py-2 px-3 text-right whitespace-nowrap">
+                      <td className="py-2 px-3 md:px-4 md:w-36 text-right whitespace-nowrap">
                         <div className="flex flex-col items-end whitespace-nowrap">
                           <span className="font-black text-purple-900 text-xs whitespace-nowrap">
                             {p.vice_count}{' '}

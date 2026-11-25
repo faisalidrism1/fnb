@@ -1,7 +1,7 @@
 [
   {
     "id": "CF_STANDINGS_GAMEWEEK_WINNER",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -12,7 +12,7 @@
     "kategori": "Standings",
     "sub_kategori": "Gameweek",
     "drama_score": 94,
-    "poin_tayang": 0,
+    "poin_tayang": 4,
     "text_berita": "[T:Wayolo FC] menjuarai Gameweek [N:11] dengan [N:67 Poin], unggul [N:6 Poin] atas [T:Aceng Empire's Team] di peringkat kedua.",
     "text_berita_en": "[T:Wayolo FC] wins Gameweek [N:11] with [N:67 Pts], finishing [N:6 Pts] ahead of [T:Aceng Empire's Team].",
     "gw": 11,
@@ -22,12 +22,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795619883483,
+      "lastAiredHeadline": "[T:Wayolo FC] menjuarai Gameweek [N:11] dengan [N:67 Poin], unggul [N:6 Poin] atas [T:Aceng Empire's Team] di peringkat kedua."
     }
   },
   {
     "id": "CF_MATCH_NEXT_DEADLINE",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -38,19 +40,21 @@
     "kategori": "Match",
     "sub_kategori": "Deadline",
     "drama_score": 92,
-    "poin_tayang": 0,
+    "poin_tayang": 3,
     "text_berita": "Jadwal Deadline Gameweek [N:12]: Sabtu, 28 Nov pukul [N:01:30 WIB].",
     "text_berita_en": "Gameweek [N:12] Deadline: Saturday, 28 Nov at [N:01:30 WIB].",
     "gw": 11,
     "teams": [],
     "players": [],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795619897686,
+      "lastAiredHeadline": "Jadwal Deadline Gameweek [N:12]: Sabtu, 28 Nov pukul [N:01:30 WIB]."
     }
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_3_ajayi",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -77,8 +81,8 @@
     }
   },
   {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_3_man_utd_brentford",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_10_arsenal_man_city",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -88,23 +92,23 @@
     ],
     "kategori": "Match",
     "sub_kategori": "Next Fixtures",
-    "drama_score": 81,
+    "drama_score": 83,
     "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Man Utd] vs [C:Brentford] pada Sabtu, 28 Nov [N:22:00 WIB] menyajikan penampilan [P:Mbeumo] ([N:19%]) dan [P:Schade] ([N:17%]).",
-    "text_berita_en": "Gameweek [N:12]: [C:Man Utd] vs [C:Brentford] on Saturday, 28 Nov [N:22:00 WIB] features [P:Mbeumo] ([N:19%]) and [P:Schade] ([N:17%]).",
+    "text_berita": "Gameweek [N:12]: [C:Arsenal] vs [C:Man City] pada Minggu, 29 Nov [N:23:30 WIB] menyajikan duel ketat bagi [P:Haaland] ([N:93%]) dan [P:Calafiori] ([N:73%]).",
+    "text_berita_en": "Gameweek [N:12]: [C:Arsenal] vs [C:Man City] on Sunday, 29 Nov [N:23:30 WIB] presents a tight clash for [P:Haaland] ([N:93%]) and [P:Calafiori] ([N:73%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Mbeumo",
-      "Schade"
+      "Haaland",
+      "Calafiori"
     ],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 9
     }
   },
   {
     "id": "CF_PLAYER_TOP_PERFORMER_GW_SCORER",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -115,7 +119,7 @@
     "kategori": "Player",
     "sub_kategori": "Top Performer",
     "drama_score": 91,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[P:Lewis-Potter] ([C:Brentford]) menjadi pencetak poin tertinggi Gameweek [N:11] dengan [N:16 Poin] ([N:2 Gol], [N:0 Assist], [N:3 Poin Bonus]).",
     "text_berita_en": "[P:Lewis-Potter] ([C:Brentford]) finishes Gameweek [N:11] as the top-scoring player with [N:16 Pts] from [N:2 Goals], [N:0 Assists], and [N:3 Bonus Pts].",
     "gw": 11,
@@ -124,12 +128,14 @@
       "Lewis-Potter"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795619763493,
+      "lastAiredHeadline": "[P:Lewis-Potter] ([C:Brentford]) menjadi pencetak poin tertinggi Gameweek [N:11] dengan [N:16 Poin] ([N:2 Gol], [N:0 Assist], [N:3 Poin Bonus])."
     }
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_2_r19_r20",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -155,7 +161,7 @@
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_3_chikabandeng",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -166,7 +172,7 @@
     "kategori": "Chip",
     "sub_kategori": "Bench Boost",
     "drama_score": 90,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[T:Chikabandeng] mengantongi tambahan [N:25 Poin] dari bangku cadangannya lewat [N:Bench Boost].",
     "text_berita_en": "[T:Chikabandeng] added [N:25 Pts] from the bench via [N:Bench Boost].",
     "gw": 11,
@@ -175,12 +181,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 2,
+      "lastAiredAtMs": 1795613427858,
+      "lastAiredHeadline": "[T:Chikabandeng] mengantongi tambahan [N:25 Poin] dari bangku cadangannya lewat [N:Bench Boost]."
     }
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_2_evanilson",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:30:48.487Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -192,12 +200,12 @@
     "sub_kategori": "Alternative",
     "drama_score": 89,
     "poin_tayang": 0,
-    "text_berita": "[T:A2N's Team], [T:BERCELANA] dan [N:7] tim lainnya menurunkan [P:Evanilson] ([C:Bournemouth]) yang mengemas [N:6 Poin], namun tidak menjadikannya kapten.",
-    "text_berita_en": "[T:A2N's Team], [T:BERCELANA], and [N:7] other teams fielded [P:Evanilson] ([C:Bournemouth]) who scored [N:6 Pts], without captaining him.",
+    "text_berita": "[T:DEMINYAI], [T:Mooy Pablo] dan [N:7] tim lainnya menurunkan [P:Evanilson] ([C:Bournemouth]) yang mengemas [N:6 Poin], namun tidak menjadikannya kapten.",
+    "text_berita_en": "[T:DEMINYAI], [T:Mooy Pablo], and [N:7] other teams fielded [P:Evanilson] ([C:Bournemouth]) who scored [N:6 Pts], without captaining him.",
     "gw": 11,
     "teams": [
-      "A2N's Team",
-      "BERCELANA"
+      "DEMINYAI",
+      "Mooy Pablo"
     ],
     "players": [
       "Evanilson"
@@ -208,7 +216,7 @@
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_2_maverick",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -233,7 +241,7 @@
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_2_roefs",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -244,7 +252,7 @@
     "kategori": "Lineup",
     "sub_kategori": "Differential",
     "drama_score": 86,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[T:AHAY JEBRET] menuai [N:11 Poin] dari starter differential [P:Roefs] ([C:Sunderland], kepemilikan [N:2%]).",
     "text_berita_en": "[T:AHAY JEBRET] reaped [N:11 Pts] from differential starter [P:Roefs] ([C:Sunderland], [N:2%] ownership).",
     "gw": 11,
@@ -255,294 +263,14 @@
       "Roefs"
     ],
     "cycle_meta": {
-      "specialRank": 1
-    }
-  },
-  {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_8_fulham_bournemouth",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Next Fixtures",
-    "drama_score": 81,
-    "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Fulham] vs [C:Bournemouth] pada Minggu, 29 Nov [N:21:05 WIB] menyajikan penampilan [P:Tavernier] ([N:68%]) dan [P:Evanilson] ([N:47%]).",
-    "text_berita_en": "Gameweek [N:12]: [C:Fulham] vs [C:Bournemouth] on Sunday, 29 Nov [N:21:05 WIB] features [P:Tavernier] ([N:68%]) and [P:Evanilson] ([N:47%]).",
-    "gw": 11,
-    "teams": [],
-    "players": [
-      "Tavernier",
-      "Evanilson"
-    ],
-    "cycle_meta": {
-      "specialRank": 7
-    }
-  },
-  {
-    "id": "CF_STANDINGS_TITLE_RACE",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Standings",
-    "sub_kategori": "Title Race",
-    "drama_score": 93,
-    "poin_tayang": 0,
-    "text_berita": "[T:Yuk Bisa Yuk FC] memimpin klasemen liga usai Gameweek [N:11] dengan [N:778 Poin], unggul [N:26 Poin] atas [T:PSIS FC] di peringkat kedua.",
-    "text_berita_en": "[T:Yuk Bisa Yuk FC] leads the league table after Gameweek [N:11] with [N:778 Pts], [N:26 Pts] ahead of [T:PSIS FC] in 2nd place.",
-    "gw": 11,
-    "teams": [
-      "Yuk Bisa Yuk FC",
-      "PSIS FC"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "specialRank": 0
-    }
-  },
-  {
-    "id": "CF_MATCH_BONUS_POINTS",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Bonus",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "[P:Wirtz] ([C:Liverpool]) mencatat skor tertinggi [N:69 BPS] pada Gameweek [N:11] dan mengunci [N:+3 Poin Bonus] resmi ([N:14 Poin]) bagi [N:5] tim.",
-    "text_berita_en": "[P:Wirtz] ([C:Liverpool]) recorded a Gameweek [N:11] high [N:69 BPS] to secure [N:+3 Bonus Pts] ([N:14 Pts]) for [N:5] teams.",
-    "gw": 11,
-    "teams": [],
-    "players": [
-      "Wirtz"
-    ],
-    "cycle_meta": {
-      "specialRank": 0
-    }
-  },
-  {
-    "id": "CF_CAPTAIN_POPULAR_MOST_CAPTAINED",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Captain",
-    "sub_kategori": "Popular",
-    "drama_score": 87,
-    "poin_tayang": 0,
-    "text_berita": "[P:Haaland] menjadi kapten terpopuler ([N:63] tim) dan menutup pekan dengan [N:4 Poin].",
-    "text_berita_en": "[P:Haaland] was the most captained player ([N:63] teams) and finished the week with [N:4 Pts].",
-    "gw": 11,
-    "teams": [],
-    "players": [
-      "Haaland"
-    ],
-    "cycle_meta": {
-      "specialRank": 0
-    }
-  },
-  {
-    "id": "CF_MATCH_CLEAN_SHEET_brentford_kelleher",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Clean Sheet",
-    "drama_score": 83,
-    "poin_tayang": 0,
-    "text_berita": "[C:Brentford] mengunci clean sheet saat menghadapi [C:Everton] ([N:4 - 0]), menghadirkan poin resmi bagi [N:6] pemilik [P:Kelleher].",
-    "text_berita_en": "[C:Brentford] locked in a clean sheet against [C:Everton] ([N:4 - 0]), delivering official points for [N:6] owners of [P:Kelleher].",
-    "gw": 11,
-    "teams": [],
-    "players": [
-      "Kelleher"
-    ],
-    "cycle_meta": {
-      "specialRank": 3
-    }
-  },
-  {
-    "id": "CF_CHIP_BENCH_BOOST_2_thor",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Chip",
-    "sub_kategori": "Bench Boost",
-    "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "[T:Thor] mengantongi tambahan [N:8 Poin] dari bangku cadangannya lewat [N:Bench Boost].",
-    "text_berita_en": "[T:Thor] added [N:8 Pts] from the bench via [N:Bench Boost].",
-    "gw": 11,
-    "teams": [
-      "Thor"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "specialRank": 1
-    }
-  },
-  {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_10_arsenal_man_city",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Match",
-    "sub_kategori": "Next Fixtures",
-    "drama_score": 83,
-    "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Arsenal] vs [C:Man City] pada Minggu, 29 Nov [N:23:30 WIB] menyajikan duel ketat bagi [P:Haaland] ([N:93%]) dan [P:Calafiori] ([N:73%]).",
-    "text_berita_en": "Gameweek [N:12]: [C:Arsenal] vs [C:Man City] on Sunday, 29 Nov [N:23:30 WIB] presents a tight clash for [P:Haaland] ([N:93%]) and [P:Calafiori] ([N:73%]).",
-    "gw": 11,
-    "teams": [],
-    "players": [
-      "Haaland",
-      "Calafiori"
-    ],
-    "cycle_meta": {
-      "specialRank": 9
-    }
-  },
-  {
-    "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_3_r16_r17",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Standings",
-    "sub_kategori": "Title Race",
-    "drama_score": 90,
-    "poin_tayang": 0,
-    "text_berita": "[T:Doa Ibu FC] (peringkat [N:16], [N:674 Poin]) hanya unggul [N:1 Poin] atas [T:saatny mutasi jabar] (peringkat [N:17], [N:673 Poin]).",
-    "text_berita_en": "[T:Doa Ibu FC] (rank [N:16], [N:674 Pts]) leads [T:saatny mutasi jabar] (rank [N:17], [N:673 Pts]) by [N:1 Pts].",
-    "gw": 11,
-    "teams": [
-      "Doa Ibu FC",
-      "saatny mutasi jabar"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "specialRank": 2
-    }
-  },
-  {
-    "id": "CF_LINEUP_BENCH_POINTS_3_belloumi",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Lineup",
-    "sub_kategori": "Bench",
-    "drama_score": 89,
-    "poin_tayang": 0,
-    "text_berita": "[T:amenk wenger], [T:E-Win] dan [N:3] tim lainnya mencadangkan [P:Belloumi] ([C:Hull City]) yang mengemas [N:7 Poin].",
-    "text_berita_en": "[T:amenk wenger], [T:E-Win], and [N:3] other teams benched [P:Belloumi] ([C:Hull City]) as he scored [N:7 Pts].",
-    "gw": 11,
-    "teams": [
-      "amenk wenger",
-      "E-Win"
-    ],
-    "players": [
-      "Belloumi"
-    ],
-    "cycle_meta": {
-      "specialRank": 2
-    }
-  },
-  {
-    "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_hall",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Player",
-    "sub_kategori": "Availability",
-    "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "[P:Hall] ([C:Newcastle]) mengalami cedera saat melawan [C:Arsenal], berdampak ke [N:12] pemilik menuju pekan berikutnya.",
-    "text_berita_en": "[P:Hall] ([C:Newcastle]) suffered an injury against [C:Arsenal], impacting [N:12] owners ahead of next week.",
-    "gw": 11,
-    "teams": [],
-    "players": [
-      "Hall"
-    ],
-    "cycle_meta": {
-      "specialRank": 2
-    }
-  },
-  {
-    "id": "CF_TRANSFER_HITS_DEDUCTED_3_pendoel_selection",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Transfer",
-    "sub_kategori": "Hits",
-    "drama_score": 85,
-    "poin_tayang": 0,
-    "text_berita": "[T:PENDOEL SELECTION] terkena penalti transfer hit [N:-8 Poin].",
-    "text_berita_en": "[T:PENDOEL SELECTION] received a [N:-8 Pts] transfer hit deduction.",
-    "gw": 11,
-    "teams": [
-      "PENDOEL SELECTION"
-    ],
-    "players": [],
-    "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 1,
+      "lastAiredAtMs": 1795619792690,
+      "lastAiredHeadline": "[T:AHAY JEBRET] menuai [N:11 Poin] dari starter differential [P:Roefs] ([C:Sunderland], kepemilikan [N:2%])."
     }
   },
   {
     "id": "CF_MATCH_NEXT_GW_FIXTURES_5_everton_liverpool",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -567,8 +295,300 @@
     }
   },
   {
+    "id": "CF_STANDINGS_TITLE_RACE",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Title Race",
+    "drama_score": 93,
+    "poin_tayang": 2,
+    "text_berita": "[T:Yuk Bisa Yuk FC] memimpin klasemen liga usai Gameweek [N:11] dengan [N:778 Poin], unggul [N:26 Poin] atas [T:PSIS FC] di peringkat kedua.",
+    "text_berita_en": "[T:Yuk Bisa Yuk FC] leads the league table after Gameweek [N:11] with [N:778 Pts], [N:26 Pts] ahead of [T:PSIS FC] in 2nd place.",
+    "gw": 11,
+    "teams": [
+      "Yuk Bisa Yuk FC",
+      "PSIS FC"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 0,
+      "lastAiredAtMs": 1795619808822,
+      "lastAiredHeadline": "[T:Yuk Bisa Yuk FC] memimpin klasemen liga usai Gameweek [N:11] dengan [N:778 Poin], unggul [N:26 Poin] atas [T:PSIS FC] di peringkat kedua."
+    }
+  },
+  {
+    "id": "CF_MATCH_BONUS_POINTS",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Bonus",
+    "drama_score": 88,
+    "poin_tayang": 0,
+    "text_berita": "[P:Wirtz] ([C:Liverpool]) mencatat skor tertinggi [N:69 BPS] pada Gameweek [N:11] dan mengunci [N:+3 Poin Bonus] resmi ([N:14 Poin]) bagi [N:5] tim.",
+    "text_berita_en": "[P:Wirtz] ([C:Liverpool]) recorded a Gameweek [N:11] high [N:69 BPS] to secure [N:+3 Bonus Pts] ([N:14 Pts]) for [N:5] teams.",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Wirtz"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "CF_CAPTAIN_POPULAR_MOST_CAPTAINED",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Captain",
+    "sub_kategori": "Popular",
+    "drama_score": 87,
+    "poin_tayang": 0,
+    "text_berita": "[P:Haaland] menjadi kapten terpopuler ([N:63] tim) dan menutup pekan dengan [N:4 Poin].",
+    "text_berita_en": "[P:Haaland] was the most captained player ([N:63] teams) and finished the week with [N:4 Pts].",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Haaland"
+    ],
+    "cycle_meta": {
+      "specialRank": 0
+    }
+  },
+  {
+    "id": "CF_MATCH_CLEAN_SHEET_bournemouth_silva",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Clean Sheet",
+    "drama_score": 83,
+    "poin_tayang": 1,
+    "text_berita": "[C:Bournemouth] mengunci clean sheet saat menghadapi [C:Nott'm Forest] ([N:2 - 0]), menghadirkan poin resmi bagi [N:6] pemilik [P:Silva].",
+    "text_berita_en": "[C:Bournemouth] locked in a clean sheet against [C:Nott'm Forest] ([N:2 - 0]), delivering official points for [N:6] owners of [P:Silva].",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Silva"
+    ],
+    "cycle_meta": {
+      "specialRank": 2,
+      "lastAiredAtMs": 1795613448244,
+      "lastAiredHeadline": "[C:Bournemouth] mengunci clean sheet saat menghadapi [C:Nott'm Forest] ([N:2 - 0]), menghadirkan poin resmi bagi [N:6] pemilik [P:Silva]."
+    }
+  },
+  {
+    "id": "CF_LINEUP_BENCH_POINTS_1_tzolakis",
+    "timestamp_produksi": "2026-11-25T13:30:48.487Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Lineup",
+    "sub_kategori": "Bench",
+    "drama_score": 91,
+    "poin_tayang": 1,
+    "text_berita": "[T:CQMY], [T:HBFC] dan [N:16] tim lainnya mencadangkan [P:Tzolakis] ([C:Hull City]) yang mengemas [N:10 Poin].",
+    "text_berita_en": "[T:CQMY], [T:HBFC], and [N:16] other teams benched [P:Tzolakis] ([C:Hull City]) as he scored [N:10 Pts].",
+    "gw": 11,
+    "teams": [
+      "CQMY",
+      "HBFC"
+    ],
+    "players": [
+      "Tzolakis"
+    ],
+    "cycle_meta": {
+      "specialRank": 0,
+      "lastAiredAtMs": 1795613416263,
+      "lastAiredHeadline": "[T:blue one], [T:Bolakbalik] dan [N:16] tim lainnya mencadangkan [P:Tzolakis] ([C:Hull City]) yang mengemas [N:10 Poin]."
+    }
+  },
+  {
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_4_ipswich_town_aston_villa",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Next Fixtures",
+    "drama_score": 83,
+    "poin_tayang": 1,
+    "text_berita": "Gameweek [N:12]: [C:Ipswich Town] vs [C:Aston Villa] pada Minggu, 29 Nov [N:00:30 WIB] menyajikan duel ketat bagi [P:N.Jackson] ([N:55%]) dan [P:Manzambi] ([N:17%]).",
+    "text_berita_en": "Gameweek [N:12]: [C:Ipswich Town] vs [C:Aston Villa] on Sunday, 29 Nov [N:00:30 WIB] presents a tight clash for [P:N.Jackson] ([N:55%]) and [P:Manzambi] ([N:17%]).",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "N.Jackson",
+      "Manzambi"
+    ],
+    "cycle_meta": {
+      "specialRank": 3,
+      "lastAiredAtMs": 1795613399641,
+      "lastAiredHeadline": "Gameweek [N:12]: [C:Ipswich Town] vs [C:Aston Villa] pada Minggu, 29 Nov [N:00:30 WIB] menyajikan duel ketat bagi [P:N.Jackson] ([N:55%]) dan [P:Manzambi] ([N:17%])."
+    }
+  },
+  {
+    "id": "CF_PLAYER_AVAILABILITY_IMPACT_red_tarkowski",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Player",
+    "sub_kategori": "Availability",
+    "drama_score": 91,
+    "poin_tayang": 2,
+    "text_berita": "[P:Tarkowski] ([C:Everton]) menerima kartu merah ([N:-3 Poin]) saat menghadapi [C:Brentford] dan terancam sanksi larangan bermain bagi [N:19] pemilik.",
+    "text_berita_en": "[P:Tarkowski] ([C:Everton]) received a red card ([N:-3 Pts]) against [C:Brentford] and faces suspension for [N:19] owners.",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Tarkowski"
+    ],
+    "cycle_meta": {
+      "specialRank": 0,
+      "lastAiredAtMs": 1795613950971,
+      "lastAiredHeadline": "[P:Tarkowski] ([C:Everton]) menerima kartu merah ([N:-3 Poin]) saat menghadapi [C:Brentford] dan terancam sanksi larangan bermain bagi [N:19] pemilik."
+    }
+  },
+  {
+    "id": "CF_CHIP_BENCH_BOOST_2_thor",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Chip",
+    "sub_kategori": "Bench Boost",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "[T:Thor] mengantongi tambahan [N:8 Poin] dari bangku cadangannya lewat [N:Bench Boost].",
+    "text_berita_en": "[T:Thor] added [N:8 Pts] from the bench via [N:Bench Boost].",
+    "gw": 11,
+    "teams": [
+      "Thor"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 1
+    }
+  },
+  {
+    "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_3_r16_r17",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Standings",
+    "sub_kategori": "Title Race",
+    "drama_score": 90,
+    "poin_tayang": 0,
+    "text_berita": "[T:Doa Ibu FC] (peringkat [N:16], [N:674 Poin]) hanya unggul [N:1 Poin] atas [T:saatny mutasi jabar] (peringkat [N:17], [N:673 Poin]).",
+    "text_berita_en": "[T:Doa Ibu FC] (rank [N:16], [N:674 Pts]) leads [T:saatny mutasi jabar] (rank [N:17], [N:673 Pts]) by [N:1 Pts].",
+    "gw": 11,
+    "teams": [
+      "Doa Ibu FC",
+      "saatny mutasi jabar"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "CF_TRANSFER_HITS_DEDUCTED_3_pendoel_selection",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Transfer",
+    "sub_kategori": "Hits",
+    "drama_score": 85,
+    "poin_tayang": 0,
+    "text_berita": "[T:PENDOEL SELECTION] terkena penalti transfer hit [N:-8 Poin].",
+    "text_berita_en": "[T:PENDOEL SELECTION] received a [N:-8 Pts] transfer hit deduction.",
+    "gw": 11,
+    "teams": [
+      "PENDOEL SELECTION"
+    ],
+    "players": [],
+    "cycle_meta": {
+      "specialRank": 2
+    }
+  },
+  {
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_7_crystal_palace_hull_city",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Match",
+    "sub_kategori": "Next Fixtures",
+    "drama_score": 81,
+    "poin_tayang": 0,
+    "text_berita": "Gameweek [N:12]: [C:Crystal Palace] vs [C:Hull City] pada Minggu, 29 Nov [N:21:05 WIB] menyajikan penampilan [P:Tzolakis] ([N:27%]) dan [P:Ajayi] ([N:14%]).",
+    "text_berita_en": "Gameweek [N:12]: [C:Crystal Palace] vs [C:Hull City] on Sunday, 29 Nov [N:21:05 WIB] features [P:Tzolakis] ([N:27%]) and [P:Ajayi] ([N:14%]).",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Tzolakis",
+      "Ajayi"
+    ],
+    "cycle_meta": {
+      "specialRank": 6
+    }
+  },
+  {
     "id": "CF_STANDINGS_WEEKLY_WINS_MOST",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -594,7 +614,7 @@
   },
   {
     "id": "CF_MATCH_DEFENSIVE_CONTRIBUTION",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -619,7 +639,7 @@
   },
   {
     "id": "CF_TRANSFER_IN_MOST_BOUGHT",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -644,8 +664,8 @@
     }
   },
   {
-    "id": "CF_MATCH_CLEAN_SHEET_bournemouth_silva",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_1_nott_m_forest_chelsea",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -654,23 +674,25 @@
       "Confirmed"
     ],
     "kategori": "Match",
-    "sub_kategori": "Clean Sheet",
-    "drama_score": 83,
-    "poin_tayang": 0,
-    "text_berita": "[C:Bournemouth] mengunci clean sheet saat menghadapi [C:Nott'm Forest] ([N:2 - 0]), menghadirkan poin resmi bagi [N:6] pemilik [P:Silva].",
-    "text_berita_en": "[C:Bournemouth] locked in a clean sheet against [C:Nott'm Forest] ([N:2 - 0]), delivering official points for [N:6] owners of [P:Silva].",
+    "sub_kategori": "Next Fixtures",
+    "drama_score": 88,
+    "poin_tayang": 1,
+    "text_berita": "Gameweek [N:12]: [C:Nott'm Forest] vs [C:Chelsea] pada Sabtu, 28 Nov [N:03:00 WIB] menjadi laga menjanjikan bagi [P:Rogers] ([N:78%]) dengan [N:48] pemiliknya masih menyimpan [N:Triple Captain].",
+    "text_berita_en": "Gameweek [N:12]: [C:Nott'm Forest] vs [C:Chelsea] on Saturday, 28 Nov [N:03:00 WIB] offers a promising fixture for [P:Rogers] ([N:78%]) with [N:48] owners still holding [N:Triple Captain].",
     "gw": 11,
     "teams": [],
     "players": [
-      "Silva"
+      "Rogers"
     ],
     "cycle_meta": {
-      "specialRank": 2
+      "specialRank": 0,
+      "lastAiredAtMs": 1795613167100,
+      "lastAiredHeadline": "Gameweek [N:12]: [C:Nott'm Forest] vs [C:Chelsea] pada Sabtu, 28 Nov [N:03:00 WIB] menjadi laga menjanjikan bagi [P:Rogers] ([N:78%]) dengan [N:48] pemiliknya masih menyimpan [N:Triple Captain]."
     }
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_3_wirtz",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:30:48.487Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -682,12 +704,12 @@
     "sub_kategori": "Alternative",
     "drama_score": 89,
     "poin_tayang": 0,
-    "text_berita": "[T:Doanenek], [T:NFSKY Project'X] dan [N:3] tim lainnya menurunkan [P:Wirtz] ([C:Liverpool]) yang mengemas [N:14 Poin], namun tidak menjadikannya kapten.",
-    "text_berita_en": "[T:Doanenek], [T:NFSKY Project'X], and [N:3] other teams fielded [P:Wirtz] ([C:Liverpool]) who scored [N:14 Pts], without captaining him.",
+    "text_berita": "[T:Riot Collective], [T:Serigala Margonda] dan [N:3] tim lainnya menurunkan [P:Wirtz] ([C:Liverpool]) yang mengemas [N:14 Poin], namun tidak menjadikannya kapten.",
+    "text_berita_en": "[T:Riot Collective], [T:Serigala Margonda], and [N:3] other teams fielded [P:Wirtz] ([C:Liverpool]) who scored [N:14 Pts], without captaining him.",
     "gw": 11,
     "teams": [
-      "Doanenek",
-      "NFSKY Project'X"
+      "Riot Collective",
+      "Serigala Margonda"
     ],
     "players": [
       "Wirtz"
@@ -697,8 +719,8 @@
     }
   },
   {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_4_ipswich_town_aston_villa",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_MATCH_CLEAN_SHEET_brentford_kelleher",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -707,24 +729,25 @@
       "Confirmed"
     ],
     "kategori": "Match",
-    "sub_kategori": "Next Fixtures",
+    "sub_kategori": "Clean Sheet",
     "drama_score": 83,
-    "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Ipswich Town] vs [C:Aston Villa] pada Minggu, 29 Nov [N:00:30 WIB] menyajikan duel ketat bagi [P:N.Jackson] ([N:55%]) dan [P:Manzambi] ([N:17%]).",
-    "text_berita_en": "Gameweek [N:12]: [C:Ipswich Town] vs [C:Aston Villa] on Sunday, 29 Nov [N:00:30 WIB] presents a tight clash for [P:N.Jackson] ([N:55%]) and [P:Manzambi] ([N:17%]).",
+    "poin_tayang": 1,
+    "text_berita": "[C:Brentford] mengunci clean sheet saat menghadapi [C:Everton] ([N:4 - 0]), menghadirkan poin resmi bagi [N:6] pemilik [P:Kelleher].",
+    "text_berita_en": "[C:Brentford] locked in a clean sheet against [C:Everton] ([N:4 - 0]), delivering official points for [N:6] owners of [P:Kelleher].",
     "gw": 11,
     "teams": [],
     "players": [
-      "N.Jackson",
-      "Manzambi"
+      "Kelleher"
     ],
     "cycle_meta": {
-      "specialRank": 3
+      "specialRank": 3,
+      "lastAiredAtMs": 1795613901542,
+      "lastAiredHeadline": "[C:Brentford] mengunci clean sheet saat menghadapi [C:Everton] ([N:4 - 0]), menghadirkan poin resmi bagi [N:6] pemilik [P:Kelleher]."
     }
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_1_lewis_potter",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -735,7 +758,7 @@
     "kategori": "Lineup",
     "sub_kategori": "Differential",
     "drama_score": 88,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[T:Aceng Empire's Team] dan [T:Uaffukabeh] menuai [N:16 Poin] dari starter differential [P:Lewis-Potter] ([C:Brentford], kepemilikan [N:2%]).",
     "text_berita_en": "[T:Aceng Empire's Team] and [T:Uaffukabeh] reaped [N:16 Pts] from differential starter [P:Lewis-Potter] ([C:Brentford], [N:2%] ownership).",
     "gw": 11,
@@ -747,12 +770,14 @@
       "Lewis-Potter"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795619202091,
+      "lastAiredHeadline": "[T:Aceng Empire's Team] dan [T:Uaffukabeh] menuai [N:16 Poin] dari starter differential [P:Lewis-Potter] ([C:Brentford], kepemilikan [N:2%])."
     }
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_3_bulu_ketek_zombie",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -776,8 +801,8 @@
     }
   },
   {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_9_sunderland_spurs",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_6_brighton_newcastle",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -789,21 +814,21 @@
     "sub_kategori": "Next Fixtures",
     "drama_score": 81,
     "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Sunderland] vs [C:Spurs] pada Minggu, 29 Nov [N:21:05 WIB] menyajikan penampilan [P:Van Hecke] ([N:40%]) dan [P:Kinsky] ([N:20%]).",
-    "text_berita_en": "Gameweek [N:12]: [C:Sunderland] vs [C:Spurs] on Sunday, 29 Nov [N:21:05 WIB] features [P:Van Hecke] ([N:40%]) and [P:Kinsky] ([N:20%]).",
+    "text_berita": "Gameweek [N:12]: [C:Brighton] vs [C:Newcastle] pada Minggu, 29 Nov [N:21:05 WIB] menyajikan penampilan [P:De Cuyper] ([N:81%]) dan [P:Groß] ([N:75%]).",
+    "text_berita_en": "Gameweek [N:12]: [C:Brighton] vs [C:Newcastle] on Sunday, 29 Nov [N:21:05 WIB] features [P:De Cuyper] ([N:81%]) and [P:Groß] ([N:75%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Van Hecke",
-      "Kinsky"
+      "De Cuyper",
+      "Groß"
     ],
     "cycle_meta": {
-      "specialRank": 8
+      "specialRank": 5
     }
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_RISE",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -814,7 +839,7 @@
     "kategori": "Standings",
     "sub_kategori": "Rank",
     "drama_score": 88,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[T:Uaffukabeh] mencatat lonjakan tertinggi dengan naik [N:+17 Peringkat] dari [N:62] ke [N:45].",
     "text_berita_en": "[T:Uaffukabeh] recorded the highest rank climb, leaping [N:+17 Places] from rank [N:62] to [N:45].",
     "gw": 11,
@@ -823,12 +848,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795613859336,
+      "lastAiredHeadline": "[T:Uaffukabeh] mencatat lonjakan tertinggi dengan naik [N:+17 Peringkat] dari [N:62] ke [N:45]."
     }
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_spurs_van_hecke",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -853,7 +880,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_2_barnes",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -881,8 +908,8 @@
     }
   },
   {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_1_nott_m_forest_chelsea",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_2_leeds_coventry_city",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -892,22 +919,23 @@
     ],
     "kategori": "Match",
     "sub_kategori": "Next Fixtures",
-    "drama_score": 88,
+    "drama_score": 81,
     "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Nott'm Forest] vs [C:Chelsea] pada Sabtu, 28 Nov [N:03:00 WIB] menjadi laga menjanjikan bagi [P:Rogers] ([N:78%]) dengan [N:48] pemiliknya masih menyimpan [N:Triple Captain].",
-    "text_berita_en": "Gameweek [N:12]: [C:Nott'm Forest] vs [C:Chelsea] on Saturday, 28 Nov [N:03:00 WIB] offers a promising fixture for [P:Rogers] ([N:78%]) with [N:48] owners still holding [N:Triple Captain].",
+    "text_berita": "Gameweek [N:12]: [C:Leeds] vs [C:Coventry City] pada Sabtu, 28 Nov [N:22:00 WIB] menyajikan penampilan [P:Muharemović] ([N:17%]) dan [P:Bogle] ([N:14%]).",
+    "text_berita_en": "Gameweek [N:12]: [C:Leeds] vs [C:Coventry City] on Saturday, 28 Nov [N:22:00 WIB] features [P:Muharemović] ([N:17%]) and [P:Bogle] ([N:14%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Rogers"
+      "Muharemović",
+      "Bogle"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 1
     }
   },
   {
     "id": "CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL_1_tavernier",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:30:48.487Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -919,12 +947,12 @@
     "sub_kategori": "Alternative",
     "drama_score": 94,
     "poin_tayang": 0,
-    "text_berita": "[T:Always Ready], [T:Anti Koruptor Laknat] dan [N:47] tim lainnya menurunkan [P:Tavernier] ([C:Bournemouth]) yang mengemas [N:8 Poin], namun tidak menjadikannya kapten.",
-    "text_berita_en": "[T:Always Ready], [T:Anti Koruptor Laknat], and [N:47] other teams fielded [P:Tavernier] ([C:Bournemouth]) who scored [N:8 Pts], without captaining him.",
+    "text_berita": "[T:asoy banget], [T:Badjaj CF] dan [N:47] tim lainnya menurunkan [P:Tavernier] ([C:Bournemouth]) yang mengemas [N:8 Poin], namun tidak menjadikannya kapten.",
+    "text_berita_en": "[T:asoy banget], [T:Badjaj CF], and [N:47] other teams fielded [P:Tavernier] ([C:Bournemouth]) who scored [N:8 Pts], without captaining him.",
     "gw": 11,
     "teams": [
-      "Always Ready",
-      "Anti Koruptor Laknat"
+      "asoy banget",
+      "Badjaj CF"
     ],
     "players": [
       "Tavernier"
@@ -934,33 +962,8 @@
     }
   },
   {
-    "id": "CF_PLAYER_AVAILABILITY_IMPACT_red_tarkowski",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
-    "sumber": "Sys",
-    "status_tayang": "Y",
-    "keterangan_tidak_tayang": "",
-    "fase": "Confirmed",
-    "waktu_tayang": [
-      "Confirmed"
-    ],
-    "kategori": "Player",
-    "sub_kategori": "Availability",
-    "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[P:Tarkowski] ([C:Everton]) menerima kartu merah ([N:-3 Poin]) saat menghadapi [C:Brentford] dan terancam sanksi larangan bermain bagi [N:19] pemilik.",
-    "text_berita_en": "[P:Tarkowski] ([C:Everton]) received a red card ([N:-3 Pts]) against [C:Brentford] and faces suspension for [N:19] owners.",
-    "gw": 11,
-    "teams": [],
-    "players": [
-      "Tarkowski"
-    ],
-    "cycle_meta": {
-      "specialRank": 0
-    }
-  },
-  {
-    "id": "CF_LINEUP_BENCH_POINTS_2_kinsky",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_LINEUP_BENCH_POINTS_3_belloumi",
+    "timestamp_produksi": "2026-11-25T13:30:48.487Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -970,25 +973,25 @@
     ],
     "kategori": "Lineup",
     "sub_kategori": "Bench",
-    "drama_score": 90,
+    "drama_score": 89,
     "poin_tayang": 0,
-    "text_berita": "[T:Ayase RS], [T:Bukan Saya] dan [N:7] tim lainnya mencadangkan [P:Kinsky] ([C:Spurs]) yang mengemas [N:7 Poin].",
-    "text_berita_en": "[T:Ayase RS], [T:Bukan Saya], and [N:7] other teams benched [P:Kinsky] ([C:Spurs]) as he scored [N:7 Pts].",
+    "text_berita": "[T:Kuromi FC], [T:oop's Team] dan [N:3] tim lainnya mencadangkan [P:Belloumi] ([C:Hull City]) yang mengemas [N:7 Poin].",
+    "text_berita_en": "[T:Kuromi FC], [T:oop's Team], and [N:3] other teams benched [P:Belloumi] ([C:Hull City]) as he scored [N:7 Pts].",
     "gw": 11,
     "teams": [
-      "Ayase RS",
-      "Bukan Saya"
+      "Kuromi FC",
+      "oop's Team"
     ],
     "players": [
-      "Kinsky"
+      "Belloumi"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 2
     }
   },
   {
     "id": "CF_CHIP_FREE_HIT_1_legendkiller_fc",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -999,7 +1002,7 @@
     "kategori": "Chip",
     "sub_kategori": "Free Hit",
     "drama_score": 88,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[T:LEGENDKILLER FC] menutup pekan dengan [N:47 Poin] lewat [N:Free Hit].",
     "text_berita_en": "[T:LEGENDKILLER FC] finished the week with [N:47 Pts] via [N:Free Hit].",
     "gw": 11,
@@ -1008,12 +1011,41 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795613176308,
+      "lastAiredHeadline": "[T:LEGENDKILLER FC] menutup pekan dengan [N:47 Poin] lewat [N:Free Hit]."
+    }
+  },
+  {
+    "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_raya",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
+    "sumber": "Sys",
+    "status_tayang": "Y",
+    "keterangan_tidak_tayang": "",
+    "fase": "Confirmed",
+    "waktu_tayang": [
+      "Confirmed"
+    ],
+    "kategori": "Player",
+    "sub_kategori": "Availability",
+    "drama_score": 88,
+    "poin_tayang": 1,
+    "text_berita": "[P:Raya] ([C:Arsenal]) mengalami cedera saat melawan [C:Newcastle], berdampak ke [N:45] pemilik menuju pekan berikutnya.",
+    "text_berita_en": "[P:Raya] ([C:Arsenal]) suffered an injury against [C:Newcastle], impacting [N:45] owners ahead of next week.",
+    "gw": 11,
+    "teams": [],
+    "players": [
+      "Raya"
+    ],
+    "cycle_meta": {
+      "specialRank": 1,
+      "lastAiredAtMs": 1795613888507,
+      "lastAiredHeadline": "[P:Raya] ([C:Arsenal]) mengalami cedera saat melawan [C:Newcastle], berdampak ke [N:45] pemilik menuju pekan berikutnya."
     }
   },
   {
     "id": "CF_TRANSFER_HITS_DEDUCTED_1_denay_fc",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1024,7 +1056,7 @@
     "kategori": "Transfer",
     "sub_kategori": "Hits",
     "drama_score": 87,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[T:Denay FC] terkena penalti transfer hit [N:-12 Poin].",
     "text_berita_en": "[T:Denay FC] received a [N:-12 Pts] transfer hit deduction.",
     "gw": 11,
@@ -1033,12 +1065,14 @@
     ],
     "players": [],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795613972085,
+      "lastAiredHeadline": "[T:Denay FC] terkena penalti transfer hit [N:-12 Poin]."
     }
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_2_petrikor",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1062,8 +1096,8 @@
     }
   },
   {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_6_brighton_newcastle",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_8_fulham_bournemouth",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1075,21 +1109,21 @@
     "sub_kategori": "Next Fixtures",
     "drama_score": 81,
     "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Brighton] vs [C:Newcastle] pada Minggu, 29 Nov [N:21:05 WIB] menyajikan penampilan [P:De Cuyper] ([N:81%]) dan [P:Groß] ([N:75%]).",
-    "text_berita_en": "Gameweek [N:12]: [C:Brighton] vs [C:Newcastle] on Sunday, 29 Nov [N:21:05 WIB] features [P:De Cuyper] ([N:81%]) and [P:Groß] ([N:75%]).",
+    "text_berita": "Gameweek [N:12]: [C:Fulham] vs [C:Bournemouth] pada Minggu, 29 Nov [N:21:05 WIB] menyajikan penampilan [P:Tavernier] ([N:68%]) dan [P:Evanilson] ([N:47%]).",
+    "text_berita_en": "Gameweek [N:12]: [C:Fulham] vs [C:Bournemouth] on Sunday, 29 Nov [N:21:05 WIB] features [P:Tavernier] ([N:68%]) and [P:Evanilson] ([N:47%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "De Cuyper",
-      "Groß"
+      "Tavernier",
+      "Evanilson"
     ],
     "cycle_meta": {
-      "specialRank": 5
+      "specialRank": 7
     }
   },
   {
     "id": "CF_STANDINGS_TITLE_RACE_POINTS_GAP_1_r17_r18",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1115,7 +1149,7 @@
   },
   {
     "id": "CF_MATCH_CLEAN_SHEET_hull_city_tzolakis",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1126,7 +1160,7 @@
     "kategori": "Match",
     "sub_kategori": "Clean Sheet",
     "drama_score": 86,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[C:Hull City] mengunci clean sheet saat menghadapi [C:Brighton] ([N:2 - 0]), menghadirkan poin resmi bagi [N:26] pemilik [P:Tzolakis].",
     "text_berita_en": "[C:Hull City] locked in a clean sheet against [C:Brighton] ([N:2 - 0]), delivering official points for [N:26] owners of [P:Tzolakis].",
     "gw": 11,
@@ -1135,12 +1169,14 @@
       "Tzolakis"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 1,
+      "lastAiredAtMs": 1795613965664,
+      "lastAiredHeadline": "[C:Hull City] mengunci clean sheet saat menghadapi [C:Brighton] ([N:2 - 0]), menghadirkan poin resmi bagi [N:26] pemilik [P:Tzolakis]."
     }
   },
   {
-    "id": "CF_LINEUP_BENCH_POINTS_1_tzolakis",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_LINEUP_BENCH_POINTS_2_kinsky",
+    "timestamp_produksi": "2026-11-25T13:30:48.487Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1150,25 +1186,25 @@
     ],
     "kategori": "Lineup",
     "sub_kategori": "Bench",
-    "drama_score": 91,
+    "drama_score": 90,
     "poin_tayang": 0,
-    "text_berita": "[T:blue one], [T:Bolakbalik] dan [N:16] tim lainnya mencadangkan [P:Tzolakis] ([C:Hull City]) yang mengemas [N:10 Poin].",
-    "text_berita_en": "[T:blue one], [T:Bolakbalik], and [N:16] other teams benched [P:Tzolakis] ([C:Hull City]) as he scored [N:10 Pts].",
+    "text_berita": "[T:KST], [T:last hope party_pmp] dan [N:7] tim lainnya mencadangkan [P:Kinsky] ([C:Spurs]) yang mengemas [N:7 Poin].",
+    "text_berita_en": "[T:KST], [T:last hope party_pmp], and [N:7] other teams benched [P:Kinsky] ([C:Spurs]) as he scored [N:7 Pts].",
     "gw": 11,
     "teams": [
-      "blue one",
-      "Bolakbalik"
+      "KST",
+      "last hope party_pmp"
     ],
     "players": [
-      "Tzolakis"
+      "Kinsky"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 1
     }
   },
   {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_2_leeds_coventry_city",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_3_man_utd_brentford",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1180,21 +1216,21 @@
     "sub_kategori": "Next Fixtures",
     "drama_score": 81,
     "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Leeds] vs [C:Coventry City] pada Sabtu, 28 Nov [N:22:00 WIB] menyajikan penampilan [P:Muharemović] ([N:17%]) dan [P:Bogle] ([N:14%]).",
-    "text_berita_en": "Gameweek [N:12]: [C:Leeds] vs [C:Coventry City] on Saturday, 28 Nov [N:22:00 WIB] features [P:Muharemović] ([N:17%]) and [P:Bogle] ([N:14%]).",
+    "text_berita": "Gameweek [N:12]: [C:Man Utd] vs [C:Brentford] pada Sabtu, 28 Nov [N:22:00 WIB] menyajikan penampilan [P:Mbeumo] ([N:19%]) dan [P:Schade] ([N:17%]).",
+    "text_berita_en": "Gameweek [N:12]: [C:Man Utd] vs [C:Brentford] on Saturday, 28 Nov [N:22:00 WIB] features [P:Mbeumo] ([N:19%]) and [P:Schade] ([N:17%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Muharemović",
-      "Bogle"
+      "Mbeumo",
+      "Schade"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 2
     }
   },
   {
     "id": "CF_STANDINGS_RANK_BIGGEST_DROP_1_maverick",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1219,7 +1255,7 @@
   },
   {
     "id": "CF_TRANSFER_OUT_SOLD_HAULERS_1_calvert_lewin",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:30:48.487Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1230,24 +1266,26 @@
     "kategori": "Transfer",
     "sub_kategori": "Transfers Out",
     "drama_score": 91,
-    "poin_tayang": 0,
-    "text_berita": "[T:cilukba], [T:H. Her] dan [N:2] tim lainnya melepas [P:Calvert-Lewin] ([C:Leeds]) sebelum sang pemain mengemas [N:9 Poin].",
-    "text_berita_en": "[T:cilukba], [T:H. Her], and [N:2] other teams sold [P:Calvert-Lewin] ([C:Leeds]), who went on to score [N:9 Pts].",
+    "poin_tayang": 1,
+    "text_berita": "[T:Sumber Bahagia Motor], [T:cilukba] dan [N:2] tim lainnya melepas [P:Calvert-Lewin] ([C:Leeds]) sebelum sang pemain mengemas [N:9 Poin].",
+    "text_berita_en": "[T:Sumber Bahagia Motor], [T:cilukba], and [N:2] other teams sold [P:Calvert-Lewin] ([C:Leeds]), who went on to score [N:9 Pts].",
     "gw": 11,
     "teams": [
-      "cilukba",
-      "H. Her"
+      "Sumber Bahagia Motor",
+      "cilukba"
     ],
     "players": [
       "Calvert-Lewin"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795619780477,
+      "lastAiredHeadline": "[T:Sumber Bahagia Motor], [T:cilukba] dan [N:2] tim lainnya melepas [P:Calvert-Lewin] ([C:Leeds]) sebelum sang pemain mengemas [N:9 Poin]."
     }
   },
   {
     "id": "CF_CHIP_BENCH_BOOST_1_anti_koruptor_laknat",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1272,7 +1310,7 @@
   },
   {
     "id": "CF_CAPTAIN_DIFFERENTIAL_RETURN_1_ehajrakab_fc",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1283,7 +1321,7 @@
     "kategori": "Captain",
     "sub_kategori": "Differential",
     "drama_score": 88,
-    "poin_tayang": 0,
+    "poin_tayang": 1,
     "text_berita": "[T:ehajrakab fc] mengoleksi [N:16 Poin] dari [P:Tavernier] ([C:Bournemouth]) sebagai satu-satunya tim yang menjadikannya kapten.",
     "text_berita_en": "[T:ehajrakab fc] collected [N:16 Pts] from [P:Tavernier] ([C:Bournemouth]) as the sole team to captain him.",
     "gw": 11,
@@ -1294,12 +1332,14 @@
       "Tavernier"
     ],
     "cycle_meta": {
-      "specialRank": 0
+      "specialRank": 0,
+      "lastAiredAtMs": 1795613924749,
+      "lastAiredHeadline": "[T:ehajrakab fc] mengoleksi [N:16 Poin] dari [P:Tavernier] ([C:Bournemouth]) sebagai satu-satunya tim yang menjadikannya kapten."
     }
   },
   {
-    "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_raya",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_PLAYER_AVAILABILITY_IMPACT_injury_hall",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1310,21 +1350,23 @@
     "kategori": "Player",
     "sub_kategori": "Availability",
     "drama_score": 88,
-    "poin_tayang": 0,
-    "text_berita": "[P:Raya] ([C:Arsenal]) mengalami cedera saat melawan [C:Newcastle], berdampak ke [N:45] pemilik menuju pekan berikutnya.",
-    "text_berita_en": "[P:Raya] ([C:Arsenal]) suffered an injury against [C:Newcastle], impacting [N:45] owners ahead of next week.",
+    "poin_tayang": 1,
+    "text_berita": "[P:Hall] ([C:Newcastle]) mengalami cedera saat melawan [C:Arsenal], berdampak ke [N:12] pemilik menuju pekan berikutnya.",
+    "text_berita_en": "[P:Hall] ([C:Newcastle]) suffered an injury against [C:Arsenal], impacting [N:12] owners ahead of next week.",
     "gw": 11,
     "teams": [],
     "players": [
-      "Raya"
+      "Hall"
     ],
     "cycle_meta": {
-      "specialRank": 1
+      "specialRank": 2,
+      "lastAiredAtMs": 1795613873101,
+      "lastAiredHeadline": "[P:Hall] ([C:Newcastle]) mengalami cedera saat melawan [C:Arsenal], berdampak ke [N:12] pemilik menuju pekan berikutnya."
     }
   },
   {
     "id": "CF_LINEUP_DIFFERENTIAL_RETURN_3_pedro_porro",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1350,8 +1392,8 @@
     }
   },
   {
-    "id": "CF_MATCH_NEXT_GW_FIXTURES_7_crystal_palace_hull_city",
-    "timestamp_produksi": "2026-11-25T12:50:56.048Z",
+    "id": "CF_MATCH_NEXT_GW_FIXTURES_9_sunderland_spurs",
+    "timestamp_produksi": "2026-11-25T13:25:13.099Z",
     "sumber": "Sys",
     "status_tayang": "Y",
     "keterangan_tidak_tayang": "",
@@ -1363,16 +1405,16 @@
     "sub_kategori": "Next Fixtures",
     "drama_score": 81,
     "poin_tayang": 0,
-    "text_berita": "Gameweek [N:12]: [C:Crystal Palace] vs [C:Hull City] pada Minggu, 29 Nov [N:21:05 WIB] menyajikan penampilan [P:Tzolakis] ([N:27%]) dan [P:Ajayi] ([N:14%]).",
-    "text_berita_en": "Gameweek [N:12]: [C:Crystal Palace] vs [C:Hull City] on Sunday, 29 Nov [N:21:05 WIB] features [P:Tzolakis] ([N:27%]) and [P:Ajayi] ([N:14%]).",
+    "text_berita": "Gameweek [N:12]: [C:Sunderland] vs [C:Spurs] pada Minggu, 29 Nov [N:21:05 WIB] menyajikan penampilan [P:Van Hecke] ([N:40%]) dan [P:Kinsky] ([N:20%]).",
+    "text_berita_en": "Gameweek [N:12]: [C:Sunderland] vs [C:Spurs] on Sunday, 29 Nov [N:21:05 WIB] features [P:Van Hecke] ([N:40%]) and [P:Kinsky] ([N:20%]).",
     "gw": 11,
     "teams": [],
     "players": [
-      "Tzolakis",
-      "Ajayi"
+      "Van Hecke",
+      "Kinsky"
     ],
     "cycle_meta": {
-      "specialRank": 6
+      "specialRank": 8
     }
   }
 ]

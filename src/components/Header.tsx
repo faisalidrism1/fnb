@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   leagueData,
   isAdminUnlocked = false,
-  showProjectionAndScout = !import.meta.env.PROD,
+  showProjectionAndScout = true,
 }) => {
   const { t } = useLanguage();
   const navRef = useRef<HTMLElement>(null);
@@ -344,7 +344,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Tab & Sub-tab Navigation Container: Styled exactly like reference image */}
-      <div className="max-w-7xl mx-auto px-1 sm:px-4">
+      <div className="max-w-7xl mx-auto px-1 sm:px-6 lg:px-8">
         <div className="rounded-t-xl sm:rounded-t-2xl overflow-hidden shadow-2xl border-t border-x border-white/10">
           {/* Tier 1: Main Tabs (Obsidian Purple background, uppercase, green active text & green indicator bar) */}
           {onSelectTab && (

@@ -7,7 +7,6 @@ import { TabOwnership } from './components/TabOwnership.tsx';
 import { TabTransfer } from './components/TabTransfer.tsx';
 import { TabCaptain } from './components/TabCaptain.tsx';
 import { TabChips } from './components/TabChips.tsx';
-import { TabAdmin } from './components/TabAdmin.tsx';
 import { ManagerDetailModal } from './components/ManagerDetailModal.tsx';
 import { PlayerDetailModal } from './components/PlayerDetailModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
@@ -56,6 +55,7 @@ function lazyWithRetry<T extends React.ComponentType<any>>(
 
 const TabProjection = lazyWithRetry(() => import('./components/TabProjection.tsx').then((m) => ({ default: m.TabProjection })));
 const TabScout = lazyWithRetry(() => import('./components/TabScout.tsx').then((m) => ({ default: m.TabScout })));
+const TabAdmin = lazyWithRetry(() => import('./components/TabAdmin.tsx').then((m) => ({ default: m.TabAdmin })));
 
 function TabLoadingFallback() {
   return (
@@ -194,11 +194,22 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
-  const isPublished = import.meta.env.PROD;
-  const showProjectionAndScout = !isPublished;
+  const showProjectionAndScout = true;
+
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('fnb_admin_unlocked') === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   const handleSelectTab = useCallback((tab: MainTab) => {
     if (!showProjectionAndScout && (tab === 'PROJECTION' || tab === 'SCOUT')) {
+      setActiveTab('STANDINGS');
+      return;
+    }
+    if (!isAdminUnlocked && tab === 'ADMIN') {
       setActiveTab('STANDINGS');
       return;
     }
@@ -209,22 +220,21 @@ export default function App() {
       next.add(tab);
       return next;
     });
-  }, [showProjectionAndScout]);
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('fnb_admin_unlocked') === 'true';
-    } catch {
-      return false;
-    }
-  });
+  }, [showProjectionAndScout, isAdminUnlocked]);
 
   useEffect(() => {
     const handleAdminUnlocked = () => {
       setIsAdminUnlocked(true);
     };
+    const handleAdminLocked = () => {
+      setIsAdminUnlocked(false);
+      setActiveTab((prev) => (prev === 'ADMIN' ? 'STANDINGS' : prev));
+    };
     window.addEventListener('fnb:admin-unlocked', handleAdminUnlocked);
+    window.addEventListener('fnb:admin-locked', handleAdminLocked);
     return () => {
       window.removeEventListener('fnb:admin-unlocked', handleAdminUnlocked);
+      window.removeEventListener('fnb:admin-locked', handleAdminLocked);
     };
   }, []);
 
@@ -233,24 +243,38 @@ export default function App() {
     document.documentElement.style.setProperty('--font-sans', "'Plus Jakarta Sans', sans-serif");
     document.body.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
 
-    // System dark mode listener to sync with user device preference dynamically
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const updateTheme = (e: MediaQueryListEvent | MediaQueryList) => {
-      if (e.matches) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
+    const syncThemeFromStorage = () => {
+      let isDark = false;
+      try {
+        isDark = localStorage.getItem('fnb_setting_theme') === 'dark';
+      } catch {}
+      document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    };
+
+    syncThemeFromStorage();
+
+    const handleThemeSettingChanged = (e: Event) => {
+      const customEvent = e as CustomEvent<{ key?: string; value?: unknown }>;
+      if (customEvent.detail?.key === 'theme') {
+        const isDark = customEvent.detail.value === 'dark';
+        document.documentElement.classList.toggle('dark', isDark);
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
       }
     };
-    updateTheme(mediaQuery);
 
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', updateTheme);
-      return () => mediaQuery.removeEventListener('change', updateTheme);
-    } else if (mediaQuery.addListener) {
-      mediaQuery.addListener(updateTheme);
-      return () => mediaQuery.removeListener(updateTheme);
-    }
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'fnb_setting_theme' || e.key === null) {
+        syncThemeFromStorage();
+      }
+    };
+
+    window.addEventListener('fnb:setting-changed', handleThemeSettingChanged);
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('fnb:setting-changed', handleThemeSettingChanged);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   // Keep Screen Awake Manager (Screen Wake Lock API lifecycle)
@@ -767,28 +791,32 @@ export default function App() {
             </div>
           )}
 
-          <div className={activeTab === 'ADMIN' ? 'block' : 'hidden'}>
-            <TabAdmin
-              subTab={adminSubTab}
-              onSelectSubTab={setAdminSubTab}
-              leagueData={data}
-              currentGW={data.current_gw}
-              availableGWs={data.available_gws}
-              gwStatus={data.gw_status}
-              eventsStatus={data.events_status}
-              syncStatus={data.sync_status}
-              active={activeTab === 'ADMIN'}
-              onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
-              onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
-              sharedEpochKey={seasonEngine.targetEpochKey}
-              sharedMaxReviewGW={seasonEngine.maxReviewGW}
-              sharedClubs={seasonEngine.clubs}
-              sharedScheduleByGw={seasonEngine.scheduleByGw}
-              sharedClubGwMatchProjections={seasonEngine.clubGwMatchProjections}
-              sharedProjectFixture={seasonEngine.projectFixture}
-              playerProjections={seasonEngine.allPlayerFullSeasonProjections}
-            />
-          </div>
+          {isAdminUnlocked && visitedTabs.has('ADMIN') && (
+            <div className={activeTab === 'ADMIN' ? 'block' : 'hidden'}>
+              <Suspense fallback={<TabLoadingFallback />}>
+                <TabAdmin
+                  subTab={adminSubTab}
+                  onSelectSubTab={setAdminSubTab}
+                  leagueData={data}
+                  currentGW={data.current_gw}
+                  availableGWs={data.available_gws}
+                  gwStatus={data.gw_status}
+                  eventsStatus={data.events_status}
+                  syncStatus={data.sync_status}
+                  active={activeTab === 'ADMIN'}
+                  onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
+                  onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
+                  sharedEpochKey={seasonEngine.targetEpochKey}
+                  sharedMaxReviewGW={seasonEngine.maxReviewGW}
+                  sharedClubs={seasonEngine.clubs}
+                  sharedScheduleByGw={seasonEngine.scheduleByGw}
+                  sharedClubGwMatchProjections={seasonEngine.clubGwMatchProjections}
+                  sharedProjectFixture={seasonEngine.projectFixture}
+                  playerProjections={seasonEngine.allPlayerFullSeasonProjections}
+                />
+              </Suspense>
+            </div>
+          )}
         </ErrorBoundary>
       </main>
 
@@ -884,6 +912,10 @@ export default function App() {
         transfers={data?.all_transfers}
         isAdminUnlocked={isAdminUnlocked}
         onUnlockAdmin={() => setIsAdminUnlocked(true)}
+        onLockAdmin={() => {
+          setIsAdminUnlocked(false);
+          setActiveTab((prev) => (prev === 'ADMIN' ? 'STANDINGS' : prev));
+        }}
       />
     </div>
   );

@@ -9,7 +9,7 @@ import {
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import fnbLogo from '../assets/images/fnb_league_logo_transparent.png';
 import { useLanguage } from '../utils/i18n.ts';
-import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 
 interface TabOwnershipProps {
   ownershipPlayers: Record<number, PlayerOwnershipItem[]>;
@@ -299,31 +299,31 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
 
       {/* SUB TAB 1: Most Owned Player */}
       {subTab === 'most-owned-players' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden w-fit min-w-full sm:min-w-0 max-w-full">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden w-fit min-w-full sm:min-w-0 md:w-full max-w-full">
           <div className="overflow-x-auto">
-            <table className="text-left text-xs text-slate-700 w-auto border-separate border-spacing-0">
+            <table className="text-left text-xs text-slate-700 w-auto md:w-full md:table-fixed border-separate border-spacing-0">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
                   {/* Frozen Rank/Index Column as # */}
-                  <th className="sticky left-0 z-20 bg-[#37003c] py-2 px-1 text-center w-10 min-w-[40px] max-w-[40px] border-b border-purple-900 leading-tight">
+                  <th className="sticky left-0 z-20 bg-[#37003c] py-2 px-1 md:px-2 text-center w-10 min-w-[40px] max-w-[40px] md:w-14 md:min-w-[56px] md:max-w-[56px] border-b border-purple-900 leading-tight">
                     #
                   </th>
                   {/* Frozen Player Column */}
-                  <th className="sticky left-[40px] z-20 bg-[#37003c] py-2 px-2.5 whitespace-nowrap border-b border-purple-900 border-r border-purple-900/40 leading-tight">
+                  <th className="sticky left-[40px] md:left-[56px] z-20 bg-[#37003c] py-2 px-2.5 md:px-4 whitespace-nowrap border-b border-purple-900 border-r border-purple-900/40 md:w-auto leading-tight">
                     {t('col_player')}
                   </th>
-                  <th className="py-2 px-2 text-center w-12 min-w-[48px] border-b border-purple-900 leading-tight">
+                  <th className="py-2 px-2 md:px-3 text-center w-12 min-w-[48px] md:w-24 md:min-w-[96px] border-b border-purple-900 leading-tight">
                     {t('col_club')}
                   </th>
-                  <th className="py-2 px-1.5 text-center w-11 min-w-[44px] border-b border-purple-900 leading-tight">
+                  <th className="py-2 px-1.5 md:px-3 text-center w-11 min-w-[44px] md:w-20 md:min-w-[80px] border-b border-purple-900 leading-tight">
                     {t('col_pos')}
                   </th>
-                  <th className="py-2 px-1.5 text-right w-14 min-w-[54px] border-b border-purple-900 leading-tight">
+                  <th className="py-2 px-1.5 md:px-3 text-right w-14 min-w-[54px] md:w-24 md:min-w-[96px] border-b border-purple-900 leading-tight">
                     {t('col_cost')}
                   </th>
-                  {/* GW Pts - Wrapped Header */}
-                  <th className="py-1.5 px-1.5 text-right w-11 min-w-[44px] border-b border-purple-900 leading-tight">
-                    <div className="flex flex-col items-end leading-tight">
+                  {/* GW Pts - Wrapped on mobile, single-line on desktop */}
+                  <th className="py-1.5 md:py-2 px-1.5 md:px-3 text-right w-11 min-w-[44px] md:w-24 md:min-w-[96px] border-b border-purple-900 leading-tight">
+                    <div className="flex flex-col md:flex-row md:justify-end md:gap-1 items-end leading-tight whitespace-nowrap">
                       {language === 'id' ? (
                         <>
                           <span>Poin</span>
@@ -337,9 +337,9 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                       )}
                     </div>
                   </th>
-                  {/* Total Pts - Wrapped Header */}
-                  <th className="py-1.5 px-1.5 text-right w-11 min-w-[44px] border-b border-purple-900 leading-tight">
-                    <div className="flex flex-col items-end leading-tight">
+                  {/* Total Pts - Wrapped on mobile, single-line on desktop */}
+                  <th className="py-1.5 md:py-2 px-1.5 md:px-3 text-right w-11 min-w-[44px] md:w-28 md:min-w-[104px] border-b border-purple-900 leading-tight">
+                    <div className="flex flex-col md:flex-row md:justify-end md:gap-1 items-end leading-tight whitespace-nowrap">
                       {language === 'id' ? (
                         <>
                           <span>Total</span>
@@ -353,7 +353,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                       )}
                     </div>
                   </th>
-                  <th className="py-2 px-2.5 text-right w-24 min-w-[96px] border-b border-purple-900 leading-tight">
+                  <th className="py-2 px-2.5 md:px-4 text-right w-24 min-w-[96px] md:w-44 md:min-w-[176px] border-b border-purple-900 leading-tight">
                     {t('col_ownership')}
                   </th>
                 </tr>
@@ -378,20 +378,20 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                         }`}
                       >
                         {/* Frozen # Column */}
-                        <td className={`sticky left-0 z-10 py-2 px-1 text-center whitespace-nowrap w-10 min-w-[40px] max-w-[40px] border-b border-slate-100 transition-colors ${
+                        <td className={`sticky left-0 z-10 py-2 px-1 md:px-2 text-center whitespace-nowrap w-10 min-w-[40px] max-w-[40px] md:w-14 md:min-w-[56px] md:max-w-[56px] border-b border-slate-100 transition-colors ${
                           isUserOwned
-                            ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
-                            : 'bg-white group-hover:bg-purple-50/60'
+                            ? USER_STICKY_CELL_BG
+                            : 'bg-white group-hover:bg-purple-50'
                         }`}>
                           <span className="font-bold text-slate-500 text-xs">{idx + 1}</span>
                         </td>
                         {/* Frozen Player Column */}
                         <td
                           onClick={() => handlePlayerClick(player.id)}
-                          className={`sticky left-[40px] z-10 py-2 px-2.5 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors cursor-pointer ${
+                          className={`sticky left-[40px] md:left-[56px] z-10 py-2 px-2.5 md:px-4 whitespace-nowrap border-b border-slate-100 border-r border-slate-200/80 transition-colors cursor-pointer ${
                             isUserOwned
-                              ? 'bg-emerald-100/90 dark:bg-[#1a382b] group-hover:bg-emerald-200/90 dark:group-hover:bg-[#1f4534]'
-                              : 'bg-white group-hover:bg-purple-100/70'
+                              ? USER_STICKY_CELL_BG
+                              : 'bg-white group-hover:bg-purple-50'
                           }`}
                           title={language === 'id' ? `Klik untuk melihat detail ${player.web_name}` : `Click to view details for ${player.web_name}`}
                         >
@@ -413,12 +413,12 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                             </span>
                           </div>
                         </td>
-                        <td className="py-2 px-2 text-center whitespace-nowrap border-b border-slate-100">
+                        <td className="py-2 px-2 md:px-3 text-center whitespace-nowrap border-b border-slate-100">
                           <span className="font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded text-[11px] whitespace-nowrap">
                             {player.team_short_name}
                           </span>
                         </td>
-                        <td className="py-2 px-1.5 text-center whitespace-nowrap border-b border-slate-100">
+                        <td className="py-2 px-1.5 md:px-3 text-center whitespace-nowrap border-b border-slate-100">
                           <span
                             className={`font-black text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap ${
                               player.position === 'FWD'
@@ -433,18 +433,18 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                             {player.position}
                           </span>
                         </td>
-                        <td className="py-2 px-1.5 text-right whitespace-nowrap font-mono text-slate-800 font-semibold text-xs border-b border-slate-100">
+                        <td className="py-2 px-1.5 md:px-3 text-right whitespace-nowrap font-mono text-slate-800 font-semibold text-xs border-b border-slate-100">
                           £{(player.now_cost / 10).toFixed(1)}m
                         </td>
                         {/* GW Pts Cell */}
-                        <td className="py-2 px-1.5 text-right whitespace-nowrap font-bold text-slate-700 text-xs sm:text-sm border-b border-slate-100">
+                        <td className="py-2 px-1.5 md:px-3 text-right whitespace-nowrap font-bold text-slate-700 text-xs sm:text-sm border-b border-slate-100">
                           {player.gw_points !== undefined ? player.gw_points : '-'}
                         </td>
                         {/* Total Pts Cell */}
-                        <td className="py-2 px-1.5 text-right whitespace-nowrap font-black text-slate-900 text-xs sm:text-sm border-b border-slate-100">
+                        <td className="py-2 px-1.5 md:px-3 text-right whitespace-nowrap font-black text-slate-900 text-xs sm:text-sm border-b border-slate-100">
                           {player.total_points}
                         </td>
-                        <td className="py-2 px-2.5 text-right whitespace-nowrap border-b border-slate-100">
+                        <td className="py-2 px-2.5 md:px-4 text-right whitespace-nowrap border-b border-slate-100">
                           <div className="flex flex-col items-end">
                             <span className="font-black text-purple-900 text-xs sm:text-sm whitespace-nowrap">
                               {player.owned_count}{' '}

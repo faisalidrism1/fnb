@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { Search, ChevronDown } from 'lucide-react';
 import { StandingsRow } from '../types.ts';
 import { useLanguage } from '../utils/i18n.ts';
-import { useUserProfileId, USER_ROW_BG } from '../utils/userProfile.ts';
+import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG } from '../utils/userProfile.ts';
 
 export type ChartMetricType = 'last_rank' | 'gw_rank' | 'total_points' | 'event_points';
 export type RankPreset = 'all' | '1-20' | '21-40' | '41-60' | '61-80' | '81-100';
@@ -1071,7 +1071,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                             <label
                               key={team.entryId}
                               className={`flex items-center justify-between p-1.5 rounded-lg cursor-pointer text-xs group transition-colors ${
-                                isUser ? `${USER_ROW_BG} hover:bg-emerald-500/25` : 'hover:bg-slate-50'
+                                isUser ? `${USER_ROW_BG} ${USER_ROW_HOVER_BG}` : 'hover:bg-slate-50'
                               }`}
                             >
                               <div className="flex items-center gap-2 overflow-hidden">
