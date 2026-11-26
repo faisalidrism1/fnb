@@ -4,9 +4,9 @@ import type {
   DbLigaMinus,
   DbChipUsed,
   GwSnapshot,
-  OptimalPlayerEntry,
-  OptimalManagerEntry,
-  OptimalFplDatabaseSchema,
+  DbPlayerEntry,
+  DbManagerEntry,
+  FplDatabaseSchema,
   StandingsRow,
   TransformedLeagueData
 } from '../types.ts';
@@ -14,17 +14,17 @@ import type {
 const DB_FILE_PATH = path.join(process.cwd(), 'src/data/fpl_database.json');
 
 // In-Memory Database and Ultra-Fast O(1) Lookup Indices
-let optimalDatabaseState: OptimalFplDatabaseSchema | null = null;
+let fplDatabaseState: FplDatabaseSchema | null = null;
 
 // High-speed O(1) In-Memory Hash Maps for Sub-Millisecond Response
 const indexedSnapshots = new Map<number, GwSnapshot>();
-const indexedPlayers = new Map<number, OptimalPlayerEntry>();
+const indexedPlayers = new Map<number, DbPlayerEntry>();
 const indexedStandingsByGw = new Map<number, StandingsRow[]>();
 
 /**
- * Creates an empty optimal database matching the schema
+ * Creates an empty FPL database matching the schema
  */
-function createEmptyOptimalDatabase(): OptimalFplDatabaseSchema {
+function createEmptyFplDatabase(): FplDatabaseSchema {
   return {
     meta: {
       league_id: 12356,
@@ -51,15 +51,15 @@ function createEmptyOptimalDatabase(): OptimalFplDatabaseSchema {
 }
 
 /**
- * Populate fast O(1) in-memory indices from the optimal database
+ * Populate fast O(1) in-memory indices from the FPL database
  */
-function populateMemoryIndices(optDb: OptimalFplDatabaseSchema) {
+function populateMemoryIndices(fplDb: FplDatabaseSchema) {
   indexedSnapshots.clear();
   indexedPlayers.clear();
   indexedStandingsByGw.clear();
 
   // Index GW Snapshots
-  for (const [gwStr, snapshot] of Object.entries(optDb.gw_snapshots || {})) {
+  for (const [gwStr, snapshot] of Object.entries(fplDb.gw_snapshots || {})) {
     const gw = Number(gwStr);
     indexedSnapshots.set(gw, snapshot);
     if (Array.isArray(snapshot.standings)) {
@@ -68,23 +68,23 @@ function populateMemoryIndices(optDb: OptimalFplDatabaseSchema) {
   }
 
   // Index Players O(1)
-  for (const [idStr, player] of Object.entries(optDb.players)) {
+  for (const [idStr, player] of Object.entries(fplDb.players)) {
     indexedPlayers.set(Number(idStr), player);
   }
 
-  console.log(`[Database Indices] Populated: ${indexedSnapshots.size} GW snapshots, ${indexedPlayers.size} players, ${Object.keys(optDb.managers || {}).length} managers.`);
+  console.log(`[Database Indices] Populated: ${indexedSnapshots.size} GW snapshots, ${indexedPlayers.size} players, ${Object.keys(fplDb.managers || {}).length} managers.`);
 }
 
 /**
- * Transform TransformedLeagueData into the Optimal Pre-Aggregated Database Schema
+ * Transform TransformedLeagueData into the Pre-Aggregated FPL Database Schema
  */
-export function transformToOptimalDbSchema(fplData: TransformedLeagueData): OptimalFplDatabaseSchema {
+export function transformToFplDbSchema(fplData: TransformedLeagueData): FplDatabaseSchema {
   const availableGws = fplData.available_gws && fplData.available_gws.length > 0
     ? fplData.available_gws
     : [fplData.current_gw || 1];
 
   // 1. Build Player Dictionary & Ownership Maps
-  const playersDict: Record<number, OptimalPlayerEntry> = {};
+  const playersDict: Record<number, DbPlayerEntry> = {};
   
   // Seed with base player stats if available
   if (Array.isArray(fplData.player_stats)) {
@@ -174,7 +174,7 @@ export function transformToOptimalDbSchema(fplData: TransformedLeagueData): Opti
   }
 
   // 2. Build Manager Dictionary & History Maps
-  const managersDict: Record<number, OptimalManagerEntry> = {};
+  const managersDict: Record<number, DbManagerEntry> = {};
   if (fplData.standings) {
     for (const [gwStr, rows] of Object.entries(fplData.standings)) {
       const gw = Number(gwStr);
@@ -286,34 +286,34 @@ export function transformToOptimalDbSchema(fplData: TransformedLeagueData): Opti
 /**
  * Execute synchronization of fresh FPL data into the database schema
  */
-export function executeSchemaSync(fplData: TransformedLeagueData): OptimalFplDatabaseSchema {
-  console.log('[Database] Executing Optimal Pre-Aggregated DB Schema transformation...');
-  const optimal = transformToOptimalDbSchema(fplData);
-  optimalDatabaseState = optimal;
+export function syncFplDatabase(fplData: TransformedLeagueData): FplDatabaseSchema {
+  console.log('[Database] Executing Pre-Aggregated FPL DB Schema transformation...');
+  const nextDb = transformToFplDbSchema(fplData);
+  fplDatabaseState = nextDb;
 
   // Populate lightning-fast in-memory maps
-  populateMemoryIndices(optimal);
+  populateMemoryIndices(nextDb);
 
   try {
     fs.mkdirSync(path.dirname(DB_FILE_PATH), { recursive: true });
     // Atomic write to single source of truth database file
-    const tempPath = `${DB_FILE_PATH}.tmp.${Date.now()}`;
-    fs.writeFileSync(tempPath, JSON.stringify(optimal, null, 2), 'utf-8');
+    const tempPath = `${DB_FILE_PATH}.tmp.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`;
+    fs.writeFileSync(tempPath, JSON.stringify(nextDb, null, 2), 'utf-8');
     fs.renameSync(tempPath, DB_FILE_PATH);
-    console.log('[Database] Optimal DB Schema persisted to', DB_FILE_PATH);
+    console.log('[Database] FPL DB Schema persisted to', DB_FILE_PATH);
   } catch (err: any) {
     console.error('[Database] Failed to write database to disk:', err.message);
   }
 
-  return optimal;
+  return nextDb;
 }
 
 /**
  * Initialize database on server startup strictly from the single truth source (fpl_database.json)
  */
-export function initDatabase(): OptimalFplDatabaseSchema {
-  if (optimalDatabaseState) {
-    return optimalDatabaseState;
+export function initDatabase(): FplDatabaseSchema {
+  if (fplDatabaseState) {
+    return fplDatabaseState;
   }
 
   if (fs.existsSync(DB_FILE_PATH)) {
@@ -321,10 +321,10 @@ export function initDatabase(): OptimalFplDatabaseSchema {
       const raw = fs.readFileSync(DB_FILE_PATH, 'utf-8');
       const parsed = JSON.parse(raw);
       if ((parsed.gw_snapshots || parsed.gwSnapshots) && parsed.players) {
-        optimalDatabaseState = parsed as OptimalFplDatabaseSchema;
-        populateMemoryIndices(optimalDatabaseState);
-        console.log('[Database] Successfully loaded Optimal Database from disk.');
-        return optimalDatabaseState;
+        fplDatabaseState = parsed as FplDatabaseSchema;
+        populateMemoryIndices(fplDatabaseState);
+        console.log('[Database] Successfully loaded FPL Database from disk.');
+        return fplDatabaseState;
       }
     } catch (err: any) {
       console.warn('[Database] Error reading fpl_database.json:', err.message);
@@ -332,18 +332,18 @@ export function initDatabase(): OptimalFplDatabaseSchema {
   }
 
   console.log('[Database] Initializing fresh empty database (Cold Start).');
-  optimalDatabaseState = createEmptyOptimalDatabase();
-  populateMemoryIndices(optimalDatabaseState);
-  return optimalDatabaseState;
+  fplDatabaseState = createEmptyFplDatabase();
+  populateMemoryIndices(fplDatabaseState);
+  return fplDatabaseState;
 }
 
 /**
- * Reconstructs TransformedLeagueData directly from the single truth source (Optimal DB)
+ * Reconstructs TransformedLeagueData directly from the single truth source (FPL DB)
  */
 export function getTransformedLeagueDataFromDb(): TransformedLeagueData | null {
-  const opt = getOptimalDatabase();
-  const snapshotEntries = Object.entries(opt.gw_snapshots || {});
-  if (snapshotEntries.length === 0 || Object.keys(opt.managers || {}).length === 0) {
+  const fplDb = getFplDatabase();
+  const snapshotEntries = Object.entries(fplDb.gw_snapshots || {});
+  if (snapshotEntries.length === 0 || Object.keys(fplDb.managers || {}).length === 0) {
     return null;
   }
 
@@ -371,51 +371,51 @@ export function getTransformedLeagueDataFromDb(): TransformedLeagueData | null {
   }
 
   return {
-    league_id: opt.meta.league_id,
-    league_name: opt.meta.league_name,
-    current_gw: opt.meta.current_gw,
-    available_gws: opt.meta.available_gws,
-    sync_status: opt.meta.sync_status || {
-      last_synced: opt.meta.last_synced,
-      next_sync_wib: opt.meta.next_sync_wib,
-      deadlines: opt.meta.deadlines,
-      is_matchday_live: opt.meta.is_live,
+    league_id: fplDb.meta.league_id,
+    league_name: fplDb.meta.league_name,
+    current_gw: fplDb.meta.current_gw,
+    available_gws: fplDb.meta.available_gws,
+    sync_status: fplDb.meta.sync_status || {
+      last_synced: fplDb.meta.last_synced,
+      next_sync_wib: fplDb.meta.next_sync_wib,
+      deadlines: fplDb.meta.deadlines,
+      is_matchday_live: fplDb.meta.is_live,
       active_fixtures: [],
       gw_fixtures: [],
-      current_gw: opt.meta.current_gw,
+      current_gw: fplDb.meta.current_gw,
       max_gw: 38,
-      total_teams: opt.meta.total_teams,
-      league_name: opt.meta.league_name,
-      league_id: opt.meta.league_id
+      total_teams: fplDb.meta.total_teams,
+      league_name: fplDb.meta.league_name,
+      league_id: fplDb.meta.league_id
     },
-    gw_status: opt.meta.gw_status,
-    events_status: opt.meta.events_status,
+    gw_status: fplDb.meta.gw_status,
+    events_status: fplDb.meta.events_status,
     standings,
-    gameweek_champions: opt.league_analytics?.gameweek_champions || gameweekChampionsFromSnaps.sort((a, b) => b.event - a.event),
-    most_gameweek_champions: opt.league_analytics?.most_gameweek_champions || [],
+    gameweek_champions: fplDb.league_analytics?.gameweek_champions || gameweekChampionsFromSnaps.sort((a, b) => b.event - a.event),
+    most_gameweek_champions: fplDb.league_analytics?.most_gameweek_champions || [],
     ownership_players,
     ownership_clubs,
-    fans_clubs: opt.league_analytics?.fans_clubs || {},
+    fans_clubs: fplDb.league_analytics?.fans_clubs || {},
     template_squads,
-    all_transfers: opt.league_analytics?.all_transfers || [],
-    transfers_in: opt.league_analytics?.transfers_in || transfersInFallback,
-    transfers_out: opt.league_analytics?.transfers_out || transfersOutFallback,
-    liga_minus: opt.league_analytics?.liga_minus || [],
+    all_transfers: fplDb.league_analytics?.all_transfers || [],
+    transfers_in: fplDb.league_analytics?.transfers_in || transfersInFallback,
+    transfers_out: fplDb.league_analytics?.transfers_out || transfersOutFallback,
+    liga_minus: fplDb.league_analytics?.liga_minus || [],
     captain_players,
     captain_clubs,
-    all_chips_used: opt.league_analytics?.all_chips_used || [],
-    player_stats: Object.values(opt.players || {})
+    all_chips_used: fplDb.league_analytics?.all_chips_used || [],
+    player_stats: Object.values(fplDb.players || {})
   };
 }
 
 /**
- * Get current optimal database state
+ * Get current FPL database state
  */
-export function getOptimalDatabase(): OptimalFplDatabaseSchema {
-  if (!optimalDatabaseState) {
+export function getFplDatabase(): FplDatabaseSchema {
+  if (!fplDatabaseState) {
     return initDatabase();
   }
-  return optimalDatabaseState;
+  return fplDatabaseState;
 }
 
 // =========================================================================
@@ -426,12 +426,12 @@ export function getOptimalDatabase(): OptimalFplDatabaseSchema {
  * Get pre-computed Gameweek Snapshot in O(1) time (< 1ms)
  */
 export function getGwSnapshot(gw: number): GwSnapshot | null {
-  if (!optimalDatabaseState) initDatabase();
+  if (!fplDatabaseState) initDatabase();
   return indexedSnapshots.get(Number(gw)) || null;
 }
 
 export function getDbStandings(gw?: number): any[] {
-  if (!optimalDatabaseState) initDatabase();
+  if (!fplDatabaseState) initDatabase();
   if (gw !== undefined) {
     return indexedStandingsByGw.get(Number(gw)) || [];
   }
@@ -443,43 +443,43 @@ export function getDbStandings(gw?: number): any[] {
 }
 
 export function getDbLigaMinus(): DbLigaMinus[] {
-  const opt = getOptimalDatabase();
-  return (opt.league_analytics?.liga_minus as any) || [];
+  const fplDb = getFplDatabase();
+  return (fplDb.league_analytics?.liga_minus as any) || [];
 }
 
 export function getDbChipsUsed(entryId?: number): DbChipUsed[] {
-  const opt = getOptimalDatabase();
-  const all = (opt.league_analytics?.all_chips_used as any) || [];
+  const fplDb = getFplDatabase();
+  const all = (fplDb.league_analytics?.all_chips_used as any) || [];
   if (entryId !== undefined) {
     return all.filter((c: any) => c.entryId === Number(entryId) || c.entry_id === Number(entryId));
   }
   return all;
 }
 
-export function getDbPlayerStatById(id: number): OptimalPlayerEntry | null {
-  if (!optimalDatabaseState) initDatabase();
+export function getDbPlayerStatById(id: number): DbPlayerEntry | null {
+  if (!fplDatabaseState) initDatabase();
   return indexedPlayers.get(Number(id)) || null;
 }
 
 export function getDatabaseStats() {
-  const opt = getOptimalDatabase();
+  const fplDb = getFplDatabase();
   return {
-    architecture: 'Optimal Pre-Aggregated / Indexed Materialized Views',
-    recordCounts: opt.table_counts,
+    architecture: 'Pre-Aggregated / Indexed Materialized Views',
+    recordCounts: fplDb.table_counts,
     indexedSnapshots: indexedSnapshots.size,
     indexedPlayers: indexedPlayers.size,
-    indexedManagers: Object.keys(opt.managers || {}).length,
-    lastSynced: opt.meta.last_synced,
-    nextSyncWib: opt.meta.next_sync_wib,
-    isMatchdayLive: opt.meta.is_live,
-    currentGw: opt.meta.current_gw,
-    leagueId: opt.meta.league_id,
-    leagueName: opt.meta.league_name
+    indexedManagers: Object.keys(fplDb.managers || {}).length,
+    lastSynced: fplDb.meta.last_synced,
+    nextSyncWib: fplDb.meta.next_sync_wib,
+    isMatchdayLive: fplDb.meta.is_live,
+    currentGw: fplDb.meta.current_gw,
+    leagueId: fplDb.meta.league_id,
+    leagueName: fplDb.meta.league_name
   };
 }
 
 export function resetDatabaseState(): void {
-  optimalDatabaseState = null;
+  fplDatabaseState = null;
   indexedSnapshots.clear();
   indexedPlayers.clear();
   indexedStandingsByGw.clear();
@@ -488,7 +488,7 @@ export function resetDatabaseState(): void {
       fs.unlinkSync(DB_FILE_PATH);
     } catch {}
   }
-  console.log('[Database] Reset optimal database state to empty Cold Start.');
+  console.log('[Database] Reset database state to empty Cold Start.');
 }
 
 

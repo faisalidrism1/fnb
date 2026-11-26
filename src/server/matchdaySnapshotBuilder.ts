@@ -1,12 +1,12 @@
 /**
- * News Raw Data Aggregator
- * Extracts pure, unedited, factual tables from the container database for Gemini AI.
- * Strictly NO subjective filtering, NO curation, NO manager personal names (only team names).
- * Enforces historical GW rank checking to deliver maximum contextual drama.
+ * Matchday Snapshot Builder
+ * Builds factual, pre-structured tables and what-if analytics from the FPL database
+ * for the Between Match, Provisional, and Confirmed news story generators.
+ * Uses team names only and checks historical GW ranks for contextual narrative drama.
  */
 
 import {
-  getOptimalDatabase,
+  getFplDatabase,
   getDbStandings,
   getGwSnapshot,
   getDbChipsUsed,
@@ -174,7 +174,7 @@ export interface StandingsHistoricalContext {
   }>;
 }
 
-export interface RawMatchdayPayload {
+export interface MatchdaySnapshotPayload {
   gameweek: number;
   nextGameweek: number;
   gameweekPhase: 'Not started' | 'Live' | 'Provisional' | 'Confirmed';
@@ -211,10 +211,10 @@ export interface RawMatchdayPayload {
 }
 
 /**
- * Builds the complete raw unedited tables for the active Gameweek
+ * Builds the complete structured matchday snapshot tables for the active Gameweek
  */
-export function buildRawMatchdayPayload(targetGw?: number): RawMatchdayPayload {
-  const db = getOptimalDatabase();
+export function buildMatchdaySnapshotPayload(targetGw?: number): MatchdaySnapshotPayload {
+  const db = getFplDatabase();
   const currentGw = targetGw || db.meta.current_gw;
   const previousGw = Math.max(1, currentGw - 1);
   const nextGw = currentGw + 1;

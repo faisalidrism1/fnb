@@ -4,7 +4,7 @@ import type { GwEventStatus, TransformedLeagueData } from '../src/types.ts';
 import {
   computeProjectionEpochInfo,
   getProjectionFormulaFingerprint,
-} from '../src/server/projectionEngineServer.ts';
+} from '../src/server/projectionServerEngine.ts';
 import {
   getProportionalMultiQuota,
   resolveParentTemplateId,

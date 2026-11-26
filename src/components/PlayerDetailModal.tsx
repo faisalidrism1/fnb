@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, useId } from 'react';
+import { ModalDialog } from './ModalDialog.tsx';
 import {
   X,
   ExternalLink,
@@ -20,7 +21,7 @@ import {
   GwEventStatus,
   SyncStatus,
 } from '../types.ts';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
 import {
   useLanguage,
   STAT_IDENTIFIER_LABELS_BY_LANG,
@@ -197,7 +198,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   // Sorted list of available gameweeks
   const sortedGWs = useMemo(() => {
     if (availableGWs && availableGWs.length > 0) {
-      return [...availableGWs].sort((a, b) => a - b);
+      return availableGWs.toSorted((a, b) => a - b);
     }
     const gwKeys = Object.keys(standings || {})
       .map(Number)
@@ -275,6 +276,8 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     onCloseRef.current();
   }, []);
 
+  const playerTitleId = useId();
+
   useEffect(() => {
     if (!playerId) return;
 
@@ -289,18 +292,10 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
       }
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleClose();
-      }
-    };
-
     window.addEventListener('popstate', handlePopState);
-    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [playerId, handleClose]);
 
@@ -494,7 +489,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
     const prevGw =
       activeGWIndex > 0
         ? sortedGWs[activeGWIndex - 1]
-        : [...sortedGWs].reverse().find((g) => g < activeGW);
+        : sortedGWs.toReversed().find((g) => g < activeGW);
     if (prevGw !== undefined) {
       const prevMatches = getMatchesForGW(prevGw);
       const targetIdx = prevMatches.length > 1 ? prevMatches.length - 1 : 0;
@@ -754,7 +749,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
     if (!ownerSortField) return list;
 
-    return [...list].sort((a, b) => {
+    return list.toSorted((a, b) => {
       if (ownerSortField === 'team') {
         const cmp = a.entry_name.localeCompare(b.entry_name, undefined, { sensitivity: 'base' });
         return ownerSortDirection === 'asc' ? cmp : -cmp;
@@ -934,7 +929,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   // GW History sorted descending by Gameweek, then kickoff time & fixture desc for DGW
   const sortedHistory = useMemo(() => {
     if (!summaryData?.history) return [];
-    return [...summaryData.history].sort((a, b) => {
+    return summaryData.history.toSorted((a, b) => {
       if (b.round !== a.round) return b.round - a.round;
       const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : 0;
       const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : 0;
@@ -946,7 +941,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   // Previous seasons sorted descending by season_name (e.g. 2024/25, 2023/24)
   const sortedPastSeasons = useMemo(() => {
     if (!summaryData?.history_past) return [];
-    return [...summaryData.history_past].sort((a, b) => b.season_name.localeCompare(a.season_name));
+    return summaryData.history_past.toSorted((a, b) => b.season_name.localeCompare(a.season_name));
   }, [summaryData?.history_past]);
 
   // Upcoming fixtures sorted ascending by Gameweek, including No Fixture gap rows and DGW detection
@@ -1711,7 +1706,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   // Form & Season are calculated strictly by match up to the currently selected match (round + fixture)
   const combinedStatsData = useMemo(() => {
     const historyList = summaryData?.history || [];
-    const sortedAscHistory = [...historyList].sort((a, b) => {
+    const sortedAscHistory = historyList.toSorted((a, b) => {
       if (a.round !== b.round) return a.round - b.round;
       const tA = a.kickoff_time ? new Date(a.kickoff_time).getTime() : 0;
       const tB = b.kickoff_time ? new Date(b.kickoff_time).getTime() : 0;
@@ -2165,16 +2160,14 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
   }, [chanceOfPlaying, playerStatus]);
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xs overflow-hidden"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          handleClose();
-        }
-      }}
+    <ModalDialog
+      isOpen={Boolean(playerId)}
+      onClose={handleClose}
+      ariaLabelledBy={playerTitleId}
+      className="bg-transparent max-w-2xl sm:max-w-3xl w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] rounded-2xl shadow-2xl"
     >
       {/* Container aligned with Modal Tim: identical max width and fixed height */}
-      <div className="bg-white dark:bg-[#150a24] rounded-2xl max-w-2xl sm:max-w-3xl w-full border border-slate-200 dark:border-purple-900/60 shadow-2xl overflow-hidden flex flex-col h-[calc(100dvh-1.5rem)] sm:h-[88vh] max-h-[850px] animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-[#150a24] rounded-2xl w-full border border-slate-200 dark:border-purple-900/60 shadow-2xl overflow-hidden flex flex-col h-[calc(100dvh-1.5rem)] sm:h-[88dvh] max-h-[850px] animate-in fade-in duration-200">
         
         {/* ================= CLEAN HEADER (ALIGNED WITH TEAM MODAL) ================= */}
         {/* ================= CLEAN HEADER (ALIGNED WITH TEAM MODAL) ================= */}
@@ -2209,7 +2202,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
               <div className="min-w-0 flex flex-col justify-center">
                 {/* 1. Nama Pemain di atas */}
-                <h3 className="font-black text-base sm:text-lg text-white leading-tight truncate">
+                <h3 id={playerTitleId} className="font-black text-base sm:text-lg text-white leading-tight truncate">
                   {playerName}
                 </h3>
 
@@ -2873,7 +2866,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
               {/* 2. COMBINED STATISTICS & INSIGHTS (TRANSPOSED) */}
               <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl overflow-hidden shadow-2xs">
-                <div className="overflow-x-auto">
+                <div tabIndex={0} role="region" aria-label="Player statistics comparison table" className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[11px] font-extrabold tracking-wider border-b border-slate-200 dark:border-purple-900/40 select-none">
@@ -2921,7 +2914,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
             <div className="space-y-2">
               {/* GW Picker (Identik dengan subtab League Table, rapat kiri di atas panel info owned by) */}
               <div className="flex items-center gap-1.5 py-0.5">
-                <CustomPopoverSelect
+                <PopoverSelect
                   id="player-owners-gw-filter"
                   value={activeGW}
                   onChange={(val) => {
@@ -3156,7 +3149,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                 </div>
 
                 {summaryData?.history && summaryData.history.length > 0 ? (
-                  <div className="overflow-x-auto">
+                  <div tabIndex={0} role="region" aria-label="Player Gameweek history table" className="overflow-x-auto">
                     <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
                       <thead className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[10px] font-extrabold tracking-wider border-b border-slate-200 dark:border-purple-900/40 select-none">
                         <tr>
@@ -3532,7 +3525,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
                 </div>
 
                 {summaryData?.history_past && summaryData.history_past.length > 0 ? (
-                  <div className="overflow-x-auto">
+                  <div tabIndex={0} role="region" aria-label="Player previous seasons table" className="overflow-x-auto">
                     <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
                       <thead className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[10px] font-extrabold tracking-wider border-b border-slate-200 dark:border-purple-900/40 select-none">
                         <tr>
@@ -3727,7 +3720,7 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
           {activeTab === 'fixtures' && (
             <div className="bg-white dark:bg-[#1a0c2c] border border-slate-200 dark:border-purple-900/60 rounded-xl overflow-hidden shadow-2xs">
               {upcomingFixtureRows.length > 0 ? (
-                <div className="overflow-x-auto">
+                <div tabIndex={0} role="region" aria-label="Player upcoming fixtures table" className="overflow-x-auto">
                   <table className="w-full text-left text-xs whitespace-nowrap border-collapse">
                     <thead className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[10.5px] font-extrabold tracking-wider border-b border-slate-200 dark:border-purple-900/40 select-none">
                       <tr>
@@ -3846,6 +3839,6 @@ export const PlayerDetailModal: React.FC<PlayerDetailModalProps> = React.memo(({
 
         </div>
       </div>
-    </div>
+    </ModalDialog>
   );
 });

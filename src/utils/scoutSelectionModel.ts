@@ -411,13 +411,13 @@ export function solveScoutSquadForGwMode(params: {
     const source = primary.length >= 6 ? primary : backupCandidates.filter((p) => p.position === pos);
     const fallback = source.length >= 5 ? source : players.filter((p) => p.position === pos);
 
-    const topUtil = [...fallback]
-      .sort((a, b) => getUtil(b) - getUtil(a) || getTie(b) - getTie(a) || a.cost - b.cost)
+    const topUtil = fallback
+      .toSorted((a, b) => getUtil(b) - getUtil(a) || getTie(b) - getTie(a) || a.cost - b.cost)
       .slice(0, topN);
-    const topValue = [...fallback]
-      .sort((a, b) => getUtil(b) / Math.max(b.cost, 3.8) - getUtil(a) / Math.max(a.cost, 3.8))
+    const topValue = fallback
+      .toSorted((a, b) => getUtil(b) / Math.max(b.cost, 3.8) - getUtil(a) / Math.max(a.cost, 3.8))
       .slice(0, valN);
-    const cheapPlaying = [...fallback]
+    const cheapPlaying = fallback
       .filter((p) => {
         if (bbSetupGw !== undefined && !isFH) {
           const bbCell = getCellAtGw(p, bbSetupGw, targetNextGW);
@@ -425,19 +425,19 @@ export function solveScoutSquadForGwMode(params: {
         }
         return getPStart(p) >= 0.40 || getXMin(p) >= 35;
       })
-      .sort((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a))
+      .toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a))
       .slice(0, cheapN);
-    const ultraCheap = [...fallback]
-      .sort((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a))
+    const ultraCheap = fallback
+      .toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a))
       .slice(0, cheapN);
     const bbValueExtras =
       bbSetupGw !== undefined && !isFH
-        ? [...fallback]
+        ? fallback
             .filter((p) => {
               const bbCell = getCellAtGw(p, bbSetupGw, targetNextGW);
               return !bbCell.isBlank && bbCell.pStart >= 0.50;
             })
-            .sort((a, b) => {
+            .toSorted((a, b) => {
               const ca = getCellAtGw(a, bbSetupGw, targetNextGW).xp / Math.max(a.cost, 3.8);
               const cb = getCellAtGw(b, bbSetupGw, targetNextGW).xp / Math.max(b.cost, 3.8);
               return cb - ca;
@@ -501,8 +501,8 @@ export function solveScoutSquadForGwMode(params: {
       metaById.set(p.id, m);
       return m;
     });
-    posPoolByXpOnly[pIdx] = [...metas].sort((a, b) => b.xp - a.xp);
-    posPoolMeta[pIdx] = [...metas].sort((a, b) => b.xp - a.xp || b.tie - a.tie);
+    posPoolByXpOnly[pIdx] = metas.toSorted((a, b) => b.xp - a.xp);
+    posPoolMeta[pIdx] = metas.toSorted((a, b) => b.xp - a.xp || b.tie - a.tie);
   }
   const numClubs = Math.max(nextClubIdx, 1);
 
@@ -959,7 +959,7 @@ export function solveScoutSquadForGwMode(params: {
       ['FWD', 3],
     ];
     for (const [pos, need] of quotas) {
-      const list = [...posPool[pos]].sort((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a));
+      const list = posPool[pos].toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a));
       let taken = 0;
       for (const p of list) {
         if (taken >= need) break;
@@ -994,7 +994,7 @@ export function solveScoutSquadForGwMode(params: {
       ['FWD', fCount],
     ];
     for (const [pos, need] of starterQuotas) {
-      const list = [...posPool[pos]].sort((a, b) => getUtil(b) - getUtil(a) || a.cost - b.cost);
+      const list = posPool[pos].toSorted((a, b) => getUtil(b) - getUtil(a) || a.cost - b.cost);
       let taken = 0;
       for (const p of list) {
         if (taken >= need) break;
@@ -1009,7 +1009,7 @@ export function solveScoutSquadForGwMode(params: {
     ];
     for (const [pos, need] of benchQuotas) {
       if (need <= 0) continue;
-      const list = [...posPool[pos]].sort((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a));
+      const list = posPool[pos].toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a));
       let taken = 0;
       for (const p of list) {
         if (taken >= need) break;
@@ -1357,7 +1357,7 @@ export function buildScoutTransferPrecomputedContext(params: {
   const fitEnablers: Record<PositionType, ScoutTransferPlayerEff[]> = { GKP: [], DEF: [], MID: [], FWD: [] };
   for (const pos of POSITIONS_ORDER) {
     const arr = fitPosAll[pos];
-    fitByUtil[pos] = [...arr].sort(
+    fitByUtil[pos] = arr.toSorted(
       (a, b) => b.utilityH - a.utilityH || b.effXpH - a.effXpH || b.effXp1 - a.effXp1
     );
     const maxCost = pos === 'FWD' ? 6.0 : pos === 'MID' ? 5.5 : 4.6;
@@ -1648,7 +1648,7 @@ export function runScoutTransferSearch(params: {
     const repairedStarter = xi.brokenStarters < baseXI.brokenStarters;
     let p9HitViable = true;
     if (hitCount > 0) {
-      const rankedByGain1 = [...moves].sort(
+      const rankedByGain1 = moves.toSorted(
         (a, b) => (b.effXp1In - b.effXp1Out) - (a.effXp1In - a.effXp1Out)
       );
       const hitMoves = rankedByGain1.slice(ftUsed);
@@ -1735,9 +1735,9 @@ export function runScoutTransferSearch(params: {
         if (eff && eff.clubIdx < clubLimit) clubCounts[eff.clubIdx]++;
       }
 
-      const outOrder = [...state.squadIds]
+      const outOrder = state.squadIds
         .filter((id) => !boughtIds.has(id))
-        .sort(
+        .toSorted(
           (a, b) =>
             Number(getEff(b)?.isBroken || 0) - Number(getEff(a)?.isBroken || 0) ||
             (getEff(a)?.utilityH || 0) - (getEff(b)?.utilityH || 0)
@@ -1784,7 +1784,7 @@ export function runScoutTransferSearch(params: {
             continue;
           }
 
-          const key = [...newSquadIds].sort((a, b) => a - b).join(',');
+          const key = newSquadIds.toSorted((a, b) => a - b).join(',');
           const existing = nextMap.get(key);
           if (!existing || evaluated.netDecisionScore > existing.netDecisionScore) {
             nextMap.set(key, evaluated);
@@ -1802,15 +1802,15 @@ export function runScoutTransferSearch(params: {
       }
     }
 
-    const byScore = [...layerStates].sort((a, b) => b.netDecisionScore - a.netDecisionScore).slice(0, beamWidth);
-    const byBankUnlock = [...layerStates]
+    const byScore = layerStates.toSorted((a, b) => b.netDecisionScore - a.netDecisionScore).slice(0, beamWidth);
+    const byBankUnlock = layerStates
       .filter((s) => s.bank >= round1(initialState.bank + 1.5))
-      .sort((a, b) => b.bank - a.bank || b.netDecisionScore - a.netDecisionScore)
+      .toSorted((a, b) => b.bank - a.bank || b.netDecisionScore - a.netDecisionScore)
       .slice(0, 3);
 
     const mergedBeam = new Map<string, SearchState>();
     for (const s of [...byScore, ...byBankUnlock]) {
-      const k = [...s.squadIds].sort((a, b) => a - b).join(',');
+      const k = s.squadIds.toSorted((a, b) => a - b).join(',');
       mergedBeam.set(k, s);
     }
     frontier = Array.from(mergedBeam.values());
@@ -1840,7 +1840,7 @@ export function runScoutTransferSearch(params: {
     return true;
   });
 
-  const sortedBest = [...marginallyValidStates].sort(
+  const sortedBest = marginallyValidStates.toSorted(
     (a, b) => b.netDecisionScore - a.netDecisionScore || a.hitCount - b.hitCount
   );
   const bestState = sortedBest[0] || initialState;
@@ -2295,7 +2295,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
       });
       if (solved.starterIds.length === 0) continue;
 
-      const sortedStartersCap = [...solved.starterIds].sort((a, b) => {
+      const sortedStartersCap = solved.starterIds.toSorted((a, b) => {
         const pa = playerById.get(a);
         const pb = playerById.get(b);
         const sa = pa ? scoreCaptainAtGw(pa, s, targetNextGW, testPolicy) : 0;
@@ -2372,7 +2372,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
       for (let k = s; k <= winEnd; k++) {
         // Select optimal XI for GW k from fixed WC 15-man squad using causal k projections
         const startersK = selectBestXiFrom15AtGw(squad15, activePool, k, targetNextGW, testPolicy, playerById);
-        const capSorted = [...startersK.starterIds].sort((a, b) => {
+        const capSorted = startersK.starterIds.toSorted((a, b) => {
           const pa = playerById.get(a);
           const pb = playerById.get(b);
           return (
@@ -2534,7 +2534,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
         let sumActual = 0;
         for (let k = s; k <= winEnd; k++) {
           const xiK = selectBestXiFrom15AtGw(sq.squadIds, activePool, k, targetNextGW, policyWithCapDiff, playerById);
-          const capSorted = [...xiK.starterIds].sort((a, b) => {
+          const capSorted = xiK.starterIds.toSorted((a, b) => {
             const pa = playerById.get(a);
             const pb = playerById.get(b);
             return (
@@ -2625,7 +2625,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
             let afterActual = 0;
             for (let k = s; k <= winEnd; k++) {
               const xiK = selectBestXiFrom15AtGw(afterIds, sPool, k, targetNextGW, testPol, sPreCtx.playerById);
-              const capSorted = [...xiK.starterIds].sort((a, b) => {
+              const capSorted = xiK.starterIds.toSorted((a, b) => {
                 const pa = playerById.get(a);
                 const pb = playerById.get(b);
                 return (

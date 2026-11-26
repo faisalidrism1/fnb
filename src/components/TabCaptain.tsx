@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { CaptainPlayerItem, ClubCaptainItem, StandingsRow, DbPlayerStat } from '../types.ts';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import {
@@ -115,7 +115,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
     <div className="space-y-2.5">
       {/* Direct Filter Row below sub tab */}
       <div className="flex items-center gap-2 py-0.5">
-        <CustomPopoverSelect
+        <PopoverSelect
           id="captain-gw-select"
           value={selectedGW}
           onChange={(val) => handleSelectGW(Number(val))}
@@ -130,7 +130,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
       {/* SUB TAB 1: Most Captained Player */}
       {subTab === 'most-captained-player' && (
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+          <div tabIndex={0} role="region" aria-label="Most captained players table" className="overflow-x-auto">
             <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>

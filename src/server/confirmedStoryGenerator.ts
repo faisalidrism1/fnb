@@ -1,6 +1,6 @@
-import { getPhase1Templates } from '../data/phase1Templates.ts';
-import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
-import { buildRawMatchdayPayload } from './newsAggregator.ts';
+import { getNewsTemplates } from '../data/newsTemplates.ts';
+import { getFplDatabase, getGwSnapshot, getDbStandings } from './db.ts';
+import { buildMatchdaySnapshotPayload } from './matchdaySnapshotBuilder.ts';
 import { formatTeamList } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
@@ -203,14 +203,14 @@ function formatFixtureTopPlayersList(
  * di tabel news ticker (hanya diproduksi jika kondisi terpenuhi secara riil).
  */
 export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedStory[] {
-  const templates = getPhase1Templates();
+  const templates = getNewsTemplates();
   const confirmedTemplates = templates.filter(
     (t) =>
       (t.gw_phase || '').trim().toLowerCase() === 'confirmed' ||
       String(t.id || '').startsWith('CF_')
   );
 
-  const dbData = getOptimalDatabase();
+  const dbData = getFplDatabase();
   const currentGw = targetGw || Number(dbData?.meta?.current_gw) || 0;
   if (!currentGw) return [];
 
@@ -218,7 +218,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
   const standings: any[] = getDbStandings(currentGw);
   const topCaptains: any[] = Array.isArray(snap?.top_captains) ? snap.top_captains : [];
 
-  const rawPayload = buildRawMatchdayPayload(currentGw);
+  const rawPayload = buildMatchdaySnapshotPayload(currentGw);
 
   const stories: GeneratedConfirmedStory[] = [];
   const nowIso = new Date().toISOString();
@@ -936,7 +936,7 @@ export function generateConfirmedStories(targetGw?: number): GeneratedConfirmedS
 
         // ====================================================================
         // CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL (Captain | Alternative | Missed Captain Haul | MULTI-NEWS)
-        // Strictly compares MID/FWD alternatives only (enforced by newsAggregator)
+        // Strictly compares MID/FWD alternatives only (enforced by matchdaySnapshotBuilder)
         // ====================================================================
         case 'CF_CAPTAIN_ALTERNATIVE_MISSED_HAUL': {
           if (!rawPayload) break;

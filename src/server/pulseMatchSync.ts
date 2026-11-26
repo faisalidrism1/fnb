@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getOptimalDatabase } from './db.ts';
+import { getFplDatabase } from './db.ts';
 import {
   FPL_BASE,
   FPL_HEADERS,
@@ -215,7 +215,7 @@ export function clearAllPulseMatchFiles(): number {
  */
 export function loadPulseMatchesForGw(targetGw?: number): any[] {
   migrateLegacyPulseMatchFiles();
-  const gw = Number(targetGw || getOptimalDatabase()?.meta?.current_gw) || 0;
+  const gw = Number(targetGw || getFplDatabase()?.meta?.current_gw) || 0;
   if (!gw || !fs.existsSync(PULSE_MATCHES_DIR)) return [];
 
   const matches: any[] = [];
@@ -508,7 +508,7 @@ export async function syncPulseMatchesForActiveGw(
   options?: { cleanOldGws?: boolean; forceRefresh?: boolean }
 ): Promise<SyncPulseMatchesResult> {
   migrateLegacyPulseMatchFiles();
-  const db = getOptimalDatabase();
+  const db = getFplDatabase();
   const gw = Number(targetGw || db?.meta?.current_gw) || 0;
 
   const emptyResult: SyncPulseMatchesResult = {
@@ -669,7 +669,7 @@ export async function ensureLivePulseMatchesSynced(
   targetGw?: number,
   options?: { force?: boolean; ttlMs?: number }
 ): Promise<SyncPulseMatchesResult | null> {
-  const db = getOptimalDatabase();
+  const db = getFplDatabase();
   const gw = Number(targetGw || db?.meta?.current_gw) || 0;
   if (!gw) return null;
 

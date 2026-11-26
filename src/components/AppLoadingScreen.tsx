@@ -1,11 +1,11 @@
 import React from 'react';
 import { getSavedLanguage } from '../utils/i18n.ts';
 
-interface SmartLoadingScreenProps {
+interface AppLoadingScreenProps {
   message?: string;
 }
 
-export const SmartLoadingScreen: React.FC<SmartLoadingScreenProps> = ({
+export const AppLoadingScreen: React.FC<AppLoadingScreenProps> = ({
   message,
 }) => {
   const lang = getSavedLanguage();

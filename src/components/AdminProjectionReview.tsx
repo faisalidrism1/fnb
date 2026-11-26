@@ -25,7 +25,7 @@ import {
   ActualMatchReviewEntry
 } from '../types.ts';
 import { useLanguage } from '../utils/i18n.ts';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
 import {
@@ -33,8 +33,9 @@ import {
   computeScoreHorizonSummary,
   computePointsSliceSummary
 } from '../utils/reviewMetrics.ts';
+import { FALLBACK_PREMIER_LEAGUE_CLUBS } from '../utils/premierLeagueClubs.ts';
 
-interface TabReviewProps {
+interface AdminProjectionReviewProps {
   leagueData?: TransformedLeagueData;
   currentGW?: number;
   availableGWs?: number[];
@@ -56,33 +57,11 @@ interface TabReviewProps {
   sharedMatchesByGW?: Record<number, any[]>;
 }
 
-const FALLBACK_PREMIER_LEAGUE_CLUBS: ProjectionClubItem[] = [
-  { id: 1, name: 'Arsenal', short: 'ARS', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t3.png' },
-  { id: 2, name: 'Aston Villa', short: 'AVL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t7.png' },
-  { id: 3, name: 'Bournemouth', short: 'BOU', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t91.png' },
-  { id: 4, name: 'Brentford', short: 'BRE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t94.png' },
-  { id: 5, name: 'Brighton', short: 'BHA', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t36.png' },
-  { id: 6, name: 'Chelsea', short: 'CHE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t8.png' },
-  { id: 7, name: 'Coventry City', short: 'COV', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t9.png' },
-  { id: 8, name: 'Crystal Palace', short: 'CRY', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t31.png' },
-  { id: 9, name: 'Everton', short: 'EVE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t11.png' },
-  { id: 10, name: 'Fulham', short: 'FUL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t54.png' },
-  { id: 11, name: 'Hull City', short: 'HUL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t88.png' },
-  { id: 12, name: 'Ipswich Town', short: 'IPS', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t40.png' },
-  { id: 13, name: 'Leeds', short: 'LEE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t2.png' },
-  { id: 14, name: 'Liverpool', short: 'LIV', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t14.png' },
-  { id: 15, name: 'Man City', short: 'MCI', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t43.png' },
-  { id: 16, name: 'Man Utd', short: 'MUN', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t1.png' },
-  { id: 17, name: 'Newcastle', short: 'NEW', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t4.png' },
-  { id: 18, name: "Nott'm Forest", short: 'NFO', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t17.png' },
-  { id: 19, name: 'Spurs', short: 'TOT', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t6.png' },
-  { id: 20, name: 'Sunderland', short: 'SUN', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t56.png' }
-];
 
 const POS_ORDER: Record<string, number> = { GKP: 1, DEF: 2, MID: 3, FWD: 4 };
 const ROLE_ORDER: Record<string, number> = { starting: 1, bench: 2, out: 3 };
 
-export const TabReview: React.FC<TabReviewProps> = ({
+export const AdminProjectionReview: React.FC<AdminProjectionReviewProps> = ({
   leagueData,
   currentGW,
   availableGWs = [],
@@ -813,7 +792,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
       const projForm = squad.find((p) => p.projectedFormation)?.projectedFormation || '-';
       const realForm = squad.find((p) => p.actualFormation)?.actualFormation || null;
 
-      const sortedSquad = [...squad].sort((a, b) => {
+      const sortedSquad = squad.toSorted((a, b) => {
         if (lineupSortCol === 'num') {
           return lineupSortDir === 'asc' ? a.shirtNum - b.shirtNum : b.shirtNum - a.shirtNum;
         }
@@ -1136,7 +1115,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
       <div className={`flex items-center gap-2 sm:gap-2.5 ${fullWidthEndAligned ? 'w-full' : 'w-full sm:w-auto'}`}>
         {/* Left: Start GW */}
         <div className="shrink-0" title={isIdLang ? 'GW Awal Review' : 'Review Start GW'}>
-          <CustomPopoverSelect
+          <PopoverSelect
             value={gwStart}
             onChange={(val) => handleGwStartChange(Number(val))}
             options={startGwOptions}
@@ -1190,7 +1169,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
         {/* Right: End GW */}
         <div className={`shrink-0 ${fullWidthEndAligned ? 'ml-auto' : ''}`} title={isIdLang ? 'GW Akhir Review' : 'Review End GW'}>
-          <CustomPopoverSelect
+          <PopoverSelect
             value={gwEnd}
             onChange={(val) => handleGwEndChange(Number(val))}
             options={endGwOptions}
@@ -1293,7 +1272,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
-                <CustomPopoverSelect
+                <PopoverSelect
                   value={lineupReviewGW}
                   onChange={(val) => setLineupReviewGW(Number(val))}
                   options={startGwOptions}
@@ -1549,7 +1528,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
                     {/* Expanded Squad Comparison Table */}
                     {isExpanded && (
-                      <div className="border-t border-slate-200 dark:border-white/10 overflow-x-auto">
+                      <div tabIndex={0} role="region" aria-label="Club lineup review table" className="border-t border-slate-200 dark:border-white/10 overflow-x-auto">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
                             <tr className="bg-slate-100/90 dark:bg-white/5 text-slate-600 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-white/10 text-[11px] whitespace-nowrap select-none">
@@ -2007,7 +1986,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
             return (
               <div className="@container bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
+                <div tabIndex={0} role="region" aria-label="Score review club matrix" className="overflow-x-auto">
                   {horizonGWs.length === 1 || scoreResultFilter !== 'all' ? (
                     <div className="p-3 space-y-3">
                       {horizonGWs.map((gw) => {
@@ -2117,7 +2096,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
           {/* MODE 2: CLUB FIXTURE MATRIX (Rows: 20 Clubs, Columns: GWs — Clean Proj vs Real) */}
           {scoreViewMode === 'matrix' && (
-            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
+            <div tabIndex={0} role="region" aria-label="Score review table" className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100/90 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] whitespace-nowrap select-none">
@@ -2348,7 +2327,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
               {/* Position Dropdown */}
               <div className="flex items-center gap-1.5 shrink-0">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Pos:</span>
-                <CustomPopoverSelect
+                <PopoverSelect
                   value={posFilter}
                   onChange={(val) => setPosFilter(val as 'ALL' | PositionType)}
                   options={[
@@ -2365,7 +2344,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
               {/* Club Dropdown */}
               <div className="flex items-center gap-1.5 shrink-0">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Club:</span>
-                <CustomPopoverSelect
+                <PopoverSelect
                   value={clubFilter}
                   onChange={(val) => setClubFilter(String(val))}
                   options={[
@@ -2542,7 +2521,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
           )}
 
           {/* Player Points Comparison Table */}
-          <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
+          <div tabIndex={0} role="region" aria-label="Player points review table" className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
             <table className={`w-full text-left text-xs border-collapse ${horizonGWs.length <= 12 ? 'md:table-fixed' : ''}`}>
               <thead>
                 <tr className="bg-slate-100/90 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] whitespace-nowrap select-none">
@@ -2958,7 +2937,7 @@ export const TabReview: React.FC<TabReviewProps> = ({
 
           {/* Master Accuracy Recap Table */}
           <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-xs">
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="MAE recap table" className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead className="bg-slate-100/90 dark:bg-white/5 text-[11px] text-slate-700 dark:text-slate-300 font-extrabold border-b border-slate-200 dark:border-white/10 whitespace-nowrap select-none">
                   <tr>

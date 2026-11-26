@@ -633,7 +633,7 @@ const getSavedPoolIdx = (): number => {
     const container = containerRef.current;
     if (!track || !container) return;
 
-    track.innerHTML = '';
+    track.replaceChildren();
     currentXRef.current = 0;
     track.style.transform = 'translate3d(0, 0, 0)';
     lastQueuedStoryIdRef.current = null;
@@ -703,7 +703,7 @@ const getSavedPoolIdx = (): number => {
           } catch {}
         }
         if (track) {
-          track.innerHTML = '';
+          track.replaceChildren();
           currentXRef.current = 0;
           track.style.transform = 'translate3d(0, 0, 0)';
         }

@@ -1,6 +1,6 @@
-import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
-import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
-import { buildRawMatchdayPayload } from './newsAggregator.ts';
+import { getNewsTemplates, NewsTemplateItem } from '../data/newsTemplates.ts';
+import { getFplDatabase, getGwSnapshot, getDbStandings } from './db.ts';
+import { buildMatchdaySnapshotPayload } from './matchdaySnapshotBuilder.ts';
 import { formatTeamList } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import { computeValidFplAutosubs } from './fplAutosub.ts';
@@ -120,11 +120,11 @@ interface IndexedPlayerGwStat {
 }
 
 function loadProvisionalContext(targetGw?: number) {
-  const dbData = getOptimalDatabase();
+  const dbData = getFplDatabase();
   const currentGw = targetGw || Number(dbData?.meta?.current_gw) || 0;
   const standings = currentGw ? getDbStandings(currentGw) : [];
   const snap = currentGw ? getGwSnapshot(currentGw) : null;
-  const rawPayload = currentGw ? buildRawMatchdayPayload(currentGw) : null;
+  const rawPayload = currentGw ? buildMatchdaySnapshotPayload(currentGw) : null;
 
   const dbPlayersArr: any[] = Object.values(dbData?.players || {});
   const ownershipList: any[] = Array.isArray(snap?.ownership_players) ? snap.ownership_players : [];
@@ -186,7 +186,7 @@ function loadProvisionalContext(targetGw?: number) {
 }
 
 function finalizeProvisionalStories(
-  tmpl: Phase1TemplateItem,
+  tmpl: NewsTemplateItem,
   produced: EmittedStoryDraft[],
   gw: number,
   nowIso: string
@@ -221,7 +221,7 @@ function finalizeProvisionalStories(
  * Generates real factual stories for all 17 Provisional templates (PV_*)
  */
 export function generateProvisionalStories(targetGw?: number): GeneratedPhaseStory[] {
-  const templates = getPhase1Templates().filter(
+  const templates = getNewsTemplates().filter(
     (t) => (t.gw_phase || '').trim().toLowerCase() === 'provisional'
   );
   if (templates.length === 0) return [];

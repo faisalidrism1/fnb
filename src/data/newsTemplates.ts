@@ -1,23 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import type { NewsTemplateItem } from '../types.ts';
 
-export interface Phase1TemplateItem {
-  no: number;
-  gw?: number;
-  id: string;
-  timestamp?: string;
-  source?: 'Bukan' | 'Sys' | string;
-  gw_phase: string;
-  category: string;
-  subcategory: string;
-  title?: string;
-  output?: 'SINGLE-NEWS' | 'MULTI-NEWS' | string;
-  template: string; // Teks template narasi (mendukung varian kondisi bila ada)
-  example: string;  // Otomatis ter-update mengikuti template
-  code: string;     // Murni logika teknis tanpa hardcoded narasi
-  sample_data: Record<string, string | number>; // Data sampel realistis untuk preview example
-  updated_at?: string;
-}
+export type { NewsTemplateItem };
 
 /**
  * ============================================================================
@@ -35,7 +20,7 @@ export interface Phase1TemplateItem {
  * ============================================================================
  */
 
-const TEMPLATES_FILE_PATH = path.join(process.cwd(), 'src/data/phase1_templates.json');
+const TEMPLATES_FILE_PATH = path.join(process.cwd(), 'src/data/news_templates.json');
 
 /**
  * Interpolates variables inside template with sample data to generate Example dynamically.
@@ -89,7 +74,7 @@ export function interpolateExample(template: string, sampleData: Record<string, 
   return result.trim();
 }
 
-export const DEFAULT_PHASE1_TEMPLATES: Phase1TemplateItem[] = [
+export const DEFAULT_NEWS_TEMPLATES: NewsTemplateItem[] = [
   {
     no: 1,
     id: 'NS_MATCH_FIXTURE_OPENING',
@@ -4171,9 +4156,9 @@ return nextFixtures.map((fix) => renderFixtureStory(fix));`,
   },
 ];
 
-export function getPhase1Templates(): Phase1TemplateItem[] {
+export function getNewsTemplates(): NewsTemplateItem[] {
   const defaultTimestamp = new Date().toISOString();
-  const baseDefaults = DEFAULT_PHASE1_TEMPLATES.map((def) => ({
+  const baseDefaults = DEFAULT_NEWS_TEMPLATES.map((def) => ({
     ...def,
     title: String(def.title || '').trim(),
     gw: def.gw || 10,
@@ -4225,7 +4210,7 @@ export function getPhase1Templates(): Phase1TemplateItem[] {
       }
     }
   } catch (err: any) {
-    console.warn('[Phase1Templates] Error reading custom templates:', err.message);
+    console.warn('[NewsTemplates] Error reading custom templates:', err.message);
   }
   return baseDefaults;
 }
@@ -4238,12 +4223,89 @@ function escapeTemplateLiteral(val: string): string {
     .replace(/\$\{/g, '\\${');
 }
 
-function syncTemplatesToSourceTs(items: Phase1TemplateItem[]): void {
+import crypto from 'node:crypto';
+
+function sanitizeShortString(val: unknown, fallback = '', maxLen = 120): string {
+  if (typeof val !== 'string') return fallback;
+  return val.trim().slice(0, maxLen);
+}
+
+function sanitizeSampleData(
+  val: unknown,
+  fallback: Record<string, string | number> = {}
+): Record<string, string | number> {
+  if (!val || typeof val !== 'object' || Array.isArray(val)) return fallback;
+  const out: Record<string, string | number> = {};
+  let count = 0;
+  for (const [k, v] of Object.entries(val)) {
+    if (count >= 40) break;
+    if (!/^[A-Za-z0-9_]{1,40}$/.test(k)) continue;
+    if (typeof v === 'string') {
+      out[k] = v.slice(0, 500);
+      count++;
+    } else if (typeof v === 'number' && Number.isFinite(v)) {
+      out[k] = v;
+      count++;
+    }
+  }
+  return Object.keys(out).length > 0 ? out : fallback;
+}
+
+export function sanitizeTemplatePatch(raw: unknown): Partial<NewsTemplateItem> | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const src = raw as Record<string, unknown>;
+  const patch: Partial<NewsTemplateItem> = {};
+
+  if ('gw_phase' in src) {
+    if (typeof src.gw_phase !== 'string') return null;
+    patch.gw_phase = sanitizeShortString(src.gw_phase, '', 60);
+  }
+  if ('category' in src) {
+    if (typeof src.category !== 'string') return null;
+    patch.category = sanitizeShortString(src.category, '', 80);
+  }
+  if ('subcategory' in src) {
+    if (typeof src.subcategory !== 'string') return null;
+    patch.subcategory = sanitizeShortString(src.subcategory, '', 80);
+  }
+  if ('title' in src) {
+    if (typeof src.title !== 'string') return null;
+    patch.title = sanitizeShortString(src.title, '', 120);
+  }
+  if ('output' in src) {
+    if (typeof src.output !== 'string') return null;
+    const out = src.output.trim();
+    patch.output = out === 'MULTI-NEWS' ? 'MULTI-NEWS' : 'SINGLE-NEWS';
+  }
+  if ('template' in src) {
+    if (typeof src.template !== 'string' || src.template.length > 4000) return null;
+    patch.template = src.template.replace(/\r\n/g, '\n');
+  }
+  if ('gw' in src && src.gw !== undefined) {
+    const gwNum = Number(src.gw);
+    if (!Number.isInteger(gwNum) || gwNum < 1 || gwNum > 38) return null;
+    patch.gw = gwNum;
+  }
+  if ('sample_data' in src && src.sample_data !== undefined) {
+    patch.sample_data = sanitizeSampleData(src.sample_data);
+  }
+
+  return patch;
+}
+
+function writeFileAtomicSync(targetPath: string, content: string): void {
+  fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+  const tmpPath = `${targetPath}.tmp.${process.pid}.${Date.now()}.${crypto.randomBytes(4).toString('hex')}`;
+  fs.writeFileSync(tmpPath, content, 'utf-8');
+  fs.renameSync(tmpPath, targetPath);
+}
+
+function syncTemplatesToSourceTs(items: NewsTemplateItem[]): void {
   try {
-    const sourceTsPath = path.join(process.cwd(), 'src/data/phase1Templates.ts');
+    const sourceTsPath = path.join(process.cwd(), 'src/data/newsTemplates.ts');
     if (!fs.existsSync(sourceTsPath)) return;
     let source = fs.readFileSync(sourceTsPath, 'utf-8');
-    if (!source.includes('export const DEFAULT_PHASE1_TEMPLATES')) return;
+    if (!source.includes('export const DEFAULT_NEWS_TEMPLATES')) return;
 
     let changed = false;
     for (const item of items) {
@@ -4290,55 +4352,76 @@ function syncTemplatesToSourceTs(items: Phase1TemplateItem[]): void {
     }
 
     if (changed) {
-      fs.writeFileSync(sourceTsPath, source, 'utf-8');
+      writeFileAtomicSync(sourceTsPath, source);
     }
   } catch (err: any) {
-    console.warn('[Phase1Templates] Could not sync edits to phase1Templates.ts:', err.message);
+    console.warn('[NewsTemplates] Could not sync edits to newsTemplates.ts:', err.message);
   }
 }
 
-export function savePhase1Templates(items: Phase1TemplateItem[]): boolean {
+export function saveNewsTemplates(items: NewsTemplateItem[]): boolean {
   try {
+    if (!Array.isArray(items) || items.length === 0 || items.length > 500) {
+      return false;
+    }
     const saveTime = new Date().toISOString();
-    const defaultsById = new Map(DEFAULT_PHASE1_TEMPLATES.map((d) => [d.id, d]));
-    const enriched = items.map((item) => {
-      const def = defaultsById.get(item.id);
-      const gwPhase = String(item.gw_phase || def?.gw_phase || 'Not started').trim();
+    const defaultsById = new Map(DEFAULT_NEWS_TEMPLATES.map((d) => [d.id, d]));
+    const enriched: NewsTemplateItem[] = [];
+
+    for (const rawItem of items) {
+      if (!rawItem || typeof rawItem !== 'object' || Array.isArray(rawItem)) {
+        return false;
+      }
+      const id = typeof rawItem.id === 'string' ? rawItem.id.trim() : '';
+      if (!/^[A-Za-z0-9_-]{1,80}$/.test(id)) {
+        return false;
+      }
+      const def = defaultsById.get(id);
+      const patch = sanitizeTemplatePatch(rawItem);
+      if (!patch) {
+        return false;
+      }
+
+      const gwPhase = sanitizeShortString(patch.gw_phase ?? def?.gw_phase ?? 'Not started', 'Not started', 60);
       const isLive = gwPhase.toLowerCase() === 'live match';
-      const tmplText = String(item.template ?? def?.template ?? '').replace(/\r\n/g, '\n');
-      const sampleData = item.sample_data || def?.sample_data || {};
-      return {
-        ...def,
-        ...item,
+      const tmplText = typeof patch.template === 'string'
+        ? patch.template
+        : (def?.template ?? '');
+      const sampleData = sanitizeSampleData(patch.sample_data, def?.sample_data || {});
+
+      enriched.push({
+        no: def?.no ?? (Number.isInteger(Number(rawItem.no)) ? Number(rawItem.no) : enriched.length + 1),
+        id,
         gw_phase: gwPhase,
-        category: String(item.category || def?.category || '').trim(),
-        subcategory: String(item.subcategory || def?.subcategory || '').trim(),
-        title: String(item.title ?? def?.title ?? '').trim(),
-        output: String(item.output || def?.output || (isLive ? 'MULTI-NEWS' : 'SINGLE-NEWS')).trim(),
-        gw: Number(item.gw) || def?.gw || 10,
-        timestamp: item.timestamp || item.updated_at || saveTime,
-        source: item.source || def?.source || 'Sys',
+        category: sanitizeShortString(patch.category ?? def?.category ?? '', '', 80),
+        subcategory: sanitizeShortString(patch.subcategory ?? def?.subcategory ?? '', '', 80),
+        title: sanitizeShortString(patch.title ?? def?.title ?? '', '', 120),
+        output: patch.output ?? def?.output ?? (isLive ? 'MULTI-NEWS' : 'SINGLE-NEWS'),
+        gw: patch.gw ?? def?.gw ?? 10,
+        timestamp: typeof rawItem.timestamp === 'string' ? rawItem.timestamp.slice(0, 64) : (def?.timestamp || saveTime),
+        source: def?.source || 'Sys',
         template: tmplText,
         example: interpolateExample(tmplText, sampleData),
+        code: def?.code ?? '',
         sample_data: sampleData,
         updated_at: saveTime,
-      };
-    });
-    fs.mkdirSync(path.dirname(TEMPLATES_FILE_PATH), { recursive: true });
-    fs.writeFileSync(TEMPLATES_FILE_PATH, JSON.stringify(enriched, null, 2), 'utf-8');
+      });
+    }
+
+    writeFileAtomicSync(TEMPLATES_FILE_PATH, JSON.stringify(enriched, null, 2));
     syncTemplatesToSourceTs(enriched);
     return true;
   } catch (err: any) {
-    console.error('[Phase1Templates] Failed to save templates:', err);
+    console.error('[NewsTemplates] Failed to save templates:', err);
     return false;
   }
 }
 
-export function resetPhase1Templates(): Phase1TemplateItem[] {
+export function resetNewsTemplates(): NewsTemplateItem[] {
   try {
     if (fs.existsSync(TEMPLATES_FILE_PATH)) {
       fs.unlinkSync(TEMPLATES_FILE_PATH);
     }
   } catch {}
-  return DEFAULT_PHASE1_TEMPLATES;
+  return DEFAULT_NEWS_TEMPLATES;
 }

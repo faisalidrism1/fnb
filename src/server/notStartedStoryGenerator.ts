@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { getPhase1Templates } from '../data/phase1Templates.ts';
+import { getNewsTemplates } from '../data/newsTemplates.ts';
 import { formatTeamList, getTeamAppearanceCounts } from './teamExposureTracker.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
-import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
+import { getFplDatabase, getGwSnapshot, getDbStandings } from './db.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
 import {
   getFplPlayerDirectory,
@@ -31,7 +31,7 @@ import {
 
 const TABLE_PATH = path.join(process.cwd(), 'src/data/news_ticker_table.json');
 
-interface GeneratedPhase1Story {
+export interface GeneratedNotStartedStory {
   id: string;
   headline_id: string;
   headline_en: string;
@@ -251,7 +251,7 @@ function getBenchBoostSummaryForTeams(
   if (!teamIds || teamIds.length === 0) return null;
 
   try {
-    const db = getOptimalDatabase();
+    const db = getFplDatabase();
     const playersArr = Object.values(db.players || {});
     const idSet = new Set(teamIds);
 
@@ -343,7 +343,7 @@ export function getTopDifferingStarters(
   players2Str: string;
 } | null {
   try {
-    const db = getOptimalDatabase();
+    const db = getFplDatabase();
     const playersArr = Object.values(db.players || {});
 
     function getStarters(entryId: number) {
@@ -538,7 +538,7 @@ interface FlaggedPlayerItem {
 
 function getAllFlaggedPlayersPostDeadline(gw: number): FlaggedPlayerItem[] {
   try {
-    const db = getOptimalDatabase();
+    const db = getFplDatabase();
     const playersArr = Object.values(db.players || {});
     const deadlines = db.meta?.deadlines || {};
     const prevDeadline = gw > 1 ? deadlines[gw - 1] ?? (deadlines as any)[String(gw - 1)] : undefined;
@@ -586,11 +586,11 @@ function getAllFlaggedPlayersPostDeadline(gw: number): FlaggedPlayerItem[] {
 }
 
 /**
- * Generates ready-to-air news stories for all Phase 1 (Not started) templates strictly from db.ts
+ * Generates ready-to-air news stories for all Not started templates strictly from db.ts
  */
-export function generatePhase1Stories(targetGw?: number, includeRemainingPool: boolean = true): GeneratedPhase1Story[] {
-  const templates = getPhase1Templates();
-  const db = getOptimalDatabase();
+export function generateNotStartedStories(targetGw?: number, includeRemainingPool: boolean = true): GeneratedNotStartedStory[] {
+  const templates = getNewsTemplates();
+  const db = getFplDatabase();
   const currentGw = targetGw || Number(db.meta?.current_gw);
   if (!currentGw) return [];
   const nowIso = new Date().toISOString();
@@ -603,9 +603,9 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   const allChipsUsed = db.league_analytics?.all_chips_used || [];
   const allTransfers = db.league_analytics?.all_transfers || [];
 
-  const storiesByTemplateId = new Map<string, GeneratedPhase1Story>();
-  let flaggedAscStories: GeneratedPhase1Story[] = [];
-  const surpriseLineupStories: GeneratedPhase1Story[] = [];
+  const storiesByTemplateId = new Map<string, GeneratedNotStartedStory>();
+  let flaggedAscStories: GeneratedNotStartedStory[] = [];
+  const surpriseLineupStories: GeneratedNotStartedStory[] = [];
 
   for (const tmpl of templates) {
     try {
@@ -1593,7 +1593,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
 
   // Inisialisasi pool kandidat Flagged Players dengan poin_tayang persisten dari database
   interface FlaggedCandidate {
-    story: GeneratedPhase1Story;
+    story: GeneratedNotStartedStory;
     meta: { id: number; chance: number; ownersCount: number; cost: number };
     poin_tayang: number;
   }
@@ -1620,7 +1620,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   // 3) ownersCount DESC, cost DESC
   // -------------------------------------------------------------
   let pickedAscId: string | null = null;
-  let pickedAscStory: GeneratedPhase1Story | undefined;
+  let pickedAscStory: GeneratedNotStartedStory | undefined;
   if (flaggedPool.length > 0) {
     const ascCandidates = [...flaggedPool].sort((a, b) => {
       if (a.poin_tayang !== b.poin_tayang) return a.poin_tayang - b.poin_tayang;
@@ -1647,7 +1647,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
   // 4) ownersCount DESC, cost DESC
   // -------------------------------------------------------------
   let pickedDescId: string | null = null;
-  let pickedDescStory: GeneratedPhase1Story | undefined;
+  let pickedDescStory: GeneratedNotStartedStory | undefined;
   const descPool = flaggedPool.filter((c) => c.story.id !== pickedAscId);
   if (descPool.length > 0) {
     descPool.sort((a, b) => {
@@ -1671,32 +1671,32 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
     storiesByTemplateId.get('NS_STANDINGS_TITLE_RACE'),
     storiesByTemplateId.get('NS_CAPTAIN_POPULAR_MOST_CAPTAINED'),
     storiesByTemplateId.get('NS_CHIP_WILDCARD'),
-  ].filter(Boolean) as GeneratedPhase1Story[];
+  ].filter(Boolean) as GeneratedNotStartedStory[];
 
   const wave2 = [
     storiesByTemplateId.get('NS_TRANSFER_HITS_MOST'),
     storiesByTemplateId.get('NS_CHIP_FREE_HIT'),
     storiesByTemplateId.get('NS_CAPTAIN_DIFFERENTIAL'),
     pickedAscStory,
-  ].filter(Boolean) as GeneratedPhase1Story[];
+  ].filter(Boolean) as GeneratedNotStartedStory[];
 
   const wave3 = [
     storiesByTemplateId.get('NS_STANDINGS_WEEKLY_WINS_MOST'),
     storiesByTemplateId.get('NS_CHIP_TRIPLE_CAPTAIN'),
     storiesByTemplateId.get('NS_TRANSFER_IN_MOST_BOUGHT'),
-  ].filter(Boolean) as GeneratedPhase1Story[];
+  ].filter(Boolean) as GeneratedNotStartedStory[];
 
   const wave4 = [
     storiesByTemplateId.get('NS_LINEUP_DIFFERENTIAL_XI'),
     storiesByTemplateId.get('NS_CHIP_BENCH_BOOST'),
     storiesByTemplateId.get('NS_TRANSFER_OUT_MOST_SOLD'),
     pickedDescStory,
-  ].filter(Boolean) as GeneratedPhase1Story[];
+  ].filter(Boolean) as GeneratedNotStartedStory[];
 
   const wave5 = [
     storiesByTemplateId.get('NS_CHIP_SUMMARY_USAGE'),
     storiesByTemplateId.get('NS_PLAYER_OWNERSHIP_MOST_OWNED'),
-  ].filter(Boolean) as GeneratedPhase1Story[];
+  ].filter(Boolean) as GeneratedNotStartedStory[];
 
   const activeCycleItems = [
     ...wave1,
@@ -1706,7 +1706,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
     ...wave4,
     ...wave5,
   ];
-  const orderedStories: GeneratedPhase1Story[] = [];
+  const orderedStories: GeneratedNotStartedStory[] = [];
 
   for (const item of activeCycleItems) {
     const cleanItem = { ...item };
@@ -1723,7 +1723,7 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
     const registeredIds = new Set(orderedStories.map((s) => s.id));
     for (const f of flaggedPool) {
       if (f.story.id === pickedAscId || f.story.id === pickedDescId) continue;
-      const cleanStory: GeneratedPhase1Story = {
+      const cleanStory: GeneratedNotStartedStory = {
         ...f.story,
         poin_tayang: f.poin_tayang,
         status_tayang: 'Y',

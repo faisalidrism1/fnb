@@ -32,7 +32,7 @@ import {
   ProjectedSquadPlayer,
   PlayerGwProjectionCell,
 } from '../types.ts';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import { useSeasonProjections } from '../hooks/useSeasonProjections.ts';
@@ -42,31 +42,10 @@ import {
   AvailabilityLikePlayer,
 } from '../utils/playerAvailabilityHighlight.ts';
 import { PlayerAvailabilityFlag } from './PlayerAvailabilityFlag.tsx';
+import { FALLBACK_PREMIER_LEAGUE_CLUBS } from '../utils/premierLeagueClubs.ts';
 
 export type SeasonProjectionsEngineResult = ReturnType<typeof useSeasonProjections>;
 
-const FALLBACK_PREMIER_LEAGUE_CLUBS: ProjectionClubItem[] = [
-  { id: 1, name: 'Arsenal', short: 'ARS', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t3.png' },
-  { id: 2, name: 'Aston Villa', short: 'AVL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t7.png' },
-  { id: 3, name: 'Bournemouth', short: 'BOU', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t91.png' },
-  { id: 4, name: 'Brentford', short: 'BRE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t94.png' },
-  { id: 5, name: 'Brighton', short: 'BHA', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t36.png' },
-  { id: 6, name: 'Chelsea', short: 'CHE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t8.png' },
-  { id: 7, name: 'Coventry City', short: 'COV', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t9.png' },
-  { id: 8, name: 'Crystal Palace', short: 'CRY', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t31.png' },
-  { id: 9, name: 'Everton', short: 'EVE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t11.png' },
-  { id: 10, name: 'Fulham', short: 'FUL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t54.png' },
-  { id: 11, name: 'Hull City', short: 'HUL', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t88.png' },
-  { id: 12, name: 'Ipswich Town', short: 'IPS', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t40.png' },
-  { id: 13, name: 'Leeds', short: 'LEE', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t2.png' },
-  { id: 14, name: 'Liverpool', short: 'LIV', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t14.png' },
-  { id: 15, name: 'Man City', short: 'MCI', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t43.png' },
-  { id: 16, name: 'Man Utd', short: 'MUN', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t1.png' },
-  { id: 17, name: 'Newcastle', short: 'NEW', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t4.png' },
-  { id: 18, name: "Nott'm Forest", short: 'NFO', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t17.png' },
-  { id: 19, name: 'Spurs', short: 'TOT', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t6.png' },
-  { id: 20, name: 'Sunderland', short: 'SUN', badgeUrl: 'https://resources.premierleague.com/premierleague/badges/70/t56.png' }
-];
 
 interface TabProjectionProps {
   leagueData?: TransformedLeagueData;
@@ -750,7 +729,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
       <div className={`flex items-center gap-2 sm:gap-2.5 ${fullWidthEndAligned ? 'w-full' : 'w-full sm:w-auto'}`}>
         {/* SISI KIRI: Capsule Dropdown GW Awal */}
         <div className="shrink-0" title={isIdLang ? 'GW Awal Proyeksi' : 'Projection Start GW'}>
-          <CustomPopoverSelect
+          <PopoverSelect
             value={gwStart}
             onChange={(val) => handleGwStartChange(Number(val))}
             options={startGwOptions}
@@ -817,7 +796,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
         {/* SISI KANAN: Capsule Dropdown GW Akhir */}
         <div className={`shrink-0 ${fullWidthEndAligned ? 'ml-auto' : ''}`} title={isIdLang ? 'GW Akhir Proyeksi' : 'Projection End GW'}>
-          <CustomPopoverSelect
+          <PopoverSelect
             value={gwEnd}
             onChange={(val) => handleGwEndChange(Number(val))}
             options={endGwOptions}
@@ -949,7 +928,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
               // Sort squad only when club accordion is expanded in list view
               const sortedSquad =
                 isExpanded && lineupViewMode === 'list'
-                  ? [...squad].sort((a, b) => {
+                  ? squad.toSorted((a, b) => {
                       let vA: any = a.si;
                       let vB: any = b.si;
 
@@ -1343,7 +1322,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
                   {/* Expanded Full Squad Table */}
                   {isExpanded && lineupViewMode === 'list' && (
-                    <div className="border-t border-slate-200 dark:border-white/10 overflow-x-auto">
+                    <div tabIndex={0} role="region" aria-label="Club projected lineup table" className="border-t border-slate-200 dark:border-white/10 overflow-x-auto">
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
                           <tr className="bg-slate-100/90 dark:bg-white/5 text-slate-600 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-white/10 text-[11px] whitespace-nowrap">
@@ -1721,7 +1700,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
             return (
               <div className="@container bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
+                <div tabIndex={0} role="region" aria-label="Club fixture projection matrix" className="overflow-x-auto">
                   {horizonGWs.length === 1 ? (
                     <div className="p-3">
                       {horizonGWs.map((gw) => {
@@ -1797,7 +1776,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
           {/* MODE 2: CLUB FIXTURE MATRIX (Rows: 20 Clubs, Columns: GWs — Clean & Symmetric) */}
           {scoreViewMode === 'matrix' && (
-            <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
+            <div tabIndex={0} role="region" aria-label="Projected scores matrix" className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100/90 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] whitespace-nowrap">
@@ -2033,7 +2012,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
               {/* Position Dropdown */}
               <div className="flex items-center gap-1.5 order-1 shrink-0">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Pos:</span>
-                <CustomPopoverSelect
+                <PopoverSelect
                   value={posFilter}
                   onChange={(val) => setPosFilter(val as 'ALL' | 'GKP' | 'DEF' | 'MID' | 'FWD')}
                   options={[
@@ -2050,7 +2029,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
               {/* Club Dropdown */}
               <div className="flex items-center gap-1.5 order-2 shrink-0">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Club:</span>
-                <CustomPopoverSelect
+                <PopoverSelect
                   value={clubFilter}
                   onChange={(val) => setClubFilter(String(val))}
                   options={[
@@ -2145,7 +2124,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
           </div>
 
           {/* Full Player Projections Table */}
-          <div className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
+          <div tabIndex={0} role="region" aria-label="Player points projection table" className="bg-white dark:bg-[#1a0f2e] rounded-xl border border-slate-200 dark:border-white/10 overflow-x-auto shadow-xs">
             <table className={`w-full text-left text-xs border-collapse ${horizonGWs.length <= 6 ? 'md:table-fixed' : ''}`}>
               <thead>
                 <tr className="bg-slate-100/90 dark:bg-white/5 border-b border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-extrabold text-[11px] whitespace-nowrap">

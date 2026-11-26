@@ -129,7 +129,7 @@ interface PlayerHistoryProfile {
  */
 export function extractHistoryProfile(p: ScoutNarrativeInput): PlayerHistoryProfile {
   const isDefOrGkp = p.position === 'DEF' || p.position === 'GKP';
-  const hist = [...(p.gwHistory || [])].sort((a, b) => (a.round || 0) - (b.round || 0));
+  const hist = (p.gwHistory || []).toSorted((a, b) => (a.round || 0) - (b.round || 0));
   const hasRawCs = p.cleanSheets !== undefined || (p as any).clean_sheets !== undefined;
   const rawCs = Number(p.cleanSheets ?? (p as any).clean_sheets ?? 0);
   const goalPtsUnit = isDefOrGkp ? 6 : p.position === 'MID' ? 5 : 4;
@@ -353,7 +353,7 @@ export function buildLeagueStatRankMap(players: ScoutNarrativeInput[]): Map<numb
   const defCohort = cohort.filter((c) => c.isDef);
 
   const computeRanks = <T extends { id: number }>(items: T[], val: (item: T) => number): Map<number, number> => {
-    const sorted = [...items].sort((a, b) => val(b) - val(a));
+    const sorted = items.toSorted((a, b) => val(b) - val(a));
     const out = new Map<number, number>();
     let prevVal = Infinity;
     let prevRank = 1;

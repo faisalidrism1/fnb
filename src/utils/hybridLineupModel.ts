@@ -2069,7 +2069,7 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
     });
   }
 
-  const sortedPlayers = [...players].sort((a, b) => {
+  const sortedPlayers = players.toSorted((a, b) => {
     const pa = playerProbs.get(a.id)!;
     const pb = playerProbs.get(b.id)!;
     return pb.pStartAvail - pa.pStartAvail || pb.feat.startsCount - pa.feat.startsCount || pb.feat.nowCost - pa.feat.nowCost;

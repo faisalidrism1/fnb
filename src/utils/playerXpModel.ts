@@ -455,7 +455,7 @@ function dot(a: number[], b: number[]): number {
 
 function projectToSimplex(v: number[]): number[] {
   const n = v.length;
-  const u = [...v].sort((a, b) => b - a);
+  const u = v.toSorted((a, b) => b - a);
   let cssv = 0;
   let rho = -1;
   for (let i = 0; i < n; i++) {
@@ -1060,7 +1060,7 @@ function summarizePlayerCausalHistory(
   histRecTau: number = DEFAULT_STAGE3_TUNING.histRecTau
 ): Map<number, PlayerHistorySummary> {
   const byPlayer = new Map<number, PlayerHistorySummary>();
-  const sorted = [...historyBeforeGw].sort((a, b) => a.gw - b.gw || a.kickoffMs - b.kickoffMs);
+  const sorted = historyBeforeGw.toSorted((a, b) => a.gw - b.gw || a.kickoffMs - b.kickoffMs);
 
   for (const r of sorted) {
     let s = byPlayer.get(r.playerId);

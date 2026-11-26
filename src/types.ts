@@ -728,7 +728,25 @@ export interface GwSnapshot {
   transfer_feed: TransferItem[];
 }
 
-export interface OptimalPlayerEntry extends DbPlayerStat {
+export interface NewsTemplateItem {
+  no: number;
+  gw?: number;
+  id: string;
+  timestamp?: string;
+  source?: 'Bukan' | 'Sys' | string;
+  gw_phase: string;
+  category: string;
+  subcategory: string;
+  title?: string;
+  output?: 'SINGLE-NEWS' | 'MULTI-NEWS' | string;
+  template: string;
+  example: string;
+  code: string;
+  sample_data?: Record<string, string | number>;
+  updated_at?: string;
+}
+
+export interface DbPlayerEntry extends DbPlayerStat {
   league_ownership?: {
     count: number;
     percentage: number;
@@ -736,7 +754,7 @@ export interface OptimalPlayerEntry extends DbPlayerStat {
   };
 }
 
-export interface OptimalManagerEntry {
+export interface DbManagerEntry {
   entry_id: number;
   entry_name: string;
   player_name: string;
@@ -750,7 +768,7 @@ export interface OptimalManagerEntry {
   }>;
 }
 
-export interface OptimalFplDatabaseSchema {
+export interface FplDatabaseSchema {
   meta: {
     league_id: number;
     league_name: string;
@@ -766,8 +784,8 @@ export interface OptimalFplDatabaseSchema {
     events_status?: Record<number, GwEventStatus>;
   };
   gw_snapshots: Record<number, GwSnapshot>;
-  players: Record<number, OptimalPlayerEntry>;
-  managers: Record<number, OptimalManagerEntry>;
+  players: Record<number, DbPlayerEntry>;
+  managers: Record<number, DbManagerEntry>;
   league_analytics: {
     all_chips_used: ChipUsedRow[];
     fans_clubs: Record<string, FansClubGroup[]>;

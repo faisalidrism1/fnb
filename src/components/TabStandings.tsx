@@ -18,7 +18,7 @@ import {
 } from '../types.ts';
 import { getGameweekStatus } from '../utils/gwStatus.ts';
 import { StandingsChart } from './StandingsChart.tsx';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
 import { useLanguage, formatDeadlineByLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import {
@@ -684,7 +684,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
         <>
           {/* Filters directly below sub tab - Side by side (reduced horizontal padding 50%) */}
           <div className="flex items-center gap-1.5 py-0.5">
-            <CustomPopoverSelect
+            <PopoverSelect
               id="standings-gw-filter"
               value={selectedGW}
               onChange={(val) => handleSelectGW(Number(val))}
@@ -723,7 +723,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
 
           {/* Table directly below filter - Horizontal padding reduced by 50% */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="League standings table" className="overflow-x-auto">
               <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
@@ -1024,7 +1024,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
       {/* SUB TAB 2: Gameweek Champions (Full Season) */}
       {subTab === 'gw-champions' && (
         <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="w-full overflow-x-auto">
+          <div tabIndex={0} role="region" aria-label="Gameweek champions table" className="w-full overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-700 border-collapse table-auto sm:table-fixed">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
@@ -1152,7 +1152,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
       {/* SUB TAB 3: Most Gameweek Champions (Leaderboard) */}
       {subTab === 'most-gw-champions' && (
         <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div className="w-full overflow-x-auto">
+          <div tabIndex={0} role="region" aria-label="Most Gameweek champions leaderboard table" className="w-full overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-700 border-collapse table-auto sm:table-fixed">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>
@@ -1287,7 +1287,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
               <p className="text-xs mt-1">{t('minus_empty_2')}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto w-full">
+            <div tabIndex={0} role="region" aria-label="Liga Minus hits leaderboard table" className="overflow-x-auto w-full">
               <table className="w-full text-left text-xs text-slate-700 border-collapse table-auto sm:table-fixed">
                 <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                   <tr>

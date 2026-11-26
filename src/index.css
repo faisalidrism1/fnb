@@ -5,7 +5,55 @@
 :root {
   --app-font: 'Plus Jakarta Sans', sans-serif;
   --font-sans: 'Plus Jakarta Sans', sans-serif;
-  color-scheme: light;
+  color-scheme: light dark;
+  &:has(> head > meta[name="color-scheme"][content="dark"]) {
+    color-scheme: dark;
+  }
+  &:has(> head > meta[name="color-scheme"][content="light"]) {
+    color-scheme: light;
+  }
+}
+
+dialog.fnb-modal-dialog:modal {
+  overscroll-behavior: contain;
+  margin: auto;
+}
+
+dialog.fnb-modal-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+@supports not selector(:popover-open) {
+  [popover]:not(.\:popover-open) {
+    display: none;
+  }
+}
+
+@supports (position-area: block-end) {
+  [popover].fnb-anchored-popover {
+    inset: auto;
+    margin: 0;
+    margin-top: 6px;
+    position-area: block-end span-inline-end;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  }
+
+  [popover].fnb-anchored-popover[data-align='right'] {
+    position-area: block-end span-inline-start;
+  }
+
+  [popover].fnb-anchored-popover[data-align='center'] {
+    position-area: block-end center;
+  }
+}
+
+@supports not (position-area: block-end) {
+  [popover].fnb-anchored-popover {
+    margin: auto;
+  }
 }
 
 html, body, #root, #root * {

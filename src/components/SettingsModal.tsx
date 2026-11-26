@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useId } from 'react';
 import {
   Settings,
   X,
   User,
   Sun,
   Moon,
+  Monitor,
   Radio,
   Globe,
   Shield,
@@ -13,10 +14,12 @@ import {
   ChevronDown,
   AlertCircle
 } from 'lucide-react';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
+import { ModalDialog } from './ModalDialog.tsx';
 import { StandingsRow, TransferItem } from '../types.ts';
 import { isWakeLockSupported, requestWakeLock, releaseWakeLock } from '../utils/wakeLock.ts';
 import { useLanguage, Language } from '../utils/i18n.ts';
+import { getAdminAuthHeaders, setAdminToken } from '../utils/adminSession.ts';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -99,14 +102,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     return 'guest'; // View as Guest default if user has never selected a Team/Manager
   });
 
-  // Light / Dark Mode state (default Light when not yet configured by user)
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+  // Theme state ('system' default, 'light', or 'dark')
+  type ThemePreference = 'system' | 'light' | 'dark';
+  const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
     try {
-      return localStorage.getItem('fnb_setting_theme') === 'dark';
-    } catch {
-      return false;
-    }
+      const saved = localStorage.getItem('fnb_setting_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    } catch {}
+    return 'system';
   });
+
+  const [systemPrefersDark, setSystemPrefersDark] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  const resolvedIsDark =
+    themePreference === 'dark' ||
+    (themePreference === 'system' && systemPrefersDark);
 
   // Keep Screen Awake state
   const [keepScreenAwake, setKeepScreenAwake] = useState<boolean>(() => {
@@ -129,42 +144,102 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   // Language state & translation hook
   const { language, setLanguage, t } = useLanguage();
+  const settingsTitleId = useId();
+  const adminInputId = useId();
 
-  // Admin Area code verification state
+  const adminConfirmInputId = useId();
+
+  // Admin Area server-backed verification state
   const [isAdminPopupOpen, setIsAdminPopupOpen] = useState<boolean>(false);
   const [adminCodeInput, setAdminCodeInput] = useState<string>('');
+  const [adminCodeConfirmInput, setAdminCodeConfirmInput] = useState<string>('');
+  const [adminNeedsSetup, setAdminNeedsSetup] = useState<boolean>(false);
+  const [isAdminCheckingStatus, setIsAdminCheckingStatus] = useState<boolean>(false);
+  const [isAdminSubmitting, setIsAdminSubmitting] = useState<boolean>(false);
   const [adminAuthMessage, setAdminAuthMessage] = useState<string | null>(null);
 
-  const VALID_ADMIN_CODE = '0123';
-
-  const handleConfirmAdminCode = () => {
-    if (adminCodeInput.trim() === VALID_ADMIN_CODE) {
-      setAdminAuthMessage('Access Granted');
-      try {
-        localStorage.setItem('fnb_admin_unlocked', 'true');
-        window.dispatchEvent(new CustomEvent('fnb:admin-unlocked'));
-      } catch {}
-      if (onUnlockAdmin) {
-        onUnlockAdmin();
+  const openAdminPopup = async () => {
+    setIsAdminPopupOpen(true);
+    setAdminCodeInput('');
+    setAdminCodeConfirmInput('');
+    setAdminAuthMessage(null);
+    setIsAdminCheckingStatus(true);
+    try {
+      const res = await fetch('/api/admin/auth/status', { cache: 'no-store' });
+      const json = await res.json().catch(() => null);
+      if (res.ok && json) {
+        setAdminNeedsSetup(Boolean(json.needsSetup));
       }
-      setTimeout(() => {
-        setIsAdminPopupOpen(false);
-        setAdminCodeInput('');
-        setAdminAuthMessage(null);
-      }, 1000);
-    } else {
-      setAdminAuthMessage('Access denied.');
+    } catch {
+      // Keep default login mode on transient network error
+    } finally {
+      setIsAdminCheckingStatus(false);
     }
   };
 
-  const handleLockAdmin = () => {
+  const handleConfirmAdminCode = async () => {
+    const trimmed = adminCodeInput.trim();
+    if (trimmed.length < 4) {
+      setAdminAuthMessage(
+        language === 'id' ? 'Minimal 4 karakter.' : 'Minimum 4 characters required.'
+      );
+      return;
+    }
+    if (adminNeedsSetup && trimmed !== adminCodeConfirmInput.trim()) {
+      setAdminAuthMessage(
+        language === 'id' ? 'Konfirmasi kode tidak cocok.' : 'Confirmation code does not match.'
+      );
+      return;
+    }
+
+    setIsAdminSubmitting(true);
+    setAdminAuthMessage(null);
     try {
-      localStorage.removeItem('fnb_admin_unlocked');
-      window.dispatchEvent(new CustomEvent('fnb:admin-locked'));
-    } catch {}
+      const endpoint = adminNeedsSetup ? '/api/admin/auth/setup' : '/api/admin/auth/login';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ passcode: trimmed }),
+      });
+      const json = await res.json().catch(() => null);
+      if (res.ok && json?.success && typeof json.token === 'string') {
+        setAdminToken(json.token);
+        setAdminAuthMessage('Access Granted');
+        window.dispatchEvent(new CustomEvent('fnb:admin-unlocked'));
+        if (onUnlockAdmin) {
+          onUnlockAdmin();
+        }
+        setTimeout(() => {
+          setIsAdminPopupOpen(false);
+          setAdminCodeInput('');
+          setAdminCodeConfirmInput('');
+          setAdminAuthMessage(null);
+        }, 700);
+      } else {
+        setAdminAuthMessage(json?.error || 'Access denied.');
+      }
+    } catch {
+      setAdminAuthMessage(
+        language === 'id' ? 'Gagal menghubungi server.' : 'Failed to connect to server.'
+      );
+    } finally {
+      setIsAdminSubmitting(false);
+    }
+  };
+
+  const handleLockAdmin = async () => {
+    const headers = getAdminAuthHeaders();
+    setAdminToken(null);
+    window.dispatchEvent(new CustomEvent('fnb:admin-locked'));
     if (onLockAdmin) {
       onLockAdmin();
     }
+    try {
+      await fetch('/api/admin/auth/logout', {
+        method: 'POST',
+        headers,
+      });
+    } catch {}
   };
 
   // Sync state if prop changes
@@ -219,28 +294,65 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
-  // Sync theme state if changed from another tab or external event
+  // Sync theme state with storage & OS prefers-color-scheme changes
   useEffect(() => {
     const syncTheme = () => {
       try {
-        setIsDarkMode(localStorage.getItem('fnb_setting_theme') === 'dark');
+        const saved = localStorage.getItem('fnb_setting_theme');
+        setThemePreference(saved === 'light' || saved === 'dark' ? saved : 'system');
       } catch {}
     };
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'fnb_setting_theme' || e.key === null) syncTheme();
     };
+    const mediaQuery =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-color-scheme: dark)')
+        : null;
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      setSystemPrefersDark(e.matches);
+    };
+
+    if (mediaQuery) {
+      setSystemPrefersDark(mediaQuery.matches);
+      if (typeof mediaQuery.addEventListener === 'function') {
+        mediaQuery.addEventListener('change', handleMediaChange);
+      } else if (typeof mediaQuery.addListener === 'function') {
+        mediaQuery.addListener(handleMediaChange);
+      }
+    }
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    return () => {
+      if (mediaQuery) {
+        if (typeof mediaQuery.removeEventListener === 'function') {
+          mediaQuery.removeEventListener('change', handleMediaChange);
+        } else if (typeof mediaQuery.removeListener === 'function') {
+          mediaQuery.removeListener(handleMediaChange);
+        }
+      }
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
-  const handleToggleTheme = () => {
-    const nextDark = !isDarkMode;
-    const nextTheme = nextDark ? 'dark' : 'light';
-    setIsDarkMode(nextDark);
-    document.documentElement.classList.toggle('dark', nextDark);
-    document.documentElement.style.colorScheme = nextTheme;
+  const handleSelectTheme = (nextTheme: ThemePreference) => {
+    setThemePreference(nextTheme);
+    const nextResolvedDark =
+      nextTheme === 'dark' ||
+      (nextTheme === 'system' && systemPrefersDark);
+    document.documentElement.classList.toggle('dark', nextResolvedDark);
+    const meta = document.querySelector('meta[name="color-scheme"]');
+    if (meta) {
+      meta.setAttribute(
+        'content',
+        nextTheme === 'system' ? 'light dark' : nextTheme
+      );
+    }
     try {
-      localStorage.setItem('fnb_setting_theme', nextTheme);
+      if (nextTheme === 'system') {
+        localStorage.removeItem('fnb_setting_theme');
+      } else {
+        localStorage.setItem('fnb_setting_theme', nextTheme);
+      }
       window.dispatchEvent(
         new CustomEvent('fnb:setting-changed', {
           detail: { key: 'theme', value: nextTheme },
@@ -286,18 +398,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     ];
   }, [fnbTeams, guestLabel]);
 
-  // Close on Escape key
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
   if (!isOpen) return null;
 
   // Selected profile details
@@ -308,15 +408,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const adminDesc = t('settings_admin_desc');
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
+    <ModalDialog
+      isOpen={isOpen}
+      onClose={onClose}
+      ariaLabelledBy={settingsTitleId}
+      className="bg-transparent max-w-lg w-[calc(100%-1.5rem)] rounded-2xl shadow-2xl"
     >
-      <div className="bg-white dark:bg-[#150a24] rounded-2xl max-w-lg w-full border border-slate-200 dark:border-purple-900/60 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-150">
+      <div className="bg-white dark:bg-[#150a24] rounded-2xl w-full border border-slate-200 dark:border-purple-900/60 shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] animate-in zoom-in-95 duration-150">
         {/* ================= MODAL HEADER ================= */}
         <div className="bg-gradient-to-r from-[#37003c] via-[#28002d] to-[#1c0022] text-white px-4 sm:px-5 py-3.5 sm:py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5 sm:gap-3">
@@ -324,7 +422,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black tracking-tight leading-none text-white">
+              <h2 id={settingsTitleId} className="text-base sm:text-lg font-black tracking-tight leading-none text-white">
                 {t('modal_settings_title')}
               </h2>
               <p className="text-[11px] sm:text-xs text-purple-200/80 font-medium mt-0.5">
@@ -369,7 +467,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {/* Dropdown Profile dengan 'Guest Mode' di baris paling atas */}
             <div className="w-full">
-              <CustomPopoverSelect
+              <PopoverSelect
                 id="settings-profile-select"
                 value={selectedEntryId}
                 onChange={handleProfileChange}
@@ -452,35 +550,41 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {t('settings_display_heading')}
             </span>
 
-            {/* Toggle 0: Light / Dark Mode */}
-            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-purple-950/30 border border-slate-200/80 dark:border-purple-900/40 hover:border-slate-300 dark:hover:border-purple-800/60 transition-colors">
+            {/* Theme Selector: System (default) / Light / Dark */}
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-purple-950/30 border border-slate-200/80 dark:border-purple-900/40 hover:border-slate-300 dark:hover:border-purple-800/60 transition-colors space-y-2.5">
               <div className="flex items-start gap-2.5 min-w-0">
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
-                    isDarkMode
+                    resolvedIsDark
                       ? 'bg-purple-500/15 text-[#00ff87]'
                       : 'bg-indigo-500/10 text-indigo-600'
                   }`}
                 >
-                  {isDarkMode ? (
+                  {themePreference === 'system' ? (
+                    <Monitor className="w-4 h-4 stroke-[2.2]" />
+                  ) : resolvedIsDark ? (
                     <Moon className="w-4 h-4 stroke-[2.2]" />
                   ) : (
                     <Sun className="w-4 h-4 stroke-[2.2]" />
                   )}
                 </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     <span className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white leading-tight">
                       {t('settings_theme_title')}
                     </span>
                     <span
-                      className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded font-mono ${
-                        isDarkMode
+                      className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded font-mono uppercase ${
+                        resolvedIsDark
                           ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-[#00ff87]'
                           : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                       }`}
                     >
-                      {isDarkMode ? 'DARK' : 'LIGHT'}
+                      {themePreference === 'system'
+                        ? `${t('settings_theme_system')} • ${systemPrefersDark ? t('settings_theme_dark') : t('settings_theme_light')}`
+                        : themePreference === 'dark'
+                          ? t('settings_theme_dark')
+                          : t('settings_theme_light')}
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
@@ -489,27 +593,66 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
 
-              {/* iOS style toggle */}
-              <button
-                type="button"
-                role="switch"
-                aria-checked={isDarkMode}
+              <div
+                role="group"
                 aria-label={t('settings_theme_title')}
-                onClick={handleToggleTheme}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#37003c] dark:focus-visible:ring-[#00ff87] ${
-                  isDarkMode
-                    ? 'bg-[#00ff87]'
-                    : 'bg-slate-300 dark:bg-purple-950/80'
-                }`}
+                className="grid grid-cols-3 gap-1.5"
               >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full shadow-md ring-0 transition duration-200 ease-in-out ${
-                    isDarkMode
-                      ? 'translate-x-5 bg-[#37003c]'
-                      : 'translate-x-0 bg-[#ffffff]'
+                <button
+                  type="button"
+                  aria-pressed={themePreference === 'system'}
+                  onClick={() => handleSelectTheme('system')}
+                  className={`flex flex-col items-center justify-center gap-0.5 py-2 px-2 rounded-lg border text-center transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#37003c] dark:focus-visible:ring-[#00ff87] ${
+                    themePreference === 'system'
+                      ? 'bg-purple-50/90 dark:bg-purple-900/50 border-[#37003c] dark:border-[#00ff87] text-[#37003c] dark:text-[#00ff87] shadow-2xs ring-1 ring-[#37003c] dark:ring-[#00ff87]'
+                      : 'bg-white dark:bg-purple-950/20 border-slate-200 dark:border-purple-900/40 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-purple-700'
                   }`}
-                />
-              </button>
+                >
+                  <div className="flex items-center gap-1.5">
+                    <Monitor className="w-3.5 h-3.5 stroke-[2.2] shrink-0" />
+                    <span className="text-[11.5px] font-bold leading-none">
+                      {t('settings_theme_system')}
+                    </span>
+                  </div>
+                  <span className="text-[9.5px] font-medium opacity-80 leading-tight truncate max-w-full">
+                    {systemPrefersDark
+                      ? t('settings_theme_currently_dark')
+                      : t('settings_theme_currently_light')}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  aria-pressed={themePreference === 'light'}
+                  onClick={() => handleSelectTheme('light')}
+                  className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg border text-center transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#37003c] dark:focus-visible:ring-[#00ff87] ${
+                    themePreference === 'light'
+                      ? 'bg-purple-50/90 dark:bg-purple-900/50 border-[#37003c] dark:border-[#00ff87] text-[#37003c] dark:text-[#00ff87] shadow-2xs ring-1 ring-[#37003c] dark:ring-[#00ff87]'
+                      : 'bg-white dark:bg-purple-950/20 border-slate-200 dark:border-purple-900/40 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-purple-700'
+                  }`}
+                >
+                  <Sun className="w-3.5 h-3.5 stroke-[2.2] shrink-0" />
+                  <span className="text-[11.5px] font-bold leading-none">
+                    {t('settings_theme_light')}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  aria-pressed={themePreference === 'dark'}
+                  onClick={() => handleSelectTheme('dark')}
+                  className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg border text-center transition-all cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[#37003c] dark:focus-visible:ring-[#00ff87] ${
+                    themePreference === 'dark'
+                      ? 'bg-purple-50/90 dark:bg-purple-900/50 border-[#37003c] dark:border-[#00ff87] text-[#37003c] dark:text-[#00ff87] shadow-2xs ring-1 ring-[#37003c] dark:ring-[#00ff87]'
+                      : 'bg-white dark:bg-purple-950/20 border-slate-200 dark:border-purple-900/40 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-purple-700'
+                  }`}
+                >
+                  <Moon className="w-3.5 h-3.5 stroke-[2.2] shrink-0" />
+                  <span className="text-[11.5px] font-bold leading-none">
+                    {t('settings_theme_dark')}
+                  </span>
+                </button>
+              </div>
             </div>
 
             {/* Toggle 1: Keep Screen Awake */}
@@ -752,12 +895,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={() => {
                 if (isAdminUnlocked) {
-                  handleLockAdmin();
+                  void handleLockAdmin();
                   return;
                 }
-                setIsAdminPopupOpen(true);
-                setAdminCodeInput('');
-                setAdminAuthMessage(null);
+                void openAdminPopup();
               }}
               className="w-full flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-gradient-to-r from-[#37003c] via-[#48004f] to-[#1e0024] hover:from-[#490050] hover:via-[#5c0065] hover:to-[#2c0035] text-white border border-purple-500/40 hover:border-[#00ff87]/60 shadow-md hover:shadow-lg transition-all cursor-pointer group active:scale-[0.99]"
             >
@@ -808,76 +949,125 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       </div>
 
       {/* Admin Code Popup */}
-      {isAdminPopupOpen && (
-        <div
-          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setIsAdminPopupOpen(false);
-              setAdminCodeInput('');
-              setAdminAuthMessage(null);
-            }
-          }}
-        >
-          <div
-            className="bg-white dark:bg-[#1a0b2e] border border-slate-200 dark:border-purple-800/80 rounded-2xl p-5 shadow-2xl max-w-xs w-full space-y-3.5 animate-in zoom-in-95 duration-150"
-            onClick={(e) => e.stopPropagation()}
+      <ModalDialog
+        isOpen={isAdminPopupOpen}
+        onClose={() => {
+          setIsAdminPopupOpen(false);
+          setAdminCodeInput('');
+          setAdminCodeConfirmInput('');
+          setAdminAuthMessage(null);
+        }}
+        ariaLabel={adminNeedsSetup ? 'Setup Admin Code' : 'Admin Code'}
+        className="bg-transparent max-w-xs w-[calc(100%-2rem)] rounded-2xl shadow-2xl"
+      >
+        <div className="bg-white dark:bg-[#1a0b2e] border border-slate-200 dark:border-purple-800/80 rounded-2xl p-5 shadow-2xl w-full space-y-3.5 animate-in zoom-in-95 duration-150">
+          {adminNeedsSetup && (
+            <div className="space-y-1">
+              <h3 className="text-xs font-extrabold text-slate-900 dark:text-white">
+                {language === 'id' ? 'Atur Kode Admin Awal' : 'Set Initial Admin Code'}
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                {language === 'id'
+                  ? 'Belum ada kode admin tersimpan di server. Buat kode rahasia admin (min. 4 karakter).'
+                  : 'No admin code configured on server yet. Create an admin passcode (min. 4 chars).'}
+              </p>
+            </div>
+          )}
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void handleConfirmAdminCode();
+            }}
+            className="space-y-3"
           >
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleConfirmAdminCode();
+            <label htmlFor={adminInputId} className="sr-only">
+              Admin Code
+            </label>
+            <input
+              id={adminInputId}
+              name="admin-code"
+              type="password"
+              inputMode="numeric"
+              autoComplete="off"
+              enterKeyHint={adminNeedsSetup ? 'next' : 'done'}
+              required
+              minLength={4}
+              maxLength={64}
+              disabled={isAdminCheckingStatus || isAdminSubmitting}
+              value={adminCodeInput}
+              onChange={(e) => {
+                setAdminCodeInput(e.target.value);
+                if (adminAuthMessage) setAdminAuthMessage(null);
               }}
-              className="space-y-3"
-            >
-              <input
-                type="password"
-                inputMode="numeric"
-                value={adminCodeInput}
-                onChange={(e) => {
-                  setAdminCodeInput(e.target.value);
-                  if (adminAuthMessage) setAdminAuthMessage(null);
-                }}
-                placeholder="Admin Code"
-                autoFocus
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-purple-700 bg-slate-50 dark:bg-[#120524] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#37003c] dark:focus:ring-[#00ff87]"
-              />
+              placeholder={adminNeedsSetup ? (language === 'id' ? 'Buat Admin Code' : 'Create Admin Code') : 'Admin Code'}
+              autoFocus
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-purple-700 bg-slate-50 dark:bg-[#120524] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#37003c] dark:focus:ring-[#00ff87] disabled:opacity-60"
+            />
 
-              {adminAuthMessage && (
-                <div
-                  className={`text-xs font-semibold text-center ${
-                    adminAuthMessage === 'Access Granted'
-                      ? 'text-emerald-600 dark:text-[#00ff87]'
-                      : 'text-rose-600 dark:text-rose-400'
-                  }`}
-                >
-                  {adminAuthMessage}
-                </div>
-              )}
-
-              <div className="flex items-center justify-end gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsAdminPopupOpen(false);
-                    setAdminCodeInput('');
-                    setAdminAuthMessage(null);
+            {adminNeedsSetup && (
+              <>
+                <label htmlFor={adminConfirmInputId} className="sr-only">
+                  Confirm Admin Code
+                </label>
+                <input
+                  id={adminConfirmInputId}
+                  name="admin-code-confirm"
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  enterKeyHint="done"
+                  required
+                  minLength={4}
+                  maxLength={64}
+                  disabled={isAdminCheckingStatus || isAdminSubmitting}
+                  value={adminCodeConfirmInput}
+                  onChange={(e) => {
+                    setAdminCodeConfirmInput(e.target.value);
+                    if (adminAuthMessage) setAdminAuthMessage(null);
                   }}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-purple-900/40 transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#37003c] dark:bg-[#00ff87] text-white dark:text-[#37003c] hover:opacity-90 transition-opacity shadow-xs cursor-pointer"
-                >
-                  Confirm
-                </button>
+                  placeholder={language === 'id' ? 'Ulangi Admin Code' : 'Confirm Admin Code'}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-purple-700 bg-slate-50 dark:bg-[#120524] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#37003c] dark:focus:ring-[#00ff87] disabled:opacity-60"
+                />
+              </>
+            )}
+
+            {adminAuthMessage && (
+              <div
+                className={`text-xs font-semibold text-center ${
+                  adminAuthMessage === 'Access Granted'
+                    ? 'text-emerald-600 dark:text-[#00ff87]'
+                    : 'text-rose-600 dark:text-rose-400'
+                }`}
+              >
+                {adminAuthMessage}
               </div>
-            </form>
-          </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAdminPopupOpen(false);
+                  setAdminCodeInput('');
+                  setAdminCodeConfirmInput('');
+                  setAdminAuthMessage(null);
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-purple-900/40 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isAdminCheckingStatus || isAdminSubmitting}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#37003c] dark:bg-[#00ff87] text-white dark:text-[#37003c] hover:opacity-90 transition-opacity shadow-xs cursor-pointer disabled:opacity-60"
+              >
+                {isAdminSubmitting ? '...' : 'Confirm'}
+              </button>
+            </div>
+          </form>
         </div>
-      )}
-    </div>
+      </ModalDialog>
+    </ModalDialog>
   );
 };

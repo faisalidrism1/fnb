@@ -1,5 +1,5 @@
 import type { MatchCardItem } from '../types.ts';
-import { getOptimalDatabase } from './db.ts';
+import { getFplDatabase } from './db.ts';
 import { fetchMatchesForGw, getCachedMatchesForGw } from './matchesFetcher.ts';
 
 export interface RunningMatchSummary {
@@ -69,7 +69,7 @@ export function checkLiveBetweenMatchPhase(
   }
 ): LiveBetweenMatchCheckResult {
   const checkedAt = new Date().toISOString();
-  const db = options?.dbOverride || getOptimalDatabase();
+  const db = options?.dbOverride || getFplDatabase();
   const currentGw = Number(db?.meta?.current_gw) || 0;
   const gw = Number(targetGw || currentGw) || 0;
   const statusObj = db?.meta?.gw_status || {};
@@ -277,7 +277,7 @@ export function checkLiveBetweenMatchPhase(
 export async function ensureLiveMatchesAndCheckPhase(
   targetGw?: number
 ): Promise<LiveBetweenMatchCheckResult> {
-  const db = getOptimalDatabase();
+  const db = getFplDatabase();
   const currentGw = Number(db?.meta?.current_gw) || 0;
   const gw = Number(targetGw || currentGw) || 0;
 

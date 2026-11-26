@@ -21,7 +21,7 @@ import { useUserProfileId } from '../utils/userProfile.ts';
 import { useLanguage } from '../utils/i18n.ts';
 import { Star, ArrowRight, Zap, CheckCircle, X } from 'lucide-react';
 import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
-import { loadScoutSquadsFromIndexedDB, saveScoutSquadsToIndexedDB } from '../storage.ts';
+import { loadScoutSquadsFromIndexedDB, saveScoutSquadsToIndexedDB } from '../utils/indexedDbCache.ts';
 import {
   resolvePlayerAvailabilityHighlight,
   PlayerAvailabilityHighlight,

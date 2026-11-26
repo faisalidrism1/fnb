@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import type { PositionType } from '../types.ts';
-import { getOptimalDatabase } from './db.ts';
+import { getFplDatabase } from './db.ts';
 import {
   PULSE_BASE,
   PULSE_HEADERS,
@@ -1227,7 +1227,7 @@ export async function syncPulseAllCompDatabase(options?: {
     let elements: any[] = Array.isArray(bootstrap?.elements) ? bootstrap.elements : [];
     const fplTeams: any[] = Array.isArray(bootstrap?.teams) ? bootstrap.teams : [];
     if (elements.length === 0) {
-      const dbPlayers = Object.values(getOptimalDatabase()?.players || {});
+      const dbPlayers = Object.values(getFplDatabase()?.players || {});
       elements = dbPlayers.map((p) => ({
         id: p.id,
         code: (p as any).code || 0,
@@ -1622,7 +1622,7 @@ export async function runEventDrivenAllCompSyncTick(options?: {
         let elements: any[] = Array.isArray(bootstrap?.elements) ? bootstrap.elements : [];
         const fplTeams: any[] = Array.isArray(bootstrap?.teams) ? bootstrap.teams : [];
         if (elements.length === 0) {
-          elements = Object.values(getOptimalDatabase()?.players || {}).map((p) => ({
+          elements = Object.values(getFplDatabase()?.players || {}).map((p) => ({
             id: p.id,
             code: (p as any).code || 0,
             web_name: p.webName,

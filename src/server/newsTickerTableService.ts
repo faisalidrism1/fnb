@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { generatePhase1Stories } from './notStartedStoryGenerator.ts';
+import { generateNotStartedStories } from './notStartedStoryGenerator.ts';
 import {
   generateStoriesFromPulseMatch,
   generateLiveMatchStatStories,
@@ -15,8 +15,8 @@ import { getCachedMatchesForGw } from './matchesFetcher.ts';
 import { generateConfirmedStories } from './confirmedStoryGenerator.ts';
 import { generateBetweenMatchStories } from './betweenMatchStoryGenerator.ts';
 import { generateProvisionalStories } from './provisionalStoryGenerator.ts';
-import { getPhase1Templates } from '../data/phase1Templates.ts';
-import { getOptimalDatabase } from './db.ts';
+import { getNewsTemplates } from '../data/newsTemplates.ts';
+import { getFplDatabase } from './db.ts';
 import { checkLiveBetweenMatchPhase, isMatchCardRunning, isMatchCardFinished } from './liveBetweenMatchChecker.ts';
 import { loadPulseMatchesForGw } from './pulseMatchSync.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
@@ -122,7 +122,7 @@ export function getNewsTickerBuiltState(): {
   };
 }
 
-// Short-lived cache of Editor template IDs from TabAdminEditor (src/data/phase1Templates.ts)
+// Short-lived cache of Editor template IDs from AdminNewsTemplateEditor (src/data/newsTemplates.ts)
 let cachedEditorIds: { ids: Set<string>; loadedAt: number } | null = null;
 
 function getEditorTemplateIdSet(): Set<string> {
@@ -130,7 +130,7 @@ function getEditorTemplateIdSet(): Set<string> {
   if (cachedEditorIds && now - cachedEditorIds.loadedAt < 2000) {
     return cachedEditorIds.ids;
   }
-  const templates = getPhase1Templates();
+  const templates = getNewsTemplates();
   const ids = new Set(
     templates
       .map((t) => String(t.id || '').trim())
@@ -525,7 +525,7 @@ export function classifyNewsItem(
 }
 
 export function getCurrentGw(): number {
-  const db = getOptimalDatabase();
+  const db = getFplDatabase();
   return Number(db?.meta?.current_gw) || 0;
 }
 
@@ -541,7 +541,7 @@ export function getGameweekPhase(
   options?: { matchesOverride?: MatchCardItem[] | null; dbOverride?: any }
 ): GameweekPhase {
   try {
-    const db = options?.dbOverride || getOptimalDatabase();
+    const db = options?.dbOverride || getFplDatabase();
     const currentGw = Number(db?.meta?.current_gw) || 0;
     const gw = targetGw || currentGw;
     if (!currentGw || !gw) return 'Not started';
@@ -990,7 +990,7 @@ export function extractGwFromStory(headlineId: string, headlineEn: string, id: s
 
 /**
  * Rebuilds and synchronizes the news ticker database table in the container
- * purely from Editor Table templates (src/data/phase1_templates.json).
+ * purely from Editor Table templates (src/data/news_templates.json).
  */
 export function rebuildNewsTickerTable(
   phaseOverride?: string,
@@ -1131,7 +1131,7 @@ export function rebuildNewsTickerTable(
       return rawId;
     };
 
-    const db = getOptimalDatabase();
+    const db = getFplDatabase();
     const hasPopulatedDb =
       Boolean(db?.meta?.total_teams) &&
       Object.keys(db?.gw_snapshots || {}).length > 0;
@@ -1288,11 +1288,11 @@ export function rebuildNewsTickerTable(
     if (isPhaseActive('Not started', currentActivePhase)) {
       // 3a. Not started (NS_*)
       try {
-        const p1Stories = generatePhase1Stories(feedGw);
-        for (const p1 of p1Stories) {
+        const notStartedStories = generateNotStartedStories(feedGw);
+        for (const ns of notStartedStories) {
           const records = createStoryRecordsForPhases({
-            ...p1,
-            sumber: (p1.sumber as any) || 'Sys',
+            ...ns,
+            sumber: (ns.sumber as any) || 'Sys',
             gw: feedGw,
           }, feedGw, currentActivePhase);
           addRows(records);
@@ -1846,8 +1846,8 @@ export function rebuildNewsTickerTable(
 
         // Also register the 12 post-deadline locked NS_* fallback items for quiet Live Match periods
         try {
-          const fallbackNsStories = generatePhase1Stories(feedGw).filter((p1) =>
-            LM_FALLBACK_NS_TEMPLATE_IDS.has(p1.id)
+          const fallbackNsStories = generateNotStartedStories(feedGw).filter((ns) =>
+            LM_FALLBACK_NS_TEMPLATE_IDS.has(ns.id)
           );
           for (const fb of fallbackNsStories) {
             const records = createStoryRecordsForPhases({
@@ -2249,7 +2249,7 @@ export function isLiveStatRowForFinishedMatch(
     return isMatchCardFinished(matchedCard) || !isMatchCardRunning(matchedCard);
   }
 
-  const db = getOptimalDatabase();
+  const db = getFplDatabase();
   const dbFixtures = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
     ? db.meta.sync_status.gw_fixtures
     : [];

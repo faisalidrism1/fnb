@@ -183,6 +183,11 @@ export interface Translations {
   settings_display_heading: string;
   settings_theme_title: string;
   settings_theme_desc: string;
+  settings_theme_system: string;
+  settings_theme_light: string;
+  settings_theme_dark: string;
+  settings_theme_currently_light: string;
+  settings_theme_currently_dark: string;
   settings_keep_awake_title: string;
   settings_keep_awake_desc: string;
   settings_keep_awake_active: string;
@@ -477,8 +482,13 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_profile_placeholder: 'Select Team & Manager...',
     settings_profile_active: 'Active profile: {team} ({manager})',
     settings_display_heading: 'Display',
-    settings_theme_title: 'Dark Mode',
-    settings_theme_desc: 'Switch between Light (default) and Dark display theme',
+    settings_theme_title: 'Theme',
+    settings_theme_desc: 'Follow system preference (default) or choose Light / Dark theme',
+    settings_theme_system: 'System',
+    settings_theme_light: 'Light',
+    settings_theme_dark: 'Dark',
+    settings_theme_currently_light: 'Currently Light',
+    settings_theme_currently_dark: 'Currently Dark',
     settings_keep_awake_title: 'Keep Screen Awake',
     settings_keep_awake_desc: 'Prevent screen from dimming or locking during live matchday',
     settings_keep_awake_active: 'Screen lock active — Display will stay awake while this tab is open.',
@@ -772,8 +782,13 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_profile_placeholder: 'Select Team & Manager...',
     settings_profile_active: 'Active profile: {team} ({manager})',
     settings_display_heading: 'Display',
-    settings_theme_title: 'Dark Mode',
-    settings_theme_desc: 'Switch between Light (default) and Dark display theme',
+    settings_theme_title: 'Theme',
+    settings_theme_desc: 'Follow system preference (default) or choose Light / Dark theme',
+    settings_theme_system: 'System',
+    settings_theme_light: 'Light',
+    settings_theme_dark: 'Dark',
+    settings_theme_currently_light: 'Currently Light',
+    settings_theme_currently_dark: 'Currently Dark',
     settings_keep_awake_title: 'Keep Screen Awake',
     settings_keep_awake_desc: 'Prevent screen from dimming or locking during live matchday',
     settings_keep_awake_active: 'Screen lock active — Display will stay awake while this tab is open.',
@@ -1067,8 +1082,13 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     settings_profile_placeholder: 'Pilih Tim & Manajer...',
     settings_profile_active: 'Profil aktif: {team} ({manager})',
     settings_display_heading: 'Tampilan',
-    settings_theme_title: 'Mode Gelap',
-    settings_theme_desc: 'Beralih antara tampilan terang (Light, default) dan gelap (Dark)',
+    settings_theme_title: 'Tema Tampilan',
+    settings_theme_desc: 'Ikuti tema perangkat (default) atau pilih tampilan Terang / Gelap',
+    settings_theme_system: 'Sistem',
+    settings_theme_light: 'Terang',
+    settings_theme_dark: 'Gelap',
+    settings_theme_currently_light: 'Saat ini Terang',
+    settings_theme_currently_dark: 'Saat ini Gelap',
     settings_keep_awake_title: 'Layar Tetap Menyala',
     settings_keep_awake_desc: 'Mencegah layar HP/laptop redup atau terkunci saat matchday live',
     settings_keep_awake_active: 'Kuncian layar aktif — Layar akan tetap menyala selama tab ini dibuka.',

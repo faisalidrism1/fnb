@@ -314,20 +314,20 @@ function buildCausalTeamStrengthPrior(
       rawAtt[short] = -0.25 + euroBonus;
       rawDef[short] = 0.24 - euroBonus * 0.8;
     } else {
-      const top12 = [...qual].sort((a, b) => b.mins - a.mins).slice(0, 12);
+      const top12 = qual.toSorted((a, b) => b.mins - a.mins).slice(0, 12);
       const avgPts90 = top12.reduce((s, q) => s + q.pts90, 0) / top12.length;
 
-      const attGroup = [...qual]
+      const attGroup = qual
         .filter((q) => q.pos === 'MID' || q.pos === 'FWD')
-        .sort((a, b) => b.xgi90 - a.xgi90)
+        .toSorted((a, b) => b.xgi90 - a.xgi90)
         .slice(0, 6);
       const avgAttXgi90 = attGroup.length > 0
         ? attGroup.reduce((s, q) => s + q.xgi90, 0) / attGroup.length
         : 0.34;
 
-      const defGroup = [...qual]
+      const defGroup = qual
         .filter((q) => q.pos === 'DEF' || q.pos === 'GKP')
-        .sort((a, b) => b.cs90 - a.cs90)
+        .toSorted((a, b) => b.cs90 - a.cs90)
         .slice(0, 5);
       const avgDefCs90 = defGroup.length > 0
         ? defGroup.reduce((s, q) => s + q.cs90, 0) / defGroup.length
@@ -736,7 +736,7 @@ export function fitCausalMatchScoreModel(
     eloAtt[i] = attPrior[i] * STRUCT.eloPriorW;
     eloDef[i] = defPrior[i] * STRUCT.eloPriorW;
   }
-  const chronoObs = [...obs].sort((a, b) => a.kickoffMs - b.kickoffMs);
+  const chronoObs = obs.toSorted((a, b) => a.kickoffMs - b.kickoffMs);
   for (const o of chronoObs) {
     if (!o.hasOpp) continue;
     const pH = Math.exp(clamp(muPrior + haPrior * 0.5 + eloAtt[o.h] + eloDef[o.a], -2.2, 2.2));

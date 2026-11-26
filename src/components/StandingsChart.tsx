@@ -224,8 +224,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
   // All available GWs sorted ascending
   const allAvailableGWs = useMemo(() => {
     const gws = (availableGWs && availableGWs.length > 0 ? availableGWs : [currentGW || 1])
-      .slice()
-      .sort((a, b) => a - b);
+      .toSorted((a, b) => a - b);
     return gws;
   }, [availableGWs, currentGW]);
 
@@ -456,7 +455,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
     sortedGWs.forEach((gw) => {
       const rows = standings[gw] || [];
       // Sort rows by event_points descending. If event_points are equal, break tie by last_rank (r.rank) ascending.
-      const sortedByGwPoints = [...rows].sort((a, b) => {
+      const sortedByGwPoints = rows.toSorted((a, b) => {
         const ptsDiff = (b.event_points || 0) - (a.event_points || 0);
         if (ptsDiff !== 0) return ptsDiff;
         // Tie breaker: last_rank (r.rank) at the respective GW (lower rank number = better)
@@ -525,7 +524,7 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
 
   // Alphabetically sorted list for multiple picker
   const alphabeticalTeams = useMemo(() => {
-    return [...allTeams].sort((a, b) => a.entryName.localeCompare(b.entryName));
+    return allTeams.toSorted((a, b) => a.entryName.localeCompare(b.entryName));
   }, [allTeams]);
 
   // Filtered teams based on rank preset OR multiple picker
@@ -1135,6 +1134,9 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
       {/* Main Chart Canvas Container */}
       <div
         ref={containerRef}
+        tabIndex={0}
+        role="region"
+        aria-label="Standings progression chart"
         className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-2 sm:p-4 overflow-x-auto relative"
       >
         {/* SVG Visualization */}
@@ -1231,8 +1233,8 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
             />
 
             {/* Render Team Lines: sorted from bottom to top of chart, with tie-break by last_rank, and hovered team on top */}
-            {[...visibleTeams]
-              .sort((a, b) => {
+            {visibleTeams
+              .toSorted((a, b) => {
                 const aDp = a.dataPoints[latestGW];
                 const bDp = b.dataPoints[latestGW];
                 const aVal = aDp ? getValue(aDp) : (isRankMetric ? 999 : -999);
@@ -1364,8 +1366,8 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
 
             {/* Badges Layer (Chips, Hits, Captains): rendered in separate sorted layer from bottom to top following team names, with hovered team on top */}
             {(showChips || showHits || showCaptains) &&
-              [...visibleTeams]
-                .sort((a, b) => {
+              visibleTeams
+                .toSorted((a, b) => {
                   const aDp = a.dataPoints[latestGW];
                   const bDp = b.dataPoints[latestGW];
                   const aVal = aDp ? getValue(aDp) : (isRankMetric ? 999 : -999);
@@ -1565,8 +1567,8 @@ export const StandingsChart: React.FC<StandingsChartProps> = ({
                 })}
 
             {/* Team Names on Right Edge: sorted from bottom to top of chart, with tie-break by last_rank, and hovered team on top */}
-            {[...endLabels]
-              .sort((a, b) => compareByChartPosition(a, b))
+            {endLabels
+              .toSorted((a, b) => compareByChartPosition(a, b))
               .map((lbl) => {
                 const isHovered = hoveredEntryId === lbl.entryId;
                 const isDimmed = hoveredEntryId !== null && !isHovered;

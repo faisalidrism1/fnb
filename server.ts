@@ -1,12 +1,12 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle, computeNextSyncWIB } from './src/server/dataFetcher.ts';
+import { fetchAndTransformLeague, checkFplGwStatus, FplGwStatusCheck, fetchCompleteEventStatusBundle, CompleteEventStatusBundle, computeNextSyncWIB } from './src/server/fplLeagueFetcher.ts';
 import { fetchMatchesForGw, getCachedMatchesForGw, invalidateMatchesCache, prewarmMatchesCache, invalidateFixturesScheduleCache, getCachedBootstrapStatic } from './src/server/matchesFetcher.ts';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
-import * as staticProjectionEngine from './src/server/projectionEngineServer.ts';
-type ProjectionEngineModule = typeof import('./src/server/projectionEngineServer.ts');
+import * as staticProjectionEngine from './src/server/projectionServerEngine.ts';
+type ProjectionEngineModule = typeof import('./src/server/projectionServerEngine.ts');
 
 let hotProjectionEngine: ProjectionEngineModule | null = null;
 let resolveDevEngineInit!: (engine: ProjectionEngineModule) => void;
@@ -33,8 +33,8 @@ async function getDevProjectionEngine(): Promise<ProjectionEngineModule> {
 import { TransformedLeagueData } from './src/types.ts';
 import {
   initDatabase,
-  executeSchemaSync,
-  getOptimalDatabase,
+  syncFplDatabase,
+  getFplDatabase,
   getDbPlayerStatById,
   getDatabaseStats,
   resetDatabaseState,
@@ -73,11 +73,21 @@ import {
   runEventDrivenAllCompSyncTick,
 } from './src/server/pulseAllCompDb.ts';
 import {
-  getPhase1Templates,
-  savePhase1Templates,
-  resetPhase1Templates
-} from './src/data/phase1Templates.ts';
-import { generatePhase1Stories } from './src/server/notStartedStoryGenerator.ts';
+  getNewsTemplates,
+  saveNewsTemplates,
+  resetNewsTemplates,
+  sanitizeTemplatePatch
+} from './src/data/newsTemplates.ts';
+import {
+  getAdminAuthStatus,
+  setupFirstAdminPasscode,
+  loginAdminWithPasscode,
+  extractBearerToken,
+  verifyAdminToken,
+  revokeAdminToken,
+  requireAdminAuth
+} from './src/server/adminAuth.ts';
+import { generateNotStartedStories } from './src/server/notStartedStoryGenerator.ts';
 import { generateConfirmedStories } from './src/server/confirmedStoryGenerator.ts';
 import { generateBetweenMatchStories } from './src/server/betweenMatchStoryGenerator.ts';
 import { generateProvisionalStories } from './src/server/provisionalStoryGenerator.ts';
@@ -91,7 +101,7 @@ async function ensureNextGwFixtureMetaIfMissing(currentGw: number): Promise<void
   if (!currentGw || currentGw >= 38) return;
   const nextGw = currentGw + 1;
   try {
-    const db = getOptimalDatabase();
+    const db = getFplDatabase();
     const gwFixtures: any[] = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
       ? db.meta.sync_status.gw_fixtures
       : [];
@@ -210,6 +220,14 @@ function resolveServerHost(): string {
 const PORT = resolveServerPort();
 const HOST = resolveServerHost();
 
+app.disable('x-powered-by');
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
@@ -263,6 +281,43 @@ app.use((req, res, next) => {
 // Instant healthcheck endpoint (responds immediately even while background DB/Vite init completes)
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, timestamp: new Date().toISOString() });
+});
+
+// ================= ADMIN AUTHENTICATION ENDPOINTS =================
+app.get('/api/admin/auth/status', (req, res) => {
+  const status = getAdminAuthStatus();
+  const token = extractBearerToken(req);
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+  });
+  res.json({
+    success: true,
+    needsSetup: status.needsSetup,
+    authenticated: verifyAdminToken(token),
+  });
+});
+
+app.post('/api/admin/auth/setup', (req, res) => {
+  const result = setupFirstAdminPasscode(req.body?.passcode);
+  if (!result.ok) {
+    return res.status(result.statusCode || 400).json({ success: false, error: result.error });
+  }
+  return res.json({ success: true, token: result.token });
+});
+
+app.post('/api/admin/auth/login', (req, res) => {
+  const result = loginAdminWithPasscode(req.body?.passcode);
+  if (!result.ok) {
+    return res.status(result.statusCode || 401).json({ success: false, error: result.error });
+  }
+  return res.json({ success: true, token: result.token });
+});
+
+app.post('/api/admin/auth/logout', (req, res) => {
+  revokeAdminToken(extractBearerToken(req));
+  res.json({ success: true });
 });
 
 const LEAGUE_PAST_SEASONS_PATH = path.join(process.cwd(), 'src/data/league_past_seasons.json');
@@ -363,7 +418,7 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
       }
 
       // Persist strictly to the Single Truth Source (fpl_database.json)
-      executeSchemaSync(freshData);
+      syncFplDatabase(freshData);
       cachedData = getTransformedLeagueDataFromDb() || freshData;
 
       // Invalidate matches cache so that matches data reflects the latest sync
@@ -607,7 +662,7 @@ app.get('/api/fpl-data', async (req, res) => {
     });
   } catch (err: any) {
     console.error('[Server] Error serving /api/fpl-data:', err);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: 'Failed to serve FPL data' });
   }
 });
 
@@ -635,7 +690,7 @@ app.get('/api/fpl-event-status', async (req, res) => {
     });
   } catch (err: any) {
     console.error('[Server] Failed to fetch complete event status bundle:', err);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: 'Failed to fetch event status' });
   }
 });
 
@@ -686,7 +741,9 @@ app.get('/api/fpl-player-summary/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const gwParam = req.query.gw ? Number(req.query.gw) : null;
-    if (!id) return res.status(400).json({ success: false, error: 'Invalid player ID' });
+    if (!Number.isInteger(id) || id <= 0 || id >= 100_000_000) {
+      return res.status(400).json({ success: false, error: 'Invalid player ID' });
+    }
 
     const forceRefresh = Boolean(req.query.force || req.query._t);
     const now = Date.now();
@@ -891,7 +948,8 @@ app.get('/api/fpl-player-summary/:id', async (req, res) => {
       }
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in /api/fpl-player-summary:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch player summary' });
   }
 });
 
@@ -901,6 +959,9 @@ app.get('/api/fpl-shirt/:code', async (req, res) => {
   try {
     const rawCode = String(req.params.code).trim();
     const cleanCode = rawCode.replace(/^shirt_/, '').replace(/-220\.(webp|png)$/, '');
+    if (!/^\d{1,6}(_1)?$/.test(cleanCode)) {
+      return res.status(400).send('Invalid shirt code');
+    }
     const cacheKey = cleanCode;
 
     if (shirtImageCache.has(cacheKey)) {
@@ -1045,7 +1106,9 @@ const managerDetailCache = new Map<number, { data: any; timestamp: number }>();
 app.get('/api/fpl-manager-detail/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!id) return res.status(400).json({ success: false, error: 'Invalid manager ID' });
+    if (!Number.isInteger(id) || id <= 0 || id >= 100_000_000) {
+      return res.status(400).json({ success: false, error: 'Invalid manager ID' });
+    }
 
     const forceRefresh = Boolean(req.query.force || req.query._t);
     const now = Date.now();
@@ -1092,14 +1155,17 @@ app.get('/api/fpl-manager-detail/:id', async (req, res) => {
     res.json({ success: true, data: resultData });
   } catch (err: any) {
     console.error(`Error in /api/fpl-manager-detail/${req.params.id}:`, err);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: 'Failed to fetch manager detail' });
   }
 });
 
 // Match Center API: Returns 10 matches for the given Gameweek with Pulse Live lineups and event badges
 app.get('/api/fpl-matches/:gw', async (req, res) => {
   try {
-    const gw = Number(req.params.gw) || (cachedData?.current_gw || 1);
+    const gw = Number(req.params.gw);
+    if (!Number.isInteger(gw) || gw < 1 || gw > 38) {
+      return res.status(400).json({ success: false, error: 'Invalid gameweek' });
+    }
     if (req.query.force === '1' || req.query.sync === '1') {
       invalidateMatchesCache(gw);
     }
@@ -1112,7 +1178,7 @@ app.get('/api/fpl-matches/:gw', async (req, res) => {
     });
   } catch (err: any) {
     console.error(`Error in /api/fpl-matches/${req.params.gw}:`, err);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: 'Failed to fetch matches' });
   }
 });
 
@@ -1149,7 +1215,7 @@ app.get('/api/fpl-matches-batch', async (req, res) => {
     });
   } catch (err: any) {
     console.error('Error in /api/fpl-matches-batch:', err);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: 'Failed to fetch batch matches' });
   }
 });
 
@@ -1184,7 +1250,7 @@ app.get('/api/projections-core', async (req, res) => {
     return res.send(buffers.jsonBuffer);
   } catch (err: any) {
     console.error('Error in /api/projections-core:', err);
-    res.status(500).json({ success: false, error: err?.message || 'Projection core error' });
+    res.status(500).json({ success: false, error: 'Projection core error' });
   }
 });
 
@@ -1227,7 +1293,7 @@ app.get('/api/projections-review', async (req, res) => {
     return res.send(buffers.jsonBuffer);
   } catch (err: any) {
     console.error('Error in /api/projections-review:', err);
-    res.status(500).json({ success: false, error: err?.message || 'Review bundle error' });
+    res.status(500).json({ success: false, error: 'Review bundle error' });
   }
 });
 
@@ -1254,7 +1320,7 @@ app.get('/api/projections-scout-squads', async (req, res) => {
     return res.send(buffers.jsonBuffer);
   } catch (err: any) {
     console.error('Error in /api/projections-scout-squads:', err);
-    res.status(500).json({ success: false, error: err?.message || 'Scout solver error' });
+    res.status(500).json({ success: false, error: 'Scout solver error' });
   }
 });
 
@@ -1305,31 +1371,10 @@ app.get('/api/scout-manager-analysis', async (req, res) => {
     res.json({ success: true, data: payload });
   } catch (err: any) {
     console.error('Error in /api/scout-manager-analysis:', err);
-    res.status(500).json({ success: false, error: err?.message || 'Scout manager analysis error' });
+    res.status(500).json({ success: false, error: 'Scout manager analysis error' });
   }
 });
 
-
-// Support both GET and POST so external cron services (cron-job.org, Cloud Scheduler, uptime bots) can easily trigger sync
-const handleSyncRequest = async (req: express.Request, res: express.Response) => {
-  try {
-    console.log(`[Server] Manual/External sync request received via ${req.method} from ${req.ip}`);
-    const data = await triggerSync();
-    res.json({
-      success: true,
-      message: 'Sync completed successfully',
-      data: data,
-      last_synced: data.sync_status.last_synced,
-      next_sync_wib: data.sync_status.next_sync_wib
-    });
-  } catch (err: any) {
-    console.error('[Server] Sync request error:', err.message);
-    res.status(500).json({ success: false, error: err.message });
-  }
-};
-
-app.post('/api/sync', handleSyncRequest);
-app.get('/api/sync', handleSyncRequest);
 
 app.get('/api/sync-status', (req, res) => {
   if (cachedData?.sync_status) {
@@ -1384,7 +1429,7 @@ app.get('/api/pulse-all-comp/club/:short', (req, res) => {
   });
 });
 
-app.post('/api/pulse-all-comp/sync', async (_req, res) => {
+app.post('/api/pulse-all-comp/sync', requireAdminAuth, async (_req, res) => {
   try {
     const result = await syncPulseAllCompDatabase({ forceSchedule: true });
     res.json({
@@ -1393,11 +1438,12 @@ app.post('/api/pulse-all-comp/sync', async (_req, res) => {
       status: getPulseAllCompDbStatus(),
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message || 'Pulse all-comp sync failed' });
+    console.error('[Server] Pulse all-comp sync failed:', err);
+    res.status(500).json({ success: false, error: 'Pulse all-comp sync failed' });
   }
 });
 
-app.post('/api/pulse-all-comp/tick', async (req, res) => {
+app.post('/api/pulse-all-comp/tick', requireAdminAuth, async (req, res) => {
   try {
     const force = req.query.force === '1' || req.query.force === 'true' || Boolean(req.body?.force);
     const tick = await runEventDrivenAllCompSyncTick({ force });
@@ -1421,12 +1467,13 @@ app.post('/api/pulse-all-comp/tick', async (req, res) => {
       status: getPulseAllCompDbStatus(),
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message || 'Pulse all-comp tick failed' });
+    console.error('[Server] Pulse all-comp tick failed:', err);
+    res.status(500).json({ success: false, error: 'Pulse all-comp tick failed' });
   }
 });
 
 // Endpoint to completely empty the container cache (Cold Start state)
-app.all('/api/container/clear', (req, res) => {
+app.post('/api/container/clear', requireAdminAuth, (_req, res) => {
   console.log('[Server] Request received to completely empty container cache...');
   cachedData = null;
   resetDatabaseState();
@@ -1578,7 +1625,8 @@ app.get('/api/news-ticker/phase-check', async (req, res) => {
       ...checkResult,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in /api/news-ticker/phase-check:', err);
+    res.status(500).json({ success: false, error: 'Failed to check gameweek phase' });
   }
 });
 
@@ -1588,7 +1636,7 @@ let lastBmPulseSealAt = 0;
 async function ensureBetweenMatchSyncCatchup(currentGw: number, prevBuiltPhase: string | null): Promise<boolean> {
   const now = Date.now();
   const cachedMatches = getCachedMatchesForGw(currentGw) || [];
-  const db = getOptimalDatabase();
+  const db = getFplDatabase();
   const dbFixtures: any[] = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
     ? db.meta.sync_status.gw_fixtures.filter((f: any) => Number(f.event) === currentGw)
     : [];
@@ -1635,7 +1683,7 @@ function hasUpcomingMatchWithin95mOrLineup(currentGw: number): boolean {
       return Number.isFinite(koMs) && koMs - nowMs <= windowMs;
     });
   }
-  const db = getOptimalDatabase();
+  const db = getFplDatabase();
   const fixtures: any[] = Array.isArray(db?.meta?.sync_status?.gw_fixtures)
     ? db.meta.sync_status.gw_fixtures
     : [];
@@ -1782,7 +1830,7 @@ app.get('/api/news-ticker/feed', async (req, res) => {
 
     // For Live Match: micro-cycle scheduler (Snapshot Inti + Breaking Events + strict minor cap + 12 NS fallback when < 10).
     // For NS, BM, PV, CF: dynamic 1-cycle proportional batch selection using poin_tayang ASC without mutating status_tayang.
-    const knownPhaseTemplateIds = getPhase1Templates().map((t) => t.id);
+    const knownPhaseTemplateIds = getNewsTemplates().map((t) => t.id);
     let scheduledStories: typeof storiesWithMeta;
     if (isPhaseActive('Live Match', currentPhase)) {
       scheduledStories = selectLiveMatchCycleBatch(storiesWithMeta, knownPhaseTemplateIds);
@@ -1820,12 +1868,13 @@ app.get('/api/news-ticker/feed', async (req, res) => {
       data: stories,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in /api/news-ticker/feed:', err);
+    res.status(500).json({ success: false, error: 'Failed to load news ticker feed' });
   }
 });
 
 // Endpoint Admin: News Ticker Database Table in Container
-app.get('/api/admin/news-ticker', async (req, res) => {
+app.get('/api/admin/news-ticker', requireAdminAuth, async (req, res) => {
   try {
     const forceRefresh = req.query.refresh === '1';
     const phase = req.query.phase ? String(req.query.phase) : undefined;
@@ -1931,31 +1980,40 @@ app.get('/api/admin/news-ticker', async (req, res) => {
     });
     res.json(result);
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in /api/admin/news-ticker:', err);
+    res.status(500).json({ success: false, error: 'Failed to load news ticker table' });
   }
 });
 
-// Endpoint Admin: Increment poin tayang
+// Endpoint Admin: Increment poin tayang (used by public ticker airing)
 app.post('/api/admin/news-ticker/increment-point', (req, res) => {
   try {
-    const { id, cycleSize } = req.body || {};
-    if (!id) return res.status(400).json({ success: false, error: 'ID is required' });
-    const parsedCycleSize = Number(cycleSize);
-    const result = incrementPoinTayang(
-      String(id),
-      Number.isFinite(parsedCycleSize) && parsedCycleSize > 0 ? parsedCycleSize : undefined
-    );
+    const rawId = req.body?.id;
+    const rawCycleSize = req.body?.cycleSize;
+    if (typeof rawId !== 'string' || !/^[A-Za-z0-9_:-]{1,100}$/.test(rawId.trim())) {
+      return res.status(400).json({ success: false, error: 'Valid story ID is required' });
+    }
+    let safeCycleSize: number | undefined;
+    if (rawCycleSize !== undefined && rawCycleSize !== null) {
+      const parsedCycleSize = Number(rawCycleSize);
+      if (!Number.isInteger(parsedCycleSize) || parsedCycleSize <= 0 || parsedCycleSize > 500) {
+        return res.status(400).json({ success: false, error: 'Invalid cycleSize' });
+      }
+      safeCycleSize = parsedCycleSize;
+    }
+    const result = incrementPoinTayang(rawId.trim(), safeCycleSize);
     res.json(result);
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in increment-point:', err);
+    res.status(500).json({ success: false, error: 'Failed to update display count' });
   }
 });
 
-// ================= PHASE 1 TEMPLATES API =================
-// 1. Get all Phase 1 templates
-app.get('/api/admin/phase1-templates', (req, res) => {
+// ================= NEWS TEMPLATES API =================
+// 1. Get all news templates
+app.get('/api/admin/news-templates', requireAdminAuth, (req, res) => {
   try {
-    const templates = getPhase1Templates();
+    const templates = getNewsTemplates();
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'Pragma': 'no-cache',
@@ -1963,15 +2021,16 @@ app.get('/api/admin/phase1-templates', (req, res) => {
     });
     res.json({ success: true, count: templates.length, data: templates });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in GET /api/admin/news-templates:', err);
+    res.status(500).json({ success: false, error: 'Failed to load templates' });
   }
 });
 
-// 1b. Get Real League Data Preview for Phase 1 & Live Match templates
-app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
+// 1b. Get Real League Data Preview across all GW phases
+app.get('/api/admin/news-templates/real-preview', requireAdminAuth, async (req, res) => {
   try {
     const currentGw = getCurrentGw();
-    const stories = generatePhase1Stories(currentGw);
+    const stories = generateNotStartedStories(currentGw);
     
     // Also include live match preview stories from Pulse API + live stats (LM_MATCH_SAVES_GOALKEEPER, LM_MATCH_DEFENSIVE_CONTRIBUTION)
     try {
@@ -2075,64 +2134,74 @@ app.get('/api/admin/phase1-templates/real-preview', async (req, res) => {
     });
     res.json({ success: true, count: stories.length, data: stories });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in GET /api/admin/news-templates/real-preview:', err);
+    res.status(500).json({ success: false, error: 'Failed to generate template preview' });
   }
 });
 
-// 2. Update a Phase 1 template
-app.put('/api/admin/phase1-templates/:id', (req, res) => {
+// 2. Update a news template
+app.put('/api/admin/news-templates/:id', requireAdminAuth, (req, res) => {
   try {
-    const templateId = req.params.id;
-    const updates = req.body;
-    const current = getPhase1Templates();
+    const templateId = String(req.params.id || '').trim();
+    if (!/^[A-Za-z0-9_-]{1,80}$/.test(templateId)) {
+      return res.status(400).json({ success: false, error: 'Invalid template ID' });
+    }
+    const patch = sanitizeTemplatePatch(req.body);
+    if (!patch || Object.keys(patch).length === 0) {
+      return res.status(400).json({ success: false, error: 'Invalid template update payload' });
+    }
+    const current = getNewsTemplates();
     const idx = current.findIndex(t => t.id === templateId || t.no === Number(templateId));
     if (idx === -1) {
-      return res.status(404).json({ success: false, error: `Template ${templateId} not found` });
+      return res.status(404).json({ success: false, error: 'Template not found' });
     }
-    current[idx] = { ...current[idx], ...updates, updated_at: new Date().toISOString() };
-    const savedOk = savePhase1Templates(current);
+    current[idx] = { ...current[idx], ...patch, updated_at: new Date().toISOString() };
+    const savedOk = saveNewsTemplates(current);
     if (!savedOk) {
       return res.status(500).json({ success: false, error: 'Gagal menulis file template ke disk' });
     }
     clearNewsTickerMemoryCache();
     rebuildNewsTickerTable();
-    const updatedList = getPhase1Templates();
+    const updatedList = getNewsTemplates();
     const updatedRow = updatedList.find(t => t.id === current[idx].id) || current[idx];
-    res.json({ success: true, message: `Template ${templateId} updated`, data: updatedRow });
+    res.json({ success: true, message: `Template ${updatedRow.id} updated`, data: updatedRow });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in PUT /api/admin/news-templates/:id:', err);
+    res.status(500).json({ success: false, error: 'Failed to update template' });
   }
 });
 
-// 2b. Bulk update all Phase 1 templates (Save whole table at once)
-app.put('/api/admin/phase1-templates', (req, res) => {
+// 2b. Bulk update all news templates (Save whole table at once)
+app.put('/api/admin/news-templates', requireAdminAuth, (req, res) => {
   try {
     const newItems = req.body;
-    if (!Array.isArray(newItems)) {
-      return res.status(400).json({ success: false, error: 'Expected array of templates' });
+    if (!Array.isArray(newItems) || newItems.length === 0 || newItems.length > 500) {
+      return res.status(400).json({ success: false, error: 'Expected valid array of templates' });
     }
-    const savedOk = savePhase1Templates(newItems);
+    const savedOk = saveNewsTemplates(newItems);
     if (!savedOk) {
-      return res.status(500).json({ success: false, error: 'Gagal menulis perubahan template ke disk' });
+      return res.status(400).json({ success: false, error: 'Payload template tidak valid atau gagal disimpan' });
     }
     clearNewsTickerMemoryCache();
     rebuildNewsTickerTable();
-    const freshTemplates = getPhase1Templates();
+    const freshTemplates = getNewsTemplates();
     res.json({ success: true, message: 'Seluruh template berhasil disimpan dan diterapkan', data: freshTemplates });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in PUT /api/admin/news-templates:', err);
+    res.status(500).json({ success: false, error: 'Failed to save templates' });
   }
 });
 
-// 3. Reset Phase 1 templates to defaults
-app.post('/api/admin/phase1-templates/reset', (req, res) => {
+// 3. Reset news templates to defaults
+app.post('/api/admin/news-templates/reset', requireAdminAuth, (_req, res) => {
   try {
-    const defaults = resetPhase1Templates();
+    const defaults = resetNewsTemplates();
     clearNewsTickerMemoryCache();
     rebuildNewsTickerTable();
-    res.json({ success: true, message: 'Phase 1 templates reset to default standards', data: defaults });
+    res.json({ success: true, message: 'News templates reset to default standards', data: defaults });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    console.error('[Server] Error in POST /api/admin/news-templates/reset:', err);
+    res.status(500).json({ success: false, error: 'Failed to reset templates' });
   }
 });
 
@@ -2168,7 +2237,7 @@ const DEV_FORMULA_WATCH_FILES = [
   'src/data/playerExplosiveCatalog.ts',
   'src/server/pulsePlayerPositions.ts',
   'src/server/scoutServerEngine.ts',
-  'src/server/projectionEngineServer.ts',
+  'src/server/projectionServerEngine.ts',
 ];
 
 function computeDevFileSha256(absPath: string): string {
@@ -2230,7 +2299,7 @@ function setupDevFormulaWatcher(vite: any) {
 
       const nowTs = Date.now();
       const urlsToInvalidate = new Set<string>([
-        '/src/server/projectionEngineServer.ts',
+        '/src/server/projectionServerEngine.ts',
         ...changedFiles.map((rel) => `/${rel.replace(/^\/+/, '')}`),
       ]);
 
@@ -2253,7 +2322,7 @@ function setupDevFormulaWatcher(vite: any) {
       }
 
       const prevEngine = hotProjectionEngine;
-      const nextEngine = (await vite.ssrLoadModule('/src/server/projectionEngineServer.ts')) as ProjectionEngineModule;
+      const nextEngine = (await vite.ssrLoadModule('/src/server/projectionServerEngine.ts')) as ProjectionEngineModule;
       try {
         prevEngine?.invalidateProjectionEngine?.('dev formula hot-reload');
       } catch {}
@@ -2347,7 +2416,7 @@ async function startServer() {
       // Load hot-reloadable projection engine asynchronously so GET / and Vite client assets never block on SSR module eval
       void (async () => {
         try {
-          const loadedEngine = (await vite.ssrLoadModule('/src/server/projectionEngineServer.ts')) as ProjectionEngineModule;
+          const loadedEngine = (await vite.ssrLoadModule('/src/server/projectionServerEngine.ts')) as ProjectionEngineModule;
           hotProjectionEngine = loadedEngine;
           resolveDevEngineInit(loadedEngine);
           setupDevFormulaWatcher(vite);
@@ -2378,6 +2447,21 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+
+  // Global safe Express error handler (prevents raw stack traces / HTML error pages on /api/*)
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+    if (err instanceof SyntaxError && 'body' in err) {
+      return res.status(400).json({ success: false, error: 'Invalid JSON request body' });
+    }
+    console.error('[Server] Unhandled route error:', err);
+    if (req.path.startsWith('/api/')) {
+      return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+    return res.status(500).send('Internal server error');
+  });
 
   const httpServer = app.listen(PORT, HOST, () => {
     console.log(`[Server] FPL Nusantara BERHADIAH running on port ${PORT}`);

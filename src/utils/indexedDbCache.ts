@@ -1,4 +1,4 @@
-import { TransformedLeagueData } from './types.ts';
+import { TransformedLeagueData } from '../types.ts';
 
 const DB_NAME = 'fpl_nusantara_storage_db';
 const STORE_NAME = 'league_cache';
@@ -57,7 +57,7 @@ export async function saveToIndexedDB(data: TransformedLeagueData): Promise<void
       req.onerror = () => reject(req.error);
     });
   } catch (err) {
-    console.warn('[SmartStorage] IndexedDB save failed, attempting localStorage fallback:', err);
+    console.warn('[IndexedDbCache] IndexedDB save failed, attempting localStorage fallback:', err);
     try {
       localStorage.setItem(KEY_NAME, JSON.stringify(data));
     } catch {}
@@ -106,13 +106,13 @@ export async function loadFromIndexedDB(): Promise<TransformedLeagueData | null>
     if (result && validateLeagueDataCache(result)) {
       return result;
     } else if (result) {
-      console.warn('[SmartStorage] Cached data in IndexedDB failed validation (unaccumulated points). Purging...');
+      console.warn('[IndexedDbCache] Cached data in IndexedDB failed validation (unaccumulated points). Purging...');
       clearIndexedDBCache().catch(() => {});
       return null;
     }
     return null;
   } catch (err) {
-    console.warn('[SmartStorage] IndexedDB load failed, attempting localStorage fallback:', err);
+    console.warn('[IndexedDbCache] IndexedDB load failed, attempting localStorage fallback:', err);
     try {
       const saved = localStorage.getItem(KEY_NAME);
       if (saved) {

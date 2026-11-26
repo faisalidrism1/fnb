@@ -5,7 +5,7 @@ import {
   MostTransferredItem,
   DbPlayerStat,
 } from '../types.ts';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import {
@@ -189,7 +189,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
           <div className="flex flex-wrap items-center justify-between gap-2.5 py-0.5">
             <div className="flex flex-wrap items-center gap-2">
               {/* GW Filter */}
-              <CustomPopoverSelect
+              <PopoverSelect
                 id="transfer-gw-filter"
                 value={transferGWFilter}
                 onChange={(val) => setTransferGWFilter(String(val))}
@@ -204,7 +204,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
               />
 
               {/* Team Filter: renamed to "All Teams" per prompt */}
-              <CustomPopoverSelect
+              <PopoverSelect
                 id="transfer-team-filter"
                 value={selectedTeamFilter}
                 onChange={(val) => setSelectedTeamFilter(String(val))}
@@ -238,7 +238,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
           {/* Transfers Table directly below filter - Slim & Frozen Team & Manager Column */}
           {/* Requested column order: Team & Manager, Player In, Player Out, GW, Time (WIB) */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Manager transfers table" className="overflow-x-auto">
               <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
                 <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                   <tr>
@@ -454,7 +454,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
           {/* Direct Filter Row: GW, Club, and Pos filters */}
           <div className="flex flex-wrap items-center gap-2 py-0.5">
             {/* Gameweek Filter */}
-            <CustomPopoverSelect
+            <PopoverSelect
               id="stat-in-gw-select"
               value={statGWFilter}
               onChange={(val) => setStatGWFilter(String(val))}
@@ -469,7 +469,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
             />
 
             {/* Club Filter */}
-            <CustomPopoverSelect
+            <PopoverSelect
               id="stat-in-club-select"
               value={statClubFilter}
               onChange={(val) => setStatClubFilter(String(val))}
@@ -484,7 +484,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
             />
 
             {/* Pos Filter */}
-            <CustomPopoverSelect
+            <PopoverSelect
               id="stat-in-pos-select"
               value={statPosFilter}
               onChange={(val) => setStatPosFilter(String(val))}
@@ -499,7 +499,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Most transferred in players table" className="overflow-x-auto">
               <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
                 <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                   <tr>
@@ -609,7 +609,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
           {/* Direct Filter Row: GW, Club, and Pos filters */}
           <div className="flex flex-wrap items-center gap-2 py-0.5">
             {/* Gameweek Filter */}
-            <CustomPopoverSelect
+            <PopoverSelect
               id="stat-out-gw-select"
               value={statGWFilter}
               onChange={(val) => setStatGWFilter(String(val))}
@@ -624,7 +624,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
             />
 
             {/* Club Filter */}
-            <CustomPopoverSelect
+            <PopoverSelect
               id="stat-out-club-select"
               value={statClubFilter}
               onChange={(val) => setStatClubFilter(String(val))}
@@ -639,7 +639,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
             />
 
             {/* Pos Filter */}
-            <CustomPopoverSelect
+            <PopoverSelect
               id="stat-out-pos-select"
               value={statPosFilter}
               onChange={(val) => setStatPosFilter(String(val))}
@@ -654,7 +654,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            <div tabIndex={0} role="region" aria-label="Most transferred out players table" className="overflow-x-auto">
               <table className="w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
                 <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                   <tr>

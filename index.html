@@ -93,17 +93,26 @@
         }, true);
       })();
     </script>
+    <meta name="color-scheme" content="light dark" />
     <script>
       (function() {
+        var meta = document.querySelector('meta[name="color-scheme"]');
+        var saved = null;
         try {
-          var savedTheme = localStorage.getItem('fnb_setting_theme');
-          var isDark = savedTheme === 'dark';
-          document.documentElement.classList.toggle('dark', isDark);
-          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-        } catch (e) {
-          document.documentElement.classList.remove('dark');
-          document.documentElement.style.colorScheme = 'light';
+          saved = localStorage.getItem('fnb_setting_theme');
+        } catch (e) {}
+        var isDark = false;
+        if (saved === 'dark') {
+          isDark = true;
+          if (meta) meta.setAttribute('content', 'dark');
+        } else if (saved === 'light') {
+          isDark = false;
+          if (meta) meta.setAttribute('content', 'light');
+        } else {
+          if (meta) meta.setAttribute('content', 'light dark');
+          isDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         }
+        document.documentElement.classList.toggle('dark', isDark);
       })();
     </script>
   </head>

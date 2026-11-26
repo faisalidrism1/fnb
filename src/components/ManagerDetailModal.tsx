@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, useId } from 'react';
+import { ModalDialog } from './ModalDialog.tsx';
 import {
   X,
   ChevronLeft,
@@ -868,7 +869,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     if (!all15SquadPlayers.length) return;
     let isCancelled = false;
 
-    const sortedSquad = [...all15SquadPlayers].sort(
+    const sortedSquad = all15SquadPlayers.toSorted(
       (a, b) => (b.player.gw_points || 0) - (a.player.gw_points || 0)
     );
 
@@ -985,6 +986,8 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
+  const managerTitleId = useId();
+
   useEffect(() => {
     if (!entryId) return;
 
@@ -1006,22 +1009,10 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
       onCloseRef.current();
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (activeBreakdownTarget !== null) {
-          setActiveBreakdownTarget(null);
-          return;
-        }
-        onCloseRef.current();
-      }
-    };
-
     window.addEventListener('popstate', handlePopState);
-    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('keydown', handleKeyDown);
       // If modal was closed via UI (e.g. close button, backdrop, Escape) and not via back button,
       // revert the history entry we pushed so browser history stays clean.
       if (!closedViaPopState) {
@@ -1118,7 +1109,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
   // Sorted list of available gameweeks
   const sortedGWs = useMemo(() => {
     if (availableGWs && availableGWs.length > 0) {
-      return [...availableGWs].sort((a, b) => a - b);
+      return availableGWs.toSorted((a, b) => a - b);
     }
     const gwKeys = Object.keys(standings || {})
       .map(Number)
@@ -1184,7 +1175,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     let rank = 1;
     let isChampion = false;
     if (list.length && entryId) {
-      const sorted = [...list].sort((a, b) => {
+      const sorted = list.toSorted((a, b) => {
         if (b.event_points !== a.event_points) return b.event_points - a.event_points;
         return a.event_transfers_cost - b.event_transfers_cost;
       });
@@ -1251,7 +1242,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
         let gwRank = 1;
         let isGWChampion = false;
         if (rowList.length > 0) {
-          const sorted = [...rowList].sort((a, b) => {
+          const sorted = rowList.toSorted((a, b) => {
             if (b.event_points !== a.event_points) return b.event_points - a.event_points;
             return a.event_transfers_cost - b.event_transfers_cost;
           });
@@ -1284,7 +1275,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
   // Past Seasons History (Sorted newest season first)
   const sortedPastSeasons = useMemo(() => {
     const list = managerDetail?.past_seasons || [];
-    return [...list].sort((a, b) => b.season_name.localeCompare(a.season_name));
+    return list.toSorted((a, b) => b.season_name.localeCompare(a.season_name));
   }, [managerDetail]);
 
   const careerAvg = useMemo(() => {
@@ -1899,15 +1890,20 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
   const managerName = currentStanding.player_name || managerDetail?.player_name || 'Manager';
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/75 backdrop-blur-xs overflow-hidden"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
+    <ModalDialog
+      isOpen={Boolean(entryId && currentStanding)}
+      onClose={onClose}
+      onInterceptCancel={() => {
+        if (activeBreakdownTarget !== null) {
+          setActiveBreakdownTarget(null);
+          return true;
         }
+        return false;
       }}
+      ariaLabelledBy={managerTitleId}
+      className="bg-transparent max-w-2xl sm:max-w-3xl w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] rounded-2xl shadow-2xl"
     >
-      <div className="bg-white dark:bg-[#150a24] rounded-2xl max-w-2xl sm:max-w-3xl w-full border border-slate-200 dark:border-purple-900/60 shadow-2xl overflow-hidden flex flex-col h-[calc(100dvh-1.5rem)] sm:h-[88vh] max-h-[850px] animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-[#150a24] rounded-2xl w-full border border-slate-200 dark:border-purple-900/60 shadow-2xl overflow-hidden flex flex-col h-[calc(100dvh-1.5rem)] sm:h-[88dvh] max-h-[850px] animate-in fade-in duration-200">
         
         {/* ================= CLEAN HEADER (WITHOUT RANK, NO "Manager:", NO BORDER TO TABS) ================= */}
         <div className="bg-gradient-to-r from-[#37003c] via-[#28002d] to-[#1c0022] text-white pt-2 sm:pt-2.5 pb-0 px-3 sm:px-4 shrink-0">
@@ -1929,7 +1925,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
               />
 
               <div className="min-w-0">
-                <h3 className="font-black text-base sm:text-lg text-white leading-tight truncate">
+                <h3 id={managerTitleId} className="font-black text-base sm:text-lg text-white leading-tight truncate">
                   {teamName}
                 </h3>
                 <p className="text-xs text-purple-200 truncate mt-0.5">
@@ -2013,7 +2009,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                   </span>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div tabIndex={0} role="region" aria-label="Manager Gameweek history table" className="overflow-x-auto">
                   <table className="w-full text-left text-xs table-fixed">
                     <thead className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[10px] font-extrabold tracking-wider leading-tight">
                       <tr>
@@ -2092,7 +2088,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                 </div>
 
                 {sortedPastSeasons.length > 0 ? (
-                  <div className="overflow-x-auto">
+                  <div tabIndex={0} role="region" aria-label="Manager season history table" className="overflow-x-auto">
                     <table className="w-full text-left text-xs table-fixed">
                       <thead className="bg-slate-100 dark:bg-purple-950/60 text-slate-700 dark:text-purple-200 text-[10px] font-extrabold tracking-wider leading-tight">
                         <tr>
@@ -2162,7 +2158,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
         </div>
 
       </div>
-    </div>
+    </ModalDialog>
   );
 });
 

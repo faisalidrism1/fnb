@@ -52,10 +52,9 @@ export class ErrorBoundary extends Component<Props, State> {
               {isId ? 'Terjadi Kendala Memuat Komponen' : 'Component Loading Error'}
             </h2>
             <p className="text-xs text-slate-300">
-              {this.state.error?.message ||
-                (isId
-                  ? 'Silakan muat ulang halaman untuk memulihkan tampilan aplikasi.'
-                  : 'Please reload the page to restore application display.')}
+              {isId
+                ? 'Silakan muat ulang halaman untuk memulihkan tampilan aplikasi.'
+                : 'Please reload the page to restore application display.'}
             </p>
             <div className="flex gap-2 justify-center pt-2">
               <button

@@ -116,7 +116,7 @@ export const TabChips: React.FC<TabChipsProps> = ({ chips, currentGW, onSelectMa
 
       <div className="@container bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
         {/* Chips Table: Team & Manager dynamically sized to remaining screen space with comfortable chips */}
-        <div className="overflow-x-auto scrollbar-none sm:scrollbar-thin">
+        <div tabIndex={0} role="region" aria-label="Manager chip usage table" className="overflow-x-auto scrollbar-none sm:scrollbar-thin">
           <table className="md:w-full md:table-fixed text-left text-xs text-slate-700 border-separate border-spacing-0">
             <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
               <tr>

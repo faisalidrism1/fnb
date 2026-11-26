@@ -1,7 +1,7 @@
-import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
+import { getNewsTemplates, NewsTemplateItem } from '../data/newsTemplates.ts';
 import { fetchMatchesForGw, getCachedMatchesForGw } from './matchesFetcher.ts';
 import { loadPulseMatchesForGw } from './pulseMatchSync.ts';
-import { getDbStandings, getOptimalDatabase, getGwSnapshot } from './db.ts';
+import { getDbStandings, getFplDatabase, getGwSnapshot } from './db.ts';
 import { resolveClubName } from '../utils/clubNameResolver.ts';
 import { isMatchCardFinished } from './liveBetweenMatchChecker.ts';
 import {
@@ -161,7 +161,7 @@ export function getFplPlayerDirectory(gw: number): {
   const allPlayers: FplPlayerLookup[] = [];
 
   try {
-    const db = getOptimalDatabase();
+    const db = getFplDatabase();
     const snapshot = getGwSnapshot(gw);
     const totalTeams =
       (Array.isArray(snapshot?.standings) && snapshot.standings.length) ||
@@ -441,12 +441,12 @@ export function generateStoriesFromPulseMatch(
   targetGw?: number
 ): LiveMatchStory[] {
   if (!pulseData) return [];
-  const gw = targetGw || Number(pulseData?.gameweek?.gameweek) || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  const gw = targetGw || Number(pulseData?.gameweek?.gameweek) || Number(getFplDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
   const nowIso = new Date().toISOString();
 
-  const templates = getPhase1Templates();
-  const tmplMap = new Map<string, Phase1TemplateItem>();
+  const templates = getNewsTemplates();
+  const tmplMap = new Map<string, NewsTemplateItem>();
   for (const t of templates) {
     tmplMap.set(t.id, t);
   }
@@ -766,7 +766,7 @@ export function generateStoriesFromPulseMatch(
     const eventTeamName = pInfo?.teamName || (ev.teamId === awayTeamRaw?.id ? awayClub : homeClub);
 
     const createLiveStory = (
-      tmpl: Phase1TemplateItem,
+      tmpl: NewsTemplateItem,
       storyId: string,
       headlineId: string,
       headlineEn: string,
@@ -2395,14 +2395,14 @@ export function generateLiveMatchStatStories(
   targetGw?: number,
   options?: { includeFinished?: boolean; matchesOverride?: MatchCardItem[] }
 ): LiveMatchStory[] {
-  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  const gw = targetGw || Number(getFplDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
 
   const matches = options?.matchesOverride ?? getCachedMatchesForGw(gw) ?? [];
   if (!Array.isArray(matches) || matches.length === 0) return [];
 
   const includeFinished = Boolean(options?.includeFinished);
-  const templates = getPhase1Templates();
+  const templates = getNewsTemplates();
   const tmplSaves = templates.find((t) => t.id === 'LM_MATCH_SAVES_GOALKEEPER');
   const tmplDefcon = templates.find((t) => t.id === 'LM_MATCH_DEFENSIVE_CONTRIBUTION');
   if (!tmplSaves && !tmplDefcon) return [];
@@ -2545,7 +2545,7 @@ export async function fetchAndGenerateLiveMatchStatStories(
   targetGw?: number,
   includeFinished = false
 ): Promise<LiveMatchStory[]> {
-  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  const gw = targetGw || Number(getFplDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
   try {
     let matches = getCachedMatchesForGw(gw);
@@ -2570,9 +2570,9 @@ export function generateLiveTeamRankShiftStories(
   targetGw?: number,
   options?: { requireLiveMatch?: boolean; matchesOverride?: MatchCardItem[] }
 ): LiveMatchStory[] {
-  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  const gw = targetGw || Number(getFplDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
-  const templates = getPhase1Templates();
+  const templates = getNewsTemplates();
   const tmpl = templates.find((t) => t.id === 'LM_STANDINGS_RANK_MOVEMENT');
   if (!tmpl) return [];
 
@@ -2664,9 +2664,9 @@ export function generateLiveMatchScoreStories(
   targetGw?: number,
   options?: { includeFinished?: boolean; matchesOverride?: MatchCardItem[] }
 ): LiveMatchStory[] {
-  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  const gw = targetGw || Number(getFplDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
-  const templates = getPhase1Templates();
+  const templates = getNewsTemplates();
   const tmpl = templates.find((t) => t.id === 'LM_MATCH_SCORE_LIVE');
   if (!tmpl) return [];
 
@@ -2931,9 +2931,9 @@ export function generateLiveLineupSurpriseStories(
   targetGw?: number,
   options?: { includeFinished?: boolean; matchesOverride?: MatchCardItem[]; skipPulseFallback?: boolean }
 ): LiveMatchStory[] {
-  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  const gw = targetGw || Number(getFplDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
-  const templates = getPhase1Templates();
+  const templates = getNewsTemplates();
   const tmpl = templates.find((t) => t.id === 'LM_LINEUP_SURPRISE_BENCHED');
   if (!tmpl) return [];
 
@@ -3095,10 +3095,10 @@ export function generateLiveTitleRaceStories(
   targetGw?: number,
   options?: { requireLiveMatch?: boolean; matchesOverride?: MatchCardItem[] }
 ): LiveMatchStory[] {
-  const gw = targetGw || Number(getOptimalDatabase()?.meta?.current_gw) || 0;
+  const gw = targetGw || Number(getFplDatabase()?.meta?.current_gw) || 0;
   if (!gw) return [];
   const nowIso = new Date().toISOString();
-  const templates = getPhase1Templates();
+  const templates = getNewsTemplates();
   const tmpl = templates.find((t) => t.id === 'LM_STANDINGS_TITLE_RACE');
   if (!tmpl) return [];
 
@@ -3116,7 +3116,7 @@ export function generateLiveTitleRaceStories(
   const r2 = sorted[1];
   const margin = Math.abs((r1.total_points || 0) - (r2.total_points || 0));
 
-  const dbData = getOptimalDatabase();
+  const dbData = getFplDatabase();
   const snap = getGwSnapshot(gw);
   const allChips: any[] = Array.isArray(dbData?.league_analytics?.all_chips_used)
     ? dbData.league_analytics.all_chips_used

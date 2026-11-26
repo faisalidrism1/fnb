@@ -13,7 +13,7 @@ import {
   SyncStatus,
   TransformedLeagueData,
 } from '../types.ts';
-import { scrollTabIntoView } from '../utils.ts';
+import { scrollTabIntoView } from '../utils/scrollTabIntoView.ts';
 import { getGameweekStatus } from '../utils/gwStatus.ts';
 import { NewsTicker } from './NewsTicker.tsx';
 import { useLanguage } from '../utils/i18n.ts';
@@ -371,9 +371,12 @@ export const Header: React.FC<HeaderProps> = ({
                       }`}
                     >
                       <span>{tab.label}</span>
-                      {/* Active green indicator underline */}
+                      {/* Active green indicator underline (uses border-b so it persists in Forced Colors Mode) */}
                       {isActive && (
-                        <span className="absolute bottom-0 left-2.5 sm:left-3 right-2.5 sm:right-3 h-[3px] bg-[#00ff87] rounded-full shadow-[0_0_8px_rgba(0,255,135,0.7)]" />
+                        <span
+                          aria-hidden="true"
+                          className="absolute bottom-0 left-2.5 sm:left-3 right-2.5 sm:right-3 border-b-[3px] border-[#00ff87] rounded-full shadow-[0_0_8px_rgba(0,255,135,0.7)]"
+                        />
                       )}
                     </button>
                   );
@@ -410,9 +413,12 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="w-2 h-2 rounded-full bg-[#ff2851] shrink-0 animate-pulse shadow-[0_0_6px_rgba(255,40,81,0.8)]" />
                       )}
                       <span>{sub.label}</span>
-                      {/* Active white indicator underline */}
+                      {/* Active white indicator underline (uses border-b so it persists in Forced Colors Mode) */}
                       {sub.isActive && (
-                        <span className="absolute bottom-0 left-2 sm:left-3 right-2 sm:right-3 h-[2.5px] bg-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]" />
+                        <span
+                          aria-hidden="true"
+                          className="absolute bottom-0 left-2 sm:left-3 right-2 sm:right-3 border-b-[2.5px] border-white rounded-t-sm shadow-[0_0_5px_rgba(255,255,255,0.7)]"
+                        />
                       )}
                     </button>
                   );

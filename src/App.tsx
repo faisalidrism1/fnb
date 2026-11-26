@@ -10,14 +10,15 @@ import { TabChips } from './components/TabChips.tsx';
 import { ManagerDetailModal } from './components/ManagerDetailModal.tsx';
 import { PlayerDetailModal } from './components/PlayerDetailModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
-import { SmartLoadingScreen } from './components/SmartLoadingScreen.tsx';
+import { AppLoadingScreen } from './components/AppLoadingScreen.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import { useSeasonProjections } from './hooks/useSeasonProjections.ts';
+import { clearLegacyAdminStorage, isAdminAuthenticated, setAdminToken } from './utils/adminSession.ts';
 import {
   saveToIndexedDB,
   loadFromIndexedDB,
   parseSyncTimestamp,
-} from './storage.ts';
+} from './utils/indexedDbCache.ts';
 import {
   TransformedLeagueData,
   MainTab,
@@ -197,11 +198,8 @@ export default function App() {
   const showProjectionAndScout = true;
 
   const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('fnb_admin_unlocked') === 'true';
-    } catch {
-      return false;
-    }
+    clearLegacyAdminStorage();
+    return isAdminAuthenticated();
   });
 
   const handleSelectTab = useCallback((tab: MainTab) => {
@@ -243,23 +241,54 @@ export default function App() {
     document.documentElement.style.setProperty('--font-sans', "'Plus Jakarta Sans', sans-serif");
     document.body.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
 
-    const syncThemeFromStorage = () => {
-      let isDark = false;
+    const mediaQuery =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-color-scheme: dark)')
+        : null;
+
+    const getStoredThemePreference = (): 'system' | 'light' | 'dark' => {
       try {
-        isDark = localStorage.getItem('fnb_setting_theme') === 'dark';
+        const saved = localStorage.getItem('fnb_setting_theme');
+        if (saved === 'light' || saved === 'dark') return saved;
       } catch {}
+      return 'system';
+    };
+
+    const applyThemeToDocument = (preference: 'system' | 'light' | 'dark') => {
+      const isDark =
+        preference === 'dark' ||
+        (preference === 'system' && Boolean(mediaQuery?.matches));
       document.documentElement.classList.toggle('dark', isDark);
-      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      if (meta) {
+        meta.setAttribute(
+          'content',
+          preference === 'system' ? 'light dark' : preference
+        );
+      }
+    };
+
+    const syncThemeFromStorage = () => {
+      applyThemeToDocument(getStoredThemePreference());
     };
 
     syncThemeFromStorage();
 
+    const handleSystemThemeChange = () => {
+      if (getStoredThemePreference() === 'system') {
+        applyThemeToDocument('system');
+      }
+    };
+
     const handleThemeSettingChanged = (e: Event) => {
       const customEvent = e as CustomEvent<{ key?: string; value?: unknown }>;
       if (customEvent.detail?.key === 'theme') {
-        const isDark = customEvent.detail.value === 'dark';
-        document.documentElement.classList.toggle('dark', isDark);
-        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        const val = customEvent.detail.value;
+        if (val === 'light' || val === 'dark' || val === 'system') {
+          applyThemeToDocument(val);
+        } else {
+          syncThemeFromStorage();
+        }
       }
     };
 
@@ -269,9 +298,23 @@ export default function App() {
       }
     };
 
+    if (mediaQuery) {
+      if (typeof mediaQuery.addEventListener === 'function') {
+        mediaQuery.addEventListener('change', handleSystemThemeChange);
+      } else if (typeof mediaQuery.addListener === 'function') {
+        mediaQuery.addListener(handleSystemThemeChange);
+      }
+    }
     window.addEventListener('fnb:setting-changed', handleThemeSettingChanged);
     window.addEventListener('storage', handleStorageChange);
     return () => {
+      if (mediaQuery) {
+        if (typeof mediaQuery.removeEventListener === 'function') {
+          mediaQuery.removeEventListener('change', handleSystemThemeChange);
+        } else if (typeof mediaQuery.removeListener === 'function') {
+          mediaQuery.removeListener(handleSystemThemeChange);
+        }
+      }
       window.removeEventListener('fnb:setting-changed', handleThemeSettingChanged);
       window.removeEventListener('storage', handleStorageChange);
     };
@@ -336,14 +379,11 @@ export default function App() {
 
   // Fetch data from server with defensive timeout (longer for Action A initial full sync)
   const fetchData = useCallback(async (isInitialBoot = false, forceSync = false) => {
-    const controller = new AbortController();
     const timeoutMs = isInitialBoot ? 120000 : 35000;
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const url = forceSync ? `/api/fpl-data?sync=1&_t=${Date.now()}` : `/api/fpl-data?_t=${Date.now()}`;
-      const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
-      clearTimeout(timeoutId);
+      const res = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(timeoutMs) });
 
       if (res.ok) {
         const json = await res.json();
@@ -384,7 +424,6 @@ export default function App() {
         }
       }
     } catch (e: any) {
-      clearTimeout(timeoutId);
       console.warn('[FetchData] Error or timeout fetching FPL league data:', e.message || e);
       // On network failure during initial boot, recover with cached data from IndexedDB as emergency offline fallback
       if (isInitialBoot) {
@@ -609,7 +648,7 @@ export default function App() {
 
   if (!data) {
     return (
-      <SmartLoadingScreen
+      <AppLoadingScreen
         message={t('loading_connecting')}
       />
     );
@@ -627,6 +666,12 @@ export default function App() {
         </div>
       )}
 
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:rounded-xl focus:bg-[#00ff87] focus:text-[#37003c] focus:text-xs focus:font-extrabold focus:shadow-lg"
+      >
+        {language === 'id' ? 'Langsung ke konten utama' : 'Skip to main content'}
+      </a>
       {/* Official Header with integrated minimalist tabs */}
       <Header
         activeTab={activeTab}
@@ -656,7 +701,7 @@ export default function App() {
       />
 
       {/* Main Content Area - Preserves mounted tab instances and user filters */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-2 sm:pt-2.5 pb-6">
+      <main id="main-content" tabIndex={-1} className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-2 sm:pt-2.5 pb-6 focus:outline-none">
         <ErrorBoundary>
           <div className={activeTab === 'STANDINGS' ? 'block' : 'hidden'}>
             <TabStandings
@@ -918,6 +963,7 @@ export default function App() {
         isAdminUnlocked={isAdminUnlocked}
         onUnlockAdmin={() => setIsAdminUnlocked(true)}
         onLockAdmin={() => {
+          setAdminToken(null);
           setIsAdminUnlocked(false);
           setActiveTab((prev) => (prev === 'ADMIN' ? 'STANDINGS' : prev));
         }}

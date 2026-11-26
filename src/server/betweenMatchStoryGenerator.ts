@@ -1,6 +1,6 @@
-import { getPhase1Templates, Phase1TemplateItem } from '../data/phase1Templates.ts';
-import { getOptimalDatabase, getGwSnapshot, getDbStandings } from './db.ts';
-import { buildRawMatchdayPayload } from './newsAggregator.ts';
+import { getNewsTemplates, NewsTemplateItem } from '../data/newsTemplates.ts';
+import { getFplDatabase, getGwSnapshot, getDbStandings } from './db.ts';
+import { buildMatchdaySnapshotPayload } from './matchdaySnapshotBuilder.ts';
 import { getCachedMatchesForGw } from './matchesFetcher.ts';
 import { loadPulseMatchesForGw } from './pulseMatchSync.ts';
 import { findValidBetweenMatchAutosubWatches } from './fplAutosub.ts';
@@ -171,11 +171,11 @@ interface IndexedPlayerGwStat {
 }
 
 function loadBetweenMatchContext(targetGw?: number) {
-  const dbData = getOptimalDatabase();
+  const dbData = getFplDatabase();
   const currentGw = targetGw || Number(dbData?.meta?.current_gw) || 0;
   const standings = currentGw ? getDbStandings(currentGw) : [];
   const snap = currentGw ? getGwSnapshot(currentGw) : null;
-  const rawPayload = currentGw ? buildRawMatchdayPayload(currentGw) : null;
+  const rawPayload = currentGw ? buildMatchdaySnapshotPayload(currentGw) : null;
 
   const dbPlayersArr: any[] = Object.values(dbData?.players || {});
   const deadlines: Record<string, string> = (dbData?.meta?.deadlines as Record<string, string>) || {};
@@ -239,7 +239,7 @@ function loadBetweenMatchContext(targetGw?: number) {
 }
 
 function finalizeBetweenMatchStories(
-  tmpl: Phase1TemplateItem,
+  tmpl: NewsTemplateItem,
   produced: EmittedStoryDraft[],
   gw: number,
   nowIso: string
@@ -274,7 +274,7 @@ function finalizeBetweenMatchStories(
  * Generates real factual stories for all 15 Between Match templates (BM_*)
  */
 export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseStory[] {
-  const templates = getPhase1Templates().filter(
+  const templates = getNewsTemplates().filter(
     (t) => (t.gw_phase || '').trim().toLowerCase() === 'between match'
   );
   if (templates.length === 0) return [];

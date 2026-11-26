@@ -19,7 +19,7 @@ import {
   loadScoutSquadsFromIndexedDB,
   saveScoutSquadsToIndexedDB,
   clearProjectionCachesFromIndexedDB,
-} from '../storage.ts';
+} from '../utils/indexedDbCache.ts';
 import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
 
 interface UseSeasonProjectionsParams {

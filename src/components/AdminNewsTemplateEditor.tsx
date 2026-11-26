@@ -13,23 +13,11 @@ import {
   Info,
   Copy,
 } from 'lucide-react';
-import { DbPlayerStat } from '../types.ts';
+import { DbPlayerStat, NewsTemplateItem } from '../types.ts';
+import { getAdminAuthHeaders, setAdminToken } from '../utils/adminSession.ts';
+import { NewsTaggedText } from './NewsTaggedText.tsx';
 
-export interface Phase1TemplateItem {
-  no: number;
-  id: string;
-  gw_phase: string;
-  category: string;
-  subcategory: string;
-  title?: string;
-  output?: 'SINGLE-NEWS' | 'MULTI-NEWS' | string;
-  source?: 'Bukan' | 'Sys' | string;
-  template: string;
-  example: string;
-  code: string;
-  sample_data?: Record<string, string | number>;
-  updated_at?: string;
-}
+export type { NewsTemplateItem };
 
 export interface TagValidationResult {
   isValid: boolean;
@@ -235,7 +223,7 @@ function buildBranchRegex(body: string): { rx: RegExp; staticLen: number } {
 }
 
 function buildRealExampleForRow(
-  row: Phase1TemplateItem,
+  row: NewsTemplateItem,
   realStories: Array<{ id: string; headline_id: string }>
 ): string {
   const rowIdLower = row.id.toLowerCase();
@@ -291,128 +279,6 @@ function buildRealExampleForRow(
     .trim();
 }
 
-/**
- * Renders formatted example headline with identical entity badge styling to TabAdmin News Ticker table
- * ([T:Team], [P:Player], [C:Club], [N:Number]) and clean [Kondisi: ...] section headers.
- */
-function renderFormattedExample(
-  text: string,
-  resolvePlayerId?: (webName: string) => number | null,
-  onSelectPlayer?: (playerId: number, gw?: number) => void
-): React.ReactNode {
-  if (!text) return null;
-
-  const renderLineWithTags = (line: string, lineKey: string) => {
-    const parts: React.ReactNode[] = [];
-    const regex = /\[([TPCN]):([^\]]+)\]/g;
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = regex.exec(line)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(line.substring(lastIndex, match.index));
-      }
-
-      const tagType = match[1];
-      const tagContent = match[2];
-      const key = `${lineKey}-${match.index}-${tagType}-${tagContent}`;
-
-      switch (tagType) {
-        case 'T':
-          parts.push(
-            <span
-              key={key}
-              className="inline-flex items-center px-1 rounded font-extrabold text-[12px] leading-tight bg-purple-100 dark:bg-purple-950/80 text-[#37003c] dark:text-[#00ff87] border border-purple-200 dark:border-purple-800/60"
-            >
-              {tagContent}
-            </span>
-          );
-          break;
-        case 'P': {
-          const pid = resolvePlayerId && onSelectPlayer ? resolvePlayerId(tagContent) : null;
-          if (pid && onSelectPlayer) {
-            parts.push(
-              <button
-                key={key}
-                type="button"
-                onClick={() => onSelectPlayer(pid)}
-                className="inline-flex items-center px-1 rounded font-bold text-[12px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60 hover:underline hover:brightness-110 cursor-pointer"
-                title={`Klik untuk detail ${tagContent}`}
-              >
-                {tagContent}
-              </button>
-            );
-          } else {
-            parts.push(
-              <span
-                key={key}
-                className="inline-flex items-center px-1 rounded font-bold text-[12px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60"
-              >
-                {tagContent}
-              </span>
-            );
-          }
-          break;
-        }
-        case 'C':
-          parts.push(
-            <span
-              key={key}
-              className="inline-flex items-center px-1 rounded font-semibold text-[12px] leading-tight bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-            >
-              {tagContent}
-            </span>
-          );
-          break;
-        case 'N':
-          parts.push(
-            <span
-              key={key}
-              className="inline-flex items-center px-1 rounded font-black text-[12px] leading-tight bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60"
-            >
-              {tagContent}
-            </span>
-          );
-          break;
-        default:
-          parts.push(tagContent);
-      }
-
-      lastIndex = regex.lastIndex;
-    }
-
-    if (lastIndex < line.length) {
-      parts.push(line.substring(lastIndex));
-    }
-
-    return parts;
-  };
-
-  const lines = text.split('\n');
-  return lines.map((rawLine, idx) => {
-    const trimmed = rawLine.trim();
-    const condMatch = /^\[Kondisi:\s*([^\]]+)\]$/i.exec(trimmed);
-    if (condMatch) {
-      return (
-        <div
-          key={`cond-${idx}`}
-          className="text-[12px] font-black uppercase tracking-wider text-purple-700 dark:text-[#00ff87] mt-1.5 first:mt-0 mb-0.5 leading-relaxed"
-        >
-          Kondisi: {condMatch[1].trim()}
-        </div>
-      );
-    }
-    if (!trimmed) {
-      return <div key={`sp-${idx}`} className="h-1" />;
-    }
-    return (
-      <div key={`line-${idx}`} className="text-[12px] leading-relaxed">
-        {renderLineWithTags(rawLine, `l${idx}`)}
-      </div>
-    );
-  });
-}
-
 const PHASE_ORDER = [
   'Not started',
   'Live Match',
@@ -429,12 +295,12 @@ const FLOATING_TAG_OPTIONS = [
   { value: '[Kondisi: 1 Tim]\n', label: '[Kondisi]', desc: 'Header Cabang Kondisi' },
 ];
 
-interface TabAdminEditorProps {
+interface AdminNewsTemplateEditorProps {
   onSelectPlayer?: (playerId: number, gw?: number) => void;
   playerStats?: DbPlayerStat[];
 }
 
-export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
+export const AdminNewsTemplateEditor: React.FC<AdminNewsTemplateEditorProps> = ({
   onSelectPlayer,
   playerStats = [],
 }) => {
@@ -459,9 +325,9 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
     [playerIdByName]
   );
   // Last saved data state
-  const [savedRows, setSavedRows] = useState<Phase1TemplateItem[]>([]);
+  const [savedRows, setSavedRows] = useState<NewsTemplateItem[]>([]);
   // Currently edited data state
-  const [editableRows, setEditableRows] = useState<Phase1TemplateItem[]>([]);
+  const [editableRows, setEditableRows] = useState<NewsTemplateItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isConfirmingCancel, setIsConfirmingCancel] = useState<boolean>(false);
@@ -507,15 +373,21 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
     let attempt = 0;
     while (attempt <= maxRetries) {
       try {
-        const res = await fetch(`/api/admin/phase1-templates?_t=${Date.now()}`, {
+        const res = await fetch(`/api/admin/news-templates?_t=${Date.now()}`, {
           cache: 'no-store',
-          headers: { Accept: 'application/json' },
+          headers: { Accept: 'application/json', ...getAdminAuthHeaders() },
         });
+        if (res.status === 401) {
+          setAdminToken(null);
+          window.dispatchEvent(new CustomEvent('fnb:admin-locked'));
+          setIsLoading(false);
+          return;
+        }
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const json = await res.json();
         if (json && Array.isArray(json.data)) {
           setSavedRows(json.data);
-          setEditableRows(JSON.parse(JSON.stringify(json.data)));
+          setEditableRows(structuredClone(json.data));
           setError(null);
           setIsLoading(false);
           return;
@@ -527,7 +399,7 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
         if (attempt <= maxRetries) {
           await new Promise((r) => setTimeout(r, attempt * 600));
         } else {
-          console.error('[TabAdminEditor] Fetch error:', err);
+          console.error('[AdminNewsTemplateEditor] Fetch error:', err);
           setError(err?.message || 'Gagal memuat template formula');
           setIsLoading(false);
         }
@@ -543,10 +415,16 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
     let attempt = 0;
     while (attempt <= maxRetries) {
       try {
-        const res = await fetch(`/api/admin/phase1-templates/real-preview?_t=${Date.now()}`, {
+        const res = await fetch(`/api/admin/news-templates/real-preview?_t=${Date.now()}`, {
           cache: 'no-store',
-          headers: { Accept: 'application/json' },
+          headers: { Accept: 'application/json', ...getAdminAuthHeaders() },
         });
+        if (res.status === 401) {
+          setAdminToken(null);
+          window.dispatchEvent(new CustomEvent('fnb:admin-locked'));
+          setIsLoadingRealPreview(false);
+          return;
+        }
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const json = await res.json();
         if (json && Array.isArray(json.data)) {
@@ -565,7 +443,7 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
         if (attempt <= maxRetries) {
           await new Promise((r) => setTimeout(r, attempt * 600));
         } else {
-          console.warn('[TabAdminEditor] Real preview fetch error:', err.message);
+          console.warn('[AdminNewsTemplateEditor] Real preview fetch error:', err.message);
           setIsLoadingRealPreview(false);
         }
       }
@@ -674,26 +552,35 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
     setSaveError(null);
     setIsConfirmingCancel(false);
     try {
-      const res = await fetch('/api/admin/phase1-templates', {
+      const res = await fetch('/api/admin/news-templates', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...getAdminAuthHeaders(),
+        },
         body: JSON.stringify(editableRows),
       });
 
       const json = await res.json().catch(() => null);
+      if (res.status === 401) {
+        setAdminToken(null);
+        window.dispatchEvent(new CustomEvent('fnb:admin-locked'));
+        throw new Error('Sesi admin berakhir. Silakan masuk ulang melalui Settings.');
+      }
       if (!res.ok) {
         throw new Error(json?.error || `HTTP error ${res.status}`);
       }
       if (json && json.success) {
         const persistedRows = Array.isArray(json.data) ? json.data : editableRows;
-        setSavedRows(JSON.parse(JSON.stringify(persistedRows)));
-        setEditableRows(JSON.parse(JSON.stringify(persistedRows)));
+        setSavedRows(structuredClone(persistedRows));
+        setEditableRows(structuredClone(persistedRows));
         // Clear cached real preview stories so switching to Data Riil always fetches fresh data
         setRealStoriesList([]);
         if (previewMode === 'real') {
           fetchRealPreviewStories();
         }
-        // Notify NewsTicker and TabAdminNewsTable immediately
+        // Notify NewsTicker and AdminNewsQueueTable immediately
         window.dispatchEvent(
           new CustomEvent('fnb:news-ticker-updated', { detail: { timestamp: Date.now() } })
         );
@@ -702,7 +589,7 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
         throw new Error(json?.error || 'Gagal menyimpan');
       }
     } catch (err: any) {
-      console.error('[TabAdminEditor] Save error:', err);
+      console.error('[AdminNewsTemplateEditor] Save error:', err);
       setSaveError('Gagal menyimpan perubahan: ' + (err?.message || 'Unknown error'));
     } finally {
       setIsSaving(false);
@@ -720,7 +607,7 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
     }
     setIsConfirmingCancel(false);
     setSaveError(null);
-    setEditableRows(JSON.parse(JSON.stringify(savedRows)));
+    setEditableRows(structuredClone(savedRows));
     showToast('Perubahan dibatalkan dan dikembalikan ke kondisi simpanan terakhir.');
   };
 
@@ -1089,7 +976,7 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto scrollbar-thin">
+          <div tabIndex={0} role="region" aria-label="News template editor table" className="overflow-x-auto scrollbar-thin">
             <table className="table-fixed text-left border-collapse text-xs w-full min-w-[1840px]">
               <thead>
                 <tr className="bg-slate-100 dark:bg-[#10051e] border-b-2 border-slate-200 dark:border-purple-900/80 text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black text-[11px]">
@@ -1269,7 +1156,13 @@ export const TabAdminEditor: React.FC<TabAdminEditorProps> = ({
                       {/* 5. Example (Fixed 4-line height with vertical scroll like template) */}
                       <td className="py-2.5 px-3 border-r border-slate-200 dark:border-purple-900/30 w-[360px] max-w-[360px]">
                         <div className="editor-uniform-text w-full h-[96px] min-h-[96px] max-h-[96px] p-2.5 rounded-md bg-slate-50 dark:bg-[#120522] border border-slate-200 dark:border-purple-950 text-[12px] font-medium text-slate-800 dark:text-slate-200 leading-relaxed font-sans overflow-y-auto scrollbar-thin select-text whitespace-pre-wrap break-words">
-                          {renderFormattedExample(displayExample, resolvePlayerId, onSelectPlayer)}
+                          <NewsTaggedText
+                            text={displayExample}
+                            size="sm"
+                            supportConditions
+                            resolvePlayerId={resolvePlayerId}
+                            onSelectPlayer={onSelectPlayer}
+                          />
                         </div>
                       </td>
 

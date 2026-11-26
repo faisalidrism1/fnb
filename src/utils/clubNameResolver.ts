@@ -1,4 +1,4 @@
-import { getOptimalDatabase } from '../server/db.ts';
+import { getFplDatabase } from '../server/db.ts';
 
 const STATIC_CLUB_NAME_MAP: Record<string, string> = {
   // Official FPL short_name -> FPL team.name (matches Tab Matches)
@@ -89,7 +89,7 @@ export function getClubNameLookup(): Record<string, string> {
 
   const merged: Record<string, string> = { ...STATIC_CLUB_NAME_MAP };
   try {
-    const db = getOptimalDatabase();
+    const db = getFplDatabase();
     for (const p of Object.values(db.players || {})) {
       if (p?.teamShort && p?.teamName) {
         merged[String(p.teamShort).trim().toUpperCase()] = String(p.teamName).trim();

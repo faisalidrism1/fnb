@@ -7,7 +7,7 @@ import {
   TemplateSquadPlayer,
   DbPlayerStat,
 } from '../types.ts';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
 import fnbLogo from '../assets/images/fnb_league_logo_transparent.png';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
@@ -257,7 +257,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
         {subTab !== 'fans-club' ? (
           <div className="flex items-center gap-2 flex-wrap">
             {/* Gameweek Filter */}
-            <CustomPopoverSelect
+            <PopoverSelect
               id="ownership-gw-select"
               value={selectedGW}
               onChange={(val) => handleSelectGW(Number(val))}
@@ -271,7 +271,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
             {/* Filter Club & Pos di sebelah kanan filter GW untuk Most Owned Player */}
             {subTab === 'most-owned-players' && (
               <>
-                <CustomPopoverSelect
+                <PopoverSelect
                   id="ownership-club-select"
                   value={selectedClub}
                   onChange={(val) => setSelectedClub(String(val))}
@@ -282,7 +282,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                   searchable={false}
                 />
 
-                <CustomPopoverSelect
+                <PopoverSelect
                   id="ownership-pos-select"
                   value={selectedPos}
                   onChange={(val) => setSelectedPos(String(val))}
@@ -299,7 +299,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
 
             {/* Filter Pos di sebelah kanan filter GW untuk Most Owned Player by Club */}
             {subTab === 'most-owned-clubs' && (
-              <CustomPopoverSelect
+              <PopoverSelect
                 id="club-ownership-pos-select"
                 value={selectedClubPos}
                 onChange={(val) => setSelectedClubPos(String(val))}
@@ -315,7 +315,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <CustomPopoverSelect
+            <PopoverSelect
               id="fans-club-gw-select"
               value={effectiveFansClubFilter}
               onChange={(val) => setFansClubFilter(String(val))}
@@ -345,7 +345,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
       {/* SUB TAB 1: Most Owned Player */}
       {subTab === 'most-owned-players' && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden w-fit min-w-full sm:min-w-0 md:w-full max-w-full">
-          <div className="overflow-x-auto">
+          <div tabIndex={0} role="region" aria-label="Most owned players table" className="overflow-x-auto">
             <table className="text-left text-xs text-slate-700 w-auto md:w-full md:table-fixed border-separate border-spacing-0">
               <thead className="bg-[#37003c] text-white text-[11px] tracking-wider font-extrabold select-none">
                 <tr>

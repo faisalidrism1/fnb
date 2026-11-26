@@ -28,10 +28,12 @@ import {
   ProjectedPlayerCoreItem,
   DbPlayerStat,
 } from '../types.ts';
-import { TabAdminEditor } from './TabAdminEditor.tsx';
+import { AdminNewsTemplateEditor } from './AdminNewsTemplateEditor.tsx';
+import { NewsTaggedText } from './NewsTaggedText.tsx';
+import { getAdminAuthHeaders, setAdminToken } from '../utils/adminSession.ts';
 
-const LazyTabReview = lazy(() =>
-  import('./TabReview.tsx').then((m) => ({ default: m.TabReview }))
+const LazyAdminProjectionReview = lazy(() =>
+  import('./AdminProjectionReview.tsx').then((m) => ({ default: m.AdminProjectionReview }))
 );
 
 interface TabAdminProps {
@@ -72,13 +74,13 @@ type SortColumn =
 
 type SortDirection = 'asc' | 'desc';
 
-interface TabAdminNewsTableProps {
+interface AdminNewsQueueTableProps {
   onSelectPlayer?: (playerId: number, gw?: number) => void;
   playerStats?: DbPlayerStat[];
   availableGWs?: number[];
 }
 
-const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
+const AdminNewsQueueTable: React.FC<AdminNewsQueueTableProps> = ({
   onSelectPlayer,
   playerStats = [],
   availableGWs = [],
@@ -149,10 +151,18 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
           cache: 'no-store',
           headers: {
             Accept: 'application/json',
+            ...getAdminAuthHeaders(),
           },
         });
         clearTimeout(timeoutId);
 
+        if (res.status === 401) {
+          setAdminToken(null);
+          window.dispatchEvent(new CustomEvent('fnb:admin-locked'));
+          setIsLoading(false);
+          setIsRefreshing(false);
+          return;
+        }
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
@@ -328,110 +338,6 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
     },
     [playerLookupByName]
   );
-
-  // Helper to render text with entity syntax tags ([T:Team], [P:Player], [C:Club], [N:Number])
-  const renderFormattedHeadline = (text: string, rowGw?: number, rowTeams?: string[], rowFase?: string, rowId?: string) => {
-    if (!text) return null;
-
-    const isLiveMatchRow =
-      (rowFase || '').trim().toLowerCase() === 'live match' ||
-      (rowFase || '').trim().toLowerCase() === 'live' ||
-      (rowId || '').trim().toUpperCase().startsWith('LM_');
-
-    const parts: React.ReactNode[] = [];
-    const regex = /\[([TPCN]):([^\]]+)\]/g;
-    let lastIndex = 0;
-    let match: RegExpExecArray | null;
-
-    while ((match = regex.exec(text)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(text.substring(lastIndex, match.index));
-      }
-
-      const tagType = match[1];
-      const tagContent = match[2];
-      const key = `${match.index}-${tagType}-${tagContent}`;
-
-      switch (tagType) {
-        case 'T': // Team Name
-          parts.push(
-            <span
-              key={key}
-              className="inline-flex items-center px-1 rounded font-extrabold text-[11px] leading-tight bg-purple-100 dark:bg-purple-950/80 text-[#37003c] dark:text-[#00ff87] border border-purple-200 dark:border-purple-800/60"
-            >
-              {tagContent}
-            </span>
-          );
-          break;
-        case 'P': { // Player Name
-          const resolvedPlayerId = onSelectPlayer
-            ? resolvePlayerIdFromHeadline(tagContent, rowTeams)
-            : null;
-          if (resolvedPlayerId && onSelectPlayer) {
-            const targetGw =
-              rowGw && availableGWs.includes(rowGw) ? rowGw : undefined;
-            parts.push(
-              <button
-                key={key}
-                type="button"
-                onClick={() => onSelectPlayer(resolvedPlayerId, targetGw)}
-                className="inline-flex items-center px-1 rounded font-bold text-[11px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60 hover:underline hover:brightness-110 cursor-pointer"
-                title={`Klik untuk detail ${tagContent}`}
-              >
-                {tagContent}
-              </button>
-            );
-          } else {
-            parts.push(
-              <span
-                key={key}
-                className="inline-flex items-center px-1 rounded font-bold text-[11px] leading-tight bg-cyan-100 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/60"
-              >
-                {tagContent}
-              </span>
-            );
-          }
-          break;
-        }
-        case 'C': // Club
-          parts.push(
-            <span
-              key={key}
-              className="inline-flex items-center px-1 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-            >
-              {tagContent}
-            </span>
-          );
-          break;
-        case 'N': { // Numbers / Metrics / LM Minutes
-          const isLiveMin = isLiveMatchRow && /^\d+(?:\s*\+\s*\d*)?'$/.test(tagContent.trim());
-          parts.push(
-            <span
-              key={key}
-              className={
-                isLiveMin
-                  ? 'inline-flex items-center px-1 rounded font-black text-[11px] bg-[#ff2851]/10 dark:bg-[#ff2851]/15 text-[#ff2851] border border-[#ff2851]/30'
-                  : 'inline-flex items-center px-1 rounded font-black text-[11px] bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-              }
-            >
-              {tagContent}
-            </span>
-          );
-          break;
-        }
-        default:
-          parts.push(tagContent);
-      }
-
-      lastIndex = regex.lastIndex;
-    }
-
-    if (lastIndex < text.length) {
-      parts.push(text.substring(lastIndex));
-    }
-
-    return <span>{parts}</span>;
-  };
 
   // KPI Calculations
   const stats = useMemo(() => {
@@ -949,7 +855,7 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto scrollbar-thin">
+          <div tabIndex={0} role="region" aria-label="News ticker management table" className="overflow-x-auto scrollbar-thin">
             <table className="min-w-full text-left border-collapse text-xs select-none">
               {/* Table Header (All sortable with asc/desc toggle) */}
               <thead>
@@ -1243,7 +1149,18 @@ const TabAdminNewsTable: React.FC<TabAdminNewsTableProps> = ({
                             {isCopied ? <Check className="w-3 h-3 text-[#00ff87]" /> : <Copy className="w-3 h-3" />}
                           </button>
                           <div className="whitespace-nowrap font-medium text-[11.5px]" title={activeText}>
-                            {renderFormattedHeadline(activeText, row.gw, row.teams, row.fase, row.id)}
+                            <NewsTaggedText
+                              text={activeText}
+                              size="xs"
+                              isLiveMatch={
+                                (row.fase || '').trim().toLowerCase() === 'live match' ||
+                                (row.fase || '').trim().toLowerCase() === 'live' ||
+                                (row.id || '').trim().toUpperCase().startsWith('LM_')
+                              }
+                              resolvePlayerId={(name) => resolvePlayerIdFromHeadline(name, row.teams)}
+                              onSelectPlayer={onSelectPlayer}
+                              targetGw={row.gw && availableGWs.includes(row.gw) ? row.gw : undefined}
+                            />
                           </div>
                         </div>
                       </td>
@@ -1338,13 +1255,13 @@ export const TabAdmin: React.FC<TabAdminProps> = ({
   return (
     <>
       {subTab === 'editor' && (
-        <TabAdminEditor
+        <AdminNewsTemplateEditor
           onSelectPlayer={onSelectPlayer}
           playerStats={leagueData?.player_stats}
         />
       )}
       {subTab === 'news-ticker' && (
-        <TabAdminNewsTable
+        <AdminNewsQueueTable
           onSelectPlayer={onSelectPlayer}
           playerStats={leagueData?.player_stats}
           availableGWs={availableGWs}
@@ -1359,7 +1276,7 @@ export const TabAdmin: React.FC<TabAdminProps> = ({
               </div>
             }
           >
-            <LazyTabReview
+            <LazyAdminProjectionReview
               leagueData={leagueData}
               currentGW={currentGW}
               availableGWs={availableGWs}

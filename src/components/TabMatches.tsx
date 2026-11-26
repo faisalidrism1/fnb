@@ -8,7 +8,7 @@ import {
   PlayerOwnershipItem,
   TransferItem,
 } from '../types.ts';
-import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
+import { PopoverSelect } from './PopoverSelect.tsx';
 import {
   useLanguage,
   formatGwDateRangeByLanguage,
@@ -303,7 +303,7 @@ const EVENT_ORDER_BENCH: Record<string, number> = {
 };
 
 const sortPlayersByPosition = (players: MatchPlayerItem[]): MatchPlayerItem[] => {
-  return [...players].sort((a, b) => {
+  return players.toSorted((a, b) => {
     const pA = POSITION_ORDER[a.position] || 99;
     const pB = POSITION_ORDER[b.position] || 99;
     return pA - pB;
@@ -763,7 +763,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
 
     // Sort event badges: for bench substitutes, 'sub' is displayed in 1st priority; for starters, normal priority
     const orderMap = isBench ? EVENT_ORDER_BENCH : EVENT_ORDER_STARTER;
-    const orderedEvents = [...player.events].sort((a, b) => {
+    const orderedEvents = player.events.toSorted((a, b) => {
       const ordA = orderMap[a.type] || 99;
       const ordB = orderMap[b.type] || 99;
       return ordA - ordB;
@@ -870,7 +870,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
               {/* Match Event Icons (rendered from right to left so 1st priority badge is nearest to name) */}
               {orderedEvents.length > 0 && (
                 <div className="flex items-center gap-0.5 shrink-0">
-                  {[...orderedEvents].reverse().map((ev, i) => (
+                  {orderedEvents.toReversed().map((ev, i) => (
                     <MatchEventBadgeIcon key={`${ev.type}_${i}`} event={ev} />
                   ))}
                 </div>
@@ -924,7 +924,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
 
         {/* Center: Nomor GW dan Range Waktu di bawahnya. Klik memunculkan filter GW yang sama persis */}
         <div className="flex-1 flex items-center justify-center min-w-0 px-2">
-          <CustomPopoverSelect
+          <PopoverSelect
             id="matches-gw-filter"
             value={activeGW}
             onChange={(val) => setActiveGW(Number(val))}
@@ -970,7 +970,7 @@ export const TabMatches: React.FC<TabMatchesProps> = ({
         className="sticky z-30 pointer-events-none w-fit mb-[-32px]"
       >
         <div className="pointer-events-auto flex">
-          <CustomPopoverSelect
+          <PopoverSelect
             id="matches-metric-filter"
             value={activeMetric}
             onChange={(val) => setActiveMetric(val as MatchStatMetric)}

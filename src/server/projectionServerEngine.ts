@@ -173,7 +173,7 @@ const FORMULA_SOURCE_FILES = [
   'src/data/playerExplosiveCatalog.ts',
   'src/server/pulsePlayerPositions.ts',
   'src/server/scoutServerEngine.ts',
-  'src/server/projectionEngineServer.ts',
+  'src/server/projectionServerEngine.ts',
 ];
 
 function buildPulsePositionInfoSeed(players: DbPlayerStat[]): Record<number, string> {

@@ -380,7 +380,7 @@ export function predictClubFormationSlots(
   if (records.length === 0) return null;
 
   // Sort most recent first
-  const desc = [...records].sort((a, b) => b.gw - a.gw);
+  const desc = records.toSorted((a, b) => b.gw - a.gw);
   const scoreBySig = new Map<string, { weight: number; label: string; outfieldSlots: CanonicalTacticalRole[]; latestGw: number }>();
 
   const addRecord = (rec: ClubFormationRecord, weight: number) => {
