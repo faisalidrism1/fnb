@@ -8,7 +8,6 @@ import {
   DbPlayerStat,
 } from '../types.ts';
 import { PopoverSelect } from './PopoverSelect.tsx';
-import fnbLogo from '../assets/images/fnb_league_logo_transparent.png';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import {
@@ -753,7 +752,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                 <div className="flex-1 flex justify-center items-center px-1">
                   <div className="flex items-center gap-1 sm:gap-1.5">
                     <img
-                      src={fnbLogo}
+                      src="/logo.png"
                       alt="FNB League"
                       className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain shrink-0 drop-shadow-sm"
                       onError={(e) => {
@@ -784,7 +783,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                 <div className="flex-1 flex justify-center items-center px-1">
                   <div className="flex items-center gap-1 sm:gap-1.5">
                     <img
-                      src={fnbLogo}
+                      src="/logo.png"
                       alt="FNB League"
                       className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain shrink-0 drop-shadow-sm"
                       onError={(e) => {

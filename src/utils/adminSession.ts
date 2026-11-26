@@ -1,10 +1,6 @@
 // In-memory admin session token store (never persisted in localStorage or sessionStorage)
 let adminBearerToken: string | null = null;
 
-export function getAdminToken(): string | null {
-  return adminBearerToken;
-}
-
 export function isAdminAuthenticated(): boolean {
   return adminBearerToken !== null && adminBearerToken.length > 0;
 }

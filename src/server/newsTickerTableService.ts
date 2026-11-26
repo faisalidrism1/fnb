@@ -87,6 +87,23 @@ export function clearNewsTickerMemoryCache(): void {
   lastBuiltAt = 0;
 }
 
+function writeNewsTickerTableAtomic(content: string): void {
+  const dir = path.dirname(TABLE_FILE_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  const tmpPath = `${TABLE_FILE_PATH}.tmp.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2, 7)}`;
+  try {
+    fs.writeFileSync(tmpPath, content, 'utf-8');
+    fs.renameSync(tmpPath, TABLE_FILE_PATH);
+  } catch (err) {
+    try {
+      if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+    } catch {}
+    throw err;
+  }
+}
+
 /**
  * Menghapus semua baris news di container (memori + file news_ticker_table.json).
  * Dipanggil saat terdeteksi Action A, perubahan GW, perubahan fase, atau reset container.
@@ -96,11 +113,7 @@ export function clearNewsTickerTable(): void {
   lastIncrementByRowKey.clear();
   htTimingByMatchKey.clear();
   try {
-    const dir = path.dirname(TABLE_FILE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(TABLE_FILE_PATH, '[]', 'utf-8');
+    writeNewsTickerTableAtomic('[]');
   } catch (err: any) {
     console.warn('[News Table Service] Warning clearing container news table:', err?.message || err);
   }
@@ -2161,8 +2174,8 @@ export function rebuildNewsTickerTable(
       return new Date(b.timestamp_produksi).getTime() - new Date(a.timestamp_produksi).getTime();
     });
 
-    // Save to container file
-    fs.writeFileSync(TABLE_FILE_PATH, JSON.stringify(tableRows, null, 2), 'utf-8');
+    // Save to container file atomically
+    writeNewsTickerTableAtomic(JSON.stringify(tableRows));
     memoryTableCache = tableRows;
     lastBuiltGw = feedGw;
     lastBuiltPhase = currentActivePhase;
@@ -2433,7 +2446,7 @@ export function incrementPoinTayang(
   lastIncrementByRowKey.set(rowKey, now);
 
   try {
-    fs.writeFileSync(TABLE_FILE_PATH, JSON.stringify(rows, null, 2), 'utf-8');
+    writeNewsTickerTableAtomic(JSON.stringify(rows));
     memoryTableCache = rows;
     return {
       success: true,

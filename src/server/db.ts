@@ -283,6 +283,26 @@ export function transformToFplDbSchema(fplData: TransformedLeagueData): FplDatab
   };
 }
 
+export function persistFplDatabase(options?: { onlyIfExists?: boolean }): boolean {
+  const targetDb = fplDatabaseState;
+  if (!targetDb) return false;
+  if (options?.onlyIfExists && !fs.existsSync(DB_FILE_PATH)) {
+    return false;
+  }
+
+  try {
+    fs.mkdirSync(path.dirname(DB_FILE_PATH), { recursive: true });
+    // Atomic write to single source of truth database file (compact JSON without pretty-print overhead)
+    const tempPath = `${DB_FILE_PATH}.tmp.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`;
+    fs.writeFileSync(tempPath, JSON.stringify(targetDb), 'utf-8');
+    fs.renameSync(tempPath, DB_FILE_PATH);
+    return true;
+  } catch (err: any) {
+    console.error('[Database] Failed to write database to disk:', err.message);
+    return false;
+  }
+}
+
 /**
  * Execute synchronization of fresh FPL data into the database schema
  */
@@ -294,15 +314,8 @@ export function syncFplDatabase(fplData: TransformedLeagueData): FplDatabaseSche
   // Populate lightning-fast in-memory maps
   populateMemoryIndices(nextDb);
 
-  try {
-    fs.mkdirSync(path.dirname(DB_FILE_PATH), { recursive: true });
-    // Atomic write to single source of truth database file
-    const tempPath = `${DB_FILE_PATH}.tmp.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`;
-    fs.writeFileSync(tempPath, JSON.stringify(nextDb, null, 2), 'utf-8');
-    fs.renameSync(tempPath, DB_FILE_PATH);
+  if (persistFplDatabase()) {
     console.log('[Database] FPL DB Schema persisted to', DB_FILE_PATH);
-  } catch (err: any) {
-    console.error('[Database] Failed to write database to disk:', err.message);
   }
 
   return nextDb;

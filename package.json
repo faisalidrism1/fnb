@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "clean:container": "node -e \"const fs=require('fs'),path=require('path'); for (const f of ['src/data/fpl_database.json','src/data/cachedLeagueData.json']) { if (fs.existsSync(f)) fs.unlinkSync(f); } fs.writeFileSync('src/data/news_ticker_table.json','[]','utf8'); const pm='src/data/pulse_matches'; if (fs.existsSync(pm)) { for (const x of fs.readdirSync(pm)) { if (x.endsWith('.json')) fs.unlinkSync(path.join(pm,x)); } } console.log('[Build] Container runtime data cleared to Cold Start.');\"",
+    "clean:container": "node -e \"const fs=require('fs'),path=require('path'); if (fs.existsSync('src/data/fpl_database.json')) fs.unlinkSync('src/data/fpl_database.json'); fs.writeFileSync('src/data/news_ticker_table.json','[]','utf8'); const pm='src/data/pulse_matches'; if (fs.existsSync(pm)) { for (const x of fs.readdirSync(pm)) { if (x.endsWith('.json')) fs.unlinkSync(path.join(pm,x)); } } console.log('[Build] Container runtime data cleared to Cold Start.');\"",
     "build": "npm run clean:container && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",

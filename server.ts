@@ -38,7 +38,8 @@ import {
   getDbPlayerStatById,
   getDatabaseStats,
   resetDatabaseState,
-  getTransformedLeagueDataFromDb
+  getTransformedLeagueDataFromDb,
+  persistFplDatabase
 } from './src/server/db.ts';
 import {
   queryNewsTickerTable,
@@ -171,13 +172,8 @@ async function ensureNextGwFixtureMetaIfMissing(currentGw: number): Promise<void
       }
     }
 
-    // Persist patched fpl_database.json atomically
-    const dbPath = path.join(process.cwd(), 'src/data/fpl_database.json');
-    if (fs.existsSync(dbPath)) {
-      const tmp = `${dbPath}.tmp.${Date.now()}`;
-      fs.writeFileSync(tmp, JSON.stringify(db, null, 2), 'utf-8');
-      fs.renameSync(tmp, dbPath);
-    }
+    // Persist patched fpl_database.json strictly via db.ts single writer
+    persistFplDatabase({ onlyIfExists: true });
   } catch (err: any) {
     console.warn('[Fixture Meta] Could not enrich next GW fixture meta:', err.message);
   }

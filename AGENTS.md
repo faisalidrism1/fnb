@@ -162,7 +162,7 @@ Ketika user membuka aplikasi / mengaktifkan tab:
   - **DILARANG KERAS** menggunakan kata *"menjelang"*, *"sebelum Gameweek N"*, atau frasa lain yang mengesankan Gameweek N belum dimulai.
   - **GUNAKAN** kata/frasa *"di Gameweek [N:{gw}]"* atau *"pada Gameweek [N:{gw}]"*.
   - Khusus tampilan berita, jumlah gelar juara mingguan yang dibawa manajer saat fase *Not started* dihitung murni dari **GW 1 s.d. GW $(n - 1)$**.
-  - Pada berita Most GW Rivalry (`NS_MOST_GW_RIVALRY`), **KECUALIKAN peringkat 1 dan 2 di klasemen akhir GW $(n - 1)$** dari daftar tim yang dapat ditampilkan, sehingga sorotan calon juara mingguan terbanyak berfokus pada tim-tim di luar dua besar klasemen utama (menghindari duplikasi dengan `NS_TOP_RIVALRY`).
+  - Pada berita Most GW Rivalry (`NS_STANDINGS_WEEKLY_WINS_MOST`), **KECUALIKAN peringkat 1 dan 2 di klasemen akhir GW $(n - 1)$** dari daftar tim yang dapat ditampilkan, sehingga sorotan calon juara mingguan terbanyak berfokus pada tim-tim di luar dua besar klasemen utama (menghindari duplikasi dengan `NS_STANDINGS_TITLE_RACE`).
 
 ---
 
@@ -200,7 +200,7 @@ Aturan baku berikut wajib diterapkan pada seluruh template di Tabel Editor maupu
 
 ## 9. Standar Baku Redaksional & Gaya Bahasa Berita FPL (International FPL Media Standard)
 
-Seluruh template narasi (`phase1_templates.json`, `phase1Templates.ts`) serta generator berita mengacu pada standar gaya redaksional media FPL internasional (**Official FPL Scout**, **Fantasy Football Scout**, **The Athletic FPL**) yang diadaptasi ke bahasa Indonesia jurnalistik-fantasy modern:
+Seluruh template narasi (`src/data/news_templates.json`, `src/data/newsTemplates.ts`) serta generator berita mengacu pada standar gaya redaksional media FPL internasional (**Official FPL Scout**, **Fantasy Football Scout**, **The Athletic FPL**) yang diadaptasi ke bahasa Indonesia jurnalistik-fantasy modern:
 
 ### A. Prinsip Utama Kalimat & Struktur
 1. **Subject-First (S-P-O) & Piramida Terbalik:** Pelaku utama (`[T:...]`, `[P:...]`, atau `[C:...]`) dan aksi/dampak FPL langsung diletakkan di awal kalimat. **Hindari pembuka lambat / keterangan waktu di depan** (*"Seluruh laga tuntas; ..."*, *"Usai Gameweek N, ..."*, *"Hingga Gameweek N, ..."*, *"Mengaktifkan Wildcard..., [T:...]"*, *"Persaingan ketat:"*).

@@ -77,7 +77,7 @@ export function extractPulseMatchMeta(data: any): PulseMatchFileMeta | null {
 function writeJsonAtomic(targetPath: string, data: any): void {
   ensurePulseMatchesDir();
   const tempPath = `${targetPath}.tmp.${Date.now()}.${Math.random().toString(36).slice(2, 7)}`;
-  fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf-8');
+  fs.writeFileSync(tempPath, JSON.stringify(data), 'utf-8');
   fs.renameSync(tempPath, targetPath);
 }
 

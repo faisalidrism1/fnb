@@ -132,35 +132,6 @@ const KEY_MATCHES_BY_GW = 'latest_matches_by_gw';
 const KEY_PROJECTIONS_CORE = 'latest_projections_core';
 const KEY_SCOUT_SQUADS = 'latest_scout_squads';
 
-export async function saveMatchesByGwToIndexedDB(data: Record<number, any[]>): Promise<void> {
-  try {
-    const db = await openDB();
-    await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      const req = store.put(data, KEY_MATCHES_BY_GW);
-      req.onsuccess = () => resolve();
-      req.onerror = () => reject(req.error);
-    });
-  } catch {}
-}
-
-export async function loadMatchesByGwFromIndexedDB(): Promise<Record<number, any[]> | null> {
-  try {
-    const db = await openDB();
-    const result = await new Promise<Record<number, any[]> | null>((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const req = store.get(KEY_MATCHES_BY_GW);
-      req.onsuccess = () => resolve((req.result as Record<number, any[]>) || null);
-      req.onerror = () => reject(req.error);
-    });
-    return result && typeof result === 'object' ? result : null;
-  } catch {
-    return null;
-  }
-}
-
 export async function saveProjectionsCoreToIndexedDB(data: any): Promise<void> {
   try {
     const db = await openDB();
