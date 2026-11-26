@@ -21,6 +21,11 @@ import {
   GwFixtureItem,
   MatchCardItem
 } from '../types.ts';
+import {
+  resolvePlayerAvailabilityHighlight,
+  PlayerAvailabilityHighlight,
+} from '../utils/playerAvailabilityHighlight.ts';
+import { PlayerAvailabilityFlag } from './PlayerAvailabilityFlag.tsx';
 
 interface PastSeasonItem {
   season_name: string;
@@ -100,6 +105,7 @@ interface ManagerDetailModalProps {
   onSelectPlayer?: (playerId: number, gw?: number) => void;
   lastSynced?: string;
   playerStats?: DbPlayerStat[];
+  currentGW?: number;
   gwFixtures?: GwFixtureItem[] | any[];
 }
 
@@ -378,6 +384,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
   onSelectPlayer,
   lastSynced,
   playerStats = [],
+  currentGW,
   gwFixtures = [],
 }) => {
   const { t, language } = useLanguage();
@@ -386,6 +393,19 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
   const [managerDetail, setManagerDetail] = useState<ManagerDetailData | null>(null);
   const [badgeImgError, setBadgeImgError] = useState<boolean>(false);
   const [isGWDropdownOpen, setIsGWDropdownOpen] = useState<boolean>(false);
+
+  const playerHighlightById = useMemo(() => {
+    const map = new Map<number, PlayerAvailabilityHighlight>();
+    const langKey: 'id' | 'en' = language === 'id' ? 'id' : 'en';
+    for (const ps of playerStats) {
+      if (!ps || !ps.id) continue;
+      const hl = resolvePlayerAvailabilityHighlight(ps, langKey);
+      if (hl) {
+        map.set(ps.id, hl);
+      }
+    }
+    return map;
+  }, [playerStats, language]);
 
   // Map player ID to player team information for fast O(1) opponent resolution
   const playerTeamMap = useMemo(() => {
@@ -1332,6 +1352,8 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
     const { standing, gwRank, startersByPosition, bench, isTc, isBb, gwTransfers } = gwData;
     const activeChip = standing.active_chip || (isBb ? 'bboost' : isTc ? '3xc' : null);
     const fullChipName = getFullChipName(activeChip);
+    const effectiveCurrentGW = currentGW || maxGW;
+    const isActiveOrFutureGw = gw >= effectiveCurrentGW;
 
     const isBenchBreakdownOpen = activeBreakdownPlayerId !== null && bench.some((b) => b.player.id === activeBreakdownPlayerId);
     const isStarterBreakdownOpen = activeBreakdownPlayerId !== null && !isBenchBreakdownOpen;
@@ -1584,6 +1606,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                         ownerInfo={ownerInfo}
                         gw={gw}
                         isTcActive={isTc}
+                        availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(player.id) : undefined}
                         onSelectPlayer={onSelectPlayer}
                         isBreakdownOpen={isOpenForPlayer}
                         activeBreakdownFixtureId={activeFixId}
@@ -1611,6 +1634,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                         ownerInfo={ownerInfo}
                         gw={gw}
                         isTcActive={isTc}
+                        availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(player.id) : undefined}
                         onSelectPlayer={onSelectPlayer}
                         isBreakdownOpen={isOpenForPlayer}
                         activeBreakdownFixtureId={activeFixId}
@@ -1638,6 +1662,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                         ownerInfo={ownerInfo}
                         gw={gw}
                         isTcActive={isTc}
+                        availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(player.id) : undefined}
                         onSelectPlayer={onSelectPlayer}
                         isBreakdownOpen={isOpenForPlayer}
                         activeBreakdownFixtureId={activeFixId}
@@ -1665,6 +1690,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                         ownerInfo={ownerInfo}
                         gw={gw}
                         isTcActive={isTc}
+                        availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(player.id) : undefined}
                         onSelectPlayer={onSelectPlayer}
                         isBreakdownOpen={isOpenForPlayer}
                         activeBreakdownFixtureId={activeFixId}
@@ -1748,6 +1774,7 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                       ownerInfo={ownerInfo}
                       gw={gw}
                       isTcActive={isTc}
+                      availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(player.id) : undefined}
                       onSelectPlayer={onSelectPlayer}
                       isBreakdownOpen={isOpenForPlayer}
                       activeBreakdownFixtureId={activeFixId}
@@ -1796,6 +1823,9 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                   return '';
                 })();
 
+                const inHl = isActiveOrFutureGw && t.element_in?.id ? playerHighlightById.get(t.element_in.id) : undefined;
+                const outHl = isActiveOrFutureGw && t.element_out?.id ? playerHighlightById.get(t.element_out.id) : undefined;
+
                 return (
                   <div
                     key={t.id || idx}
@@ -1804,12 +1834,14 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                     {/* IN (Kiri) */}
                     <div
                       onClick={() => onSelectPlayer && t.element_in?.id && onSelectPlayer(t.element_in.id, gw)}
+                      title={inHl?.tooltip}
                       className="flex items-center gap-1.5 min-w-0 flex-1 cursor-pointer hover:opacity-80 transition-opacity"
                     >
                       <ArrowUpRight className="w-3.5 h-3.5 text-emerald-500 shrink-0 stroke-[2.5]" />
                       <span className="font-bold text-emerald-600 dark:text-emerald-400 truncate text-[11px] sm:text-xs">
                         {t.element_in?.name || 'Player In'}
                       </span>
+                      {inHl && <PlayerAvailabilityFlag highlight={inHl} className="text-[11px] sm:text-xs -ml-0.5" />}
                       <span className="text-[10px] text-slate-400 dark:text-slate-500 shrink-0">
                         ({inPos ? `${inPos}, ` : ''}{t.element_in?.club})
                       </span>
@@ -1823,11 +1855,13 @@ export const ManagerDetailModal: React.FC<ManagerDetailModalProps> = React.memo(
                     {/* OUT (Kanan) */}
                     <div
                       onClick={() => onSelectPlayer && t.element_out?.id && onSelectPlayer(t.element_out.id, gw)}
+                      title={outHl?.tooltip}
                       className="flex items-center justify-end gap-1.5 min-w-0 flex-1 text-right cursor-pointer hover:opacity-80 transition-opacity"
                     >
                       <span className="font-bold text-rose-500 dark:text-rose-400 truncate text-[11px] sm:text-xs">
                         {t.element_out?.name || 'Player Out'}
                       </span>
+                      {outHl && <PlayerAvailabilityFlag highlight={outHl} className="text-[11px] sm:text-xs -ml-0.5" />}
                       <span className="text-[10px] text-slate-400 dark:text-slate-500 shrink-0">
                         ({outPos ? `${outPos}, ` : ''}{t.element_out?.club})
                       </span>
@@ -2138,6 +2172,7 @@ interface PitchPlayerCardProps {
   ownerInfo: PlayerOwnerItem;
   gw: number;
   isTcActive?: boolean;
+  availabilityHighlight?: PlayerAvailabilityHighlight;
   onSelectPlayer?: (playerId: number, gw?: number) => void;
   isBreakdownOpen?: boolean;
   activeBreakdownFixtureId?: number | null;
@@ -2164,6 +2199,7 @@ const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
   ownerInfo,
   gw,
   isTcActive = false,
+  availabilityHighlight,
   onSelectPlayer,
   isBreakdownOpen = false,
   breakdownItems,
@@ -2329,10 +2365,11 @@ const PitchPlayerCard: React.FC<PitchPlayerCardProps> = React.memo(({
             e.stopPropagation();
             onToggleBreakdown && onToggleBreakdown(player.id, player.position, effectiveEntries[0].fixtureId);
           }}
-          title={player.web_name}
-          className="bg-[#37003c] hover:bg-purple-900 text-white text-[8.5px] sm:text-[10px] md:text-[11px] font-bold py-0.5 px-0.5 rounded-t truncate whitespace-nowrap shadow-sm border-x border-t border-purple-900 leading-tight transition-colors cursor-pointer"
+          title={availabilityHighlight ? `${player.web_name} — ${availabilityHighlight.tooltip}` : player.web_name}
+          className="bg-[#37003c] hover:bg-purple-900 text-white text-[8.5px] sm:text-[10px] md:text-[11px] font-bold py-0.5 px-0.5 rounded-t whitespace-nowrap shadow-sm border-x border-t border-purple-900 leading-tight transition-colors cursor-pointer flex items-center justify-center gap-0.5 min-w-0"
         >
-          {player.web_name}
+          <span className="truncate">{player.web_name}</span>
+          {availabilityHighlight && <PlayerAvailabilityFlag highlight={availabilityHighlight} />}
         </div>
 
         {/* Opponent club with H/A and Points row(s) - 1 row for SGW/BGW, 2 rows stacked for DGW */}

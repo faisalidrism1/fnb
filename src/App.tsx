@@ -673,6 +673,7 @@ export default function App() {
               onSelectSubTab={setStandingsSubTab}
               onSelectManager={(id, gw) => setSelectedManager({ id, gw })}
               onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
+              playerStats={data.player_stats || []}
             />
           </div>
 
@@ -695,6 +696,7 @@ export default function App() {
               ownershipClubs={data.ownership_clubs}
               fansClubs={data.fans_clubs}
               templateSquads={data.template_squads}
+              playerStats={data.player_stats || []}
               currentGW={data.current_gw}
               availableGWs={data.available_gws}
               subTab={ownershipSubTab}
@@ -710,6 +712,7 @@ export default function App() {
               mostTransferredIn={data.transfers_in}
               mostTransferredOut={data.transfers_out}
               ownershipPlayers={data.ownership_players}
+              playerStats={data.player_stats || []}
               currentGW={data.current_gw}
               availableGWs={data.available_gws}
               subTab={transferSubTab}
@@ -724,6 +727,7 @@ export default function App() {
               captains={data.captain_players}
               clubCaptains={data.captain_clubs}
               standings={data.standings}
+              playerStats={data.player_stats || []}
               currentGW={data.current_gw}
               availableGWs={data.available_gws}
               subTab={captainSubTab}
@@ -872,6 +876,7 @@ export default function App() {
         onSelectPlayer={(id, gw) => setSelectedPlayer({ id, gw })}
         lastSynced={data.sync_status?.last_synced}
         playerStats={data.player_stats || []}
+        currentGW={data.current_gw}
         gwFixtures={data.sync_status?.gw_fixtures || []}
       />
 

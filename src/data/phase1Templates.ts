@@ -764,19 +764,19 @@ return renderTemplate(template.same_captain, {
     title: 'Most GW Wins',
     output: 'SINGLE-NEWS',
     template: `[Kondisi: Kapten Berbeda]
-[T:{team1}] ([N:{titles1}] kali juara) dan [T:{team2}] ([N:{titles2}] kali juara) bersaing memperebutkan status peraih juara Gameweek terbanyak, dengan [T:{team1}] menunjuk [P:{captain1}] sebagai kapten sementara [T:{team2}] memilih [P:{captain2}].
+[T:{team1}] ([N:{titles1}] gelar) dan [T:{team2}] ([N:{titles2}] gelar) memburu juara Gameweek terbanyak dengan kapten [P:{captain1}] vs [P:{captain2}].
 
 [Kondisi: Kapten Sama]
-[T:{team1}] ([N:{titles1}] kali juara) dan [T:{team2}] ([N:{titles2}] kali juara) keduanya menunjuk [P:{captain}] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin beralih ke [P:{diff_player1}] dan [P:{diff_player2}].
+[T:{team1}] ([N:{titles1}] gelar) dan [T:{team2}] ([N:{titles2}] gelar) memburu juara Gameweek terbanyak dengan kapten [P:{captain}], penentu beralih ke [P:{diff_player1}] vs [P:{diff_player2}].
 
 [Kondisi: Duel Chip Berbeda]
-[T:{team1}] ([N:{titles1}] kali juara) mengaktifkan [N:{chip1}] sementara [T:{team2}] ([N:{titles2}] kali juara) mengaktifkan [N:{chip2}] dalam persaingan juara Gameweek terbanyak.
+[T:{team1}] ([N:{titles1}] gelar) mengaktifkan [N:{chip1}], sedangkan [T:{team2}] ([N:{titles2}] gelar) mengaktifkan [N:{chip2}] dalam perburuan juara Gameweek terbanyak.
 
 [Kondisi: Chip Sama]
-[T:{team1}] ([N:{titles1}] kali juara) dan [T:{team2}] ([N:{titles2}] kali juara) mengaktifkan [N:{chip}] dalam persaingan juara Gameweek terbanyak.
+[T:{team1}] ([N:{titles1}] gelar) dan [T:{team2}] ([N:{titles2}] gelar) mengaktifkan [N:{chip}] dalam perburuan juara Gameweek terbanyak.
 
 [Kondisi: Manuver Chip]
-[T:{team_chip}] mengaktifkan [N:{chip}] untuk mengejar status peraih juara Gameweek terbanyak.`,
+[T:{team_chip}] ([N:{titles_chip}] gelar) mengaktifkan [N:{chip}] untuk mengejar juara Gameweek terbanyak.`,
     example: '',
     code: `// Khusus tampilan news: gelar juara GW dihitung dari GW 1 s.d. GW n-1.
 // Peringkat 1 dan 2 klasemen akhir GW n-1 wajib dikecualikan agar tidak bentrok dengan Top Rivalry.
@@ -816,6 +816,7 @@ if (chipLeader || chipChaser) {
   const chipName = chipLeader || chipChaser;
   return renderTemplate(template.chip, {
     team_chip: chipTeam.name,
+    titles_chip: chipTeam.titles,
     chip: chipName,
   });
 }
@@ -858,6 +859,7 @@ return renderTemplate(template.same_captain, {
       chip1: 'Free Hit',
       chip2: 'Wildcard',
       team_chip: 'Blackswann',
+      titles_chip: '1',
       chip: 'Free Hit',
     },
   },
@@ -949,16 +951,16 @@ return renderTemplate(template.second_half, {
     title: 'Period End',
     output: 'MULTI-NEWS',
     template: `[Kondisi: Half Time (Dengan Gol)]
-[N:{ht_minute}] Jeda babak pertama di [N:{venue}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {goalscorers_list}.
+[N:{ht_minute}] Half Time di [N:{venue}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — Gol: {goalscorers_list}.
 
 [Kondisi: Half Time (Tanpa Gol)]
-[N:{ht_minute}] Jeda babak pertama di [N:{venue}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}].
+[N:{ht_minute}] Half Time di [N:{venue}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}].
 
 [Kondisi: Full Time (Dengan Gol)]
-[N:{ft_minute}] Laga usai di [N:{venue}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {goalscorers_list}.
+[N:{ft_minute}] Full Time di [N:{venue}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — Gol: {goalscorers_list}.
 
 [Kondisi: Full Time (Tanpa Gol)]
-[N:{ft_minute}] Laga usai di [N:{venue}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}].`,
+[N:{ft_minute}] Full Time di [N:{venue}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}].`,
     example: '',
     code: `const scorersStr = formatScorersWithLeaguePct(getMatchScorersUntilEvent(match.id, event));
 const hasGoals = (match.teams[0].score + match.teams[1].score) > 0 && Boolean(scorersStr);
@@ -1575,19 +1577,19 @@ return renderTemplate(template.hold, vars);`,
     title: 'Live Score',
     output: 'MULTI-NEWS',
     template: `[Kondisi: Skor 0-0 Berjalan]
-Live menit [N:{minute}]: [C:{home_club}] [N:0] - [N:0] [C:{away_club}] masih imbang tanpa gol.
+[N:{minute}] Live: [C:{home_club}] [N:0] - [N:0] [C:{away_club}] masih imbang tanpa gol.
 
 [Kondisi: Dengan Gol Berjalan]
-Live menit [N:{minute}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {scorers_list}.
+[N:{minute}] Live: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — Gol: {scorers_list}.
 
 [Kondisi: Dengan Gol Berjalan (Tanpa Pencetak)]
-Live menit [N:{minute}]: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
+[N:{minute}] Live: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].
 
 [Kondisi: Skor 0-0 Half Time]
 Half Time: [C:{home_club}] [N:0] - [N:0] [C:{away_club}] masih imbang tanpa gol.
 
 [Kondisi: Dengan Gol Half Time]
-Half Time: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — pencetak gol: {scorers_list}.
+Half Time: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}] — Gol: {scorers_list}.
 
 [Kondisi: Dengan Gol Half Time (Tanpa Pencetak)]
 Half Time: [C:{home_club}] [N:{home_score}] - [N:{away_score}] [C:{away_club}].`,
@@ -1891,10 +1893,10 @@ return renderTemplate(cond, {
     title: 'Match Result',
     output: 'MULTI-NEWS',
     template: `[Kondisi: Kemenangan]
-Hasil akhir di [N:{venue}]: [C:{winning_club}] menundukkan [C:{losing_club}] [N:{winning_score}] - [N:{losing_score}] — pencetak gol: {goalscorers_list}.
+Hasil akhir di [N:{venue}]: [C:{winning_club}] menundukkan [C:{losing_club}] [N:{winning_score}] - [N:{losing_score}] — Gol: {goalscorers_list}.
 
 [Kondisi: Imbang (Dengan Gol)]
-Hasil akhir di [N:{venue}]: [C:{home_club}] dan [C:{away_club}] berbagi poin [N:{home_score}] - [N:{away_score}] — pencetak gol: {goalscorers_list}.
+Hasil akhir di [N:{venue}]: [C:{home_club}] dan [C:{away_club}] berbagi poin [N:{home_score}] - [N:{away_score}] — Gol: {goalscorers_list}.
 
 [Kondisi: Imbang (Tanpa Gol)]
 Hasil akhir di [N:{venue}]: [C:{home_club}] dan [C:{away_club}] bermain imbang [N:0] - [N:0].`,
@@ -2661,19 +2663,19 @@ return flaggedUpcoming.map(item => renderTemplate(item.isOut ? template.out : te
     title: 'Most GW Wins',
     output: 'SINGLE-NEWS',
     template: `[Kondisi: Kapten Berbeda]
-[T:{team1}] ([N:{titles1}] kali juara, [N:{gw_pts1} Poin] sementara) dan [T:{team2}] ([N:{titles2}] kali juara, [N:{gw_pts2} Poin] sementara) bersaing memperebutkan status peraih juara Gameweek terbanyak, dengan [T:{team1}] menunjuk [P:{captain1}] sebagai kapten sementara [T:{team2}] memilih [P:{captain2}].
+[T:{team1}] ([N:{titles1}] gelar, [N:{gw_pts1} Poin] live) dan [T:{team2}] ([N:{titles2}] gelar, [N:{gw_pts2} Poin] live) memburu juara Gameweek terbanyak dengan kapten [P:{captain1}] vs [P:{captain2}].
 
 [Kondisi: Kapten Sama]
-[T:{team1}] ([N:{titles1}] kali juara, [N:{gw_pts1} Poin] sementara) dan [T:{team2}] ([N:{titles2}] kali juara, [N:{gw_pts2} Poin] sementara) keduanya menunjuk [P:{captain}] sebagai kapten dalam persaingan juara Gameweek terbanyak, sehingga penentu selisih poin sementara beralih ke [P:{diff_player1}] dan [P:{diff_player2}].
+[T:{team1}] ([N:{titles1}] gelar, [N:{gw_pts1} Poin] live) dan [T:{team2}] ([N:{titles2}] gelar, [N:{gw_pts2} Poin] live) memburu juara Gameweek terbanyak dengan kapten [P:{captain}], penentu beralih ke [P:{diff_player1}] vs [P:{diff_player2}].
 
 [Kondisi: Duel Chip Berbeda]
-[T:{team1}] ([N:{titles1}] kali juara, [N:{gw_pts1} Poin] sementara) mengaktifkan [N:{chip1}] sementara [T:{team2}] ([N:{titles2}] kali juara, [N:{gw_pts2} Poin] sementara) mengaktifkan [N:{chip2}] dalam persaingan juara Gameweek terbanyak.
+[T:{team1}] ([N:{titles1}] gelar, [N:{gw_pts1} Poin] live) mengaktifkan [N:{chip1}], sedangkan [T:{team2}] ([N:{titles2}] gelar, [N:{gw_pts2} Poin] live) mengaktifkan [N:{chip2}] dalam perburuan juara Gameweek terbanyak.
 
 [Kondisi: Chip Sama]
-[T:{team1}] ([N:{titles1}] kali juara, [N:{gw_pts1} Poin] sementara) dan [T:{team2}] ([N:{titles2}] kali juara, [N:{gw_pts2} Poin] sementara) mengaktifkan [N:{chip}] dalam persaingan juara Gameweek terbanyak.
+[T:{team1}] ([N:{titles1}] gelar, [N:{gw_pts1} Poin] live) dan [T:{team2}] ([N:{titles2}] gelar, [N:{gw_pts2} Poin] live) mengaktifkan [N:{chip}] dalam perburuan juara Gameweek terbanyak.
 
 [Kondisi: Manuver Chip]
-[T:{team_chip}] ([N:{titles_chip}] kali juara, [N:{gw_pts_chip} Poin] sementara) mengaktifkan [N:{chip}] untuk mengejar status peraih juara Gameweek terbanyak.`,
+[T:{team_chip}] ([N:{titles_chip}] gelar, [N:{gw_pts_chip} Poin] live) mengaktifkan [N:{chip}] untuk mengejar juara Gameweek terbanyak.`,
     example: '',
     code: `// Gelar juara GW dihitung dari GW 1 s.d. GW n-1; peringkat 1 & 2 klasemen sementara dikecualikan agar tidak bentrok dengan Title Race.
 const excludedIds = [standings[0]?.id, standings[1]?.id];

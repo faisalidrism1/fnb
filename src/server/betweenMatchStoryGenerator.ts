@@ -430,7 +430,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
           for (const m of sortedFinishedMatches) {
             const homeClub = resolveClubName(m.home_team?.name || m.home_team?.short_name);
             const awayClub = resolveClubName(m.away_team?.name || m.away_team?.short_name);
-            const venue = m.venue;
+            const venue = String(m.venue || '').replace(/,\s*[^,]+$/, '').trim();
             if (!homeClub || !awayClub || !venue) continue;
             const hs = Number(m.team_h_score ?? 0);
             const as = Number(m.team_a_score ?? 0);
@@ -461,16 +461,14 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                     : `[P:${s.name}] ([N:${s.pct}%], [N:${s.goals} Goals])`;
                 }
                 if (s.og) {
-                  return lang === 'id'
-                    ? `[P:${s.name}] ([N:${s.pct}%], GBD)`
-                    : `[P:${s.name}] ([N:${s.pct}%], OG)`;
+                  return `[P:${s.name}] ([N:${s.pct}%], OG)`;
                 }
                 return `[P:${s.name}] ([N:${s.pct}%])`;
               });
               if (tokens.length === 1) return tokens[0];
               if (tokens.length === 2) return lang === 'id' ? `${tokens[0]} dan ${tokens[1]}` : `${tokens[0]} and ${tokens[1]}`;
               return lang === 'id'
-                ? `${tokens.slice(0, -1).join(', ')}, dan ${tokens[tokens.length - 1]}`
+                ? `${tokens.slice(0, -1).join(', ')} dan ${tokens[tokens.length - 1]}`
                 : `${tokens.slice(0, -1).join(', ')}, and ${tokens[tokens.length - 1]}`;
             };
 
@@ -1858,7 +1856,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                   gw_pts2: gwPts2,
                   chip: chip1,
                 });
-                headlineEn = `[T:${team1.entry_name}] and [T:${team2.entry_name}] both activated [N:${chip1}] in the Most GW Wins race.`;
+                headlineEn = `[T:${team1.entry_name}] ([N:${team1.titles}] titles, [N:${gwPts1} Pts] live) and [T:${team2.entry_name}] ([N:${team2.titles}] titles, [N:${gwPts2} Pts] live) activated [N:${chip1}] in the Most GW Wins race.`;
               } else {
                 headlineId = renderTemplateBranch(tmpl.template, 'duel chip berbeda', {
                   team1: team1.entry_name,
@@ -1870,7 +1868,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                   chip1,
                   chip2,
                 });
-                headlineEn = `[T:${team1.entry_name}] activated [N:${chip1}] while [T:${team2.entry_name}] activated [N:${chip2}] in the Most GW Wins race.`;
+                headlineEn = `[T:${team1.entry_name}] ([N:${team1.titles}] titles, [N:${gwPts1} Pts] live) activated [N:${chip1}], while [T:${team2.entry_name}] ([N:${team2.titles}] titles, [N:${gwPts2} Pts] live) activated [N:${chip2}] in the Most GW Wins race.`;
               }
             } else if (chip1 || chip2) {
               const chipTeam = chip1 ? team1 : team2;
@@ -1882,7 +1880,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                 gw_pts_chip: chipPts,
                 chip: chipName,
               });
-              headlineEn = `[T:${chipTeam.entry_name}] ([N:${chipTeam.titles}] wins, [N:${chipPts} Pts] provisionally) activated [N:${chipName}] in the Most GW Wins race.`;
+              headlineEn = `[T:${chipTeam.entry_name}] ([N:${chipTeam.titles}] titles, [N:${chipPts} Pts] live) activated [N:${chipName}] to chase the Most GW Wins crown.`;
             } else if (cap1 && cap2 && cap1 !== cap2) {
               headlineId = renderTemplateBranch(tmpl.template, 'kapten berbeda', {
                 team1: team1.entry_name,
@@ -1894,7 +1892,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                 captain1: cap1,
                 captain2: cap2,
               });
-              headlineEn = `[T:${team1.entry_name}] ([N:${team1.titles}] wins, [N:${gwPts1} Pts] provisionally) and [T:${team2.entry_name}] ([N:${team2.titles}] wins, [N:${gwPts2} Pts] provisionally) battle in the Most GW Wins race with captains [P:${cap1}] vs [P:${cap2}].`;
+              headlineEn = `[T:${team1.entry_name}] ([N:${team1.titles}] titles, [N:${gwPts1} Pts] live) and [T:${team2.entry_name}] ([N:${team2.titles}] titles, [N:${gwPts2} Pts] live) chase the Most GW Wins crown with captains [P:${cap1}] vs [P:${cap2}].`;
             } else if (cap1 && cap2 && cap1 === cap2) {
               const diffStarters = getTopDifferingStarters(team1.entry_id, team2.entry_id);
               if (diffStarters) {
@@ -1909,7 +1907,7 @@ export function generateBetweenMatchStories(targetGw?: number): GeneratedPhaseSt
                   diff_player1: diffStarters.player1,
                   diff_player2: diffStarters.player2,
                 });
-                headlineEn = `[T:${team1.entry_name}] ([N:${gwPts1} Pts] provisionally) and [T:${team2.entry_name}] ([N:${gwPts2} Pts] provisionally) both captain [P:${cap1}] in the Most GW Wins race; differentials turn to [P:${diffStarters.player1}] and [P:${diffStarters.player2}].`;
+                headlineEn = `[T:${team1.entry_name}] ([N:${team1.titles}] titles, [N:${gwPts1} Pts] live) and [T:${team2.entry_name}] ([N:${team2.titles}] titles, [N:${gwPts2} Pts] live) chase the Most GW Wins crown with captain [P:${cap1}], turning to [P:${diffStarters.player1}] vs [P:${diffStarters.player2}].`;
               }
             }
 

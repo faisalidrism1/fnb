@@ -3,16 +3,23 @@ import { Search } from 'lucide-react';
 import {
   TransferItem,
   MostTransferredItem,
+  DbPlayerStat,
 } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
+import {
+  resolvePlayerAvailabilityHighlight,
+  PlayerAvailabilityHighlight,
+} from '../utils/playerAvailabilityHighlight.ts';
+import { PlayerAvailabilityFlag } from './PlayerAvailabilityFlag.tsx';
 
 interface TabTransferProps {
   transfers: TransferItem[];
   mostTransferredIn: Record<string, MostTransferredItem[]>;
   mostTransferredOut: Record<string, MostTransferredItem[]>;
   ownershipPlayers?: Record<number, any[]>;
+  playerStats?: DbPlayerStat[];
   currentGW: number;
   availableGWs: number[];
   onSelectManager: (entryId: number, gw?: number) => void;
@@ -30,6 +37,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
   mostTransferredIn,
   mostTransferredOut,
   ownershipPlayers,
+  playerStats = [],
   currentGW,
   availableGWs,
   onSelectManager,
@@ -41,6 +49,19 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
   const userProfileId = useUserProfileId();
   const subTab = propSubTab !== undefined ? propSubTab : 'all-transfers';
 
+  const playerHighlightById = useMemo(() => {
+    const map = new Map<number, PlayerAvailabilityHighlight>();
+    const langKey: 'id' | 'en' = language === 'id' ? 'id' : 'en';
+    for (const ps of playerStats) {
+      if (!ps || !ps.id) continue;
+      const hl = resolvePlayerAvailabilityHighlight(ps, langKey);
+      if (hl) {
+        map.set(ps.id, hl);
+      }
+    }
+    return map;
+  }, [playerStats, language]);
+
   // Default filters to Current GW
   const currentGWStr = String(currentGW || (availableGWs.length > 0 ? Math.max(...availableGWs) : 'all'));
 
@@ -51,6 +72,7 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
 
   // Default statGWFilter to the current / latest available gameweek
   const [statGWFilter, setStatGWFilter] = useState<string>(currentGWStr);
+  const isStatActiveGw = statGWFilter !== 'all' && Number(statGWFilter) >= currentGW;
 
   // Sync default filter to currentGW when available
   useEffect(() => {
@@ -267,6 +289,15 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                       const outPts = getPlayerGWPoints(t.element_out?.id, t.event, t.element_out?.gw_points);
                       const gap = inPts - outPts;
                       const isUser = userProfileId !== null && t.entry_id === userProfileId;
+                      const isTransferActiveGw = t.event >= currentGW;
+                      const inHl = isTransferActiveGw && t.element_in?.id ? playerHighlightById.get(t.element_in.id) : undefined;
+                      const outHl = isTransferActiveGw && t.element_out?.id ? playerHighlightById.get(t.element_out.id) : undefined;
+                      const inHint = onSelectPlayer && t.element_in?.id
+                        ? (language === 'id' ? `Klik untuk melihat detail ${t.element_in.name}` : `Click to view details for ${t.element_in.name}`)
+                        : undefined;
+                      const outHint = onSelectPlayer && t.element_out?.id
+                        ? (language === 'id' ? `Klik untuk melihat detail ${t.element_out.name}` : `Click to view details for ${t.element_out.name}`)
+                        : undefined;
 
                       return (
                         <tr
@@ -308,15 +339,12 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                                 ? 'cursor-pointer hover:bg-emerald-50/60 transition-colors group/pin'
                                 : ''
                             }`}
-                            title={
-                              onSelectPlayer && t.element_in?.id
-                                ? (language === 'id' ? `Klik untuk melihat detail ${t.element_in.name}` : `Click to view details for ${t.element_in.name}`)
-                                : undefined
-                            }
+                            title={inHl ? (inHint ? `${inHl.tooltip} — ${inHint}` : inHl.tooltip) : inHint}
                           >
                             <div className="whitespace-nowrap leading-tight md:min-w-0">
-                              <p className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs whitespace-nowrap md:truncate group-hover/pin:underline">
-                                {t.element_in.name}
+                              <p className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs whitespace-nowrap flex items-center gap-1 md:min-w-0">
+                                <span className="md:truncate group-hover/pin:underline">{t.element_in.name}</span>
+                                {inHl && <PlayerAvailabilityFlag highlight={inHl} />}
                               </p>
                               <p className="text-[10px] text-slate-500 whitespace-nowrap md:truncate font-medium">
                                 {t.element_in.position ? `${t.element_in.position} • ` : ''}{t.element_in.club} • £{(t.element_in.cost / 10).toFixed(1)}m
@@ -336,15 +364,12 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                                 ? 'cursor-pointer hover:bg-rose-50/60 transition-colors group/pout'
                                 : ''
                             }`}
-                            title={
-                              onSelectPlayer && t.element_out?.id
-                                ? (language === 'id' ? `Klik untuk melihat detail ${t.element_out.name}` : `Click to view details for ${t.element_out.name}`)
-                                : undefined
-                            }
+                            title={outHl ? (outHint ? `${outHl.tooltip} — ${outHint}` : outHl.tooltip) : outHint}
                           >
                             <div className="whitespace-nowrap leading-tight md:min-w-0">
-                              <p className="font-extrabold text-rose-500 dark:text-rose-400 text-xs whitespace-nowrap md:truncate group-hover/pout:underline">
-                                {t.element_out.name}
+                              <p className="font-extrabold text-rose-500 dark:text-rose-400 text-xs whitespace-nowrap flex items-center gap-1 md:min-w-0">
+                                <span className="md:truncate group-hover/pout:underline">{t.element_out.name}</span>
+                                {outHl && <PlayerAvailabilityFlag highlight={outHl} />}
                               </p>
                               <p className="text-[10px] text-slate-500 whitespace-nowrap md:truncate font-medium">
                                 {t.element_out.position ? `${t.element_out.position} • ` : ''}{t.element_out.club} • £{(t.element_out.cost / 10).toFixed(1)}m
@@ -502,7 +527,12 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                       </td>
                     </tr>
                   ) : (
-                    currentTransferredIn.map((item, idx) => (
+                    currentTransferredIn.map((item, idx) => {
+                      const availHl = isStatActiveGw ? playerHighlightById.get(item.id) : undefined;
+                      const clickHint = onSelectPlayer
+                        ? (language === 'id' ? `Klik untuk melihat detail ${item.web_name}` : `Click to view details for ${item.web_name}`)
+                        : undefined;
+                      return (
                       <tr key={item.id} className="hover:bg-purple-50/30 transition-colors group">
                         {/* Frozen # Column */}
                         <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50 py-2 px-1 text-center border-r border-slate-100 w-10 min-w-[40px] max-w-[40px] md:w-14 md:min-w-[56px] md:max-w-[56px]">
@@ -519,10 +549,11 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                           className={`sticky left-[40px] md:left-[56px] z-20 bg-white group-hover:bg-purple-50 py-2 px-3 md:px-4 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                             onSelectPlayer ? 'cursor-pointer' : ''
                           }`}
-                          title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${item.web_name}` : `Click to view details for ${item.web_name}`) : undefined}
+                          title={availHl ? (clickHint ? `${availHl.tooltip} — ${clickHint}` : availHl.tooltip) : clickHint}
                         >
-                          <p className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs whitespace-nowrap md:truncate">
-                            {item.web_name}
+                          <p className="font-black text-slate-900 group-hover:text-purple-900 text-xs whitespace-nowrap flex items-center gap-1 md:min-w-0">
+                            <span className="md:truncate group-hover:underline">{item.web_name}</span>
+                            {availHl && <PlayerAvailabilityFlag highlight={availHl} />}
                           </p>
                         </td>
                         <td className="py-2 px-2.5 md:w-24 text-center whitespace-nowrap">
@@ -562,7 +593,8 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                           </span>
                         </td>
                       </tr>
-                    ))
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -650,7 +682,12 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                       </td>
                     </tr>
                   ) : (
-                    currentTransferredOut.map((item, idx) => (
+                    currentTransferredOut.map((item, idx) => {
+                      const availHl = isStatActiveGw ? playerHighlightById.get(item.id) : undefined;
+                      const clickHint = onSelectPlayer
+                        ? (language === 'id' ? `Klik untuk melihat detail ${item.web_name}` : `Click to view details for ${item.web_name}`)
+                        : undefined;
+                      return (
                       <tr key={item.id} className="hover:bg-purple-50/30 transition-colors group">
                         {/* Frozen # Column */}
                         <td className="sticky left-0 z-20 bg-white group-hover:bg-purple-50 py-2 px-1 text-center border-r border-slate-100 w-10 min-w-[40px] max-w-[40px] md:w-14 md:min-w-[56px] md:max-w-[56px]">
@@ -667,10 +704,11 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                           className={`sticky left-[40px] md:left-[56px] z-20 bg-white group-hover:bg-purple-50 py-2 px-3 md:px-4 whitespace-nowrap border-r border-slate-200/80 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] transition-colors ${
                             onSelectPlayer ? 'cursor-pointer' : ''
                           }`}
-                          title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${item.web_name}` : `Click to view details for ${item.web_name}`) : undefined}
+                          title={availHl ? (clickHint ? `${availHl.tooltip} — ${clickHint}` : availHl.tooltip) : clickHint}
                         >
-                          <p className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs whitespace-nowrap md:truncate">
-                            {item.web_name}
+                          <p className="font-black text-slate-900 group-hover:text-purple-900 text-xs whitespace-nowrap flex items-center gap-1 md:min-w-0">
+                            <span className="md:truncate group-hover:underline">{item.web_name}</span>
+                            {availHl && <PlayerAvailabilityFlag highlight={availHl} />}
                           </p>
                         </td>
                         <td className="py-2 px-2.5 md:w-24 text-center whitespace-nowrap">
@@ -710,7 +748,8 @@ export const TabTransfer: React.FC<TabTransferProps> = ({
                           </span>
                         </td>
                       </tr>
-                    ))
+                      );
+                    })
                   )}
                 </tbody>
               </table>

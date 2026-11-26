@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
-import { CaptainPlayerItem, ClubCaptainItem, StandingsRow } from '../types.ts';
+import React, { useState, useMemo } from 'react';
+import { CaptainPlayerItem, ClubCaptainItem, StandingsRow, DbPlayerStat } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
+import {
+  resolvePlayerAvailabilityHighlight,
+  PlayerAvailabilityHighlight,
+} from '../utils/playerAvailabilityHighlight.ts';
+import { PlayerAvailabilityFlag } from './PlayerAvailabilityFlag.tsx';
 
 interface TabCaptainProps {
   captains: Record<number, CaptainPlayerItem[]>;
   clubCaptains: Record<number, ClubCaptainItem[]>;
   standings?: Record<number, StandingsRow[]>;
+  playerStats?: DbPlayerStat[];
   currentGW: number;
   availableGWs: number[];
   selectedGW?: number;
@@ -52,6 +58,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
   captains,
   clubCaptains,
   standings,
+  playerStats = [],
   currentGW,
   availableGWs,
   selectedGW: propSelectedGW,
@@ -64,6 +71,19 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
   const userProfileId = useUserProfileId();
   const subTab = propSubTab !== undefined ? propSubTab : 'most-captained-player';
 
+  const playerHighlightById = useMemo(() => {
+    const map = new Map<number, PlayerAvailabilityHighlight>();
+    const langKey: 'id' | 'en' = language === 'id' ? 'id' : 'en';
+    for (const ps of playerStats) {
+      if (!ps || !ps.id) continue;
+      const hl = resolvePlayerAvailabilityHighlight(ps, langKey);
+      if (hl) {
+        map.set(ps.id, hl);
+      }
+    }
+    return map;
+  }, [playerStats, language]);
+
   // Internal independent GW filter to preserve user choice during session
   const [internalGW, setInternalGW] = useState<number>(() => {
     if (propSelectedGW !== undefined) return propSelectedGW;
@@ -74,6 +94,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
   const selectedGW = availableGWs.includes(activeGW)
     ? activeGW
     : (availableGWs.length > 0 ? Math.max(...availableGWs) : currentGW);
+  const isActiveOrFutureGw = selectedGW >= currentGW;
 
   // Selected profile's captain player ID in selectedGW
   const userCaptainPlayerId = React.useMemo(() => {
@@ -139,6 +160,13 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                   const proxyJerseyUrl = `/api/fpl-shirt/${teamCode}${isGk ? '_1' : ''}`;
                   const fallbackJerseyUrl = `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}-220.webp`;
                   const isUserCaptain = userCaptainPlayerId !== null && p.id === userCaptainPlayerId;
+                  const availHl = isActiveOrFutureGw ? playerHighlightById.get(p.id) : undefined;
+                  const clickHint = onSelectPlayer
+                    ? (language === 'id' ? `Klik untuk melihat detail ${p.web_name}` : `Click to view details for ${p.web_name}`)
+                    : undefined;
+                  const cellTitle = availHl
+                    ? (clickHint ? `${availHl.tooltip} — ${clickHint}` : availHl.tooltip)
+                    : clickHint;
 
                   return (
                     <tr
@@ -170,7 +198,7 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                             ? USER_STICKY_CELL_BG
                             : 'bg-white group-hover:bg-purple-50'
                         } ${onSelectPlayer ? 'cursor-pointer' : ''}`}
-                        title={onSelectPlayer ? (language === 'id' ? `Klik untuk melihat detail ${p.web_name}` : `Click to view details for ${p.web_name}`) : undefined}
+                        title={cellTitle}
                       >
                         <div className="flex items-center gap-2 whitespace-nowrap md:min-w-0">
                           <img
@@ -188,8 +216,11 @@ export const TabCaptain: React.FC<TabCaptainProps> = ({
                               }
                             }}
                           />
-                          <span className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs sm:text-sm whitespace-nowrap md:truncate">
-                            {p.web_name}
+                          <span className="inline-flex items-center gap-1 min-w-0">
+                            <span className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs sm:text-sm whitespace-nowrap md:truncate">
+                              {p.web_name}
+                            </span>
+                            {availHl && <PlayerAvailabilityFlag highlight={availHl} className="text-xs sm:text-sm" />}
                           </span>
                         </div>
                       </td>

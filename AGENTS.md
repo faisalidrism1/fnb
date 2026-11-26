@@ -240,3 +240,16 @@ Seluruh template narasi (`phase1_templates.json`, `phase1Templates.ts`) serta ge
 ### C. Terminologi FPL Baku (Dipertahankan dalam Bentuk Asli)
 Gunakan istilah internasional FPL tanpa terjemahan kaku: **`Gameweek`**, **`Wildcard`**, **`Free Hit`**, **`Bench Boost`**, **`Triple Captain`**, **`Clean sheet`**, **`Assist`**, **`BPS`**, **`Poin Bonus`**, **`Differential`**, **`Starting XI`**, **`Autosub`**, **`Transfer hit`**, **`Defensive Contribution`**.
 
+### D. Referensi Konvensi Update News Ticker (Hasil Review Redaksional)
+1. **Perburuan Gelar Mingguan (`NS_STANDINGS_WEEKLY_WINS_MOST`, `BM_STANDINGS_WEEKLY_WINS_MOST`):**
+   - Koleksi berjalan ditulis **`([N:{titles}] gelar)`** (bukan *"kali juara"*), sedangkan target akhir yang diperebutkan ditulis **`juara Gameweek terbanyak`** secara konsisten di seluruh kondisi (termasuk duel chip dan manuver chip).
+   - Pada fase `Between Match`, poin GW berjalan digabungkan dalam kurung yang sama dengan format **`([N:{titles}] gelar, [N:{gw_pts} Poin] live)`**.
+   - Format duel kapten & differential disederhanakan menjadi **`... dengan kapten [P:{captain1}] vs [P:{captain2}].`** dan **`... dengan kapten [P:{captain}], penentu beralih ke [P:{diff_player1}] vs [P:{diff_player2}].`**
+2. **Pemisahan Kata `"sementara"` (Kata Hubung vs Status Poin/Klasemen):**
+   - Kata **"sementara"** yang berfungsi sebagai kata hubung kontras wajib diganti **`sedangkan`** (misal pada duel chip/kapten/transfer: *"...mengaktifkan Free Hit, sedangkan ..."*).
+   - Untuk status poin/klasemen berjalan pada fase **`Live Match`** dan **`Between Match`**, arah penulisan menggunakan **`live`** (menggantikan `sementara` pada konteks berjalan, misalnya `[N:... Poin] live`), sedangkan status untuk fase **`Provisional`** (`sementara` / `provisional` / `live`) diselaraskan saat review item terkait.
+3. **Standar Penyajian Review News Ticker:**
+   - Review dilakukan bertahap dari berita dengan jumlah karakter terpanjang ke terpendek, dan selalu menyajikan **kalimat berita jadi** (tanpa tag `[T:]/[P:]/[C:]/[N:]` atau `{placeholder}`) agar mudah dievaluasi keterbacaannya.
+4. **Hasil & Skor Pertandingan (`BM_MATCH_SCORE_RESULT`, `LM_MATCH_PERIOD_END`, `LM_MATCH_SCORE_LIVE`):**
+   - Nama stadion dipertahankan **tanpa nama kota** (hapus akhiran `, Kota` agar tetap ringkas).
+   - Gunakan **`OG`** (bukan `GBD`), **`Gol:`** (bukan `pencetak gol:`), **`Half Time` / `Full Time`** (bukan `Jeda babak pertama` / `Laga usai`), **`[N:{minute}] Live:`** untuk skor berjalan, dan hilangkan koma Oxford sebelum `"dan"` pada daftar pencetak gol.

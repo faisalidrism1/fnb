@@ -22,6 +22,11 @@ import { useLanguage } from '../utils/i18n.ts';
 import { Star, ArrowRight, Zap, CheckCircle, X } from 'lucide-react';
 import { PROJECTION_FORMULA_VERSION } from '../utils/projectionModel.ts';
 import { loadScoutSquadsFromIndexedDB, saveScoutSquadsToIndexedDB } from '../storage.ts';
+import {
+  resolvePlayerAvailabilityHighlight,
+  PlayerAvailabilityHighlight,
+} from '../utils/playerAvailabilityHighlight.ts';
+import { PlayerAvailabilityFlag } from './PlayerAvailabilityFlag.tsx';
 
 interface TabScoutProps {
   leagueData?: TransformedLeagueData;
@@ -483,6 +488,25 @@ export const TabScout: React.FC<TabScoutProps> = ({
     return map;
   }, [playerProjections]);
 
+  const playerHighlightById = useMemo(() => {
+    const map = new Map<number, PlayerAvailabilityHighlight>();
+    for (const ps of leagueData?.player_stats || []) {
+      if (!ps || !ps.id) continue;
+      const hl = resolvePlayerAvailabilityHighlight(ps, langKey);
+      if (hl) {
+        map.set(ps.id, hl);
+      }
+    }
+    for (const p of playerProjections) {
+      if (!p || !p.id || map.has(p.id)) continue;
+      const hl = resolvePlayerAvailabilityHighlight(p, langKey);
+      if (hl) {
+        map.set(p.id, hl);
+      }
+    }
+    return map;
+  }, [leagueData?.player_stats, playerProjections, langKey]);
+
   const getPicksBreakdownRows = useCallback(
     (player: ScoutPlayerCardItem): ScoutPitchBreakdownRow[] => {
       const endGw = picksType === 'FH' ? targetNextGW : Math.min(targetNextGW + 5, 38);
@@ -717,6 +741,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       player={p}
                       picksType={picksType}
                       isId={isId}
+                      availabilityHighlight={playerHighlightById.get(p.id)}
                       isBreakdownOpen={activePicksBreakdownId === p.id}
                       breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
                       onToggleBreakdown={handleTogglePicksBreakdown}
@@ -733,6 +758,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       player={p}
                       picksType={picksType}
                       isId={isId}
+                      availabilityHighlight={playerHighlightById.get(p.id)}
                       isBreakdownOpen={activePicksBreakdownId === p.id}
                       breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
                       onToggleBreakdown={handleTogglePicksBreakdown}
@@ -749,6 +775,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       player={p}
                       picksType={picksType}
                       isId={isId}
+                      availabilityHighlight={playerHighlightById.get(p.id)}
                       isBreakdownOpen={activePicksBreakdownId === p.id}
                       breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
                       onToggleBreakdown={handleTogglePicksBreakdown}
@@ -765,6 +792,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                       player={p}
                       picksType={picksType}
                       isId={isId}
+                      availabilityHighlight={playerHighlightById.get(p.id)}
                       isBreakdownOpen={activePicksBreakdownId === p.id}
                       breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
                       onToggleBreakdown={handleTogglePicksBreakdown}
@@ -785,6 +813,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
                     picksType={picksType}
                     isId={isId}
                     isBench
+                    availabilityHighlight={playerHighlightById.get(p.id)}
                     isBreakdownOpen={activePicksBreakdownId === p.id}
                     breakdownRows={activePicksBreakdownId === p.id ? getPicksBreakdownRows(p) : undefined}
                     onToggleBreakdown={handleTogglePicksBreakdown}
@@ -821,6 +850,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
               {captainPicks.map((p) => {
                 const { fixtureText, targetXp } = getTargetFixtureInfo(p.id, p.teamShort);
+                const availHl = playerHighlightById.get(p.id);
                 return (
                 <div
                   key={p.id}
@@ -833,8 +863,12 @@ export const TabScout: React.FC<TabScoutProps> = ({
                         {p.rank}
                       </span>
                       <div className="min-w-0">
-                        <h4 className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
-                          {p.webName}
+                        <h4
+                          className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight flex items-center gap-1 min-w-0"
+                          title={availHl?.tooltip}
+                        >
+                          <span className="truncate">{p.webName}</span>
+                          {availHl && <PlayerAvailabilityFlag highlight={availHl} />}
                         </h4>
                         <div className="text-[11px] font-bold text-slate-400">
                           {p.clubName} • {p.position} • £{p.cost.toFixed(1)}m
@@ -934,6 +968,7 @@ export const TabScout: React.FC<TabScoutProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {differentialPicks.map((p) => {
                 const { fixtureText, targetXp } = getTargetFixtureInfo(p.id, p.teamShort);
+                const availHl = playerHighlightById.get(p.id);
                 return (
                 <div
                   key={p.id}
@@ -946,8 +981,12 @@ export const TabScout: React.FC<TabScoutProps> = ({
                         {p.rank}
                       </span>
                       <div className="min-w-0">
-                        <h4 className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight truncate">
-                          {p.webName}
+                        <h4
+                          className="text-sm font-extrabold text-slate-900 dark:text-white leading-tight flex items-center gap-1 min-w-0"
+                          title={availHl?.tooltip}
+                        >
+                          <span className="truncate">{p.webName}</span>
+                          {availHl && <PlayerAvailabilityFlag highlight={availHl} />}
                         </h4>
                         <div className="text-[11px] font-bold text-slate-400">
                           {p.clubName} • {p.position} • £{p.cost.toFixed(1)}m
@@ -1249,21 +1288,26 @@ export const TabScout: React.FC<TabScoutProps> = ({
 
                 {/* Compact Moves List */}
                 <div className="space-y-1.5">
-                  {transferRecommendation.moves.map((m) => (
+                  {transferRecommendation.moves.map((m) => {
+                    const outHl = playerHighlightById.get(m.out.id);
+                    const inHl = playerHighlightById.get(m.in.id);
+                    return (
                     <div
                       key={`${m.out.id}-${m.in.id}`}
                       className="flex items-center justify-between gap-2 bg-slate-50 dark:bg-black/20 px-3 py-2 rounded-xl border border-slate-100 dark:border-white/5"
                     >
                       <div
                         onClick={() => onSelectPlayer?.(m.out.id)}
+                        title={outHl?.tooltip}
                         className="flex-1 text-left cursor-pointer min-w-0"
                       >
                         <div className="flex items-center gap-1">
                           <span className="text-[9px] font-black uppercase text-rose-500">
                             OUT{m.isHit ? ' (-4)' : ''}
                           </span>
-                          <h4 className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
-                            {m.out.webName}
+                          <h4 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1 min-w-0">
+                            <span className="truncate">{m.out.webName}</span>
+                            {outHl && <PlayerAvailabilityFlag highlight={outHl} />}
                           </h4>
                         </div>
                         <span
@@ -1284,11 +1328,13 @@ export const TabScout: React.FC<TabScoutProps> = ({
 
                       <div
                         onClick={() => onSelectPlayer?.(m.in.id)}
+                        title={inHl?.tooltip}
                         className="flex-1 text-right cursor-pointer min-w-0"
                       >
                         <div className="flex items-center justify-end gap-1">
-                          <h4 className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
-                            {m.in.webName}
+                          <h4 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center justify-end gap-1 min-w-0">
+                            <span className="truncate">{m.in.webName}</span>
+                            {inHl && <PlayerAvailabilityFlag highlight={inHl} />}
                           </h4>
                           <span className="text-[9px] font-black uppercase text-emerald-500">IN</span>
                         </div>
@@ -1297,7 +1343,8 @@ export const TabScout: React.FC<TabScoutProps> = ({
                         </span>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Editorial FPL Narrative */}
@@ -1373,6 +1420,7 @@ interface ScoutPitchCardProps {
   picksType: 'FH' | 'WC';
   isId: boolean;
   isBench?: boolean;
+  availabilityHighlight?: PlayerAvailabilityHighlight;
   isBreakdownOpen?: boolean;
   breakdownRows?: ScoutPitchBreakdownRow[];
   onToggleBreakdown?: (playerId: number) => void;
@@ -1384,6 +1432,7 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
   picksType,
   isId,
   isBench = false,
+  availabilityHighlight,
   isBreakdownOpen = false,
   breakdownRows,
   onToggleBreakdown,
@@ -1393,6 +1442,9 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
   const breakdownTooltip = isId
     ? 'Klik kotak nama / angka xP untuk melihat breakdown xP per GW'
     : 'Click player name or xP box to view GW xP breakdown';
+  const nameTooltip = availabilityHighlight
+    ? `${player.webName} — ${availabilityHighlight.tooltip} (${breakdownTooltip})`
+    : breakdownTooltip;
 
   return (
     <div
@@ -1407,7 +1459,7 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
           e.stopPropagation();
           onSelectPlayer?.();
         }}
-        title={player.webName}
+        title={availabilityHighlight ? `${player.webName} — ${availabilityHighlight.tooltip}` : player.webName}
         className="relative z-0 w-[54px] h-[54px] max-w-full sm:w-16 sm:h-16 md:w-[74px] md:h-[74px] flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
       >
         {player.photo ? (
@@ -1470,12 +1522,11 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
             e.stopPropagation();
             onToggleBreakdown?.(player.id);
           }}
-          title={breakdownTooltip}
-          className="w-full bg-[#37003c] hover:bg-[#4d0054] text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center cursor-pointer"
+          title={nameTooltip}
+          className="w-full bg-[#37003c] hover:bg-[#4d0054] text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center gap-0.5 text-[9px] sm:text-[10.5px] font-extrabold leading-tight cursor-pointer min-w-0"
         >
-          <span className="block text-[9px] sm:text-[10.5px] font-extrabold truncate leading-tight">
-            {player.webName}
-          </span>
+          <span className="truncate">{player.webName}</span>
+          {availabilityHighlight && <PlayerAvailabilityFlag highlight={availabilityHighlight} />}
         </div>
 
         {/* Cost & Projected Points Strip (Neon Green) - Klik toggle popup xP */}

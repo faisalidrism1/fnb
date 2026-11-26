@@ -461,7 +461,7 @@ export function generateStoriesFromPulseMatch(
   const awayClub = resolveClubName(awayShort || awayTeamRaw?.name) || resolveClubName(awayTeamRaw?.name);
   if (!homeClub || !awayClub) return [];
 
-  const venueName = pulseData.ground?.name || '';
+  const venueName = String(pulseData.ground?.name || '').replace(/,\s*[^,]+$/, '').trim();
 
   // Build person directory from teamLists (indexed by both id and pulseId when SDP-normalized)
   const pulsePersons = new Map<number, { person: any; teamName: string; teamShort: string; teamId: number }>();
@@ -549,9 +549,7 @@ export function generateStoriesFromPulseMatch(
     if (allScorersList.length === 0) return '';
     const tokens = allScorersList.map((s) => {
       if (s.ogCount > 0 && s.count === 0) {
-        return lang === 'id'
-          ? `[P:${s.name}] ([N:${s.pct}%], GBD)`
-          : `[P:${s.name}] ([N:${s.pct}%], OG)`;
+        return `[P:${s.name}] ([N:${s.pct}%], OG)`;
       }
       const totalG = s.count + s.ogCount;
       if (totalG > 1) {
@@ -2690,9 +2688,13 @@ export function generateLiveMatchScoreStories(
     const homeScore = m.team_h_score ?? 0;
     const awayScore = m.team_a_score ?? 0;
     const totalGoals = homeScore + awayScore;
-    const minuteStr = m.clock_label || (m.minutes ? `${m.minutes}'` : 'Live');
+    const rawClock = String(m.clock_label || '').trim();
     const { period: cardPeriod, clockSecs: cardClockSecs } = resolveCardPeriodAndClockSecs(m);
     const isHT = cardPeriod === 'HT';
+    const isFT = cardPeriod === 'FT' || /^(?:ft|full\s*time)$/i.test(rawClock);
+    const minuteStr = rawClock && !/^(?:live|ft|full\s*time|ht|half\s*time)$/i.test(rawClock)
+      ? rawClock
+      : (m.minutes ? `${m.minutes}'` : 'Live');
 
     const allPlayers = [
       ...(m.home_lineup || []),
@@ -2723,7 +2725,7 @@ export function generateLiveMatchScoreStories(
         scorerItemsId.push(goals > 1 ? `[P:${name}] ([N:${pct}%], [N:${goals} Gol])` : `[P:${name}] ([N:${pct}%])`);
         scorerItemsEn.push(goals > 1 ? `[P:${name}] ([N:${pct}%], [N:${goals} Goals])` : `[P:${name}] ([N:${pct}%])`);
       } else if (ownGoals > 0) {
-        scorerItemsId.push(`[P:${name}] ([N:${pct}%], GBD)`);
+        scorerItemsId.push(`[P:${name}] ([N:${pct}%], OG)`);
         scorerItemsEn.push(`[P:${name}] ([N:${pct}%], OG)`);
       }
     }
@@ -2765,7 +2767,7 @@ export function generateLiveMatchScoreStories(
       headlineEn = `[C:${homeClub}] vs [C:${awayClub}] is underway at minute [N:${minuteStr}] with the score at [N:${homeScore} - ${awayScore}].`;
     }
 
-    const headlineId = resolveConditionalBlock(tmpl.template, cond, {
+    let headlineId = resolveConditionalBlock(tmpl.template, cond, {
       home_club: homeClub,
       away_club: awayClub,
       minute: minuteStr,
@@ -2773,6 +2775,13 @@ export function generateLiveMatchScoreStories(
       away_score: awayScore,
       scorers_list: scorersListId,
     });
+
+    if (isFT && !isHT) {
+      headlineId = headlineId.replace(/^\[N:[^\]]+\]\s*Live:/i, 'Full Time:');
+      headlineEn = headlineEn.replace(/\bis underway at minute \[N:[^\]]+\]/i, 'reaches Full Time');
+    } else if (minuteStr === 'Live') {
+      headlineId = headlineId.replace(/^\[N:Live\]\s*Live:/i, 'Live:');
+    }
 
     stories.push({
       id: `${tmpl.id}_m${m.id}`,

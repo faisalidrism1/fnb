@@ -14,12 +14,18 @@ import {
   GwEventStatus,
   SyncStatus,
   StandingsSubTab,
+  DbPlayerStat,
 } from '../types.ts';
 import { getGameweekStatus } from '../utils/gwStatus.ts';
 import { StandingsChart } from './StandingsChart.tsx';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage, formatDeadlineByLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
+import {
+  resolvePlayerAvailabilityHighlight,
+  PlayerAvailabilityHighlight,
+} from '../utils/playerAvailabilityHighlight.ts';
+import { PlayerAvailabilityFlag } from './PlayerAvailabilityFlag.tsx';
 
 interface TabStandingsProps {
   standings: Record<number, StandingsRow[]>;
@@ -32,6 +38,7 @@ interface TabStandingsProps {
   onSelectGW?: (gw: number) => void;
   onSelectManager: (entryId: number, gw?: number) => void;
   onSelectPlayer?: (playerId: number, gw?: number) => void;
+  playerStats?: DbPlayerStat[];
   gwStatus?: GwEventStatus;
   eventsStatus?: Record<number, GwEventStatus>;
   syncStatus?: SyncStatus;
@@ -55,6 +62,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
   onSelectGW,
   onSelectManager,
   onSelectPlayer,
+  playerStats = [],
   gwStatus,
   eventsStatus,
   syncStatus,
@@ -63,6 +71,19 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
 }) => {
   const { language, t } = useLanguage();
   const userProfileId = useUserProfileId();
+
+  const playerHighlightById = useMemo(() => {
+    const map = new Map<number, PlayerAvailabilityHighlight>();
+    const langKey: 'id' | 'en' = language === 'id' ? 'id' : 'en';
+    for (const ps of playerStats) {
+      if (!ps || !ps.id) continue;
+      const hl = resolvePlayerAvailabilityHighlight(ps, langKey);
+      if (hl) {
+        map.set(ps.id, hl);
+      }
+    }
+    return map;
+  }, [playerStats, language]);
   const [internalSubTab, setInternalSubTab] = useState<StandingsSubTab>(() => {
     const gw = currentGW || 1;
     const gwStatusObj = eventsStatus?.[gw] || gwStatus;
@@ -907,7 +928,16 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                       {/* Captain & Vice Captain */}
                       <td className="py-2 px-1 md:px-3 whitespace-nowrap border-b border-slate-100">
                         <div className="space-y-0.5">
-                          {row.captain ? (
+                          {row.captain ? (() => {
+                            const isActiveOrFutureGw = selectedGW >= currentGW;
+                            const capHl = isActiveOrFutureGw && row.captain.id ? playerHighlightById.get(row.captain.id) : undefined;
+                            const capClickHint = onSelectPlayer && row.captain?.id
+                              ? (language === 'id' ? `Lihat detail statistik ${row.captain.name}` : `View stats for ${row.captain.name}`)
+                              : undefined;
+                            const capTitle = capHl
+                              ? (capClickHint ? `${capHl.tooltip} — ${capClickHint}` : capHl.tooltip)
+                              : capClickHint;
+                            return (
                             <div
                               onClick={(e) => {
                                 if (onSelectPlayer && row.captain?.id) {
@@ -920,11 +950,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                                   ? 'cursor-pointer group/cap hover:opacity-85'
                                   : ''
                               }`}
-                              title={
-                                onSelectPlayer && row.captain?.id
-                                  ? (language === 'id' ? `Lihat detail statistik ${row.captain.name}` : `View stats for ${row.captain.name}`)
-                                  : undefined
-                              }
+                              title={capTitle}
                             >
                               <span className="bg-black text-[#00ff87] text-[9px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0">
                                 C
@@ -932,6 +958,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                               <span className="font-bold text-slate-800 text-xs group-hover/cap:text-purple-700 group-hover/cap:underline">
                                 {row.captain.name}
                               </span>
+                              {capHl && <PlayerAvailabilityFlag highlight={capHl} className="text-xs" />}
                               <span className="text-[10px] text-slate-500 font-medium">
                                 ({row.captain.club})
                               </span>
@@ -939,11 +966,21 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                                 {row.captain.points} {language === 'id' ? 'poin' : 'pts'}
                               </span>
                             </div>
-                          ) : (
+                            );
+                          })() : (
                             <span className="text-slate-400 text-xs">-</span>
                           )}
 
-                          {row.vice_captain && (
+                          {row.vice_captain && (() => {
+                            const isActiveOrFutureGw = selectedGW >= currentGW;
+                            const vcapHl = isActiveOrFutureGw && row.vice_captain.id ? playerHighlightById.get(row.vice_captain.id) : undefined;
+                            const vcapClickHint = onSelectPlayer && row.vice_captain?.id
+                              ? (language === 'id' ? `Lihat detail statistik ${row.vice_captain.name}` : `View stats for ${row.vice_captain.name}`)
+                              : undefined;
+                            const vcapTitle = vcapHl
+                              ? (vcapClickHint ? `${vcapHl.tooltip} — ${vcapClickHint}` : vcapHl.tooltip)
+                              : vcapClickHint;
+                            return (
                             <div
                               onClick={(e) => {
                                 if (onSelectPlayer && row.vice_captain?.id) {
@@ -956,11 +993,7 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                                   ? 'cursor-pointer group/vcap hover:opacity-85'
                                   : ''
                               }`}
-                              title={
-                                onSelectPlayer && row.vice_captain?.id
-                                  ? (language === 'id' ? `Lihat detail statistik ${row.vice_captain.name}` : `View stats for ${row.vice_captain.name}`)
-                                  : undefined
-                              }
+                              title={vcapTitle}
                             >
                               <span className="bg-slate-300 dark:bg-purple-900/80 text-slate-800 dark:text-purple-200 text-[9px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0">
                                 V
@@ -968,12 +1001,14 @@ export const TabStandings: React.FC<TabStandingsProps> = ({
                               <span className="group-hover/vcap:text-purple-700 group-hover/vcap:underline">
                                 {row.vice_captain.name}
                               </span>
+                              {vcapHl && <PlayerAvailabilityFlag highlight={vcapHl} className="text-[11px]" />}
                               <span className="text-[10px]">({row.vice_captain.club})</span>
                               <span className="font-semibold text-slate-600 text-[11px] ml-auto pl-1">
                                 {row.vice_captain.points} {language === 'id' ? 'poin' : 'pts'}
                               </span>
                             </div>
-                          )}
+                            );
+                          })()}
                         </div>
                       </td>
                     </tr>

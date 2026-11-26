@@ -5,17 +5,24 @@ import {
   FansClubGroup,
   TemplateSquadData,
   TemplateSquadPlayer,
+  DbPlayerStat,
 } from '../types.ts';
 import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import fnbLogo from '../assets/images/fnb_league_logo_transparent.png';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
+import {
+  resolvePlayerAvailabilityHighlight,
+  PlayerAvailabilityHighlight,
+} from '../utils/playerAvailabilityHighlight.ts';
+import { PlayerAvailabilityFlag } from './PlayerAvailabilityFlag.tsx';
 
 interface TabOwnershipProps {
   ownershipPlayers: Record<number, PlayerOwnershipItem[]>;
   ownershipClubs: Record<number, ClubOwnershipItem[]>;
   fansClubs: Record<string, FansClubGroup[]>;
   templateSquads: Record<number, TemplateSquadData>;
+  playerStats?: DbPlayerStat[];
   currentGW: number;
   availableGWs: number[];
   selectedGW?: number;
@@ -35,6 +42,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
   ownershipClubs,
   fansClubs,
   templateSquads,
+  playerStats = [],
   currentGW,
   availableGWs,
   selectedGW: propSelectedGW,
@@ -119,6 +127,43 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
   const currentFansClubs = fansClubs[effectiveFansClubFilter] || [];
   const latestGW = availableGWs.length > 0 ? Math.max(...availableGWs) : currentGW;
   const templateSquad = templateSquads[selectedGW] || templateSquads[latestGW] || Object.values(templateSquads)[0];
+
+  const isActiveOrFutureGw = selectedGW >= currentGW;
+  const isFansClubActiveGw =
+    effectiveFansClubFilter !== 'all' && Number(effectiveFansClubFilter) >= currentGW;
+
+  const playerHighlightById = React.useMemo(() => {
+    const map = new Map<number, PlayerAvailabilityHighlight>();
+    const langKey: 'id' | 'en' = language === 'id' ? 'id' : 'en';
+    for (const ps of playerStats) {
+      if (!ps || !ps.id) continue;
+      const hl = resolvePlayerAvailabilityHighlight(ps, langKey);
+      if (hl) {
+        map.set(ps.id, hl);
+      }
+    }
+    return map;
+  }, [playerStats, language]);
+
+  const playerHighlightByName = React.useMemo(() => {
+    const map = new Map<string, PlayerAvailabilityHighlight>();
+    if (playerHighlightById.size === 0) return map;
+    const statsById = new Map<number, DbPlayerStat>(playerStats.map((ps) => [ps.id, ps]));
+    for (const p of players) {
+      const hl = playerHighlightById.get(p.id);
+      if (hl && p.web_name) {
+        map.set(p.web_name.toLowerCase(), hl);
+      }
+    }
+    for (const [id, hl] of playerHighlightById.entries()) {
+      const ps = statsById.get(id);
+      if (ps?.webName) {
+        const key = ps.webName.toLowerCase();
+        if (!map.has(key)) map.set(key, hl);
+      }
+    }
+    return map;
+  }, [playerHighlightById, playerStats, players]);
 
   const handlePlayerClick = (pId: number) => {
     if (onSelectPlayer) {
@@ -368,6 +413,10 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                 ) : (
                   filteredPlayers.slice(0, 50).map((player, idx) => {
                     const isUserOwned = userOwnedPlayerIds.has(player.id);
+                    const availHl = isActiveOrFutureGw ? playerHighlightById.get(player.id) : undefined;
+                    const clickHint = language === 'id'
+                      ? `Klik untuk melihat detail ${player.web_name}`
+                      : `Click to view details for ${player.web_name}`;
                     return (
                       <tr
                         key={player.id}
@@ -393,7 +442,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                               ? USER_STICKY_CELL_BG
                               : 'bg-white group-hover:bg-purple-50'
                           }`}
-                          title={language === 'id' ? `Klik untuk melihat detail ${player.web_name}` : `Click to view details for ${player.web_name}`}
+                          title={availHl ? `${availHl.tooltip} — ${clickHint}` : clickHint}
                         >
                           <div className="flex items-center gap-2 whitespace-nowrap">
                             <img
@@ -411,6 +460,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                             <span className="font-black text-slate-900 group-hover:text-purple-900 group-hover:underline text-xs sm:text-sm whitespace-nowrap">
                               {player.web_name}
                             </span>
+                            {availHl && <PlayerAvailabilityFlag highlight={availHl} className="text-xs sm:text-sm -ml-1" />}
                           </div>
                         </td>
                         <td className="py-2 px-2 md:px-3 text-center whitespace-nowrap border-b border-slate-100">
@@ -541,17 +591,24 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                   {/* Clickable Players belonging to this club */}
                   {clubPlayers.length > 0 && (
                     <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap gap-1.5 items-center">
-                      {clubPlayers.slice(0, 3).map((cp) => (
-                        <button
-                          key={cp.id}
-                          onClick={() => handlePlayerClick(cp.id)}
-                          className="inline-flex items-center gap-1 bg-slate-50 hover:bg-purple-100 hover:text-purple-950 text-slate-800 text-[10.5px] font-bold px-2 py-0.5 rounded-md transition-colors cursor-pointer border border-slate-200 hover:border-purple-400"
-                          title={language === 'id' ? `Klik untuk melihat detail statistik ${cp.web_name}` : `Click to view stats for ${cp.web_name}`}
-                        >
-                          <span>{cp.web_name}</span>
-                          <span className="text-purple-700 text-[9.5px]">({cp.owned_count})</span>
-                        </button>
-                      ))}
+                      {clubPlayers.slice(0, 3).map((cp) => {
+                        const cpHl = isActiveOrFutureGw ? playerHighlightById.get(cp.id) : undefined;
+                        const cpClickHint = language === 'id'
+                          ? `Klik untuk melihat detail statistik ${cp.web_name}`
+                          : `Click to view stats for ${cp.web_name}`;
+                        return (
+                          <button
+                            key={cp.id}
+                            onClick={() => handlePlayerClick(cp.id)}
+                            className="inline-flex items-center gap-1 bg-slate-50 hover:bg-purple-100 hover:text-purple-950 text-slate-800 text-[10.5px] font-bold px-2 py-0.5 rounded-md transition-colors cursor-pointer border border-slate-200 hover:border-purple-400"
+                            title={cpHl ? `${cpHl.tooltip} — ${cpClickHint}` : cpClickHint}
+                          >
+                            <span>{cp.web_name}</span>
+                            {cpHl && <PlayerAvailabilityFlag highlight={cpHl} />}
+                            <span className="text-purple-700 text-[9.5px]">({cp.owned_count})</span>
+                          </button>
+                        );
+                      })}
                       {clubPlayers.length > 3 && (
                         <button
                           onClick={() => {
@@ -643,19 +700,28 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                               {mgr.player_name}
                             </p>
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {mgr.players.map((pName, pIdx) => (
-                                <button
-                                  key={pIdx}
-                                  onClick={(e) => {
-                                     e.stopPropagation();
-                                     handlePlayerClickByName(pName);
-                                  }}
-                                  className="bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-900 text-[10px] font-semibold px-1.5 py-0.5 rounded transition-colors cursor-pointer border border-transparent hover:border-purple-300"
-                                  title={language === 'id' ? `Klik untuk melihat detail statistik ${pName}` : `Click to view stats for ${pName}`}
-                                >
-                                  {pName}
-                                </button>
-                              ))}
+                              {mgr.players.map((pName, pIdx) => {
+                                const fnHl = isFansClubActiveGw
+                                  ? playerHighlightByName.get(pName.toLowerCase())
+                                  : undefined;
+                                const fnClickHint = language === 'id'
+                                  ? `Klik untuk melihat detail statistik ${pName}`
+                                  : `Click to view stats for ${pName}`;
+                                return (
+                                  <button
+                                    key={pIdx}
+                                    onClick={(e) => {
+                                       e.stopPropagation();
+                                       handlePlayerClickByName(pName);
+                                    }}
+                                    className="inline-flex items-center gap-1 bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-900 text-[10px] font-semibold px-1.5 py-0.5 rounded transition-colors cursor-pointer border border-transparent hover:border-purple-300"
+                                    title={fnHl ? `${fnHl.tooltip} — ${fnClickHint}` : fnClickHint}
+                                  >
+                                    <span>{pName}</span>
+                                    {fnHl && <PlayerAvailabilityFlag highlight={fnHl} />}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
 
@@ -809,6 +875,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                         <TemplatePlayerCard
                           key={p.id}
                           player={p}
+                          availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(p.id) : undefined}
                           onClick={() => handlePlayerClick(p.id)}
                         />
                       ))}
@@ -822,6 +889,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                         <TemplatePlayerCard
                           key={p.id}
                           player={p}
+                          availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(p.id) : undefined}
                           onClick={() => handlePlayerClick(p.id)}
                         />
                       ))}
@@ -835,6 +903,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                         <TemplatePlayerCard
                           key={p.id}
                           player={p}
+                          availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(p.id) : undefined}
                           onClick={() => handlePlayerClick(p.id)}
                         />
                       ))}
@@ -848,6 +917,7 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
                         <TemplatePlayerCard
                           key={p.id}
                           player={p}
+                          availabilityHighlight={isActiveOrFutureGw ? playerHighlightById.get(p.id) : undefined}
                           onClick={() => handlePlayerClick(p.id)}
                         />
                       ))}
@@ -865,10 +935,11 @@ export const TabOwnership: React.FC<TabOwnershipProps> = ({
 
 interface TemplatePlayerCardProps {
   player: TemplateSquadPlayer;
+  availabilityHighlight?: PlayerAvailabilityHighlight;
   onClick?: () => void;
 }
 
-const TemplatePlayerCard: React.FC<TemplatePlayerCardProps> = ({ player, onClick }) => {
+const TemplatePlayerCard: React.FC<TemplatePlayerCardProps> = ({ player, availabilityHighlight, onClick }) => {
   const { language } = useLanguage();
   // Ultra HD 220px jersey proxied locally for blazing fast load without CORS/ISP blocks
   const teamCode = player.team_code || 1;
@@ -876,12 +947,15 @@ const TemplatePlayerCard: React.FC<TemplatePlayerCardProps> = ({ player, onClick
   const directShirtUrl = player.is_gk
     ? `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}_1-220.webp`
     : `https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${teamCode}-220.webp`;
+  const clickHint = language === 'id'
+    ? `Klik untuk melihat detail ${player.web_name}`
+    : `Click to view details for ${player.web_name}`;
 
   return (
     <div
       onClick={onClick}
       className="flex flex-col items-center group cursor-pointer transition-transform hover:scale-105 select-none w-[66px] sm:w-[82px] md:w-[96px]"
-      title={language === 'id' ? `Klik untuk melihat detail ${player.web_name}` : `Click to view details for ${player.web_name}`}
+      title={availabilityHighlight ? `${availabilityHighlight.tooltip} — ${clickHint}` : clickHint}
     >
       {/* Club Jersey Image directly from official FPL CDN - HD 220px Resolution & 125% Enlarged */}
       <div className="relative z-0 w-[60px] h-[69px] sm:w-[78px] sm:h-[85px] md:w-[94px] md:h-[102px] flex items-center justify-center">
@@ -909,10 +983,11 @@ const TemplatePlayerCard: React.FC<TemplatePlayerCardProps> = ({ player, onClick
       <div className="relative z-10 -mt-[23px] sm:-mt-[28px] md:-mt-[34px] w-full text-center">
         {/* Web name in 1 row without wrap */}
         <div
-          title={player.web_name}
-          className="bg-[#37003c] group-hover:bg-purple-900 text-white text-[8.5px] sm:text-[10px] md:text-[11px] font-bold py-0.5 px-0.5 rounded-t truncate whitespace-nowrap shadow-sm border-x border-t border-purple-900 leading-tight transition-colors"
+          title={availabilityHighlight ? `${player.web_name} — ${availabilityHighlight.tooltip}` : player.web_name}
+          className="bg-[#37003c] group-hover:bg-purple-900 text-white text-[8.5px] sm:text-[10px] md:text-[11px] font-bold py-0.5 px-0.5 rounded-t whitespace-nowrap shadow-sm border-x border-t border-purple-900 leading-tight transition-colors flex items-center justify-center gap-0.5 min-w-0"
         >
-          {player.web_name}
+          <span className="truncate">{player.web_name}</span>
+          {availabilityHighlight && <PlayerAvailabilityFlag highlight={availabilityHighlight} />}
         </div>
         {/* Cost and ownership in 1 row */}
         <div className="bg-[#00ff87] group-hover:bg-[#34fab0] text-[#200024] text-[7.5px] sm:text-[8.5px] md:text-[9.5px] font-black py-0.5 px-1 rounded-b flex items-center justify-between shadow-sm whitespace-nowrap leading-tight transition-colors">

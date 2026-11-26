@@ -36,6 +36,12 @@ import { CustomPopoverSelect } from './CustomPopoverSelect.tsx';
 import { useLanguage } from '../utils/i18n.ts';
 import { useUserProfileId, USER_ROW_BG, USER_ROW_HOVER_BG, USER_STICKY_CELL_BG } from '../utils/userProfile.ts';
 import { useSeasonProjections } from '../hooks/useSeasonProjections.ts';
+import {
+  resolvePlayerAvailabilityHighlight,
+  PlayerAvailabilityHighlight,
+  AvailabilityLikePlayer,
+} from '../utils/playerAvailabilityHighlight.ts';
+import { PlayerAvailabilityFlag } from './PlayerAvailabilityFlag.tsx';
 
 export type SeasonProjectionsEngineResult = ReturnType<typeof useSeasonProjections>;
 
@@ -163,6 +169,30 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
     () => (engine.clubs && engine.clubs.length > 0 ? engine.clubs : FALLBACK_PREMIER_LEAGUE_CLUBS),
     [engine.clubs]
   );
+
+  const playerHighlightById = useMemo(() => {
+    const map = new Map<number, PlayerAvailabilityHighlight>();
+    const langKey: 'id' | 'en' = isIdLang ? 'id' : 'en';
+    for (const ps of leagueData?.player_stats || []) {
+      if (!ps || !ps.id) continue;
+      const hl = resolvePlayerAvailabilityHighlight(ps, langKey);
+      if (hl) {
+        map.set(ps.id, hl);
+      }
+    }
+    for (const p of allPlayerFullSeasonProjections) {
+      if (!p || !p.id || map.has(p.id)) continue;
+      const hl = resolvePlayerAvailabilityHighlight(p, langKey);
+      if (hl) {
+        map.set(p.id, hl);
+      }
+    }
+    return map;
+  }, [leagueData?.player_stats, allPlayerFullSeasonProjections, isIdLang]);
+
+  const getPlayerHighlight = (playerId: number, fallback?: AvailabilityLikePlayer | null): PlayerAvailabilityHighlight | undefined => {
+    return playerHighlightById.get(playerId) ?? (fallback ? resolvePlayerAvailabilityHighlight(fallback, isIdLang ? 'id' : 'en') ?? undefined : undefined);
+  };
 
   // Owned player IDs for user profile highlighting & "Tim Saya" filter
   const ownedPlayerIds = useMemo<Set<number>>(() => {
@@ -1184,10 +1214,12 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                 <div key={rowIdx} className="flex justify-center items-center gap-1 sm:gap-2.5 md:gap-3.5 flex-nowrap">
                                   {rowPlayers.map((p) => {
                                     const isOwned = ownedPlayerIds.has(p.id);
+                                    const availHl = getPlayerHighlight(p.id, p);
                                     return (
                                     <div
                                       key={p.id}
                                       onClick={() => onSelectPlayer?.(p.id)}
+                                      title={availHl ? `${p.webName} — ${availHl.tooltip}` : p.webName}
                                       className="group flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 select-none min-w-0 shrink-0 w-[calc((100%-16px)/5)] max-w-[82px] sm:max-w-none sm:w-22 md:w-24"
                                     >
                                       {/* Player Photo */}
@@ -1211,10 +1243,9 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
 
                                       {/* Name Strip (Dark Purple) + Position/SI Strip (Neon Green) */}
                                       <div className={`w-full rounded-md ${isOwned ? 'ring-2 ring-[#00ff87] shadow-[0_0_10px_rgba(0,255,135,0.45)]' : ''}`}>
-                                        <div className={`w-full ${isOwned ? 'bg-emerald-950' : 'bg-[#37003c] group-hover:bg-[#4d0054]'} text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center`}>
-                                          <span className="block text-[9px] sm:text-[10.5px] font-extrabold truncate leading-tight">
-                                            {p.webName}
-                                          </span>
+                                        <div className={`w-full ${isOwned ? 'bg-emerald-950' : 'bg-[#37003c] group-hover:bg-[#4d0054]'} text-white text-center py-0.5 px-1 rounded-t-md mt-0.5 shadow-md transition-colors flex items-center justify-center gap-0.5 text-[9px] sm:text-[10.5px] font-extrabold leading-tight min-w-0`}>
+                                          <span className="truncate">{p.webName}</span>
+                                          {availHl && <PlayerAvailabilityFlag highlight={availHl} />}
                                         </div>
                                         <div className="w-full bg-[#00ff87] group-hover:bg-[#2eff9e] text-[#37003c] text-center py-0.5 px-1 rounded-b-md flex items-center justify-between font-black text-[8.5px] sm:text-[9.5px] leading-tight transition-colors">
                                           <span>{p.position}</span>
@@ -1240,17 +1271,20 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                 <div className="flex flex-col items-start gap-1 w-full">
                                   {benchPlayers.map((p) => {
                                     const isOwned = ownedPlayerIds.has(p.id);
+                                    const availHl = getPlayerHighlight(p.id, p);
                                     return (
                                     <button
                                       key={p.id}
                                       type="button"
                                       onClick={() => onSelectPlayer?.(p.id)}
+                                      title={availHl ? `${p.webName} — ${availHl.tooltip}` : p.webName}
                                       className={`inline-flex items-center gap-1.5 text-left text-[11px] sm:text-xs ${isOwned ? 'text-[#00ff87] bg-white/10 px-1.5 py-0.5 rounded' : 'text-white/95'} hover:text-[#00ff87] transition-colors cursor-pointer max-w-full`}
                                     >
                                       <span className="px-1 py-0.2 rounded text-[9px] font-black bg-white/15 text-[#00ff87] shrink-0 w-8 text-center">
                                         {p.position}
                                       </span>
                                       <span className="font-bold truncate">{p.webName}</span>
+                                      {availHl && <PlayerAvailabilityFlag highlight={availHl} className="-ml-0.5" />}
                                       <span className="font-mono text-[10px] font-extrabold text-[#00ff87]/90 shrink-0 tabular-nums">
                                         {p.si}%
                                       </span>
@@ -1271,11 +1305,13 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                   ) : (
                                     outPlayers.map((p) => {
                                       const isOwned = ownedPlayerIds.has(p.id);
+                                      const availHl = getPlayerHighlight(p.id, p);
                                       return (
                                       <button
                                         key={p.id}
                                         type="button"
                                         onClick={() => onSelectPlayer?.(p.id)}
+                                        title={availHl ? `${p.webName} — ${availHl.tooltip}` : p.webName}
                                         className={`inline-flex items-center justify-end gap-1.5 text-right text-[11px] sm:text-xs ${isOwned ? 'text-[#00ff87] bg-white/10 px-1.5 py-0.5 rounded' : 'text-white/90'} hover:text-rose-200 transition-colors cursor-pointer max-w-full`}
                                       >
                                         <span className="font-mono text-[9.5px] font-bold text-rose-200/90 shrink-0 tabular-nums">
@@ -1288,6 +1324,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                             : `${p.si}%`}
                                         </span>
                                         <span className="font-bold truncate">{p.webName}</span>
+                                        {availHl && <PlayerAvailabilityFlag highlight={availHl} className="-ml-0.5" />}
                                         <span className="px-1 py-0.2 rounded text-[9px] font-black bg-rose-500/25 text-rose-200 shrink-0 w-8 text-center">
                                           {p.position}
                                         </span>
@@ -1399,6 +1436,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                             const isStarting = player.role === 'starting';
                             const isBench = player.role === 'bench';
                             const isOwned = ownedPlayerIds.has(player.id);
+                            const availHl = getPlayerHighlight(player.id, player);
 
                             return (
                               <tr
@@ -1415,8 +1453,14 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                                 <td className="py-1 px-2 w-8 text-center font-bold text-slate-400 tabular-nums">
                                   {player.shirtNum > 0 ? player.shirtNum : '-'}
                                 </td>
-                                <td className="py-1 px-2 min-w-[130px] font-bold text-slate-900 dark:text-white whitespace-nowrap">
-                                  {player.webName}
+                                <td
+                                  className="py-1 px-2 min-w-[130px] font-bold text-slate-900 dark:text-white whitespace-nowrap"
+                                  title={availHl?.tooltip}
+                                >
+                                  <span className="inline-flex items-center gap-1">
+                                    <span>{player.webName}</span>
+                                    {availHl && <PlayerAvailabilityFlag highlight={availHl} />}
+                                  </span>
                                 </td>
                                 <td className="py-1 px-1.5 w-10 text-center">
                                   <span
@@ -2189,6 +2233,7 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {displayedPointsRows.map((player) => {
                   const isOwned = ownedPlayerIds.has(player.id);
+                  const availHl = getPlayerHighlight(player.id);
                   return (
                   <tr
                     key={player.id}
@@ -2199,11 +2244,15 @@ export const TabProjection: React.FC<TabProjectionProps> = ({
                   >
                     {/* Sticky Player Name */}
                     <td
-                      className={`py-1 px-1.5 sm:px-2 md:px-3 sticky left-0 z-10 border-r border-slate-200 dark:border-white/10 font-bold text-slate-900 dark:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] md:w-auto md:min-w-[180px] whitespace-nowrap md:truncate transition-colors ${
+                      title={availHl?.tooltip}
+                      className={`py-1 px-1.5 sm:px-2 md:px-3 sticky left-0 z-10 border-r border-slate-200 dark:border-white/10 font-bold text-slate-900 dark:text-white w-[114px] min-w-[114px] sm:w-36 sm:min-w-[130px] md:w-auto md:min-w-[180px] whitespace-nowrap transition-colors ${
                         isOwned ? USER_STICKY_CELL_BG : 'bg-white dark:bg-[#1a0f2e]'
                       }`}
                     >
-                      {player.webName}
+                      <div className="flex items-center gap-1 min-w-0">
+                        <span className="md:truncate">{player.webName}</span>
+                        {availHl && <PlayerAvailabilityFlag highlight={availHl} />}
+                      </div>
                     </td>
                     <td className="py-0.5 px-1 sm:px-1.5 text-center border-r border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 font-bold w-11 min-w-[44px] sm:w-14 sm:min-w-[56px] md:w-20 md:min-w-[72px] whitespace-nowrap">
                       {player.teamShort}

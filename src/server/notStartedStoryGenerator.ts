@@ -1376,10 +1376,11 @@ export function generatePhase1Stories(targetGw?: number, includeRemainingPool: b
                 });
               }
             } else if (chip1 || chip2) {
-              const chipTeam = chip1 ? team1.entry_name : team2.entry_name;
+              const chipTeamObj = chip1 ? team1 : team2;
               const chipName = chip1 || chip2;
               filledHeadline = renderTemplateBranch(tmpl.template, 'manuver chip', {
-                team_chip: chipTeam,
+                team_chip: chipTeamObj.entry_name,
+                titles_chip: chipTeamObj.titles,
                 chip: chipName,
               });
             } else if (cap1 && cap2 && cap1 !== cap2) {
