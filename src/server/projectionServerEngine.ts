@@ -232,6 +232,14 @@ function buildHybridExtraAllCompSides(maxKickoffMs?: number): HybridMatchClubSid
       });
     }
   }
+  sides.sort(
+    (a, b) =>
+      a.kickoffMs - b.kickoffMs ||
+      a.clubShort.localeCompare(b.clubShort) ||
+      a.oppShort.localeCompare(b.oppShort) ||
+      a.compAbbr.localeCompare(b.compAbbr) ||
+      (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+  );
   return sides;
 }
 
@@ -257,6 +265,14 @@ function buildNonEplMatchScoreRecords(maxKickoffMs?: number): NonEplMatchScoreRe
       });
     }
   }
+  records.sort(
+    (a, b) =>
+      a.kickoffMs - b.kickoffMs ||
+      a.clubShort.localeCompare(b.clubShort) ||
+      a.oppShort.localeCompare(b.oppShort) ||
+      a.compAbbr.localeCompare(b.compAbbr) ||
+      (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+  );
   return records;
 }
 
@@ -453,7 +469,7 @@ function buildCausalClubPlayerRateSnapshot(
   const clubBaseDef = new Map<string, number>();
 
   for (const [clubShort, squad] of allPlayersByClub.entries()) {
-    const scoredList: Array<{ attRate: number; defScore: number; sortMins: number; isDefLike: boolean }> = [];
+    const scoredList: Array<{ id: number; attRate: number; defScore: number; sortMins: number; isDefLike: boolean }> = [];
     for (const p of squad) {
       const gMap = playerGwStats.get(p.id);
       let mins = 0;
@@ -497,10 +513,10 @@ function buildCausalClubPlayerRateSnapshot(
       const sortMins = mins + (past?.minutes || 0) * 0.25;
 
       ratesById.set(p.id, { attRate, defScore, mins, isDefLike });
-      scoredList.push({ attRate, defScore, sortMins, isDefLike });
+      scoredList.push({ id: p.id, attRate, defScore, sortMins, isDefLike });
     }
 
-    scoredList.sort((a, b) => b.sortMins - a.sortMins || b.attRate - a.attRate);
+    scoredList.sort((a, b) => b.sortMins - a.sortMins || b.attRate - a.attRate || a.id - b.id);
     const baseXiAtt = scoredList.slice(0, 11).reduce((s, r) => s + r.attRate, 0);
     const defPool = scoredList.filter((r) => r.isDefLike);
     const baseXiDef = (defPool.length >= 5 ? defPool : scoredList).slice(0, 5).reduce((s, r) => s + r.defScore, 0);
@@ -638,17 +654,119 @@ export interface ProjectionEpochInfo {
   maxReviewGW: number;
 }
 
+let lastDigestDataRef: TransformedLeagueData | null | undefined = undefined;
+let lastDigestLastSynced = '';
+let lastDigestScopeKey = '';
+let lastDigestSchedUpdatedAt = '';
+let lastDigestValue = 'empty';
+
+function computeProjectionDataDigest(
+  cachedData: TransformedLeagueData | null | undefined,
+  baseHistoricalGW: number,
+  targetNextGW: number,
+  effectiveEpochStatus: string,
+  allCompEpoch: string
+): string {
+  if (!cachedData) return 'empty';
+  const schedDb = getPulseAllCompScheduleDb();
+  const schedUpdatedAt = schedDb.updatedAt || '';
+  const lastSynced = cachedData.sync_status?.last_synced || '';
+  const scopeKey = `${baseHistoricalGW}:${targetNextGW}:${effectiveEpochStatus}:${allCompEpoch}`;
+
+  if (
+    cachedData === lastDigestDataRef &&
+    lastSynced === lastDigestLastSynced &&
+    scopeKey === lastDigestScopeKey &&
+    schedUpdatedAt === lastDigestSchedUpdatedAt
+  ) {
+    return lastDigestValue;
+  }
+
+  const hash = crypto.createHash('sha256');
+  hash.update(scopeKey);
+
+  // 1. Players sorted deterministically by ID (static/causal + live availability/prices, excluding volatile live match points)
+  const players = [...(cachedData.player_stats || [])].sort((a, b) => (a.id || 0) - (b.id || 0));
+  for (const p of players) {
+    hash.update(
+      `|P:${p.id}:${p.teamShort}:${p.position}:${p.nowCost}:${p.status || 'a'}:${p.chanceOfPlayingNextRound ?? ''}:${p.chanceOfPlayingThisRound ?? ''}:${p.news || ''}:${p.newsAdded || ''}:${p.penaltiesOrder ?? ''}:${p.directFreekicksOrder ?? ''}:${p.cornersAndIndirectFreekicksOrder ?? ''}`
+    );
+    if (Array.isArray(p.gwHistory)) {
+      const hist = p.gwHistory
+        .filter((h) => Number(h?.round || 0) >= 1 && Number(h?.round || 0) <= baseHistoricalGW)
+        .sort((a, b) => a.round - b.round);
+      for (const h of hist) {
+        hash.update(`#${h.round}:${h.points}:${h.minutes}:${h.goals}:${h.assists}:${h.cleanSheets}`);
+      }
+    }
+  }
+
+  // 2. Deadlines up to targetNextGW
+  const deadlines = cachedData.sync_status?.deadlines;
+  if (deadlines) {
+    const dlGws = Object.keys(deadlines)
+      .map(Number)
+      .filter((g) => Number.isFinite(g) && g <= targetNextGW)
+      .sort((a, b) => a - b);
+    for (const g of dlGws) {
+      hash.update(`|D:${g}:${deadlines[String(g)] || ''}`);
+    }
+  }
+
+  // 3. Fixtures metadata (exclude live match scores/minutes for GW > baseHistoricalGW so 30s live ticks do NOT churn cache)
+  const gwFixtures = [...(cachedData.sync_status?.gw_fixtures || [])]
+    .filter((f: any) => Number(f?.event || 0) <= targetNextGW)
+    .sort((a: any, b: any) => (Number(a?.event || 0) - Number(b?.event || 0)) || (Number(a?.id || 0) - Number(b?.id || 0)));
+  for (const f of gwFixtures) {
+    const ev = Number(f?.event || 0);
+    if (ev <= baseHistoricalGW) {
+      hash.update(
+        `|FX:${ev}:${f.id || 0}:${f.home_team || ''}:${f.away_team || ''}:${f.kickoff_time || ''}:${f.finished ? 1 : 0}:${f.team_h_score ?? ''}:${f.team_a_score ?? ''}`
+      );
+    } else {
+      hash.update(
+        `|FS:${ev}:${f.id || 0}:${f.home_team || ''}:${f.away_team || ''}:${f.kickoff_time || ''}:${f.team_h_difficulty ?? ''}:${f.team_a_difficulty ?? ''}`
+      );
+    }
+  }
+
+  // 4. Causal league ownership / standings at baseHistoricalGW + pre-target transfers
+  const baseOwn = [...(cachedData.ownership_players?.[baseHistoricalGW] || [])].sort((a, b) => (a.id || 0) - (b.id || 0));
+  for (const o of baseOwn) {
+    hash.update(`|O:${o.id}:${o.owned_count}`);
+  }
+  const baseStandingsLen = cachedData.standings?.[baseHistoricalGW]?.length || 0;
+  const preTransfersCount = (cachedData.all_transfers || []).filter((t) => Number(t?.event || 0) < targetNextGW).length;
+  hash.update(`|L:${baseStandingsLen}:${preTransfersCount}`);
+
+  // 5. All-comp upcoming fixture schedule (used for <72h congestion rest features)
+  const acFixtures = [...(schedDb.fixtures || [])].sort(
+    (a, b) => (a.kickoffMs || 0) - (b.kickoffMs || 0) || (a.pulseMatchId || 0) - (b.pulseMatchId || 0)
+  );
+  for (const af of acFixtures) {
+    hash.update(`|AC:${af.pulseMatchId}:${af.compId}:${af.kickoffMs}:${af.homeShort || ''}:${af.awayShort || ''}`);
+  }
+
+  const digest = hash.digest('hex').slice(0, 10);
+  lastDigestDataRef = cachedData;
+  lastDigestLastSynced = lastSynced;
+  lastDigestScopeKey = scopeKey;
+  lastDigestSchedUpdatedAt = schedUpdatedAt;
+  lastDigestValue = digest;
+  return digest;
+}
+
 /**
  * Deterministic epoch key used to enforce STRICT sync only on:
  *   - Live -> Provisional (epochKey changes from `N-1:Confirmed:...` to `N:Provisional:...`)
  *   - Provisional -> Confirmed (epochKey changes from `N:Provisional:...` to `N:Confirmed:...`)
  *   - Projection/Scout formula edit or rollback (`formulaFingerprint` shifts immediately)
+ *   - Canonical projection/scout inputs changing (`dataDigest`: injuries, prices, fixtures, ownership, all-comp schedule)
  *   - Cold start / full GW shift where cache is empty
  *
  * Notice:
- *   - During GW `N` Live ticks (every 30-60s): epoch stays `N-1:Confirmed:...` -> ZERO recompute!
- *   - When GW `N` Confirmed rolls over to GW `N+1` Not Started: epoch stays `N:Confirmed:...` -> ZERO recompute!
- *   - When GW `N+1` Not Started kicks off to Live: epoch stays `N:Confirmed:...` -> ZERO recompute!
+ *   - During GW `N` Live ticks (every 30-60s): `gw_fixtures` score/minutes and live player points for GW `N` are excluded from `dataDigest` -> ZERO recompute!
+ *   - When GW `N` Confirmed rolls over to GW `N+1` Not Started or kicks off: `dataDigest` shifts ONLY if injury/price/fixture inputs actually changed.
  */
 export function computeProjectionEpochInfo(cachedData: TransformedLeagueData | null | undefined): ProjectionEpochInfo {
   const available =
@@ -682,7 +800,14 @@ export function computeProjectionEpochInfo(cachedData: TransformedLeagueData | n
     baseHistoricalGW === curr && lifecycleStatus === 'Provisional' ? 'Provisional' : 'Confirmed';
   const formulaFingerprint = getProjectionFormulaFingerprint();
   const allCompEpoch = getPulseAllCompHistoryEpoch();
-  const epochKey = `${baseHistoricalGW}:${effectiveEpochStatus}:${PROJECTION_FORMULA_VERSION}:${formulaFingerprint}:ac${allCompEpoch}`;
+  const dataDigest = computeProjectionDataDigest(
+    cachedData,
+    baseHistoricalGW,
+    targetNextGW,
+    effectiveEpochStatus,
+    allCompEpoch
+  );
+  const epochKey = `${baseHistoricalGW}:${effectiveEpochStatus}:${PROJECTION_FORMULA_VERSION}:${formulaFingerprint}:d${dataDigest}:ac${allCompEpoch}`;
 
   return {
     epochKey,
@@ -848,15 +973,17 @@ function buildClubsList(
       ? scheduleTeams
       : PREMIER_LEAGUE_CLUBS.map((c) => ({ id: c.id, name: c.name, short_name: c.short }));
 
-  return sourceTeams.map((t) => {
-    const fb = fallbackByShort.get(t.short_name);
-    return {
-      id: t.id,
-      name: t.name || fb?.name || t.short_name,
-      short: t.short_name,
-      badgeUrl: badgeByShort.get(t.short_name) || badgeById.get(t.id) || fb?.badgeUrl || '',
-    };
-  });
+  return sourceTeams
+    .map((t) => {
+      const fb = fallbackByShort.get(t.short_name);
+      return {
+        id: t.id,
+        name: t.name || fb?.name || t.short_name,
+        short: t.short_name,
+        badgeUrl: badgeByShort.get(t.short_name) || badgeById.get(t.id) || fb?.badgeUrl || '',
+      };
+    })
+    .sort((a, b) => a.id - b.id || a.short.localeCompare(b.short));
 }
 
 async function buildUnifiedScheduleAndLineups(
@@ -1649,7 +1776,9 @@ async function buildRuntimeCoreContext(
 
   // Dynamic Explosive Hauls per player (strictly causal [minFormingGW..baseHistoricalGW] in Scout mode)
   const dynamicExplosiveById = new Map<number, { hauls: number; maxPts: number; haulRate: number }>();
-  const allPlayers = (effectiveData.player_stats || []).filter((p) => p.status !== 'u');
+  const allPlayers = [...(effectiveData.player_stats || [])]
+    .filter((p) => p.status !== 'u')
+    .sort((a, b) => (a.id || 0) - (b.id || 0));
 
   for (const p of allPlayers) {
     const gwPts = new Map<number, number>();
@@ -1770,9 +1899,7 @@ async function buildRuntimeCoreContext(
       const resolvedMs =
         Number.isFinite(koMs) && koMs > 0
           ? koMs
-          : isScoutWindow
-          ? resolveDeterministicGwCutoffMs(gw)
-          : Date.now();
+          : resolveDeterministicGwCutoffMs(gw);
       const hs = m.home_team?.short_name;
       const as = m.away_team?.short_name;
       if (hs && !gwMatchByClub.has(hs)) gwMatchByClub.set(hs, { kickoffIso: m.kickoff_time, kickoffMs: resolvedMs, isHome: true });
@@ -2053,7 +2180,7 @@ async function buildRuntimeCoreContext(
       });
     }
 
-    squad.sort((a, b) => b.si - a.si || b.starts - a.starts || b.bench - a.bench || b.nowCost - a.nowCost);
+    squad.sort((a, b) => b.si - a.si || b.starts - a.starts || b.bench - a.bench || b.nowCost - a.nowCost || a.id - b.id);
     for (let i = 0; i < squad.length - 1; i++) {
       if (squad[i].si >= 40 && squad[i].si <= 60 && Math.abs(squad[i].si - squad[i + 1].si) <= 10) {
         squad[i].isRotation5050 = true;
@@ -2085,7 +2212,7 @@ async function buildRuntimeCoreContext(
     await new Promise<void>((resolve) => setImmediate(resolve));
     const gwCutoffMs = resolveGwFirstKickoffMs(
       gw,
-      isScoutWindow ? resolveDeterministicGwCutoffMs(gw) : Date.now()
+      resolveDeterministicGwCutoffMs(gw)
     );
     causalMatchModelsByGw.set(
       gw,
@@ -2103,7 +2230,7 @@ async function buildRuntimeCoreContext(
 
   const futureCutoffMs = isScoutWindow
     ? targetCutoffMs!
-    : resolveGwFirstKickoffMs(targetNextGW, Date.now());
+    : resolveGwFirstKickoffMs(targetNextGW, resolveDeterministicGwCutoffMs(targetNextGW));
   const futureMatchModel = fitCausalMatchScoreModel({
     clubs,
     players: allPlayers,
@@ -2296,7 +2423,7 @@ async function buildRuntimeCoreContext(
       p.id,
       squadPlayer?.expectedReturnDate
         ? new Date(squadPlayer.expectedReturnDate)
-        : parseExpectedReturnDate(p.news)
+        : parseExpectedReturnDate(p.news, new Date(futureCutoffMs))
     );
   }
 
@@ -2377,7 +2504,12 @@ async function buildRuntimeCoreContext(
 
     for (let gw = minFormingGW; gw <= 38; gw++) {
       const matchProjList = clubGwMatchProjections[`${cShort}_${gw}`] || [];
-      const stage3Cells = pMatchesMap?.get(gw) || [];
+      const stage3Cells = [...(pMatchesMap?.get(gw) || [])].sort(
+        (a, b) =>
+          (a.kickoffTime || '').localeCompare(b.kickoffTime || '') ||
+          a.oppShort.localeCompare(b.oppShort) ||
+          (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+      );
 
       if (matchProjList.length === 0 || stage3Cells.length === 0) {
         fullSeasonPointsMap[gw] = {
@@ -2857,7 +2989,7 @@ function buildLineupReviewForGw(
       if (rDiff !== 0) return rDiff;
       const pDiff = (POS_ORDER[a.position] || 99) - (POS_ORDER[b.position] || 99);
       if (pDiff !== 0) return pDiff;
-      return b.si - a.si;
+      return b.si - a.si || a.id - b.id;
     });
 
     // Attach club formations once on first squad element to avoid 30x duplication
@@ -3020,7 +3152,13 @@ async function getOrBuildReviewLookups(
     }
 
     for (const arr of Object.values(actualMatchLookup)) {
-      arr.sort((a, b) => (a.kickoff ? Date.parse(a.kickoff) : 0) - (b.kickoff ? Date.parse(b.kickoff) : 0));
+      arr.sort(
+        (a, b) =>
+          (a.kickoff ? Date.parse(a.kickoff) : 0) - (b.kickoff ? Date.parse(b.kickoff) : 0) ||
+          (a.fixtureId || 0) - (b.fixtureId || 0) ||
+          a.oppShort.localeCompare(b.oppShort) ||
+          (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+      );
     }
 
     // 2. Actual Player Stats Map (sums points & mins across DGW fixtures!)
@@ -3321,8 +3459,8 @@ async function getOrBuildReviewBase(
         }
       }
 
-      const topOverperformers = [...playerPerformances].sort((a, b) => b.diff - a.diff).slice(0, 5);
-      const topUnderperformers = [...playerPerformances].sort((a, b) => a.diff - b.diff).slice(0, 5);
+      const topOverperformers = [...playerPerformances].sort((a, b) => b.diff - a.diff || a.id - b.id).slice(0, 5);
+      const topUnderperformers = [...playerPerformances].sort((a, b) => a.diff - b.diff || a.id - b.id).slice(0, 5);
 
       const isFinished = matchesFinished >= Math.max(matchesInGw.length - 2, 1) || gw < maxReviewGW;
       const teamGoalsMae = matchesFinished > 0 ? Math.round((teamGoalsSumDiff / (matchesFinished * 2)) * 100) / 100 : 0;

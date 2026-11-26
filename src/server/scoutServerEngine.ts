@@ -187,22 +187,27 @@ export function buildServerScoutContext(params: {
       });
       continue;
     }
-    const first = list[0];
-    const sumTeamLambda = list.reduce((s, item) => s + Number(item.teamLambda || 0), 0);
-    const sumOppLambda = list.reduce((s, item) => s + Number(item.oppLambda || 0), 0);
+    const sortedList = [...list].sort(
+      (a, b) =>
+        String(a.oppShort || '').localeCompare(String(b.oppShort || '')) ||
+        (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+    );
+    const first = sortedList[0];
+    const sumTeamLambda = sortedList.reduce((s, item) => s + Number(item.teamLambda || 0), 0);
+    const sumOppLambda = sortedList.reduce((s, item) => s + Number(item.oppLambda || 0), 0);
     const maxCsPct = Math.max(
-      ...list.map((item) =>
+      ...sortedList.map((item) =>
         typeof item.csProbPct === 'number' ? item.csProbPct : Math.round(Number(item.csProb || 0) * 100)
       )
     );
     targetGwMatchProjections.set(clubShort, {
-      oppShort: list.length >= 2 ? list.map((m) => m.oppShort).join(' + ') : first.oppShort,
+      oppShort: sortedList.length >= 2 ? sortedList.map((m) => m.oppShort).join(' + ') : first.oppShort,
       isHome: first.isHome,
       teamLambda: Number(sumTeamLambda.toFixed(2)),
       oppLambda: Number(sumOppLambda.toFixed(2)),
       csProb: maxCsPct,
       isBlank: false,
-      matches: list.map((item) => ({
+      matches: sortedList.map((item) => ({
         oppShort: item.oppShort,
         isHome: item.isHome,
         teamLambda: item.teamLambda,
@@ -225,21 +230,26 @@ export function buildServerScoutContext(params: {
         matches: [],
       });
     } else {
-      const first = entries[0];
+      const sortedEntries = [...entries].sort(
+        (a, b) =>
+          String(a.opponentShort || '').localeCompare(String(b.opponentShort || '')) ||
+          (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+      );
+      const first = sortedEntries[0];
       targetGwMatchProjections.set(clubShort, {
-        oppShort: entries.length >= 2 ? entries.map((e) => e.opponentShort).join(' + ') : first.opponentShort,
+        oppShort: sortedEntries.length >= 2 ? sortedEntries.map((e) => e.opponentShort).join(' + ') : first.opponentShort,
         isHome: first.isHome,
         teamLambda: 1.4,
         oppLambda: 1.2,
         csProb: 28,
         isBlank: false,
-        matches: entries.map((e) => ({ oppShort: e.opponentShort, isHome: e.isHome })),
+        matches: sortedEntries.map((e) => ({ oppShort: e.opponentShort, isHome: e.isHome })),
       });
     }
   }
 
   const projById = new Map(corePayload.allPlayerFullSeasonProjections.map((p) => [p.id, p]));
-  const rawPlayers = cachedData.player_stats || [];
+  const rawPlayers = [...(cachedData.player_stats || [])].sort((a, b) => (a.id || 0) - (b.id || 0));
 
   const wildcardGWs = [
     targetNextGW,
@@ -348,10 +358,17 @@ export function buildServerScoutContext(params: {
 
     // Strictly windowed GW history: ONLY [minFormingGW..maxFormingGW] (GW 3..n-1)
     const rawHistory = Array.isArray(p.gwHistory) ? p.gwHistory : [];
-    const causalHistory = rawHistory.filter((h: any) => {
-      const r = Number(h?.round || 0);
-      return r >= minFormingGW && r <= maxFormingGW;
-    });
+    const causalHistory = rawHistory
+      .filter((h: any) => {
+        const r = Number(h?.round || 0);
+        return r >= minFormingGW && r <= maxFormingGW;
+      })
+      .sort(
+        (a: any, b: any) =>
+          Number(a?.round || 0) - Number(b?.round || 0) ||
+          Number(a?.fixture || 0) - Number(b?.fixture || 0) ||
+          Number(a?.opponent_team || a?.opponentTeam || 0) - Number(b?.opponent_team || b?.opponentTeam || 0)
+      );
     const histByGw = new Map<number, any>();
     for (const h of causalHistory) {
       histByGw.set(Number(h.round), h);
@@ -702,8 +719,19 @@ export function computeServerCaptainAndDifferentialPicks(
   const { playerPool, targetNextGW, targetGwMatchProjections, clubNameMap, policy } = ctx;
 
   // 1. Adaptive Captain Candidates (3..10 slots controlled by strict gate, ceiling, and relative dropoff from #1)
-  const capSort = (a: ServerScoutPoolPlayer, b: ServerScoutPoolPlayer) =>
-    b.captainScore - a.captainScore || b.xP1 - a.xP1 || a.id - b.id;
+  const capSort = (a: ServerScoutPoolPlayer, b: ServerScoutPoolPlayer) => {
+    const scDiff = b.captainScore - a.captainScore;
+    if (scDiff !== 0) return scDiff;
+    const xpDiff = b.xP1 - a.xP1;
+    if (xpDiff !== 0) return xpDiff;
+    const cellA = a.modelInput.fullSeasonPointsMap?.[targetNextGW];
+    const cellB = b.modelInput.fullSeasonPointsMap?.[targetNextGW];
+    const haulDiff = (cellB?.mcPHaul10 ?? 0) - (cellA?.mcPHaul10 ?? 0);
+    if (haulDiff !== 0) return haulDiff;
+    const pStartDiff = (cellB?.pStart ?? 0) - (cellA?.pStart ?? 0);
+    if (pStartDiff !== 0) return pStartDiff;
+    return b.cost - a.cost || a.id - b.id;
+  };
 
   const strictCapCandidates = playerPool
     .filter((p) => {
@@ -843,7 +871,15 @@ export function computeServerCaptainAndDifferentialPicks(
               p.status !== 'u' &&
               p.xP1 > 0
           );
-    list.sort((a, b) => b.diffScore - a.diffScore || b.xP1 - a.xP1 || a.id - b.id);
+    list.sort(
+      (a, b) =>
+        b.diffScore - a.diffScore ||
+        b.avgXp3 - a.avgXp3 ||
+        b.xP1 - a.xP1 ||
+        a.fnbOwn - b.fnbOwn ||
+        b.cost - a.cost ||
+        a.id - b.id
+    );
     return list.slice(0, 3);
   };
 
@@ -914,7 +950,9 @@ export function resolveManagerAndSquadForScout(
   activeManager: StandingsRow | null;
   activeSquadIds: number[];
 } {
-  const standingsList = cachedData.standings?.[ctx.effectiveStandingsGW] || [];
+  const standingsList = [...(cachedData.standings?.[ctx.effectiveStandingsGW] || [])].sort(
+    (a, b) => (a.rank || 0) - (b.rank || 0) || a.entry_id - b.entry_id
+  );
   if (standingsList.length === 0) {
     return { activeManager: null, activeSquadIds: [] };
   }
@@ -939,7 +977,7 @@ export function resolveManagerAndSquadForScout(
       matched.push({ id: p.id, posInSquad: owner.position_in_squad });
     }
   }
-  matched.sort((a, b) => a.posInSquad - b.posInSquad);
+  matched.sort((a, b) => a.posInSquad - b.posInSquad || a.id - b.id);
 
   return {
     activeManager,
@@ -1192,7 +1230,7 @@ export async function resolveManagerSellingPrices(params: {
       });
     }
   }
-  rawTransfers.sort((a, b) => a.event - b.event || a.timeMs - b.timeMs);
+  rawTransfers.sort((a, b) => a.event - b.event || a.timeMs - b.timeMs || a.inId - b.inId || a.outId - b.outId);
 
   const purchaseCostTenthsById = new Map<number, number>();
   const neededAcquiredGwById = new Map<number, number>();
@@ -1502,10 +1540,11 @@ export function computeServerChipsAnalysis(params: {
         scoreCaptainAtGw(b.modelInput, gw, targetNextGW, policy) -
         scoreCaptainAtGw(a.modelInput, gw, targetNextGW, policy);
       if (capDiff !== 0) return capDiff;
-      return (
+      const pStartDiff =
         getCellAtGw(b.modelInput, gw, targetNextGW).pStart -
-        getCellAtGw(a.modelInput, gw, targetNextGW).pStart
-      );
+        getCellAtGw(a.modelInput, gw, targetNextGW).pStart;
+      if (pStartDiff !== 0) return pStartDiff;
+      return b.avgXp3 - a.avgXp3 || b.cost - a.cost || a.id - b.id;
     };
 
     const gkps = squad15.filter((p) => p.position === 'GKP').sort(sortFn);
@@ -1518,30 +1557,35 @@ export function computeServerChipsAnalysis(params: {
     let bestXiXp = -1;
     let bestMaxStarterXp = -1;
     let bestBenchXp = -1;
+    let bestFormLabel = '9-9-9';
 
     for (const [d, m, f] of FORMATIONS) {
       if (gkps.length < 1 || defs.length < d || mids.length < m || fwds.length < f) continue;
       const starters = [gkps[0], ...defs.slice(0, d), ...mids.slice(0, m), ...fwds.slice(0, f)];
       const starterIds = new Set(starters.map((p) => p.id));
-      const bench = squad15.filter((p) => !starterIds.has(p.id));
+      const bench = squad15.filter((p) => !starterIds.has(p.id)).sort(sortFn);
       const xiXp = starters.reduce((s, p) => s + getPoolPlayerGwXp(p, gw, targetNextGW), 0);
       const maxStarterXp = starters.reduce(
         (mx, p) => Math.max(mx, getPoolPlayerGwXp(p, gw, targetNextGW)),
         0
       );
       const benchXp = bench.reduce((s, p) => s + getPoolPlayerGwXp(p, gw, targetNextGW), 0);
+      const formLabel = `${d}-${m}-${f}`;
 
-      if (
+      const isBetterForm =
         xiXp > bestXiXp + 1e-6 ||
         (Math.abs(xiXp - bestXiXp) <= 1e-6 &&
           (maxStarterXp > bestMaxStarterXp + 1e-6 ||
-            (Math.abs(maxStarterXp - bestMaxStarterXp) <= 1e-6 && benchXp > bestBenchXp)))
-      ) {
+            (Math.abs(maxStarterXp - bestMaxStarterXp) <= 1e-6 &&
+              (benchXp > bestBenchXp + 1e-6 ||
+                (Math.abs(benchXp - bestBenchXp) <= 1e-6 && formLabel.localeCompare(bestFormLabel) < 0)))));
+      if (isBetterForm) {
         bestStarters = starters;
         bestBench = bench;
         bestXiXp = xiXp;
         bestMaxStarterXp = maxStarterXp;
         bestBenchXp = benchXp;
+        bestFormLabel = formLabel;
       }
     }
 
@@ -1789,7 +1833,12 @@ export function computeServerChipsAnalysis(params: {
       opt.activeBenchCount >= minActiveBench &&
       (opt.benchIsDgwCount >= 2 || gain >= bbMin);
     const benchDetails = [...opt.bench]
-      .sort((a, b) => getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW))
+      .sort(
+        (a, b) =>
+          getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW) ||
+          b.cost - a.cost ||
+          a.id - b.id
+      )
       .map((b) => ({
         name: b.webName,
         xp: getPoolPlayerGwXp(b, g, targetNextGW),
@@ -1825,7 +1874,13 @@ export function computeServerChipsAnalysis(params: {
     const baseStarterIds = new Set(baseAtG.starters.map((p) => p.id));
     const diffNames = fhAtG.starters
       .filter((p) => !baseStarterIds.has(p.id))
-      .sort((a, b) => getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW))
+      .sort(
+        (a, b) =>
+          getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW) ||
+          b.avgXp3 - a.avgXp3 ||
+          b.cost - a.cost ||
+          a.id - b.id
+      )
       .slice(0, 3)
       .map((p) => p.webName);
     return {
@@ -1867,7 +1922,13 @@ export function computeServerChipsAnalysis(params: {
     const diffStarters = diffStarterPlayers.length;
     const heldByFt = diffStarters <= ftAllowance;
     const keyAdditions = diffStarterPlayers
-      .sort((a, b) => getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW))
+      .sort(
+        (a, b) =>
+          getPoolPlayerGwXp(b, g, targetNextGW) - getPoolPlayerGwXp(a, g, targetNextGW) ||
+          b.avgXp3 - a.avgXp3 ||
+          b.cost - a.cost ||
+          a.id - b.id
+      )
       .slice(0, 3)
       .map((p) => p.webName);
 
@@ -1962,7 +2023,11 @@ export function computeServerChipsAnalysis(params: {
       bbComboCands.sort((a, b) => {
         const bbA = evalBbAtGw(a.squad15, a.squadKey, a.gw + 1).scheduleValue;
         const bbB = evalBbAtGw(b.squad15, b.squadKey, b.gw + 1).scheduleValue;
-        return b.discountedGain + bbB - (a.discountedGain + bbA) || a.gw - b.gw;
+        return (
+          b.discountedGain + bbB - (a.discountedGain + bbA) ||
+          a.gw - b.gw ||
+          (a.variant === b.variant ? 0 : a.variant === 'normal' ? -1 : 1)
+        );
       });
       const chosenBbCombo = bbComboCands.slice(0, 5);
       const targetBb = bbComboCands.find((x) => x.gw === targetNextGW);
@@ -1977,20 +2042,33 @@ export function computeServerChipsAnalysis(params: {
   let bestTotalScheduleValue = -Infinity;
   let bestCountPlaced = -1;
   let bestEarlinessScore = -Infinity;
+  let bestAssignSig = '';
 
   const usedGws = new Set<number>();
   const currentAssignment = new Map<ChipKey, ScheduledChipPlacement>();
 
+  const buildAssignmentSig = (map: Map<ChipKey, ScheduledChipPlacement>): string =>
+    (['WC', 'FH', 'BB', 'TC'] as const)
+      .map((k) => {
+        const item = map.get(k);
+        return item ? `${k}:${item.gw}:${item.wcVariant || ''}` : `${k}:-`;
+      })
+      .join('|');
+
   const recordIfBest = (sumVal: number, countPlaced: number, earliness: number) => {
+    const assignSig = buildAssignmentSig(currentAssignment);
     if (
       sumVal > bestTotalScheduleValue + 1e-6 ||
       (Math.abs(sumVal - bestTotalScheduleValue) <= 1e-6 &&
         (countPlaced > bestCountPlaced ||
-          (countPlaced === bestCountPlaced && earliness > bestEarlinessScore)))
+          (countPlaced === bestCountPlaced &&
+            (earliness > bestEarlinessScore ||
+              (earliness === bestEarlinessScore && (!bestAssignSig || assignSig.localeCompare(bestAssignSig) < 0))))))
     ) {
       bestTotalScheduleValue = sumVal;
       bestCountPlaced = countPlaced;
       bestEarlinessScore = earliness;
+      bestAssignSig = assignSig;
       bestAssignment = new Map(currentAssignment);
     }
   };
@@ -2431,12 +2509,12 @@ export function computeServerChipsAnalysis(params: {
     }
   }
 
-  rawChipParagraphs.sort((a, b) => a.sortGw - b.sortGw || a.peakGw - b.peakGw);
+  rawChipParagraphs.sort((a, b) => a.sortGw - b.sortGw || a.peakGw - b.peakGw || a.chipKey.localeCompare(b.chipKey));
   const chipParagraphs: ScoutEditorialParagraph[] = rawChipParagraphs.map(
     ({ chipKey, chipLead, text }) => ({ chipKey, chipLead, text })
   );
 
-  rawFutureChipSummaries.sort((a, b) => a.gw - b.gw);
+  rawFutureChipSummaries.sort((a, b) => a.gw - b.gw || a.label.localeCompare(b.label));
   const futureChipSummaries = rawFutureChipSummaries.map((item) => item.label);
 
   const joinNatural = (items: string[]) => {

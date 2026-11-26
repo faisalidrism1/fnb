@@ -286,6 +286,7 @@ function buildCausalTeamStrengthPrior(
   for (const short of clubShorts) {
     const clubPlayers = byClub[short] || [];
     const qual: Array<{
+      id: number;
       pos: string;
       mins: number;
       pts90: number;
@@ -298,6 +299,7 @@ function buildCausalTeamStrengthPrior(
       if (!ps || Number(ps.minutes || 0) < 600) continue;
       const mins = Number(ps.minutes || 0);
       qual.push({
+        id: p.id,
         pos: p.position,
         mins,
         pts90: (Number(ps.total_points || 0) / mins) * 90,
@@ -314,12 +316,12 @@ function buildCausalTeamStrengthPrior(
       rawAtt[short] = -0.25 + euroBonus;
       rawDef[short] = 0.24 - euroBonus * 0.8;
     } else {
-      const top12 = qual.toSorted((a, b) => b.mins - a.mins).slice(0, 12);
+      const top12 = qual.toSorted((a, b) => b.mins - a.mins || b.pts90 - a.pts90 || a.id - b.id).slice(0, 12);
       const avgPts90 = top12.reduce((s, q) => s + q.pts90, 0) / top12.length;
 
       const attGroup = qual
         .filter((q) => q.pos === 'MID' || q.pos === 'FWD')
-        .toSorted((a, b) => b.xgi90 - a.xgi90)
+        .toSorted((a, b) => b.xgi90 - a.xgi90 || b.mins - a.mins || a.id - b.id)
         .slice(0, 6);
       const avgAttXgi90 = attGroup.length > 0
         ? attGroup.reduce((s, q) => s + q.xgi90, 0) / attGroup.length
@@ -327,7 +329,7 @@ function buildCausalTeamStrengthPrior(
 
       const defGroup = qual
         .filter((q) => q.pos === 'DEF' || q.pos === 'GKP')
-        .toSorted((a, b) => b.cs90 - a.cs90)
+        .toSorted((a, b) => b.cs90 - a.cs90 || b.mins - a.mins || a.id - b.id)
         .slice(0, 5);
       const avgDefCs90 = defGroup.length > 0
         ? defGroup.reduce((s, q) => s + q.cs90, 0) / defGroup.length
@@ -550,7 +552,7 @@ export function fitCausalMatchScoreModel(
     cutoffMs = Number.MAX_SAFE_INTEGER,
   } = params;
 
-  const clubShorts = clubs.map((c) => c.short).filter(Boolean);
+  const clubShorts = clubs.map((c) => c.short).filter(Boolean).sort();
   const nC = clubShorts.length;
   const clubIdx = new Map<string, number>(clubShorts.map((s, i) => [s, i]));
   const { attPrior: rawAttPrior, defPrior: rawDefPrior } = buildCausalTeamStrengthPrior(
@@ -572,7 +574,12 @@ export function fitCausalMatchScoreModel(
   for (let gw = effMinGw; gw <= effTrainGw; gw++) {
     const ageGw = effTrainGw - gw;
     const decay = Math.exp((-Math.LN2 * ageGw) / STRUCT.halfLife);
-    const matches = eplMatchesByGw[gw] || [];
+    const matches = [...(eplMatchesByGw[gw] || [])].sort(
+      (a, b) =>
+        (Number(a?.id || 0) - Number(b?.id || 0)) ||
+        String(a?.home_team?.short_name || a?.hShort || '').localeCompare(String(b?.home_team?.short_name || b?.hShort || '')) ||
+        String(a?.away_team?.short_name || a?.aShort || '').localeCompare(String(b?.away_team?.short_name || b?.aShort || ''))
+    );
 
     for (const m of matches) {
       const hs = m?.home_team?.short_name || (typeof m?.home_team === 'string' ? m.home_team : m?.hShort);
@@ -661,7 +668,15 @@ export function fitCausalMatchScoreModel(
   // 3. Ingest causal finalized non-EPL match scores strictly before cutoffMs
   const seenNonEplPairs = new Set<string>();
   const halfLifeDays = STRUCT.halfLife * 7;
-  for (const rec of nonEplRecords) {
+  const sortedNonEplRecords = [...nonEplRecords].sort(
+    (a, b) =>
+      (a?.kickoffMs || 0) - (b?.kickoffMs || 0) ||
+      String(a?.clubShort || '').localeCompare(String(b?.clubShort || '')) ||
+      String(a?.oppShort || '').localeCompare(String(b?.oppShort || '')) ||
+      String(a?.compAbbr || '').localeCompare(String(b?.compAbbr || '')) ||
+      ((a?.isHome ? 0 : 1) - (b?.isHome ? 0 : 1))
+  );
+  for (const rec of sortedNonEplRecords) {
     if (!rec || rec.kickoffMs >= cutoffMs || !clubIdx.has(rec.clubShort)) continue;
     const ageDays = Math.max(0, (cutoffMs - rec.kickoffMs) / 86400_000);
     const decay = Math.exp((-Math.LN2 * ageDays) / halfLifeDays);
@@ -723,6 +738,17 @@ export function fitCausalMatchScoreModel(
     defPrior[i] = (rawDefPrior[clubShorts[i]] || 0) * STRUCT.priorScale * 0.90;
   }
 
+  // Canonicalize observation order so GLM float sums and Elo updates are 100% input-order invariant
+  obs.sort(
+    (a, b) =>
+      a.kickoffMs - b.kickoffMs ||
+      a.h - b.h ||
+      a.a - b.a ||
+      a.rawH - b.rawH ||
+      a.rawA - b.rawA ||
+      (a.hasOpp === b.hasOpp ? 0 : a.hasOpp ? -1 : 1)
+  );
+
   // S1: Time-decay Poisson Ridge GLM
   const s1 = solvePoissonGlm(nC, obs, attPrior, defPrior, muPrior, haPrior, STRUCT.l2, false);
 
@@ -736,7 +762,7 @@ export function fitCausalMatchScoreModel(
     eloAtt[i] = attPrior[i] * STRUCT.eloPriorW;
     eloDef[i] = defPrior[i] * STRUCT.eloPriorW;
   }
-  const chronoObs = obs.toSorted((a, b) => a.kickoffMs - b.kickoffMs);
+  const chronoObs = obs;
   for (const o of chronoObs) {
     if (!o.hasOpp) continue;
     const pH = Math.exp(clamp(muPrior + haPrior * 0.5 + eloAtt[o.h] + eloDef[o.a], -2.2, 2.2));
@@ -1077,7 +1103,15 @@ function selectScoreAndSummarize(mat: number[][]): {
         csRewardA -
         totalGoalReward * 0.08;
 
-      if (risk < bestRisk) {
+      const isBetter =
+        risk < bestRisk ||
+        (risk === bestRisk &&
+          (Math.abs(gh + ga - (lambdaH + lambdaA)) < Math.abs(bestH + bestA - (lambdaH + lambdaA)) ||
+            (Math.abs(gh + ga - (lambdaH + lambdaA)) === Math.abs(bestH + bestA - (lambdaH + lambdaA)) &&
+              (mat[gh][ga] > mat[bestH][bestA] ||
+                (mat[gh][ga] === mat[bestH][bestA] && gh * 10 + ga < bestH * 10 + bestA)))));
+
+      if (isBetter) {
         bestRisk = risk;
         bestH = gh;
         bestA = ga;
@@ -1419,10 +1453,18 @@ function solveMinCostAssignment(cost: number[][]): number[] {
  */
 export function assignStableV2SlateScores(
   state: StableV2ScoreState,
-  items: StableV2SlateInput[]
+  rawItems: StableV2SlateInput[]
 ): void {
-  const m = items.length;
+  const m = rawItems.length;
   if (m === 0) return;
+
+  // Canonical alphabetical club-pair sort guarantees identical Hungarian & residual order regardless of input array order
+  const items = [...rawItems].sort(
+    (a, b) =>
+      a.homeShort.localeCompare(b.homeShort) ||
+      a.awayShort.localeCompare(b.awayShort) ||
+      a.dist - b.dist
+  );
 
   const isFutureHorizon = items.some((it) => it.dist > 0);
   const dirs = new Array<'H' | 'D' | 'A'>(m);

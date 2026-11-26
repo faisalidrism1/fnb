@@ -129,7 +129,13 @@ interface PlayerHistoryProfile {
  */
 export function extractHistoryProfile(p: ScoutNarrativeInput): PlayerHistoryProfile {
   const isDefOrGkp = p.position === 'DEF' || p.position === 'GKP';
-  const hist = (p.gwHistory || []).toSorted((a, b) => (a.round || 0) - (b.round || 0));
+  const hist = [...(p.gwHistory || [])].sort(
+    (a: any, b: any) =>
+      Number(a?.round || 0) - Number(b?.round || 0) ||
+      Number(a?.fixture || 0) - Number(b?.fixture || 0) ||
+      Number(a?.points || 0) - Number(b?.points || 0) ||
+      Number(a?.minutes || 0) - Number(b?.minutes || 0)
+  );
   const hasRawCs = p.cleanSheets !== undefined || (p as any).clean_sheets !== undefined;
   const rawCs = Number(p.cleanSheets ?? (p as any).clean_sheets ?? 0);
   const goalPtsUnit = isDefOrGkp ? 6 : p.position === 'MID' ? 5 : 4;
@@ -353,7 +359,7 @@ export function buildLeagueStatRankMap(players: ScoutNarrativeInput[]): Map<numb
   const defCohort = cohort.filter((c) => c.isDef);
 
   const computeRanks = <T extends { id: number }>(items: T[], val: (item: T) => number): Map<number, number> => {
-    const sorted = items.toSorted((a, b) => val(b) - val(a));
+    const sorted = items.toSorted((a, b) => val(b) - val(a) || a.id - b.id);
     const out = new Map<number, number>();
     let prevVal = Infinity;
     let prevRank = 1;
@@ -636,7 +642,7 @@ function analyzePlayerTraits(
   scoredTraits.sort((a, b) => {
     const penA = (usedTraitCounts?.get(a.trait) || 0) * 6;
     const penB = (usedTraitCounts?.get(b.trait) || 0) * 6;
-    return (b.priority - penB) - (a.priority - penA);
+    return (b.priority - penB) - (a.priority - penA) || b.priority - a.priority || a.trait.localeCompare(b.trait);
   });
 
   const primaryTrait = scoredTraits[0]?.trait || (isDef ? 'DEFCON_GUARDIAN' : 'STEADY_SCORER');

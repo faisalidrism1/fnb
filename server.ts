@@ -461,15 +461,19 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
 
       console.log(`[Server] FPL API & DB schema sync (${action}) completed successfully at`, new Date().toISOString());
 
-      // Broadcast fresh data to all active clients immediately via Server-Sent Events (SSE)
-      broadcastSyncComplete(freshData, action);
-
       // Strict Epoch Sync Rule: ONLY invalidate/warm Projection/Review/Scout caches on:
       //   1. Cold Start / Action A full download
-      //   2. Epoch shift (Live -> Provisional OR Provisional -> Confirmed)
+      //   2. Epoch shift (Live -> Provisional, Provisional -> Confirmed, or input digest shift)
       // During ongoing Live auto-sync ticks (prevEpochKey === nextEpochKey), do ZERO invalidation or recompute!
       const engineForEpoch = getProjectionEngine();
       const nextEpochKey = engineForEpoch.computeProjectionEpochInfo(cachedData).epochKey;
+      if (cachedData?.sync_status) {
+        cachedData.sync_status.projection_epoch_key = nextEpochKey;
+      }
+      if (freshData?.sync_status) {
+        freshData.sync_status.projection_epoch_key = nextEpochKey;
+      }
+
       const shouldWarmProjections =
         action === 'A_FULL' ||
         !engineForEpoch.hasProjectionCoreCache() ||
@@ -486,6 +490,9 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
           prewarmMatchesCache(freshData.current_gw || getCurrentGw()).catch(() => {});
         }, 100);
       }
+
+      // Broadcast fresh data to all active clients immediately via Server-Sent Events (SSE)
+      broadcastSyncComplete(freshData, action);
 
       return freshData;
 
@@ -2482,22 +2489,38 @@ async function startServer() {
       prewarmShirtCache().catch(() => {});
       Promise.all([dbReadyPromise, getDevProjectionEngine()]).then(([, engine]) => {
         const allCompStatus = getPulseAllCompDbStatus();
-        if (allCompStatus.scheduleTotalFixtures === 0 || allCompStatus.unfinalizedCompletedCount > 0) {
-          syncPulseAllCompDatabase().catch((err: any) => {
-            console.warn('[Server] Background PulseAllCompDB warm failed:', err?.message || err);
-          });
-        }
+        const allCompPromise =
+          allCompStatus.scheduleTotalFixtures === 0 || allCompStatus.unfinalizedCompletedCount > 0
+            ? syncPulseAllCompDatabase()
+                .then(() => {
+                  if (!cachedData) return;
+                  const postAcEpoch = engine.computeProjectionEpochInfo(cachedData).epochKey;
+                  const cachedEpoch = engine.getProjectionCacheEpochKey();
+                  if (cachedData.sync_status) {
+                    cachedData.sync_status.projection_epoch_key = postAcEpoch;
+                  }
+                  if (cachedEpoch && cachedEpoch !== postAcEpoch) {
+                    engine.invalidateProjectionEngine(`Startup PulseAllCompDB sync shifted epoch (${cachedEpoch} -> ${postAcEpoch})`);
+                    engine.warmProjectionEngineIfNeeded(cachedData);
+                  }
+                })
+                .catch((err: any) => {
+                  console.warn('[Server] Background PulseAllCompDB warm failed:', err?.message || err);
+                })
+            : Promise.resolve();
+
         const runWarm = () => {
           if (cachedData) {
+            if (cachedData.sync_status) {
+              cachedData.sync_status.projection_epoch_key = engine.computeProjectionEpochInfo(cachedData).epochKey;
+            }
             engine.warmProjectionEngineIfNeeded(cachedData);
           }
         };
         if (cachedData?.current_gw) {
-          prewarmMatchesCache(cachedData.current_gw)
-            .catch(() => {})
-            .finally(runWarm);
+          Promise.all([prewarmMatchesCache(cachedData.current_gw).catch(() => {}), allCompPromise]).finally(runWarm);
         } else if (cachedData) {
-          runWarm();
+          allCompPromise.finally(runWarm);
         }
       });
     }, 50);

@@ -417,7 +417,7 @@ export function getTransformedLeagueDataFromDb(): TransformedLeagueData | null {
     captain_players,
     captain_clubs,
     all_chips_used: fplDb.league_analytics?.all_chips_used || [],
-    player_stats: Object.values(fplDb.players || {})
+    player_stats: Object.values(fplDb.players || {}).sort((a: any, b: any) => (a.id || 0) - (b.id || 0))
   };
 }
 

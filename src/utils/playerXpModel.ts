@@ -970,7 +970,15 @@ export function buildCrossCompIndex(sides: NonEplClubSideRecord[]): CrossCompInd
     byClub.set(s.clubShort, list);
   }
   for (const list of byClub.values()) {
-    list.sort((a, b) => a.kickoffMs - b.kickoffMs);
+    list.sort(
+      (a, b) =>
+        a.kickoffMs - b.kickoffMs ||
+        a.clubShort.localeCompare(b.clubShort) ||
+        (a.compAbbr || '').localeCompare(b.compAbbr || '') ||
+        Array.from(a.starterIds).sort((x, y) => x - y).join(',').localeCompare(
+          Array.from(b.starterIds).sort((x, y) => x - y).join(',')
+        )
+    );
   }
   return { byClub };
 }
@@ -1060,7 +1068,14 @@ function summarizePlayerCausalHistory(
   histRecTau: number = DEFAULT_STAGE3_TUNING.histRecTau
 ): Map<number, PlayerHistorySummary> {
   const byPlayer = new Map<number, PlayerHistorySummary>();
-  const sorted = historyBeforeGw.toSorted((a, b) => a.gw - b.gw || a.kickoffMs - b.kickoffMs);
+  const sorted = historyBeforeGw.toSorted(
+    (a, b) =>
+      a.gw - b.gw ||
+      a.kickoffMs - b.kickoffMs ||
+      a.playerId - b.playerId ||
+      a.oppShort.localeCompare(b.oppShort) ||
+      (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+  );
 
   for (const r of sorted) {
     let s = byPlayer.get(r.playerId);
@@ -1944,9 +1959,11 @@ export function evaluateFixtureStage3Xp(params: {
     tuning = DEFAULT_STAGE3_TUNING,
   } = params;
   const priors = models.priors;
+  const sortedHomePlayers = [...homePlayers].sort((a, b) => a.playerId - b.playerId);
+  const sortedAwayPlayers = [...awayPlayers].sort((a, b) => a.playerId - b.playerId);
 
   const hSide = computeFixtureSideModels({
-    players: homePlayers,
+    players: sortedHomePlayers,
     teamLambda: fixture.homeLambda,
     oppLambda: fixture.awayLambda,
     winProb: fixture.homeWinProb,
@@ -1958,7 +1975,7 @@ export function evaluateFixtureStage3Xp(params: {
     tuning,
   });
   const aSide = computeFixtureSideModels({
-    players: awayPlayers,
+    players: sortedAwayPlayers,
     teamLambda: fixture.awayLambda,
     oppLambda: fixture.homeLambda,
     winProb: fixture.awayWinProb,
@@ -2184,7 +2201,7 @@ export function evaluateFixtureStage3Xp(params: {
     allocateSideGoalsAndAssists(aGoalsTotal, hSide.length, N, aGoalW, aAstW, aGoalWActive, aAstWActive);
 
     // 3. Official Opta BPS Tournament with Tie-Breaks [3, 2, 1]
-    orderIdx.sort((a, b) => iterBps[b] - iterBps[a]);
+    orderIdx.sort((a, b) => iterBps[b] - iterBps[a] || allMatchEntries[a].player.playerId - allMatchEntries[b].player.playerId);
     let idx = 0;
     let rankPtsAvail = 3;
     while (idx < N && rankPtsAvail >= 1 && iterBps[orderIdx[idx]] > -500) {
@@ -2520,16 +2537,17 @@ export async function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineI
   const effMinHistGw = Math.max(1, Math.floor(minHistoricalGw));
   const effMaxHistGw = Math.max(0, Math.min(baseHistoricalGW, targetNextGW - 1));
 
+  const canonicalPlayers = [...allPlayers].sort((a, b) => (a.id || 0) - (b.id || 0));
   const allPlayersByClub = new Map<string, DbPlayerStat[]>();
   const playerById = new Map<number, DbPlayerStat>();
-  for (const p of allPlayers) {
+  for (const p of canonicalPlayers) {
     playerById.set(p.id, p);
     if (!allPlayersByClub.has(p.teamShort)) allPlayersByClub.set(p.teamShort, []);
     allPlayersByClub.get(p.teamShort)!.push(p);
   }
 
   const allAppearances = extractHistoricalAppearances(
-    allPlayers,
+    canonicalPlayers,
     historicalMatchesForStats,
     precalcPlayers,
     playerPosSeed,
@@ -2551,7 +2569,7 @@ export async function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineI
 
   // Output map: playerId -> gw -> Stage3FixturePlayerCell[]
   const playerGwMatchesMap = new Map<number, Map<number, Stage3FixturePlayerCell[]>>();
-  for (const p of allPlayers) {
+  for (const p of canonicalPlayers) {
     playerGwMatchesMap.set(p.id, new Map());
   }
 
@@ -2675,14 +2693,14 @@ export async function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineI
 
   // Initialize models on GW 1 priors (pastSeason + structural priors, zero leakage)
   let currentModels = createInitialStage3Models(
-    learnCausalStage3Priors([], allPlayers, pastSeasonMap, playerPosSeed, tuning)
+    learnCausalStage3Priors([], canonicalPlayers, pastSeasonMap, playerPosSeed, tuning)
   );
 
   // 1. CAUSAL WALK-FORWARD ACROSS HISTORICAL GWs (effMinHistGw..effMaxHistGw)
   for (let gw = effMinHistGw; gw <= effMaxHistGw; gw++) {
     await yieldStage3Loop();
     const historyBeforeGw = allAppearances.filter((a) => a.gw >= effMinHistGw && a.gw < gw);
-    const priors = learnCausalStage3Priors(historyBeforeGw, allPlayers, pastSeasonMap, playerPosSeed, tuning);
+    const priors = learnCausalStage3Priors(historyBeforeGw, canonicalPlayers, pastSeasonMap, playerPosSeed, tuning);
     const { globalK: causalGlobalK, posK: causalPosK } = computeCausalXiCalib(gw);
 
     if (gw >= 3 && xminSamples.length >= 24) {
@@ -2709,7 +2727,12 @@ export async function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineI
       lastMinsByPlayer.set(pid, hs.lastMins);
     }
 
-    const gwSchedule = scheduleByGw[gw] || [];
+    const gwSchedule = [...(scheduleByGw[gw] || [])].sort(
+      (a, b) =>
+        (Number(a?.id || 0) - Number(b?.id || 0)) ||
+        String(a?.home_team?.short_name || '').localeCompare(String(b?.home_team?.short_name || '')) ||
+        String(a?.away_team?.short_name || '').localeCompare(String(b?.away_team?.short_name || ''))
+    );
     const seenFixtures = new Set<string>();
 
     for (const m of gwSchedule) {
@@ -3028,7 +3051,12 @@ export async function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineI
   // Track club fixture counts per future GW for gentle DGW fatigue scaling
   for (let gw = targetNextGW; gw <= 38; gw++) {
     await yieldStage3Loop();
-    const gwSchedule = scheduleByGw[gw] || [];
+    const gwSchedule = [...(scheduleByGw[gw] || [])].sort(
+      (a, b) =>
+        (Number(a?.id || 0) - Number(b?.id || 0)) ||
+        String(a?.home_team?.short_name || '').localeCompare(String(b?.home_team?.short_name || '')) ||
+        String(a?.away_team?.short_name || '').localeCompare(String(b?.away_team?.short_name || ''))
+    );
     const seenFixtures = new Set<string>();
     const clubGwFixCount = new Map<string, number>();
     for (const m of gwSchedule) {
@@ -3219,11 +3247,11 @@ export async function runFullSeasonStage3ProjectionEngine(input: Stage3PipelineI
         } else {
           const bestGkp = candidateSpecs
             .filter((c) => c.pos === 'GKP' && !c.gwIsOut)
-            .sort((a, b) => b.gwSiProb - a.gwSiProb)[0];
+            .sort((a, b) => b.gwSiProb - a.gwSiProb || b.rawSi - a.rawSi || b.p.nowCost - a.p.nowCost || a.p.id - b.p.id)[0];
           if (bestGkp) futureStarterIds.add(bestGkp.p.id);
           const outfields = candidateSpecs
             .filter((c) => c.pos !== 'GKP' && !c.gwIsOut)
-            .sort((a, b) => b.gwSiProb - a.gwSiProb)
+            .sort((a, b) => b.gwSiProb - a.gwSiProb || b.rawSi - a.rawSi || b.p.nowCost - a.p.nowCost || a.p.id - b.p.id)
             .slice(0, 10);
           for (const c of outfields) futureStarterIds.add(c.p.id);
         }

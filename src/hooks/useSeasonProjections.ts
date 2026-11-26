@@ -155,10 +155,6 @@ export function useSeasonProjections({
         Array.isArray(cachedCore.allPlayerFullSeasonProjections) &&
         isEpochCompatible(cachedCore.epochKey, epochInfo.epochKey)
       ) {
-        if (cachedCore.epochKey === epochInfo.epochKey && hasFullServerEpochKey(epochInfo.epochKey)) {
-          verifiedCoreEpochRef.current = epochInfo.epochKey;
-          verifiedCoreServerEpochRef.current = cachedCore.epochKey;
-        }
         setCorePayload((prev) => prev || cachedCore);
       }
 
@@ -174,10 +170,6 @@ export function useSeasonProjections({
         Array.isArray(cachedScout.differentialPicksAll?.id) &&
         isEpochCompatible(cachedScout.epochKey, epochInfo.epochKey)
       ) {
-        if (cachedScout.epochKey === epochInfo.epochKey && hasFullServerEpochKey(epochInfo.epochKey)) {
-          verifiedScoutEpochRef.current = epochInfo.epochKey;
-          verifiedScoutServerEpochRef.current = cachedScout.epochKey;
-        }
         setScoutSquadsPayload((prev) => prev || cachedScout);
       }
       setIdbHydrated(true);
@@ -240,16 +232,6 @@ export function useSeasonProjections({
       // Formula/epoch changed or rolled back: discard stale cached projections immediately
       setCorePayload(null);
       clearProjectionCachesFromIndexedDB().catch(() => {});
-    }
-
-    if (
-      coreMatches &&
-      formulaRevision === 0 &&
-      corePayload?.epochKey === epochInfo.epochKey &&
-      hasFullServerEpochKey(epochInfo.epochKey)
-    ) {
-      verifiedCoreEpochRef.current = epochInfo.epochKey;
-      verifiedCoreServerEpochRef.current = corePayload.epochKey;
     }
 
     const alreadyVerified = verifiedCoreEpochRef.current === epochInfo.epochKey;
@@ -324,16 +306,6 @@ export function useSeasonProjections({
     if (scoutSquadsPayload && !scoutMatches) {
       // Formula/epoch changed or rolled back: discard stale cached scout squads immediately
       setScoutSquadsPayload(null);
-    }
-
-    if (
-      scoutMatches &&
-      formulaRevision === 0 &&
-      scoutSquadsPayload?.epochKey === epochInfo.epochKey &&
-      hasFullServerEpochKey(epochInfo.epochKey)
-    ) {
-      verifiedScoutEpochRef.current = epochInfo.epochKey;
-      verifiedScoutServerEpochRef.current = scoutSquadsPayload.epochKey;
     }
 
     const alreadyVerified = verifiedScoutEpochRef.current === epochInfo.epochKey;

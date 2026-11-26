@@ -342,6 +342,7 @@ export function solveScoutSquadForGwMode(params: {
     };
   }
 
+  const canonicalPlayers = [...players].sort((a, b) => a.id - b.id);
   const effectiveMaxGwCap = calibrationMode ? Math.min(maxGwCap, targetNextGW - 1) : maxGwCap;
   const wcEndGw = Math.min(effectiveMaxGwCap, targetGw + Math.max(1, wcHorizonLen) - 1);
   const utilCache = new Map<number, number>();
@@ -350,7 +351,7 @@ export function solveScoutSquadForGwMode(params: {
   const pStartCache = new Map<number, number>();
   const xMinCache = new Map<number, number>();
 
-  for (const p of players) {
+  for (const p of canonicalPlayers) {
     const u1 = computePlayerUtilityAtGw(p, targetGw, targetNextGW, modeCfg);
     let sumU = 0;
     let sumRaw = 0;
@@ -378,7 +379,7 @@ export function solveScoutSquadForGwMode(params: {
   const getXMin = (p: ScoutModelPlayerInput) => xMinCache.get(p.id) ?? 0;
 
   // Strictly causal Stage 1 / Stage 3 eligibility gates (zero cumulative season minutes hardcoding!)
-  const fitCandidates = players.filter((p) =>
+  const fitCandidates = canonicalPlayers.filter((p) =>
     isScoutPlayerEligibleAtGw({
       player: p,
       gw: targetGw,
@@ -387,7 +388,7 @@ export function solveScoutSquadForGwMode(params: {
       minXMin: 25,
     })
   );
-  const backupCandidates = players.filter((p) => {
+  const backupCandidates = canonicalPlayers.filter((p) => {
     const c = getCellAtGw(p, targetGw, targetNextGW);
     if (targetGw >= targetNextGW && (p.status === 'i' || p.status === 's' || p.status === 'u')) {
       return false;
@@ -409,13 +410,18 @@ export function solveScoutSquadForGwMode(params: {
   for (const pos of POSITIONS_ORDER) {
     const primary = fitCandidates.filter((p) => p.position === pos);
     const source = primary.length >= 6 ? primary : backupCandidates.filter((p) => p.position === pos);
-    const fallback = source.length >= 5 ? source : players.filter((p) => p.position === pos);
+    const fallback = source.length >= 5 ? source : canonicalPlayers.filter((p) => p.position === pos);
 
     const topUtil = fallback
-      .toSorted((a, b) => getUtil(b) - getUtil(a) || getTie(b) - getTie(a) || a.cost - b.cost)
+      .toSorted((a, b) => getUtil(b) - getUtil(a) || getTie(b) - getTie(a) || a.cost - b.cost || a.id - b.id)
       .slice(0, topN);
     const topValue = fallback
-      .toSorted((a, b) => getUtil(b) / Math.max(b.cost, 3.8) - getUtil(a) / Math.max(a.cost, 3.8))
+      .toSorted(
+        (a, b) =>
+          getUtil(b) / Math.max(b.cost, 3.8) - getUtil(a) / Math.max(a.cost, 3.8) ||
+          getUtil(b) - getUtil(a) ||
+          a.id - b.id
+      )
       .slice(0, valN);
     const cheapPlaying = fallback
       .filter((p) => {
@@ -425,10 +431,10 @@ export function solveScoutSquadForGwMode(params: {
         }
         return getPStart(p) >= 0.40 || getXMin(p) >= 35;
       })
-      .toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a))
+      .toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a) || a.id - b.id)
       .slice(0, cheapN);
     const ultraCheap = fallback
-      .toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a))
+      .toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a) || a.id - b.id)
       .slice(0, cheapN);
     const bbValueExtras =
       bbSetupGw !== undefined && !isFH
@@ -440,7 +446,7 @@ export function solveScoutSquadForGwMode(params: {
             .toSorted((a, b) => {
               const ca = getCellAtGw(a, bbSetupGw, targetNextGW).xp / Math.max(a.cost, 3.8);
               const cb = getCellAtGw(b, bbSetupGw, targetNextGW).xp / Math.max(b.cost, 3.8);
-              return cb - ca;
+              return cb - ca || a.id - b.id;
             })
             .slice(0, 6)
         : [];
@@ -449,11 +455,15 @@ export function solveScoutSquadForGwMode(params: {
     for (const item of [...topUtil, ...topValue, ...cheapPlaying, ...ultraCheap, ...bbValueExtras]) {
       merged.set(item.id, item);
     }
-    posPool[pos] = Array.from(merged.values());
+    posPool[pos] = Array.from(merged.values()).sort((a, b) => a.id - b.id);
   }
 
   const clubIdxMap = new Map<string, number>();
   let nextClubIdx = 0;
+  const allClubShortsSorted = Array.from(new Set(canonicalPlayers.map((p) => p.teamShort).filter(Boolean))).sort();
+  for (const cs of allClubShortsSorted) {
+    clubIdxMap.set(cs, nextClubIdx++);
+  }
   const getClubIdx = (teamShort: string) => {
     let idx = clubIdxMap.get(teamShort);
     if (idx === undefined) {
@@ -501,8 +511,8 @@ export function solveScoutSquadForGwMode(params: {
       metaById.set(p.id, m);
       return m;
     });
-    posPoolByXpOnly[pIdx] = metas.toSorted((a, b) => b.xp - a.xp);
-    posPoolMeta[pIdx] = metas.toSorted((a, b) => b.xp - a.xp || b.tie - a.tie);
+    posPoolByXpOnly[pIdx] = metas.toSorted((a, b) => b.xp - a.xp || a.id - b.id);
+    posPoolMeta[pIdx] = metas.toSorted((a, b) => b.xp - a.xp || b.tie - a.tie || a.id - b.id);
   }
   const numClubs = Math.max(nextClubIdx, 1);
 
@@ -510,7 +520,7 @@ export function solveScoutSquadForGwMode(params: {
     xiCost <= MAX_XI_BUDGET + 0.001 && cost <= MAX_SQUAD_BUDGET + 0.001;
   const calcBudgetExcessNums = (xiCost: number, cost: number) =>
     Math.max(0, xiCost - MAX_XI_BUDGET) + Math.max(0, cost - MAX_SQUAD_BUDGET);
-  const cmpMeta = (a: PoolMeta, b: PoolMeta) => (b.xp !== a.xp ? b.xp - a.xp : b.tie - a.tie);
+  const cmpMeta = (a: PoolMeta, b: PoolMeta) => (b.xp !== a.xp ? b.xp - a.xp : b.tie !== a.tie ? b.tie - a.tie : a.id - b.id);
 
   const scratchArr1: PoolMeta[] = new Array(5);
   const scratchArr2: PoolMeta[] = new Array(5);
@@ -712,7 +722,10 @@ export function solveScoutSquadForGwMode(params: {
             if (reduction <= 0.001) continue;
             const nextObj = otherXiXp + rep.sXp + benchWeight * (otherBenchXp + rep.bXp);
             const lossPerReduction = (baseTot.obj - nextObj) / reduction;
-            if (lossPerReduction < bestLossPerReduction) {
+            if (
+              lossPerReduction < bestLossPerReduction ||
+              (lossPerReduction === bestLossPerReduction && (!bestIn || inM.id < bestIn.id))
+            ) {
               bestLossPerReduction = lossPerReduction;
               bestPos = posIdx;
               bestSlot = slotIdx;
@@ -933,7 +946,7 @@ export function solveScoutSquadForGwMode(params: {
       ...groups[2].slice(mCount),
       ...groups[3].slice(fCount),
     ]
-      .sort((a, b) => b.xp - a.xp)
+      .sort((a, b) => b.xp - a.xp || b.tie - a.tie || a.id - b.id)
       .map((m) => m.id);
     const benchIds: number[] = groups[0][1] ? [groups[0][1].id, ...benchOut] : benchOut;
 
@@ -959,7 +972,7 @@ export function solveScoutSquadForGwMode(params: {
       ['FWD', 3],
     ];
     for (const [pos, need] of quotas) {
-      const list = posPool[pos].toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a));
+      const list = posPool[pos].toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a) || a.id - b.id);
       let taken = 0;
       for (const p of list) {
         if (taken >= need) break;
@@ -994,7 +1007,7 @@ export function solveScoutSquadForGwMode(params: {
       ['FWD', fCount],
     ];
     for (const [pos, need] of starterQuotas) {
-      const list = posPool[pos].toSorted((a, b) => getUtil(b) - getUtil(a) || a.cost - b.cost);
+      const list = posPool[pos].toSorted((a, b) => getUtil(b) - getUtil(a) || a.cost - b.cost || a.id - b.id);
       let taken = 0;
       for (const p of list) {
         if (taken >= need) break;
@@ -1009,7 +1022,7 @@ export function solveScoutSquadForGwMode(params: {
     ];
     for (const [pos, need] of benchQuotas) {
       if (need <= 0) continue;
-      const list = posPool[pos].toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a));
+      const list = posPool[pos].toSorted((a, b) => a.cost - b.cost || getUtil(b) - getUtil(a) || a.id - b.id);
       let taken = 0;
       for (const p of list) {
         if (taken >= need) break;
@@ -1023,17 +1036,30 @@ export function solveScoutSquadForGwMode(params: {
   let bestOverall: ReturnType<typeof optimizeForFormation> = null;
   const evalFormations = calibrationMode ? FORMATIONS.slice(0, 5) : FORMATIONS;
 
+  const isBetterSquadRes = (
+    res: NonNullable<ReturnType<typeof optimizeForFormation>>,
+    best: NonNullable<ReturnType<typeof optimizeForFormation>>
+  ): boolean => {
+    if (res.obj > best.obj + 1e-6) return true;
+    if (res.obj < best.obj - 1e-6) return false;
+    if (res.xiXp > best.xiXp + 1e-6) return true;
+    if (res.xiXp < best.xiXp - 1e-6) return false;
+    if (res.cost < best.cost - 1e-6) return true;
+    if (res.cost > best.cost + 1e-6) return false;
+    const fCmp = res.formation.localeCompare(best.formation);
+    if (fCmp !== 0) return fCmp < 0;
+    const sigA = res.starterIds.toSorted((a, b) => a - b).join(',');
+    const sigB = best.starterIds.toSorted((a, b) => a - b).join(',');
+    return sigA.localeCompare(sigB) < 0;
+  };
+
   for (const [dCount, mCount, fCount] of evalFormations) {
     const seeds = calibrationMode ? [cheapSeed] : [cheapSeed, buildTopDownSeed(dCount, mCount, fCount)];
     for (const seed of seeds) {
       if (seed.length !== 15) continue;
       const res = optimizeForFormation(seed, dCount, mCount, fCount);
       if (!res) continue;
-      if (
-        !bestOverall ||
-        res.obj > bestOverall.obj + 1e-6 ||
-        (Math.abs(res.obj - bestOverall.obj) <= 1e-6 && res.xiXp > bestOverall.xiXp)
-      ) {
+      if (!bestOverall || isBetterSquadRes(res, bestOverall)) {
         bestOverall = res;
       }
     }
@@ -1264,8 +1290,13 @@ export function buildScoutTransferPrecomputedContext(params: {
   const effHorizonCount = Math.max(1, Math.min(horizonCount, maxAllowedHorizonGw - startGw + 1));
   const horizonEndGw = Math.min(maxAllowedHorizonGw, startGw + effHorizonCount - 1);
 
+  const canonicalPlayers = [...players].sort((a, b) => a.id - b.id);
   const clubIdxMap = new Map<string, number>();
   let nextClubIdx = 0;
+  const sortedClubShorts = Array.from(new Set(canonicalPlayers.map((p) => p.teamShort).filter(Boolean))).sort();
+  for (const s of sortedClubShorts) {
+    clubIdxMap.set(s, nextClubIdx++);
+  }
   const getClubIdx = (short: string) => {
     let idx = clubIdxMap.get(short);
     if (idx === undefined) {
@@ -1284,7 +1315,7 @@ export function buildScoutTransferPrecomputedContext(params: {
     FWD: [],
   };
 
-  for (const p of players) {
+  for (const p of canonicalPlayers) {
     playerById.set(p.id, p);
     const c1 = getCellAtGw(p, startGw, targetNextGW);
     const isOutStatus =
@@ -1358,12 +1389,12 @@ export function buildScoutTransferPrecomputedContext(params: {
   for (const pos of POSITIONS_ORDER) {
     const arr = fitPosAll[pos];
     fitByUtil[pos] = arr.toSorted(
-      (a, b) => b.utilityH - a.utilityH || b.effXpH - a.effXpH || b.effXp1 - a.effXp1
+      (a, b) => b.utilityH - a.utilityH || b.effXpH - a.effXpH || b.effXp1 - a.effXp1 || a.id - b.id
     );
     const maxCost = pos === 'FWD' ? 6.0 : pos === 'MID' ? 5.5 : 4.6;
     fitEnablers[pos] = arr
       .filter((e) => e.cost <= maxCost && e.pStart1 >= 0.6)
-      .sort((a, b) => b.utilityH / Math.max(b.cost, 4) - a.utilityH / Math.max(a.cost, 4));
+      .sort((a, b) => b.utilityH / Math.max(b.cost, 4) - a.utilityH / Math.max(a.cost, 4) || b.utilityH - a.utilityH || a.id - b.id);
   }
 
   return { playerById, effById, clubIdxMap, fitByUtil, fitEnablers };
@@ -1442,7 +1473,7 @@ export function runScoutTransferSearch(params: {
     }
 
     const byUtil = (a: ScoutTransferPlayerEff, b: ScoutTransferPlayerEff) =>
-      b.utilityH - a.utilityH || b.effXpH - a.effXpH || b.effXp1 - a.effXp1;
+      b.utilityH - a.utilityH || b.effXpH - a.effXpH || b.effXp1 - a.effXp1 || a.id - b.id;
     gkps.sort(byUtil);
     defs.sort(byUtil);
     mids.sort(byUtil);
@@ -1612,6 +1643,21 @@ export function runScoutTransferSearch(params: {
     meetsHitGuard: boolean;
   }
 
+  const movesSig = (s: SearchState): string =>
+    s.moves
+      .map((m) => `${m.outId}>${m.inId}`)
+      .sort()
+      .join('|');
+
+  const compareSearchStates = (a: SearchState, b: SearchState): number =>
+    b.netDecisionScore - a.netDecisionScore ||
+    a.hitCount - b.hitCount ||
+    a.moves.length - b.moves.length ||
+    b.xi.xiXpH - a.xi.xiXpH ||
+    b.xi.xiXp1 - a.xi.xiXp1 ||
+    b.bank - a.bank ||
+    movesSig(a).localeCompare(movesSig(b));
+
   const p9PolicyThresholds = {
     minNetNonMid: hPolicy.p9MinNetNonMid,
     minNetMid: hPolicy.p9MinNetMid,
@@ -1649,7 +1695,7 @@ export function runScoutTransferSearch(params: {
     let p9HitViable = true;
     if (hitCount > 0) {
       const rankedByGain1 = moves.toSorted(
-        (a, b) => (b.effXp1In - b.effXp1Out) - (a.effXp1In - a.effXp1Out)
+        (a, b) => (b.effXp1In - b.effXp1Out) - (a.effXp1In - a.effXp1Out) || a.outId - b.outId || a.inId - b.inId
       );
       const hitMoves = rankedByGain1.slice(ftUsed);
       for (const hm of hitMoves) {
@@ -1740,7 +1786,8 @@ export function runScoutTransferSearch(params: {
         .toSorted(
           (a, b) =>
             Number(getEff(b)?.isBroken || 0) - Number(getEff(a)?.isBroken || 0) ||
-            (getEff(a)?.utilityH || 0) - (getEff(b)?.utilityH || 0)
+            (getEff(a)?.utilityH || 0) - (getEff(b)?.utilityH || 0) ||
+            a - b
         );
       const outCandidates = depth > ftAllowance + 2 ? outOrder.slice(0, 8) : outOrder;
 
@@ -1786,7 +1833,7 @@ export function runScoutTransferSearch(params: {
 
           const key = newSquadIds.toSorted((a, b) => a - b).join(',');
           const existing = nextMap.get(key);
-          if (!existing || evaluated.netDecisionScore > existing.netDecisionScore) {
+          if (!existing || compareSearchStates(evaluated, existing) < 0) {
             nextMap.set(key, evaluated);
           }
         }
@@ -1802,10 +1849,12 @@ export function runScoutTransferSearch(params: {
       }
     }
 
-    const byScore = layerStates.toSorted((a, b) => b.netDecisionScore - a.netDecisionScore).slice(0, beamWidth);
+    const byScore = layerStates
+      .toSorted(compareSearchStates)
+      .slice(0, beamWidth);
     const byBankUnlock = layerStates
       .filter((s) => s.bank >= round1(initialState.bank + 1.5))
-      .toSorted((a, b) => b.bank - a.bank || b.netDecisionScore - a.netDecisionScore)
+      .toSorted((a, b) => b.bank - a.bank || compareSearchStates(a, b))
       .slice(0, 3);
 
     const mergedBeam = new Map<string, SearchState>();
@@ -1840,9 +1889,7 @@ export function runScoutTransferSearch(params: {
     return true;
   });
 
-  const sortedBest = marginallyValidStates.toSorted(
-    (a, b) => b.netDecisionScore - a.netDecisionScore || a.hitCount - b.hitCount
-  );
+  const sortedBest = marginallyValidStates.toSorted(compareSearchStates);
   const bestState = sortedBest[0] || initialState;
   const needTransfer = bestState.moves.length > 0 && bestState.netDecisionScore > 0;
   const ftUsed = Math.min(bestState.moves.length, ftAllowance);
@@ -2018,7 +2065,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
 
   for (const s of evalGws) {
     const prevGw = s - 1;
-    const ownList = prevGw < targetNextGW ? ownershipPlayersByGw?.[prevGw] || [] : [];
+    const ownList = prevGw < targetNextGW ? [...(ownershipPlayersByGw?.[prevGw] || [])].sort((a, b) => a.id - b.id) : [];
     const totalManagers = Math.max(
       standingsByGw?.[prevGw]?.length || (s < targetNextGW ? standingsByGw?.[s]?.length : 0) || 97,
       1
@@ -2041,7 +2088,10 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
     causalOwnPctByGw.set(s, pctMap);
 
     // Sample representative managers evenly across standings ranks for transfer walk-forward calibration
-    const standingsPrev = standingsByGw?.[prevGw] || (s < targetNextGW ? standingsByGw?.[s] : undefined) || [];
+    const rawStandingsPrev = standingsByGw?.[prevGw] || (s < targetNextGW ? standingsByGw?.[s] : undefined) || [];
+    const standingsPrev = [...rawStandingsPrev].sort(
+      (a, b) => (a.rank || 0) - (b.rank || 0) || a.entry_id - b.entry_id
+    );
     const sampled: Array<{ entryId: number; squadIds: number[]; ft: number }> = [];
     const targetSampleCount = 8;
     const step = Math.max(1, Math.floor(standingsPrev.length / targetSampleCount));
@@ -2049,6 +2099,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
       const eid = standingsPrev[i].entry_id;
       const sq = squadByEntry.get(eid);
       if (sq && sq.length >= 11) {
+        const sortedSq = [...sq].sort((a, b) => a - b);
         const ft = estimateCausalFtAtGw({
           entryId: eid,
           upToPrevGw: prevGw,
@@ -2057,21 +2108,23 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
           standingsByGw,
           allChipsUsed: causalChips,
         });
-        sampled.push({ entryId: eid, squadIds: sq.slice(0, 15), ft });
+        sampled.push({ entryId: eid, squadIds: sortedSq.slice(0, 15), ft });
       }
     }
     causalSquadsByGw.set(s, sampled);
   }
 
   // Filter active pool once (any player with projection in eval GWs or targetNextGW)
-  const activePool = players.filter((p) => {
-    for (const s of evalGws) {
-      const c = p.fullSeasonPointsMap?.[s];
-      if (c && !c.isBlank && c.xp > 0.1) return true;
-    }
-    const cT = p.fullSeasonPointsMap?.[targetNextGW];
-    return Boolean(cT && !cT.isBlank && cT.xp > 0.1);
-  });
+  const activePool = players
+    .filter((p) => {
+      for (const s of evalGws) {
+        const c = p.fullSeasonPointsMap?.[s];
+        if (c && !c.isBlank && c.xp > 0.1) return true;
+      }
+      const cT = p.fullSeasonPointsMap?.[targetNextGW];
+      return Boolean(cT && !cT.isBlank && cT.xp > 0.1);
+    })
+    .sort((a, b) => a.id - b.id);
   const playerById = new Map<number, ScoutModelPlayerInput>(activePool.map((p) => [p.id, p]));
 
   // =========================================================================
@@ -2119,7 +2172,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
                   id: p.id,
                   score: scoreCaptainAtGw(p, s, targetNextGW, testPolicy),
                 }))
-                .sort((a, b) => b.score - a.score)
+                .sort((a, b) => b.score - a.score || a.id - b.id)
                 .slice(0, 10);
 
               if (ranked.length === 0) continue;
@@ -2214,7 +2267,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
                 id: p.id,
                 score: scoreDifferentialAtGw(p, s, targetNextGW, testPolicy),
               }))
-              .sort((a, b) => b.score - a.score)
+              .sort((a, b) => b.score - a.score || a.id - b.id)
               .slice(0, 6);
 
             if (ranked.length === 0) continue;
@@ -2300,7 +2353,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
         const pb = playerById.get(b);
         const sa = pa ? scoreCaptainAtGw(pa, s, targetNextGW, testPolicy) : 0;
         const sb = pb ? scoreCaptainAtGw(pb, s, targetNextGW, testPolicy) : 0;
-        return sb - sa;
+        return sb - sa || a - b;
       });
       const sim = simulateFplSquadActualScore({
         starterIds: solved.starterIds,
@@ -2377,7 +2430,8 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
           const pb = playerById.get(b);
           return (
             (pb ? scoreCaptainAtGw(pb, k, targetNextGW, testPolicy) : 0) -
-            (pa ? scoreCaptainAtGw(pa, k, targetNextGW, testPolicy) : 0)
+              (pa ? scoreCaptainAtGw(pa, k, targetNextGW, testPolicy) : 0) ||
+            a - b
           );
         });
         const simK = simulateFplSquadActualScore({
@@ -2439,6 +2493,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
       let tcWTot = 0;
       for (const item of chipsPrecomputed) {
         let bestTcScore = -1;
+        let bestTcPid = -1;
         let bestTcActual = 0;
         for (const pid of item.squadIds) {
           const p = playerById.get(pid);
@@ -2447,8 +2502,9 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
           const tcS =
             c.xp * (1 - tcReliabilityAlpha + tcReliabilityAlpha * c.pStart) +
             tcTailWeight * Math.max(0, c.mcQ85 - c.xp);
-          if (tcS > bestTcScore) {
+          if (tcS > bestTcScore || (tcS === bestTcScore && (bestTcPid === -1 || pid < bestTcPid))) {
             bestTcScore = tcS;
+            bestTcPid = pid;
             bestTcActual = getActualPts(pid, item.s);
           }
         }
@@ -2525,7 +2581,7 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
       for (const pos of POSITIONS_ORDER) {
         const posRanked = activePool
           .filter((p) => p.position === pos)
-          .sort((a, b) => getCellAtGw(b, s, targetNextGW).xp - getCellAtGw(a, s, targetNextGW).xp)
+          .sort((a, b) => getCellAtGw(b, s, targetNextGW).xp - getCellAtGw(a, s, targetNextGW).xp || a.id - b.id)
           .slice(0, 14);
         for (const p of posRanked) poolIds.add(p.id);
       }
@@ -2539,7 +2595,8 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
             const pb = playerById.get(b);
             return (
               (pb ? scoreCaptainAtGw(pb, k, targetNextGW, policyWithCapDiff) : 0) -
-              (pa ? scoreCaptainAtGw(pa, k, targetNextGW, policyWithCapDiff) : 0)
+                (pa ? scoreCaptainAtGw(pa, k, targetNextGW, policyWithCapDiff) : 0) ||
+              a - b
             );
           });
           const simK = simulateFplSquadActualScore({
@@ -2630,7 +2687,8 @@ export async function calibrateScoutPolicyWalkForward(input: ScoutCalibrationInp
                 const pb = playerById.get(b);
                 return (
                   (pb ? scoreCaptainAtGw(pb, k, targetNextGW, testPol) : 0) -
-                  (pa ? scoreCaptainAtGw(pa, k, targetNextGW, testPol) : 0)
+                    (pa ? scoreCaptainAtGw(pa, k, targetNextGW, testPol) : 0) ||
+                  a - b
                 );
               });
               const simK = simulateFplSquadActualScore({
@@ -2793,7 +2851,7 @@ export function selectBestXiFrom15AtGw(
     if (cb.xp !== ca.xp) return cb.xp - ca.xp;
     const capDiff = scoreCaptainAtGw(b, gw, targetNextGW, policy) - scoreCaptainAtGw(a, gw, targetNextGW, policy);
     if (capDiff !== 0) return capDiff;
-    return cb.pStart - ca.pStart;
+    return cb.pStart - ca.pStart || a.id - b.id;
   };
 
   gkps.sort(sortFn);
@@ -2805,20 +2863,39 @@ export function selectBestXiFrom15AtGw(
   let bestBench: ScoutModelPlayerInput[] = [];
   let bestForm = '3-4-3';
   let bestXiXp = -1;
+  let bestMaxCap = -Infinity;
+  let bestBenchXp = -Infinity;
 
   for (const [d, m, f] of FORMATIONS) {
     if (gkps.length < 1 || defs.length < d || mids.length < m || fwds.length < f) continue;
     const st = [gkps[0], ...defs.slice(0, d), ...mids.slice(0, m), ...fwds.slice(0, f)];
     const xp = st.reduce((s, p) => s + getCellAtGw(p, gw, targetNextGW).xp, 0);
-    if (xp > bestXiXp + 1e-6) {
+    const maxCap = st.reduce((mx, p) => Math.max(mx, scoreCaptainAtGw(p, gw, targetNextGW, policy)), -Infinity);
+    const stSet = new Set(st.map((p) => p.id));
+    const benchOut = [
+      ...defs.filter((p) => !stSet.has(p.id)),
+      ...mids.filter((p) => !stSet.has(p.id)),
+      ...fwds.filter((p) => !stSet.has(p.id)),
+    ].sort(sortFn);
+    const benchArr = [...gkps.filter((p) => !stSet.has(p.id)), ...benchOut];
+    const benchXp = benchArr.reduce((s, p) => s + getCellAtGw(p, gw, targetNextGW).xp, 0);
+    const formLabel = `${d}-${m}-${f}`;
+
+    const isBetter =
+      xp > bestXiXp + 1e-6 ||
+      (Math.abs(xp - bestXiXp) <= 1e-6 &&
+        (maxCap > bestMaxCap + 1e-6 ||
+          (Math.abs(maxCap - bestMaxCap) <= 1e-6 &&
+            (benchXp > bestBenchXp + 1e-6 ||
+              (Math.abs(benchXp - bestBenchXp) <= 1e-6 && formLabel.localeCompare(bestForm) < 0)))));
+
+    if (isBetter) {
       bestXiXp = xp;
-      bestForm = `${d}-${m}-${f}`;
+      bestMaxCap = maxCap;
+      bestBenchXp = benchXp;
+      bestForm = formLabel;
       bestStarters = st;
-      const stSet = new Set(st.map((p) => p.id));
-      bestBench = [
-        ...gkps.filter((p) => !stSet.has(p.id)),
-        ...[...defs.filter((p) => !stSet.has(p.id)), ...mids.filter((p) => !stSet.has(p.id)), ...fwds.filter((p) => !stSet.has(p.id))].sort(sortFn),
-      ];
+      bestBench = benchArr;
     }
   }
 

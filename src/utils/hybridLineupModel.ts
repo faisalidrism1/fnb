@@ -363,7 +363,12 @@ export function buildHybridHistoryStore(
   };
 
   for (let gw = minGw; gw <= upToGw; gw++) {
-    const matches = matchesByGw[gw] || [];
+    const matches = [...(matchesByGw[gw] || [])].sort(
+      (a, b) =>
+        (Number(a?.id || 0) - Number(b?.id || 0)) ||
+        String(a?.home_team?.short_name || '').localeCompare(String(b?.home_team?.short_name || '')) ||
+        String(a?.away_team?.short_name || '').localeCompare(String(b?.away_team?.short_name || ''))
+    );
     for (const m of matches) {
       if (!m) continue;
       const hShort = m.home_team?.short_name || '';
@@ -448,10 +453,24 @@ export function buildHybridHistoryStore(
   }
 
   for (const sides of Object.values(eplClubSides)) {
-    sides.sort((a, b) => a.gw - b.gw || (a.kickoffMs || 0) - (b.kickoffMs || 0));
+    sides.sort(
+      (a, b) =>
+        a.gw - b.gw ||
+        (a.kickoffMs || 0) - (b.kickoffMs || 0) ||
+        (a.oppShort || '').localeCompare(b.oppShort || '') ||
+        (a.compAbbr || '').localeCompare(b.compAbbr || '') ||
+        (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+    );
   }
   for (const sides of Object.values(allCompClubSides)) {
-    sides.sort((a, b) => (a.kickoffMs || 0) - (b.kickoffMs || 0) || a.gw - b.gw);
+    sides.sort(
+      (a, b) =>
+        (a.kickoffMs || 0) - (b.kickoffMs || 0) ||
+        a.gw - b.gw ||
+        (a.oppShort || '').localeCompare(b.oppShort || '') ||
+        (a.compAbbr || '').localeCompare(b.compAbbr || '') ||
+        (a.isHome === b.isHome ? 0 : a.isHome ? -1 : 1)
+    );
   }
 
   return {
@@ -548,7 +567,16 @@ export function resolveCausalPlayerAvailability(params: {
     ? (chanceNext !== null && chanceNext !== undefined ? chanceNext : chanceThis ?? null)
     : (chanceThis !== null && chanceThis !== undefined ? chanceThis : chanceNext ?? null);
 
-  const returnDate = parseExpectedReturnDate(rawNews);
+  const futureRefMs =
+    player.newsAdded && Number.isFinite(Date.parse(player.newsAdded))
+      ? Date.parse(player.newsAdded)
+      : earliestKickoffIso && Number.isFinite(Date.parse(earliestKickoffIso))
+      ? Date.parse(earliestKickoffIso)
+      : NaN;
+  const returnDate = parseExpectedReturnDate(
+    rawNews,
+    Number.isFinite(futureRefMs) ? new Date(futureRefMs) : undefined
+  );
   let isBeforeReturnDate = false;
   let hasPassedReturnDate = false;
   if (returnDate && earliestKickoffIso) {
@@ -922,8 +950,11 @@ export function extractPlayerFeaturesBeforeGw(
   for (const targetRole of ALL_OUTFIELD_ROLES) {
     let obsCompat = 0;
     if (roleWeightSum > 0) {
-      for (const [rKey, rw] of Object.entries(roleObsWeights)) {
-        obsCompat += ((rw || 0) / roleWeightSum) * getCompat(rKey as CanonicalTacticalRole, targetRole);
+      for (const rKey of ALL_OUTFIELD_ROLES) {
+        const rw = roleObsWeights[rKey];
+        if (rw) {
+          obsCompat += (rw / roleWeightSum) * getCompat(rKey, targetRole);
+        }
       }
     }
     const aff = wHist * obsCompat + (1 - wHist) * (priorRoleVec[targetRole] ?? 0.08);
@@ -1270,13 +1301,14 @@ export function fitCausalLogisticCalibration(
   halfLifeDays: number = DEFAULT_HYBRID_PARAMS.halfLifeDays,
   minGw: number = 1
 ): number[] {
+  const canonicalPlayers = [...allPlayers].sort((a, b) => a.id - b.id);
   const priorAffCache = new Map<number, Record<CanonicalTacticalRole, number>>();
   const featByGwPlayer = new Map<number, Map<number, PlayerFeaturesAtGw>>();
   const startS = Math.max(2, minGw);
   for (let s = startS; s < targetGw; s++) {
     const fMap = new Map<number, PlayerFeaturesAtGw>();
     const byClub = new Map<string, PlayerFeaturesAtGw[]>();
-    for (const p of allPlayers) {
+    for (const p of canonicalPlayers) {
       const f = extractPlayerFeaturesBeforeGw(p, s, history, pastMap, decay, mShrink, kalmanGain, priorAffCache, {
         halfLifeDays,
         deadlines,
@@ -1288,7 +1320,7 @@ export function fitCausalLogisticCalibration(
     for (const cFeats of byClub.values()) populateClubCompRole(cFeats);
     featByGwPlayer.set(s, fMap);
   }
-  return fitLogisticFromCachedFeatures(allPlayers, targetGw, history, featByGwPlayer, l2, deadlines, minGw);
+  return fitLogisticFromCachedFeatures(canonicalPlayers, targetGw, history, featByGwPlayer, l2, deadlines, minGw);
 }
 
 export function predictCalibratedStartProb(feat: PlayerFeaturesAtGw, weights: number[]): number {
@@ -1358,6 +1390,8 @@ export function selectCausalHybridParamsAndWeights(
   minGw: number = 1,
   externalMemo?: HybridCalibrationMemo
 ): { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> } {
+  const canonicalPlayers = [...allPlayers].sort((a, b) => a.id - b.id);
+  const canonicalClubs = [...clubs].sort();
   const effMinGw = Math.max(1, minGw);
   const minEvalGw = Math.max(3, effMinGw);
   const base = { ...DEFAULT_HYBRID_PARAMS };
@@ -1367,7 +1401,7 @@ export function selectCausalHybridParamsAndWeights(
 
   if (targetGw <= minEvalGw) {
     const wLogit = fitCausalLogisticCalibration(
-      allPlayers,
+      canonicalPlayers,
       targetGw,
       history,
       pastMap,
@@ -1381,7 +1415,7 @@ export function selectCausalHybridParamsAndWeights(
     );
     const fMap = new Map<number, PlayerFeaturesAtGw>();
     const byClub = new Map<string, PlayerFeaturesAtGw[]>();
-    for (const p of allPlayers) {
+    for (const p of canonicalPlayers) {
       const f = extractPlayerFeaturesBeforeGw(
         p,
         targetGw,
@@ -1413,7 +1447,7 @@ export function selectCausalHybridParamsAndWeights(
   const actualSidesByKey = new Map<string, HybridMatchClubSide>();
   const actualStarterByGwClub = new Map<string, Set<number>>();
   const playedClubsByGw = new Map<number, Set<string>>();
-  for (const c of clubs) {
+  for (const c of canonicalClubs) {
     for (const s of eplMap[c] || []) {
       const sGw = s.eplGw ?? s.gw;
       if (sGw >= effMinGw && sGw < targetGw) {
@@ -1491,7 +1525,7 @@ export function selectCausalHybridParamsAndWeights(
       if (!sStat) {
         let sHits = 0;
         let sTot = 0;
-        for (const c of clubs) {
+        for (const c of canonicalClubs) {
           const act = actualSidesByKey.get(`${s}_${c}`);
           if (!act?.formationLabel) continue;
           const cutoffMs = resolveTargetCutoffMs(c, s, history, act.kickoffMs, deadlines);
@@ -1533,7 +1567,7 @@ export function selectCausalHybridParamsAndWeights(
   const l2Grid = [1.0, 1.5, 2.5];
 
   const playersByClub = new Map<string, DbPlayerStat[]>();
-  for (const p of allPlayers) {
+  for (const p of canonicalPlayers) {
     if (!playersByClub.has(p.teamShort)) playersByClub.set(p.teamShort, []);
     playersByClub.get(p.teamShort)!.push(p);
   }
@@ -1562,7 +1596,7 @@ export function selectCausalHybridParamsAndWeights(
       }
       const fMap = new Map<number, PlayerFeaturesAtGw>();
       const dlIso = deadlines?.[String(s)];
-      for (const c of clubs) {
+      for (const c of canonicalClubs) {
         const cPlayers = playersByClub.get(c) || [];
         const cFeats: PlayerFeaturesAtGw[] = [];
         const cutoffMs = resolveTargetCutoffMs(
@@ -1604,7 +1638,7 @@ export function selectCausalHybridParamsAndWeights(
         let evalRec = memo.stage2EvalByKey.get(evalKey);
         if (!evalRec) {
           const wLogit = fitLogisticFromCachedFeatures(
-            allPlayers,
+            canonicalPlayers,
             s,
             history,
             featByGwPlayer,
@@ -1624,7 +1658,7 @@ export function selectCausalHybridParamsAndWeights(
           let sLogLossSum = 0;
           let sPlayerEvalCount = 0;
 
-          for (const c of clubs) {
+          for (const c of canonicalClubs) {
             const act = actualSidesByKey.get(`${s}_${c}`);
             if (!act) continue;
             const starterSet = actualStarterByGwClub.get(`${s}_${c}`) || new Set(act.starterIds);
@@ -1643,8 +1677,8 @@ export function selectCausalHybridParamsAndWeights(
               scored.push({ id: p.id, pos: p.position as PositionType, pStart: prob });
             }
 
-            const gks = scored.filter((x) => x.pos === 'GKP').sort((a, b) => b.pStart - a.pStart);
-            const outs = scored.filter((x) => x.pos !== 'GKP').sort((a, b) => b.pStart - a.pStart);
+            const gks = scored.filter((x) => x.pos === 'GKP').sort((a, b) => b.pStart - a.pStart || a.id - b.id);
+            const outs = scored.filter((x) => x.pos !== 'GKP').sort((a, b) => b.pStart - a.pStart || a.id - b.id);
             let hits = 0;
             if (gks[0] && starterSet.has(gks[0].id)) hits++;
             for (let i = 0; i < Math.min(10, outs.length); i++) {
@@ -1689,7 +1723,7 @@ export function selectCausalHybridParamsAndWeights(
   }
 
   const finalWLogit = fitLogisticFromCachedFeatures(
-    allPlayers,
+    canonicalPlayers,
     targetGw,
     history,
     bestFeatByGwPlayer,
@@ -1730,7 +1764,7 @@ export function selectCausalHybridParamsAndWeights(
     const fMap = bestFeatByGwPlayer.get(s)!;
     const wLogit = bestWByS.get(s)!;
     const dlIso = deadlines?.[String(s)];
-    for (const c of clubs) {
+    for (const c of canonicalClubs) {
       const act = actualSidesByKey.get(`${s}_${c}`);
       if (!act) continue;
       const cPlayers = playersByClub.get(c) || [];
@@ -1746,8 +1780,12 @@ export function selectCausalHybridParamsAndWeights(
           pStart: predictCalibratedStartProb(feat, wLogit) * availVal,
         };
       });
-      const gks = scored.filter((x) => x.p.position === 'GKP' && x.avail > 0).sort((a, b) => b.pStart - a.pStart);
-      const outs = scored.filter((x) => x.p.position !== 'GKP' && x.avail > 0).sort((a, b) => b.pStart - a.pStart);
+      const gks = scored
+        .filter((x) => x.p.position === 'GKP' && x.avail > 0)
+        .sort((a, b) => b.pStart - a.pStart || b.feat.startsCount - a.feat.startsCount || b.feat.nowCost - a.feat.nowCost || a.p.id - b.p.id);
+      const outs = scored
+        .filter((x) => x.p.position !== 'GKP' && x.avail > 0)
+        .sort((a, b) => b.pStart - a.pStart || b.feat.startsCount - a.feat.startsCount || b.feat.nowCost - a.feat.nowCost || a.p.id - b.p.id);
       evalPools.push({
         actBenchSet: new Set([...act.subOnIds, ...act.unusedBenchIds]),
         actStartSet: actualStarterByGwClub.get(`${s}_${c}`) || new Set(act.starterIds),
@@ -1856,7 +1894,13 @@ function predictFormationInternal(
       priorScore: totalWeight > 0 ? c.weight / totalWeight : 0,
       latestMs: c.latestMs,
     }))
-    .sort((a, b) => b.priorScore - a.priorScore || b.latestMs - a.latestMs);
+    .sort(
+      (a, b) =>
+        b.priorScore - a.priorScore ||
+        b.latestMs - a.latestMs ||
+        a.label.localeCompare(b.label) ||
+        a.outfieldSlots.join(',').localeCompare(b.outfieldSlots.join(','))
+    );
 
   const top = candidates[0];
   return top ? { label: top.label, outfieldSlots: top.outfieldSlots, candidates } : null;
@@ -1922,7 +1966,7 @@ function rankBenchCandidates(
   });
 
   const selected: Array<{ id: number; subScore: number }> = [];
-  const remaining = [...scored];
+  const remaining = [...scored].sort((a, b) => b.baseScore - a.baseScore || a.id - b.id);
   const benchRoleCounts = new Map<CanonicalTacticalRole, number>();
   const benchLineCounts: Record<'DEF' | 'MID' | 'FWD', number> = { DEF: 0, MID: 0, FWD: 0 };
 
@@ -1935,7 +1979,7 @@ function rankBenchCandidates(
       const stackPen = sameRoleCount * params.subStackPen * 0.25;
       const lineCover = item.line !== 'GK' && benchLineCounts[item.line] === 0 ? params.subCov * 0.05 : 0;
       const adj = item.baseScore - stackPen + lineCover;
-      if (adj > bestScore) {
+      if (adj > bestScore || (adj === bestScore && item.id < remaining[bestIdx].id)) {
         bestScore = adj;
         bestIdx = i;
       }
@@ -1995,10 +2039,11 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
 
   const targetCutoffMs = resolveTargetCutoffMs(clubShort, targetGw, history, explicitCutoffMs);
 
+  const canonicalPlayers = [...players].sort((a, b) => a.id - b.id);
   const featsList: PlayerFeaturesAtGw[] = [];
   const avAvailMap = new Map<number, number>();
   let allFoundPrecomputed = Boolean(precomputedFeatMap);
-  for (const p of players) {
+  for (const p of canonicalPlayers) {
     const pre = precomputedFeatMap?.get(p.id);
     if (pre) {
       featsList.push(pre);
@@ -2069,10 +2114,15 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
     });
   }
 
-  const sortedPlayers = players.toSorted((a, b) => {
+  const sortedPlayers = canonicalPlayers.toSorted((a, b) => {
     const pa = playerProbs.get(a.id)!;
     const pb = playerProbs.get(b.id)!;
-    return pb.pStartAvail - pa.pStartAvail || pb.feat.startsCount - pa.feat.startsCount || pb.feat.nowCost - pa.feat.nowCost;
+    return (
+      pb.pStartAvail - pa.pStartAvail ||
+      pb.feat.startsCount - pa.feat.startsCount ||
+      pb.feat.nowCost - pa.feat.nowCost ||
+      a.id - b.id
+    );
   });
 
   const availableGkps = sortedPlayers.filter((p) => p.position === 'GKP' && (availabilityById.get(p.id)?.avail ?? 1) > 0);
@@ -2178,11 +2228,19 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
       }));
       const maxJoint = Math.max(...evals.map((e) => e.res?.totalScore ?? -Infinity));
       let bestCombined = -Infinity;
+      let bestFcMeta: { priorScore: number; label: string } | null = null;
       for (const e of evals) {
         const normJoint = isFinite(maxJoint) && e.res ? Math.exp(Math.max(-20, (e.res.totalScore - maxJoint) * 0.25)) : 0;
         const score = (1 - params.wV6) * e.fc.priorScore + params.wV6 * normJoint;
-        if (score > bestCombined) {
+        const isBetter =
+          score > bestCombined ||
+          (score === bestCombined &&
+            bestFcMeta &&
+            (e.fc.priorScore > bestFcMeta.priorScore ||
+              (e.fc.priorScore === bestFcMeta.priorScore && e.fc.label.localeCompare(bestFcMeta.label) < 0)));
+        if (isBetter) {
           bestCombined = score;
+          bestFcMeta = { priorScore: e.fc.priorScore, label: e.fc.label };
           chosenForm = { label: e.fc.label, outfieldSlots: e.fc.outfieldSlots };
           bestAssignment = e.res;
         }
@@ -2219,7 +2277,7 @@ export function predictHybridClubLineup(input: HybridClubPredictionInput): Hybri
         const challAff = playerProbs.get(chall.id)!.feat.roleAffinity[slotRole] ?? 0;
         if (challAff < 0.65) continue;
         const sc = bestAssignment!.wMat[sIdx][cIdx];
-        if (!bestChallenger || sc > bestChallenger.score) {
+        if (!bestChallenger || sc > bestChallenger.score || (sc === bestChallenger.score && chall.id < bestChallenger.p.id)) {
           bestChallenger = { p: chall, score: sc };
         }
       }
