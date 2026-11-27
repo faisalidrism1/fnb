@@ -158,7 +158,7 @@ let inFlightPulseIndex: Promise<Map<string, number>> | null = null;
 const inFlightGwFetches = new Map<number, Promise<MatchCardItem[]>>();
 
 // Global concurrency limiter for Pulse match detail fetches to avoid burst rate-limits
-const MAX_PULSE_CONCURRENT = 8;
+const MAX_PULSE_CONCURRENT = 4;
 let activePulseFetches = 0;
 const pulseWaitQueue: Array<() => void> = [];
 
@@ -398,9 +398,9 @@ export async function fetchSdpNormalizedMatch(
 
   try {
     const [lineups, sdpEvents, matchV2] = await Promise.all([
-      fetchJson(`${SDP_PULSE_BASE}/api/v3/matches/${optaMatchCode}/lineups`, PULSE_HEADERS),
-      fetchJson(`${SDP_PULSE_BASE}/api/v1/matches/${optaMatchCode}/events`, PULSE_HEADERS),
-      fetchJson(`${SDP_PULSE_BASE}/api/v2/matches/${optaMatchCode}`, PULSE_HEADERS)
+      fetchJson(`${SDP_PULSE_BASE}/api/v3/matches/${optaMatchCode}/lineups`, PULSE_HEADERS, 2),
+      fetchJson(`${SDP_PULSE_BASE}/api/v1/matches/${optaMatchCode}/events`, PULSE_HEADERS, 2),
+      fetchJson(`${SDP_PULSE_BASE}/api/v2/matches/${optaMatchCode}`, PULSE_HEADERS, 2)
     ]);
 
     if (!lineups && !matchV2 && !sdpEvents) {
@@ -433,6 +433,12 @@ export async function fetchSdpNormalizedMatch(
     const homeSubs = homeRawPlayers.filter((p) => p?.position === 'Substitute').map(mapSdpPlayerToPulse);
     const awayStarters = awayRawPlayers.filter((p) => p?.position !== 'Substitute').map(mapSdpPlayerToPulse);
     const awaySubs = awayRawPlayers.filter((p) => p?.position === 'Substitute').map(mapSdpPlayerToPulse);
+
+    // If match is started/finished (or historical) but SDP lineups failed/rate-limited,
+    // return null so fetchPulseMatchDetails can fall back cleanly to Legacy Pulse.
+    if ((isLive || isFt || !lineups) && (homeStarters.length < 10 || awayStarters.length < 10)) {
+      return null;
+    }
 
     const homeTeamId = Number(lineups?.home_team?.teamId || matchV2?.homeTeam?.id) || 0;
     const awayTeamId = Number(lineups?.away_team?.teamId || matchV2?.awayTeam?.id) || 0;
@@ -663,19 +669,44 @@ async function fetchPulseMatchDetails(
     }
   }
 
+  const hasCompleteLists = (d: any): boolean =>
+    Boolean(
+      Array.isArray(d?.teamLists) &&
+      d.teamLists.length >= 2 &&
+      (d.teamLists[0]?.lineup?.length || 0) >= 10 &&
+      (d.teamLists[1]?.lineup?.length || 0) >= 10
+    );
+
   try {
     let data: any = null;
-    if (optaMatchCode && optaMatchCode > 0) {
-      data = await withPulseSlot(() => fetchSdpNormalizedMatch(optaMatchCode, pulseMatchId, gwHint));
-    }
-    if (!data && pulseMatchId && pulseMatchId > 0) {
-      data = await withPulseSlot(() => fetchJson(`${PULSE_BASE}/fixtures/${pulseMatchId}/`, PULSE_HEADERS, 2));
+    if (isMatchFinished && pulseMatchId && pulseMatchId > 0) {
+      const legacy = await withPulseSlot(() =>
+        fetchJson(`${PULSE_BASE}/fixtures/${pulseMatchId}/?altIds=true`, PULSE_HEADERS, 2)
+      );
+      if (legacy && hasCompleteLists(legacy)) {
+        data = legacy;
+      } else if (optaMatchCode && optaMatchCode > 0) {
+        data = await withPulseSlot(() => fetchSdpNormalizedMatch(optaMatchCode, pulseMatchId, gwHint));
+      }
+      if (!data && legacy) {
+        data = legacy;
+      }
+    } else {
+      if (optaMatchCode && optaMatchCode > 0) {
+        data = await withPulseSlot(() => fetchSdpNormalizedMatch(optaMatchCode, pulseMatchId, gwHint));
+      }
+      if (!data && pulseMatchId && pulseMatchId > 0) {
+        data = await withPulseSlot(() =>
+          fetchJson(`${PULSE_BASE}/fixtures/${pulseMatchId}/?altIds=true`, PULSE_HEADERS, 2)
+        );
+      }
     }
     if (data) {
       if (Array.isArray(data.teamLists)) {
         recordPulseFixturePositions(data);
       }
-      const isFinished = Boolean(isMatchFinished || data.status === 'C');
+      const hasCompleteLineups = hasCompleteLists(data);
+      const isFinished = Boolean((isMatchFinished || data.status === 'C') && (!isMatchFinished || hasCompleteLineups));
       pulseMatchDetailsCache.set(cacheKey, {
         data,
         time: Date.now(),
@@ -846,9 +877,16 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
   const elementMap = new Map<number, any>();
   // 2. By element code (Opta ID: p{code}) -> 100% direct match with Pulse API altIds.opta!
   const elementByCodeMap = new Map<number, any>();
+  // 3. By team id for collision-free team-scoped fallback name matching
+  const elementsByTeamMap = new Map<number, any[]>();
   for (const el of bootstrapRaw.elements || []) {
     elementMap.set(el.id, el);
     elementByCodeMap.set(el.code, el);
+    const tid = Number(el.team);
+    if (!elementsByTeamMap.has(tid)) {
+      elementsByTeamMap.set(tid, []);
+    }
+    elementsByTeamMap.get(tid)!.push(el);
   }
 
   // Track per-team fixture counts in this GW (identifies DGW clubs with >= 2 fixtures)
@@ -1452,8 +1490,8 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
           }
         }
 
-        // Helper to match a Pulse player to an FPL element
-        const matchPulsePlayerToFpl = (p: any): any | null => {
+        // Helper to match a Pulse player to an FPL element (strictly scoped by targetTeamId first)
+        const matchPulsePlayerToFpl = (p: any, targetTeamId?: number): any | null => {
           // 1. Primary: Opta ID match (altIds.opta: 'p500040' -> code 500040)
           if (p.altIds?.opta) {
             const optaNum = parseInt(String(p.altIds.opta).replace(/\D/g, ''), 10);
@@ -1463,27 +1501,38 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
             }
           }
 
-          // 2. Fallback: Name matching against bootstrap elements
+          // 2. Fallback: Team-scoped name matching first, global only if needed
           const cleanPulseDisp = normalizeDiacritics(p.name?.display || '');
           const cleanPulseLast = normalizeDiacritics(p.name?.last || '');
           const cleanPulseFirst = normalizeDiacritics(p.name?.first || '');
 
-          for (const el of bootstrapRaw.elements || []) {
-            const cleanWeb = normalizeDiacritics(el.web_name);
-            const cleanSec = normalizeDiacritics(el.second_name);
-            const cleanFirst = normalizeDiacritics(el.first_name);
+          const matchInPool = (pool: any[]): any | null => {
+            for (const el of pool) {
+              const cleanWeb = normalizeDiacritics(el.web_name);
+              const cleanSec = normalizeDiacritics(el.second_name);
+              const cleanFirst = normalizeDiacritics(el.first_name);
 
-            if (cleanWeb === cleanPulseLast || cleanSec === cleanPulseLast) {
-              if (!cleanPulseFirst || cleanFirst.startsWith(cleanPulseFirst.charAt(0))) {
+              if (cleanWeb === cleanPulseLast || cleanSec === cleanPulseLast) {
+                if (!cleanPulseFirst || cleanFirst.startsWith(cleanPulseFirst.charAt(0))) {
+                  return el;
+                }
+              }
+              if (cleanPulseDisp && `${cleanFirst}${cleanSec}` === cleanPulseDisp) {
+                return el;
+              }
+              if (cleanPulseDisp && cleanWeb && cleanPulseDisp.endsWith(cleanWeb) && cleanFirst && cleanPulseDisp.startsWith(cleanFirst)) {
                 return el;
               }
             }
-            if (cleanPulseDisp && `${cleanFirst} ${cleanSec}` === cleanPulseDisp) {
-              return el;
-            }
+            return null;
+          };
+
+          if (targetTeamId && elementsByTeamMap.has(targetTeamId)) {
+            const teamMatch = matchInPool(elementsByTeamMap.get(targetTeamId)!);
+            if (teamMatch) return teamMatch;
           }
 
-          return null;
+          return matchInPool(bootstrapRaw.elements || []);
         };
 
         // Supports both Legacy Pulse ({ label, players }) and SDP Pulse ({ formation, lineup }) schemas
@@ -1534,62 +1583,62 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
 
         // Build Home Starters
         const builtHomeStarters = rawHomeStarters.map((p: any) => {
-          const fplEl = matchPulsePlayerToFpl(p);
+          const fplEl = matchPulsePlayerToFpl(p, fix.team_h);
           const subInfo = subEventsByPersonId.get(p.id);
           return buildMatchPlayer(fplEl, p, true, false, Boolean(subInfo?.off), true);
         });
         homeFormation = resolveTeamFormation(homeTl.formation, rawHomeStarters, builtHomeStarters);
         homeLineup = [...builtHomeStarters];
 
-        // Tactical sort for home starters: GKP -> DEF -> MID -> FWD
+        // Tactical sort for home starters: GKP -> DEF -> MID -> FWD (deterministic id tie-breaker)
         homeLineup.sort((a, b) => {
           const ordA = POSITION_SORT_ORDER[a.position] || 3;
           const ordB = POSITION_SORT_ORDER[b.position] || 3;
-          return ordA - ordB;
+          return ordA !== ordB ? ordA - ordB : a.id - b.id;
         });
 
         // Build Home Bench
         homeBench = rawHomeBench.map((p: any) => {
-          const fplEl = matchPulsePlayerToFpl(p);
+          const fplEl = matchPulsePlayerToFpl(p, fix.team_h);
           const subInfo = subEventsByPersonId.get(p.id);
           return buildMatchPlayer(fplEl, p, true, Boolean(subInfo?.on), false, false);
         });
 
-        // Tactical sort for home bench: GKP -> DEF -> MID -> FWD
+        // Tactical sort for home bench: GKP -> DEF -> MID -> FWD (deterministic id tie-breaker)
         homeBench.sort((a, b) => {
           const ordA = POSITION_SORT_ORDER[a.position] || 3;
           const ordB = POSITION_SORT_ORDER[b.position] || 3;
-          return ordA - ordB;
+          return ordA !== ordB ? ordA - ordB : a.id - b.id;
         });
 
         // Build Away Starters
         const builtAwayStarters = rawAwayStarters.map((p: any) => {
-          const fplEl = matchPulsePlayerToFpl(p);
+          const fplEl = matchPulsePlayerToFpl(p, fix.team_a);
           const subInfo = subEventsByPersonId.get(p.id);
           return buildMatchPlayer(fplEl, p, false, false, Boolean(subInfo?.off), true);
         });
         awayFormation = resolveTeamFormation(awayTl.formation, rawAwayStarters, builtAwayStarters);
         awayLineup = [...builtAwayStarters];
 
-        // Tactical sort for away starters: GKP -> DEF -> MID -> FWD
+        // Tactical sort for away starters: GKP -> DEF -> MID -> FWD (deterministic id tie-breaker)
         awayLineup.sort((a, b) => {
           const ordA = POSITION_SORT_ORDER[a.position] || 3;
           const ordB = POSITION_SORT_ORDER[b.position] || 3;
-          return ordA - ordB;
+          return ordA !== ordB ? ordA - ordB : a.id - b.id;
         });
 
         // Build Away Bench
         awayBench = rawAwayBench.map((p: any) => {
-          const fplEl = matchPulsePlayerToFpl(p);
+          const fplEl = matchPulsePlayerToFpl(p, fix.team_a);
           const subInfo = subEventsByPersonId.get(p.id);
           return buildMatchPlayer(fplEl, p, false, Boolean(subInfo?.on), false, false);
         });
 
-        // Tactical sort for away bench: GKP -> DEF -> MID -> FWD
+        // Tactical sort for away bench: GKP -> DEF -> MID -> FWD (deterministic id tie-breaker)
         awayBench.sort((a, b) => {
           const ordA = POSITION_SORT_ORDER[a.position] || 3;
           const ordB = POSITION_SORT_ORDER[b.position] || 3;
-          return ordA - ordB;
+          return ordA !== ordB ? ordA - ordB : a.id - b.id;
         });
       }
     }
@@ -1624,14 +1673,14 @@ export async function fetchMatchesForGw(gw: number): Promise<MatchCardItem[]> {
         });
 
         const starters = rawStarters
-          .sort((a: any, b: any) => a.element_type - b.element_type)
+          .sort((a: any, b: any) => (a.element_type !== b.element_type ? a.element_type - b.element_type : a.id - b.id))
           .map((el: any) => {
             const mins = getFixMins(el.id);
             return buildMatchPlayer(el, null, isHome, false, mins > 0 && mins < 90, true);
           });
 
         const bench = rawSubsPlayed
-          .sort((a: any, b: any) => a.element_type - b.element_type)
+          .sort((a: any, b: any) => (a.element_type !== b.element_type ? a.element_type - b.element_type : a.id - b.id))
           .map((el: any) => buildMatchPlayer(el, null, isHome, true, false, false));
 
         return { starters, bench, has: starters.length > 0 };

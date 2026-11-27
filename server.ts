@@ -589,10 +589,12 @@ async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?:
             return null;
           }),
           action === 'A_FULL'
-            ? syncPulseAllCompDatabase({ forceSchedule: true }).catch((acErr: any) => {
-                console.warn('[Server] Warning syncing Pulse all-comp DB:', acErr?.message || acErr);
-                return null;
-              })
+            ? syncPulseAllCompDatabase({ forceSchedule: true })
+                .then(() => runEventDrivenAllCompSyncTick({ force: true }))
+                .catch((acErr: any) => {
+                  console.warn('[Server] Warning syncing Pulse all-comp DB:', acErr?.message || acErr);
+                  return null;
+                })
             : Promise.resolve(null),
         ]);
         rebuildNewsTickerTable(undefined, { clearExisting: action === 'A_FULL' });
