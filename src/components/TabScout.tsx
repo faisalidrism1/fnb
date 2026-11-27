@@ -1523,7 +1523,7 @@ const ScoutPitchCard: React.FC<ScoutPitchCardProps> = ({
           className="w-full bg-[#00ff87] hover:bg-[#2eff9e] text-[#37003c] text-center py-0.5 px-1 rounded-b-md flex items-center justify-between font-black text-[8.5px] sm:text-[9.5px] leading-tight transition-colors cursor-pointer"
         >
           <span>£{player.cost.toFixed(1)}</span>
-          <span>{displayXp}</span>
+          <span>{displayXp.toFixed(1)}</span>
         </div>
       </div>
     </div>

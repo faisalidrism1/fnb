@@ -834,13 +834,10 @@ interface CoreRuntimeContext {
   extraAllCompSides: HybridMatchClubSide[];
   calibByGw: Map<number, { params: HybridTuneParams; logitWeights: number[]; targetFeatMap?: Map<number, PlayerFeaturesAtGw> }>;
   quantilesByPlayerGw: Map<number, Map<number, number[]>>;
-  scoutSanitizedData?: TransformedLeagueData;
 }
 
 let cachedCoreContext: CoreRuntimeContext | null = null;
 let inFlightCoreBuild: { epochKey: string; promise: Promise<CoreRuntimeContext> } | null = null;
-let cachedScoutCoreContext: CoreRuntimeContext | null = null;
-let inFlightScoutCoreBuild: { epochKey: string; promise: Promise<CoreRuntimeContext> } | null = null;
 
 interface ReviewLookupsCache {
   epochKey: string;
@@ -897,8 +894,6 @@ export function getProjectionCacheEpochKey(): string | null {
 export function invalidateProjectionEngine(reason?: string): void {
   cachedCoreContext = null;
   inFlightCoreBuild = null;
-  cachedScoutCoreContext = null;
-  inFlightScoutCoreBuild = null;
   cachedReviewLookups = null;
   inFlightReviewLookupsBuild = null;
   cachedReviewBase = null;
@@ -1150,62 +1145,6 @@ function resolveDeterministicGwCutoffMs(gw: number): number {
   return Date.UTC(2026, 7, 22, 14, 0, 0) + Math.max(0, gw - 1) * 7 * 86400_000;
 }
 
-function resolveStrictTargetCutoffMs(
-  scheduleByGw: Record<number, ScheduleFixtureSummary[]>,
-  deadlines: Record<string, string> | undefined,
-  targetNextGW: number
-): number {
-  let minKo = Infinity;
-  for (const m of scheduleByGw[targetNextGW] || []) {
-    const ms = m?.kickoff_time ? Date.parse(m.kickoff_time) : NaN;
-    if (Number.isFinite(ms) && ms > 0 && ms < minKo) {
-      minKo = ms;
-    }
-  }
-  if (Number.isFinite(minKo) && minKo < Infinity) {
-    return minKo;
-  }
-  const dlIso = deadlines?.[String(targetNextGW)];
-  const dlMs = dlIso ? Date.parse(dlIso) : NaN;
-  if (Number.isFinite(dlMs) && dlMs > 0) {
-    return dlMs;
-  }
-  return resolveDeterministicGwCutoffMs(targetNextGW);
-}
-
-function sanitizeScheduleForScoutWindow(
-  rawScheduleByGw: Record<number, ScheduleFixtureSummary[]>,
-  targetNextGW: number,
-  minFormingGW: number
-): Record<number, ScheduleFixtureSummary[]> {
-  const out: Record<number, ScheduleFixtureSummary[]> = {};
-  for (let gw = 1; gw <= 38; gw++) {
-    const list = rawScheduleByGw[gw] || [];
-    if (gw < minFormingGW) {
-      out[gw] = [];
-    } else if (gw < targetNextGW) {
-      out[gw] = list.map((f) => ({ ...f }));
-    } else {
-      // GW n and forward: ONLY pure fixture metadata (schedule, opponent, home/away, Blank/DGW, FDR). Zero scores/lineups/finished state.
-      out[gw] = list.map((f) => ({
-        id: Number(f.id || 0),
-        event: Number(f.event || gw),
-        kickoff_time: f.kickoff_time,
-        started: false,
-        finished: false,
-        finished_provisional: false,
-        team_h_difficulty: f.team_h_difficulty,
-        team_a_difficulty: f.team_a_difficulty,
-        team_h_score: null,
-        team_a_score: null,
-        home_team: f.home_team ? { ...f.home_team } : f.home_team,
-        away_team: f.away_team ? { ...f.away_team } : f.away_team,
-      }));
-    }
-  }
-  return out;
-}
-
 function filterPrecalcForWindow(minGw: number, maxGw: number): PrecalcReviewData {
   const matches = precalculatedReviewData.matches.filter((pm) => pm.gw >= minGw && pm.gw <= maxGw);
   const players: Record<string, Record<string, PrecalcPlayerStat>> = {};
@@ -1224,413 +1163,22 @@ function filterPrecalcForWindow(minGw: number, maxGw: number): PrecalcReviewData
   return { matches, players };
 }
 
-function sanitizeDataForScoutWindow(params: {
-  cachedData: TransformedLeagueData;
-  matchesWithLineupsByGw: Record<number, any[]>;
-  precalcPlayersWindow: Record<string, Record<string, PrecalcPlayerStat>>;
-  minFormingGW: number;
-  maxFormingGW: number;
-  targetNextGW: number;
-  targetCutoffMs: number;
-}): TransformedLeagueData {
-  const {
-    cachedData,
-    matchesWithLineupsByGw,
-    precalcPlayersWindow,
-    minFormingGW,
-    maxFormingGW,
-    targetNextGW,
-    targetCutoffMs,
-  } = params;
-
-  type MatchWindowAcc = {
-    mins: number;
-    pts: number;
-    goals: number;
-    assists: number;
-    cs: number;
-    gc: number;
-    og: number;
-    ps: number;
-    pm: number;
-    yc: number;
-    rc: number;
-    saves: number;
-    bonus: number;
-    bps: number;
-    starts: number;
-    infl: number;
-    creat: number;
-    threat: number;
-    ict: number;
-    xG: number;
-    xA: number;
-    xGI: number;
-    xGC: number;
-  };
-  const matchStatByPlayerGw = new Map<number, Map<number, MatchWindowAcc>>();
-
-  for (let gw = minFormingGW; gw <= maxFormingGW; gw++) {
-    const matches = matchesWithLineupsByGw[gw] || [];
-    for (const m of matches) {
-      const ingest = (list: any[] | undefined, isStarter: boolean) => {
-        if (!Array.isArray(list)) return;
-        for (const item of list) {
-          const pid = Number(item?.id || 0);
-          if (!pid) continue;
-          const st = item?.stats || {};
-          const mins = Number(st.minutes ?? item?.minutes ?? 0);
-          const pts = Number(typeof item?.gw_points === 'number' ? item.gw_points : (st.total_points ?? 0));
-          const xg = Number(st.expected_goals ?? 0);
-          const xa = Number(st.expected_assists ?? 0);
-          const xgi = Number(st.expected_goal_involvements ?? (xg + xa));
-          const xgc = Number(st.expected_goals_conceded ?? 0);
-          const infl = Number(st.influence ?? 0);
-          const creat = Number(st.creativity ?? 0);
-          const thr = Number(st.threat ?? 0);
-          const ict = Number(st.ict_index ?? (infl + creat + thr) / 10);
-
-          let pMap = matchStatByPlayerGw.get(pid);
-          if (!pMap) {
-            pMap = new Map();
-            matchStatByPlayerGw.set(pid, pMap);
-          }
-          const cur = pMap.get(gw) || {
-            mins: 0,
-            pts: 0,
-            goals: 0,
-            assists: 0,
-            cs: 0,
-            gc: 0,
-            og: 0,
-            ps: 0,
-            pm: 0,
-            yc: 0,
-            rc: 0,
-            saves: 0,
-            bonus: 0,
-            bps: 0,
-            starts: 0,
-            infl: 0,
-            creat: 0,
-            threat: 0,
-            ict: 0,
-            xG: 0,
-            xA: 0,
-            xGI: 0,
-            xGC: 0,
-          };
-          cur.mins += mins;
-          cur.pts += pts;
-          cur.goals += Number(st.goals_scored ?? 0);
-          cur.assists += Number(st.assists ?? 0);
-          cur.cs += Number(st.clean_sheets ?? 0);
-          cur.gc += Number(st.goals_conceded ?? 0);
-          cur.og += Number(st.own_goals ?? 0);
-          cur.ps += Number(st.penalties_saved ?? 0);
-          cur.pm += Number(st.penalties_missed ?? 0);
-          cur.yc += Number(st.yellow_cards ?? 0);
-          cur.rc += Number(st.red_cards ?? 0);
-          cur.saves += Number(st.saves ?? 0);
-          cur.bonus += Number(st.bonus ?? 0);
-          cur.bps += Number(st.bps ?? 0);
-          cur.starts += isStarter ? 1 : 0;
-          cur.infl += infl;
-          cur.creat += creat;
-          cur.threat += thr;
-          cur.ict += ict;
-          cur.xG += xg;
-          cur.xA += xa;
-          cur.xGI += xgi;
-          cur.xGC += xgc;
-          pMap.set(gw, cur);
-        }
-      };
-      ingest(m?.home_lineup, true);
-      ingest(m?.home_bench, false);
-      ingest(m?.away_lineup, true);
-      ingest(m?.away_bench, false);
-    }
-  }
-
-  const sanitizedPlayers: DbPlayerStat[] = (cachedData.player_stats || []).map((p: any) => {
-    const rawNewsAddedMs = p.newsAdded ? Date.parse(p.newsAdded) : NaN;
-    const isNewsPostCutoff = Number.isFinite(rawNewsAddedMs) && rawNewsAddedMs > targetCutoffMs;
-
-    const windowedHistory = (Array.isArray(p.gwHistory) ? p.gwHistory : []).filter((h: any) => {
-      const r = Number(h?.round || 0);
-      return r >= minFormingGW && r <= maxFormingGW;
-    });
-    const histByGw = new Map<number, any>();
-    for (const h of windowedHistory) {
-      histByGw.set(Number(h.round), h);
-    }
-
-    const pMatchMap = matchStatByPlayerGw.get(p.id);
-    const pPrecalc = precalcPlayersWindow[String(p.id)] || {};
-
-    let minutes = 0;
-    let totalPoints = 0;
-    let goalsScored = 0;
-    let assists = 0;
-    let cleanSheets = 0;
-    let goalsConceded = 0;
-    let ownGoals = 0;
-    let penaltiesSaved = 0;
-    let penaltiesMissed = 0;
-    let yellowCards = 0;
-    let redCards = 0;
-    let saves = 0;
-    let bonus = 0;
-    let bps = 0;
-    let starts = 0;
-    let influence = 0;
-    let creativity = 0;
-    let threat = 0;
-    let ictIndex = 0;
-    let expectedGoals = 0;
-    let expectedAssists = 0;
-    let expectedGoalInvolvements = 0;
-    let expectedGoalsConceded = 0;
-    let playedGws = 0;
-    let hauls = 0;
-    let maxGwPoints = 0;
-    const roundPts: number[] = [];
-
-    for (let g = minFormingGW; g <= maxFormingGW; g++) {
-      const ms = pMatchMap?.get(g);
-      const h = histByGw.get(g);
-      const pc = pPrecalc[String(g)];
-      if (!ms && !h && !pc) continue;
-
-      const gMins = ms ? ms.mins : Number(h?.minutes ?? pc?.mins ?? 0);
-      const gPts = ms ? ms.pts : Number(h?.points ?? pc?.pts ?? 0);
-      const gGoals = ms ? ms.goals : Number(h?.goals ?? 0);
-      const gAssists = ms ? ms.assists : Number(h?.assists ?? 0);
-      const gCs = ms ? ms.cs : Number(h?.cleanSheets ?? 0);
-      const gGc = ms ? ms.gc : Number(h?.goalsConceded ?? 0);
-      const gOg = ms ? ms.og : Number(h?.ownGoals ?? 0);
-      const gPs = ms ? ms.ps : Number(h?.penaltiesSaved ?? 0);
-      const gPm = ms ? ms.pm : Number(h?.penaltiesMissed ?? 0);
-      const gYc = ms ? ms.yc : Number(h?.yellowCards ?? 0);
-      const gRc = ms ? ms.rc : Number(h?.redCards ?? 0);
-      const gSaves = ms ? ms.saves : Number(h?.saves ?? 0);
-      const gBonus = ms ? ms.bonus : Number(h?.bonus ?? 0);
-      const gBps = ms ? ms.bps : Number(h?.bps ?? 0);
-      const gStarts = ms ? ms.starts : pc ? (pc.wasStarter ? 1 : 0) : gMins >= 55 ? 1 : 0;
-      const gXg = ms ? ms.xG : Number(h?.expectedGoals ?? gGoals);
-      const gXa = ms ? ms.xA : Number(h?.expectedAssists ?? gAssists);
-      const gXgi = ms ? ms.xGI : Number(h?.expectedGoalInvolvements ?? (gXg + gXa));
-      const gXgc = ms ? ms.xGC : Number(h?.expectedGoalsConceded ?? gGc);
-      const gInfl = ms ? ms.infl : Number(h?.influence ?? Math.max(0, gPts * 4));
-      const gCreat = ms ? ms.creat : Number(h?.creativity ?? gAssists * 20);
-      const gThreat = ms ? ms.threat : Number(h?.threat ?? gGoals * 22);
-      const gIct = ms ? ms.ict : Number(h?.ictIndex ?? (gInfl + gCreat + gThreat) / 10);
-
-      minutes += gMins;
-      totalPoints += gPts;
-      goalsScored += gGoals;
-      assists += gAssists;
-      cleanSheets += gCs;
-      goalsConceded += gGc;
-      ownGoals += gOg;
-      penaltiesSaved += gPs;
-      penaltiesMissed += gPm;
-      yellowCards += gYc;
-      redCards += gRc;
-      saves += gSaves;
-      bonus += gBonus;
-      bps += gBps;
-      starts += gStarts;
-      influence += gInfl;
-      creativity += gCreat;
-      threat += gThreat;
-      ictIndex += gIct;
-      expectedGoals += gXg;
-      expectedAssists += gXa;
-      expectedGoalInvolvements += gXgi;
-      expectedGoalsConceded += gXgc;
-
-      if (gMins > 0) playedGws++;
-      roundPts.push(gPts);
-      if (gPts >= 10) hauls++;
-      if (gPts > maxGwPoints) maxGwPoints = gPts;
-    }
-
-    const spanGws = maxFormingGW >= minFormingGW ? maxFormingGW - minFormingGW + 1 : 1;
-    const recent = roundPts.slice(-4);
-    const form = recent.length > 0 ? Math.round((recent.reduce((s, v) => s + v, 0) / recent.length) * 10) / 10 : 0;
-    const ppg = playedGws > 0 ? Math.round((totalPoints / playedGws) * 10) / 10 : 0;
-    const haulRate = hauls > 0 ? Math.round((hauls / Math.max(spanGws, 1)) * 100) : 0;
-
-    return {
-      ...p,
-      status: isNewsPostCutoff ? 'a' : p.status,
-      news: isNewsPostCutoff ? '' : p.news,
-      newsAdded: isNewsPostCutoff ? '' : p.newsAdded,
-      chanceOfPlayingNextRound: isNewsPostCutoff ? 100 : p.chanceOfPlayingNextRound,
-      chanceOfPlayingThisRound: isNewsPostCutoff ? 100 : p.chanceOfPlayingThisRound,
-      minutes,
-      totalPoints,
-      goalsScored,
-      assists,
-      cleanSheets,
-      goalsConceded,
-      ownGoals,
-      penaltiesSaved,
-      penaltiesMissed,
-      yellowCards,
-      redCards,
-      saves,
-      bonus,
-      bps,
-      starts,
-      influence: Math.round(influence * 10) / 10,
-      creativity: Math.round(creativity * 10) / 10,
-      threat: Math.round(threat * 10) / 10,
-      ictIndex: Math.round(ictIndex * 10) / 10,
-      expectedGoals: Math.round(expectedGoals * 100) / 100,
-      expectedAssists: Math.round(expectedAssists * 100) / 100,
-      expectedGoalInvolvements: Math.round(expectedGoalInvolvements * 100) / 100,
-      expectedGoalsConceded: Math.round(expectedGoalsConceded * 100) / 100,
-      form,
-      pointsPerGame: ppg,
-      doubleDigitHauls: hauls,
-      maxGwPoints,
-      haulRate,
-      explosiveIndex: hauls * 22,
-      gwHistory: windowedHistory,
-    };
-  });
-
-  const filteredStandings: Record<number, any[]> = {};
-  for (const [k, list] of Object.entries(cachedData.standings || {})) {
-    const gw = Number(k);
-    if (!Number.isFinite(gw) || gw > targetNextGW) continue;
-    filteredStandings[gw] =
-      gw === targetNextGW
-        ? (list || []).map((row) => ({ ...row, event_points: 0, points_on_bench: 0 }))
-        : list;
-  }
-
-  const filteredOwnership: Record<number, any[]> = {};
-  for (const [k, list] of Object.entries(cachedData.ownership_players || {})) {
-    const gw = Number(k);
-    if (!Number.isFinite(gw) || gw > targetNextGW) continue;
-    filteredOwnership[gw] = list;
-  }
-
-  const filteredTransfers = (cachedData.all_transfers || []).filter(
-    (tr) => Number(tr?.event || 0) < targetNextGW
-  );
-
-  const maskChip = (c: { gw: number; points: number } | null | undefined) => {
-    if (!c || Number(c.gw || 0) > targetNextGW) return null;
-    return Number(c.gw) === targetNextGW ? { gw: c.gw, points: 0 } : c;
-  };
-  const filteredChips = (cachedData.all_chips_used || []).map((row) => ({
-    ...row,
-    wc1: maskChip(row.wc1),
-    wc2: maskChip(row.wc2),
-    tc1: maskChip(row.tc1),
-    tc2: maskChip(row.tc2),
-    bb1: maskChip(row.bb1),
-    bb2: maskChip(row.bb2),
-    fh1: maskChip(row.fh1),
-    fh2: maskChip(row.fh2),
-  }));
-
-  const rawDeadlines = cachedData.sync_status?.deadlines;
-  const filteredDeadlines = rawDeadlines
-    ? Object.fromEntries(
-        Object.entries(rawDeadlines).filter(([k]) => {
-          const g = Number(k);
-          return Number.isFinite(g) && g <= targetNextGW;
-        })
-      )
-    : undefined;
-
-  return {
-    ...cachedData,
-    current_gw: Math.min(cachedData.current_gw || targetNextGW, targetNextGW),
-    player_stats: sanitizedPlayers,
-    standings: filteredStandings,
-    ownership_players: filteredOwnership,
-    all_transfers: filteredTransfers,
-    all_chips_used: filteredChips,
-    sync_status: cachedData.sync_status
-      ? {
-          ...cachedData.sync_status,
-          deadlines: filteredDeadlines,
-        }
-      : cachedData.sync_status,
-  };
-}
-
-// ============================================================================
-// CORE ENGINE: PROJECTION CONTEXT (MATCHES, CLUB STATS, LINEUPS, PLAYER xP)
-// ============================================================================
 async function buildRuntimeCoreContext(
   cachedData: TransformedLeagueData,
-  force: boolean,
-  isScoutWindow: boolean
+  force: boolean
 ): Promise<CoreRuntimeContext> {
   const epoch = computeProjectionEpochInfo(cachedData);
   const startMs = Date.now();
   const { targetNextGW, isCurrentGwFinishedOrConfirmed } = epoch;
-  const minFormingGW = isScoutWindow ? SCOUT_MIN_FORMING_GW : 1;
-  const baseHistoricalGW = isScoutWindow
-    ? Math.max(0, Math.min(epoch.baseHistoricalGW, targetNextGW - 1))
-    : epoch.baseHistoricalGW;
+  const minFormingGW = 1;
+  const baseHistoricalGW = epoch.baseHistoricalGW;
 
-  const { clubs, scheduleByGw: rawScheduleByGw, matchesWithLineupsByGw: rawMatchesWithLineupsByGw } =
+  const { clubs, scheduleByGw, matchesWithLineupsByGw } =
     await buildUnifiedScheduleAndLineups(cachedData, epoch, force);
 
-  const rawDeadlines = cachedData.sync_status?.deadlines;
-  const deadlines =
-    isScoutWindow && rawDeadlines
-      ? Object.fromEntries(
-          Object.entries(rawDeadlines).filter(([k]) => {
-            const g = Number(k);
-            return Number.isFinite(g) && g <= targetNextGW;
-          })
-        )
-      : rawDeadlines;
-
-  const targetCutoffMs = isScoutWindow
-    ? resolveStrictTargetCutoffMs(rawScheduleByGw, deadlines, targetNextGW)
-    : undefined;
-
-  const scheduleByGw = isScoutWindow
-    ? sanitizeScheduleForScoutWindow(rawScheduleByGw, targetNextGW, minFormingGW)
-    : rawScheduleByGw;
-
-  const matchesWithLineupsByGw: Record<number, any[]> = {};
-  if (isScoutWindow) {
-    for (let gw = minFormingGW; gw <= baseHistoricalGW; gw++) {
-      if (rawMatchesWithLineupsByGw[gw] && rawMatchesWithLineupsByGw[gw].length > 0) {
-        matchesWithLineupsByGw[gw] = rawMatchesWithLineupsByGw[gw];
-      }
-    }
-  } else {
-    Object.assign(matchesWithLineupsByGw, rawMatchesWithLineupsByGw);
-  }
-
-  const effectivePrecalc = isScoutWindow
-    ? filterPrecalcForWindow(minFormingGW, baseHistoricalGW)
-    : precalculatedReviewData;
-
-  const effectiveData = isScoutWindow
-    ? sanitizeDataForScoutWindow({
-        cachedData,
-        matchesWithLineupsByGw,
-        precalcPlayersWindow: effectivePrecalc.players,
-        minFormingGW,
-        maxFormingGW: baseHistoricalGW,
-        targetNextGW,
-        targetCutoffMs: targetCutoffMs!,
-      })
-    : cachedData;
+  const deadlines = cachedData.sync_status?.deadlines;
+  const effectivePrecalc = precalculatedReviewData;
+  const effectiveData = cachedData;
 
   // 1. Build merged historical matches map for club stats (prefers Pulse/live, overlays schedule + precalc)
   const historicalMatchesForStats: Record<number, any[]> = {};
@@ -1646,8 +1194,7 @@ async function buildRuntimeCoreContext(
     clubs,
     effectiveData.player_stats || [],
     historicalMatchesForStats,
-    baseHistoricalGW,
-    isScoutWindow ? { minHistoricalGW: minFormingGW, skipRawPlayerAggregates: true } : undefined
+    baseHistoricalGW
   );
 
   // Build club next matches directly from scheduleByGw[targetNextGW] BEFORE Stage 1
@@ -1801,55 +1348,37 @@ async function buildRuntimeCoreContext(
     let maxPts = 0;
     let sampleGws = gwPts.size;
 
-    if (isScoutWindow) {
+    const earlyGwsMissing = Array.from({ length: Math.min(8, baseHistoricalGW) }, (_, i) => i + 1).some(
+      (g) => !gwPts.has(g)
+    );
+
+    if (earlyGwsMissing && expProfile) {
+      hauls = expProfile.hauls;
+      maxPts = expProfile.maxPts;
+      let extraGws = 0;
+      for (const [gw, pts] of gwPts.entries()) {
+        if (gw > 8) {
+          extraGws++;
+          if (pts >= 10) hauls++;
+          if (pts > maxPts) maxPts = pts;
+        }
+      }
+      sampleGws = Math.max(8 + extraGws, baseHistoricalGW, 1);
+    } else {
       for (const pts of gwPts.values()) {
         if (pts >= 10) hauls++;
         if (pts > maxPts) maxPts = pts;
       }
-      if (expProfile?.haulGWs) {
-        for (const hItem of expProfile.haulGWs) {
-          if (hItem.gw >= minFormingGW && hItem.gw <= baseHistoricalGW && !gwPts.has(hItem.gw)) {
-            hauls++;
-            if (hItem.pts > maxPts) maxPts = hItem.pts;
-          }
-        }
-      }
-      sampleGws = Math.max(sampleGws, windowSpanGws, 1);
-      const haulRate = hauls > 0 ? Math.round((hauls / Math.max(sampleGws, 1)) * 100) : 0;
-      dynamicExplosiveById.set(p.id, { hauls, maxPts, haulRate });
-    } else {
-      const earlyGwsMissing = Array.from({ length: Math.min(8, baseHistoricalGW) }, (_, i) => i + 1).some(
-        (g) => !gwPts.has(g)
-      );
-
-      if (earlyGwsMissing && expProfile) {
-        hauls = expProfile.hauls;
-        maxPts = expProfile.maxPts;
-        let extraGws = 0;
-        for (const [gw, pts] of gwPts.entries()) {
-          if (gw > 8) {
-            extraGws++;
-            if (pts >= 10) hauls++;
-            if (pts > maxPts) maxPts = pts;
-          }
-        }
-        sampleGws = Math.max(8 + extraGws, baseHistoricalGW, 1);
-      } else {
-        for (const pts of gwPts.values()) {
-          if (pts >= 10) hauls++;
-          if (pts > maxPts) maxPts = pts;
-        }
-        hauls = Math.max(hauls, Number((p as any).doubleDigitHauls || 0));
-        maxPts = Math.max(maxPts, Number((p as any).maxGwPoints || 0));
-        sampleGws = Math.max(sampleGws, baseHistoricalGW, 1);
-      }
-
-      const haulRate =
-        hauls > 0
-          ? Math.round((hauls / Math.max(sampleGws, 1)) * 100)
-          : (expProfile?.haulRate ?? Number((p as any).haulRate || 0));
-      dynamicExplosiveById.set(p.id, { hauls, maxPts, haulRate });
+      hauls = Math.max(hauls, Number((p as any).doubleDigitHauls || 0));
+      maxPts = Math.max(maxPts, Number((p as any).maxGwPoints || 0));
+      sampleGws = Math.max(sampleGws, baseHistoricalGW, 1);
     }
+
+    const haulRate =
+      hauls > 0
+        ? Math.round((hauls / Math.max(sampleGws, 1)) * 100)
+        : (expProfile?.haulRate ?? Number((p as any).haulRate || 0));
+    dynamicExplosiveById.set(p.id, { hauls, maxPts, haulRate });
   }
 
   // =========================================================================
@@ -1858,9 +1387,9 @@ async function buildRuntimeCoreContext(
   const N = Math.max(windowSpanGws, 1);
   const playerPosSeed = buildPulsePositionInfoSeed(allPlayers);
   const playerTeamMap = new Map<number, string>(allPlayers.map((p) => [p.id, p.teamShort]));
-  const extraAllCompSides = buildHybridExtraAllCompSides(targetCutoffMs);
+  const extraAllCompSides = buildHybridExtraAllCompSides();
   const clubShorts = clubs.map((c) => c.short);
-  const kickoffsByClub = buildAllCompKickoffIndex(scheduleByGw, matchesWithLineupsByGw, targetCutoffMs);
+  const kickoffsByClub = buildAllCompKickoffIndex(scheduleByGw, matchesWithLineupsByGw);
 
   const allPlayersByClub = new Map<string, DbPlayerStat[]>();
   for (const p of allPlayers) {
@@ -1888,8 +1417,7 @@ async function buildRuntimeCoreContext(
       playerPosSeed,
       effectivePrecalc.players,
       playerTeamMap,
-      extraAllCompSides,
-      isScoutWindow ? { minGw: minFormingGW, maxKickoffMs: targetCutoffMs } : undefined
+      extraAllCompSides
     );
 
     const gwMatchByClub = new Map<string, { kickoffIso?: string; kickoffMs: number; isHome: boolean }>();
@@ -2007,8 +1535,7 @@ async function buildRuntimeCoreContext(
     playerPosSeed,
     effectivePrecalc.players,
     playerTeamMap,
-    extraAllCompSides,
-    isScoutWindow ? { minGw: minFormingGW, maxKickoffMs: targetCutoffMs } : undefined
+    extraAllCompSides
   );
 
   const targetCutoffMsByClub: Record<string, number> = {};
@@ -2128,10 +1655,7 @@ async function buildRuntimeCoreContext(
         {
           ...p,
           doubleDigitHauls: dynExp?.hauls ?? (p as any).doubleDigitHauls,
-        } as any,
-        isScoutWindow
-          ? { minGw: minFormingGW, maxGw: baseHistoricalGW, strictCausal: true }
-          : undefined
+        } as any
       );
 
       const rawNews = p.news || '';
@@ -2193,7 +1717,7 @@ async function buildRuntimeCoreContext(
   // =========================================================================
   // STAGE 2 (DOWNSTREAM OF STAGE 1): CAUSAL S9 ENSEMBLE MATCH SCORE / xG / CS%
   // =========================================================================
-  const nonEplScoreRecords = buildNonEplMatchScoreRecords(targetCutoffMs);
+  const nonEplScoreRecords = buildNonEplMatchScoreRecords();
   const resolveGwFirstKickoffMs = (gw: number, fallbackMs: number): number => {
     const list = (matchesWithLineupsByGw[gw]?.length ? matchesWithLineupsByGw[gw] : scheduleByGw[gw]) || [];
     let minMs = Infinity;
@@ -2228,9 +1752,7 @@ async function buildRuntimeCoreContext(
     );
   }
 
-  const futureCutoffMs = isScoutWindow
-    ? targetCutoffMs!
-    : resolveGwFirstKickoffMs(targetNextGW, resolveDeterministicGwCutoffMs(targetNextGW));
+  const futureCutoffMs = resolveGwFirstKickoffMs(targetNextGW, resolveDeterministicGwCutoffMs(targetNextGW));
   const futureMatchModel = fitCausalMatchScoreModel({
     clubs,
     players: allPlayers,
@@ -2412,12 +1934,7 @@ async function buildRuntimeCoreContext(
     deadBallByPlayerId.set(p.id, resolveDeadBallDuties(p.webName, p.fullName, p.teamShort, p));
     provenByPlayerId.set(
       p.id,
-      getFplProvenStatus(
-        { ...p, doubleDigitHauls: hauls } as any,
-        isScoutWindow
-          ? { minGw: minFormingGW, maxGw: baseHistoricalGW, strictCausal: true }
-          : undefined
-      )
+      getFplProvenStatus({ ...p, doubleDigitHauls: hauls } as any)
     );
     expectedReturnByPlayerId.set(
       p.id,
@@ -2659,11 +2176,10 @@ async function buildRuntimeCoreContext(
     extraAllCompSides,
     calibByGw,
     quantilesByPlayerGw,
-    ...(isScoutWindow ? { scoutSanitizedData: effectiveData } : {}),
   };
 
   console.log(
-    `[ProjectionEngine] Built ${isScoutWindow ? `Scout Window (GW${minFormingGW}-${baseHistoricalGW})` : 'Core'} Context epoch=${epoch.epochKey} (${allPlayerFullSeasonProjections.length} players) in ${Date.now() - startMs}ms`
+    `[ProjectionEngine] Built Core Context epoch=${epoch.epochKey} (${allPlayerFullSeasonProjections.length} players) in ${Date.now() - startMs}ms`
   );
   return ctx;
 }
@@ -2683,7 +2199,7 @@ async function getOrBuildCoreContext(
   }
 
   const buildPromise = (async (): Promise<CoreRuntimeContext> => {
-    const ctx = await buildRuntimeCoreContext(cachedData, force, false);
+    const ctx = await buildRuntimeCoreContext(cachedData, force);
     cachedCoreContext = ctx;
     return ctx;
   })();
@@ -2694,36 +2210,6 @@ async function getOrBuildCoreContext(
   } finally {
     if (inFlightCoreBuild?.promise === buildPromise) {
       inFlightCoreBuild = null;
-    }
-  }
-}
-
-async function getOrBuildScoutCoreContext(
-  cachedData: TransformedLeagueData,
-  force: boolean = false
-): Promise<CoreRuntimeContext> {
-  const epoch = computeProjectionEpochInfo(cachedData);
-
-  if (!force && cachedScoutCoreContext && cachedScoutCoreContext.epoch.epochKey === epoch.epochKey) {
-    return cachedScoutCoreContext;
-  }
-
-  if (!force && inFlightScoutCoreBuild && inFlightScoutCoreBuild.epochKey === epoch.epochKey) {
-    return inFlightScoutCoreBuild.promise;
-  }
-
-  const buildPromise = (async (): Promise<CoreRuntimeContext> => {
-    const ctx = await buildRuntimeCoreContext(cachedData, force, true);
-    cachedScoutCoreContext = ctx;
-    return ctx;
-  })();
-
-  inFlightScoutCoreBuild = { epochKey: epoch.epochKey, promise: buildPromise };
-  try {
-    return await buildPromise;
-  } finally {
-    if (inFlightScoutCoreBuild?.promise === buildPromise) {
-      inFlightScoutCoreBuild = null;
     }
   }
 }
@@ -3906,21 +3392,20 @@ export async function getServerScoutSquads(
 
   const buildPromise = (async (): Promise<ServerScoutSquadsPayload> => {
     const startMs = Date.now();
-    const scoutCoreCtx = await getOrBuildScoutCoreContext(cachedData, force);
-    const { targetNextGW } = scoutCoreCtx.epoch;
-    const maxFormingGW = scoutCoreCtx.corePayload.baseHistoricalGW;
-    const scoutData = scoutCoreCtx.scoutSanitizedData || cachedData;
+    const coreCtx = await getOrBuildCoreContext(cachedData, force);
+    const { targetNextGW } = coreCtx.epoch;
+    const maxFormingGW = Math.max(0, Math.min(coreCtx.corePayload.baseHistoricalGW, targetNextGW - 1));
     const precalcWindow = filterPrecalcForWindow(SCOUT_MIN_FORMING_GW, maxFormingGW);
 
     const actualPlayerStatsMap = buildServerActualPlayerStatsMap(
-      scoutData,
-      scoutCoreCtx.matchesWithLineupsByGw,
+      cachedData,
+      coreCtx.matchesWithLineupsByGw,
       maxFormingGW,
       SCOUT_MIN_FORMING_GW,
       precalcWindow.players
     );
 
-    const scoutPlayers: ScoutModelPlayerInput[] = scoutCoreCtx.corePayload.allPlayerFullSeasonProjections.map(
+    const scoutPlayers: ScoutModelPlayerInput[] = coreCtx.corePayload.allPlayerFullSeasonProjections.map(
       (proj) => ({
         id: proj.id,
         position: proj.position,
@@ -3933,7 +3418,7 @@ export async function getServerScoutSquads(
       })
     );
 
-    const calInputs = buildStrictPreTargetCalibrationInputs(scoutData, targetNextGW);
+    const calInputs = buildStrictPreTargetCalibrationInputs(cachedData, targetNextGW);
 
     // Run strict causal isolated walk-forward policy calibration across GW 3..maxFormingGW (n-1)
     const policy = await calibrateScoutPolicyWalkForward({
@@ -3947,7 +3432,7 @@ export async function getServerScoutSquads(
       standingsByGw: calInputs.standingsByGw,
       allTransfers: calInputs.allTransfers,
       allChipsUsed: calInputs.allChipsUsed,
-      quantilesByPlayerGw: scoutCoreCtx.quantilesByPlayerGw,
+      quantilesByPlayerGw: coreCtx.quantilesByPlayerGw,
     });
 
     const fhTargetRaw = solveScoutSquadForGwMode({
@@ -4018,10 +3503,10 @@ export async function getServerScoutSquads(
     }
 
     const scoutCtx = buildServerScoutContext({
-      cachedData: scoutData,
-      corePayload: scoutCoreCtx.corePayload,
+      cachedData,
+      corePayload: coreCtx.corePayload,
       actualPlayerStatsMap,
-      matchesWithLineupsByGw: scoutCoreCtx.matchesWithLineupsByGw,
+      matchesWithLineupsByGw: coreCtx.matchesWithLineupsByGw,
       policy,
     });
     cachedScoutContext = scoutCtx;
@@ -4040,7 +3525,7 @@ export async function getServerScoutSquads(
     );
 
     const payload: ServerScoutSquadsPayload = {
-      epochKey: scoutCoreCtx.epoch.epochKey,
+      epochKey: coreCtx.epoch.epochKey,
       generatedAt: new Date().toISOString(),
       targetNextGW,
       fhTarget,
@@ -4054,7 +3539,7 @@ export async function getServerScoutSquads(
 
     cachedScoutPayload = payload;
     console.log(
-      `[ProjectionEngine] Solved Walk-Fwd Scout Squads+Policy epoch=${scoutCoreCtx.epoch.epochKey} (${Object.keys(chipSetByGw).length} GWs, cal=GW${policy.calibrationGwRange[0]}-${policy.calibrationGwRange[1]}) in ${Date.now() - startMs}ms`
+      `[ProjectionEngine] Solved Walk-Fwd Scout Squads+Policy epoch=${coreCtx.epoch.epochKey} (${Object.keys(chipSetByGw).length} GWs, cal=GW${policy.calibrationGwRange[0]}-${policy.calibrationGwRange[1]}) in ${Date.now() - startMs}ms`
     );
     return payload;
   })();
@@ -4113,35 +3598,34 @@ export async function getServerScoutManagerAnalysis(
   const lang: 'id' | 'en' = options.lang === 'en' ? 'en' : 'id';
   const force = Boolean(options.force);
 
-  const [scoutCoreCtx, scoutPayload] = await Promise.all([
-    getOrBuildScoutCoreContext(cachedData, force),
+  const [coreCtx, scoutPayload] = await Promise.all([
+    getOrBuildCoreContext(cachedData, force),
     getServerScoutSquads(cachedData, force),
   ]);
-  const scoutData = scoutCoreCtx.scoutSanitizedData || cachedData;
-  const maxFormingGW = scoutCoreCtx.corePayload.baseHistoricalGW;
+  const maxFormingGW = Math.max(0, Math.min(coreCtx.corePayload.baseHistoricalGW, coreCtx.epoch.targetNextGW - 1));
 
   let scoutCtx = cachedScoutContext;
-  if (!scoutCtx || scoutCtx.epochKey !== scoutCoreCtx.epoch.epochKey || force) {
+  if (!scoutCtx || scoutCtx.epochKey !== coreCtx.epoch.epochKey || force) {
     const precalcWindow = filterPrecalcForWindow(SCOUT_MIN_FORMING_GW, maxFormingGW);
     const actualPlayerStatsMap = buildServerActualPlayerStatsMap(
-      scoutData,
-      scoutCoreCtx.matchesWithLineupsByGw,
+      cachedData,
+      coreCtx.matchesWithLineupsByGw,
       maxFormingGW,
       SCOUT_MIN_FORMING_GW,
       precalcWindow.players
     );
     scoutCtx = buildServerScoutContext({
-      cachedData: scoutData,
-      corePayload: scoutCoreCtx.corePayload,
+      cachedData,
+      corePayload: coreCtx.corePayload,
       actualPlayerStatsMap,
-      matchesWithLineupsByGw: scoutCoreCtx.matchesWithLineupsByGw,
+      matchesWithLineupsByGw: coreCtx.matchesWithLineupsByGw,
       policy: scoutPayload.policy as ScoutSelectionPolicy | undefined,
     });
     cachedScoutContext = scoutCtx;
   }
 
   const { activeManager, activeSquadIds } = resolveManagerAndSquadForScout(
-    scoutData,
+    cachedData,
     scoutCtx,
     options.entryId
   );
@@ -4149,7 +3633,7 @@ export async function getServerScoutManagerAnalysis(
 
   const { bankBalance, ftAllowance, transfers: managerTransfers, chips: managerChips } =
     await fetchServerManagerFinances({
-      cachedData: scoutData,
+      cachedData,
       entryId: resolvedEntryId,
       baseHistoricalGW: scoutCtx.baseHistoricalGW,
       targetNextGW: scoutCtx.targetNextGW,
@@ -4159,7 +3643,7 @@ export async function getServerScoutManagerAnalysis(
   const sellingPriceById =
     section === 'transfer' || section === 'all'
       ? await resolveManagerSellingPrices({
-          cachedData: scoutData,
+          cachedData,
           entryId: resolvedEntryId,
           activeSquadIds,
           upToGw: scoutCtx.effectiveOwnershipGW,
@@ -4175,7 +3659,7 @@ export async function getServerScoutManagerAnalysis(
         .map(([id, sp]) => `${id}:${sp}`)
         .join(',')
     : 'none';
-  const cacheKey = `${scoutCoreCtx.epoch.epochKey}:${resolvedEntryId}:${ftAllowance}:${bankBalance}:${section}:${transferMode}:${transferHorizon}:${lang}:${spSig}`;
+  const cacheKey = `${coreCtx.epoch.epochKey}:${resolvedEntryId}:${ftAllowance}:${bankBalance}:${section}:${transferMode}:${transferHorizon}:${lang}:${spSig}`;
   if (!force) {
     const cached = cachedManagerAnalysis.get(cacheKey);
     if (cached) return cached;
@@ -4188,7 +3672,7 @@ export async function getServerScoutManagerAnalysis(
     const chips =
       section === 'chips' || section === 'all'
         ? computeServerChipsAnalysis({
-            cachedData: scoutData,
+            cachedData,
             ctx: scoutCtx!,
             scoutPayload,
             activeManager,
@@ -4209,13 +3693,13 @@ export async function getServerScoutManagerAnalysis(
             transferMode,
             transferHorizon,
             lang,
-            quantilesByPlayerGw: scoutCoreCtx.quantilesByPlayerGw,
+            quantilesByPlayerGw: coreCtx.quantilesByPlayerGw,
             sellingPriceById,
           })
         : undefined;
 
     const payload: ServerScoutManagerAnalysisPayload = {
-      epochKey: scoutCoreCtx.epoch.epochKey,
+      epochKey: coreCtx.epoch.epochKey,
       generatedAt: new Date().toISOString(),
       targetNextGW: scoutCtx!.targetNextGW,
       baseHistoricalGW: scoutCtx!.baseHistoricalGW,
@@ -4233,7 +3717,7 @@ export async function getServerScoutManagerAnalysis(
     }
     cachedManagerAnalysis.set(cacheKey, payload);
     console.log(
-      `[ProjectionEngine] Computed Scout Manager Analysis (${section}) entry=${resolvedEntryId} epoch=${scoutCoreCtx.epoch.epochKey} in ${Date.now() - startMs}ms`
+      `[ProjectionEngine] Computed Scout Manager Analysis (${section}) entry=${resolvedEntryId} epoch=${coreCtx.epoch.epochKey} in ${Date.now() - startMs}ms`
     );
     return payload;
   })();

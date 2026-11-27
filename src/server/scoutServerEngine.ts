@@ -523,8 +523,8 @@ export function buildServerScoutContext(params: {
     const xP1 = isBlankTarget
       ? 0
       : targetCell?.xp !== undefined
-      ? Number(targetCell.xp.toFixed(1))
-      : Number((form * 0.55 + ppg * 0.35 + xGI * 0.4).toFixed(1));
+      ? round1(targetCell.xp)
+      : round1(form * 0.55 + ppg * 0.35 + xGI * 0.4);
 
     let sum6 = 0;
     const fixtures6: Array<{
@@ -539,7 +539,7 @@ export function buildServerScoutContext(params: {
     for (const g of wildcardGWs) {
       const cell = fullSeasonPointsMap[g];
       const cellBlank = Boolean(cell?.isBlank);
-      const gXp = cellBlank ? 0 : cell?.xp !== undefined ? Number(cell.xp.toFixed(1)) : xP1;
+      const gXp = cellBlank ? 0 : cell?.xp !== undefined ? round1(cell.xp) : xP1;
       const gOpp = cellBlank ? 'Blank' : cell?.opp ? cell.opp : g === targetNextGW ? targetOpp : '-';
       const gHome = cell?.isHome ?? (g === targetNextGW ? targetIsHome : true);
       sum6 += gXp;
@@ -553,8 +553,8 @@ export function buildServerScoutContext(params: {
       });
     }
 
-    const avgXp6 = wildcardGWs.length > 0 ? Number((sum6 / wildcardGWs.length).toFixed(1)) : xP1;
-    const totalXp6 = Number(sum6.toFixed(1));
+    const avgXp6 = wildcardGWs.length > 0 ? round1(sum6 / wildcardGWs.length) : xP1;
+    const totalXp6 = round1(sum6);
     const fixtures1 =
       fixtures6.length > 0
         ? [fixtures6[0]]
@@ -572,7 +572,7 @@ export function buildServerScoutContext(params: {
     const fixtures3 = fixtures6.slice(0, 3);
     const avgXp3 =
       fixtures3.length > 0
-        ? Number((fixtures3.reduce((s, f) => s + f.xp, 0) / fixtures3.length).toFixed(1))
+        ? round1(fixtures3.reduce((s, f) => s + f.xp, 0) / fixtures3.length)
         : xP1;
 
     const position = (proj?.position || p.position || 'MID') as PositionType;
