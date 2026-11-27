@@ -159,6 +159,7 @@ export interface SyncPulseAllCompResult {
   scheduleFixturesTotal: number;
   completedFixturesTotal: number;
   newlyFetchedMatches: number;
+  newlyFetchedNonPlMatches: number;
   skippedFinalized: number;
   failedMatches: number;
   durationMs: number;
@@ -1378,6 +1379,7 @@ export async function syncPulseAllCompDatabase(options?: {
 
     const skippedFinalized = completedFixtures.length - missingCompleted.length;
     let newlyFetchedMatches = 0;
+    let newlyFetchedNonPlMatches = 0;
     let failedMatches = 0;
 
     if (toProcess.length > 0) {
@@ -1450,6 +1452,7 @@ export async function syncPulseAllCompDatabase(options?: {
           fix.detailHasLineup = true;
           fix.detailSyncedAt = syncedAt;
           newlyFetchedMatches++;
+          if (fix.compId !== 1) newlyFetchedNonPlMatches++;
         } catch (err: any) {
           failedMatches++;
           console.warn(`[PulseAllCompDB] Failed detail for match ${fix.pulseMatchId}:`, err?.message || err);
@@ -1482,6 +1485,7 @@ export async function syncPulseAllCompDatabase(options?: {
       scheduleFixturesTotal: currentSchedule.fixtures.length,
       completedFixturesTotal: completedFixtures.length,
       newlyFetchedMatches,
+      newlyFetchedNonPlMatches,
       skippedFinalized,
       failedMatches,
       durationMs: Date.now() - startMs,
@@ -1610,6 +1614,7 @@ export async function runEventDrivenAllCompSyncTick(options?: {
         const syncRes = await syncPulseAllCompDatabase({ forceSchedule: true });
         scheduleRefreshed = true;
         newlyFinalizedMatches += syncRes.newlyFetchedMatches;
+        newlyFinalizedNonPlCount += syncRes.newlyFetchedNonPlMatches;
       }
 
       // Now inspect updated plan & fetch surgical target details for LINEUP / FT / CATCHUP windows

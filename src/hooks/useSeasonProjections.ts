@@ -48,21 +48,6 @@ const DEFAULT_PROJECTED_FIXTURE: ProjectedFixtureOutcome = {
   awayExpGcPenalty: 0.43,
 };
 
-function isEpochCompatible(payloadEpoch?: string | null, targetEpoch?: string | null): boolean {
-  if (!payloadEpoch || !targetEpoch) return false;
-  if (payloadEpoch === targetEpoch) return true;
-  const payloadParts = payloadEpoch.split(':');
-  const targetParts = targetEpoch.split(':');
-  if (targetParts.length === 3 && payloadParts.length >= 4) {
-    return payloadEpoch.startsWith(`${targetEpoch}:`);
-  }
-  return false;
-}
-
-function hasFullServerEpochKey(epochKey?: string | null): boolean {
-  return Boolean(epochKey && epochKey.split(':').length >= 4);
-}
-
 export function useSeasonProjections({
   enabled = true,
   leagueData,
@@ -77,23 +62,21 @@ export function useSeasonProjections({
   const [isLoadingMatches, setIsLoadingMatches] = useState<boolean>(false);
   const [isLoadingScoutSquads, setIsLoadingScoutSquads] = useState<boolean>(false);
   const [idbHydrated, setIdbHydrated] = useState<boolean>(false);
-  const [formulaRevision, setFormulaRevision] = useState<number>(0);
+  const [refreshRevision, setRefreshRevision] = useState<number>(0);
+
   const inFlightCoreRef = useRef<{
-    epochKey: string;
+    rev: number;
     promise: Promise<ServerProjectionCorePayload | null>;
   } | null>(null);
   const inFlightScoutRef = useRef<{
-    epochKey: string;
+    rev: number;
     promise: Promise<ServerScoutSquadsPayload | null>;
   } | null>(null);
-  // Tracks whether this browser session has verified Core / Scout payloads with the live server
-  const verifiedCoreEpochRef = useRef<string | null>(null);
-  const verifiedCoreServerEpochRef = useRef<string | null>(null);
-  const verifiedScoutEpochRef = useRef<string | null>(null);
-  const verifiedScoutServerEpochRef = useRef<string | null>(null);
+  const fetchedCoreRevRef = useRef<number>(-1);
+  const fetchedScoutRevRef = useRef<number>(-1);
+  const lastSyncSigRef = useRef<string | null>(null);
 
-  // Deterministic GW Epoch Key:
-  // Combines GW lifecycle state + server formula source fingerprint (detects edits AND rollbacks!)
+  // Lightweight GW lifecycle metadata (display + fallback before server payload lands)
   const epochInfo = useMemo(() => {
     const avail =
       Array.isArray(availableGWs) && availableGWs.length > 0
@@ -141,7 +124,7 @@ export function useSeasonProjections({
     };
   }, [availableGWs, currentGW, eventsStatus, gwStatus, syncStatus, leagueData?.available_gws, leagueData?.events_status, leagueData?.gw_status, leagueData?.sync_status]);
 
-  // Hydrate both core projections and scout squads from persistent IndexedDB on mount ONLY if epoch matches
+  // Hydrate instant IndexedDB preview on mount unconditionally (no epochKey gate)
   useEffect(() => {
     let mounted = true;
     Promise.all([
@@ -149,26 +132,18 @@ export function useSeasonProjections({
       loadScoutSquadsFromIndexedDB<ServerScoutSquadsPayload>().catch(() => null),
     ]).then(([cachedCore, cachedScout]) => {
       if (!mounted) return;
-      if (
-        cachedCore &&
-        cachedCore.epochKey &&
-        Array.isArray(cachedCore.allPlayerFullSeasonProjections) &&
-        isEpochCompatible(cachedCore.epochKey, epochInfo.epochKey)
-      ) {
+      if (cachedCore && Array.isArray(cachedCore.allPlayerFullSeasonProjections)) {
         setCorePayload((prev) => prev || cachedCore);
       }
-
       if (
         cachedScout &&
-        cachedScout.epochKey &&
         cachedScout.fhTarget &&
         cachedScout.wcTarget &&
         Array.isArray(cachedScout.fhTarget.starters) &&
         Array.isArray(cachedScout.wcTarget.starters) &&
         Array.isArray(cachedScout.captainPicks?.id) &&
         Array.isArray(cachedScout.differentialPicks?.id) &&
-        Array.isArray(cachedScout.differentialPicksAll?.id) &&
-        isEpochCompatible(cachedScout.epochKey, epochInfo.epochKey)
+        Array.isArray(cachedScout.differentialPicksAll?.id)
       ) {
         setScoutSquadsPayload((prev) => prev || cachedScout);
       }
@@ -177,38 +152,27 @@ export function useSeasonProjections({
     return () => {
       mounted = false;
     };
-  }, [epochInfo.epochKey]);
+  }, []);
 
-  // Invalidate verification refs whenever SSE / fetchData sync changes epoch or formula hot-reloads
+  // Re-fetch from server cleanly whenever server sync updates timestamp/epoch or dev formula updates
   useEffect(() => {
     const handleSynced = (ev: Event) => {
-      const nextServerEpoch = (ev as CustomEvent)?.detail?.data?.sync_status?.projection_epoch_key as
-        | string
-        | undefined;
-      if (
-        !nextServerEpoch ||
-        !hasFullServerEpochKey(nextServerEpoch) ||
-        verifiedCoreServerEpochRef.current !== nextServerEpoch
-      ) {
-        verifiedCoreEpochRef.current = null;
+      const detail = (ev as CustomEvent)?.detail;
+      const sig = `${detail?.lastSynced || ''}|${detail?.data?.sync_status?.projection_epoch_key || ''}`;
+      if (lastSyncSigRef.current === null) {
+        lastSyncSigRef.current = sig;
+        return;
       }
-      if (
-        !nextServerEpoch ||
-        !hasFullServerEpochKey(nextServerEpoch) ||
-        verifiedScoutServerEpochRef.current !== nextServerEpoch
-      ) {
-        verifiedScoutEpochRef.current = null;
+      if (lastSyncSigRef.current !== sig) {
+        lastSyncSigRef.current = sig;
+        setRefreshRevision((prev) => prev + 1);
       }
     };
     const handleFormulaUpdated = () => {
-      verifiedCoreEpochRef.current = null;
-      verifiedCoreServerEpochRef.current = null;
-      verifiedScoutEpochRef.current = null;
-      verifiedScoutServerEpochRef.current = null;
       inFlightCoreRef.current = null;
       inFlightScoutRef.current = null;
       clearProjectionCachesFromIndexedDB().catch(() => {});
-      setFormulaRevision((prev) => prev + 1);
+      setRefreshRevision((prev) => prev + 1);
     };
     window.addEventListener('fpl:data-synced', handleSynced);
     window.addEventListener('fpl:formula-updated', handleFormulaUpdated);
@@ -218,32 +182,18 @@ export function useSeasonProjections({
     };
   }, []);
 
-  // Fetch /api/projections-core when epoch mismatches OR unverified by server
+  // Always fetch latest /api/projections-core once per boot/sync revision and keep existing view while loading
   useEffect(() => {
     if (!enabled || !leagueData || !idbHydrated) return;
-
-    const coreMatches = Boolean(
-      corePayload &&
-      (isEpochCompatible(corePayload.epochKey, epochInfo.epochKey) ||
-        (verifiedCoreEpochRef.current === epochInfo.epochKey &&
-          corePayload.epochKey === verifiedCoreServerEpochRef.current))
-    );
-    if (corePayload && !coreMatches) {
-      // Formula/epoch changed or rolled back: discard stale cached projections immediately
-      setCorePayload(null);
-      clearProjectionCachesFromIndexedDB().catch(() => {});
-    }
-
-    const alreadyVerified = verifiedCoreEpochRef.current === epochInfo.epochKey;
-    if (coreMatches && alreadyVerified) return;
+    if (fetchedCoreRevRef.current === refreshRevision) return;
 
     let mounted = true;
-    if (!coreMatches) {
+    if (!corePayload) {
       setIsLoadingMatches(true);
     }
 
     let activePromise: Promise<ServerProjectionCorePayload | null>;
-    if (inFlightCoreRef.current && inFlightCoreRef.current.epochKey === epochInfo.epochKey) {
+    if (inFlightCoreRef.current && inFlightCoreRef.current.rev === refreshRevision) {
       activePromise = inFlightCoreRef.current.promise;
     } else {
       const fetchPromise = fetch(`/api/projections-core?_t=${Date.now()}`, { cache: 'no-store' })
@@ -255,15 +205,14 @@ export function useSeasonProjections({
             inFlightCoreRef.current = null;
           }
         });
-      inFlightCoreRef.current = { epochKey: epochInfo.epochKey, promise: fetchPromise };
+      inFlightCoreRef.current = { rev: refreshRevision, promise: fetchPromise };
       activePromise = fetchPromise;
     }
 
     activePromise.then((payload) => {
       if (!mounted) return;
       if (payload) {
-        verifiedCoreEpochRef.current = epochInfo.epochKey;
-        verifiedCoreServerEpochRef.current = payload.epochKey || epochInfo.epochKey;
+        fetchedCoreRevRef.current = refreshRevision;
         setCorePayload((prev) => {
           if (
             prev &&
@@ -282,42 +231,20 @@ export function useSeasonProjections({
     return () => {
       mounted = false;
     };
-  }, [enabled, leagueData, idbHydrated, epochInfo.epochKey, corePayload?.epochKey, corePayload?.generatedAt, formulaRevision]);
+  }, [enabled, leagueData, idbHydrated, refreshRevision]);
 
-  // Fetch /api/projections-scout-squads when epoch mismatches OR unverified by server
+  // Always fetch latest /api/projections-scout-squads once per boot/sync revision
   useEffect(() => {
     if (!enabled || !leagueData || !idbHydrated) return;
-
-    const scoutHasServerData = Boolean(
-      scoutSquadsPayload &&
-      Array.isArray(scoutSquadsPayload.fhTarget?.starters) &&
-      Array.isArray(scoutSquadsPayload.wcTarget?.starters) &&
-      Array.isArray(scoutSquadsPayload.captainPicks?.id) &&
-      Array.isArray(scoutSquadsPayload.differentialPicks?.id) &&
-      Array.isArray(scoutSquadsPayload.differentialPicksAll?.id)
-    );
-    const scoutMatches = Boolean(
-      scoutSquadsPayload &&
-      scoutHasServerData &&
-      (isEpochCompatible(scoutSquadsPayload.epochKey, epochInfo.epochKey) ||
-        (verifiedScoutEpochRef.current === epochInfo.epochKey &&
-          scoutSquadsPayload.epochKey === verifiedScoutServerEpochRef.current))
-    );
-    if (scoutSquadsPayload && !scoutMatches) {
-      // Formula/epoch changed or rolled back: discard stale cached scout squads immediately
-      setScoutSquadsPayload(null);
-    }
-
-    const alreadyVerified = verifiedScoutEpochRef.current === epochInfo.epochKey;
-    if (scoutMatches && alreadyVerified) return;
+    if (fetchedScoutRevRef.current === refreshRevision) return;
 
     let mounted = true;
-    if (!scoutMatches) {
+    if (!scoutSquadsPayload) {
       setIsLoadingScoutSquads(true);
     }
 
     let activePromise: Promise<ServerScoutSquadsPayload | null>;
-    if (inFlightScoutRef.current && inFlightScoutRef.current.epochKey === epochInfo.epochKey) {
+    if (inFlightScoutRef.current && inFlightScoutRef.current.rev === refreshRevision) {
       activePromise = inFlightScoutRef.current.promise;
     } else {
       const fetchPromise = fetch(`/api/projections-scout-squads?_t=${Date.now()}`, { cache: 'no-store' })
@@ -329,15 +256,14 @@ export function useSeasonProjections({
             inFlightScoutRef.current = null;
           }
         });
-      inFlightScoutRef.current = { epochKey: epochInfo.epochKey, promise: fetchPromise };
+      inFlightScoutRef.current = { rev: refreshRevision, promise: fetchPromise };
       activePromise = fetchPromise;
     }
 
     activePromise.then((payload) => {
       if (!mounted) return;
       if (payload) {
-        verifiedScoutEpochRef.current = epochInfo.epochKey;
-        verifiedScoutServerEpochRef.current = payload.epochKey || epochInfo.epochKey;
+        fetchedScoutRevRef.current = refreshRevision;
         setScoutSquadsPayload((prev) => {
           if (
             prev &&
@@ -356,7 +282,7 @@ export function useSeasonProjections({
     return () => {
       mounted = false;
     };
-  }, [enabled, leagueData, idbHydrated, epochInfo.epochKey, scoutSquadsPayload?.epochKey, scoutSquadsPayload?.generatedAt, formulaRevision]);
+  }, [enabled, leagueData, idbHydrated, refreshRevision]);
 
   const scheduleByGw: Record<number, ScheduleFixtureSummary[]> = useMemo(
     () => corePayload?.scheduleByGw || {},

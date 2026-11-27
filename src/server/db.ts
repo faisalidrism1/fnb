@@ -321,6 +321,200 @@ export function syncFplDatabase(fplData: TransformedLeagueData): FplDatabaseSche
   return nextDb;
 }
 
+export interface PatchDbBootstrapOptions {
+  lastSynced?: string;
+  nextSyncWib?: string;
+  projectionEpochKey?: string;
+  bootstrapElements?: any[];
+  bootstrapEvents?: any[];
+  cachedLeagueData?: TransformedLeagueData | null;
+}
+
+/**
+ * Lightweight in-place patch for midweek player deltas (nowCost, status, chanceOfPlaying, news, set-piece orders),
+ * upcoming GW deadlines, and sync_status metadata (last_synced, next_sync_wib, projection_epoch_key)
+ * without requiring a full 97-manager league re-download.
+ */
+export function patchDbBootstrapAndSyncMeta(options: PatchDbBootstrapOptions): {
+  changedPlayers: number;
+  metaChanged: boolean;
+  persisted: boolean;
+} {
+  const fplDb = getFplDatabase();
+  let changedPlayers = 0;
+  let metaChanged = false;
+
+  const elementById = new Map<number, any>();
+  if (Array.isArray(options.bootstrapElements)) {
+    for (const el of options.bootstrapElements) {
+      if (el && el.id != null) {
+        elementById.set(Number(el.id), el);
+      }
+    }
+  }
+
+  const applyElementDelta = (target: any, el: any): boolean => {
+    if (!target || !el) return false;
+    let changed = false;
+
+    const nextCost = Number(el.now_cost);
+    if (Number.isFinite(nextCost) && nextCost > 0 && target.nowCost !== nextCost) {
+      target.nowCost = nextCost;
+      changed = true;
+    }
+
+    const nextStatus = typeof el.status === 'string' ? el.status : target.status;
+    if (nextStatus && target.status !== nextStatus) {
+      target.status = nextStatus;
+      changed = true;
+    }
+
+    const nextChanceNext = el.chance_of_playing_next_round ?? null;
+    if ((target.chanceOfPlayingNextRound ?? null) !== nextChanceNext) {
+      target.chanceOfPlayingNextRound = nextChanceNext;
+      changed = true;
+    }
+
+    const nextChanceThis = el.chance_of_playing_this_round ?? null;
+    if ((target.chanceOfPlayingThisRound ?? null) !== nextChanceThis) {
+      target.chanceOfPlayingThisRound = nextChanceThis;
+      changed = true;
+    }
+
+    const nextNews = typeof el.news === 'string' ? el.news : '';
+    if ((target.news ?? '') !== nextNews) {
+      target.news = nextNews;
+      changed = true;
+    }
+
+    const nextNewsAdded = el.news_added ?? null;
+    if ((target.newsAdded ?? null) !== nextNewsAdded) {
+      target.newsAdded = nextNewsAdded;
+      changed = true;
+    }
+
+    const nextPenOrder = el.penalties_order ?? null;
+    if ((target.penaltiesOrder ?? null) !== nextPenOrder) {
+      target.penaltiesOrder = nextPenOrder;
+      changed = true;
+    }
+
+    const nextFkOrder = el.direct_freekicks_order ?? null;
+    if ((target.directFreekicksOrder ?? null) !== nextFkOrder) {
+      target.directFreekicksOrder = nextFkOrder;
+      changed = true;
+    }
+
+    const nextCornerOrder = el.corners_and_indirect_freekicks_order ?? null;
+    if ((target.cornersAndIndirectFreekicksOrder ?? null) !== nextCornerOrder) {
+      target.cornersAndIndirectFreekicksOrder = nextCornerOrder;
+      changed = true;
+    }
+
+    const nextSelected = parseFloat(el.selected_by_percent);
+    if (Number.isFinite(nextSelected) && target.selectedByPercent !== nextSelected) {
+      target.selectedByPercent = nextSelected;
+      changed = true;
+    }
+
+    const nextForm = parseFloat(el.form);
+    if (Number.isFinite(nextForm) && target.form !== nextForm) {
+      target.form = nextForm;
+      changed = true;
+    }
+
+    if (typeof el.transfers_in_event === 'number' && target.transfersIn !== el.transfers_in_event) {
+      target.transfersIn = el.transfers_in_event;
+      changed = true;
+    }
+
+    if (typeof el.transfers_out_event === 'number' && target.transfersOut !== el.transfers_out_event) {
+      target.transfersOut = el.transfers_out_event;
+      changed = true;
+    }
+
+    return changed;
+  };
+
+  if (elementById.size > 0 && fplDb.players) {
+    for (const [idStr, dbPlayer] of Object.entries(fplDb.players)) {
+      const el = elementById.get(Number(idStr));
+      if (el && applyElementDelta(dbPlayer, el)) {
+        changedPlayers++;
+      }
+    }
+    if (Array.isArray(options.cachedLeagueData?.player_stats)) {
+      for (const p of options.cachedLeagueData.player_stats) {
+        const el = elementById.get(Number(p.id));
+        if (el) {
+          applyElementDelta(p, el);
+        }
+      }
+    }
+  }
+
+  // Patch upcoming GW deadlines if supplied
+  if (Array.isArray(options.bootstrapEvents) && options.bootstrapEvents.length > 0) {
+    const deadlines: Record<number, string> = { ...(fplDb.meta.deadlines || {}) };
+    let dlChanged = false;
+    for (const ev of options.bootstrapEvents) {
+      if (ev?.id && ev?.deadline_time && deadlines[Number(ev.id)] !== ev.deadline_time) {
+        deadlines[Number(ev.id)] = ev.deadline_time;
+        dlChanged = true;
+      }
+    }
+    if (dlChanged) {
+      fplDb.meta.deadlines = deadlines;
+      if (fplDb.meta.sync_status) {
+        fplDb.meta.sync_status.deadlines = deadlines;
+      }
+      if (options.cachedLeagueData?.sync_status) {
+        options.cachedLeagueData.sync_status.deadlines = deadlines;
+      }
+      metaChanged = true;
+    }
+  }
+
+  if (options.lastSynced && fplDb.meta.last_synced !== options.lastSynced) {
+    fplDb.meta.last_synced = options.lastSynced;
+    if (fplDb.meta.sync_status) {
+      fplDb.meta.sync_status.last_synced = options.lastSynced;
+    }
+    if (options.cachedLeagueData?.sync_status) {
+      options.cachedLeagueData.sync_status.last_synced = options.lastSynced;
+    }
+    metaChanged = true;
+  }
+
+  if (options.nextSyncWib !== undefined && fplDb.meta.next_sync_wib !== options.nextSyncWib) {
+    fplDb.meta.next_sync_wib = options.nextSyncWib;
+    if (fplDb.meta.sync_status) {
+      fplDb.meta.sync_status.next_sync_wib = options.nextSyncWib;
+    }
+    if (options.cachedLeagueData?.sync_status) {
+      options.cachedLeagueData.sync_status.next_sync_wib = options.nextSyncWib;
+    }
+    metaChanged = true;
+  }
+
+  if (options.projectionEpochKey && fplDb.meta.sync_status?.projection_epoch_key !== options.projectionEpochKey) {
+    if (fplDb.meta.sync_status) {
+      fplDb.meta.sync_status.projection_epoch_key = options.projectionEpochKey;
+    }
+    if (options.cachedLeagueData?.sync_status) {
+      options.cachedLeagueData.sync_status.projection_epoch_key = options.projectionEpochKey;
+    }
+    metaChanged = true;
+  }
+
+  let persisted = false;
+  if (changedPlayers > 0 || metaChanged) {
+    persisted = persistFplDatabase({ onlyIfExists: true });
+  }
+
+  return { changedPlayers, metaChanged, persisted };
+}
+
 /**
  * Initialize database on server startup strictly from the single truth source (fpl_database.json)
  */

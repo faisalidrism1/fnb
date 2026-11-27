@@ -34,6 +34,7 @@ import { TransformedLeagueData } from './src/types.ts';
 import {
   initDatabase,
   syncFplDatabase,
+  patchDbBootstrapAndSyncMeta,
   getFplDatabase,
   getDbPlayerStatById,
   getDatabaseStats,
@@ -71,7 +72,9 @@ import {
   getPulseAllCompDbStatus,
   getClubAllCompSchedule,
   getClubAllCompHistory,
+  getAllCompSyncPlan,
   runEventDrivenAllCompSyncTick,
+  EventDrivenAllCompTickResult,
 } from './src/server/pulseAllCompDb.ts';
 import {
   getNewsTemplates,
@@ -387,8 +390,146 @@ app.use('/api', async (_req, _res, next) => {
 
 // Background sync runner with promise deduplication
 let currentSyncPromise: Promise<TransformedLeagueData> | null = null;
+let lastMidweekBootstrapCheckMs = 0;
+let inFlightMidweekDeltaPromise: Promise<{ changed: boolean }> | null = null;
 
 export type SyncActionType = 'A_FULL' | 'B_PARTIAL' | 'C_SERVE';
+
+async function syncMidweekBootstrapDeltaAndStamp(options?: {
+  forceBootstrap?: boolean;
+  forceStampIso?: string;
+  forceInvalidate?: boolean;
+  reason?: string;
+}): Promise<{ changed: boolean }> {
+  if (!cachedData) return { changed: false };
+  if (inFlightMidweekDeltaPromise && !options?.forceStampIso && !options?.forceBootstrap) {
+    return inFlightMidweekDeltaPromise;
+  }
+
+  const run = (async (): Promise<{ changed: boolean }> => {
+    try {
+      if (!cachedData) return { changed: false };
+      const nowMs = Date.now();
+      const bootstrapDue =
+        Boolean(options?.forceBootstrap) ||
+        nowMs - lastMidweekBootstrapCheckMs >= 5 * 60 * 1000;
+
+      let bootstrap: any = null;
+      if (bootstrapDue) {
+        lastMidweekBootstrapCheckMs = nowMs;
+        bootstrap = await getCachedBootstrapStatic(true).catch(() => null);
+      }
+
+      const acStatus = getPulseAllCompDbStatus();
+      const currentLastSyncIso = cachedData.sync_status?.last_synced || '';
+      const currentLastSyncMs = currentLastSyncIso ? new Date(currentLastSyncIso).getTime() : 0;
+      const acHistMs = acStatus.historyUpdatedAt ? new Date(acStatus.historyUpdatedAt).getTime() : 0;
+
+      let nextLastSynced: string | undefined = options?.forceStampIso;
+      const allCompNewerThanDb = Number.isFinite(acHistMs) && acHistMs > currentLastSyncMs + 1000;
+      if (!nextLastSynced && allCompNewerThanDb) {
+        nextLastSynced = acStatus.historyUpdatedAt || new Date().toISOString();
+      }
+
+      const firstPatch = patchDbBootstrapAndSyncMeta({
+        lastSynced: nextLastSynced,
+        bootstrapElements: Array.isArray(bootstrap?.elements) ? bootstrap.elements : undefined,
+        bootstrapEvents: Array.isArray(bootstrap?.events) ? bootstrap.events : undefined,
+        cachedLeagueData: cachedData,
+      });
+
+      const hasMaterialChange =
+        firstPatch.changedPlayers > 0 ||
+        firstPatch.metaChanged ||
+        Boolean(options?.forceStampIso) ||
+        Boolean(options?.forceInvalidate) ||
+        allCompNewerThanDb;
+
+      if (firstPatch.changedPlayers > 0 && !nextLastSynced) {
+        nextLastSynced = new Date().toISOString();
+      }
+
+      if (!hasMaterialChange) {
+        return { changed: false };
+      }
+
+      const engine = await getDevProjectionEngine().catch(() => getProjectionEngine());
+      if (firstPatch.changedPlayers > 0 || options?.forceInvalidate || allCompNewerThanDb) {
+        engine.invalidateProjectionEngine(options?.reason || 'Midweek data delta');
+      }
+
+      const nextSyncWib = computeNextSyncWIB(
+        Boolean(cachedData.sync_status?.is_matchday_live),
+        cachedData.sync_status?.gw_fixtures || []
+      );
+      const nextEpochKey = engine.computeProjectionEpochInfo(cachedData).epochKey;
+
+      patchDbBootstrapAndSyncMeta({
+        lastSynced: nextLastSynced,
+        nextSyncWib,
+        projectionEpochKey: nextEpochKey,
+        cachedLeagueData: cachedData,
+      });
+
+      engine.warmProjectionEngineIfNeeded(cachedData);
+      console.log(
+        `[MidweekDelta] Updated DB & projections (${options?.reason || 'sync'}): changedPlayers=${firstPatch.changedPlayers}, lastSynced=${cachedData.sync_status?.last_synced}`
+      );
+      return { changed: true };
+    } catch (err: any) {
+      console.warn('[MidweekDelta] Non-fatal error:', err?.message || err);
+      return { changed: false };
+    } finally {
+      inFlightMidweekDeltaPromise = null;
+    }
+  })();
+
+  inFlightMidweekDeltaPromise = run;
+  return run;
+}
+
+async function handleAllCompTickSideEffects(
+  acTick: EventDrivenAllCompTickResult | null | undefined,
+  source: string
+): Promise<boolean> {
+  if (!acTick?.ran || !cachedData) return false;
+  if (cachedData.sync_status) {
+    cachedData.sync_status.next_sync_wib = computeNextSyncWIB(
+      Boolean(cachedData.sync_status.is_matchday_live),
+      cachedData.sync_status.gw_fixtures || []
+    );
+  }
+
+  const hasFinalized = acTick.newlyFinalizedNonPlCount > 0 || acTick.newlyFinalizedMatches > 0;
+  if (hasFinalized) {
+    console.log(
+      `[AllCompSync:${source}] Finalized ${acTick.newlyFinalizedMatches} match(es) (NonPL=${acTick.newlyFinalizedNonPlCount}, mode=${acTick.mode}). Updating last_synced, DB & projections...`
+    );
+    await syncMidweekBootstrapDeltaAndStamp({
+      forceBootstrap: true,
+      forceStampIso: new Date().toISOString(),
+      forceInvalidate: true,
+      reason: `All-Comp finalized (${source})`,
+    });
+    broadcastSyncComplete(cachedData, 'ALL_COMP_EVENT');
+    return true;
+  }
+
+  if (acTick.lineupsCaptured > 0) {
+    console.log(
+      `[AllCompSync:${source}] Captured ${acTick.lineupsCaptured} Non-EPL starting lineup(s) (${acTick.mode}).`
+    );
+    await syncMidweekBootstrapDeltaAndStamp({
+      forceStampIso: new Date().toISOString(),
+      forceInvalidate: true,
+      reason: `All-Comp lineups (${source})`,
+    });
+    broadcastSyncComplete(cachedData, 'ALL_COMP_EVENT');
+    return true;
+  }
+
+  return false;
+}
 
 async function triggerSync(action: 'A_FULL' | 'B_PARTIAL' = 'A_FULL', targetGW?: number): Promise<TransformedLeagueData> {
   if (currentSyncPromise) {
@@ -621,7 +762,14 @@ app.get('/api/fpl-data', async (req, res) => {
             executedAction = 'B_PARTIAL';
             await triggerSync('B_PARTIAL', apiActiveGW);
           } else {
-            // Condition 4b: Both API and Container are Confirmed -> Action C (Zero Sync, serve instantly)
+            // Condition 4b: Both API and Container are Confirmed -> Serve fast, while catching up midweek All-Comp & bootstrap deltas if due
+            const acPlan = getAllCompSyncPlan();
+            if (acPlan.mode !== 'IDLE') {
+              const acTick = await runEventDrivenAllCompSyncTick().catch(() => null);
+              await handleAllCompTickSideEffects(acTick, 'fpl-data-confirmed');
+            } else {
+              await syncMidweekBootstrapDeltaAndStamp({ reason: 'fpl-data-confirmed' });
+            }
             console.log(`[Sync Orchestrator] Condition 4b met: GW ${apiActiveGW} is Final & container already sealed -> Action C (Serve cached data instantly)`);
             executedAction = 'C_SERVE';
           }
@@ -1435,6 +1583,15 @@ app.get('/api/pulse-all-comp/club/:short', (req, res) => {
 app.post('/api/pulse-all-comp/sync', requireAdminAuth, async (_req, res) => {
   try {
     const result = await syncPulseAllCompDatabase({ forceSchedule: true });
+    if ((result.newlyFetchedNonPlMatches > 0 || result.newlyFetchedMatches > 0) && cachedData) {
+      await syncMidweekBootstrapDeltaAndStamp({
+        forceBootstrap: true,
+        forceStampIso: new Date().toISOString(),
+        forceInvalidate: true,
+        reason: 'Manual all-comp sync',
+      });
+      broadcastSyncComplete(cachedData, 'ALL_COMP_EVENT');
+    }
     res.json({
       success: true,
       result,
@@ -1450,20 +1607,7 @@ app.post('/api/pulse-all-comp/tick', requireAdminAuth, async (req, res) => {
   try {
     const force = req.query.force === '1' || req.query.force === 'true' || Boolean(req.body?.force);
     const tick = await runEventDrivenAllCompSyncTick({ force });
-    if (tick.newlyFinalizedNonPlCount > 0 && cachedData) {
-      await getCachedBootstrapStatic(true).catch(() => null);
-      const engine = getProjectionEngine();
-      engine.invalidateProjectionEngine('Manual all-comp tick finalized non-PL match');
-      if (cachedData.sync_status) {
-        cachedData.sync_status.next_sync_wib = computeNextSyncWIB(
-          Boolean(cachedData.sync_status.is_matchday_live),
-          cachedData.sync_status.gw_fixtures || []
-        );
-        cachedData.sync_status.projection_epoch_key = engine.computeProjectionEpochInfo(cachedData).epochKey;
-      }
-      engine.warmProjectionEngineIfNeeded(cachedData);
-      broadcastSyncComplete(cachedData, 'ALL_COMP_EVENT');
-    }
+    await handleAllCompTickSideEffects(tick, 'manual-tick');
     res.json({
       success: true,
       tick,
@@ -1542,31 +1686,7 @@ setInterval(async () => {
   try {
     // 1. Event-driven cross-competition scheduler (0 HTTP calls when IDLE)
     const acTick = await runEventDrivenAllCompSyncTick().catch(() => null);
-    if (acTick?.ran) {
-      if (cachedData.sync_status) {
-        cachedData.sync_status.next_sync_wib = computeNextSyncWIB(
-          Boolean(cachedData.sync_status.is_matchday_live),
-          cachedData.sync_status.gw_fixtures || []
-        );
-      }
-      if (acTick.newlyFinalizedNonPlCount > 0) {
-        console.log(
-          `[Autonomous AllCompSync] ${acTick.newlyFinalizedNonPlCount} Non-EPL match finalized (${acTick.mode}). Refreshing bootstrap & projection epoch...`
-        );
-        await getCachedBootstrapStatic(true).catch(() => null);
-        const engine = getProjectionEngine();
-        engine.invalidateProjectionEngine('All-Comp midweek FT finalized');
-        if (cachedData.sync_status) {
-          cachedData.sync_status.projection_epoch_key = engine.computeProjectionEpochInfo(cachedData).epochKey;
-        }
-        engine.warmProjectionEngineIfNeeded(cachedData);
-        broadcastSyncComplete(cachedData, 'ALL_COMP_EVENT');
-      } else if (acTick.lineupsCaptured > 0) {
-        console.log(
-          `[Autonomous AllCompSync] Captured ${acTick.lineupsCaptured} Non-EPL starting lineup(s) (${acTick.mode}).`
-        );
-      }
-    }
+    await handleAllCompTickSideEffects(acTick, 'autonomous-20s');
 
     const isLive = Boolean(cachedData.sync_status?.is_matchday_live || (cachedData.gw_status && cachedData.gw_status.status !== 'Confirmed'));
     const lastSyncTime = cachedData.sync_status?.last_synced ? new Date(cachedData.sync_status.last_synced).getTime() : 0;
@@ -1593,9 +1713,12 @@ setInterval(async () => {
         if (!isContainerAlreadyFinal) {
           console.log(`[Autonomous Sync] Transition seal for GW ${apiActiveGW}. Triggering Action B...`);
           await triggerSync('B_PARTIAL', apiActiveGW);
-        } else if (cachedData.sync_status) {
-          // Keep next_sync_wib synchronized cleanly when Confirmed IDLE
-          cachedData.sync_status.next_sync_wib = computeNextSyncWIB(false, cachedData.sync_status.gw_fixtures || []);
+        } else {
+          // Confirmed IDLE between GWs: silently check throttled 5-min bootstrap player/deadline delta
+          await syncMidweekBootstrapDeltaAndStamp({ reason: 'autonomous-confirmed' });
+          if (cachedData.sync_status) {
+            cachedData.sync_status.next_sync_wib = computeNextSyncWIB(false, cachedData.sync_status.gw_fixtures || []);
+          }
         }
       }
     }
@@ -2489,25 +2612,25 @@ async function startServer() {
       prewarmShirtCache().catch(() => {});
       Promise.all([dbReadyPromise, getDevProjectionEngine()]).then(([, engine]) => {
         const allCompStatus = getPulseAllCompDbStatus();
-        const allCompPromise =
-          allCompStatus.scheduleTotalFixtures === 0 || allCompStatus.unfinalizedCompletedCount > 0
-            ? syncPulseAllCompDatabase()
-                .then(() => {
-                  if (!cachedData) return;
-                  const postAcEpoch = engine.computeProjectionEpochInfo(cachedData).epochKey;
-                  const cachedEpoch = engine.getProjectionCacheEpochKey();
-                  if (cachedData.sync_status) {
-                    cachedData.sync_status.projection_epoch_key = postAcEpoch;
-                  }
-                  if (cachedEpoch && cachedEpoch !== postAcEpoch) {
-                    engine.invalidateProjectionEngine(`Startup PulseAllCompDB sync shifted epoch (${cachedEpoch} -> ${postAcEpoch})`);
-                    engine.warmProjectionEngineIfNeeded(cachedData);
-                  }
-                })
-                .catch((err: any) => {
-                  console.warn('[Server] Background PulseAllCompDB warm failed:', err?.message || err);
-                })
-            : Promise.resolve();
+        const needsStartupAllComp =
+          allCompStatus.scheduleTotalFixtures === 0 ||
+          allCompStatus.unfinalizedCompletedCount > 0 ||
+          allCompStatus.syncPlan?.mode !== 'IDLE';
+
+        const allCompPromise = needsStartupAllComp
+          ? (async () => {
+              if (allCompStatus.scheduleTotalFixtures === 0) {
+                await syncPulseAllCompDatabase();
+              }
+              const acTick = await runEventDrivenAllCompSyncTick({ force: true });
+              const handled = await handleAllCompTickSideEffects(acTick, 'startup');
+              if (!handled && cachedData) {
+                await syncMidweekBootstrapDeltaAndStamp({ forceBootstrap: true, reason: 'startup-allcomp' });
+              }
+            })().catch((err: any) => {
+              console.warn('[Server] Background PulseAllCompDB warm failed:', err?.message || err);
+            })
+          : syncMidweekBootstrapDeltaAndStamp({ forceBootstrap: true, reason: 'startup-bootstrap' });
 
         const runWarm = () => {
           if (cachedData) {

@@ -255,12 +255,14 @@ export const AdminProjectionReview: React.FC<AdminProjectionReviewProps> = ({
     setLineupReviewGW((prev) => Math.min(Math.max(prev, 1), maxReviewGW));
   }, [maxReviewGW]);
 
-  // Epoch-gated Sectioned Review Fetch (fetches only active subtab slice and caches per epoch)
+  // Sectioned Review Fetch (fetches only active subtab slice cleanly without epochKey rejection)
   const [reviewBundle, setReviewBundle] = useState<ServerReviewBundlePayload | null>(null);
   const reviewBundleRef = useRef<ServerReviewBundlePayload | null>(null);
   reviewBundleRef.current = reviewBundle;
   const [isLoadingReview, setIsLoadingReview] = useState<boolean>(false);
-  const [formulaRevision, setFormulaRevision] = useState<number>(0);
+  const [refreshRevision, setRefreshRevision] = useState<number>(0);
+  const fetchedReviewSigRef = useRef<string | null>(null);
+  const lastSyncSigRef = useRef<string | null>(null);
   const lineupGwCacheRef = useRef<
     Map<string, { lineupReviewPerClub: Record<string, any[]>; lineupGwSummary: { playedClubs: number; totalHit: number; avgHit: number; pct: number } }>
   >(new Map());
@@ -269,27 +271,34 @@ export const AdminProjectionReview: React.FC<AdminProjectionReviewProps> = ({
     promise: Promise<ServerReviewBundlePayload | null>;
   } | null>(null);
 
-  const isEpochCompatible = (payloadEpoch?: string | null, targetEpoch?: string | null): boolean => {
-    if (!payloadEpoch || !targetEpoch) return false;
-    if (targetEpoch.startsWith('fallback:')) return true;
-    if (payloadEpoch === targetEpoch) return true;
-    const payloadParts = payloadEpoch.split(':');
-    const targetParts = targetEpoch.split(':');
-    if (targetParts.length === 3 && payloadParts.length >= 4) {
-      return payloadEpoch.startsWith(`${targetEpoch}:`);
-    }
-    return false;
-  };
-
   useEffect(() => {
     const handleFormulaUpdated = () => {
       lineupGwCacheRef.current.clear();
+      fetchedReviewSigRef.current = null;
       inFlightReviewRef.current = null;
-      setReviewBundle(null);
-      setFormulaRevision((prev) => prev + 1);
+      setRefreshRevision((prev) => prev + 1);
+    };
+    const handleDataSynced = (ev: Event) => {
+      const detail = (ev as CustomEvent)?.detail;
+      const sig = `${detail?.lastSynced || ''}|${detail?.data?.sync_status?.projection_epoch_key || ''}`;
+      if (lastSyncSigRef.current === null) {
+        lastSyncSigRef.current = sig;
+        return;
+      }
+      if (lastSyncSigRef.current !== sig) {
+        lastSyncSigRef.current = sig;
+        lineupGwCacheRef.current.clear();
+        fetchedReviewSigRef.current = null;
+        inFlightReviewRef.current = null;
+        setRefreshRevision((prev) => prev + 1);
+      }
     };
     window.addEventListener('fpl:formula-updated', handleFormulaUpdated);
-    return () => window.removeEventListener('fpl:formula-updated', handleFormulaUpdated);
+    window.addEventListener('fpl:data-synced', handleDataSynced);
+    return () => {
+      window.removeEventListener('fpl:formula-updated', handleFormulaUpdated);
+      window.removeEventListener('fpl:data-synced', handleDataSynced);
+    };
   }, []);
 
   const activeSection: ReviewSectionType =
@@ -303,23 +312,14 @@ export const AdminProjectionReview: React.FC<AdminProjectionReviewProps> = ({
 
   useEffect(() => {
     if (active === false || !leagueData) return;
-    let currentBundle = reviewBundleRef.current;
-    if (
-      currentBundle &&
-      currentBundle.epochKey &&
-      !isEpochCompatible(currentBundle.epochKey, targetEpochKey)
-    ) {
-      lineupGwCacheRef.current.clear();
-      currentBundle = null;
-      setReviewBundle(null);
-    }
+    const currentBundle = reviewBundleRef.current;
 
     const reqGw = activeSection === 'lineup' ? lineupReviewGW : maxReviewGW;
     const hasMatches = Boolean(currentBundle?.actualMatchLookup);
-    const lineupCacheKey = `${targetEpochKey}:${reqGw}`;
+    const lineupCacheKey = `${refreshRevision}:${reqGw}`;
     const cachedLineupGw = activeSection === 'lineup' ? lineupGwCacheRef.current.get(lineupCacheKey) : undefined;
 
-    if (activeSection === 'lineup' && cachedLineupGw && hasMatches) {
+    if (activeSection === 'lineup' && cachedLineupGw && hasMatches && fetchedReviewSigRef.current) {
       if (currentBundle && currentBundle.lineupGw !== reqGw) {
         setReviewBundle({
           ...currentBundle,
@@ -332,11 +332,13 @@ export const AdminProjectionReview: React.FC<AdminProjectionReviewProps> = ({
       return;
     }
 
+    const requestSig = `${refreshRevision}:${activeSection}:${reqGw}`;
     const isSectionReady =
-      (activeSection === 'score' && hasMatches) ||
-      (activeSection === 'points' && hasMatches && Boolean(currentBundle?.actualPlayerStatsMap)) ||
-      (activeSection === 'mae' && Boolean(currentBundle?.maeRecapRows)) ||
-      (activeSection === 'lineup' && hasMatches && currentBundle?.lineupGw === reqGw && Boolean(currentBundle?.lineupReviewPerClub));
+      fetchedReviewSigRef.current !== null &&
+      ((activeSection === 'score' && hasMatches) ||
+        (activeSection === 'points' && hasMatches && Boolean(currentBundle?.actualPlayerStatsMap)) ||
+        (activeSection === 'mae' && Boolean(currentBundle?.maeRecapRows)) ||
+        (activeSection === 'lineup' && hasMatches && currentBundle?.lineupGw === reqGw && Boolean(currentBundle?.lineupReviewPerClub)));
 
     if (isSectionReady) {
       setIsLoadingReview(false);
@@ -345,10 +347,12 @@ export const AdminProjectionReview: React.FC<AdminProjectionReviewProps> = ({
 
     const includeMatchesParam =
       hasMatches && (activeSection === 'lineup' || activeSection === 'points') ? '&includeMatches=0' : '';
-    const fetchKey = `${targetEpochKey}:${activeSection}:${reqGw}:${includeMatchesParam ? 0 : 1}`;
+    const fetchKey = `${requestSig}:${includeMatchesParam ? 0 : 1}`;
 
     let cancelled = false;
-    setIsLoadingReview(true);
+    if (!currentBundle) {
+      setIsLoadingReview(true);
+    }
 
     let activePromise: Promise<ServerReviewBundlePayload | null>;
     if (inFlightReviewRef.current && inFlightReviewRef.current.key === fetchKey) {
@@ -373,14 +377,15 @@ export const AdminProjectionReview: React.FC<AdminProjectionReviewProps> = ({
     activePromise.then((payload) => {
       if (cancelled) return;
       if (payload) {
+        fetchedReviewSigRef.current = requestSig;
         if (activeSection === 'lineup' && payload.lineupReviewPerClub && payload.lineupGwSummary) {
-          lineupGwCacheRef.current.set(`${targetEpochKey}:${payload.lineupGw}`, {
+          lineupGwCacheRef.current.set(`${refreshRevision}:${payload.lineupGw}`, {
             lineupReviewPerClub: payload.lineupReviewPerClub,
             lineupGwSummary: payload.lineupGwSummary,
           });
         }
         setReviewBundle((prev) => {
-          const base = prev && isEpochCompatible(prev.epochKey, payload.epochKey) ? prev : null;
+          const base = prev && prev.maxReviewGW === (payload.maxReviewGW ?? prev.maxReviewGW) ? prev : null;
           return {
             epochKey: payload.epochKey || base?.epochKey || targetEpochKey,
             generatedAt: payload.generatedAt || new Date().toISOString(),
@@ -403,7 +408,7 @@ export const AdminProjectionReview: React.FC<AdminProjectionReviewProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [active, leagueData, targetEpochKey, activeSection, lineupReviewGW, maxReviewGW, formulaRevision]);
+  }, [active, leagueData, targetEpochKey, activeSection, lineupReviewGW, maxReviewGW, refreshRevision]);
 
   const jumpToReviewSubTab = useCallback(
     (target: 'line-up' | 'score' | 'points', gw: number) => {

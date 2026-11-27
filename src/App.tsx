@@ -472,31 +472,18 @@ export default function App() {
         eventSource.addEventListener('connected', (event: MessageEvent) => {
           try {
             const payload = JSON.parse(event.data);
+            const serverLastSynced = payload?.last_synced;
+            const currentLastSynced = dataRef.current?.sync_status?.last_synced;
             const serverEpochKey = payload?.projection_epoch_key;
             const currentEpochKey = dataRef.current?.sync_status?.projection_epoch_key;
-            if (serverEpochKey && dataRef.current && serverEpochKey !== currentEpochKey) {
-              console.log(`[SSE Connected] Server projection epoch changed (${currentEpochKey ?? 'none'} -> ${serverEpochKey}). Refreshing...`);
-              setData((prev) => {
-                if (!prev) return prev;
-                const nextData: TransformedLeagueData = {
-                  ...prev,
-                  sync_status: {
-                    ...(prev.sync_status || ({} as any)),
-                    projection_epoch_key: serverEpochKey,
-                  },
-                };
-                dataRef.current = nextData;
-                saveToIndexedDB(nextData).catch(() => {});
-                return nextData;
-              });
-              window.dispatchEvent(
-                new CustomEvent('fpl:formula-updated', {
-                  detail: {
-                    projection_epoch_key: serverEpochKey,
-                    changed_files: [],
-                    timestamp: payload?.checked_at,
-                  },
-                })
+            const needsRefresh = Boolean(
+              dataRef.current &&
+              ((serverLastSynced && serverLastSynced !== currentLastSynced) ||
+                (serverEpochKey && serverEpochKey !== currentEpochKey))
+            );
+            if (needsRefresh) {
+              console.log(
+                `[SSE Connected] Server state is newer (last_synced: ${currentLastSynced ?? 'none'} -> ${serverLastSynced ?? 'none'}). Refreshing...`
               );
               fetchData(false, false);
             }
